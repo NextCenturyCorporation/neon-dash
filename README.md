@@ -1,10 +1,9 @@
-
 THOR Fork
 =========
 To merge down Neon-GTD repo from github:
 ~~~
 git remote add upstream https://github.com/NextCenturyCorporation/neon-gtd.git
-git pull upstream/master
+git pull upstream master
 ~~~
 
 ---
