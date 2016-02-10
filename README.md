@@ -1,4 +1,16 @@
-#Neon Geo Temporal Dashboard
+
+THOR Fork
+=========
+To merge down Neon-GTD repo from github:
+~~~
+git remote add upstream https://github.com/NextCenturyCorporation/neon-gtd.git
+git pull upstream/master
+~~~
+
+---
+---
+Neon Geo Temporal Dashboard
+===========================
 The Neon Geo Temporal Dashboard (neon-gtd) is a sample analysis dashboard built upon the [Neon Framework][5]. It includes a number of geo-spatial and temporal data visualizations built as [AngularJS][13] directives that use the Neon framework to query and filter data served by [MongoDB][8], [Elasticsearch 1.7][14] or an [Apache Spark][9] server. 
 
 [Neon][5] is a software platform designed to help developers integrate disparate visualization widgets with your data stores. It includes a **Data Access API** that makes it easy to query an underlying database directly from JavaScript or RESTful endpoints. Additionally, the [Neon][5] **Interaction API** provides capabilities for inter-widget communication and shared data filters, allowing multiple visualizations to interact without being explicityly aware of one another.
