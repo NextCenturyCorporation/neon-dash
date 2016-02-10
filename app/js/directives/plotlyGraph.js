@@ -221,7 +221,9 @@ function(connectionService, datasetService, filterService, themeService, visuali
                             $scope.$apply(function() {
                                 if(queryResults.data) {
                                     $scope.data = queryResults.data;
-                                    $scope.drawGraph();
+                                    if($scope.data.length > 0) {
+                                        $scope.drawGraph();
+                                    }
                                 }
                                 $scope.loadingData = false;
                             });
