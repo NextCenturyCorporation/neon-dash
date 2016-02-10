@@ -1,0 +1,48 @@
+.facet-tree-directive {
+    margin: 0px;
+    padding: 10px;
+
+    .tree-div {
+        overflow-x: auto;
+
+        .tree-svg {
+            height: 100%;
+            overflow-x: auto;
+
+            .node {
+                text {
+                    font: 10px sans-serif;
+                    pointer-events: none;
+                    font-weight: bold;
+                }
+
+                rect {
+                    cursor: pointer;
+                    fill: #fff;
+                    fill-opacity: 1;
+                    stroke: @main-text-color;
+                    stroke-width: 1.5px;
+
+                    &.childNode {
+                        fill: @accent-dulled;
+
+                        &.filtered {
+                            fill-opacity: 0.6;
+                        }
+                    }
+
+                    &.parentNode {
+                        fill: @accent-bright;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.visualization-widget {
+    .facet-tree-directive {
+        height: @widget-height;
+        width: @widget-width;
+    }
+}
