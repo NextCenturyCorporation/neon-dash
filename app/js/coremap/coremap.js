@@ -512,6 +512,11 @@ coreMap.Map.prototype.setupLayers = function() {
         displayInLayerSwitcher: false
     });
     this.map.addLayer(this.boxLayer);
+
+    this.markerLayer = new OpenLayers.Layer.Markers('Routing', {
+        projection: coreMap.Map.DESTINATION_PROJECTION
+    });
+    this.map.addLayer(this.markerLayer);
 };
 
 /**
@@ -553,7 +558,11 @@ coreMap.Map.prototype.setupControls = function() {
     });
 
     this.selectControl = this.createSelectControl([]);
-    this.map.addControls([this.zoomControl, this.cacheReader, this.cacheWriter, this.selectControl]);
+    this.clickControl = new OpenLayers.Control.Click({
+        markerLayer: this.markerLayer
+    });
+    this.map.addControls([this.zoomControl, this.clickControl, this.cacheReader, this.cacheWriter, this.selectControl]);
+    this.clickControl.activate();
 };
 
 /**
@@ -672,3 +681,102 @@ coreMap.Map.prototype.setBaseLayerColor = function(color) {
     this.baseLayerColor = color;
     this.addBaseLayer();
 };
+
+OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
+    storedPoints: [],
+    defaultHandlerOptions: {
+        single: true,
+        double: false,
+        pixelTolerance: 0,
+        stopSingle: false,
+        stopDouble: false
+    },
+
+    initialize: function(options) {
+        this.markerLayer = options.markerLayer;
+
+        this.handlerOptions = OpenLayers.Util.extend(
+            {}, this.defaultHandlerOptions
+        );
+        OpenLayers.Control.prototype.initialize.apply(
+            this, arguments
+        );
+        this.handler = new OpenLayers.Handler.Click(
+            this, {
+                click: this.trigger
+            }, this.handlerOptions
+        );
+    },
+
+    getParametersAsQueryString: function(args) {
+        var qString = "?";
+        qString += "lat1=" + args[0].lat + "&lon1=" + args[0].lon + "&lat2=" + args[1].lat + "&lon2=" + args[1].lon;
+        return qString;
+    },
+
+    doRequest: function(callback, reqArgs) {
+        var me = this;
+        var host = window.location.origin;
+        var basePath = "/ghREST/route";
+        var url = host + basePath  + me.getParametersAsQueryString(reqArgs) ;
+
+        $.ajax({
+            timeout: 5000,
+            url: url,
+            type: "GET",
+            dataType: reqArgs.data_type,
+            crossDomain: true
+        }).done(function(json) {
+            callback(json);
+        }).fail(function(jqXHR) {
+            if(jqXHR.responseJSON && jqXHR.responseJSON.message) {
+                callback(jqXHR.responseJSON);
+            } else {
+                callback({
+                    message: "Unknown error",
+                    details: "Error for " + url
+                });
+            }
+        });
+    },
+
+    trigger: function(e) {
+        console.log("Foo");
+        if(this.storedPoints.length === 0) {
+            this.markerLayer.clearMarkers();
+        }
+
+        var lonlat = this.map.getLonLatFromPixel(e.xy).transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
+        this.storedPoints.push(lonlat);
+
+        var size = new OpenLayers.Size(21,25);
+        var offset = new OpenLayers.Pixel(-(size.w / 2), -size.h);
+        var markerIcon = new OpenLayers.Icon('img/map_marker.png', size, offset);
+        var markerLatLon = new OpenLayers.LonLat(lonlat.lon, lonlat.lat).transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
+        this.markerLayer.addMarker(new OpenLayers.Marker(markerLatLon, markerIcon));
+
+        if(this.storedPoints.length > 1) {
+            var layer = this.map.getLayersBy("routing", true);
+            this.doRequest(function(jsonString) {
+                try {
+                    var json = JSON.parse(jsonString);
+                } catch(e) {
+                    //error processing json response
+                    //FIXME this needs displayed
+                }
+
+                if(!json || json.message) {
+                    var str = "An error occured: ";
+                    if(json && json.message) {
+                        str += json.message;
+                    }
+                    console.error(str); //FIXME this should be displayed somehow
+                } else {
+                    var path = json.paths[0].points;
+                    layer[0].setData(path);
+                }
+            }, this.storedPoints);
+            this.storedPoints.length = 0;
+        }
+    }
+});
