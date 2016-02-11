@@ -65,7 +65,6 @@ function(connectionService, datasetService, errorNotificationService, filterServ
             $scope.tables = [];
             $scope.totalType = 'count';
             $scope.fields = [];
-            $scope.filterKeys = {};
             $scope.filteredNodes = [];
             $scope.chart = undefined;
             $scope.colorMappings = [];
@@ -116,7 +115,7 @@ function(connectionService, datasetService, errorNotificationService, filterServ
                     $element.off("resize", updateChartSize);
                     $scope.messenger.removeEvents();
                     if($scope.filteredNodes.length) {
-                        filterService.removeFilters($scope.messenger, $scope.filterKeys);
+                        filterService.removeFilter($scope.options.database.name, $scope.options.table.name, [$scope.options.attrX.columnName, $scope.attrY.columnName]);
                     }
                     if($scope.outstandingQuery) {
                         $scope.outstandingQuery.abort();
@@ -268,8 +267,6 @@ function(connectionService, datasetService, errorNotificationService, filterServ
                     }
                 }
 
-                $scope.filterKeys = filterService.createFilterKeys("scatterplot", datasetService.getDatabaseAndTableNames());
-
                 if(initializing) {
                     $scope.updateTables();
                 } else {
@@ -329,8 +326,8 @@ function(connectionService, datasetService, errorNotificationService, filterServ
 
                 $scope.filteredNodes.push(value);
                 if($scope.messenger) {
-                    var relations = datasetService.getRelations($scope.options.database.name, $scope.options.table.name, [$scope.options.textField]);
-                    filterService.replaceFilters($scope.messenger, relations, $scope.filterKeys, $scope.createFilterClauseForNode, $scope.queryForData);
+                    filterService.addFilter($scope.messenger, $scope.options.database.name, $scope.options.table.name,
+                        [$scope.options.attrX.columnName, $scope.options.attrY.columnName],$scope.createFilterClauseForNode, "Scatterplot", $scope.queryForData);
                 }
             };
 
@@ -348,9 +345,8 @@ function(connectionService, datasetService, errorNotificationService, filterServ
             $scope.clearFilters = function() {
                 $scope.filteredNodes = [];
                 if($scope.messenger) {
-                    filterService.removeFilters($scope.messenger, $scope.filterKeys, function() {
-                        $scope.queryForData();
-                    });
+                    filterService.removeFilter($scope.options.database.name, $scope.options.table.name,
+                        [$scope.options.attrX.columnName, $scope.options.attrY.columnName], $scope.queryForData);
                 }
             };
 
