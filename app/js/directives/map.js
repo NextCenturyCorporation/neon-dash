@@ -96,7 +96,7 @@ angular.module('neonDemo.directives')
             $scope.CLUSTER_LAYER = coreMap.Map.CLUSTER_LAYER;
             $scope.HEATMAP_LAYER = coreMap.Map.HEATMAP_LAYER;
             $scope.NODE_AND_ARROW_LAYER = coreMap.Map.NODE_LAYER;
-            $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER];
+            $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER, coreMap.Map.ROUTE_LAYER];
             $scope.DEFAULT_LIMIT = 1000;
             $scope.DEFAULT_NEW_LAYER_TYPE = $scope.MAP_LAYER_TYPES[0];
 
@@ -1764,6 +1764,11 @@ angular.module('neonDemo.directives')
                         lineMapping: layer.lineColorBy,
                         nodeDefaultColor: layer.nodeDefaultColor,
                         lineDefaultColor: layer.lineDefaultColor
+                    });
+                    $scope.map.addLayer(layer.olLayer);
+                } else if(layer.type === coreMap.Map.ROUTE_LAYER){
+                    layer.olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, {
+                        routing: true
                     });
                     $scope.map.addLayer(layer.olLayer);
                 }

@@ -98,6 +98,7 @@ coreMap.Map.POINTS_LAYER = 'points';
 coreMap.Map.HEATMAP_LAYER = 'heatmap';
 coreMap.Map.CLUSTER_LAYER = 'cluster';
 coreMap.Map.NODE_LAYER = 'nodes and arrows';
+coreMap.Map.ROUTE_LAYER = 'route';
 
 coreMap.Map.MAP_TILES = {
     light: {
@@ -779,6 +780,7 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
 
     trigger: function(e) {
         var me = this;
+        var layer = this.map.getLayersBy("routing", true);
 
         if(this.storedPoints.length === 0) {
             this.markerLayer.clearMarkers();

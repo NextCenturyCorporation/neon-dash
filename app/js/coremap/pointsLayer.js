@@ -39,6 +39,7 @@ coreMap.Map.Layer.PointsLayer = OpenLayers.Class(OpenLayers.Layer.Vector, {
     longitudeMapping: '',
     sizeMapping: '',
     defaultColor: '',
+    routing: false,
     categoryMapping: '',
     dateMapping: '',
     gradient: false,
@@ -59,7 +60,8 @@ coreMap.Map.Layer.PointsLayer = OpenLayers.Class(OpenLayers.Layer.Vector, {
         // Override the style for our specialization.
         var me = this;
         var extendOptions = options || {};
-        extendOptions.styleMap = (options.cluster) ? this.createClusterStyle() : this.createPointsStyleMap();
+        extendOptions.styleMap = (options.cluster) ? this.createClusterStyle() :
+            (options.routing)? this.createRoutingStyleMap() : this.createPointsStyleMap();
 
         // Set the clustering strategy if necessary.
         if(options.cluster) {
@@ -168,6 +170,13 @@ coreMap.Map.Layer.PointsLayer = OpenLayers.Class(OpenLayers.Layer.Vector, {
             default: clusterPointStyle,
             select: clusterPointStyleSelect
         });
+    },
+    createRoutingStyleMap: function(){
+        return new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults({
+            strokeOpacity: coreMap.Map.Layer.PointsLayer.DEFAULT_STROKE_OPACITY,
+            strokeWidth: coreMap.Map.Layer.PointsLayer.DEFAULT_ROUTE_STROKE_WIDTH,
+            stroke: coreMap.Map.Layer.PointsLayer.DEFAULT_STROKE_COLOR
+        }, OpenLayers.Feature.Vector.style["default"]));
     },
 
     createPointsStyleMap: function() {
@@ -402,31 +411,63 @@ coreMap.Map.Layer.PointsLayer.prototype.updateGradient = function() {
 coreMap.Map.Layer.PointsLayer.prototype.updateFeatures = function() {
     var mapData = [];
     var me = this;
+    var lineFeature;
 
-    _.each(this.data, function(element, index) {
-        var longitude = me.getValueFromDataElement(me.longitudeMapping, element);
-        var latitude = me.getValueFromDataElement(me.latitudeMapping, element);
+    if(me.routing){
+        me.createLine(mapData);
+    }else{
+        _.each(this.data, function(element, index) {
+            var longitude = me.getValueFromDataElement(me.longitudeMapping, element);
+            var latitude = me.getValueFromDataElement(me.latitudeMapping, element);
 
-        if($.isNumeric(latitude) && $.isNumeric(longitude)) {
-            var pointFeature = me.createPoint(element, longitude, latitude);
+            if($.isNumeric(latitude) && $.isNumeric(longitude)) {
+                var pointFeature = me.createPoint(element, longitude, latitude);
 
-            var date = 'none';
-            var dateMapping = me.dateMapping || coreMap.Map.Layer.PointsLayer.DEFAULT_DATE_MAPPING;
-            if(me.getValueFromDataElement(dateMapping, element)) {
-                date = new Date(me.getValueFromDataElement(dateMapping, element));
+                var date = 'none';
+                var dateMapping = me.dateMapping || coreMap.Map.Layer.PointsLayer.DEFAULT_DATE_MAPPING;
+                if(me.getValueFromDataElement(dateMapping, element)) {
+                    date = new Date(me.getValueFromDataElement(dateMapping, element));
+                }
+
+                // Note: The date mapping must be on the top level of attributes in order for filtering to work.
+                // This means even if the date is in to.date, keep the date at the top level with key "to.date" instead
+                // of in the object "to".
+                pointFeature.attributes[dateMapping] = date;
+
+                mapData.push(pointFeature);
             }
+        });
+    }
 
-            // Note: The date mapping must be on the top level of attributes in order for filtering to work.
-            // This means even if the date is in to.date, keep the date at the top level with key "to.date" instead
-            // of in the object "to".
-            pointFeature.attributes[dateMapping] = date;
-
-            mapData.push(pointFeature);
-        }
-    });
     this.destroyFeatures();
     this.addFeatures(mapData);
 };
+
+coreMap.Map.Layer.PointsLayer.prototype.createLine = function(mapData){
+    var lineData = [];
+    var me = this;
+    var lineStyle = {
+        strokeOpacity: coreMap.Map.Layer.PointsLayer.DEFAULT_OPACITY,
+        strokeWidth: coreMap.Map.Layer.PointsLayer.DEFAULT_ROUTE_STROKE_WIDTH,
+        strokeColor: coreMap.Map.Layer.PointsLayer.DEFAULT_STROKE_COLOR,
+    };
+
+    if(this.data.type === "LineString"){
+        var coordinateData = this.data.coordinates;
+        var prevPoint = {};
+        _.each(coordinateData, function(element) {
+            var point = new OpenLayers.Geometry.Point(element[0], element[1]);
+            point.data = element;
+            point.transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
+            if(prevPoint){
+                var lineString = new OpenLayers.Geometry.LineString([prevPoint, point]);
+                var lineFeature = new OpenLayers.Feature.Vector(lineString,{}, lineStyle);
+                mapData.push(lineFeature);
+            }
+            prevPoint = point;
+        });
+    }
+ };
 
 /**
  * Updates the internal min/max radii values for the point layer.  These values are simply

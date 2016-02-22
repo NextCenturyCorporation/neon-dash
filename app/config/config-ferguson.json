@@ -116,12 +116,12 @@
         "sizeY": 2,
         "type": "directed-graph",
         "icon": "img/visualizations/Graph64.png"
-    },{ 
-        "name": "Scatterplot", 
-        "sizeX": 2, 
-        "sizeY": 2, 
-        "type": "scatterplot", 
-        "icon": "img/visualizations/LineChart64.png" 
+    },{
+        "name": "Scatterplot",
+        "sizeX": 2,
+        "sizeY": 2,
+        "type": "scatterplot",
+        "icon": "img/visualizations/LineChart64.png"
     }],
 
     "datasets": [{
@@ -245,7 +245,7 @@
     {   "name": "Ferguson Tweets",
         "datastore": "mongo",
         "hostname": "sparkdbmaster",
-		"databases": [{  
+		"databases": [{
 			"name": "test",
             "prettyName": "tweets",
             "tables": [{
@@ -281,7 +281,7 @@
                 }, {
                 	"columnName": "arousal",
                 	"prettyName": "Arousal"
-                } 
+                }
                 ],
                 "mappings": {
                     "date": "time",
@@ -302,7 +302,7 @@
                 "right": -89.53,
                 "top": 39.15
             }
-        },   
+        },
          "mapLayers": [ {
             "database": "test",
             "table": "ferguson_loc",
@@ -344,7 +344,113 @@
             "type": "route",
             "limit": 5000
         }
-   ]}],
+   ]},{   "name": "Ferguson local",
+        "datastore": "mongo",
+        "hostname": "localhost",
+        "databases": [{
+            "name": "test",
+            "prettyName": "tweets",
+            "tables": [{
+                "name": "ferguson_loc",
+                "prettyName": "Ferguson Tweets",
+                "fields": [{
+                    "columnName": "_id",
+                    "prettyName": "Database ID"
+                }, {
+                    "columnName": "time",
+                    "prettyName": "Time"
+                }, {
+                    "columnName": "user_screen_name",
+                    "prettyName": "Screen Name"
+                },  {
+                    "columnName": "text",
+                    "prettyName": "Text"
+                }, {
+                    "columnName": "longitude",
+                    "prettyName": "Longitude"
+                }, {
+                    "columnName": "latitude",
+                    "prettyName": "Latitude"
+                }, {
+                    "columnName": "hashtags",
+                    "prettyName": "Hashtags"
+                }, {
+                    "columnName": "text_array",
+                    "prettyName": "Text Array"
+                }, {
+                    "columnName": "sentiment",
+                    "prettyName": "Sentiment"
+                }, {
+                    "columnName": "arousal",
+                    "prettyName": "Arousal"
+                }
+                ],
+                "mappings": {
+                    "date": "time",
+                    "latitude": "latitude",
+                    "longitude": "longitude",
+                    "x_attr": "sentiment",
+                    "y_attr": "arousal",
+                    "size_by": "sentiment",
+                    "sort_by": "time",
+                    "count_by": "net"
+                }
+           }]
+        }],
+        "mapConfig": {
+            "myMap1": {
+              "bounds" : {
+                "left": -91.01,
+                "bottom": 38.07,
+                "right": -89.53,
+                "top": 39.15
+              }
+            }
+        },
+         "mapLayers": {
+            "myMap1": [ {
+                "database": "test",
+                "table": "ferguson_loc",
+                "type": "heatmap",
+                "latitudeMapping": "latitude",
+                "longitudeMapping": "longitude",
+                "limit": 5000,
+                "sizeBy": "retweet_count"
+            }, {
+                "database": "test",
+                "table": "ferguson_loc",
+                "active":  true,
+                "type": "cluster",
+                "latitudeMapping": "latitude",
+                "longitudeMapping": "longitude",
+                "limit": 5000,
+                "colorBy": "type",
+                "sizeBy": "retweet_count",
+                "linkyConfig": {
+                  "mentions": true,
+                  "hashtags": true,
+                  "urls": false,
+                  "linkTo": "twitter"
+                }
+            },{
+                "database": "test",
+                "table": "ferguson_loc",
+                "active":  true,
+                "type": "points",
+                "latitudeMapping": "latitude",
+                "longitudeMapping": "longitude",
+                "limit": 5000,
+                "colorBy": "type",
+                "sizeBy": "arousal"
+            },{
+                "database": "test",
+                "table": "ferguson_loc",
+                "active":  true,
+                "type": "route",
+                "limit": 5000
+            }]
+        }
+   }],
 
     "layouts": {
         "default": [{
@@ -355,7 +461,10 @@
         }, {
             "sizeX": 4,
             "sizeY": 2,
-            "type": "map"
+            "type": "map",
+            "bindings": {
+                "bind-config": "'myMap1'"
+            }
         }, {
             "sizeX": 2,
             "sizeY": 2,
