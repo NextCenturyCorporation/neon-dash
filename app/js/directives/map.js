@@ -210,7 +210,8 @@ angular.module('neonDemo.directives')
                     responsive: false,
                     mapBaseLayer: (datasetOptions ? datasetOptions.mapBaseLayer : undefined) || {},
                     getNestedValue: $scope.helpers.getNestedValue,
-                    queryForMapPopupDataFunction: queryForMapPopupData
+                    queryForMapPopupDataFunction: queryForMapPopupData,
+                    routeDataQueryHandler: heatmapDataQuery
                 });
                 $scope.map.linksPopupService = linksPopupService;
 
@@ -2078,6 +2079,54 @@ angular.module('neonDemo.directives')
 
                 return bindingFields;
             };
+
+            function heatmapDataQuery(points, callback) {
+                //FIXME this call should really be part of the neon.js library so we wouldnt need to use jquery.ajax here
+                if($scope.options.layers.length > 0) {
+                    var minLat = points[0].lat < points[1].lat ? points[0].lat : points[1].lat;
+                    var minLon = points[0].lon < points[1].lon ? points[0].lon : points[1].lon;
+                    var maxLat = points[0].lat > points[1].lat ? points[0].lat : points[1].lat;
+                    var maxLon = points[0].lon > points[1].lon ? points[0].lon : points[1].lon;
+
+                    var connection = connectionService.getActiveConnection();
+
+                    var host = window.location.origin;
+                    var url = host + "/neon/services/heatmapservice/query/" + connection.host_ + "/" + connection.databaseType_ + "?";
+                    url += "minLat=" + minLat + "&minLon=" + minLon + "&maxLat=" + maxLat + "&maxLon=" + maxLon;
+                    if(connection.databaseType_ === 'mongo') {
+                        var latField = $scope.options.layers[0].latitudeField.columnName;
+                        var lonField = $scope.options.layers[0].longitudeField.columnName;
+                        url += "&latField=" + latField + "&lonField=" + lonField;
+                    } else {
+                        var locationField = $scope.options.layers[0].locationField;
+                        url += "&locationField=" + locationField;
+                    }
+
+                    var data = {
+                        filter: {
+                            databaseName: $scope.options.layers[0].database,
+                            tableName: $scope.options.layers[0].table
+                        }
+                    }
+
+                    var requestConfig = {
+                        timeout: 5000,
+                        url: url,
+                        type: "POST",
+                        crossDomain: true,
+                        data: JSON.stringify(data),
+                        contentType: "application/json"
+                    }
+
+                    $.ajax(requestConfig)
+                    .done(function(json) {
+                        callback(json.data);
+                    })
+                    .fail(function() {
+                        callback()
+                    })
+                }
+            }
 
             // Wait for neon to be ready, the create our messenger and intialize the view and data.
             neon.ready(function() {
