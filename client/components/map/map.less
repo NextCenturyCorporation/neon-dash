@@ -1,0 +1,130 @@
+//
+// Copyright 2015 Next Century Corporation
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+.mapDirective {
+    min-height: 100px;
+
+    .alert {
+        display: none;
+        padding: 6px;
+        margin-top: 3px;
+    }
+
+    .alert-danger {
+        background: none;
+        border-color: @error-color;
+        color: @error-color;
+    }
+
+    .options-container {
+        z-index: 1010;
+
+        .options-menu {
+            .popover {
+                max-width: none;
+            }
+        }
+    }
+
+    .headers-container {
+        position: absolute;
+        top: 30px;
+        left: 35px;
+        right: 10px;
+        z-index: 1005;
+
+        .filter-reset {
+            background-color: @visualization-box-background-transparent;
+        }
+    }
+
+    .olMap {
+        // The JS will set the correct background color depending on the base layer used.
+        background-color: #fff;
+
+        .olMapViewport {
+            height: inherit !important;
+            width: inherit !important;
+
+            .olControlZoom {
+                background: transparent;
+                left: 3px;
+                top: 3px;
+
+                a {
+                    background-color: @button-background-color;
+                    color: @button-color;
+                    border: @button-border;
+                    border-radius: @border-radius;
+                    font-size: 20px;
+                    font-family: "Open Sans", Helvetica, arial, sans-serif;
+                    line-height: 24px;
+
+                    &:hover{
+                        background-color: @button-hover-background-color;
+                        color: @button-hover-color;
+                        border: @button-hover-border;
+                    }
+                }
+            }
+        }
+    }
+
+    .olPopup {
+        font-size: 12px;
+        z-index: 1060 !important;
+
+        table {
+            margin: 2px;
+        }
+
+        td, th {
+            padding: 2px;
+        }
+
+        .links-popup-button {
+            /* Align under the olPopupCloseBox; the 'top' position will be set by the map because the 'close box' can have different 'top' positions itself. */
+            position: absolute;
+            right: 13px;
+            z-index: 1;
+
+            /* Ensure the width matches the width of the olPopupCloseBox. */
+            padding: 1px;
+            line-height: 13px;
+
+            .neon-popup-button {
+                .glyphicon {
+                    color: #333;
+                    font-size: 13px;
+                }
+            }
+        }
+    }
+
+    .olControlAttribution {
+        bottom: 0;
+        right: 5px;
+        color: @main-text-color;
+
+        a {
+            pointer-events: none;
+        }
+    }
+
+    [id^="OpenLayers_Layer_Boxes_"] {
+        z-index: 745 !important;
+        pointer-events: none;
+    }
+}

@@ -1,0 +1,27 @@
+<div class="options-menu pull-right">
+    <a class="options-menu-button btn collapsed" data-toggle="collapse" data-target=".{{uniqueVisualizationOptions}} .popover" data-animation=false ng-click="toggleOptionsDisplay()">
+        <span class="text pull-left" ng-bind="getButtonText()" ng-show="showButtonText()" title="Open/Close the Options Menu"></span>
+        <span class="glyphicon glyphicon-cog" title="Open/Close the Options Menu"></span>
+        <span class="caret"></span>
+    </a>
+
+    <div class="popover bottom">
+        <div class="arrow"></div>
+        <div class="popover-content">
+            <div class="form-group" ng-show="showButtonText()">
+                <label class="glyphicon glyphicon-exclamation-sign"></label>
+                <label ng-bind="getButtonText()" style="display: inline;"></label>
+            </div>
+
+            <div ng-transclude></div>
+
+            <div class="form-group" ng-show="exportFunction !== undefined && showExport">
+                <div class="input-group">
+                    <button type="button" class="btn btn-default export" ng-click="requestExport()">
+                        Export to File
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
