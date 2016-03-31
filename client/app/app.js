@@ -241,7 +241,7 @@ var startAngular = function() {
 };
 
 var saveUserAle = function(config) {
-    if (config.user_ale.enable === false) {
+    if (!config.user_ale || !config.user_ale.enable) {
         // timerId is the global variable that the UserALE code creates for the
         // one second time. If UserALE is disabled, then clear that timer.
         clearInterval(timerId);
@@ -280,6 +280,19 @@ var saveOpenCpu = function(config) {
         ocpu.connected = true;
     }
     neonDemo.constant('opencpu', opencpuConfig);
+};
+
+var saveExternalRouteService = function(config) {
+    var routeService = (config.routeService || {});
+    routeService.url = routeService.url || "localhost:8080/";
+    routeService.get = routeService.get || "";
+    routeService.post = routeService.post || "";
+    routeService.replacements = _.isObject(routeService.replacements) ? routeService.replacements : {};
+    routeService.replacements.lat1 = routeService.replacements.lat1 || "LAT1";
+    routeService.replacements.lon1 = routeService.replacements.lon1 || "LON1";
+    routeService.replacements.lat2 = routeService.replacements.lat2 || "LAT2";
+    routeService.replacements.lon2 = routeService.replacements.lon2 || "LON2";
+    neonDemo.constant("externalRouteService", routeService);
 };
 
 var saveDashboards = function(config) {
@@ -570,6 +583,7 @@ var readDatasetFilesAndSaveDatasets = function($http, datasets, datasetFiles, ca
 var saveNeonConfig = function($http, config) {
     saveUserAle(config);
     saveOpenCpu(config);
+    saveExternalRouteService(config);
     saveDashboards(config);
 
     var files = (config.files || []);

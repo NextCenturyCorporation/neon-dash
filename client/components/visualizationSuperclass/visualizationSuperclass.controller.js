@@ -23,8 +23,8 @@
  * @constructor
  */
 angular.module('neonDemo.controllers').controller('visualizationSuperclassController',
-['$scope', 'external', 'ConnectionService', 'DatasetService', 'ErrorNotificationService', 'FilterService', 'ExportService', 'LinksPopupService', 'ThemeService', 'TranslationService', 'VisualizationService',
-function($scope, external, connectionService, datasetService, errorNotificationService, filterService, exportService, linksPopupService, themeService, translationService, visualizationService) {
+['$scope', 'external', 'externalRouteService', 'ConnectionService', 'DatasetService', 'ErrorNotificationService', 'FilterService', 'ExportService', 'LinksPopupService', 'ThemeService', 'TranslationService', 'VisualizationService',
+function($scope, external, externalRouteService, connectionService, datasetService, errorNotificationService, filterService, exportService, linksPopupService, themeService, translationService, visualizationService) {
     // Options for the implementation property.
     $scope.SINGLE_LAYER = "singleLayer";
     $scope.MULTIPLE_LAYER = "multipleLayer";
@@ -655,6 +655,15 @@ function($scope, external, connectionService, datasetService, errorNotificationS
     };
 
     /**
+     * Returns the configuration for the route service as defined in the dashboard configuration.
+     * @method $scope.functions.getRouteServiceConfig
+     * @return {Object}
+     */
+    $scope.functions.getRouteServiceConfig = function() {
+        return externalRouteService;
+    };
+
+    /**
      * Returns the list of unsorted fields for the database and table in the given layer (in the order they are defined in the dashboard config).
      * @method $scope.functions.getUnsortedFields
      * @param {Object} layer
@@ -754,6 +763,21 @@ function($scope, external, connectionService, datasetService, errorNotificationS
         $scope.active.layers.splice(oldIndex, 1);
         $scope.active.layers.splice(newIndex, 0, layer);
         $scope.functions.onReorderLayers();
+    };
+
+    /**
+     * Builds and runs an ajax request using the given function and calls the given callback with the response.
+     * @method $scope.functions.runRequest
+     * @param {Function} buildRequestFunction A function that takes a {String} host and {String} database type that returns the {Object} request configuration
+     * @param {Function} callback A function that takes the {Object} response
+     */
+    $scope.functions.runRequest = function(buildRequestFunction, callback) {
+        var connection = connectionService.getActiveConnection();
+        $.ajax(buildRequestFunction(connection.host_, connection.databaseType_)).done(function(response) {
+            callback(response);
+        }).fail(function(response) {
+            callback(response);
+        })
     };
 
     /**

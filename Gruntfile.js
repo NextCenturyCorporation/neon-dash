@@ -104,7 +104,8 @@ module.exports = function(grunt) {
                         "client/app/namespaces.js",
                         "client/app/app.js",
                         "client/app/*.service.js",
-                        "client/{app,components}/**/*.js"
+                        "client/{app,components}/**/*.js",
+                        "!client/components/facetTree/*"
                     ]
                 }
             },
@@ -122,6 +123,7 @@ module.exports = function(grunt) {
                 files: {
                     "client/app/app.less": [
                         "client/{app,components}/**/*.less",
+                        "!client/components/facetTree/*",
                         "!client/app/themes/*.less"
                     ]
                 }
@@ -249,6 +251,7 @@ module.exports = function(grunt) {
                     "app/themes/light-*.css",
                     "app/themes/dark-*.css",
                     "assets/fonts/**",
+                    "assets/images/Marker_40x40.png",
                     "assets/images/Neon_16x16.png",
                     "assets/images/spritesheet.png"
                 ],

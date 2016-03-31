@@ -59,7 +59,7 @@ coreMap.Map.Layer.PointsLayer = OpenLayers.Class(OpenLayers.Layer.Vector, {
         // Override the style for our specialization.
         var me = this;
         var extendOptions = options || {};
-        extendOptions.styleMap = (options.cluster) ? this.createClusterStyle() : this.createPointsStyleMap();
+        extendOptions.styleMap = (options.cluster) ? this.createClusterStyleMap() : (options.route ? this.createRouteStyleMap() : this.createPointsStyleMap());
 
         // Set the clustering strategy if necessary.
         if(options.cluster) {
@@ -105,7 +105,7 @@ coreMap.Map.Layer.PointsLayer = OpenLayers.Class(OpenLayers.Layer.Vector, {
         this.colorScale = d3.scale.ordinal().range(neonColors.LIST);
     },
 
-    createClusterStyle: function() {
+    createClusterStyleMap: function() {
         var layer = this;
         var clusterPointStyle = new OpenLayers.Style({
             label: "${count}",
@@ -136,6 +136,7 @@ coreMap.Map.Layer.PointsLayer = OpenLayers.Class(OpenLayers.Layer.Vector, {
                 }
             }
         });
+
         var clusterPointStyleSelect = new OpenLayers.Style({
             label: "${count}",
             fillColor: coreMap.Map.Layer.PointsLayer.DEFAULT_SELECT_COLOR,
@@ -167,6 +168,14 @@ coreMap.Map.Layer.PointsLayer = OpenLayers.Class(OpenLayers.Layer.Vector, {
             default: clusterPointStyle,
             select: clusterPointStyleSelect
         });
+    },
+
+    createRouteStyleMap: function() {
+        return new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults({
+            strokeOpacity: coreMap.Map.Layer.PointsLayer.DEFAULT_OPACITY,
+            strokeWidth: coreMap.Map.Layer.PointsLayer.DEFAULT_ROUTE_STROKE_WIDTH,
+            stroke: coreMap.Map.Layer.PointsLayer.DEFAULT_ROUTE_STROKE_COLOR
+        }, OpenLayers.Feature.Vector.style["default"]));
     },
 
     createPointsStyleMap: function() {
@@ -381,7 +390,12 @@ coreMap.Map.Layer.PointsLayer.prototype.updateGradient = function() {
 };
 
 coreMap.Map.Layer.PointsLayer.prototype.updateFeatures = function(limit) {
-    var mapData = [];
+    this.destroyFeatures();
+
+    if(this.route) {
+        this.addFeatures(this.createRoute());
+        return;
+    }
 
     // Extra fields to collect in addition to the longitude & latitude (X & Y) fields.
     var fields = {
@@ -392,6 +406,7 @@ coreMap.Map.Layer.PointsLayer.prototype.updateFeatures = function(limit) {
     this.pointTotal = points.length;
     this.pointLimit = limit;
 
+    var mapData = [];
     var me = this;
 
     // Use the helper function to collect the longitude & latitude (X & Y) coordinates from the data for the points.
@@ -418,8 +433,34 @@ coreMap.Map.Layer.PointsLayer.prototype.updateFeatures = function(limit) {
         }
     });
 
-    this.destroyFeatures();
     this.addFeatures(mapData);
+};
+
+coreMap.Map.Layer.PointsLayer.prototype.createRoute = function() {
+    var mapData = [];
+
+    var lineStyle = {
+        strokeOpacity: coreMap.Map.Layer.PointsLayer.DEFAULT_OPACITY,
+        strokeWidth: coreMap.Map.Layer.PointsLayer.DEFAULT_ROUTE_STROKE_WIDTH,
+        strokeColor: coreMap.Map.Layer.PointsLayer.DEFAULT_ROUTE_STROKE_COLOR
+    };
+
+    if(this.data.type === "LineString") {
+        var previousPoint = {};
+        this.data.coordinates.forEach(function(item) {
+            var point = new OpenLayers.Geometry.Point(item[0], item[1]);
+            point.data = item;
+            point.transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
+            if(previousPoint) {
+                var lineString = new OpenLayers.Geometry.LineString([previousPoint, point]);
+                var lineFeature = new OpenLayers.Feature.Vector(lineString, {}, lineStyle);
+                mapData.push(lineFeature);
+            }
+            previousPoint = point;
+        });
+    }
+
+    return mapData;
 };
 
 /**
@@ -445,8 +486,10 @@ coreMap.Map.Layer.PointsLayer.DEFAULT_OPACITY = 0.8;
 coreMap.Map.Layer.PointsLayer.DEFAULT_SELECT_OPACITY = 1;
 coreMap.Map.Layer.PointsLayer.DEFAULT_SELECT_COLOR = "#88d292";
 coreMap.Map.Layer.PointsLayer.DEFAULT_SIZE_MAPPING = "count_";
-coreMap.Map.Layer.PointsLayer.DEFAULT_STROKE_WIDTH = 0;
 coreMap.Map.Layer.PointsLayer.DEFAULT_STROKE_COLOR = "#ffffff";
+coreMap.Map.Layer.PointsLayer.DEFAULT_STROKE_WIDTH = 0;
+coreMap.Map.Layer.PointsLayer.DEFAULT_ROUTE_STROKE_COLOR = "#39b54a";
+coreMap.Map.Layer.PointsLayer.DEFAULT_ROUTE_STROKE_WIDTH = 1;
 coreMap.Map.Layer.PointsLayer.MIN_RADIUS = 2;
 coreMap.Map.Layer.PointsLayer.MAX_RADIUS = 8;
 coreMap.Map.Layer.PointsLayer.DEFAULT_CURSOR = "pointer";

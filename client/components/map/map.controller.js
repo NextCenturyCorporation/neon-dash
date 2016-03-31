@@ -27,7 +27,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.CLUSTER_LAYER = coreMap.Map.CLUSTER_LAYER;
     $scope.HEATMAP_LAYER = coreMap.Map.HEATMAP_LAYER;
     $scope.NODE_AND_ARROW_LAYER = coreMap.Map.NODE_LAYER;
-    $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER];
+    $scope.ROUTE_LAYER = coreMap.Map.ROUTE_LAYER;
+    $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER, $scope.ROUTE_LAYER];
     $scope.DEFAULT_LIMIT = 1000;
     $scope.DEFAULT_NEW_LAYER_TYPE = $scope.MAP_LAYER_TYPES[0];
 
@@ -105,10 +106,12 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
 
     $scope.functions.onInit = function() {
         $scope.map = new coreMap.Map($scope.visualizationId, {
-            responsive: false,
-            queryForMapPopupDataFunction: queryForMapPopupData
+            linksPopupService: $scope.functions.getLinksPopupService(),
+            routeService: $scope.functions.getRouteServiceConfig(),
+            queryForMapPopupDataFunction: queryForMapPopupData,
+            runQueryForRouteDataFunction: runQueryForRouteData,
+            responsive: false
         });
-        $scope.map.linksPopupService = $scope.functions.getLinksPopupService();
         $scope.setDefaultView();
 
         $scope.map.register("movestart", this, onMapEvent);
@@ -204,6 +207,54 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
 
     $scope.functions.shouldQueryAfterFilter = function() {
         return true;
+    };
+
+    /**
+     * Runs a query for route data using the given start and end points and calls the given callback with the route data.
+     * @method runQueryForRouteData
+     * @param {Array} routeStartAndEnd An array of two objects containing {Number} lat and {Number} lon
+     * @param {Function} callback A function that takes an {Array} of route query result data
+     * @private
+     */
+    var runQueryForRouteData = function(routeStartAndEnd, callback) {
+        // FIXME this call should really be part of the neon.js library so we wouldnt need to use jquery.ajax here
+        if(!$scope.active.layers.length) {
+            callback();
+            return;
+        }
+
+        var minLat = routeStartAndEnd[0].lat < routeStartAndEnd[1].lat ? routeStartAndEnd[0].lat : routeStartAndEnd[1].lat;
+        var minLon = routeStartAndEnd[0].lon < routeStartAndEnd[1].lon ? routeStartAndEnd[0].lon : routeStartAndEnd[1].lon;
+        var maxLat = routeStartAndEnd[0].lat > routeStartAndEnd[1].lat ? routeStartAndEnd[0].lat : routeStartAndEnd[1].lat;
+        var maxLon = routeStartAndEnd[0].lon > routeStartAndEnd[1].lon ? routeStartAndEnd[0].lon : routeStartAndEnd[1].lon;
+
+        var buildRequestFunction = function(host, databaseType) {
+            var url = window.location.origin + "/neon/services/heatmapservice/query/" + host + "/" + databaseType +
+                "?minLat=" + minLat + "&minLon=" + minLon + "&maxLat=" + maxLat + "&maxLon=" + maxLon;
+            if(databaseType === 'mongo') {
+                var latField = $scope.active.layers[0].latitudeField.columnName;
+                var lonField = $scope.active.layers[0].longitudeField.columnName;
+                url += "&latField=" + latField + "&lonField=" + lonField;
+            } else {
+                var locationField = $scope.active.layers[0].locationField;
+                url += "&locationField=" + locationField;
+            }
+
+            return {
+                contentType: "application/json",
+                timeout: 5000,
+                type: "POST",
+                url: url,
+                data: JSON.stringify({
+                    filter: {
+                        databaseName: $scope.active.layers[0].database.name,
+                        tableName: $scope.active.layers[0].table.name
+                    }
+                })
+            }
+        };
+
+        $scope.functions.runRequest(buildRequestFunction, callback);
     };
 
     /**
@@ -933,6 +984,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
         } else if(layer.type === $scope.CLUSTER_LAYER) {
             options.cluster = true;
+            olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
+        } else if(layer.type === $scope.ROUTE_LAYER) {
+            options.route = true;
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
         } else if(layer.type === $scope.HEATMAP_LAYER) {
             olLayer = new coreMap.Map.Layer.HeatmapLayer(layer.name, $scope.map.map, $scope.map.map.baseLayer, options);
