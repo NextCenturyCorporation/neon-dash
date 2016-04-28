@@ -405,6 +405,12 @@ var neonVisualizations = [{   // jshint ignore:line
     type: "ganttChart",
     icon: "Gantt64"
 }, {
+    name: "Legend",
+    minSizePercentageX: 0.25,
+    minSizePercentageY: 0.20,
+    type: "legend",
+    icon: "Legend64"
+}, {
     name: "Line Chart",
     minSizePercentageX: 0.25,
     minSizePercentageY: 0.20,

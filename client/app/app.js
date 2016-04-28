@@ -287,6 +287,24 @@ var saveOpenCpu = function(config) {
     neonDemo.constant('opencpu', opencpuConfig);
 };
 
+var saveLegends = function(config) {
+    var legends = config.legends || {};
+
+    Object.keys(legends).forEach(function(database) {
+        Object.keys(legends[database]).forEach(function(table) {
+            legends[database][table].forEach(function(item) {
+                item.label = item.label || item.field;
+                item.types = item.types || [];
+                item.types.forEach(function(type) {
+                    type.label = type.label || type.field;
+                });
+            });
+        });
+    });
+
+    neonDemo.constant("legends", legends);
+};
+
 var saveExternalRouteService = function(config) {
     var routeService = (config.routeService || {});
     routeService.url = routeService.url || "localhost:8080/";
@@ -588,6 +606,7 @@ var readDatasetFilesAndSaveDatasets = function($http, datasets, datasetFiles, ca
 var saveNeonConfig = function($http, config) {
     saveUserAle(config);
     saveOpenCpu(config);
+    saveLegends(config);
     saveExternalRouteService(config);
     saveDashboards(config);
 
