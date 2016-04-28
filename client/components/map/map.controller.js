@@ -68,23 +68,24 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
      * Queries for the map popup data using the given database, table, and ID and updates the map using the given function.
      * @param {String} database
      * @param {String} table
+     * @param {String} idField
      * @param {Number} or {String} id
      * @param {Function} updateDataFunction
      * @method queryForMapPopupData
      * @private
      */
-    var queryForMapPopupData = function(database, table, id, updateDataFunction) {
+    var queryForMapPopupData = function(database, table, idField, id, updateDataFunction) {
         $scope.functions.queryAndUpdate({
             database: database,
             table: table,
             addToQuery: function(query) {
                 if(_.isArray(id)) {
                     var whereClauses = id.map(function(value) {
-                        return neon.query.where("_id", "=", value);
+                        return neon.query.where(idField, "=", value);
                     });
                     query.where(neon.query.or.apply(neon.query, whereClauses));
                 } else {
-                    query.where("_id", "=", id);
+                    query.where(idField, "=", id);
                 }
                 return query;
             },
@@ -334,6 +335,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         layer.dateField = $scope.functions.findFieldObject(config.dateField, neonMappings.DATE, layer);
         layer.sizeField = $scope.functions.findFieldObject(config.sizeField, neonMappings.SIZE, layer);
         layer.colorField = $scope.functions.findFieldObject(config.colorField, neonMappings.COLOR, layer);
+        layer.idField = $scope.functions.findFieldObject(config.idField, neonMappings.ID, layer);
         layer.sourceLatitudeField = $scope.functions.findFieldObject(config.sourceLatitudeField, neonMappings.SOURCE_LATITUDE_FIELD, layer);
         layer.sourceLongitudeField = $scope.functions.findFieldObject(config.sourceLongitudeField, neonMappings.SOURCE_LONGITUDE_FIELD, layer);
         layer.targetLatitudeField = $scope.functions.findFieldObject(config.targetLatitudeField, neonMappings.TARGET_LATITUDE_FIELD, layer);
@@ -669,9 +671,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     $scope.functions.addToQuery = function(query, unsharedFilterWhereClause, layers) {
-        var queryFields = {
-            _id: true
-        };
+        var queryFields = {};
         var limit;
 
         var addFields = function(layerFields) {
@@ -696,7 +696,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 layer.nodeSizeField,
                 layer.colorField,
                 layer.dateField,
-                layer.sizeField
+                layer.sizeField,
+                layer.idField
             ];
 
             if(layer.popupFields) {
@@ -969,6 +970,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             categoryMapping: $scope.functions.isFieldValid(layer.colorField) ? layer.colorField.columnName : "",
             dateMapping: $scope.functions.isFieldValid(layer.dateField) ? layer.dateField.columnName : "",
             sizeMapping: $scope.functions.isFieldValid(layer.sizeField) ? layer.sizeField.columnName : "",
+            idMapping: $scope.functions.isFieldValid(layer.idField) ? layer.idField.columnName : "",
             defaultColor: layer.colorCode || "",
             sourceLatitudeMapping: $scope.functions.isFieldValid(layer.sourceLatitudeField) ? layer.sourceLatitudeField.columnName : "",
             sourceLongitudeMapping: $scope.functions.isFieldValid(layer.sourceLongitudeField) ? layer.sourceLongitudeField.columnName : "",
@@ -1108,6 +1110,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         bindings.colorField = $scope.functions.isFieldValid(layer.colorField) ? layer.colorField.columnName : "";
         bindings.dateField = $scope.functions.isFieldValid(layer.dateField) ? layer.dateField.columnName : "";
         bindings.sizeField = $scope.functions.isFieldValid(layer.sizeField) ? layer.sizeField.columnName : "";
+        bindings.idField = $scope.functions.isFieldValid(layer.idField) ? layer.idField.columnName : "";
         bindings.colorCode = layer.colorCode || "";
         bindings.lineColorField = $scope.functions.isFieldValid(layer.lineColorField) ? layer.lineColorField.columnName : "";
         bindings.nodeColorField = $scope.functions.isFieldValid(layer.nodeColorField) ? layer.nodeColorField.columnName : "";

@@ -54,7 +54,7 @@ coreMap.Map = function(elementId, options) {
     this.selector = $("#" + elementId);
     this.onZoomRect = options.onZoomRect;
     this.responsive = options.responsive;
-    this.queryForMapPopupDataFunction = options.queryForMapPopupDataFunction || function(database, table, id, callback) {
+    this.queryForMapPopupDataFunction = options.queryForMapPopupDataFunction || function(database, table, idField, id, callback) {
         callback({});
     };
     this.runQueryForRouteDataFunction = options.runQueryForRouteDataFunction;
@@ -430,17 +430,20 @@ coreMap.Map.prototype.createSelectControl =  function(layer) {
 
             $(".olFramedCloudPopupContent td").linky(feature.layer.linkyConfig);
 
-            if(me.linksPopupService && feature.layer.linksSource) {
+            if(!feature.cluster && me.linksPopupService && feature.layer.linksSource) {
                 // Use the latitude and longitude values of the point itself as set by the layer during feature creation.
                 var key = me.linksPopupService.generatePointKey(feature.lat, feature.lon);
-                var tooltip = "latitude " + feature.lat + ", longitude " + feature.lon;
-                var link = me.linksPopupService.createLinkHtml(feature.layer.linksSource, key, tooltip);
 
-                // Position the button below the 'close box' which can have one of a few different 'top' values depending on the location of the point on the layer.
-                var topCss = $(".olPopupCloseBox").css("top");
-                topCss = Number(topCss.substring(0, topCss.length - 2)) + 25;
+                if(me.linksPopupService.hasLinks(feature.layer.linksSource, key)) {
+                    var tooltip = "latitude " + feature.lat + ", longitude " + feature.lon;
+                    var link = me.linksPopupService.createLinkHtml(feature.layer.linksSource, key, tooltip);
 
-                $("#" + me.elementId).find(".olPopupCloseBox").after("<div class='btn btn-default links-popup-button' style='top: " + topCss + "px;'>" + link + "</div>");
+                    // Position the button below the 'close box' which can have one of a few different 'top' values depending on the location of the point on the layer.
+                    var topCss = $(".olPopupCloseBox").css("top");
+                    topCss = Number(topCss.substring(0, topCss.length - 2)) + 25;
+
+                    $("#" + me.elementId).find(".olPopupCloseBox").after("<div class='btn btn-default links-popup-button' style='top: " + topCss + "px;'>" + link + "</div>");
+                }
             }
         };
 
@@ -462,13 +465,14 @@ coreMap.Map.prototype.createSelectControl =  function(layer) {
 
         if(feature.cluster && feature.cluster.length > 1) {
             var ids = [];
-            feature.cluster.forEach(function(obj) {
-                ids.push(obj.attributes._id);
+            feature.cluster.forEach(function(object) {
+                ids.push(neon.helpers.getNestedValues(object.attributes, feature.layer.idMapping || "_id")[0]);
             });
-            me.queryForMapPopupDataFunction(feature.layer.database, feature.layer.table, ids, createAndShowFeaturePopup);
+            me.queryForMapPopupDataFunction(feature.layer.database, feature.layer.table, feature.layer.idMapping || "_id", ids, createAndShowFeaturePopup);
         } else {
-            var id = feature.cluster && feature.cluster.length === 1 ? feature.cluster[0].attributes._id : feature.attributes._id;
-            me.queryForMapPopupDataFunction(feature.layer.database, feature.layer.table, id, createAndShowFeaturePopup);
+            var object = feature.cluster && feature.cluster.length === 1 ? feature.cluster[0] : feature;
+            var id = neon.helpers.getNestedValues(object.attributes, feature.layer.idMapping || "_id")[0];
+            me.queryForMapPopupDataFunction(feature.layer.database, feature.layer.table, feature.layer.idMapping || "_id", id, createAndShowFeaturePopup);
         }
     };
 
