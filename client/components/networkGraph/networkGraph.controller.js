@@ -487,7 +487,7 @@ angular.module('neonDemo.controllers').controller('networkGraphController', ['$s
                 query: $scope.active.linkedNodeField.columnName,
                 pretty: $scope.active.linkedNodeField.prettyName
             }];
-            query.groupBy($scope.active.nodeField.columnName, $scope.active.linkedNodeField);
+            query.groupBy($scope.active.nodeField.columnName, $scope.active.linkedNodeField.columnName);
         } else if($scope.functions.isFieldValid($scope.active.nodeField)) {
             fields = [{
                 query: $scope.active.nodeField.columnName,

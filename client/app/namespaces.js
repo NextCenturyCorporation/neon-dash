@@ -387,6 +387,12 @@ var neonVisualizations = [{   // jshint ignore:line
     type: "dataTable",
     icon: "ViewData64"
 }, {
+    name: "Document Viewer",
+    minSizePercentageX: 0.25,
+    minSizePercentageY: 0.20,
+    type: "documentViewer",
+    icon: "DocumentViewer64"
+}, {
     name: "Filter Builder",
     minSizePercentageX: 0.50,
     minSizePercentageY: 0.20,
