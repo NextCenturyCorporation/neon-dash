@@ -50,22 +50,22 @@ neon.helpers = {
      * @return {Array} The data contained within the field using the given name in an array, or an empty array if the data or field with the given name does not exist.
      */
     getNestedValues: function(data, name) {
-        var fields = _.isArray(name) ? name : name.split(".");
-        var values = data[fields[0]] || [];
+        var fields = name.split(".");
+        var values = data[name] === undefined ? data[fields[0]] : data[name];
 
         if(_.isArray(values)) {
             values = [].concat.apply([], values.map(function(item) {
-                return ((_.isArray(item) || _.isObject(item)) && fields.length > 1) ? neon.helpers.getNestedValues(item, fields.slice(1)) : item;
+                return ((_.isArray(item) || _.isObject(item)) && fields.length > 1) ? neon.helpers.getNestedValues(item, fields.slice(1).join(".")) : item;
             }));
         }
 
         // Check for additional fields because the object might be a string wrapped by an angular $sce trusted object.
         // Use typeof to check for false booleans.
-        if(_.isObject(values) && fields.length > 1 && typeof values[fields[1]] !== "undefined") {
-            values = neon.helpers.getNestedValues(values, fields.slice(1));
+        if(_.isObject(values) && fields.length > 1 && values[fields[1]] !== undefined) {
+            values = neon.helpers.getNestedValues(values, fields.slice(1).join("."));
         }
 
-        return _.isArray(values) ? values : [values];
+        return values === undefined ? [] : (_.isArray(values) ? values : [values]);
     },
 
     /**
@@ -151,13 +151,14 @@ neon.helpers = {
      * @method escapeDataRecursively
      */
     escapeDataRecursively: function(data) {
+        var i = 0;
         if(_.isArray(data)) {
-            for(var i = 0; i < data.length; i++) {
+            for(i = 0; i < data.length; i++) {
                 data[i] = neon.helpers.escapeDataRecursively(data[i]);
             }
         } else if(_.keys(data).length) {
             var keys = _.keys(data);
-            for(var i = 0; i < keys.length; i++) {
+            for(i = 0; i < keys.length; i++) {
                 data[keys[i]] = neon.helpers.escapeDataRecursively(data[keys[i]]);
             }
         } else if(_.isString(data)) {
@@ -246,9 +247,11 @@ var saveUserAle = function(config) {
     if(!config.user_ale || config.user_ale.enable === false) {
         // timerId is the global variable that the UserALE code creates for the
         // one second time. If UserALE is disabled, then clear that timer.
-        clearInterval(timerId);
+        clearInterval(timerId);  // jshint ignore:line
         // Create a dummy logger
-        XDATA.userALE = { log: function() {}};
+        XDATA.userALE = {
+            log: function() {}
+        };
     } else {
         // Configure the user-ale logger.
         var aleConfig = (config.user_ale || {
@@ -489,7 +492,7 @@ var readAndSaveExternalServices = function(config, callback) {
         var appName = data[appType][nameProperty];
 
         // Ignore linking to the Neon Dashboard itself.
-        if(!(appName.toLowerCase().indexOf("neon") === 0)) {
+        if(appName.toLowerCase().indexOf("neon") !== 0) {
             neonServiceMappings.forEach(function(neonServiceMapping) {
                 var argsMappings = config.argsMappings[neonServiceMapping];
                 if(!argsMappings) {
@@ -547,7 +550,7 @@ var readLayoutFilesAndSaveLayouts = function($http, layouts, layoutFiles, callba
                 layouts[layoutConfig.name] = layoutConfig.layout;
             }
             readLayoutFilesAndSaveLayouts($http, layouts, layoutFiles, callback);
-        }, function(response) {
+        }, function() {
             readLayoutFilesAndSaveLayouts($http, layouts, layoutFiles, callback);
         });
     } else {
@@ -571,7 +574,7 @@ var readDatasetFilesAndSaveDatasets = function($http, datasets, datasetFiles, ca
                 datasets.push(datasetConfig.dataset);
             }
             readDatasetFilesAndSaveDatasets($http, datasets, datasetFiles, callback);
-        }, function(response) {
+        }, function() {
             readDatasetFilesAndSaveDatasets($http, datasets, datasetFiles, callback);
         });
     } else {
