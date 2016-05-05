@@ -327,7 +327,7 @@ angular.module('neonDemo.controllers').controller('scatterPlotController', ['$sc
     };
 
     $scope.handleChangeTextField = function() {
-        $scope.functions.logChangeAndUpdate("textField", $scope.active.textField.columnName);
+        $scope.functions.logChangeAndUpdate("textField", $scope.active.textField ? $scope.active.textField.columnName : undefined);
     };
 
     $scope.handleChangeType = function() {
