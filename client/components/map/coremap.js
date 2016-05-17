@@ -718,8 +718,7 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
     },
 
     runRouteRequestAndUpdate: function(me, data) {
-        if(!me.routeService) {
-            console.error("Map Route Layer Error:  No route service config!");
+        if(!me.routeService.url || !me.routeService.get || !me.routeService.post) {
             return;
         }
 
@@ -775,6 +774,10 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
     },
 
     addRoutePointAndUpdate: function(args) {
+        if(this.routeService.disabled) {
+            return;
+        }
+
         if(!this.routeStartAndEnd.length) {
             this.markerLayer.clearMarkers();
         }

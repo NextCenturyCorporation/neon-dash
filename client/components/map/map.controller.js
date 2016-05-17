@@ -106,9 +106,10 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     $scope.functions.onInit = function() {
+        $scope.active.routeServiceConfig = $scope.functions.getRouteServiceConfig();
         $scope.map = new coreMap.Map($scope.visualizationId, {
             linksPopupService: $scope.functions.getLinksPopupService(),
-            routeService: $scope.functions.getRouteServiceConfig(),
+            routeService: $scope.active.routeServiceConfig,
             queryForMapPopupDataFunction: queryForMapPopupData,
             runQueryForRouteDataFunction: runQueryForRouteData,
             responsive: false
@@ -1049,6 +1050,10 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         if($scope.map) {
             $scope.map.setBaseLayerColor($scope.active.baseLayerColor);
         }
+    };
+
+    $scope.updateRouteLayerDisabled = function() {
+        // TODO Logging
     };
 
     $scope.getFilterData = function() {

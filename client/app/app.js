@@ -276,6 +276,7 @@ var saveExternalRouteService = function(config) {
     routeService.url = routeService.url || "localhost:8080/";
     routeService.get = routeService.get || "";
     routeService.post = routeService.post || "";
+    routeService.disabled = (routeService.url && routeService.get && routeService.post) ? (routeService.disabled || false) : true;
     routeService.replacements = _.isObject(routeService.replacements) ? routeService.replacements : {};
     routeService.replacements.lat1 = routeService.replacements.lat1 || "LAT1";
     routeService.replacements.lon1 = routeService.replacements.lon1 || "LON1";
