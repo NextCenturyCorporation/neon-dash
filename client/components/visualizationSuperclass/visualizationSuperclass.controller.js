@@ -778,10 +778,11 @@ function($scope, external, externalRouteService, legends, connectionService, dat
      * @param {Array} [options.fields] (Optional) The list of fields on which to filter.  If not given, uses $scope.functions.getFilterFields.
      * @param {Boolean} [options.queryAfterFilter] (Optional) Whether to run a query and update the data for this visualization after removing the last filter.
      * @param {Boolean} [options.fromSystem] (Optional) Whether removing filters was triggered by a system event.
+     * @param {Function} [options.callback] (Optional) Function to call on finish.
      */
     $scope.functions.removeNeonFilter = function(options) {
         var args = options || {};
-        removeFiltersForData(findFilterData(args.databaseName, args.tableName, args.fields, args.layers, true), 0, args.queryAfterFilter, args.fromSystem);
+        removeFiltersForData(findFilterData(args.databaseName, args.tableName, args.fields, args.layers, true), 0, args.queryAfterFilter, args.fromSystem, args.callback);
     };
 
     /**
@@ -971,10 +972,11 @@ function($scope, external, externalRouteService, legends, connectionService, dat
      * @param {Array} [options.fields] (Optional) The list of fields on which to filter.  If not given, uses $scope.functions.getFilterFields.
      * @param {Function} [options.createNeonFilterClause] (Optional) The function used to create the Neon filter clause.  If not given, uses $scope.functions.createNeonFilterClause.
      * @param {Boolean} [options.queryAfterFilter] (Optional) Whether to run a query and update the data for this visualization after adding the last filter.
+     * @param {Function} [options.callback] (Optional) Function to call on finish.
      */
     $scope.functions.updateNeonFilter = function(options) {
         var args = options || {};
-        addFiltersForData(findFilterData(args.databaseName, args.tableName, args.fields), 0, args.createNeonFilterClause || $scope.functions.createNeonFilterClause, args.queryAfterFilter);
+        addFiltersForData(findFilterData(args.databaseName, args.tableName, args.fields), 0, args.createNeonFilterClause || $scope.functions.createNeonFilterClause, args.queryAfterFilter, args.callback);
     };
 
     /**
@@ -1220,15 +1222,15 @@ function($scope, external, externalRouteService, legends, connectionService, dat
      */
     var checkNeonDashboardFilters = function(options) {
         var neonFilters = [];
-        var filterFields = [];
+        var neonFilterFields = [];
 
         // Check for Neon filters on all filterable database/table/field combinations in the layers.
         var data = findFilterData();
         data.forEach(function(item) {
-            var neonFilter = filterService.getFilter(item.database, item.table, item.fields);
-            if(neonFilter) {
-                neonFilters.push(neonFilter);
-                filterFields.push(item.fields);
+            var neonFiltersForItem = filterService.getFilters(item.database, item.table, item.fields);
+            if(neonFiltersForItem.length) {
+                neonFilters = neonFilters.concat(neonFiltersForItem);
+                neonFilterFields.push(item.fields);
             }
         });
 
@@ -1244,7 +1246,7 @@ function($scope, external, externalRouteService, legends, connectionService, dat
         // Note for single layer visualizations that this will always be true if a filter is set in the Neon dashboard.
         if(neonFilters.length && neonFilters.length === data.length && $scope.functions.needToUpdateFilter(neonFilters)) {
             // Use the first element of the filter arrays because they should all be the same (or equivalent).
-            $scope.functions.updateFilterValues(neonFilters[0], filterFields[0]);
+            $scope.functions.updateFilterValues(neonFilters[0], neonFilterFields[0]);
             runDefaultQueryAndUpdate();
             return;
         }
@@ -1649,14 +1651,19 @@ function($scope, external, externalRouteService, legends, connectionService, dat
      * @param {Number} index
      * @param {Function} createNeonFilterClauseFunction
      * @param {Boolean} [queryAfterFilter] (Optional)
+     * @param {Function} callback (Optional)
      * @private
      */
-    var addFiltersForData = function(data, index, createNeonFilterClauseFunction, queryAfterFilter) {
+    var addFiltersForData = function(data, index, createNeonFilterClauseFunction, queryAfterFilter, callback) {
         if(!data.length || index >= data.length) {
             if($scope.functions.shouldQueryAfterFilter() || queryAfterFilter) {
                 data.forEach(function(item) {
                     runDefaultQueryAndUpdate(item.database, item.table);
                 });
+            }
+
+            if(callback) {
+                callback();
             }
 
             return;
@@ -1677,7 +1684,7 @@ function($scope, external, externalRouteService, legends, connectionService, dat
                 source: "user",
                 tags: ["filter", $scope.type]
             });
-            addFiltersForData(data, ++index, queryAfterFilter);
+            addFiltersForData(data, ++index, createNeonFilterClauseFunction, queryAfterFilter, callback);
         });
     };
 
@@ -1688,9 +1695,10 @@ function($scope, external, externalRouteService, legends, connectionService, dat
      * @param {Number} index
      * @param {Boolean} queryAfterFilter (Optional)
      * @param {Boolean} fromSystem (Optional)
+     * @param {Function} callback (Optional)
      * @private
      */
-    var removeFiltersForData = function(data, index, queryAfterFilter, fromSystem) {
+    var removeFiltersForData = function(data, index, queryAfterFilter, fromSystem, callback) {
         if(!data.length || index >= data.length) {
             var unfiltered = $scope.getDataLayers().every(function(layer) {
                 return !layer.filterable;
@@ -1704,6 +1712,10 @@ function($scope, external, externalRouteService, legends, connectionService, dat
                 data.forEach(function(item) {
                     runDefaultQueryAndUpdate(item.database, item.table);
                 });
+            }
+
+            if(callback) {
+                callback();
             }
 
             return;
@@ -1723,7 +1735,7 @@ function($scope, external, externalRouteService, legends, connectionService, dat
                     tags: ["filter", $scope.type]
                 });
             }
-            removeFiltersForData(data, ++index, queryAfterFilter, fromSystem);
+            removeFiltersForData(data, ++index, queryAfterFilter, fromSystem, callback);
         });
     };
 
