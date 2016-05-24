@@ -106,14 +106,17 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     $scope.functions.onInit = function() {
-        $scope.active.routeServiceConfig = $scope.functions.getRouteServiceConfig();
         $scope.map = new coreMap.Map($scope.visualizationId, {
-            linksPopupService: $scope.functions.getLinksPopupService(),
+            responsive: false,
             routeService: $scope.active.routeServiceConfig,
-            queryForMapPopupDataFunction: queryForMapPopupData,
             runQueryForRouteDataFunction: runQueryForRouteData,
-            responsive: false
+            queryForMapPopupDataFunction: queryForMapPopupData,
+            mapBaseLayer: {
+                color: $scope.active.baseLayerColor || 'light',
+                protocol: $scope.active.baseLayerProtocol || 'http'
+            }
         });
+        $scope.map.linksPopupService = $scope.functions.getLinksPopupService();
         $scope.setDefaultView();
 
         $scope.map.register("movestart", this, onMapEvent);
@@ -300,9 +303,13 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
      * @private
      */
     var handleDateSelected = function(message) {
+        var bounds = {
+            start: _.isNumber(message.start) ? new Date(message.start) : undefined,
+            end: _.isNumber(message.end) ? new Date(message.end) : undefined
+        };
         $scope.active.layers.forEach(function(layer) {
             if(!layer.new && (layer.type === $scope.NODE_AND_ARROW_LAYER || layer.type === $scope.POINT_LAYER)) {
-                layer.olLayer.setDateFilter(message);
+                layer.olLayer.setDateFilter(bounds);
             }
         });
     };
@@ -936,20 +943,24 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     $scope.functions.updateLayerDisplay = function(layer) {
+        var legendIndex = -1;
         if(layer.olLayer) {
-            var legendIndex = _.findIndex($scope.active.legend.layers, {
+            legendIndex = _.findIndex($scope.active.legend.layers, {
                 olLayerId: layer.olLayer.id
             });
-
-            if(legendIndex >= 0) {
-                $scope.active.legend.layers[legendIndex].olLayerId = layer.olLayer.id;
-            }
 
             $scope.map.removeLayer(layer.olLayer);
             layer.olLayer = undefined;
         }
 
         layer.olLayer = createMapLayer(layer);
+
+        // If the layer already existed, recreating the layer will change its ID. Associate the
+        // existing legend with the new ID.
+        if(legendIndex >= 0) {
+            $scope.active.legend.layers[legendIndex].olLayerId = layer.olLayer.id;
+        }
+
 
         $scope.map.setLayerVisibility(layer.olLayer.id, layer.show);
     };

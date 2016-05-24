@@ -23,8 +23,8 @@
  * @constructor
  */
 angular.module('neonDemo.controllers').controller('visualizationSuperclassController',
-['$scope', 'external', 'externalRouteService', 'legends', 'ConnectionService', 'DatasetService', 'ErrorNotificationService', 'FilterService', 'ExportService', 'LinksPopupService', 'ThemeService', 'TranslationService', 'VisualizationService',
-function($scope, external, externalRouteService, legends, connectionService, datasetService, errorNotificationService, filterService, exportService, linksPopupService, themeService, translationService, visualizationService) {
+['$scope', 'external', 'externalRouteService', 'customFilters', 'ConnectionService', 'DatasetService', 'ErrorNotificationService', 'FilterService', 'ExportService', 'LinksPopupService', 'ThemeService', 'TranslationService', 'VisualizationService',
+function($scope, external, externalRouteService, customFilters, connectionService, datasetService, errorNotificationService, filterService, exportService, linksPopupService, themeService, translationService, visualizationService) {
     // Options for the implementation property.
     $scope.SINGLE_LAYER = "singleLayer";
     $scope.MULTIPLE_LAYER = "multipleLayer";
@@ -624,12 +624,12 @@ function($scope, external, externalRouteService, legends, connectionService, dat
     };
 
     /**
-     * Returns the dashboard configuration for the legends.
-     * @method $scope.functions.getLegends
+     * Returns the dashboard configuration for the custom filters.
+     * @method $scope.functions.getCustomFilters
      * @return {Object}
      */
-    $scope.functions.getLegends = function() {
-        return legends || {};
+    $scope.functions.getCustomFilters = function() {
+        return customFilters || {};
     };
 
     /**
@@ -811,7 +811,7 @@ function($scope, external, externalRouteService, legends, connectionService, dat
             callback(response);
         }).fail(function(response) {
             callback(response);
-        })
+        });
     };
 
     /**
@@ -1197,7 +1197,12 @@ function($scope, external, externalRouteService, legends, connectionService, dat
         var invalid = $scope.active.layers.some(function(otherLayer, otherIndex) {
             return otherLayer.name === (layer.name || layer.table.name).toUpperCase() && otherIndex !== index;
         });
-        layer.error = invalid ? "Please choose a unique layer name." : undefined;
+        var error = invalid ? "Please choose a unique layer name." : undefined;
+        if(layer.error && error) {
+            layer.error = layer.error + "  " + error;
+        } else if(invalid) {
+            layer.error = error;
+        }
     };
 
     /**
@@ -1438,7 +1443,7 @@ function($scope, external, externalRouteService, legends, connectionService, dat
             });
 
             $scope.$apply(function() {
-                updateDataFunction($scope.active.escapeData ? neon.helpers.escapeDataRecursively(response.data) : response.data, item.layers);
+                updateDataFunction(response.data, item.layers);
                 queryAndUpdate(data, ++index, addToQueryFunction, executeQueryFunction, updateDataFunction);
             });
 

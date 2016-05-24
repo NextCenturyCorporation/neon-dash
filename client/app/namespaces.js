@@ -383,6 +383,10 @@ var neonVisualizations = [{   // jshint ignore:line
     type: "barChart",
     icon: "BarChart64"
 }, {
+    name: "Custom Filter List",
+    type: "customFilterList",
+    icon: "CustomFilterList64"
+}, {
     name: "Data Table",
     type: "dataTable",
     icon: "ViewData64"
@@ -399,10 +403,6 @@ var neonVisualizations = [{   // jshint ignore:line
     name: "Gantt Chart",
     type: "ganttChart",
     icon: "Gantt64"
-}, {
-    name: "Legend",
-    type: "legend",
-    icon: "Legend64"
 }, {
     name: "Line Chart",
     type: "lineChart",
