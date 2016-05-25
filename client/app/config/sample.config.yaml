@@ -692,7 +692,7 @@ customFilters:
             value: sonicboom
       -
         label: Networks
-        customized:
+        input:
             field: net
     myTable: 
       -
@@ -710,7 +710,7 @@ customFilters:
           -
             label: Not Null
             field: myField
-        customized:
+        input:
             field: myField
             operator: contains
       -

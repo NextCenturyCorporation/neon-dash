@@ -427,7 +427,7 @@
                 }]
             }, {
                 "label": "Networks",
-                "customized": {
+                "input": {
                     "field": "net"
                 }
             }],
@@ -446,7 +446,7 @@
                     "label": "Not Null",
                     "field": "myField"
                 }],
-                "customized": {
+                "input": {
                     "field": "myField",
                     "operator": "contains"
                 }
