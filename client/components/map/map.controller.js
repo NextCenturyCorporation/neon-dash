@@ -22,7 +22,7 @@
  * @class mapController
  * @constructor
  */
-angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$filter', function($scope, $filter) {
+angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$filter', 'ConnectionService', function($scope, $filter, connectionService) {
     $scope.POINT_LAYER = coreMap.Map.POINTS_LAYER;
     $scope.CLUSTER_LAYER = coreMap.Map.CLUSTER_LAYER;
     $scope.HEATMAP_LAYER = coreMap.Map.HEATMAP_LAYER;
@@ -108,7 +108,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.functions.onInit = function() {
         $scope.map = new coreMap.Map($scope.visualizationId, {
             responsive: false,
-            routeService: $scope.active.routeServiceConfig,
+            routeService: $scope.functions.getRouteServiceConfig(),
             runQueryForRouteDataFunction: runQueryForRouteData,
             queryForMapPopupDataFunction: queryForMapPopupData,
             mapBaseLayer: {
@@ -223,45 +223,40 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
      * @param {Function} callback A function that takes an {Array} of route query result data
      * @private
      */
-    var runQueryForRouteData = function(routeStartAndEnd, callback) {
+    var runQueryForRouteData = function(routeStartAndEnd) {
         // FIXME this call should really be part of the neon.js library so we wouldnt need to use jquery.ajax here
         if(!$scope.active.layers.length) {
-            callback();
             return;
         }
+        var connection = connectionService.getActiveConnection();
+        var minLat = Math.min(routeStartAndEnd[0].lat, routeStartAndEnd[1].lat); // routeStartAndEnd[0].lat < routeStartAndEnd[1].lat ? routeStartAndEnd[0].lat : routeStartAndEnd[1].lat;
+        var minLon = Math.min(routeStartAndEnd[0].lon, routeStartAndEnd[1].lon); // routeStartAndEnd[0].lon < routeStartAndEnd[1].lon ? routeStartAndEnd[0].lon : routeStartAndEnd[1].lon;
+        var maxLat = Math.max(routeStartAndEnd[0].lat, routeStartAndEnd[1].lat); // routeStartAndEnd[0].lat > routeStartAndEnd[1].lat ? routeStartAndEnd[0].lat : routeStartAndEnd[1].lat;
+        var maxLon = Math.max(routeStartAndEnd[0].lon, routeStartAndEnd[1].lon); // routeStartAndEnd[0].lon > routeStartAndEnd[1].lon ? routeStartAndEnd[0].lon : routeStartAndEnd[1].lon;
 
-        var minLat = routeStartAndEnd[0].lat < routeStartAndEnd[1].lat ? routeStartAndEnd[0].lat : routeStartAndEnd[1].lat;
-        var minLon = routeStartAndEnd[0].lon < routeStartAndEnd[1].lon ? routeStartAndEnd[0].lon : routeStartAndEnd[1].lon;
-        var maxLat = routeStartAndEnd[0].lat > routeStartAndEnd[1].lat ? routeStartAndEnd[0].lat : routeStartAndEnd[1].lat;
-        var maxLon = routeStartAndEnd[0].lon > routeStartAndEnd[1].lon ? routeStartAndEnd[0].lon : routeStartAndEnd[1].lon;
 
-        var buildRequestFunction = function(host, databaseType) {
-            var url = window.location.origin + "/neon/services/heatmapservice/query/" + host + "/" + databaseType +
-                "?minLat=" + minLat + "&minLon=" + minLon + "&maxLat=" + maxLat + "&maxLon=" + maxLon;
-            if(databaseType === 'mongo') {
-                var latField = $scope.active.layers[0].latitudeField.columnName;
-                var lonField = $scope.active.layers[0].longitudeField.columnName;
-                url += "&latField=" + latField + "&lonField=" + lonField;
-            } else {
-                var locationField = $scope.active.layers[0].locationField;
-                url += "&locationField=" + locationField;
-            }
-
-            return {
-                contentType: "application/json",
-                timeout: 5000,
-                type: "POST",
-                url: url,
-                data: JSON.stringify({
-                    filter: {
-                        databaseName: $scope.active.layers[0].database.name,
-                        tableName: $scope.active.layers[0].table.name
-                    }
-                })
+        var data = {
+            minLat: minLat,
+            minLon: minLon,
+            maxLat: maxLat,
+            maxLon: maxLon,
+            host: connection.host_,
+            databaseType: connection.databaseType_,
+            query: {
+                filter: {
+                    databaseName: $scope.active.layers[0].database.name,
+                    tableName: $scope.active.layers[0].table.name
+                }
             }
         };
-
-        $scope.functions.runRequest(buildRequestFunction, callback);
+        if(data.databaseType === 'mongo') {
+            data.latField = $scope.active.layers[0].latitudeField.columnName;
+            data.lonField = $scope.active.layers[0].longitudeField.columnName
+        }
+        else {
+            data.locationField = $scope.active.layers[0].locationField.columnName;
+        }
+        return data
     };
 
     /**
@@ -1046,6 +1041,14 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
 
     $scope.functions.onReorderLayers = function() {
         $scope.map.reorderLayers(_.filter($scope.active.layers, function(layer) {
+            if(layer=== undefined || layer === null) {
+                for(var index = 0; index < $scope.active.layers.length; index ++) {
+                    if($scope.active.layers[index] === layer) {
+                        $scope.active.layers.splice(index, 1);
+                    }
+                    return;
+                }
+            }
             return !layer.new;
         }).map(function(item) {
             return item.olLayer;

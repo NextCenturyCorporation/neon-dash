@@ -350,7 +350,7 @@ coreMap.Map.Layer.PointsLayer.prototype.setData = function(data, limit) {
     this.updateRadii();
     this.updateFeatures(limit);
     if(this.dateFilterStrategy) {
-        this.dateFilterStrategy.setFilter();
+        this.dateFilterStrategy.deactivate();
     }
     return this.colors;
 };
@@ -362,8 +362,8 @@ coreMap.Map.Layer.PointsLayer.prototype.setDateFilter = function(filterBounds) {
         this.dateFilter.upperBoundary = filterBounds.end;
         this.dateFilterStrategy.setFilter(this.dateFilter);
     } else {
-        // Clear the filter
-        this.dateFilterStrategy.setFilter();
+        // Deactivate the filter
+        this.dateFilterStrategy.deactivate();
     }
 };
 

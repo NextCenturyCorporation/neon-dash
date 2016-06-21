@@ -792,6 +792,9 @@ function($scope, external, externalRouteService, customFilters, connectionServic
      * @param {Number} newIndexReversed The new index of the layer in the list of layers (reversed).
      */
     $scope.functions.reorderLayer = function(layer, newIndexReversed) {
+        if(layer === undefined || layer === null) {
+            return;
+        }
         var newIndex = $scope.active.layers.length - 1 - newIndexReversed;
         var oldIndex = $scope.active.layers.indexOf(layer);
         $scope.active.layers.splice(oldIndex, 1);

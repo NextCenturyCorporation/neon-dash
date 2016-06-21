@@ -730,22 +730,16 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
         }
 
         if(data) {
-            routeRequestConfig.contentType = "application/json";
-            routeRequestConfig.type = "POST";
-            routeRequestConfig.url += me.routeService.post;
-            routeRequestConfig.data = JSON.stringify({
+            data.request = {
                 lat1: me.routeStartAndEnd[0].lat,
                 lat2: me.routeStartAndEnd[1].lat,
                 lon1: me.routeStartAndEnd[0].lon,
-                lon2: me.routeStartAndEnd[1].lon,
-                points: _.map(data, function(item) {
-                    return {
-                        latitude: item.point.lat,
-                        longitude: item.point.lon,
-                        weight: item.percentage * 100
-                    };
-                })
-            });
+                lon2: me.routeStartAndEnd[1].lon
+            };
+            routeRequestConfig.contentType = "application/json";
+            routeRequestConfig.type = "POST";
+            routeRequestConfig.url += me.routeService.post;
+            routeRequestConfig.data = JSON.stringify(data);
         } else {
             routeRequestConfig.url += me.routeService.get;
             routeRequestConfig.url = routeRequestConfig.url.replace(new RegExp(me.routeService.replacements.lat1, "g"), me.routeStartAndEnd[0].lat)
@@ -753,7 +747,6 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
                 .replace(new RegExp(me.routeService.replacements.lat2, "g"), me.routeStartAndEnd[1].lat)
                 .replace(new RegExp(me.routeService.replacements.lon2, "g"), me.routeStartAndEnd[1].lon);
         }
-
         $.ajax(routeRequestConfig).done(function(response) {
             var json = JSON.parse(response);
             var routeLayers = me.map.getLayersBy("route", true);
@@ -797,9 +790,8 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
 
         if(this.runQueryForRouteDataFunction) {
             var me = this;
-            this.runQueryForRouteDataFunction(this.routeStartAndEnd, function(response) {
-                me.runRouteRequestAndUpdate(me, response.data);
-            });
+            var heatmapQueryData = this.runQueryForRouteDataFunction(this.routeStartAndEnd);
+            this.runRouteRequestAndUpdate(me, heatmapQueryData)
         } else {
             this.runRouteRequestAndUpdate();
         }
