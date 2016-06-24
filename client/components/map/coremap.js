@@ -57,7 +57,7 @@ coreMap.Map = function(elementId, options) {
     this.queryForMapPopupDataFunction = options.queryForMapPopupDataFunction || function(database, table, idField, id, callback) {
         callback({});
     };
-    this.runQueryForRouteDataFunction = options.runQueryForRouteDataFunction;
+    this.makeQueryForRouteDataFunction = options.makeQueryForRouteDataFunction;
     this.linksPopupService = options.linksPopupService || {};
     this.routeService = options.routeService || {};
 
@@ -372,7 +372,9 @@ coreMap.Map.prototype.configureFilterOnZoomRectangle = function() {
     this.map.addControl(control);
 };
 
-coreMap.Map.prototype.createSelectControl =  function(layer) {
+var removePopup;
+
+coreMap.Map.prototype.createSelectControl = function(layer) {
     var me = this;
     var onFeatureSelect = function(feature) {
         XDATA.userALE.log({
@@ -493,7 +495,8 @@ coreMap.Map.prototype.createSelectControl =  function(layer) {
         removePopup();
     };
 
-    var removePopup = function() {
+    removePopup = function() {
+        console.info(me);
         if(me.featurePopup) {
             me.map.removePopup(me.featurePopup);
             me.featurePopup.destroy();
@@ -507,6 +510,8 @@ coreMap.Map.prototype.createSelectControl =  function(layer) {
         onUnselect: onFeatureUnselect
     });
 };
+
+    
 
 /**
  * Initializes the map layers and adds the base layer.
@@ -571,7 +576,7 @@ coreMap.Map.prototype.setupControls = function() {
     this.clickControl = new OpenLayers.Control.Click({
         markerLayer: this.markerLayer,
         routeService: this.routeService,
-        runQueryForRouteDataFunction: this.runQueryForRouteDataFunction
+        makeQueryForRouteDataFunction: this.makeQueryForRouteDataFunction
     });
     this.map.addControls([this.zoomControl, this.clickControl, this.cacheReader, this.cacheWriter, this.selectControl]);
     this.clickControl.activate();
@@ -697,7 +702,7 @@ coreMap.Map.prototype.setBaseLayerColor = function(color) {
 };
 
 OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
-    routeStartAndEnd: [],
+    routeStartAndEnd: { start: undefined, end: undefined },
     defaultHandlerOptions: {
         single: true,
         double: false,
@@ -712,9 +717,9 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
         this.handlerOptions = OpenLayers.Util.extend({}, this.defaultHandlerOptions);
         OpenLayers.Control.prototype.initialize.apply(this, arguments);
         this.handler = new OpenLayers.Handler.Click(this, {
-            click: this.addRoutePointAndUpdate
+            click: this.createRoutePointMenu
         }, this.handlerOptions);
-        this.runQueryForRouteDataFunction = options.runQueryForRouteDataFunction;
+        this.makeQueryForRouteDataFunction = options.makeQueryForRouteDataFunction;
     },
 
     runRouteRequestAndUpdate: function(me, data) {
@@ -731,10 +736,10 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
 
         if(data) {
             data.request = {
-                lat1: me.routeStartAndEnd[0].lat,
-                lat2: me.routeStartAndEnd[1].lat,
-                lon1: me.routeStartAndEnd[0].lon,
-                lon2: me.routeStartAndEnd[1].lon
+                lat1: me.routeStartAndEnd.start.lat,
+                lat2: me.routeStartAndEnd.end.lat,
+                lon1: me.routeStartAndEnd.start.lon,
+                lon2: me.routeStartAndEnd.end.lon
             };
             routeRequestConfig.contentType = "application/json";
             routeRequestConfig.type = "POST";
@@ -742,16 +747,21 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
             routeRequestConfig.data = JSON.stringify(data);
         } else {
             routeRequestConfig.url += me.routeService.get;
-            routeRequestConfig.url = routeRequestConfig.url.replace(new RegExp(me.routeService.replacements.lat1, "g"), me.routeStartAndEnd[0].lat)
-                .replace(new RegExp(me.routeService.replacements.lon1, "g"), me.routeStartAndEnd[0].lon)
-                .replace(new RegExp(me.routeService.replacements.lat2, "g"), me.routeStartAndEnd[1].lat)
-                .replace(new RegExp(me.routeService.replacements.lon2, "g"), me.routeStartAndEnd[1].lon);
+            routeRequestConfig.url = routeRequestConfig.url.replace(new RegExp(me.routeService.replacements.lat1, "g"), me.routeStartAndEnd.start.lat)
+                .replace(new RegExp(me.routeService.replacements.lon1, "g"), me.routeStartAndEnd.start.lon)
+                .replace(new RegExp(me.routeService.replacements.lat2, "g"), me.routeStartAndEnd.end.lat)
+                .replace(new RegExp(me.routeService.replacements.lon2, "g"), me.routeStartAndEnd.end.lon);
         }
         $.ajax(routeRequestConfig).done(function(response) {
             var json = JSON.parse(response);
             var routeLayers = me.map.getLayersBy("route", true);
-            if(json.paths && json.paths.length && json.paths[0].points && routeLayers.length) {
-                routeLayers[0].setData(json.paths[0].points);
+            if(json.paths && json.paths.length && json.paths[0].points/* && routeLayers.length*/) {
+                if(routeLayers.length) {
+                    routeLayers[0].setData(json.paths[0].points);
+                }
+                else {
+                    // TODO - make a new route layer aiutomatically and add it to the map. Make use of map.controller.js "createMapLayer" or the code therein.
+                }
             }
         }).fail(function(response) {
             if(response.responseJSON && response.responseJSON.message) {
@@ -762,35 +772,66 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
                 console.error("Unknown error in route request [" + routeRequestConfig.url + "]");
             }
         }).always(function() {
-            me.routeStartAndEnd = [];
+            me.routeStartAndEnd = { start: undefined, end: undefined };
         });
     },
 
-    addRoutePointAndUpdate: function(args) {
+    createRoutePointMenu: function(args) {
+        var me = this;
+        var text = "<div><input type='button' class='btn btn-default' id='start_point_button' value='Place Start'/>";
+        text = me.routeStartAndEnd.start !== undefined ? text + "<input type='button' class='btn btn-default' id='end_point_button' value='Place End'/>" : text;
+        text += "</div>";
+        me.featurePopup = new OpenLayers.Popup.FramedCloud("Routing",
+            me.map.getLonLatFromPixel(args.xy),
+            null,
+            text,
+            null,
+            true,
+            removePopup);
+        me.featurePopup.events.remove("click");
+        me.map.addPopup(me.featurePopup, true);
+        $("#start_point_button").on('click', function(evnt) { me.map.removePopup(me.featurePopup); me.addRoutePointAndUpdate(args, "start"); } );
+        $("#end_point_button").on('click', function(evnt) { me.map.removePopup(me.featurePopup); me.addRoutePointAndUpdate(args, "end"); } );
+    },
+
+    addRoutePointAndUpdate: function(args, pointType) {
         if(this.routeService.disabled) {
             return;
         }
 
-        if(!this.routeStartAndEnd.length) {
+        if(this.routeStartAndEnd.start === undefined && this.routeStartAndEnd.end === undefined) {
             this.markerLayer.clearMarkers();
         }
 
         var routePoint = this.map.getLonLatFromPixel(args.xy).transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
-        this.routeStartAndEnd.push(routePoint);
+        routePoint.type = pointType;
+        if(pointType === 'start') {
+            if(this.routeStartAndEnd.start !== undefined && this.routeStartAndEnd.start.marker !== undefined) {
+                this.markerLayer.removeMarker(this.routeStartAndEnd.start.marker);
+            }
+            this.routeStartAndEnd.start = routePoint;
+        }
+        else if(pointType === 'end') {
+            if(this.routeStartAndEnd.end !== undefined && this.routeStartAndEnd.end.marker !== undefined) {
+                this.markerLayer.removeMarker(this.routeStartAndEnd.end.marker);
+            }
+            this.routeStartAndEnd.end = routePoint;
+        }
 
         var size = new OpenLayers.Size(25, 25);
         var offset = new OpenLayers.Pixel(-(size.w / 2 + 1), -size.h);
-        var markerIcon = new OpenLayers.Icon("assets/images/Marker_40x40.png", size, offset);
+        var markerIcon = new OpenLayers.Icon("assets/images/Marker_" + pointType + "_40x40.png", size, offset);
         var markerPoint = new OpenLayers.LonLat(routePoint.lon, routePoint.lat).transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
-        this.markerLayer.addMarker(new OpenLayers.Marker(markerPoint, markerIcon));
+        routePoint.marker = new OpenLayers.Marker(markerPoint, markerIcon);
+        this.markerLayer.addMarker(routePoint.marker);
 
-        if(this.routeStartAndEnd.length < 2) {
+        if(this.routeStartAndEnd.start === undefined || this.routeStartAndEnd.end === undefined) {
             return;
         }
 
-        if(this.runQueryForRouteDataFunction) {
+        if(this.makeQueryForRouteDataFunction) {
             var me = this;
-            var heatmapQueryData = this.runQueryForRouteDataFunction(this.routeStartAndEnd);
+            var heatmapQueryData = this.makeQueryForRouteDataFunction(this.routeStartAndEnd);
             this.runRouteRequestAndUpdate(me, heatmapQueryData)
         } else {
             this.runRouteRequestAndUpdate();

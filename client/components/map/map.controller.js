@@ -109,7 +109,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         $scope.map = new coreMap.Map($scope.visualizationId, {
             responsive: false,
             routeService: $scope.functions.getRouteServiceConfig(),
-            runQueryForRouteDataFunction: runQueryForRouteData,
+            makeQueryForRouteDataFunction: makeQueryForRouteData,
             queryForMapPopupDataFunction: queryForMapPopupData,
             mapBaseLayer: {
                 color: $scope.active.baseLayerColor || 'light',
@@ -217,23 +217,21 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     /**
-     * Runs a query for route data using the given start and end points and calls the given callback with the route data.
-     * @method runQueryForRouteData
-     * @param {Array} routeStartAndEnd An array of two objects containing {Number} lat and {Number} lon
-     * @param {Function} callback A function that takes an {Array} of route query result data
+     * Creates an object containing data needed to run a query for route data using the given start and end points.
+     * @method makeQueryForRouteData
+     * @param {Array} routeStartAndEnd An object containing  start and end values, each containing {Number} lat and {Number} lon
      * @private
      */
-    var runQueryForRouteData = function(routeStartAndEnd) {
+    var makeQueryForRouteData = function(routeStartAndEnd) {
         // FIXME this call should really be part of the neon.js library so we wouldnt need to use jquery.ajax here
         if(!$scope.active.layers.length) {
             return;
         }
         var connection = connectionService.getActiveConnection();
-        var minLat = Math.min(routeStartAndEnd[0].lat, routeStartAndEnd[1].lat); // routeStartAndEnd[0].lat < routeStartAndEnd[1].lat ? routeStartAndEnd[0].lat : routeStartAndEnd[1].lat;
-        var minLon = Math.min(routeStartAndEnd[0].lon, routeStartAndEnd[1].lon); // routeStartAndEnd[0].lon < routeStartAndEnd[1].lon ? routeStartAndEnd[0].lon : routeStartAndEnd[1].lon;
-        var maxLat = Math.max(routeStartAndEnd[0].lat, routeStartAndEnd[1].lat); // routeStartAndEnd[0].lat > routeStartAndEnd[1].lat ? routeStartAndEnd[0].lat : routeStartAndEnd[1].lat;
-        var maxLon = Math.max(routeStartAndEnd[0].lon, routeStartAndEnd[1].lon); // routeStartAndEnd[0].lon > routeStartAndEnd[1].lon ? routeStartAndEnd[0].lon : routeStartAndEnd[1].lon;
-
+        var minLat = Math.min(routeStartAndEnd.start.lat, routeStartAndEnd.end.lat);
+        var minLon = Math.min(routeStartAndEnd.start.lon, routeStartAndEnd.end.lon);
+        var maxLat = Math.max(routeStartAndEnd.start.lat, routeStartAndEnd.end.lat);
+        var maxLon = Math.max(routeStartAndEnd.start.lon, routeStartAndEnd.end.lon);
 
         var data = {
             minLat: minLat,
