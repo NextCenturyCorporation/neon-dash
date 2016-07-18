@@ -28,7 +28,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.HEATMAP_LAYER = coreMap.Map.HEATMAP_LAYER;
     $scope.NODE_AND_ARROW_LAYER = coreMap.Map.NODE_LAYER;
     $scope.ROUTE_LAYER = coreMap.Map.ROUTE_LAYER;
-    $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER, $scope.ROUTE_LAYER];
+    $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER];
     $scope.DEFAULT_LIMIT = 1000;
     $scope.DEFAULT_NEW_LAYER_TYPE = $scope.MAP_LAYER_TYPES[0];
 
@@ -114,7 +114,13 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             mapBaseLayer: {
                 color: $scope.active.baseLayerColor || 'light',
                 protocol: $scope.active.baseLayerProtocol || 'http'
-            }
+            },
+            createMapLayerFunction: function(layerType, layerName) { // Creates a new layer, sets its name and type, and adds it to the map.
+                var layer = $scope.functions.createLayer();
+                layer.type = layerType;
+                layer.name = layerName;
+                createMapLayer(layer);
+            },
         });
         $scope.map.linksPopupService = $scope.functions.getLinksPopupService();
         $scope.setDefaultView();
@@ -505,8 +511,14 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     $scope.functions.updateData = function(data, layers) {
-        $scope.dataBounds = computeDataBounds(data || []);
-        zoomToDataBounds();
+        var dataBounds = computeDataBounds(data || []);
+        var newBounds = new OpenLayers.Bounds(dataBounds.left, dataBounds.bottom, dataBounds.right, dataBounds.top)
+            .transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
+        var mapExtent = $scope.map.map.getExtent();
+        if(Math.abs(newBounds.left - newBounds.right) < Math.abs(mapExtent.left - mapExtent.right)) {
+            $scope.dataBounds = dataBounds;
+            zoomToDataBounds();
+        }
 
         (layers || $scope.active.layers).forEach(function(layer) {
             if(layer.olLayer) {
@@ -1006,7 +1018,6 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         } else if(layer.type === $scope.NODE_AND_ARROW_LAYER) {
             olLayer = new coreMap.Map.Layer.NodeLayer(layer.name, options);
         }
-
         if(olLayer) {
             $scope.map.addLayer(olLayer);
         }

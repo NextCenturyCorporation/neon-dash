@@ -462,6 +462,7 @@ function($scope, external, externalRouteService, customFilters, connectionServic
         var layer = createLayerFromConfig({});
         layer.edit = true;
         layer.new = true;
+        return layer;
     };
 
     /**

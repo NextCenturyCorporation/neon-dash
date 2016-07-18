@@ -60,6 +60,7 @@ coreMap.Map = function(elementId, options) {
     this.makeQueryForRouteDataFunction = options.makeQueryForRouteDataFunction;
     this.linksPopupService = options.linksPopupService || {};
     this.routeService = options.routeService || {};
+    this.createMapLayerFunction = options.createMapLayerFunction;
 
     if(this.responsive) {
         this.resizeOnWindowResize();
@@ -496,7 +497,6 @@ coreMap.Map.prototype.createSelectControl = function(layer) {
     };
 
     removePopup = function() {
-        console.info(me);
         if(me.featurePopup) {
             me.map.removePopup(me.featurePopup);
             me.featurePopup.destroy();
@@ -576,7 +576,8 @@ coreMap.Map.prototype.setupControls = function() {
     this.clickControl = new OpenLayers.Control.Click({
         markerLayer: this.markerLayer,
         routeService: this.routeService,
-        makeQueryForRouteDataFunction: this.makeQueryForRouteDataFunction
+        makeQueryForRouteDataFunction: this.makeQueryForRouteDataFunction,
+        createMapLayerFunction: this.createMapLayerFunction,
     });
     this.map.addControls([this.zoomControl, this.clickControl, this.cacheReader, this.cacheWriter, this.selectControl]);
     this.clickControl.activate();
@@ -702,7 +703,10 @@ coreMap.Map.prototype.setBaseLayerColor = function(color) {
 };
 
 OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
-    routeStartAndEnd: { start: undefined, end: undefined },
+    routeStartAndEnd: {
+        start: undefined,
+        end: undefined
+    },
     defaultHandlerOptions: {
         single: true,
         double: false,
@@ -720,6 +724,7 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
             click: this.createRoutePointMenu
         }, this.handlerOptions);
         this.makeQueryForRouteDataFunction = options.makeQueryForRouteDataFunction;
+        this.createMapLayerFunction = options.createMapLayerFunction;
     },
 
     runRouteRequestAndUpdate: function(me, data) {
@@ -755,13 +760,12 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
         $.ajax(routeRequestConfig).done(function(response) {
             var json = JSON.parse(response);
             var routeLayers = me.map.getLayersBy("route", true);
-            if(json.paths && json.paths.length && json.paths[0].points/* && routeLayers.length*/) {
-                if(routeLayers.length) {
-                    routeLayers[0].setData(json.paths[0].points);
+            if(json.paths && json.paths.length && json.paths[0].points) {
+                if(!routeLayers.length) {
+                    me.createMapLayerFunction(coreMap.Map.ROUTE_LAYER, "Route");
+                    routeLayers = me.map.getLayersBy("route", true);
                 }
-                else {
-                    // TODO - make a new route layer aiutomatically and add it to the map. Make use of map.controller.js "createMapLayer" or the code therein.
-                }
+                routeLayers[0].setData(json.paths[0].points);
             }
         }).fail(function(response) {
             if(response.responseJSON && response.responseJSON.message) {
@@ -787,7 +791,9 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
             text,
             null,
             true,
-            removePopup);
+            function() {
+                me.map.removePopup(me.featurePopup);
+            });
         me.featurePopup.events.remove("click");
         me.map.addPopup(me.featurePopup, true);
         $("#start_point_button").on('click', function(evnt) { me.map.removePopup(me.featurePopup); me.addRoutePointAndUpdate(args, "start"); } );
@@ -801,6 +807,10 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
 
         if(this.routeStartAndEnd.start === undefined && this.routeStartAndEnd.end === undefined) {
             this.markerLayer.clearMarkers();
+            var routeLayers = this.map.getLayersBy("route", true);
+            if(routeLayers.length) {
+                routeLayers[0].setData([]);
+            }
         }
 
         var routePoint = this.map.getLonLatFromPixel(args.xy).transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
