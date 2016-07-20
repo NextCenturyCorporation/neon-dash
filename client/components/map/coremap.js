@@ -24,7 +24,7 @@ var coreMap = coreMap || {};
  * @namespace coreMap
 
  * @param {String} elementId id of a div or span which the map component will replace.
- * @param {Object} options A collection of optional key/value pairs used for configuration parameters:
+ * @param {Object} opts A collection of optional key/value pairs used for configuration parameters:
  * <ul>
  *     <li>width - The width of the map in pixels.</li>
  *     <li>height - The height of the map in pixels.</li>
@@ -38,44 +38,41 @@ var coreMap = coreMap || {};
  *     var map = new coreMap.Map('map');
  *
  * @example
- *     var options = {
+ *     var opts = {
  *            latitudeMapping: function(element){ return element[0]; },
  *            longitudeMapping: function(element){ return element[1]; },
  *            sizeMapping: function(element){ return element[2]; }
  *     };
- *     var map = new coreMap.Map('map', options);
+ *     var map = new coreMap.Map('map', opts);
  *
  **/
 
-coreMap.Map = function(elementId, options) {
-    options = options || {};
+coreMap.Map = function(elementId, opts) {
+    opts = opts || {};
 
     this.elementId = elementId;
     this.selector = $("#" + elementId);
-    this.onZoomRect = options.onZoomRect;
-    this.responsive = options.responsive;
-    this.queryForMapPopupDataFunction = options.queryForMapPopupDataFunction || function(database, table, idField, id, callback) {
+    this.onZoomRect = opts.onZoomRect;
+    this.responsive = opts.responsive;
+    this.queryForMapPopupDataFunction = opts.queryForMapPopupDataFunction || function(database, table, idField, id, callback) {
         callback({});
     };
-    this.runQueryForRouteDataFunction = options.runQueryForRouteDataFunction;
-    this.linksPopupService = options.linksPopupService || {};
-    this.routeService = options.routeService || {};
+    this.linksPopupService = {};
 
     if(this.responsive) {
         this.resizeOnWindowResize();
     } else {
-        this.width = options.width || coreMap.Map.DEFAULT_WIDTH;
-        this.height = options.height || coreMap.Map.DEFAULT_HEIGHT;
+        this.width = opts.width || coreMap.Map.DEFAULT_WIDTH;
+        this.height = opts.height || coreMap.Map.DEFAULT_HEIGHT;
     }
 
-    this.baseLayerColor = (options.mapBaseLayer ? options.mapBaseLayer.color : null) || "light";
-    this.baseLayerProtocol = (options.mapBaseLayer ? options.mapBaseLayer.protocol : null) || "http";
+    this.baseLayerColor = (opts.mapBaseLayer ? opts.mapBaseLayer.color : null) || "light";
+    this.baseLayerProtocol = (opts.mapBaseLayer ? opts.mapBaseLayer.protocol : null) || "http";
 
     this.selectableLayers = [];
     this.selectControls = [];
     this.initializeMap();
     this.setupLayers();
-
     this.setupControls();
     this.resetZoom();
 };
@@ -93,7 +90,6 @@ coreMap.Map.POINTS_LAYER = 'points';
 coreMap.Map.HEATMAP_LAYER = 'heatmap';
 coreMap.Map.CLUSTER_LAYER = 'cluster';
 coreMap.Map.NODE_LAYER = 'nodes and arrows';
-coreMap.Map.ROUTE_LAYER = 'route';
 
 coreMap.Map.MAP_TILES = {
     light: {
@@ -522,11 +518,6 @@ coreMap.Map.prototype.setupLayers = function() {
         displayInLayerSwitcher: false
     });
     this.map.addLayer(this.boxLayer);
-
-    this.markerLayer = new OpenLayers.Layer.Markers('Routing', {
-        projection: coreMap.Map.DESTINATION_PROJECTION
-    });
-    this.map.addLayer(this.markerLayer);
 };
 
 /**
@@ -568,13 +559,7 @@ coreMap.Map.prototype.setupControls = function() {
     });
 
     this.selectControl = this.createSelectControl([]);
-    this.clickControl = new OpenLayers.Control.Click({
-        markerLayer: this.markerLayer,
-        routeService: this.routeService,
-        runQueryForRouteDataFunction: this.runQueryForRouteDataFunction
-    });
-    this.map.addControls([this.zoomControl, this.clickControl, this.cacheReader, this.cacheWriter, this.selectControl]);
-    this.clickControl.activate();
+    this.map.addControls([this.zoomControl, this.cacheReader, this.cacheWriter, this.selectControl]);
 };
 
 /**
@@ -695,113 +680,3 @@ coreMap.Map.prototype.setBaseLayerColor = function(color) {
     this.baseLayerColor = color;
     this.addBaseLayer();
 };
-
-OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
-    routeStartAndEnd: [],
-    defaultHandlerOptions: {
-        single: true,
-        double: false,
-        pixelTolerance: 0,
-        stopSingle: false,
-        stopDouble: false
-    },
-
-    initialize: function(options) {
-        this.markerLayer = options.markerLayer;
-        this.routeService = options.routeService;
-        this.handlerOptions = OpenLayers.Util.extend({}, this.defaultHandlerOptions);
-        OpenLayers.Control.prototype.initialize.apply(this, arguments);
-        this.handler = new OpenLayers.Handler.Click(this, {
-            click: this.addRoutePointAndUpdate
-        }, this.handlerOptions);
-        this.runQueryForRouteDataFunction = options.runQueryForRouteDataFunction;
-    },
-
-    runRouteRequestAndUpdate: function(me, data) {
-        if(!me.routeService.url || !me.routeService.get || !me.routeService.post) {
-            return;
-        }
-
-        // TODO Should be set in the dashboard configuration file!
-        var routeRequestConfig = {
-            timeout: 5000,
-            type: "GET",
-            url: me.routeService.url
-        }
-
-        if(data) {
-            routeRequestConfig.contentType = "application/json";
-            routeRequestConfig.type = "POST";
-            routeRequestConfig.url += me.routeService.post;
-            routeRequestConfig.data = JSON.stringify({
-                lat1: me.routeStartAndEnd[0].lat,
-                lat2: me.routeStartAndEnd[1].lat,
-                lon1: me.routeStartAndEnd[0].lon,
-                lon2: me.routeStartAndEnd[1].lon,
-                points: _.map(data, function(item) {
-                    return {
-                        latitude: item.point.lat,
-                        longitude: item.point.lon,
-                        weight: item.percentage * 100
-                    };
-                })
-            });
-        } else {
-            routeRequestConfig.url += me.routeService.get;
-            routeRequestConfig.url = routeRequestConfig.url.replace(new RegExp(me.routeService.replacements.lat1, "g"), me.routeStartAndEnd[0].lat)
-                .replace(new RegExp(me.routeService.replacements.lon1, "g"), me.routeStartAndEnd[0].lon)
-                .replace(new RegExp(me.routeService.replacements.lat2, "g"), me.routeStartAndEnd[1].lat)
-                .replace(new RegExp(me.routeService.replacements.lon2, "g"), me.routeStartAndEnd[1].lon);
-        }
-
-        $.ajax(routeRequestConfig).done(function(response) {
-            var json = JSON.parse(response);
-            var routeLayers = me.map.getLayersBy("route", true);
-            if(json.paths && json.paths.length && json.paths[0].points && routeLayers.length) {
-                routeLayers[0].setData(json.paths[0].points);
-            }
-        }).fail(function(response) {
-            if(response.responseJSON && response.responseJSON.message) {
-                // TODO Show error notification.
-                console.error("Error in route request [" + routeRequestConfig.url + ":  " + response.responseJSON.message);
-            } else {
-                // TODO Show error.
-                console.error("Unknown error in route request [" + routeRequestConfig.url + "]");
-            }
-        }).always(function() {
-            me.routeStartAndEnd = [];
-        });
-    },
-
-    addRoutePointAndUpdate: function(args) {
-        if(this.routeService.disabled) {
-            return;
-        }
-
-        if(!this.routeStartAndEnd.length) {
-            this.markerLayer.clearMarkers();
-        }
-
-        var routePoint = this.map.getLonLatFromPixel(args.xy).transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
-        this.routeStartAndEnd.push(routePoint);
-
-        var size = new OpenLayers.Size(25, 25);
-        var offset = new OpenLayers.Pixel(-(size.w / 2 + 1), -size.h);
-        var markerIcon = new OpenLayers.Icon("assets/images/Marker_40x40.png", size, offset);
-        var markerPoint = new OpenLayers.LonLat(routePoint.lon, routePoint.lat).transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
-        this.markerLayer.addMarker(new OpenLayers.Marker(markerPoint, markerIcon));
-
-        if(this.routeStartAndEnd.length < 2) {
-            return;
-        }
-
-        if(this.runQueryForRouteDataFunction) {
-            var me = this;
-            this.runQueryForRouteDataFunction(this.routeStartAndEnd, function(response) {
-                me.runRouteRequestAndUpdate(me, response.data);
-            });
-        } else {
-            this.runRouteRequestAndUpdate();
-        }
-    }
-});

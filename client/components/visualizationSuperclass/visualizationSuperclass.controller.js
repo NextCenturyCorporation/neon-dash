@@ -23,8 +23,8 @@
  * @constructor
  */
 angular.module('neonDemo.controllers').controller('visualizationSuperclassController',
-['$scope', 'external', 'externalRouteService', 'customFilters', 'ConnectionService', 'DatasetService', 'ErrorNotificationService', 'FilterService', 'ExportService', 'LinksPopupService', 'ThemeService', 'TranslationService', 'VisualizationService',
-function($scope, external, externalRouteService, customFilters, connectionService, datasetService, errorNotificationService, filterService, exportService, linksPopupService, themeService, translationService, visualizationService) {
+['$scope', 'external', 'customFilters', 'ConnectionService', 'DatasetService', 'ErrorNotificationService', 'FilterService', 'ExportService', 'LinksPopupService', 'ThemeService', 'TranslationService', 'VisualizationService',
+function($scope, external, customFilters, connectionService, datasetService, errorNotificationService, filterService, exportService, linksPopupService, themeService, translationService, visualizationService) {
     // Options for the implementation property.
     $scope.SINGLE_LAYER = "singleLayer";
     $scope.MULTIPLE_LAYER = "multipleLayer";
@@ -670,15 +670,6 @@ function($scope, external, externalRouteService, customFilters, connectionServic
      */
     $scope.functions.getNumberOfFilterClauses = function(neonFilter) {
         return filterService.hasSingleClause(neonFilter) ? 1 : filterService.getMultipleClausesLength(neonFilter);
-    };
-
-    /**
-     * Returns the configuration for the route service as defined in the dashboard configuration.
-     * @method $scope.functions.getRouteServiceConfig
-     * @return {Object}
-     */
-    $scope.functions.getRouteServiceConfig = function() {
-        return externalRouteService;
     };
 
     /**
