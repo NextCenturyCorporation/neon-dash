@@ -1,20 +1,20 @@
 /* tslint:disable:no-unused-variable */
 
 import { addProviders, async, inject } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import { NeonGTD } from './neon-gtd.component';
 
 describe('App: NeonGtd', () => {
   beforeEach(() => {
-    addProviders([AppComponent]);
+    addProviders([NeonGTD]);
   });
 
   it('should create the app',
-    inject([AppComponent], (app: AppComponent) => {
+    inject([NeonGTD], (app: NeonGTD) => {
       expect(app).toBeTruthy();
     }));
 
   it('should have as title \'app works!\'',
-    inject([AppComponent], (app: AppComponent) => {
-      expect(app.title).toEqual('app works!');
+    inject([NeonGTD], (app: NeonGTD) => {
+      expect(app.selectedDataset).toEqual('Select a Dataset...');
     }));
 });

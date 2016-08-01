@@ -1,0 +1,29 @@
+<md-sidenav-layout>
+    <md-sidenav #sidenav mode="side" class="neon-gtd-sidenav">
+      Put datasets here
+    </md-sidenav>
+    <md-toolbar color="primary">
+        <button class="neon-gtd-icon-button" (click)="sidenav.toggle()">
+            <i class="material-icons neon-gtd-toolbar-menu md-36">menu</i>
+            {{ selectedDataset }}
+        </button>
+        <button class="neon-gtd-icon-button">
+            <i class="material-icons neon-gtd-toolbar-menu md-36">add_circle</i>
+            Add Visualization
+        </button>
+        <button class="neon-gtd-icon-button">
+            <i class="material-icons neon-gtd-toolbar-menu md-36">settings</i>
+            Settings
+        </button>
+        <button class="neon-gtd-icon-button">
+            <i class="material-icons neon-gtd-toolbar-menu md-36">help</i>
+        </button>
+        <button class="neon-gtd-icon-button">
+            <i class="material-icons neon-gtd-toolbar-menu md-36">info_circle</i>
+        </button>
+    </md-toolbar>
+
+    <div class="neon-gtd-content">
+
+    </div>
+</md-sidenav-layout>
