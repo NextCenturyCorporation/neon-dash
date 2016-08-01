@@ -1,29 +1,36 @@
-<md-sidenav-layout>
-    <md-sidenav #sidenav mode="side" class="neon-gtd-sidenav">
-      Put datasets here
+<md-sidenav-layout class="neon-gtd-sidenav">
+    <md-sidenav #sidenav mode="push" class="neon-gtd-sidenav" md-fill>
+        <md-toolbar color="primary">
+            <span class="md-36">Datasets</span>
+        </md-toolbar>
+        <md-content>
+            <md-list flex>
+                <md-list-item class="md-1-line" *ngFor="let dataset of datasets" >
+                    <h3>{{ dataset.name }}</h3>
+                </md-list-item>
+            </md-list>
+        </md-content>
     </md-sidenav>
-    <md-toolbar color="primary">
-        <button class="neon-gtd-icon-button" (click)="sidenav.toggle()">
-            <i class="material-icons neon-gtd-toolbar-menu md-36">menu</i>
-            {{ selectedDataset }}
+    <md-toolbar color="primary" layout-align="space-between center" flex>
+        <button md-button [attr.aria-label]="selectedDataset" (click)="sidenav.toggle()"  class="neon-gtd-text-button">
+            <i class="material-icons md-24" style="vertical-align: sub">menu</i>&nbsp;{{ selectedDataset }}
         </button>
-        <button class="neon-gtd-icon-button">
-            <i class="material-icons neon-gtd-toolbar-menu md-36">add_circle</i>
-            Add Visualization
+        <span class="fill-remaining"></span>
+        <button md-icon-button aria-label="Add Visualization">
+            <md-icon class="md-24">add</md-icon>
         </button>
-        <button class="neon-gtd-icon-button">
-            <i class="material-icons neon-gtd-toolbar-menu md-36">settings</i>
-            Settings
+        <button md-icon-button aria-label="About..." class="neon-gtd-text-button">
+            i
         </button>
-        <button class="neon-gtd-icon-button">
-            <i class="material-icons neon-gtd-toolbar-menu md-36">help</i>
+        <button md-icon-button  aria-label="Settings">
+            <md-icon class="md-24">settings</md-icon>
         </button>
-        <button class="neon-gtd-icon-button">
-            <i class="material-icons neon-gtd-toolbar-menu md-36">info_circle</i>
+        <button md-icon-button aria-label="Help" class="neon-gtd-text-button">
+            ?
         </button>
     </md-toolbar>
 
-    <div class="neon-gtd-content">
+    <md-content class="neon-gtd-content">
 
-    </div>
+    </md-content>
 </md-sidenav-layout>
