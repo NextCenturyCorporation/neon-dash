@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
+import { OnInit } from '@angular/core';
 import { NgFor } from '@angular/common';
+
 import { MdIcon, MdIconRegistry } from '@angular2-material/icon';
 import { MD_BUTTON_DIRECTIVES } from '@angular2-material/button';
 import { MD_CARD_DIRECTIVES } from '@angular2-material/card';
@@ -13,12 +15,16 @@ import { MD_SIDENAV_DIRECTIVES } from '@angular2-material/sidenav';
 import { MD_TABS_DIRECTIVES } from '@angular2-material/tabs';
 import { MD_TOOLBAR_DIRECTIVES } from '@angular2-material/toolbar';
 
+import { NeonGTDConfig } from './neon-gtd-config';
+import { Dataset } from './dataset';
+import { DatasetService } from './services/dataset.service';
+
 @Component({
     moduleId: module.id,
     selector: 'app-root',
     templateUrl: 'neon-gtd.component.html',
     styleUrls: ['neon-gtd.component.css'],
-    providers: [MdIconRegistry],
+    providers: [DatasetService, MdIconRegistry],
     directives: [
         NgFor,
         MdIcon,
@@ -35,12 +41,18 @@ import { MD_TOOLBAR_DIRECTIVES } from '@angular2-material/toolbar';
         MD_TOOLBAR_DIRECTIVES
 ]})
 
-export class NeonGTD {
-    selectedDataset = 'Select a Dataset';
+export class NeonGTDComponent implements OnInit {
+    selectedDataset: string = 'Select a Dataset';
 
-    datasets = [{
-        name: 'Earthquakes'
-    }, {
-        name: 'Twitter'
-    }]
+    datasets: Dataset[] = [];
+
+    getDatasets() {
+        this.datasetService.getDatasets().then(datasets => this.datasets = datasets);
+    }
+
+    constructor(private datasetService: DatasetService) {}
+
+    ngOnInit() {
+        this.getDatasets();
+    }
 }

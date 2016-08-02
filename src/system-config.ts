@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 // SystemJS configuration file, see links for more information
 // https://github.com/systemjs/systemjs
@@ -9,18 +9,20 @@
  **********************************************************************************************/
 /** Map relative paths to URLs. */
 const map: any = {
-  '@angular2-material': 'vendor/@angular2-material'
+  '@angular2-material': 'vendor/@angular2-material',
+  'lodash': 'vendor/lodash/lodash.js'
 };
 
 /** User packages configuration. */
 const packages: any = {
+  'lodash': 'vendor/lodash/lodash.js'
 };
 
-const materialPkgs:string[] = [
+const materialPkgs: string[] = [
   'button',
   'card',
   'checkbox',
-  'core', 
+  'core',
   'icon',
   'input',
   'list',
@@ -34,7 +36,7 @@ const materialPkgs:string[] = [
 
 materialPkgs.forEach((pkg) => {
   packages[`@angular2-material/${pkg}`] = {main: `${pkg}.js`};
-})
+});
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 /***********************************************************************************************
