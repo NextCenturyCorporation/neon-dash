@@ -369,6 +369,34 @@ neonWizard.visualizationBindings["timeline-selector"] = [
     }
 ];
 
+neonWizard.visualizationBindings["stacked-timeline-selector"] = [
+    {
+        label: "Date Field",
+        name: "bind-date-field",
+        bindingName: "date"
+    },{
+        label: "Date Granularity",
+        name: "bind-granularity",
+        options: [
+            {
+                name: "year",
+                prettyName: "Year"
+            },{
+                name: "month",
+                prettyName: "Month"
+            },{
+                name: "day",
+                prettyName: "Day",
+                defaultOption: true
+            },{
+                name: "hour",
+                prettyName: "Hour"
+            }
+        ]
+
+    }
+];
+
 var neonVisualizationMinPixel = {
     x: 320,
     y: 240
@@ -438,5 +466,10 @@ var neonVisualizations = [{   // jshint ignore:line
 }, {
     name: "Timeline",
     type: "timeline",
+    icon: "Timeline64"
+},
+{
+    name: "Stacked Timeline",
+    type: "stackedTimeline",
     icon: "Timeline64"
 }];
