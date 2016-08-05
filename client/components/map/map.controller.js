@@ -23,6 +23,11 @@
  * @constructor
  */
 angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$filter', 'ConnectionService', function($scope, $filter, connectionService) {
+    $scope.turnToGridValue = 30.0;
+    $scope.aggregationField = 'type';
+    $scope.numHorizontalBoxes = 20;
+    $scope.numVerticalBoxes = 20;
+
     $scope.POINT_LAYER = coreMap.Map.POINTS_LAYER;
     $scope.CLUSTER_LAYER = coreMap.Map.CLUSTER_LAYER;
     $scope.HEATMAP_LAYER = coreMap.Map.HEATMAP_LAYER;
@@ -523,7 +528,14 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         (layers || $scope.active.layers).forEach(function(layer) {
             if(layer.olLayer) {
                 layer.error = undefined;
-                var colorMappings = layer.olLayer.setData(angular.copy(data || []), layer.limit);
+                var colorMappings = undefined;
+                var extent = $scope.map.map.getExtent().transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
+                if(layer.type === $scope.POINT_LAYER && Math.abs(extent.right - extent.left) > $scope.turnToGridValue) {
+                    colorMappings = transformToGridPoints(layer, data);
+                }
+                else {
+                    colorMappings = layer.olLayer.setData(angular.copy(data || []), layer.limit);
+                }
 
                 // Update the legend
                 var index = _.findIndex($scope.active.legend.layers, {
@@ -715,6 +727,33 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 layer.popupFields.forEach(function(fieldName) {
                     layerFields.push(fieldName);
                 });
+            }
+
+            if(layer.type === $scope.POINT_LAYER && Math.abs($scope.dataBounds.left - $scope.dataBounds.right) > $scope.turnToGridValue) {
+                var params = {
+                    latField: layer.latitudeField.columnName,
+                    lonField: layer.longitudeField.columnName,
+                    aggregationField: $scope.aggregationField,
+                    minLat: $scope.dataBounds.bottom,
+                    maxLat: $scope.dataBounds.top,
+                    minLon: $scope.dataBounds.left,
+                    maxLon: $scope.dataBounds.right,
+                    numTilesVertical: $scope.numVerticalBoxes,
+                    numTilesHorizontal: $scope.numHorizontalBoxes
+                };
+                query.transform(new neon.query.Transform('com.ncc.neon.query.transform.GeoGridTransformer').params(params));
+                layerFields.push({
+                    columnName: $scope.aggregationField,
+                    prettyName: $scope.aggregationField
+                });
+                var extent = $scope.map.map.getExtent().transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
+                var whereClauses = neon.query.and(
+                    neon.query.where(layer.latitudeField.columnName, '>=', extent.bottom),
+                    neon.query.where(layer.latitudeField.columnName, '<=', extent.top),
+                    neon.query.where(layer.longitudeField.columnName, '>=', extent.left),
+                    neon.query.where(layer.longitudeField.columnName, '<=', extent.right)
+                );
+                query.where(whereClauses);
             }
 
             addFields(layerFields);
@@ -1031,6 +1070,37 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             .concat((layer.gradientColorCode3 ? [layer.gradientColorCode3] : []))
             .concat((layer.gradientColorCode4 ? [layer.gradientColorCode4] : []))
             .concat((layer.gradientColorCode5 ? [layer.gradientColorCode5] : []));
+    };
+
+    var transformToGridPoints = function(layer, data) {
+        var newPointsList = [];
+        if(data) {
+            data.forEach(function(bucket) {
+                if(bucket.data.length > 0) {
+                    var totalPoints = 0
+                    var boxHeight = bucket.top - bucket.bottom;
+                    // var boxWidth = bucket.right - bucket.left;
+                    bucket.data.forEach(function(d) { totalPoints += d.count; });
+                    var point1 = { latitude: bucket.top - boxHeight * 0.1, longitude: bucket.left + boxHeight * 0.1 };
+                    var point2 = { latitude: bucket.top - boxHeight * 0.1, longitude: bucket.left + boxHeight * 0.2 };
+                    var point3 = { latitude: bucket.top - boxHeight * 0.2, longitude: bucket.left + boxHeight * 0.1 };
+                    var point4 = { latitude: bucket.top - boxHeight * 0.2, longitude: bucket.left + boxHeight * 0.2 };
+                    var boxPoints = [point1, point2, point3, point4];
+                    for(var x = 0; x < 4; x++) {
+                        var maxValue = undefined;
+                        bucket.data.forEach(function(d) {
+                            if(!maxValue || maxValue.count < d.count) {
+                                maxValue = d;
+                            }
+                        });
+                        boxPoints[x][$scope.aggregationField] = maxValue[$scope.aggregationField];
+                        maxValue.count -= totalPoints / 4;
+                    }
+                    newPointsList.push.apply(newPointsList, boxPoints); // Using function.apply so we can feed an array rather than manually feeding each point.
+                }
+            });
+        }
+        return layer.olLayer.setData(newPointsList || [], layer.limit);
     };
 
     $scope.functions.onDeleteLayer = function(layer) {
