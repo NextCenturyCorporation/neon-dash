@@ -24,7 +24,6 @@
  */
 angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$filter', 'ConnectionService', function($scope, $filter, connectionService) {
     $scope.turnToGridValue = 30.0;
-    $scope.aggregationField = 'type';
     $scope.numHorizontalBoxes = 20;
     $scope.numVerticalBoxes = 20;
 
@@ -741,7 +740,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 var params = {
                     latField: layer.latitudeField.columnName,
                     lonField: layer.longitudeField.columnName,
-                    aggregationField: $scope.aggregationField,
+                    aggregationField: layer.colorField.columnName,
                     minLat: $scope.dataBounds.bottom,
                     maxLat: $scope.dataBounds.top,
                     minLon: $scope.dataBounds.left,
@@ -751,8 +750,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 };
                 query.transform(new neon.query.Transform('com.ncc.neon.query.transform.GeoGridTransformer').params(params));
                 layerFields.push({
-                    columnName: $scope.aggregationField,
-                    prettyName: $scope.aggregationField
+                    columnName: layer.colorField.columnName,
+                    prettyName: layer.colorField.prettyName
                 });
                 var whereClauses = neon.query.and(
                     neon.query.where(layer.latitudeField.columnName, '>=', extent.bottom),
@@ -1090,7 +1089,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                     var boxHeight = bucket.top - bucket.bottom;
                     // var boxWidth = bucket.right - bucket.left;
                     bucket.data.forEach(function(d) { totalPoints += d.count; });
-                    var point1 = { latitude: bucket.top - boxHeight * 0.1, longitude: bucket.left + boxHeight * 0.1, pointRadius: 50 };
+                    var point1 = { latitude: bucket.top - boxHeight * 0.1, longitude: bucket.left + boxHeight * 0.1 };
                     var point2 = { latitude: bucket.top - boxHeight * 0.1, longitude: bucket.left + boxHeight * 0.2 };
                     var point3 = { latitude: bucket.top - boxHeight * 0.2, longitude: bucket.left + boxHeight * 0.1 };
                     var point4 = { latitude: bucket.top - boxHeight * 0.2, longitude: bucket.left + boxHeight * 0.2 };
@@ -1102,7 +1101,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                                 maxValue = d;
                             }
                         });
-                        boxPoints[x][$scope.aggregationField] = maxValue[$scope.aggregationField];
+                        boxPoints[x][layer.colorField.columnName] = maxValue[layer.colorField.columnName];
                         maxValue.count -= totalPoints / 4;
                     }
                     newPointsList.push.apply(newPointsList, boxPoints); // Using function.apply so we can feed an array rather than manually feeding each point.
