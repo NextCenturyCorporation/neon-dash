@@ -10,15 +10,15 @@
         <input type="number" min="1" class="form-control" ng-cancel-drag ng-model="layer.limit" ng-required="true">
     </div>
 
-    <div class="form-group layer-options-col" ng-show="layer.type == POINT_LAYER || layer.type == CLUSTER_LAYER || layer.type == HEATMAP_LAYER">
+    <div class="form-group layer-options-col" ng-show="layer.type == POINT_LAYER || layer.type == CLUSTER_LAYER || layer.type == HEATMAP_LAYER || layer.type == GRID_LAYER">
         <label>Latitude Field</label>
-        <select class="form-control" ng-cancel-drag ng-model="layer.latitudeField" ng-options="field.prettyName for field in layer.fields" ng-required="(layer.type == POINT_LAYER || layer.type == CLUSTER_LAYER || layer.type == HEATMAP_LAYER)" ng-disabled="!(layer.fields.length > 0)" ng-change="validateLayerFields(layer)">
+        <select class="form-control" ng-cancel-drag ng-model="layer.latitudeField" ng-options="field.prettyName for field in layer.fields" ng-required="(layer.type == POINT_LAYER || layer.type == CLUSTER_LAYER || layer.type == HEATMAP_LAYER || layer.type == GRID_LAYER)" ng-disabled="!(layer.fields.length > 0)" ng-change="validateLayerFields(layer)">
         </select>
     </div>
 
-    <div class="form-group layer-options-col" ng-show="layer.type == POINT_LAYER || layer.type == CLUSTER_LAYER || layer.type == HEATMAP_LAYER">
+    <div class="form-group layer-options-col" ng-show="layer.type == POINT_LAYER || layer.type == CLUSTER_LAYER || layer.type == HEATMAP_LAYER || layer.type == GRID_LAYER">
         <label>Longitude Field</label>
-        <select class="form-control" ng-cancel-drag ng-model="layer.longitudeField" ng-options="field.prettyName for field in layer.fields" ng-required="(layer.type == POINT_LAYER || layer.type == CLUSTER_LAYER || layer.type == HEATMAP_LAYER)" ng-disabled="!(layer.fields.length > 0)" ng-change="validateLayerFields(layer)">
+        <select class="form-control" ng-cancel-drag ng-model="layer.longitudeField" ng-options="field.prettyName for field in layer.fields" ng-required="(layer.type == POINT_LAYER || layer.type == CLUSTER_LAYER || layer.type == HEATMAP_LAYER || layer.type == GRID_LAYER)" ng-disabled="!(layer.fields.length > 0)" ng-change="validateLayerFields(layer)">
         </select>
     </div>
 
@@ -69,7 +69,7 @@
         </select>
     </div>
 
-    <div class="form-group layer-options-col" ng-show="layer.type == POINT_LAYER || layer.type == CLUSTER_LAYER">
+    <div class="form-group layer-options-col" ng-show="layer.type == POINT_LAYER || layer.type == CLUSTER_LAYER  || layer.type == GRID_LAYER">
         <label>Color Field</label>
         <select class="form-control" ng-cancel-drag ng-model="layer.colorField" ng-options="field.prettyName for field in layer.fields" ng-required="false" ng-disabled="!(layer.fields.length > 0)">
             <option value="">None</option>

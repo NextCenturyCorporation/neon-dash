@@ -95,6 +95,7 @@ coreMap.Map.HEATMAP_LAYER = 'heatmap';
 coreMap.Map.CLUSTER_LAYER = 'cluster';
 coreMap.Map.NODE_LAYER = 'nodes and arrows';
 coreMap.Map.ROUTE_LAYER = 'route';
+coreMap.Map.GRID_LAYER = 'grid';
 
 coreMap.Map.MAP_TILES = {
     light: {

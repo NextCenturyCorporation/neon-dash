@@ -28,12 +28,20 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.numHorizontalBoxes = 20;
     $scope.numVerticalBoxes = 20;
 
+    $scope.dataBounds = {
+        left: -180,
+        bottom: -90,
+        right: 180,
+        top: 90
+    };
+
     $scope.POINT_LAYER = coreMap.Map.POINTS_LAYER;
     $scope.CLUSTER_LAYER = coreMap.Map.CLUSTER_LAYER;
     $scope.HEATMAP_LAYER = coreMap.Map.HEATMAP_LAYER;
     $scope.NODE_AND_ARROW_LAYER = coreMap.Map.NODE_LAYER;
     $scope.ROUTE_LAYER = coreMap.Map.ROUTE_LAYER;
-    $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER];
+    $scope.GRID_LAYER = coreMap.Map.GRID_LAYER;
+    $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER, $scope.GRID_LAYER];
     $scope.DEFAULT_LIMIT = 1000;
     $scope.DEFAULT_NEW_LAYER_TYPE = $scope.MAP_LAYER_TYPES[0];
 
@@ -529,8 +537,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             if(layer.olLayer) {
                 layer.error = undefined;
                 var colorMappings = undefined;
-                var extent = $scope.map.map.getExtent().transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
-                if(layer.type === $scope.POINT_LAYER && Math.abs(extent.right - extent.left) > $scope.turnToGridValue) {
+                if(layer.type === $scope.GRID_LAYER) {
                     colorMappings = transformToGridPoints(layer, data);
                 }
                 else {
@@ -729,7 +736,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 });
             }
 
-            if(layer.type === $scope.POINT_LAYER && Math.abs($scope.dataBounds.left - $scope.dataBounds.right) > $scope.turnToGridValue) {
+            var extent = $scope.map.map.getExtent().transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
+            if(layer.type === $scope.GRID_LAYER) {
                 var params = {
                     latField: layer.latitudeField.columnName,
                     lonField: layer.longitudeField.columnName,
@@ -746,7 +754,6 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                     columnName: $scope.aggregationField,
                     prettyName: $scope.aggregationField
                 });
-                var extent = $scope.map.map.getExtent().transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
                 var whereClauses = neon.query.and(
                     neon.query.where(layer.latitudeField.columnName, '>=', extent.bottom),
                     neon.query.where(layer.latitudeField.columnName, '<=', extent.top),
@@ -1049,6 +1056,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         } else if(layer.type === $scope.CLUSTER_LAYER) {
             options.cluster = true;
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
+        } else if(layer.type === $scope.GRID_LAYER) {
+            olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
         } else if(layer.type === $scope.ROUTE_LAYER) {
             options.route = true;
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
@@ -1081,7 +1090,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                     var boxHeight = bucket.top - bucket.bottom;
                     // var boxWidth = bucket.right - bucket.left;
                     bucket.data.forEach(function(d) { totalPoints += d.count; });
-                    var point1 = { latitude: bucket.top - boxHeight * 0.1, longitude: bucket.left + boxHeight * 0.1 };
+                    var point1 = { latitude: bucket.top - boxHeight * 0.1, longitude: bucket.left + boxHeight * 0.1, pointRadius: 50 };
                     var point2 = { latitude: bucket.top - boxHeight * 0.1, longitude: bucket.left + boxHeight * 0.2 };
                     var point3 = { latitude: bucket.top - boxHeight * 0.2, longitude: bucket.left + boxHeight * 0.1 };
                     var point4 = { latitude: bucket.top - boxHeight * 0.2, longitude: bucket.left + boxHeight * 0.2 };
