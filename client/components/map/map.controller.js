@@ -740,7 +740,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 var params = {
                     latField: layer.latitudeField.columnName,
                     lonField: layer.longitudeField.columnName,
-                    aggregationField: layer.colorField.columnName,
+                    aggregationField: (layer.colorField) ? layer.colorField.columnName : "",
                     minLat: $scope.dataBounds.bottom,
                     maxLat: $scope.dataBounds.top,
                     minLon: $scope.dataBounds.left,
@@ -749,10 +749,12 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                     numTilesHorizontal: $scope.numHorizontalBoxes
                 };
                 query.transform(new neon.query.Transform('com.ncc.neon.query.transform.GeoGridTransformer').params(params));
-                layerFields.push({
-                    columnName: layer.colorField.columnName,
-                    prettyName: layer.colorField.prettyName
-                });
+                if(layer.colorField) {
+                    layerFields.push({
+                        columnName: layer.colorField.columnName,
+                        prettyName: layer.colorField.prettyName
+                    });
+                }
                 var whereClauses = neon.query.and(
                     neon.query.where(layer.latitudeField.columnName, '>=', extent.bottom),
                     neon.query.where(layer.latitudeField.columnName, '<=', extent.top),
