@@ -26,13 +26,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.turnToGridValue = 30.0;
     $scope.numHorizontalBoxes = 20;
     $scope.numVerticalBoxes = 20;
-
-    $scope.dataBounds = {
-        left: -180,
-        bottom: -90,
-        right: 180,
-        top: 90
-    };
+    $scope.gridLayerPointRadius = 5;
 
     $scope.POINT_LAYER = coreMap.Map.POINTS_LAYER;
     $scope.CLUSTER_LAYER = coreMap.Map.CLUSTER_LAYER;
@@ -741,10 +735,10 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                     latField: layer.latitudeField.columnName,
                     lonField: layer.longitudeField.columnName,
                     aggregationField: (layer.colorField) ? layer.colorField.columnName : "",
-                    minLat: $scope.dataBounds.bottom,
-                    maxLat: $scope.dataBounds.top,
-                    minLon: $scope.dataBounds.left,
-                    maxLon: $scope.dataBounds.right,
+                    minLat: extent.bottom,
+                    maxLat: extent.top,
+                    minLon: extent.left,
+                    maxLon: extent.right,
                     numTilesVertical: $scope.numVerticalBoxes,
                     numTilesHorizontal: $scope.numHorizontalBoxes
                 };
@@ -1050,6 +1044,12 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             clusterPopupFields: layer.popupFields,
             linkyConfig: $scope.linkyConfig
         };
+
+        if(layer.type === $scope.GRID_LAYER) {
+            options.styleMap = new OpenLayers.StyleMap({
+                pointRadius: $scope.gridLayerPointRadius
+            });
+        }
 
         var olLayer;
         if(layer.type === $scope.POINT_LAYER) {
