@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Dataset } from '../dataset.module';
+import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData } from '../dataset';
+import { Subscription, Observable } from 'rxjs/Rx';
 
 //Place this at the top near your imports
 /// <reference path="../../../typings/globals/lodash/index.d.ts" />
@@ -8,19 +9,26 @@ declare var _;
 @Injectable()
 export class DatasetService {
 
-    private datasets: Dataset.DatasetMetaData[] = [];
+    private datasets: Dataset[] = [];
 
     // The active dataset.
     private dataset: Dataset;
 
     // Use the Dataset Service to save settings for specific databases/tables and publish messages to all visualizations if those settings change.
-    private messenger: Object;
+    private messenger: any;
+
+    // The active update interval if required by the current active dataset.
+    private updateInterval: Observable<number>;
+
+    // The subscription that fires on the update interval.
+    private updateSubscription: Subscription;
 
     // The Dataset Service may ask the visualizations to update their data.
     static UPDATE_DATA_CHANNEL: string = "update_data";
 
     constructor() {
         this.dataset = new Dataset();
+        this.datasets = [];
         this.messenger = {}; //new neon.eventing.Messenger();
         this.datasets.forEach(function(dataset) {
             DatasetService.validateDatabases(dataset);
@@ -35,17 +43,17 @@ export class DatasetService {
      * Publishes an update data message.
      * @private
      */
-    private publishUpdateData() {
+    private publishUpdateData(): void {
         this.messenger.publish(DatasetService.UPDATE_DATA_CHANNEL, {});
     }
 
     /**
      * Updates the dataset that matches the active dataset.
      */
-    private updateDataset() {
+    private updateDataset(): void {
         for(var i = 0; i < this.datasets.length; ++i) {
             if(this.datasets[i].name === this.dataset.name) {
-                this.datasets[i] = angular.copy(this.dataset);
+                this.datasets[i] = _.cloneDeep(this.dataset);
             }
         }
     }
@@ -53,13 +61,13 @@ export class DatasetService {
     // ---
     // STATIC METHODS
     // --
-    static removeFromArray(array, indexList) {
+    static removeFromArray(array, indexList): void {
         indexList.forEach(function(index) {
             array.splice(index, 1);
         });
     }
 
-    static validateFields(table) {
+    static validateFields(table): void {
         var indexListToRemove = [];
         table.fields.forEach(function(field, index) {
             if(!field.columnName) {
@@ -71,7 +79,7 @@ export class DatasetService {
         this.removeFromArray(table.fields, indexListToRemove);
     }
 
-    static validateTables(database) {
+    static validateTables(database): void {
         var indexListToRemove = [];
         database.tables.forEach(function(table, index) {
             if(!table.name) {
@@ -86,7 +94,7 @@ export class DatasetService {
         this.removeFromArray(database.tables, indexListToRemove);
     };
 
-    static validateDatabases(dataset) {
+    static validateDatabases(dataset): void {
         var indexListToRemove = [];
         dataset.dateFilterKeys = {};
         dataset.databases.forEach(function(database, index) {
@@ -109,15 +117,15 @@ export class DatasetService {
      * Returns the list of datasets maintained by this service
      * @return {Array}
      */
-    public getDatasets() {
-        return Promise.resolve(this.datasets);
+    public getDatasets(): Dataset[] {
+        return this.datasets;
     };
 
     /**
      * Adds the given dataset to the list of datasets maintained by this service and returns the new list.
      * @return {Array}
      */
-    public addDataset(dataset) {
+    public addDataset(dataset): Dataset[] {
         DatasetService.validateDatabases(dataset);
         this.datasets.push(dataset);
         return this.datasets;
@@ -132,7 +140,7 @@ export class DatasetService {
      * identifier used by the visualizations and each value is a field name.  Each relation is an Object with table
      * names as keys and field names as values.
      */
-    public setActiveDataset(dataset) {
+    public setActiveDataset(dataset): void  {
         this.dataset.name = dataset.name || "Unknown Dataset";
         this.dataset.layout = dataset.layout || "";
         this.dataset.datastore = dataset.datastore || "";
@@ -146,58 +154,68 @@ export class DatasetService {
         this.dataset.dateFilterKeys = dataset.dateFilterKeys;
         this.dataset.lineCharts = dataset.lineCharts || [];
 
+        // Shutdown any previous update intervals.
+        if (this.updateInterval) {
+            this.updateSubscription.unsubscribe();
+            delete this.updateSubscription;
+            delete this.updateInterval;
+        }
         if(this.dataset.options.requeryInterval) {
             var delay = Math.max(0.5, this.dataset.options.requeryInterval) * 60000;
-            $interval(this.publishUpdateData, delay);
+            var me = this;
+            this.updateInterval = Observable.interval(delay);
+            this.updateSubscription = this.updateInterval.subscribe(() => {
+                me.publishUpdateData();
+            });
         }
-    };
+    }
 
     /**
      * Returns the active dataset object
      * @return {Object}
      */
-    getDataset() {
+    public getDataset(): Dataset {
         return this.getDatasetWithName(this.dataset.name) || this.dataset;
-    };
+    }
 
     /**
      * Returns whether a dataset is active.
      * @return {Boolean}
      */
-    hasDataset() {
-        return this.dataset.datastore && this.dataset.hostname && this.dataset.databases.length;
-    };
+    public hasDataset(): boolean {
+        return (this.dataset.datastore && this.dataset.hostname && (this.dataset.databases.length > 0));
+    }
 
     /**
      * Returns the name of the active dataset.
      * @return {String}
      */
-    getName() {
+    public getName(): string {
         return this.dataset.name;
-    };
+    }
 
     /**
      * Returns the layout for the active dataset.
      * @return {String}
      */
-    getLayout() {
+    public getLayout(): string {
         return this.dataset.layout;
-    };
+    }
 
     /**
      * Sets the layout name for the active dataset.
      * @param {String} layoutName
      */
-    setLayout(layoutName) {
+    public setLayout(layoutName: string): void {
         this.dataset.layout = layoutName;
         this.updateDataset();
-    };
+    }
 
     /**
      * Returns the datastore for the active dataset.
      * @return {String}
      */
-    getDatastore() {
+    public getDatastore(): string {
         return this.dataset.datastore;
     };
 
@@ -205,7 +223,7 @@ export class DatasetService {
      * Returns the hostname for the active dataset.
      * @return {String}
      */
-    getHostname() {
+    public getHostname(): string {
         return this.dataset.hostname;
     };
 
@@ -213,7 +231,7 @@ export class DatasetService {
      * Returns the databases for the active dataset.
      * @return {Array}
      */
-    getDatabases() {
+    public getDatabases(): DatabaseMetaData[] {
         return this.dataset.databases;
     };
 
@@ -222,7 +240,7 @@ export class DatasetService {
      * @param {String} The dataset name
      * @return {Object} The dataset object if a match exists or undefined otherwise.
      */
-    getDatasetWithName(datasetName) {
+    public getDatasetWithName(datasetName: string): Dataset {
         for(var i = 0; i < this.datasets.length; ++i) {
             if(this.datasets[i].name === datasetName) {
                 return this.datasets[i];
@@ -238,7 +256,7 @@ export class DatasetService {
      * @return {Object} The database containing {String} name, {Array} fields, and {Object} mappings if a match exists
      * or undefined otherwise.
      */
-    getDatabaseWithName(databaseName) {
+    public getDatabaseWithName(databaseName: string): DatabaseMetaData {
         for(var i = 0; i < this.dataset.databases.length; ++i) {
             if(this.dataset.databases[i].name === databaseName) {
                 return this.dataset.databases[i];
@@ -253,7 +271,7 @@ export class DatasetService {
      * @param {String} The database name
      * @return {Array} An array of table Objects containing {String} name, {Array} fields, and {Array} mappings.
      */
-    getTables(databaseName) {
+    public getTables(databaseName: string): TableMetaData[] {
         var database = this.getDatabaseWithName(databaseName);
         return database ? database.tables : [];
     };
@@ -265,7 +283,7 @@ export class DatasetService {
      * @return {Object} The table containing {String} name, {Array} fields, and {Object} mappings if a match exists
      * or undefined otherwise.
      */
-    getTableWithName(databaseName, tableName) {
+    public getTableWithName(databaseName: string, tableName: string): TableMetaData {
         var tables = this.getTables(databaseName);
         for(var i = 0; i < tables.length; ++i) {
             if(tables[i].name === tableName) {
@@ -280,7 +298,7 @@ export class DatasetService {
      * Returns a map of database names to an array of table names within that database.
      * @return {Object}
      */
-    getDatabaseAndTableNames() {
+    public getDatabaseAndTableNames(): Object {
         var databases = this.getDatabases();
         var names = {};
         for(var i = 0; i < databases.length; ++i) {
@@ -294,13 +312,13 @@ export class DatasetService {
     };
 
     /**
-     * Returns the name of the first table in the database with the given name containing all the given mappings.
+     * Returns the the first table in the database with the given name containing all the given mappings.
      * @param {String} The database name
      * @param {Array} The array of mapping keys that the table must contain.
      * @return {String} The name of the table containing {String} name, {Array} fields, and {Object} mappings if a match exists
      * or undefined otherwise.
      */
-    getFirstTableWithMappings(databaseName, keys) {
+    public getFirstTableWithMappings(databaseName: string, keys: string[]): TableMetaData {
         var tables = this.getTables(databaseName);
         for(var i = 0; i < tables.length; ++i) {
             var success = true;
@@ -324,7 +342,7 @@ export class DatasetService {
      * @return {Object} An object containing {String} database, {String} table, and {Object} fields linking {String} mapping to {String} field.
      * If no match was found, an empty object is returned instead.
      */
-    getFirstDatabaseAndTableWithMappings(keys) {
+    public getFirstDatabaseAndTableWithMappings(keys: string[]): any {
         for(var i = 0; i < this.dataset.databases.length; ++i) {
             var database = this.dataset.databases[i];
             for(var j = 0; j < database.tables.length; ++j) {
@@ -360,7 +378,7 @@ export class DatasetService {
      * @param {String} The table name
      * @return {Array} The array of field objects if a match exists or an empty array otherwise.
      */
-    getFields(databaseName, tableName) {
+    public getFields(databaseName: string, tableName: string): FieldMetaData[] {
         var table = this.getTableWithName(databaseName, tableName);
 
         if(!table) {
@@ -377,14 +395,14 @@ export class DatasetService {
      * @param {Boolean} Whether to ignore fields in the table marked as hidden (optional)
      * @return {Array} The sorted copy of the array of field objects if a match exists or an empty array otherwise.
      */
-    getSortedFields(databaseName, tableName, ignoreHiddenFields) {
+    public getSortedFields(databaseName: string, tableName: string, ignoreHiddenFields: boolean): FieldMetaData[] {
         var table = this.getTableWithName(databaseName, tableName);
 
         if(!table) {
             return [];
         }
 
-        var fields = angular.copy(table.fields).filter(function(field) {
+        var fields = _.cloneDeep(table.fields).filter(function(field) {
             return ignoreHiddenFields ? !field.hide : true;
         });
 
@@ -402,7 +420,7 @@ export class DatasetService {
      * @param {String} The table name
      * @return {Object} The mappings if a match exists or an empty object otherwise.
      */
-    getMappings(databaseName, tableName) {
+    public getMappings(databaseName: string, tableName: string): TableMappings {
         var table = this.getTableWithName(databaseName, tableName);
 
         if(!table) {
@@ -420,7 +438,7 @@ export class DatasetService {
      * @return {String} The field name for the mapping at the given key if a match exists or an empty string
      * otherwise.
      */
-    getMapping(databaseName, tableName, key) {
+    public getMapping(databaseName: string, tableName: string, key: string): string {
         var table = this.getTableWithName(databaseName, tableName);
 
         if(!table) {
@@ -437,7 +455,7 @@ export class DatasetService {
      * @param {String} The mapping key
      * @param {String} The field name for the given mapping key
      */
-    setMapping(databaseName, tableName, key, fieldName) {
+    public setMapping(databaseName: string, tableName: string, key: string, fieldName: string): void {
         var table = this.getTableWithName(databaseName, tableName);
 
         if(!table) {
@@ -457,7 +475,7 @@ export class DatasetService {
      * the given field names to the field names in the other tables ({Object} fields).  This array will also contain
      * the relation object for the table and fields given in the arguments
      */
-    getRelations(databaseName, tableName, fieldNames) {
+    public getRelations(databaseName: string, tableName: string, fieldNames: string[]): any[] {
         var relations = this.dataset.relations;
 
         var initializeMapAsNeeded = function(map, key1, key2) {
@@ -554,7 +572,7 @@ export class DatasetService {
      * @param {String} name
      * @return {Object}
      */
-    getMapConfig(name) {
+    public getMapConfig(name: string): Object {
         return this.dataset.mapConfig[name] || {};
     };
 
@@ -562,7 +580,7 @@ export class DatasetService {
      * Sets the map layer configuration for the active dataset.
      * @param {object} config A set of layer configuration objects.
      */
-    setMapLayers(config) {
+    public setMapLayers(config): void {
         this.dataset.mapLayers = config;
         this.updateDataset();
     };
@@ -572,7 +590,7 @@ export class DatasetService {
      * @param {String} name A name to map to the given layers.
      * @param {Array} layers A list of map layer configuration objects.
      */
-    addMapLayer(name, layers) {
+    public addMapLayer(name: string, layers: string): void {
         this.dataset.mapLayers[name] = layers;
         this.updateDataset();
     };
@@ -581,15 +599,15 @@ export class DatasetService {
      * Returns the map layer configuration for the map with the given name in the active dataset.
      * @return {Array}
      */
-    getMapLayers(name) {
+    public getMapLayers(name: string): Object[] {
         return this.dataset.mapLayers[name] || [];
     };
 
     /**
      * Sets the line chart configuration for the active dataset.
-     * @param {Object} config A set of line chart configuration objects.
+     * @param {Array<Object>} config A set of line chart configuration objects.
      */
-    setLineCharts(config) {
+    public setLineCharts(config: Object[]): void {
         this.dataset.lineCharts = config;
         this.updateDataset();
     };
@@ -599,7 +617,7 @@ export class DatasetService {
      * @param {String} chartName A name to map to the given charts.
      * @param {Array} charts A list of line chart configuration objects.
      */
-    addLineChart(chartName, charts) {
+    public addLineChart(chartName: string, charts: Object[]): void {
         this.dataset.lineCharts[chartName] = charts;
         this.updateDataset();
     };
@@ -608,7 +626,7 @@ export class DatasetService {
      * Returns the line chart configuration for the the line chart with the given name in the active dataset.
      * @return {Array}
      */
-    getLineCharts(name) {
+    public getLineCharts(name: string): Object {
         return this.dataset.lineCharts[name] || [];
     };
 
@@ -616,7 +634,7 @@ export class DatasetService {
      * Returns the linky configuration for the active dataset.
      * @return {Object}
      */
-    getLinkyConfig() {
+    public getLinkyConfig(): Object{
         return this.dataset.linkyConfig;
     };
 
@@ -629,7 +647,7 @@ export class DatasetService {
      * @param {String} config.linkTo Location where mentions and hashtags
      * should be linked to. Options: "twitter", "instagram", "github"
      */
-    setLinkyConfig(config) {
+    public setLinkyConfig(config: Object): void {
         this.dataset.linkyConfig = config;
     };
 
@@ -641,7 +659,7 @@ export class DatasetService {
      * @param {Number} index (optional)
      * @private
      */
-    updateDatabases(dataset, connection, callback, index) {
+    public updateDatabases(dataset: Dataset, connection: any, callback: Function, index: number): void {
         var databaseIndex = index ? index : 0;
         var database = dataset.databases[databaseIndex];
         connection.getTableNamesAndFieldNames(database.name, function(tableNamesAndFieldNames) {
@@ -681,7 +699,7 @@ export class DatasetService {
      * @method getActiveDatasetOptions
      * @return {Object}
      */
-    getActiveDatasetOptions = function() {
+    public getActiveDatasetOptions(): DatasetOptions {
         return this.dataset.options;
     };
 
@@ -693,7 +711,7 @@ export class DatasetService {
      * @method getActiveDatasetColorMaps
      * @return {Object}
      */
-    getActiveDatasetColorMaps = function(databaseName, tableName, fieldName) {
+    public getActiveDatasetColorMaps(databaseName: string, tableName: string, fieldName: string): Object {
         var colorMaps = this.getActiveDatasetOptions().colorMaps || {};
         return colorMaps[databaseName] && colorMaps[databaseName][tableName] ? colorMaps[databaseName][tableName][fieldName] || {} : {};
     };
@@ -703,7 +721,7 @@ export class DatasetService {
      * @method createBlankField
      * @return {Object}
      */
-    createBlankField = function() {
+    public createBlankField(): FieldMetaData {
         return {
             columnName: "",
             prettyName: ""

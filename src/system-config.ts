@@ -10,7 +10,8 @@
 /** Map relative paths to URLs. */
 const map: any = {
   '@angular2-material': 'vendor/@angular2-material',
-  'lodash': 'vendor/lodash/lodash.js'
+  'lodash': 'vendor/lodash/lodash.js',
+  'rxjs': 'vendor/rxjs'
 };
 
 /** User packages configuration. */

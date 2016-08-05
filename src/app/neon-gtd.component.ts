@@ -47,7 +47,7 @@ export class NeonGTDComponent implements OnInit {
     datasets: Dataset[] = [];
 
     getDatasets() {
-        this.datasetService.getDatasets().then(datasets => this.datasets = datasets);
+        this.datasets = this.datasetService.getDatasets();
     }
 
     constructor(private datasetService: DatasetService) {}

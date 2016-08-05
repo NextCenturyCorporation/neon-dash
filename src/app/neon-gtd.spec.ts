@@ -1,20 +1,21 @@
 /* tslint:disable:no-unused-variable */
 
 import { addProviders, async, inject } from '@angular/core/testing';
-import { NeonGTD } from './neon-gtd.component';
+import { NeonGTDComponent } from './neon-gtd.component';
+import { DatasetService } from './services/dataset.service';
 
-describe('App: NeonGtd', () => {
+describe('App: NeonGTDComponent', () => {
   beforeEach(() => {
-    addProviders([NeonGTD]);
+    addProviders([DatasetService, NeonGTDComponent]);
   });
 
   it('should create the app',
-    inject([NeonGTD], (app: NeonGTD) => {
+    inject([NeonGTDComponent], (app: NeonGTDComponent) => {
       expect(app).toBeTruthy();
     }));
 
-  it('should have as title \'app works!\'',
-    inject([NeonGTD], (app: NeonGTD) => {
-      expect(app.selectedDataset).toEqual('Select a Dataset...');
+  it('should have no dataset select at start',
+    inject([NeonGTDComponent], (app: NeonGTDComponent) => {
+      expect(app.selectedDataset).toEqual('Select a Dataset');
     }));
 });

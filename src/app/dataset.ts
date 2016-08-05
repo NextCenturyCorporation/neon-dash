@@ -1,5 +1,5 @@
 export class FieldMetaData {
-    name: string;
+    columnName: string;
     prettyName: string;
 }
 
@@ -7,7 +7,7 @@ export class TableMetaData {
     name: string;
     prettyName: string;
     fields: FieldMetaData[];
-    mappings: string[];
+    mappings: TableMappings;
 }
 
 export class DatabaseMetaData {
@@ -16,13 +16,23 @@ export class DatabaseMetaData {
     tables: TableMetaData[];
 }
 
+export class DatasetOptions {
+    colorMaps: Object;
+    requeryInterval: number;
+}
+
+export interface TableMappings {
+    [key: string]: string;
+}
+
 export class Dataset {
     name: string;
     datastore: string;
     hostname: string;
     databases: DatabaseMetaData[] = [];
-    layout: Object;
-    options: Object;
+    hasUpdatedFields: boolean;
+    layout: string;
+    options: DatasetOptions;
     mapLayers: Object[];
     mapConfig: Object;
     relations: Object[];
