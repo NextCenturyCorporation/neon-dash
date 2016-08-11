@@ -160,7 +160,9 @@ angular.module('neonDemo.controllers').controller('networkGraphController', ['$s
             });
         };
 
-        $scope.mediator = new mediators.DirectedGraphMediator($scope.functions.getElement()[0], ".directed-graph", {
+        // console.log("xkcd In controller, root is " + JSON.stringify($scope.functions.getElement()[0], null, 4));
+        // alert("In controller, root is " + JSON.stringify($scope.functions.getElement()[0], null, 4));
+        $scope.mediator = new mediators.CustomGraphMediator($scope.functions.getElement()[0], ".directed-graph", {
             calculateGraphHeight: function() {
                 return $scope.functions.getElement(".directed-graph").height();
             },
@@ -205,8 +207,8 @@ angular.module('neonDemo.controllers').controller('networkGraphController', ['$s
             if($scope.functions.isFieldValid($scope.active.textField)) {
                 fields.push($scope.active.textField.columnName);
             }
-
-            neon.helpers.getNestedValues(item, fields).forEach(function(value) {
+            console.log("in controller:" + fields);
+            Array.from(neon.helpers.getNestedValues(item, fields)).forEach(function(value) {
                 news.push({
                     primaryTitle: value[$scope.active.nodeField.columnName],
                     secondaryTitle: $scope.functions.isFieldValid($scope.active.nameField) ? value[$scope.active.nameField.columnName] : undefined,
@@ -377,6 +379,7 @@ angular.module('neonDemo.controllers').controller('networkGraphController', ['$s
     };
 
     $scope.functions.updateData = function(data) {
+        // alert("controllerUpdateData data is " + JSON.stringify(data, null, 4));
         if(data) {
             // Reset runQuery on a response containing data (as opposed to a reset in which the data is null).
             $scope.runQuery = false;
