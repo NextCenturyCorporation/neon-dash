@@ -485,18 +485,11 @@ charts.CustomGraph.prototype.updateGraph = function(newData) {
         }
     );
 
-    // remove these two lines if you want a linear scaling
-    // console.log("xkcd " + maxValue + " " +  minValue);
-    // maxValue = Math.sqrt(maxValue);
-    // minValue = Math.sqrt(minValue);
+    // remove these lines if you want a linear scaling
     me.scale = (maxRadius - minRadius) / (maxValue - minValue);
-    // console.log("xkcd " + me.scale + " " + (maxRadius - minRadius) + " " + (maxValue - minValue));
 
     me.getNodeSize = function(n) {
-        // console.log(n["size"])
         if (n["size"]) {
-            console.log("\tsize: " + n["size"] * me.scale + " " + n["key"]);
-            // console.log("\tscale: " + me.scale);
             return n["size"] * me.scale;
         }
         else {
@@ -507,8 +500,6 @@ charts.CustomGraph.prototype.updateGraph = function(newData) {
     circleElements.append("circle")
         .attr("r", function(n) {
             n["size"] = parsed["sizes"][n["key"]];
-            // console.log(n["key"]);
-            // console.log((n["numberOfSources"] + n["numberOfTargets"]) + " " + scaleRadius(parsed["sizes"][n["key"]]));
             return me.getNodeSize(n);
     });
 

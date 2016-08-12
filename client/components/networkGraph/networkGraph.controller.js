@@ -160,8 +160,6 @@ angular.module('neonDemo.controllers').controller('networkGraphController', ['$s
             });
         };
 
-        // console.log("xkcd In controller, root is " + JSON.stringify($scope.functions.getElement()[0], null, 4));
-        // alert("In controller, root is " + JSON.stringify($scope.functions.getElement()[0], null, 4));
         $scope.mediator = new mediators.CustomGraphMediator($scope.functions.getElement()[0], ".directed-graph", {
             calculateGraphHeight: function() {
                 return $scope.functions.getElement(".directed-graph").height();
@@ -207,7 +205,7 @@ angular.module('neonDemo.controllers').controller('networkGraphController', ['$s
             if($scope.functions.isFieldValid($scope.active.textField)) {
                 fields.push($scope.active.textField.columnName);
             }
-            console.log("in controller:" + fields);
+            // console.log("in controller:" + fields);
             Array.from(neon.helpers.getNestedValues(item, fields)).forEach(function(value) {
                 news.push({
                     primaryTitle: value[$scope.active.nodeField.columnName],

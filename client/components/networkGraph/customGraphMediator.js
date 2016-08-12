@@ -119,7 +119,7 @@ mediators.CustomGraphMediator = (function() {
         data.forEach(function(item) {
             // The getNestedValues function will return a list of objects containing each combination of the values for the node fields.  If none of the values for the node fields
             // are lists themselves then getNestedValues will return a list with a single object.
-            console.log("in mediator:" + getFields(options));
+            // console.log("in mediator:" + getFields(options));
             neon.helpers.getNestedValues(item, getFields(options)).forEach(function(nodeValue) {
                 // Get the node fields from the data.
                 var nodeId = nodeValue[options.nodeField];
