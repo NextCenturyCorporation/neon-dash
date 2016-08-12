@@ -50,6 +50,8 @@ var coreMap = coreMap || {};
 coreMap.Map = function(elementId, options) {
     options = options || {};
 
+    this.graticuleIntervalList = [90, 45, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.01, 0.005, 0.002, 0.001];
+
     this.elementId = elementId;
     this.selector = $("#" + elementId);
     this.onZoomRect = options.onZoomRect;
@@ -164,6 +166,9 @@ coreMap.Map.prototype.setLayerVisibility = function(id, visibility) {
 
     if(layer) {
         layer.setVisibility(visibility);
+    }
+    if(layer.type == coreMap.Map.GRID_LAYER) {
+        
     }
 };
 
@@ -573,6 +578,13 @@ coreMap.Map.prototype.setupControls = function() {
         }
     });
 
+    this.graticuleControl = new OpenLayers.Control.Graticule( {
+        autoActivate: false,
+        intervals: this.graticuleIntervalList,
+        targetSize: 200,
+        labelled: false
+    });
+
     this.selectControl = this.createSelectControl([]);
     this.clickControl = new OpenLayers.Control.Click({
         markerLayer: this.markerLayer,
@@ -580,9 +592,43 @@ coreMap.Map.prototype.setupControls = function() {
         makeQueryForRouteDataFunction: this.makeQueryForRouteDataFunction,
         createMapLayerFunction: this.createMapLayerFunction,
     });
-    this.map.addControls([this.zoomControl, this.clickControl, this.cacheReader, this.cacheWriter, this.selectControl]);
+    this.map.addControls([this.zoomControl, this.clickControl, this.cacheReader, this.cacheWriter, this.selectControl, this.graticuleControl]);
     this.clickControl.activate();
 };
+
+coreMap.Map.prototype.setGraticuleActive = function(active) {
+    if(active === true) {
+        this.graticuleControl.activate();
+    }
+    else if(active === false) {
+        this.graticuleControl.deactivate();
+    }
+}
+
+coreMap.Map.prototype.getGraticuleInterval = function() {
+    var llProj = new OpenLayers.Projection("EPSG:4326");
+    var mapProj = this.graticuleControl.map.getProjectionObject();
+    var mapRes = this.map.getResolution();
+    var mapCenter = this.graticuleControl.map.getCenter();
+    var mapCenterLL = new OpenLayers.Pixel(mapCenter.lon, mapCenter.lat);
+    OpenLayers.Projection.transform(mapCenterLL, mapProj, llProj);
+    var testSq = this.graticuleControl.targetSize*mapRes;
+    testSq *= testSq;   //compare squares rather than doing a square root to save time
+    var llInterval;
+    for (var i=0; i<this.graticuleControl.intervals.length; ++i) {
+        llInterval = this.graticuleControl.intervals[i];   //could do this for both x and y??
+        var delta = llInterval/2;  
+        var p1 = mapCenterLL.offset({x: -delta, y: -delta});  //test coords in EPSG:4326 space
+        var p2 = mapCenterLL.offset({x: delta, y: delta});
+        OpenLayers.Projection.transform(p1, llProj, mapProj); // convert them back to map projection
+        OpenLayers.Projection.transform(p2, llProj, mapProj);
+        var distSq = (p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y);
+        if (distSq <= testSq) {
+            break;
+        }
+    }
+    return llInterval;
+}
 
 /**
  * Draws a box with the specified bounds

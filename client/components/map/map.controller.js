@@ -23,11 +23,9 @@
  * @constructor
  */
 angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$filter', 'ConnectionService', function($scope, $filter, connectionService) {
-    $scope.turnToGridValue = 30.0;
-    $scope.numHorizontalBoxes = 20;
-    $scope.numVerticalBoxes = 20;
-    $scope.gridLayerPointRadius = 5;
-
+    // $scope.gridLayerPointRadius = 8;
+    $scope.maxNumGridPoints = 4;
+    
     $scope.POINT_LAYER = coreMap.Map.POINTS_LAYER;
     $scope.CLUSTER_LAYER = coreMap.Map.CLUSTER_LAYER;
     $scope.HEATMAP_LAYER = coreMap.Map.HEATMAP_LAYER;
@@ -269,6 +267,10 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         return data
     };
 
+    var debounced = _.debounce(function() {
+        $scope.functions.updateLayer(_.find($scope.active.layers, function(layer) { return layer.type === $scope.GRID_LAYER; }));
+    }, 1000);
+
     /**
      * A simple handler for emitting USER-ALE messages from common user events on a map.
      * @method onMapEvent
@@ -276,6 +278,11 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
      */
     var onMapEvent = function(message) {
         var type = message.type;
+
+        var gridLayer = _.find($scope.active.layers, function(layer) { return layer.type === $scope.GRID_LAYER; });
+        if(type === "zoomend" && gridLayer !== undefined) {
+            debounced();
+        }
 
         if(type === "zoomend" && $scope.map.featurePopup) {
             $scope.map.map.removePopup($scope.map.featurePopup);
@@ -576,6 +583,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 }
             }
         });
+        if(_.find($scope.active.layers, function(layer) { return layer.type === $scope.GRID_LAYER; }) === undefined) {
+            $scope.map.graticuleControl.deactivate();
+        }
     };
 
     /**
@@ -731,16 +741,21 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
 
             var extent = $scope.map.map.getExtent().transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
             if(layer.type === $scope.GRID_LAYER) {
+                var interval = $scope.map.getGraticuleInterval();
+                var bottom = getNearestMultiple(interval, extent.bottom, 'lower');
+                var top = getNearestMultiple(interval, extent.top, 'higher');
+                var left = getNearestMultiple(interval, extent.left, 'lower');
+                var right = getNearestMultiple(interval, extent.right, 'higher');
                 var params = {
                     latField: layer.latitudeField.columnName,
                     lonField: layer.longitudeField.columnName,
-                    aggregationField: (layer.colorField) ? layer.colorField.columnName : "",
-                    minLat: extent.bottom,
-                    maxLat: extent.top,
-                    minLon: extent.left,
-                    maxLon: extent.right,
-                    numTilesVertical: $scope.numVerticalBoxes,
-                    numTilesHorizontal: $scope.numHorizontalBoxes
+                    aggregationField: (layer.colorField) ? layer.colorField.prettyName : "",
+                    minLat: bottom,
+                    maxLat: top,
+                    minLon: left,
+                    maxLon: right,
+                    numTilesVertical: (top - bottom) / interval,
+                    numTilesHorizontal: (right - left) / interval
                 };
                 query.transform(new neon.query.Transform('com.ncc.neon.query.transform.GeoGridTransformer').params(params));
                 if(layer.colorField) {
@@ -750,10 +765,10 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                     });
                 }
                 var whereClauses = neon.query.and(
-                    neon.query.where(layer.latitudeField.columnName, '>=', extent.bottom),
-                    neon.query.where(layer.latitudeField.columnName, '<=', extent.top),
-                    neon.query.where(layer.longitudeField.columnName, '>=', extent.left),
-                    neon.query.where(layer.longitudeField.columnName, '<=', extent.right)
+                    neon.query.where(layer.latitudeField.columnName, '>=', bottom),
+                    neon.query.where(layer.latitudeField.columnName, '<=', top),
+                    neon.query.where(layer.longitudeField.columnName, '>=', left),
+                    neon.query.where(layer.longitudeField.columnName, '<=', right)
                 );
                 query.where(whereClauses);
             }
@@ -768,6 +783,22 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         query.limit(limit || $scope.DEFAULT_LIMIT).withFields(Object.keys(queryFields));
         return query;
     };
+
+    /**
+     * Gets the nearest multiple of a number that is either higher or lower than the given value.
+     * @param {Number} multiple - The value 
+     * @method getNearestMultiple
+     */
+    var getNearestMultiple = function(multiple, value, highOrLow) { // Multiple is assumed > 0, highOrLow is a string eqaling "higher" or "lower"
+        var toReturn = value - (value % multiple);
+        if(highOrLow === 'higher' && toReturn < value) {
+            toReturn += multiple;
+        }
+        else if(highOrLow === 'lower' && toReturn > value) {
+            toReturn -= multiple;
+        }
+        return toReturn;
+    }
 
     $scope.functions.createNeonQueryWhereClause = function(layers) {
         var validation = $scope.functions.getDatasetOptions().checkForCoordinateValidation;
@@ -1047,7 +1078,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
 
         if(layer.type === $scope.GRID_LAYER) {
             options.styleMap = new OpenLayers.StyleMap({
-                pointRadius: $scope.gridLayerPointRadius
+                'default': {
+                    pointRadius: $scope.gridLayerPointRadius
+                }
             });
         }
 
@@ -1085,28 +1118,25 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     var transformToGridPoints = function(layer, data) {
         var newPointsList = [];
         if(data) {
+            $scope.map.graticuleControl.activate();
             data.forEach(function(bucket) {
                 if(bucket.data.length > 0) {
                     var totalPoints = 0
                     var boxHeight = bucket.top - bucket.bottom;
-                    // var boxWidth = bucket.right - bucket.left;
-                    bucket.data.forEach(function(d) { totalPoints += d.count; });
-                    var point1 = { latitude: bucket.top - boxHeight * 0.1, longitude: bucket.left + boxHeight * 0.1 };
-                    var point2 = { latitude: bucket.top - boxHeight * 0.1, longitude: bucket.left + boxHeight * 0.2 };
-                    var point3 = { latitude: bucket.top - boxHeight * 0.2, longitude: bucket.left + boxHeight * 0.1 };
-                    var point4 = { latitude: bucket.top - boxHeight * 0.2, longitude: bucket.left + boxHeight * 0.2 };
-                    var boxPoints = [point1, point2, point3, point4];
-                    for(var x = 0; x < 4; x++) {
-                        var maxValue = undefined;
-                        bucket.data.forEach(function(d) {
-                            if(!maxValue || maxValue.count < d.count) {
-                                maxValue = d;
-                            }
-                        });
-                        boxPoints[x][layer.colorField.columnName] = maxValue[layer.colorField.columnName];
-                        maxValue.count -= totalPoints / 4;
+                    var mostToLeast = bucket.data.sort(function(a, b) { return b.count - a.count; });
+                    var numPoints = Math.min(mostToLeast.length, $scope.maxNumGridPoints);
+                    for(var x = 0; x < numPoints; x++) {
+                        var row = Math.floor(x / 10) + 1;
+                        var column = (x % 10) + 1;
+                        var newPoint = {
+                            latitude: bucket.top - boxHeight * (0.1 * row),
+                            longitude: bucket.left + boxHeight * (0.1 * column),
+                            count: mostToLeast[x].count,
+                            pointRadius: $scope.gridLayerPointRadius
+                        };
+                        newPoint[layer.colorField.columnName] = mostToLeast[x][layer.colorField.columnName];
+                        newPointsList.push(newPoint);
                     }
-                    newPointsList.push.apply(newPointsList, boxPoints); // Using function.apply so we can feed an array rather than manually feeding each point.
                 }
             });
         }
