@@ -35,6 +35,7 @@ mediators.CustomGraphMediator = (function() {
         this.graphLinks = [];
         this.nodesTotal = 0;
         this.nodesShown = 0;
+        this.mrCounter = 1;
 
         this.maps = {
             nodeIdsToFlags: {},
@@ -50,7 +51,8 @@ mediators.CustomGraphMediator = (function() {
             graphNodeIds: [],
             graphNetworkId: -1,
             mouseoverNodeIds: [],
-            mouseoverNetworkId: -1
+            mouseoverNetworkId: -1,
+            mouseoverKeyId: -2
         };
 
         this.graph = new charts.CustomGraph(root, selector, {
@@ -61,6 +63,8 @@ mediators.CustomGraphMediator = (function() {
             getNodeSize: createFunctionToCalculateNodeSize(this),
             getNodeColor: createFunctionToCalculateNodeColor(this),
             getNodeOpacity: createFunctionToCalculateNodeOpacity(this),
+            getNodeStrokeSize: createFunctionToGenerateNodeStrokeSize(this),
+            getNodeStrokeColor: createFunctionToGenerateNodeStrokeColor(this),
             getNodeText: createFunctionToGenerateNodeText(this),
             getNodeTooltip: createFunctionToGenerateNodeTooltip(this),
             getLinkSize: createFunctionToCalculateLinkSize(this),
@@ -119,7 +123,6 @@ mediators.CustomGraphMediator = (function() {
         data.forEach(function(item) {
             // The getNestedValues function will return a list of objects containing each combination of the values for the node fields.  If none of the values for the node fields
             // are lists themselves then getNestedValues will return a list with a single object.
-            // console.log("in mediator:" + getFields(options));
             neon.helpers.getNestedValues(item, getFields(options)).forEach(function(nodeValue) {
                 // Get the node fields from the data.
                 var nodeId = nodeValue[options.nodeField];
@@ -955,6 +958,34 @@ mediators.CustomGraphMediator = (function() {
     };
 
     /**
+     * Returns the function for calculating the thickness of a node's outline.
+     * @param {Object} mediator
+     * @method createFunctionToCalculateNodeStrokeSize
+     * @private
+     * @return {Function}
+     */
+    var createFunctionToGenerateNodeStrokeSize = function(mediator) {
+        return function(node) {
+            return 1;
+        };
+    };
+
+
+
+    /**
+     * Returns the function for calculating the color of a node's outline.
+     * @param {Object} mediator
+     * @method createFunctionToGenerateNodeStrokeColor
+     * @private
+     * @return {Function}
+     */
+    var createFunctionToGenerateNodeStrokeColor = function(mediator) {
+        return function(node) {
+            return "black";
+        };
+    };
+
+    /**
      * Returns the function for generating the text for a node.
      * @param {Object} mediator
      * @method createFunctionToGenerateNodeText
@@ -1051,7 +1082,7 @@ mediators.CustomGraphMediator = (function() {
      */
     var createFunctionToCalculateLinkColor = function(mediator) {
         return function(link) {
-            if(mediator.selected.mouseoverNetworkId === link.network || mediator.selected.graphNetworkId === link.network) {
+            if(mediator.selected.mouseoverKeyId === link.key || mediator.selected.graphNetworkId === link.network) {
                 return CustomGraphMediator.FOCUSED_COLOR;
             }
             return mediator.graph.DEFAULT_LINK_STROKE_COLOR;
@@ -1080,7 +1111,7 @@ mediators.CustomGraphMediator = (function() {
      */
     var createFunctionToFindLinkArrowhead = function(mediator) {
         return function(link) {
-            if(mediator.selected.mouseoverNetworkId === link.network || mediator.selected.graphNetworkId === link.network) {
+            if(mediator.selected.mouseoverKeyId === link.key || mediator.selected.graphNetworkId === link.network) {
                 return CustomGraphMediator.FOCUSED_COLOR_ARROWHEAD_NAME;
             }
             return mediator.graph.DEFAULT_LINK_ARROWHEAD;
@@ -1240,6 +1271,7 @@ mediators.CustomGraphMediator = (function() {
     var createFunctionToHandleLinkSelect = function(mediator) {
         return function(link) {
             mediator.selected.mouseoverNodeIds = getNodeIds(link.source).concat(getNodeIds(link.target));
+            mediator.selected.mouseoverKeyId = link.key;
             mediator.selected.mouseoverNetworkId = link.network;
             mediator.graph.redrawNodesAndLinks();
         };
@@ -1255,6 +1287,7 @@ mediators.CustomGraphMediator = (function() {
     var createFunctionToHandleLinkDeselect = function(mediator) {
         return function() {
             mediator.selected.mouseoverNodeIds = [];
+            mediator.selected.mouseoverKeyId = -1;
             mediator.selected.mouseoverNetworkId = -1;
             mediator.graph.redrawNodesAndLinks();
         };

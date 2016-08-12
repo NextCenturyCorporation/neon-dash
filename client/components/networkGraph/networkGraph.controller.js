@@ -48,7 +48,7 @@ angular.module('neonDemo.controllers').controller('networkGraphController', ['$s
     $scope.active.linkedNodeField = {};
     $scope.active.linkedNameField = {};
     $scope.active.linkedSizeField = {};
-    $scope.active.limit = 500000;
+    $scope.active.limit = 50000;
     $scope.active.flagMode = "";
 
     $scope.active.clusterNodes = true;

@@ -21,6 +21,8 @@ charts.CustomGraph = function(rootElement, selector, options) {
         nodes: [],
         links: []
     };
+    this.DEFAULT_NODE_STROKE_COLOR = "black";
+    this.DEFAULT_NODE_STROKE_SIZE = 1;
 
     // Initialize the options first because they're needed to initialize the graph element.
     this.initializeGraphOptions(options || {});
@@ -360,8 +362,10 @@ charts.CustomGraph.prototype.updateGraph = function(newData) {
 
     if (client.status == 201)
         console.log("The request succeeded!");
-    else
-        alert("The request to the graph-layout server did not succeed!\n\nThe response status was: " + client.status + " " + client.statusText + ".");
+    else {
+        alert("The request to the graph-layout server did not succeed!\n\nThe response status was: " + client.status + " " + client.statusText + ".\n"
+                                                                                                     + client.responseText);
+    }
 
     var parsed = JSON.parse(client.responseText);
 
@@ -395,7 +399,8 @@ charts.CustomGraph.prototype.updateGraph = function(newData) {
     var circleElements = me.vis.selectAll(".node").data(newData.nodes, me.getNodeKeyFunction);
 
     // Add new D3 circle elements for new data as necessary.
-    circleElements.enter().append("circle").attr("class", "node").call(me.forceLayout.drag)
+    circleElements.enter().append("circle").attr("class", "node")
+        .call(me.forceLayout.drag)
         .on("click", me.nodeClickHandler)
         .on('dblclick', me.nodeDoubleClickHandler)
         .on("mousemove", me.createNodeMousemoveHandler(me))
@@ -485,12 +490,17 @@ charts.CustomGraph.prototype.updateGraph = function(newData) {
         }
     );
 
-    // remove these lines if you want a linear scaling
-    me.scale = (maxRadius - minRadius) / (maxValue - minValue);
+    if (maxValue - minValue != 0)
+        me.scale = (maxRadius - minRadius) / (maxValue - minValue);
+    else
+        me.scale = 10 / minValue;
 
     me.getNodeSize = function(n) {
         if (n["size"]) {
-            return n["size"] * me.scale;
+            if (n["size"] != 0)
+                return n["size"] * me.scale;
+            else
+                return minRadius;
         }
         else {
             return charts.CustomGraph.prototype.DEFAULT_NODE_SIZE;
@@ -734,7 +744,7 @@ charts.CustomGraph.prototype.DEFAULT_NODE_COLOR = "black";
 charts.CustomGraph.prototype.DEFAULT_NODE_OPACITY = 1;
 charts.CustomGraph.prototype.DEFAULT_NODE_SIZE = 10;
 charts.CustomGraph.prototype.DEFAULT_NODE_STROKE_COLOR = "black";
-charts.CustomGraph.prototype.DEFAULT_NODE_STROKE_SIZE = 0;
+charts.CustomGraph.prototype.DEFAULT_NODE_STROKE_SIZE = 1;
 charts.CustomGraph.prototype.DEFAULT_NODE_TEXT_COLOR = "black";
 
 charts.CustomGraph.prototype.DEFAULT_LINK_ARROWHEAD = "default";
