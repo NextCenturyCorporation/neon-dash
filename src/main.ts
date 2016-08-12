@@ -14,26 +14,28 @@ class NoCheckCookieXSRFStrategy extends CookieXSRFStrategy {
   configureRequest(request: Request) {}
 }
 
-function handleConfigJsonError() {
+function handleConfigJsonError(error) {
+    console.log(error);
     console.log("missing json file.");
     document.write("Your Neon-GTD installation is missing a config.yaml or config.json file.  Please notify your administrator.");
 }
 
 function loadConfigJson() {
-    return http.get("./config/config.json")
-        .map(response => response.json().data)
+    return http.get("./app/config/config.json")
+        .map(response => response.json())
         .toPromise()
 }
 
-function handleConfigYamlError() {
+function handleConfigYamlError(error) {
+    console.log(error);
     console.log("missing yaml file. trying json config.");
     loadConfigJson().then(config => bootstrapWithData(config))
         .catch(handleConfigJsonError)
 }
 
 function loadConfigYaml() {
-   return http.get("./config/config.yaml")
-       .map(response => yaml.load(response.json().data))
+   return http.get("./app/config/config.yaml")
+       .map(response => yaml.load(response.text()))
        .toPromise()
 }
 
@@ -42,7 +44,7 @@ function bootstrapWithData(config) {
         HTTP_PROVIDERS,
         disableDeprecatedForms(),
         provideForms(),
-        provide('config', config)
+        provide('config', { useValue: config })
     ]);
 };
 

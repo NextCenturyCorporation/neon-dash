@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { NgFor } from '@angular/common';
 
 import { MdIcon, MdIconRegistry } from '@angular2-material/icon';
@@ -43,14 +42,15 @@ import { DatasetService } from './services/dataset.service';
 
 export class NeonGTDComponent implements OnInit {
     selectedDataset: string = 'Select a Dataset';
-
     datasets: Dataset[] = [];
 
-    getDatasets() {
-        this.datasets = this.datasetService.getDatasets();
+    constructor(private datasetService: DatasetService) {
+        this.datasets = datasetService.getDatasets();
     }
 
-    constructor(private datasetService: DatasetService) {}
+    getDatasets(): Dataset[] {
+        return this.datasets;
+    }
 
     ngOnInit() {
         this.getDatasets();

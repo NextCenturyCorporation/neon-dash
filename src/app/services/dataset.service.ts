@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import * as _ from 'lodash';
@@ -23,9 +23,8 @@ export class DatasetService {
     // The Dataset Service may ask the visualizations to update their data.
     static UPDATE_DATA_CHANNEL: string = "update_data";
 
-    constructor() {
-        this.dataset = new Dataset();
-        this.datasets = [];
+    constructor(@Inject('config') private config) {
+        this.datasets = config.datasets;
         this.messenger = {}; //new neon.eventing.Messenger();
         this.datasets.forEach(function(dataset) {
             DatasetService.validateDatabases(dataset);
