@@ -1,6 +1,7 @@
 export class FieldMetaData {
     columnName: string;
     prettyName: string;
+    hide: boolean;
 }
 
 export class TableMetaData {

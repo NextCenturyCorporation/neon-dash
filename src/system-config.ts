@@ -10,15 +10,27 @@
 /** Map relative paths to URLs. */
 const map: any = {
   '@angular2-material': 'vendor/@angular2-material',
-  'lodash': 'vendor/lodash/lodash.js',
-  'rxjs': 'vendor/rxjs'
+  'lodash': 'vendor/lodash',
+  'rxjs': 'vendor/rxjs',
+  'js-yaml': 'vendor/js-yaml'
 };
 
 /** User packages configuration. */
 const packages: any = {
-  'lodash': 'vendor/lodash/lodash.js'
+  'lodash': {
+    defaultExtension: 'js',
+    format: 'cjs',
+    main: 'lodash.js'
+  },
+  'js-yaml': {
+    defaultExtension: 'js',
+    format: 'cjs',
+    main: 'index.js'
+  }
+
 };
 
+/** Setup the angular material modules. */
 const materialPkgs: string[] = [
   'button',
   'card',

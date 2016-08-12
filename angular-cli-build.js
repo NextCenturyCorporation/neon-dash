@@ -17,7 +17,9 @@ module.exports = function(defaults) {
       'rxjs/**/*.+(js|js.map)',
       '@angular/**/*.+(js|js.map)',
       '@angular2-material/**/*',
-      'lodash/**/lodash.js'
+      'lodash/**/*.js',
+      'js-yaml/lib/**/*.js',
+      'js-yaml/*.js'
     ]
   });
 };

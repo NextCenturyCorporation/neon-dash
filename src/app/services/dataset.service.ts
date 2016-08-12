@@ -1,10 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
-
-//Place this at the top near your imports
-/// <reference path="../../../typings/globals/lodash/index.d.ts" />
-declare var _;
+import * as _ from 'lodash';
 
 @Injectable()
 export class DatasetService {
@@ -663,23 +660,25 @@ export class DatasetService {
         var databaseIndex = index ? index : 0;
         var database = dataset.databases[databaseIndex];
         connection.getTableNamesAndFieldNames(database.name, function(tableNamesAndFieldNames) {
-            Object.keys(tableNamesAndFieldNames).forEach(function(tableName) {
-                var table = _.find(database.tables, function(table) {
+            Object.keys(tableNamesAndFieldNames).forEach(function(tableName: string) {
+                var table = _.find(database.tables, function(table: TableMetaData) {
                     return table.name === tableName;
                 });
 
                 if(table) {
                     var hasField = {};
-                    table.fields.forEach(function(field) {
+                    table.fields.forEach(function(field: FieldMetaData) {
                         hasField[field.columnName] = true;
                     });
 
-                    tableNamesAndFieldNames[tableName].forEach(function(fieldName) {
+                    tableNamesAndFieldNames[tableName].forEach(function(fieldName: string) {
                         if(!hasField[fieldName]) {
-                            table.fields.push({
+                            var newField: FieldMetaData = {
                                 columnName: fieldName,
-                                prettyName: fieldName
-                            });
+                                prettyName: fieldName,
+                                hide: false
+                            };
+                            table.fields.push(newField);
                         }
                     });
                 }
@@ -724,7 +723,8 @@ export class DatasetService {
     public createBlankField(): FieldMetaData {
         return {
             columnName: "",
-            prettyName: ""
+            prettyName: "",
+            hide: false
         };
     };
 
@@ -733,7 +733,7 @@ export class DatasetService {
      * @param {Object} fieldObject
      * @return {Boolean}
      */
-    isFieldValid(fieldObject) {
+    public isFieldValid(fieldObject: FieldMetaData): boolean {
         return Boolean(fieldObject && fieldObject.columnName);
     };
 
@@ -742,7 +742,7 @@ export class DatasetService {
      * @param {String} databaseName
      * @return {String}
      */
-    getPrettyNameForDatabase(databaseName) {
+    public getPrettyNameForDatabase(databaseName: string): string {
         var name = databaseName;
         this.dataset.databases.forEach(function(database) {
             if(database.name === databaseName) {
@@ -758,7 +758,7 @@ export class DatasetService {
      * @param {String} tableName
      * @return {String}
      */
-    getPrettyNameForTable(databaseName, tableName) {
+    public getPrettyNameForTable(databaseName: string, tableName: string): string {
         var name = tableName;
         this.getTables(databaseName).forEach(function(table) {
             if(table.name === tableName) {
