@@ -147,7 +147,7 @@ charts.CustomGraph.prototype.initializeGraphOptions = function(options) {
         }
     };
 
-    this.nodeClickHandler = function(nodeData) { //xkcd
+    this.nodeClickHandler = function(nodeData) {
         if(d3.event.shiftKey && options.nodeShiftClickHandler) {
             options.nodeShiftClickHandler(nodeData);
         } else if(options.nodeClickHandler) {
@@ -173,7 +173,7 @@ charts.CustomGraph.prototype.initializeGraphOptions = function(options) {
         }
     };
 
-    this.linkClickHandler = function(linkData) { //xkcd
+    this.linkClickHandler = function(linkData) {
         if(d3.event.shiftKey && options.linkShiftClickHandler) {
             options.linkShiftClickHandler(linkData);
         } else if(options.linkClickHandler) {
@@ -211,7 +211,7 @@ charts.CustomGraph.prototype.initializeGraphOptions = function(options) {
  * Initializes the element for this graph.
  * @method initializeGraphElement
  */
-charts.CustomGraph.prototype.initializeGraphElement = function() { //xkcd
+charts.CustomGraph.prototype.initializeGraphElement = function() {
     var me = this;
 
     // Reset element here because it may not get set correctly in the constructor due to an odd race
@@ -250,6 +250,9 @@ charts.CustomGraph.prototype.initializeGraphElement = function() { //xkcd
 
     me.forceLayoutNodes = me.forceLayout.nodes();
     me.forceLayoutLinks = me.forceLayout.links();
+
+    me.nodeScale = 1;
+    this.getNodeSize
 };
 
 /**
@@ -257,7 +260,7 @@ charts.CustomGraph.prototype.initializeGraphElement = function() { //xkcd
  * @param {Array} newData
  * @method updateGraphData
  */
-charts.CustomGraph.prototype.updateGraphData = function(newData) { //xkcd
+charts.CustomGraph.prototype.updateGraphData = function(newData) {
     var i;
 
     newData.nodes = newData.nodes || [];
@@ -301,8 +304,6 @@ charts.CustomGraph.prototype.updateGraphData = function(newData) { //xkcd
  */
 charts.CustomGraph.prototype.redrawNodesAndLinks = function() {
     var me = this;
-    // console.log("redrawNodesAndLinks1: \n" + JSON.stringify(me.vis.selectAll(".node"), null, 4));
-    // console.log("redrawNodesAndLinks2: \n" + JSON.stringify(me.vis.selectAll(".node").attr("r", me.getNodeSize), null, 2));
 
     me.vis.selectAll(".link")
 //        .attr("marker-end", me.getLinkArrowhead)
@@ -325,25 +326,25 @@ charts.CustomGraph.prototype.redrawNodesAndLinks = function() {
 };
 
 /**
- * Updates this graph using the given data.
+ * Updates this graph using the given data, sends data to python server for layout generation in tulip.
+ * How it works is tulip sets it out roughly, but in a very confined area. Some number of ticks (last set to 2, in python server) are then processed using d3's 
+ *      force simulation, which explodes the nodes outward.
+ * This is the only function that was greatly changed, if not the only funciton changed at all (aside from changing instances of "networkGraph" to "customGraph").
+ * 
+ * 
  * @param {Array} newData
  * @method updateGraph
  */
-charts.CustomGraph.prototype.updateGraph = function(newData) { //xkcd
-    // console.log("updateGraph newData vs oldData: " + (newData.links == this.oldData.links && newData.nodes == this.oldData.nodes));
+charts.CustomGraph.prototype.updateGraph = function(newData) {
+
     if (newData.links == this.oldData.links && newData.nodes == this.oldData.nodes) {
-        //fix this, it will probably break whenever you drag a node or maybe reload the graph or change anything.
+        //TODO: fix this? remove this?
         return
     }
 
     var me = this;
-    // if (newData["nodes"])
-    //     console.log("in updateGraph1:\n" + JSON.stringify(newData["nodes"][Math.floor(newData["nodes"].length/2)], null, 4));
+
     me.updateGraphData(newData);
-    // if (newData["nodes"])
-    //     console.log("in updateGraph2:\n" + JSON.stringify(newData["nodes"][Math.floor(newData["nodes"].length/2)], null, 4));
-
-
 
     var url = "http://lvh.me:5000/graphRequest";
 
@@ -358,39 +359,13 @@ charts.CustomGraph.prototype.updateGraph = function(newData) { //xkcd
     client.send(jsonData);
 
     if (client.status == 201)
-        console.log("The request succeeded!");//\n\nThe response representation was:\n\n" + client.responseText)
+        console.log("The request succeeded!");
     else
-        alert("The request did not succeed!\n\nThe response status was: " + client.status + " " + client.statusText + ".");
-    // console.log("\nIn updateGraph rest response:\n" + client.responseText);
-    // console.log("\nIn updateGraph links:\n" + jsonLinkData);
+        alert("The request to the graph-layout server did not succeed!\n\nThe response status was: " + client.status + " " + client.statusText + ".");
 
     var parsed = JSON.parse(client.responseText);
 
-    // var nodeArr = [];
-
-    // for(var x in parsed["nodes"]){
-    //   nodeArr.push(parsed["nodes"][x]);
-    // }
-    // // console.log("xkcd1\n" + parsed);
-    // // console.log("xkcd2\n" + JSON.stringify(parsed, null, 4));
-    // // console.log("xkcd3\n" + JSON.stringify(parsed["nodes"], null, 4));
-    // // console.log("xkcd4\n" + JSON.stringify(parsed["links"], null, 4));
-
-    
-    // if (parsed["nodes"] && parsed["links"]) {
-    //     var index = parsed["links"].length/2;
-    //     console.log("\nIn updateGraph example index:\n" + index);
-    //     var link = parsed["links"][index];
-    //     console.log("\nIn updateGraph example link:\n" + JSON.stringify(link, null, 4));
-    //     if (link) {
-    //         var n1 = parsed["nodes"][link["target"]];
-    //         var n2 = parsed["nodes"][link["source"]];
-    //         console.log("\nIn updateGraph example nodes:\n" + JSON.stringify(n1, null, 4) + "\n" + JSON.stringify(n2, null, 4));
-    //     }
-    // }
-    // else
-    //     console.log("\nIn updateGraph nodeArr and linkArr:\n NO DATA IN THIS REQUEST");
-
+    // newData nodes have no location attributes prior to this, and so are created.
     for (var i = 0; i < newData["nodes"].length; i++) {
         newData["nodes"][i]["x"] = parsed["nodes"][i]["x"]
         newData["nodes"][i]["y"] = parsed["nodes"][i]["y"]
@@ -443,39 +418,13 @@ charts.CustomGraph.prototype.updateGraph = function(newData) { //xkcd
     // Remove old data saved in the D3 text elements.
     textElements.exit().remove();
 
-    // if (newData["nodes"])
-    //     console.log("in updateGraph3:\n" + JSON.stringify(newData["nodes"][Math.floor(newData["nodes"].length/2)], null, 4));
-    //     console.log("in updateGraph3:\n" + JSON.stringify(newData["links"][Math.floor(newData["links"].length/2)], null, 4));
-
-
-    var minRadius = 10;
-    var maxRadius = 40;
-    var scale = d3.scale.linear().range([minRadius,maxRadius]);
-    circleElements.append("circle")
-        .attr("r", function(d) {
-            console.log(JSON.stringify(d));
-            console.log(JSON.stringify(parsed["sizes"][d["key"]]));
-            return parsed["sizes"][n["key"]];
-    });
-
-
     me.redrawNodesAndLinks();
-
-    // if (newData["nodes"])
-    //     console.log("in updateGraph4:\n" + JSON.stringify(newData["nodes"][Math.floor(newData["nodes"].length/2)], null, 4));
-    //     console.log("in updateGraph4:\n" + JSON.stringify(newData["links"][Math.floor(newData["links"].length/2)], null, 4));
 
     circleElements.attr("transform", function(nodeData) {
         return "translate(" + (nodeData.x) + "," + (nodeData.y) + ")";
     });
 
-    // if (newData["nodes"])
-    //     console.log("in updateGraph5:\n" + JSON.stringify(newData["nodes"][Math.floor(newData["nodes"].length/2)], null, 4));
-    //     console.log("in updateGraph5:\n" + JSON.stringify(newData["links"][Math.floor(newData["links"].length/2)], null, 4));
-
-    // a much lower ending value, to limit the number of ticks that must be processed; just a couple, to make sure any necessary updates inside
-    // console.log("tickNumber:" + parsed["ticks"]);
-    // forceLayout.on("tick") happen, without the slowness of using the force-layout for everything. Maybe.
+    // limits the number of ticks that must be processed.
     var indexMax = parsed["ticks"];
     
     // The index of the force layout tick.
@@ -484,7 +433,6 @@ charts.CustomGraph.prototype.updateGraph = function(newData) { //xkcd
     // Whether the node data has been fixed.
     var fixed = false;
 
-    // how does this work? one node at a time, or all at once? Where is that node defined?
     me.forceLayout.on("tick", function(event) {
         // Reset the index to 1 if the force layout alpha is its starting value (0.099); otherwise, increase the index by 1 for each tick.
         // The alpha can be reset to its starting value if the user moves a node before the graph is fixed.
@@ -515,17 +463,56 @@ charts.CustomGraph.prototype.updateGraph = function(newData) { //xkcd
         }
     });
 
-    // if (newData["nodes"])
-    //     console.log("in updateGraph6:\n" + JSON.stringify(newData["nodes"][Math.floor(newData["nodes"].length/2)], null, 4));
-    //     console.log("in updateGraph6:\n" + JSON.stringify(newData["links"][Math.floor(newData["links"].length/2)], null, 4));
-
     if(newData.nodes.length) {
         me.forceLayout.start();
     }
 
-    // if (newData["nodes"])
-    //     console.log("in updateGraph7:\n" + JSON.stringify(newData["nodes"][Math.floor(newData["nodes"].length/2)], null, 4));
-    //     console.log("in updateGraph7:\n" + JSON.stringify(newData["links"][Math.floor(newData["links"].length/2)], null, 4));
+    var minRadius = 2;
+    var maxRadius = 40;
+    var minValue = 100000;
+    var maxValue = 0;
+    // find nodes with smallest and largest value
+    d3.selectAll('.node')
+        .each(function(n) {
+            d3.select(this) // Transform to d3 Object
+            var size = parsed["sizes"][n["key"]];
+            if (size < minValue) {
+                minValue = size;
+            }
+            else if (size > maxValue) {
+                maxValue = size;
+            }
+        }
+    );
+
+    // remove these two lines if you want a linear scaling
+    // console.log("xkcd " + maxValue + " " +  minValue);
+    // maxValue = Math.sqrt(maxValue);
+    // minValue = Math.sqrt(minValue);
+    me.scale = (maxRadius - minRadius) / (maxValue - minValue);
+    // console.log("xkcd " + me.scale + " " + (maxRadius - minRadius) + " " + (maxValue - minValue));
+
+    me.getNodeSize = function(n) {
+        // console.log(n["size"])
+        if (n["size"]) {
+            console.log("\tsize: " + n["size"] * me.scale + " " + n["key"]);
+            // console.log("\tscale: " + me.scale);
+            return n["size"] * me.scale;
+        }
+        else {
+            return charts.CustomGraph.prototype.DEFAULT_NODE_SIZE;
+        }
+    }
+
+    circleElements.append("circle")
+        .attr("r", function(n) {
+            n["size"] = parsed["sizes"][n["key"]];
+            // console.log(n["key"]);
+            // console.log((n["numberOfSources"] + n["numberOfTargets"]) + " " + scaleRadius(parsed["sizes"][n["key"]]));
+            return me.getNodeSize(n);
+    });
+
+    me.redrawNodesAndLinks();
 
     // Save the data for future redraws.
     me.oldData = {
@@ -533,16 +520,6 @@ charts.CustomGraph.prototype.updateGraph = function(newData) { //xkcd
         links: newData.links
     };
 
-    // if (newData["nodes"])
-    //     console.log("in updateGraph8:\n" + JSON.stringify(newData["nodes"][Math.floor(newData["nodes"].length/2)], null, 4));
-    
-    // console.log("Nodes after calculation1:\n" + JSON.stringify(newData, null, 4));
-    
-    // console.log("Nodes after calculation2:\n" + JSON.stringify(newData["nodes"], null, 4) + "\n\n Links after calculation2: \n" + 
-    //             JSON.stringify(newData["links"], null, 4));
-
-    // console.log("Nodes after calculation3:\n" + JSON.stringify(newData.nodes, null, 4) + "\n\n Links after calculation3: \n" + 
-    //             JSON.stringify(newData.links, null, 4));
 };
 
 /**
@@ -559,7 +536,7 @@ charts.CustomGraph.prototype.redraw = function() {
  * Handles zoom by transforming the graph element.
  * @method handleZoom
  */
-charts.CustomGraph.prototype.handleZoom = function() { //xkcd
+charts.CustomGraph.prototype.handleZoom = function() {
     $(this).children("g").attr("transform", "translate(" + d3.event.translate + ")" + " scale(" + d3.event.scale + ")");
 };
 
@@ -567,7 +544,7 @@ charts.CustomGraph.prototype.handleZoom = function() { //xkcd
  * Shows the graph tooltip containing the given text.
  * @method showTooltip
  */
-charts.CustomGraph.prototype.showTooltip = function(text) {  //xkcd don't bother until later
+charts.CustomGraph.prototype.showTooltip = function(text) {
     var html = '<table class="graph-tooltip">' + text + '</table>';
     $('#tooltip-container').html(html);
     $('#tooltip-container').show();
@@ -716,7 +693,7 @@ charts.CustomGraph.prototype.getLinkEndYFunction = function(me) {
  * @method getCollisionFunction
  * @return {Function}
  */
-charts.CustomGraph.prototype.getCollisionFunction = function() { //xkcd
+charts.CustomGraph.prototype.getCollisionFunction = function() {
     return false;
     // var me = this;
     // var quadtree = d3.geom.quadtree(this.forceLayoutNodes);
@@ -770,7 +747,7 @@ charts.CustomGraph.prototype.DEFAULT_NODE_STROKE_SIZE = 0;
 charts.CustomGraph.prototype.DEFAULT_NODE_TEXT_COLOR = "black";
 
 charts.CustomGraph.prototype.DEFAULT_LINK_ARROWHEAD = "default";
-charts.CustomGraph.prototype.DEFAULT_LINK_ARROWHEAD_SIZE = 20;
+charts.CustomGraph.prototype.DEFAULT_LINK_ARROWHEAD_SIZE = 0;
 charts.CustomGraph.prototype.DEFAULT_LINK_SIZE = 2;
 charts.CustomGraph.prototype.DEFAULT_LINK_STROKE_COLOR = "#999999";
 charts.CustomGraph.prototype.DEFAULT_LINK_STROKE_OPACITY = 0.5;
