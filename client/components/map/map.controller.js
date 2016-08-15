@@ -1131,6 +1131,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                         var newPoint = {
                             latitude: bucket.top - boxHeight * (0.1 * row),
                             longitude: bucket.left + boxHeight * (0.1 * column),
+                            type_of_feature_point: 'grid_point',
                             count: mostToLeast[x].count,
                             pointRadius: $scope.gridLayerPointRadius
                         };
