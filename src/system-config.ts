@@ -12,7 +12,8 @@ const map: any = {
   '@angular2-material': 'vendor/@angular2-material',
   'lodash': 'vendor/lodash',
   'rxjs': 'vendor/rxjs',
-  'js-yaml': 'vendor/js-yaml'
+  'js-yaml': 'vendor/js-yaml',
+  'hammerjs': 'vendor/hammerjs'
 };
 
 /** User packages configuration. */

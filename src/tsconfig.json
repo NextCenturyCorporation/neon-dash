@@ -4,20 +4,18 @@
     "declaration": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "lib": ["es6", "dom"],
     "mapRoot": "/",
-    "module": "commonjs",
+    "module": "es6",
     "moduleResolution": "node",
-    "noEmitOnError": true,
-    "noImplicitAny": false,
     "outDir": "../dist/",
-    "rootDir": ".",
     "sourceMap": true,
     "target": "es5",
-    "inlineSources": true
-  },
-
-  "files": [
-    "main.ts",
-    "typings.d.ts"
-  ]
+    "typeRoots": [
+      "../node_modules/@types"
+    ],
+    "types": [
+      "jasmine"
+    ]
+  }
 }

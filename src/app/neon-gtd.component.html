@@ -5,14 +5,14 @@
         </md-toolbar>
         <md-content>
             <md-list flex>
-                <md-list-item class="md-1-line" *ngFor="let dataset of datasets" >
-                    <h3>{{ dataset.name }}</h3>
+                <md-list-item *ngFor="let dataset of datasets" >
+                    <h3 md-line>{{ dataset.name }}</h3>
                 </md-list-item>
             </md-list>
         </md-content>
     </md-sidenav>
     <md-toolbar color="primary" layout-align="space-between center" flex>
-        <button md-button [attr.aria-label]="selectedDataset" (click)="sidenav.toggle()"  class="neon-gtd-text-button">
+       <!--  <button md-button [attr.aria-label]="selectedDataset" (click)="sidenav.toggle()"  class="neon-gtd-text-button">
             <i class="material-icons md-24" style="vertical-align: sub">menu</i>&nbsp;{{ selectedDataset }}
         </button>
         <span class="fill-remaining"></span>
@@ -27,7 +27,7 @@
         </button>
         <button md-icon-button aria-label="Help" class="neon-gtd-text-button">
             ?
-        </button>
+        </button> -->
     </md-toolbar>
 
     <md-content class="neon-gtd-content">

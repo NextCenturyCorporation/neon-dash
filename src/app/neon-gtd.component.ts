@@ -1,50 +1,37 @@
-import { Component, Inject, OnInit } from '@angular/core';
+/*
+ * Copyright 2016 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NgFor } from '@angular/common';
-
-import { MdIcon, MdIconRegistry } from '@angular2-material/icon';
-import { MD_BUTTON_DIRECTIVES } from '@angular2-material/button';
-import { MD_CARD_DIRECTIVES } from '@angular2-material/card';
-import { MD_CHECKBOX_DIRECTIVES } from '@angular2-material/checkbox';
-import { MD_ICON_DIRECTIVES } from '@angular2-material/icon';
-import { MD_INPUT_DIRECTIVES } from '@angular2-material/input';
-import { MD_MENU_DIRECTIVES } from '@angular2-material/menu';
-import { MD_PROGRESS_CIRCLE_DIRECTIVES } from '@angular2-material/progress-circle';
-import { MD_RADIO_DIRECTIVES } from '@angular2-material/radio';
-import { MD_SIDENAV_DIRECTIVES } from '@angular2-material/sidenav';
-import { MD_TABS_DIRECTIVES } from '@angular2-material/tabs';
-import { MD_TOOLBAR_DIRECTIVES } from '@angular2-material/toolbar';
 
 import { NeonGTDConfig } from './neon-gtd-config';
 import { Dataset } from './dataset';
 import { DatasetService } from './services/dataset.service';
 
 @Component({
-    moduleId: module.id,
-    selector: 'app-root',
+    selector: 'neon-gtd',
     templateUrl: 'neon-gtd.component.html',
-    styleUrls: ['neon-gtd.component.css'],
-    providers: [DatasetService, MdIconRegistry],
-    directives: [
-        NgFor,
-        MdIcon,
-        MD_BUTTON_DIRECTIVES,
-        MD_CARD_DIRECTIVES,
-        MD_CHECKBOX_DIRECTIVES,
-        MD_ICON_DIRECTIVES,
-        MD_INPUT_DIRECTIVES,
-        MD_MENU_DIRECTIVES,
-        MD_PROGRESS_CIRCLE_DIRECTIVES,
-        MD_RADIO_DIRECTIVES,
-        MD_SIDENAV_DIRECTIVES,
-        MD_TABS_DIRECTIVES,
-        MD_TOOLBAR_DIRECTIVES
-]})
-
-export class NeonGTDComponent implements OnInit {
+    styleUrls: ['neon-gtd.component.less'],
+    providers: [DatasetService]
+})
+export class NeonGTDComponent implements OnInit, OnDestroy {
     selectedDataset: string = 'Select a Dataset';
     datasets: Dataset[] = [];
 
-    constructor(private datasetService: DatasetService) {
+    constructor(private datasetService: DatasetService, private config: NeonGTDConfig) {
+        console.log("CONSTRUCTING!!");
         this.datasets = datasetService.getDatasets();
     }
 
@@ -52,7 +39,11 @@ export class NeonGTDComponent implements OnInit {
         return this.datasets;
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         this.getDatasets();
+    }
+
+    ngOnDestroy(): void {
+        console.log('neon gtd onDestroy called')
     }
 }

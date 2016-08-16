@@ -1,8 +1,10 @@
-import { bootstrap } from '@angular/platform-browser-dynamic';
+///<reference path="../typings/globals/hammerjs/index.d.ts"/>
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { enableProdMode, provide, ReflectiveInjector } from '@angular/core';
 import { CookieXSRFStrategy, HTTP_PROVIDERS, Http, Request, XSRFStrategy } from '@angular/http';
-import { NeonGTDComponent, environment } from './app/';
+import { environment } from './app/';
 import { disableDeprecatedForms, provideForms } from '@angular/forms';
+import { NeonGTDModule } from './app/neon-gtd.module';
 import * as yaml from 'js-yaml';
 import * as _ from 'lodash';
 import 'rxjs/Rx';
@@ -14,6 +16,12 @@ class NoCheckCookieXSRFStrategy extends CookieXSRFStrategy {
   configureRequest(request: Request) {}
 }
 
+var injector = ReflectiveInjector.resolveAndCreate([HTTP_PROVIDERS, {
+    provide: XSRFStrategy, 
+    useValue: new NoCheckCookieXSRFStrategy()
+}]);
+var http = injector.get(Http);
+
 function handleConfigJsonError(error) {
     console.log(error);
     console.log("missing json file.");
@@ -21,7 +29,7 @@ function handleConfigJsonError(error) {
 }
 
 function loadConfigJson() {
-    return http.get("./app/config/config.json")
+    return http.get("app/config/config.json")
         .map(response => response.json())
         .toPromise()
 }
@@ -34,28 +42,25 @@ function handleConfigYamlError(error) {
 }
 
 function loadConfigYaml() {
-   return http.get("./app/config/config.yaml")
+    console.log("did we get it? " + http);
+   return http.get("app/config/config.yaml")
        .map(response => yaml.load(response.text()))
        .toPromise()
 }
 
 function bootstrapWithData(config) {
-    bootstrap(NeonGTDComponent, [
+    console.log(environment.production);
+    if (environment.production) {
+        enableProdMode();
+    }
+    console.log("pbd = " + platformBrowserDynamic);
+
+    platformBrowserDynamic().bootstrapModule(NeonGTDModule, [
         HTTP_PROVIDERS,
         disableDeprecatedForms(),
         provideForms(),
         provide('config', { useValue: config })
     ]);
-};
-
-var injector = ReflectiveInjector.resolveAndCreate([HTTP_PROVIDERS, {
-    provide: XSRFStrategy, 
-    useValue: new NoCheckCookieXSRFStrategy()
-}]);
-var http = injector.get(Http);
-
-if (environment.production) {
-    enableProdMode();
 }
 
 loadConfigYaml().then(config => bootstrapWithData(config))
