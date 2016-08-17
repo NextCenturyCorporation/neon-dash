@@ -26,56 +26,7 @@ import { NeonGTDConfig } from './neon-gtd-config';
 
 import { AppComponent } from './app.component';
 
-// export function createAppModule(config: any) {
-//     @NgModule({
-//         imports: [
-//             BrowserModule,
-//             platformBrowserDynamic,
-//             CommonModule,
-//             FormsModule,
-//             HttpModule,
-//             JsonpModule,
-//             enableProdMode,
-//             MdButtonModule,
-//             MdCoreModule,
-//             MdCardModule,
-//             MdCheckboxModule,
-//             MdIconModule,
-//             MdInputModule,
-//             MdListModule,
-//             MdMenuModule,
-//             MdProgressCircleModule,
-//             MdRadioModule,
-//             MdSidenavModule,
-//             MdTabsModule,
-//             MdToolbarModule
-//           ],
-//           declarations: [
-//               AppComponent
-//           ],
-//           providers: [
-//               HTTP_PROVIDERS, 
-//               DatasetService,
-//               {
-//                 provide: 'config',
-//                 useValue: config
-//               }
-//           ],
-//           bootstrap: [AppComponent]
-//     })
-//     class AppModule { 
-//         // constructor(private _appRef: ApplicationRef) {}
-
-//         // ngDoBootstrap() {
-//         //     this._appRef.bootstrap(AppComponent);
-//         // }
-//     }
-
-//     return AppModule;
-// }
-
-import { Inject } from '@angular/core';
-
+export function createAppModule(config) {
 @NgModule({
     declarations: [
         AppComponent
@@ -104,12 +55,15 @@ import { Inject } from '@angular/core';
         DatasetService,
         {
           provide: 'config',
-          useValue: new NeonGTDConfig()
+          useValue: config
         }
     ],
     entryComponents: [AppComponent],
     bootstrap: [AppComponent]
 })
-export class AppModule {
+class AppModule {
 
+}
+
+return AppModule;
 }

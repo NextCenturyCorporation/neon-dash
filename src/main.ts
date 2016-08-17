@@ -3,8 +3,7 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { enableProdMode, provide, ReflectiveInjector } from '@angular/core';
 import { CookieXSRFStrategy, HTTP_PROVIDERS, HttpModule, Http, Request, XSRFStrategy } from '@angular/http';
 import { environment } from './app/environments/environment';
-//import { FormsModule } from '@angular/forms';
-import { AppModule } from './app/app.module';
+import { createAppModule } from './app/app.module';
 import * as yaml from 'js-yaml';
 import * as _ from 'lodash';
 import 'rxjs/Rx';
@@ -25,7 +24,7 @@ var http = injector.get(Http);
 function handleConfigJsonError(error) {
     console.log(error);
     console.log("missing json file.");
-    document.write("Your Neon-GTD installation is missing a config.yaml or config.json file.  Please notify your administrator.");
+    document.write("Your Neon-GTD installation may be missing a configuration file.  Please notify your administrator.");
 }
 
 function loadConfigJson() {
@@ -48,12 +47,7 @@ function loadConfigYaml() {
 }
 
 function bootstrapWithData(config) {
-    // var appMod = createAppModule(config);
-    // console.log("appmodule = " + appMod);
-    // return platformBrowserDynamic().bootstrapModule(appMod)
-    return platformBrowserDynamic().bootstrapModule(AppModule, {
-      providers: [provide('config', config)]
-    });
+    return platformBrowserDynamic().bootstrapModule(createAppModule(config));
 }
 
 if (environment.production) {
