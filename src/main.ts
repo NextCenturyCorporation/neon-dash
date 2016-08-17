@@ -1,10 +1,10 @@
 ///<reference path="../typings/globals/hammerjs/index.d.ts"/>
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { enableProdMode, provide, ReflectiveInjector } from '@angular/core';
-import { CookieXSRFStrategy, HTTP_PROVIDERS, Http, Request, XSRFStrategy } from '@angular/http';
-import { environment } from './app/';
-import { disableDeprecatedForms, provideForms } from '@angular/forms';
-import { NeonGTDModule } from './app/neon-gtd.module';
+import { CookieXSRFStrategy, HTTP_PROVIDERS, HttpModule, Http, Request, XSRFStrategy } from '@angular/http';
+import { environment } from './app/environments/environment';
+//import { FormsModule } from '@angular/forms';
+import { AppModule } from './app/app.module';
 import * as yaml from 'js-yaml';
 import * as _ from 'lodash';
 import 'rxjs/Rx';
@@ -37,30 +37,27 @@ function loadConfigJson() {
 function handleConfigYamlError(error) {
     console.log(error);
     console.log("missing yaml file. trying json config.");
-    loadConfigJson().then(config => bootstrapWithData(config))
+    return loadConfigJson().then(config => bootstrapWithData(config))
         .catch(handleConfigJsonError)
 }
 
 function loadConfigYaml() {
-    console.log("did we get it? " + http);
    return http.get("app/config/config.yaml")
        .map(response => yaml.load(response.text()))
        .toPromise()
 }
 
 function bootstrapWithData(config) {
-    console.log(environment.production);
-    if (environment.production) {
-        enableProdMode();
-    }
-    console.log("pbd = " + platformBrowserDynamic);
+    // var appMod = createAppModule(config);
+    // console.log("appmodule = " + appMod);
+    // return platformBrowserDynamic().bootstrapModule(appMod)
+    return platformBrowserDynamic().bootstrapModule(AppModule, {
+      providers: [provide('config', config)]
+    });
+}
 
-    platformBrowserDynamic().bootstrapModule(NeonGTDModule, [
-        HTTP_PROVIDERS,
-        disableDeprecatedForms(),
-        provideForms(),
-        provide('config', { useValue: config })
-    ]);
+if (environment.production) {
+    enableProdMode();
 }
 
 loadConfigYaml().then(config => bootstrapWithData(config))

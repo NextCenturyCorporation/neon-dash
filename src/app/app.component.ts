@@ -14,23 +14,21 @@
  *
  */
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { NgFor } from '@angular/common';
 
 import { NeonGTDConfig } from './neon-gtd-config';
 import { Dataset } from './dataset';
 import { DatasetService } from './services/dataset.service';
 
 @Component({
-    selector: 'neon-gtd',
-    templateUrl: 'neon-gtd.component.html',
-    styleUrls: ['neon-gtd.component.less'],
-    providers: [DatasetService]
+    selector: 'app-root',
+    templateUrl: 'app.component.html',
+    styleUrls: ['app.component.less']
 })
-export class NeonGTDComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit, OnDestroy {
     selectedDataset: string = 'Select a Dataset';
     datasets: Dataset[] = [];
 
-    constructor(private datasetService: DatasetService, private config: NeonGTDConfig) {
+    constructor(private datasetService: DatasetService) {
         console.log("CONSTRUCTING!!");
         this.datasets = datasetService.getDatasets();
     }

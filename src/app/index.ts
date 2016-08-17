@@ -1,3 +1,3 @@
 export * from './environments/environment';
-export * from './neon-gtd.component';
-export * from './neon-gtd.module';
+export * from './app.component';
+export * from './app.module';

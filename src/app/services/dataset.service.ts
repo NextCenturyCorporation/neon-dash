@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
+import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
 
 @Injectable()
@@ -23,7 +24,7 @@ export class DatasetService {
     // The Dataset Service may ask the visualizations to update their data.
     static UPDATE_DATA_CHANNEL: string = "update_data";
 
-    constructor(@Inject('config') private config) {
+    constructor(@Inject('config') private config: NeonGTDConfig) {
         this.datasets = config.datasets;
         this.messenger = {}; //new neon.eventing.Messenger();
         this.datasets.forEach(function(dataset) {
