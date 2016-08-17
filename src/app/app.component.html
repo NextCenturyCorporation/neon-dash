@@ -4,11 +4,11 @@
             <span class="md-36">Datasets</span>
         </md-toolbar>
         <md-content>
-            <md-list flex>
+            <md-nav-list flex>
                 <md-list-item *ngFor="let dataset of datasets" >
                     <h3 md-line>{{ dataset.name }}</h3>
                 </md-list-item>
-            </md-list>
+            </md-nav-list>
         </md-content>
     </md-sidenav>
     <md-toolbar color="primary" layout-align="space-between center" flex>
@@ -30,7 +30,12 @@
         </button>
     </md-toolbar>
 
-    <md-content class="neon-gtd-content">
-
+    <md-content class="neon-gtd-content" md-fill>
+        <div [ngGrid]="{'resizeable': false, 'margins': [5, 10]}">
+            <div *ngFor="let box of boxes" [(ngGridItem)]="box.config">
+                <div class="title">{{box.title}}</div>
+                <p>{{box.text}}</p>
+            </div>
+        </div>
     </md-content>
 </md-sidenav-layout>

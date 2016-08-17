@@ -18,6 +18,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { NeonGTDConfig } from './neon-gtd-config';
 import { Dataset } from './dataset';
 import { DatasetService } from './services/dataset.service';
+import { NgGridItem } from 'angular2-grid/dist/main.js';
 
 @Component({
     selector: 'app-root',
@@ -27,6 +28,39 @@ import { DatasetService } from './services/dataset.service';
 export class AppComponent implements OnInit, OnDestroy {
     selectedDataset: string = 'Select a Dataset';
     datasets: Dataset[] = [];
+    boxes: any[] = [{
+        'title': 'one',
+        'config': {
+            'col': 1,
+            'row': 1,
+            'sizex': 1,
+            'sizey': 1
+        }
+    },{
+        'title': 'two',
+        'config': {
+            'col': 4,
+            'row': 1,
+            'sizex': 4,
+            'sizey': 1
+        }
+    },{
+        'title': 'three',
+        'config': {
+            'col': 2,
+            'row': 3,
+            'sizex': 2,
+            'sizey': 3
+        }
+    },{
+        'title': 'four',
+        'config': {
+            'col': 4,
+            'row': 4,
+            'sizex': 1,
+            'sizey': 4
+        }
+    }];
 
     constructor(private datasetService: DatasetService) {
         console.log("CONSTRUCTING!!");

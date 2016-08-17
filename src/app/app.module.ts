@@ -21,6 +21,8 @@ import { MdSidenavModule } from '@angular2-material/sidenav';
 import { MdTabsModule } from '@angular2-material/tabs';
 import { MdToolbarModule } from '@angular2-material/toolbar';
 
+import { NgGrid, NgGridItem } from 'angular2-grid/dist/main.js';
+
 import { DatasetService } from './services/dataset.service';
 import { NeonGTDConfig } from './neon-gtd-config';
 
@@ -29,7 +31,9 @@ import { AppComponent } from './app.component';
 export function createAppModule(config) {
 @NgModule({
     declarations: [
-        AppComponent
+        AppComponent,
+        NgGrid,
+        NgGridItem
     ],
     imports: [
         BrowserModule,
