@@ -1,11 +1,10 @@
-///<reference path="../typings/globals/hammerjs/index.d.ts"/>
+///<reference path='../typings/globals/hammerjs/index.d.ts'/>
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { enableProdMode, provide, ReflectiveInjector } from '@angular/core';
-import { CookieXSRFStrategy, HTTP_PROVIDERS, HttpModule, Http, Request, XSRFStrategy } from '@angular/http';
+import { enableProdMode, ReflectiveInjector } from '@angular/core';
+import { CookieXSRFStrategy, HTTP_PROVIDERS, Http, Request, XSRFStrategy } from '@angular/http';
 import { environment } from './app/environments/environment';
 import { createAppModule } from './app/app.module';
 import * as yaml from 'js-yaml';
-import * as _ from 'lodash';
 import 'rxjs/Rx';
 import 'rxjs/add/operator/toPromise';
 
@@ -15,35 +14,35 @@ class NoCheckCookieXSRFStrategy extends CookieXSRFStrategy {
   configureRequest(request: Request) {}
 }
 
-var injector = ReflectiveInjector.resolveAndCreate([HTTP_PROVIDERS, {
-    provide: XSRFStrategy, 
+let injector = ReflectiveInjector.resolveAndCreate([HTTP_PROVIDERS, {
+    provide: XSRFStrategy,
     useValue: new NoCheckCookieXSRFStrategy()
 }]);
-var http = injector.get(Http);
+let http = injector.get(Http);
 
 function handleConfigJsonError(error) {
     console.log(error);
-    console.log("missing json file.");
-    document.write("Your Neon-GTD installation may be missing a configuration file.  Please notify your administrator.");
+    console.log('missing json file.');
+    document.write('Your Neon-GTD installation may be missing a configuration file.  Please notify your administrator.');
 }
 
 function loadConfigJson() {
-    return http.get("app/config/config.json")
+    return http.get('app/config/config.json')
         .map(response => response.json())
-        .toPromise()
+        .toPromise();
 }
 
 function handleConfigYamlError(error) {
     console.log(error);
-    console.log("missing yaml file. trying json config.");
+    console.log('missing yaml file. trying json config.');
     return loadConfigJson().then(config => bootstrapWithData(config))
-        .catch(handleConfigJsonError)
+        .catch(handleConfigJsonError);
 }
 
 function loadConfigYaml() {
-   return http.get("app/config/config.yaml")
+   return http.get('app/config/config.yaml')
        .map(response => yaml.load(response.text()))
-       .toPromise()
+       .toPromise();
 }
 
 function bootstrapWithData(config) {
@@ -55,4 +54,4 @@ if (environment.production) {
 }
 
 loadConfigYaml().then(config => bootstrapWithData(config))
-    .catch(handleConfigYamlError)
+    .catch(handleConfigYamlError);
