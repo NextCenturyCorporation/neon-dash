@@ -384,7 +384,6 @@ var removePopup;
 coreMap.Map.prototype.createSelectControl = function(layer) {
     var me = this;
     var onFeatureSelect = function(feature) {
-        console.log(feature);
         XDATA.userALE.log({
             activity: "show",
             action: "click",
@@ -395,7 +394,6 @@ coreMap.Map.prototype.createSelectControl = function(layer) {
             tags: ["map", "tooltip"]
         });
         var createAndShowFeaturePopup = function(data) {
-            console.log(data);
             if(!data) {
                 removePopup();
                 return;
@@ -478,12 +476,22 @@ coreMap.Map.prototype.createSelectControl = function(layer) {
 
         var idMapping = feature.layer.idMapping || "_id";
         if(feature.attributes.type_of_feature_point == 'grid_point') {
-            createAndShowFeaturePopup([
-                {
-                    type: feature.attributes.type,
-                    count: feature.attributes.count
+            var obj = {
+                count: feature.attributes.count
+            };
+            var pieces = feature.attributes.typeName.split('.');
+            var recursor = obj;
+            while(pieces.length > 0) {
+                var piece = pieces.shift();
+                if(pieces.length == 0) {
+                    recursor[piece] = feature.attributes.typeValue;
                 }
-            ]);
+                else {
+                    recursor[piece] = {};
+                    recursor = recursor[piece];
+                }
+            }
+            createAndShowFeaturePopup([obj]);
         }
         else if(feature.cluster && feature.cluster.length > 1) {
             var ids = [];

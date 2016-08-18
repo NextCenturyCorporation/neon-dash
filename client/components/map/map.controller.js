@@ -23,7 +23,7 @@
  * @constructor
  */
 angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$filter', 'ConnectionService', function($scope, $filter, connectionService) {
-    // $scope.gridLayerPointRadius = 8;
+    $scope.gridLayerPointRadius = 8;
     $scope.maxNumGridPoints = 4;
     
     $scope.POINT_LAYER = coreMap.Map.POINTS_LAYER;
@@ -1129,13 +1129,15 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                         var row = Math.floor(x / 10) + 1;
                         var column = (x % 10) + 1;
                         var newPoint = {
-                            latitude: bucket.top - boxHeight * (0.1 * row),
-                            longitude: bucket.left + boxHeight * (0.1 * column),
                             type_of_feature_point: 'grid_point',
                             count: mostToLeast[x].count,
-                            pointRadius: $scope.gridLayerPointRadius
+                            pointRadius: $scope.gridLayerPointRadius,
+                            typeName: layer.colorField.prettyName || layer.colorField.columnName, // We need these to properly
+                            typeValue: mostToLeast[x][layer.colorField.columnName]                // create popups on point click.
                         };
-                        newPoint[layer.colorField.columnName] = mostToLeast[x][layer.colorField.columnName];
+                        newPoint[layer.latitudeField.columnName] = bucket.top - boxHeight * (0.1 * row);
+                        newPoint[layer.longitudeField.columnName] = bucket.left + boxHeight * (0.1 * column);
+                        newPoint[layer.colorField.columnName] = newPoint.typeValue; // We need this so that coloring of points will work.
                         newPointsList.push(newPoint);
                     }
                 }
