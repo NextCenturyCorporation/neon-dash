@@ -297,6 +297,9 @@ coreMap.Map.Layer.PointsLayer.prototype.calculateMinRadius = function() {
  * @method calculateRadius
  */
 coreMap.Map.Layer.PointsLayer.prototype.calculateRadius = function(element) {
+    if(element.type_of_feature_point === 'grid_point') {
+        return element.pointRadius;
+    }
     var me = this;
     var zoomLevel = this.map.zoom;
     // If the size field contains an array of numbers, arbitrarily take the smallest.

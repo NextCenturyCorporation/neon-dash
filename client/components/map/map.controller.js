@@ -23,8 +23,9 @@
  * @constructor
  */
 angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$filter', 'ConnectionService', function($scope, $filter, connectionService) {
-    $scope.gridLayerPointRadius = 8;
+    $scope.gridLayerPointRadius = 5;
     $scope.maxNumGridPoints = 4;
+    $scope.currentGraticuleInterval;
     
     $scope.POINT_LAYER = coreMap.Map.POINTS_LAYER;
     $scope.CLUSTER_LAYER = coreMap.Map.CLUSTER_LAYER;
@@ -259,16 +260,24 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         };
         if(data.databaseType === 'mongo') {
             data.latField = $scope.active.layers[0].latitudeField.columnName;
-            data.lonField = $scope.active.layers[0].longitudeField.columnName
+            data.lonField = $scope.active.layers[0].longitudeField.columnName;
         }
         else {
             data.locationField = $scope.active.layers[0].locationField.columnName;
         }
-        return data
+        return data;
+    };
+
+    // Returns the map's grid layer. If strict is true, only looks for grid layers if the map is (or is about to be) zoomed out far enough for the grid to be visible.
+    var getGridLayer = function(strict) {
+        if(strict === true && $scope.currentGraticuleInterval <= $scope.map.minVisibleForGrid && $scope.map.getGraticuleInterval() <= $scope.map.minVisibleForGrid) {
+            return undefined;
+        }
+        return _.find($scope.active.layers, function(layer) { return layer.type === $scope.GRID_LAYER; });
     };
 
     var debounced = _.debounce(function() {
-        $scope.functions.updateLayer(_.find($scope.active.layers, function(layer) { return layer.type === $scope.GRID_LAYER; }));
+        $scope.functions.updateLayer(getGridLayer());
     }, 1000);
 
     /**
@@ -279,8 +288,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     var onMapEvent = function(message) {
         var type = message.type;
 
-        var gridLayer = _.find($scope.active.layers, function(layer) { return layer.type === $scope.GRID_LAYER; });
-        if(type === "zoomend" && gridLayer !== undefined) {
+        var gridLayer = getGridLayer(true);
+        if(gridLayer !== undefined && $scope.map.getGraticuleInterval() !== $scope.currentGraticuleInterval) {
+            $scope.currentGraticuleInterval = $scope.map.getGraticuleInterval();
             debounced();
         }
 
@@ -537,7 +547,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             if(layer.olLayer) {
                 layer.error = undefined;
                 var colorMappings = undefined;
-                if(layer.type === $scope.GRID_LAYER) {
+                if(layer.type === $scope.GRID_LAYER && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
                     colorMappings = transformToGridPoints(layer, data);
                 }
                 else {
@@ -583,7 +593,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 }
             }
         });
-        if(_.find($scope.active.layers, function(layer) { return layer.type === $scope.GRID_LAYER; }) === undefined) {
+        if(getGridLayer(true) === undefined) {
             $scope.map.graticuleControl.deactivate();
         }
     };
@@ -740,7 +750,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             }
 
             var extent = $scope.map.map.getExtent().transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
-            if(layer.type === $scope.GRID_LAYER) {
+            if(layer.type === $scope.GRID_LAYER && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
                 var interval = $scope.map.getGraticuleInterval();
                 var bottom = getNearestMultiple(interval, extent.bottom, 'lower');
                 var top = getNearestMultiple(interval, extent.top, 'higher');
@@ -1076,14 +1086,6 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             linkyConfig: $scope.linkyConfig
         };
 
-        if(layer.type === $scope.GRID_LAYER) {
-            options.styleMap = new OpenLayers.StyleMap({
-                'default': {
-                    pointRadius: $scope.gridLayerPointRadius
-                }
-            });
-        }
-
         var olLayer;
         if(layer.type === $scope.POINT_LAYER) {
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
@@ -1091,7 +1093,13 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             options.cluster = true;
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
         } else if(layer.type === $scope.GRID_LAYER) {
+            options.styleMap = new OpenLayers.StyleMap({
+                'default': {
+                    pointRadius: $scope.gridLayerPointRadius
+                }
+            });
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
+            $scope.map.graticuleControl.activate();
         } else if(layer.type === $scope.ROUTE_LAYER) {
             options.route = true;
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
