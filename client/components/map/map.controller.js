@@ -1108,6 +1108,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         } else if(layer.type === $scope.NODE_AND_ARROW_LAYER) {
             olLayer = new coreMap.Map.Layer.NodeLayer(layer.name, options);
         }
+
         if(olLayer) {
             $scope.map.addLayer(olLayer);
         }

@@ -23,8 +23,8 @@ var mediators = mediators || {};
  * @param {String} selector The class selected for the directed graph.
  * @param {Object} callbacks Containing {Function} calculateGraphHeight, {Function} calculateGraphWidth, {Function} redrawGraph, and {Function} updateSelectedNodeIds.
  */
-mediators.DirectedGraphMediator = (function() {
-    var DirectedGraphMediator = function(root, selector, callbacks) {
+mediators.CustomGraphMediator = (function() {
+    var CustomGraphMediator = function(root, selector, callbacks) {
         this.callbacks = callbacks;
 
         this.bucketizer = dateBucketizer();
@@ -35,6 +35,7 @@ mediators.DirectedGraphMediator = (function() {
         this.graphLinks = [];
         this.nodesTotal = 0;
         this.nodesShown = 0;
+        this.mrCounter = 1;
 
         this.maps = {
             nodeIdsToFlags: {},
@@ -50,10 +51,11 @@ mediators.DirectedGraphMediator = (function() {
             graphNodeIds: [],
             graphNetworkId: -1,
             mouseoverNodeIds: [],
-            mouseoverNetworkId: -1
+            mouseoverNetworkId: -1,
+            mouseoverKeyId: -2
         };
 
-        this.graph = new charts.DirectedGraph(root, selector, {
+        this.graph = new charts.CustomGraph(root, selector, {
             getHeight: callbacks.calculateGraphHeight,
             getWidth: callbacks.calculateGraphWidth,
             getNodeKey: getNodeKey,
@@ -61,6 +63,8 @@ mediators.DirectedGraphMediator = (function() {
             getNodeSize: createFunctionToCalculateNodeSize(this),
             getNodeColor: createFunctionToCalculateNodeColor(this),
             getNodeOpacity: createFunctionToCalculateNodeOpacity(this),
+            getNodeStrokeSize: createFunctionToGenerateNodeStrokeSize(this),
+            getNodeStrokeColor: createFunctionToGenerateNodeStrokeColor(this),
             getNodeText: createFunctionToGenerateNodeText(this),
             getNodeTooltip: createFunctionToGenerateNodeTooltip(this),
             getLinkSize: createFunctionToCalculateLinkSize(this),
@@ -76,7 +80,7 @@ mediators.DirectedGraphMediator = (function() {
             linkClickHandler: createFunctionToHandleLinkClick(this)
         });
 
-        this.graph.createArrowhead(DirectedGraphMediator.FOCUSED_COLOR_ARROWHEAD_NAME, DirectedGraphMediator.FOCUSED_COLOR, this.graph.DEFAULT_LINK_STROKE_OPACITY);
+        // this.graph.createArrowhead(CustomGraphMediator.FOCUSED_COLOR_ARROWHEAD_NAME, CustomGraphMediator.FOCUSED_COLOR, this.graph.DEFAULT_LINK_STROKE_OPACITY);
     };
 
     /**
@@ -85,9 +89,10 @@ mediators.DirectedGraphMediator = (function() {
      * @param {Object} options The options which must contain at least {String} nodeField.
      * @method evaluateDataAndUpdateGraph
      */
-    DirectedGraphMediator.prototype.evaluateDataAndUpdateGraph = function(data, options) {
+    CustomGraphMediator.prototype.evaluateDataAndUpdateGraph = function(data, options) {
+        // alert("evalUpdateGraph data is " + JSON.stringify(data, null, 4));
         this.options = options;
-        this.options.flagMode = this.options.flagMode || DirectedGraphMediator.FLAG_RESULT;
+        this.options.flagMode = this.options.flagMode || CustomGraphMediator.FLAG_RESULT;
 
         if(!options.nodeField) {
             return;
@@ -134,7 +139,7 @@ mediators.DirectedGraphMediator = (function() {
                     }
 
                     // Add a flag using a boolean field in the data if configured to do so.  The flag defaults to false.
-                    node.flag = (options.flagMode === DirectedGraphMediator.FLAG_RESULT || options.flagMode === DirectedGraphMediator.FLAG_ALL) ? nodeFlag : false;
+                    node.flag = (options.flagMode === CustomGraphMediator.FLAG_RESULT || options.flagMode === CustomGraphMediator.FLAG_ALL) ? nodeFlag : false;
                     mediator.maps.nodeIdsToFlags[node.id] = node.flag;
 
                     // Mark this node as a node created from a data item.
@@ -151,7 +156,7 @@ mediators.DirectedGraphMediator = (function() {
                         // the linked node's date array.  If the linked node is not in the data, it will be styled different based on the inData property.
                         var linkedNode = addNodeIfUnique(nodes, linkedNodeId, linkedNodeName, linkedNodeSize);
                         // Add a flag using a boolean field in the data if configured to do so.  The flag defaults to false.
-                        linkedNode.flag = (options.flagMode === DirectedGraphMediator.FLAG_LINKED || options.flagMode === DirectedGraphMediator.FLAG_ALL) ? nodeFlag : false;
+                        linkedNode.flag = (options.flagMode === CustomGraphMediator.FLAG_LINKED || options.flagMode === CustomGraphMediator.FLAG_ALL) ? nodeFlag : false;
                         mediator.maps.nodeIdsToFlags[linkedNode.id] = mediator.maps.nodeIdsToFlags[linkedNode.id] || linkedNode.flag;
                         addLinkIfUnique(links, linkedNodeId, nodeId, itemDate, mediator.maps);
                     }
@@ -231,7 +236,7 @@ mediators.DirectedGraphMediator = (function() {
         });
 
         if(!node) {
-            node = createNode(id, name, DirectedGraphMediator.NODE_TYPE, size);
+            node = createNode(id, name, CustomGraphMediator.NODE_TYPE, size);
             nodes.push(node);
         } else {
             // Use the most recent name.
@@ -366,7 +371,7 @@ mediators.DirectedGraphMediator = (function() {
         var numberOfNodesToCluster = 0;
 
         // The cluster for all nodes that are not linked to any other nodes.
-        var unlinkedCluster = createNode(0, null, DirectedGraphMediator.CLUSTER_TYPE, 0);
+        var unlinkedCluster = createNode(0, null, CustomGraphMediator.CLUSTER_TYPE, 0);
         unlinkedCluster.nodes = [];
         maps.networkIdsToNodeIds[0] = [];
 
@@ -509,10 +514,10 @@ mediators.DirectedGraphMediator = (function() {
      */
     var addCluster = function(nodes, clusterId, nodeToCluster, nodeIdsToClusterIds) {
         var cluster = _.find(nodes, function(node) {
-            return node.type === DirectedGraphMediator.CLUSTER_TYPE && node.id === clusterId;
+            return node.type === CustomGraphMediator.CLUSTER_TYPE && node.id === clusterId;
         });
         if(!cluster) {
-            cluster = createNode(clusterId, null, DirectedGraphMediator.CLUSTER_TYPE, nodeToCluster.size, nodeToCluster.dates);
+            cluster = createNode(clusterId, null, CustomGraphMediator.CLUSTER_TYPE, nodeToCluster.size, nodeToCluster.dates);
             cluster.nodes = [nodeToCluster];
             nodes.push(cluster);
         } else {
@@ -617,12 +622,12 @@ mediators.DirectedGraphMediator = (function() {
 
         links.forEach(function(link) {
             var sourceId = maps.nodeIdsToClusterIds[link.sourceId] || link.sourceId;
-            var sourceType = maps.nodeIdsToClusterIds[link.sourceId] ? DirectedGraphMediator.CLUSTER_TYPE : DirectedGraphMediator.NODE_TYPE;
+            var sourceType = maps.nodeIdsToClusterIds[link.sourceId] ? CustomGraphMediator.CLUSTER_TYPE : CustomGraphMediator.NODE_TYPE;
             var sourceIndex = _.findIndex(nodes, function(node) {
                 return node.id === sourceId && node.type === sourceType;
             });
             var targetId = maps.nodeIdsToClusterIds[link.targetId] || link.targetId;
-            var targetType = maps.nodeIdsToClusterIds[link.targetId] ? DirectedGraphMediator.CLUSTER_TYPE : DirectedGraphMediator.NODE_TYPE;
+            var targetType = maps.nodeIdsToClusterIds[link.targetId] ? CustomGraphMediator.CLUSTER_TYPE : CustomGraphMediator.NODE_TYPE;
             var targetIndex = _.findIndex(nodes, function(node) {
                 return node.id === targetId && node.type === targetType;
             });
@@ -661,19 +666,19 @@ mediators.DirectedGraphMediator = (function() {
                 saveNodeIdAndNetworkIdMappings(targetNode, maps.nodeIdsToNetworkIds, maps.networkIdsToNodeIds);
 
                 var dates = [];
-                if(sourceNode.type !== DirectedGraphMediator.CLUSTER_TYPE && targetNode.type !== DirectedGraphMediator.CLUSTER_TYPE) {
+                if(sourceNode.type !== CustomGraphMediator.CLUSTER_TYPE && targetNode.type !== CustomGraphMediator.CLUSTER_TYPE) {
                     dates = maps.sourcesToTargetsToLinkDates[sourceNode.id][targetNode.id];
-                } else if(sourceNode.type === DirectedGraphMediator.CLUSTER_TYPE && targetNode.type === DirectedGraphMediator.CLUSTER_TYPE) {
+                } else if(sourceNode.type === CustomGraphMediator.CLUSTER_TYPE && targetNode.type === CustomGraphMediator.CLUSTER_TYPE) {
                     sourceNode.nodes.forEach(function(sourceNodeInCluster) {
                         targetNode.nodes.forEach(function(targetNodeInCluster) {
                             dates = dates.concat(maps.sourcesToTargetsToLinkDates[sourceNodeInCluster.id][targetNodeInCluster.id]);
                         });
                     });
-                } else if(sourceNode.type === DirectedGraphMediator.CLUSTER_TYPE) {
+                } else if(sourceNode.type === CustomGraphMediator.CLUSTER_TYPE) {
                     sourceNode.nodes.forEach(function(nodeInCluster) {
                         dates = dates.concat(maps.sourcesToTargetsToLinkDates[nodeInCluster.id][targetNode.id]);
                     });
-                } else if(targetNode.type === DirectedGraphMediator.CLUSTER_TYPE) {
+                } else if(targetNode.type === CustomGraphMediator.CLUSTER_TYPE) {
                     targetNode.nodes.forEach(function(nodeInCluster) {
                         dates = dates.concat(maps.sourcesToTargetsToLinkDates[sourceNode.id][nodeInCluster.id]);
                     });
@@ -707,7 +712,7 @@ mediators.DirectedGraphMediator = (function() {
      */
     var setNodeNetworkId = function(node, networkId) {
         node.network = networkId;
-        if(node.type === DirectedGraphMediator.CLUSTER_TYPE) {
+        if(node.type === CustomGraphMediator.CLUSTER_TYPE) {
             node.nodes.forEach(function(nodeInCluster) {
                 setNodeNetworkId(nodeInCluster, networkId);
             });
@@ -723,7 +728,7 @@ mediators.DirectedGraphMediator = (function() {
      * @private
      */
     var saveNodeIdAndNetworkIdMappings = function(node, nodeIdsToNetworkIds, networkIdsToNodeIds) {
-        if(node.type === DirectedGraphMediator.CLUSTER_TYPE) {
+        if(node.type === CustomGraphMediator.CLUSTER_TYPE) {
             node.nodes.forEach(function(nodeInCluster) {
                 saveNodeIdAndNetworkIdMappings(nodeInCluster, nodeIdsToNetworkIds, networkIdsToNodeIds);
             });
@@ -777,7 +782,7 @@ mediators.DirectedGraphMediator = (function() {
                 }
 
                 // If the node is a cluster containing its own nodes, create a date bucket map for the cluster.
-                if(node.type === DirectedGraphMediator.CLUSTER_TYPE) {
+                if(node.type === CustomGraphMediator.CLUSTER_TYPE) {
                     node.dateBucketsToNodeIndices = createDateBucketMap(bucketizer);
                     node.nodes.forEach(function(nodeInCluster, indexInCluster) {
                         var bucketInCluster = nodeInCluster.dates[0] ? bucketizer.getBucketIndex(nodeInCluster.dates[0]) : 0;
@@ -824,7 +829,7 @@ mediators.DirectedGraphMediator = (function() {
      * @param {Array} links
      * @method saveDataAndUpdateGraph
      */
-    DirectedGraphMediator.prototype.saveDataAndUpdateGraph = function(nodes, links) {
+    CustomGraphMediator.prototype.saveDataAndUpdateGraph = function(nodes, links) {
         this.graphNodes = nodes;
         this.graphLinks = links;
         this.graph.updateGraph({
@@ -864,7 +869,7 @@ mediators.DirectedGraphMediator = (function() {
     var createFunctionToCalculateNodeSize = function(mediator) {
         return function(node) {
             var size = 0;
-            if(node.type === DirectedGraphMediator.CLUSTER_TYPE) {
+            if(node.type === CustomGraphMediator.CLUSTER_TYPE) {
                 var nodesInCluster = mediator.selected.dateBucket ? node.nodesForSelectedDateBucket : node.nodes;
                 nodesInCluster.forEach(function(nodeInCluster) {
                     size += nodeInCluster.size ? nodeInCluster.size : getNumberOfDatesInBucket(nodeInCluster, mediator.bucketizer, mediator.selected.dateBucket);
@@ -919,17 +924,17 @@ mediators.DirectedGraphMediator = (function() {
      */
     var createFunctionToCalculateNodeColor = function(mediator) {
         return function(node) {
-            if(node.type !== DirectedGraphMediator.CLUSTER_TYPE && (mediator.selected.mouseoverNodeIds.indexOf(node.id) >= 0 || mediator.selected.graphNodeIds.indexOf(node.id) >= 0)) {
-                return DirectedGraphMediator.FOCUSED_COLOR;
+            if(node.type !== CustomGraphMediator.CLUSTER_TYPE && (mediator.selected.mouseoverNodeIds.indexOf(node.id) >= 0 || mediator.selected.graphNodeIds.indexOf(node.id) >= 0)) {
+                return CustomGraphMediator.FOCUSED_COLOR;
             }
-            if(node.type === DirectedGraphMediator.CLUSTER_TYPE) {
+            if(node.type === CustomGraphMediator.CLUSTER_TYPE) {
                 var nodesInCluster = mediator.selected.dateBucket ? node.nodesForSelectedDateBucket : node.nodes;
                 if(mediator.selected.mouseoverNodeIds.indexOf(nodesInCluster[0].id) >= 0 || mediator.selected.graphNodeIds.indexOf(nodesInCluster[0].id) >= 0) {
-                    return DirectedGraphMediator.FOCUSED_COLOR;
+                    return CustomGraphMediator.FOCUSED_COLOR;
                 }
-                return DirectedGraphMediator.CLUSTER_COLOR;
+                return CustomGraphMediator.CLUSTER_COLOR;
             }
-            return node.flag ? DirectedGraphMediator.FLAGGED_COLOR : (node.inData ? DirectedGraphMediator.DEFAULT_COLOR : DirectedGraphMediator.MISSING_COLOR);
+            return node.flag ? CustomGraphMediator.FLAGGED_COLOR : (node.inData ? CustomGraphMediator.DEFAULT_COLOR : CustomGraphMediator.MISSING_COLOR);
         };
     };
 
@@ -953,6 +958,34 @@ mediators.DirectedGraphMediator = (function() {
     };
 
     /**
+     * Returns the function for calculating the thickness of a node's outline.
+     * @param {Object} mediator
+     * @method createFunctionToCalculateNodeStrokeSize
+     * @private
+     * @return {Function}
+     */
+    var createFunctionToGenerateNodeStrokeSize = function(mediator) {
+        return function(node) {
+            return 1;
+        };
+    };
+
+
+
+    /**
+     * Returns the function for calculating the color of a node's outline.
+     * @param {Object} mediator
+     * @method createFunctionToGenerateNodeStrokeColor
+     * @private
+     * @return {Function}
+     */
+    var createFunctionToGenerateNodeStrokeColor = function(mediator) {
+        return function(node) {
+            return "black";
+        };
+    };
+
+    /**
      * Returns the function for generating the text for a node.
      * @param {Object} mediator
      * @method createFunctionToGenerateNodeText
@@ -961,7 +994,7 @@ mediators.DirectedGraphMediator = (function() {
      */
     var createFunctionToGenerateNodeText = function(mediator) {
         return function(node) {
-            if(node.type === DirectedGraphMediator.CLUSTER_TYPE) {
+            if(node.type === CustomGraphMediator.CLUSTER_TYPE) {
                 var nodesInCluster = mediator.selected.dateBucket ? node.nodesForSelectedDateBucket : node.nodes;
                 return nodesInCluster.length;
             }
@@ -978,7 +1011,7 @@ mediators.DirectedGraphMediator = (function() {
      */
     var createFunctionToGenerateNodeTooltip = function(mediator) {
         return function(node) {
-            if(node.type === DirectedGraphMediator.CLUSTER_TYPE) {
+            if(node.type === CustomGraphMediator.CLUSTER_TYPE) {
                 var nodesInCluster = mediator.selected.dateBucket ? node.nodesForSelectedDateBucket : node.nodes;
                 return '<tr class="graph-tooltip-block">' +
                     '<td class="graph-tooltip-label">Cluster of </td><td class="graph-tooltip-value">' + nodesInCluster.length + '</td>' +
@@ -1017,7 +1050,7 @@ mediators.DirectedGraphMediator = (function() {
                 '<td class="graph-tooltip-value">' + _.escape(node.numberOfTargets) + '</td>' +
                 '</tr>';
 
-            if(node.type !== DirectedGraphMediator.CLUSTER_TYPE && mediator.maps.nodeIdsToFlags[node.id]) {
+            if(node.type !== CustomGraphMediator.CLUSTER_TYPE && mediator.maps.nodeIdsToFlags[node.id]) {
                 text += '<tr class="graph-tooltip-block">' +
                     '<td class="graph-tooltip-label">' + _.escape(mediator.tooltip.flagLabel) + '</td>' +
                     '</tr>';
@@ -1049,8 +1082,8 @@ mediators.DirectedGraphMediator = (function() {
      */
     var createFunctionToCalculateLinkColor = function(mediator) {
         return function(link) {
-            if(mediator.selected.mouseoverNetworkId === link.network || mediator.selected.graphNetworkId === link.network) {
-                return DirectedGraphMediator.FOCUSED_COLOR;
+            if(mediator.selected.mouseoverKeyId === link.key || mediator.selected.graphNetworkId === link.network) {
+                return CustomGraphMediator.FOCUSED_COLOR;
             }
             return mediator.graph.DEFAULT_LINK_STROKE_COLOR;
         };
@@ -1078,8 +1111,8 @@ mediators.DirectedGraphMediator = (function() {
      */
     var createFunctionToFindLinkArrowhead = function(mediator) {
         return function(link) {
-            if(mediator.selected.mouseoverNetworkId === link.network || mediator.selected.graphNetworkId === link.network) {
-                return DirectedGraphMediator.FOCUSED_COLOR_ARROWHEAD_NAME;
+            if(mediator.selected.mouseoverKeyId === link.key || mediator.selected.graphNetworkId === link.network) {
+                return CustomGraphMediator.FOCUSED_COLOR_ARROWHEAD_NAME;
             }
             return mediator.graph.DEFAULT_LINK_ARROWHEAD;
         };
@@ -1096,12 +1129,12 @@ mediators.DirectedGraphMediator = (function() {
         return function(link) {
             var nodesInCluster = [];
             var sourceText = '<td class="graph-tooltip-value">' + _.escape(link.source.name) + '</td>';
-            if(link.source.type === DirectedGraphMediator.CLUSTER_TYPE) {
+            if(link.source.type === CustomGraphMediator.CLUSTER_TYPE) {
                 nodesInCluster = mediator.selected.dateBucket ? link.source.nodesForSelectedDateBucket : link.source.nodes;
                 sourceText = '<td class="graph-tooltip-value">Cluster of ' + nodesInCluster.length + '</td>';
             }
             var targetText = '<td class="graph-tooltip-value">' + _.escape(link.target.name) + '</td>';
-            if(link.target.type === DirectedGraphMediator.CLUSTER_TYPE) {
+            if(link.target.type === CustomGraphMediator.CLUSTER_TYPE) {
                 nodesInCluster = mediator.selected.dateBucket ? link.target.nodesForSelectedDateBucket : link.target.nodes;
                 targetText = '<td class="graph-tooltip-value">Cluster of ' + nodesInCluster.length + '</td>';
             }
@@ -1142,7 +1175,7 @@ mediators.DirectedGraphMediator = (function() {
      * @return {Array}
      */
     var getNodeIds = function(node) {
-        if(node.type === DirectedGraphMediator.CLUSTER_TYPE) {
+        if(node.type === CustomGraphMediator.CLUSTER_TYPE) {
             // Note:  Return the IDs for all nodes in the cluster, not just the IDs for nodes in or before the selected date bucket.
             return node.nodes.map(function(nodeInCluster) {
                 return nodeInCluster.id;
@@ -1190,7 +1223,7 @@ mediators.DirectedGraphMediator = (function() {
      * @private
      */
     var addSelectedNode = function(selected, node, deselectSelected) {
-        if(node.type === DirectedGraphMediator.CLUSTER_TYPE) {
+        if(node.type === CustomGraphMediator.CLUSTER_TYPE) {
             // Note:  Add the IDs for all nodes in the cluster, not just the IDs for nodes in or before the selected date bucket.
             node.nodes.forEach(function(nodeInCluster) {
                 addSelectedNode(selected, nodeInCluster, deselectSelected);
@@ -1238,6 +1271,7 @@ mediators.DirectedGraphMediator = (function() {
     var createFunctionToHandleLinkSelect = function(mediator) {
         return function(link) {
             mediator.selected.mouseoverNodeIds = getNodeIds(link.source).concat(getNodeIds(link.target));
+            mediator.selected.mouseoverKeyId = link.key;
             mediator.selected.mouseoverNetworkId = link.network;
             mediator.graph.redrawNodesAndLinks();
         };
@@ -1253,6 +1287,7 @@ mediators.DirectedGraphMediator = (function() {
     var createFunctionToHandleLinkDeselect = function(mediator) {
         return function() {
             mediator.selected.mouseoverNodeIds = [];
+            mediator.selected.mouseoverKeyId = -1;
             mediator.selected.mouseoverNetworkId = -1;
             mediator.graph.redrawNodesAndLinks();
         };
@@ -1278,7 +1313,7 @@ mediators.DirectedGraphMediator = (function() {
      * Deselects all selected nodes and the selected node network in the graph.
      * @method deselectAllNodesAndNetwork
      */
-    DirectedGraphMediator.prototype.deselectAllNodesAndNetwork = function() {
+    CustomGraphMediator.prototype.deselectAllNodesAndNetwork = function() {
         this.selected.graphNetworkId = -1;
         this.selected.graphNodeIds = [];
         this.graph.redrawNodesAndLinks();
@@ -1289,7 +1324,7 @@ mediators.DirectedGraphMediator = (function() {
      * @param {Object} selectedNodeId
      * @method selectNodeAndNetworkFromNodeId
      */
-    DirectedGraphMediator.prototype.selectNodeAndNetworkFromNodeId = function(selectedNodeId) {
+    CustomGraphMediator.prototype.selectNodeAndNetworkFromNodeId = function(selectedNodeId) {
         if(selectedNodeId) {
             var nodeId = Number(selectedNodeId) ? Number(selectedNodeId) : selectedNodeId;
             var networkId = this.maps.nodeIdsToNetworkIds[nodeId];
@@ -1306,7 +1341,7 @@ mediators.DirectedGraphMediator = (function() {
      * @param {Date} date
      * @method selectDate
      */
-    DirectedGraphMediator.prototype.selectDate = function(date) {
+    CustomGraphMediator.prototype.selectDate = function(date) {
         if(!date && !this.selected.dateBucket || !this.bucketizer || !this.bucketizer.getStartDate() || !this.bucketizer.getEndDate() || !this.graphNodes) {
             return;
         }
@@ -1353,7 +1388,7 @@ mediators.DirectedGraphMediator = (function() {
      * Redraws the nodes and links in the graph, updating their styling.
      * @method redrawGraph
      */
-    DirectedGraphMediator.prototype.redrawGraph = function() {
+    CustomGraphMediator.prototype.redrawGraph = function() {
         this.graph.redrawNodesAndLinks();
     };
 
@@ -1362,7 +1397,7 @@ mediators.DirectedGraphMediator = (function() {
      * @param {Object} bucketizer
      * @method setBucketizer
      */
-    DirectedGraphMediator.prototype.setBucketizer = function(bucketizer) {
+    CustomGraphMediator.prototype.setBucketizer = function(bucketizer) {
         this.bucketizer = bucketizer;
         initializeDateBuckets(this.graphNodes, this.graphLinks, this.bucketizer, this.maps);
     };
@@ -1372,7 +1407,7 @@ mediators.DirectedGraphMediator = (function() {
      * @param {Array} graphNodeIds
      * @method setSelectedNodeIds
      */
-    DirectedGraphMediator.prototype.setSelectedNodeIds = function(graphNodeIds) {
+    CustomGraphMediator.prototype.setSelectedNodeIds = function(graphNodeIds) {
         this.selected.graphNodeIds = graphNodeIds;
     };
 
@@ -1381,17 +1416,17 @@ mediators.DirectedGraphMediator = (function() {
      * @param {Object} tooltip
      * @method setTooltip
      */
-    DirectedGraphMediator.prototype.setTooltip = function(tooltip) {
+    CustomGraphMediator.prototype.setTooltip = function(tooltip) {
         this.tooltip = {
-            idLabel: tooltip.idLabel || DirectedGraphMediator.DEFAULT_TOOLTIP_ID_LABEL,
-            dataLabel: tooltip.dataLabel || DirectedGraphMediator.DEFAULT_TOOLTIP_DATA_LABEL,
-            nameLabel: tooltip.nameLabel || DirectedGraphMediator.DEFAULT_TOOLTIP_NAME_LABEL,
-            sizeLabel: tooltip.sizeLabel || DirectedGraphMediator.DEFAULT_TOOLTIP_SIZE_LABEL,
-            flagLabel: tooltip.flagLabel || DirectedGraphMediator.DEFAULT_TOOLTIP_FLAG_LABEL,
-            sourceNameLabel: tooltip.sourceNameLabel || DirectedGraphMediator.DEFAULT_TOOLTIP_SOURCE_LABEL,
-            targetNameLabel: tooltip.targetNameLabel || DirectedGraphMediator.DEFAULT_TOOLTIP_TARGET_LABEL,
-            sourceSizeLabel: tooltip.sourceSizeLabel || DirectedGraphMediator.DEFAULT_TOOLTIP_SOURCE_LABEL,
-            targetSizeLabel: tooltip.targetSizeLabel || DirectedGraphMediator.DEFAULT_TOOLTIP_TARGET_LABEL
+            idLabel: tooltip.idLabel || CustomGraphMediator.DEFAULT_TOOLTIP_ID_LABEL,
+            dataLabel: tooltip.dataLabel || CustomGraphMediator.DEFAULT_TOOLTIP_DATA_LABEL,
+            nameLabel: tooltip.nameLabel || CustomGraphMediator.DEFAULT_TOOLTIP_NAME_LABEL,
+            sizeLabel: tooltip.sizeLabel || CustomGraphMediator.DEFAULT_TOOLTIP_SIZE_LABEL,
+            flagLabel: tooltip.flagLabel || CustomGraphMediator.DEFAULT_TOOLTIP_FLAG_LABEL,
+            sourceNameLabel: tooltip.sourceNameLabel || CustomGraphMediator.DEFAULT_TOOLTIP_SOURCE_LABEL,
+            targetNameLabel: tooltip.targetNameLabel || CustomGraphMediator.DEFAULT_TOOLTIP_TARGET_LABEL,
+            sourceSizeLabel: tooltip.sourceSizeLabel || CustomGraphMediator.DEFAULT_TOOLTIP_SOURCE_LABEL,
+            targetSizeLabel: tooltip.targetSizeLabel || CustomGraphMediator.DEFAULT_TOOLTIP_TARGET_LABEL
         };
     };
 
@@ -1400,7 +1435,7 @@ mediators.DirectedGraphMediator = (function() {
      * @method getSelectedNodeIds
      * @return {Array}
      */
-    DirectedGraphMediator.prototype.getSelectedNodeIds = function() {
+    CustomGraphMediator.prototype.getSelectedNodeIds = function() {
         return this.selected.graphNodeIds;
     };
 
@@ -1409,7 +1444,7 @@ mediators.DirectedGraphMediator = (function() {
      * @method getNodeIdsInSelectedNetwork
      * @return {Array}
      */
-    DirectedGraphMediator.prototype.getNodeIdsInSelectedNetwork = function() {
+    CustomGraphMediator.prototype.getNodeIdsInSelectedNetwork = function() {
         return (this.selected.graphNetworkId >= 0 ? (this.maps.networkIdsToNodeIds[this.selected.graphNetworkId] || []) : []);
     };
 
@@ -1418,7 +1453,7 @@ mediators.DirectedGraphMediator = (function() {
      * @method getSelectedDateBucket
      * @return {Number}
      */
-    DirectedGraphMediator.prototype.getSelectedDateBucket = function() {
+    CustomGraphMediator.prototype.getSelectedDateBucket = function() {
         return this.selected.dateBucket;
     };
 
@@ -1430,62 +1465,62 @@ mediators.DirectedGraphMediator = (function() {
      * @method createLegend
      * @return {Array}
      */
-    DirectedGraphMediator.prototype.createLegend = function(useNodeClusters, useFlag, flagLabel) {
+    CustomGraphMediator.prototype.createLegend = function(useNodeClusters, useFlag, flagLabel) {
         var legend = [{
-            color: DirectedGraphMediator.DEFAULT_COLOR,
-            label: DirectedGraphMediator.LEGEND_DEFAULT_LABEL
+            color: CustomGraphMediator.DEFAULT_COLOR,
+            label: CustomGraphMediator.LEGEND_DEFAULT_LABEL
         }, {
-            color: DirectedGraphMediator.MISSING_COLOR,
-            label: DirectedGraphMediator.LEGEND_MISSING_LABEL
+            color: CustomGraphMediator.MISSING_COLOR,
+            label: CustomGraphMediator.LEGEND_MISSING_LABEL
         }, {
-            color: DirectedGraphMediator.FOCUSED_COLOR,
-            label: DirectedGraphMediator.LEGEND_FOCUSED_LABEL
+            color: CustomGraphMediator.FOCUSED_COLOR,
+            label: CustomGraphMediator.LEGEND_FOCUSED_LABEL
         }];
 
         if(useNodeClusters) {
             legend.push({
-                color: DirectedGraphMediator.CLUSTER_COLOR,
-                label: DirectedGraphMediator.LEGEND_CLUSTER_LABEL
+                color: CustomGraphMediator.CLUSTER_COLOR,
+                label: CustomGraphMediator.LEGEND_CLUSTER_LABEL
             });
         }
 
         if(useFlag) {
             legend.push({
-                color: DirectedGraphMediator.FLAGGED_COLOR,
-                label: flagLabel || DirectedGraphMediator.DEFAULT_TOOLTIP_FLAG_LABEL
+                color: CustomGraphMediator.FLAGGED_COLOR,
+                label: flagLabel || CustomGraphMediator.DEFAULT_TOOLTIP_FLAG_LABEL
             });
         }
 
         return legend;
     };
 
-    DirectedGraphMediator.NODE_TYPE = "node";
-    DirectedGraphMediator.CLUSTER_TYPE = "cluster";
+    CustomGraphMediator.NODE_TYPE = "node";
+    CustomGraphMediator.CLUSTER_TYPE = "cluster";
 
-    DirectedGraphMediator.DEFAULT_COLOR = neonColors.BLUE;
-    DirectedGraphMediator.CLUSTER_COLOR = neonColors.PURPLE;
-    DirectedGraphMediator.FLAGGED_COLOR = neonColors.ORANGE;
-    DirectedGraphMediator.FOCUSED_COLOR = neonColors.GREEN;
-    DirectedGraphMediator.MISSING_COLOR = neonColors.CYAN;
+    CustomGraphMediator.DEFAULT_COLOR = neonColors.BLUE;
+    CustomGraphMediator.CLUSTER_COLOR = neonColors.PURPLE;
+    CustomGraphMediator.FLAGGED_COLOR = neonColors.ORANGE;
+    CustomGraphMediator.FOCUSED_COLOR = neonColors.GREEN;
+    CustomGraphMediator.MISSING_COLOR = neonColors.CYAN;
 
-    DirectedGraphMediator.FOCUSED_COLOR_ARROWHEAD_NAME = "focused";
+    CustomGraphMediator.FOCUSED_COLOR_ARROWHEAD_NAME = "focused";
 
-    DirectedGraphMediator.FLAG_RESULT = "result";
-    DirectedGraphMediator.FLAG_LINKED = "linked";
-    DirectedGraphMediator.FLAG_ALL = "all";
+    CustomGraphMediator.FLAG_RESULT = "result";
+    CustomGraphMediator.FLAG_LINKED = "linked";
+    CustomGraphMediator.FLAG_ALL = "all";
 
-    DirectedGraphMediator.DEFAULT_TOOLTIP_ID_LABEL = "";
-    DirectedGraphMediator.DEFAULT_TOOLTIP_DATA_LABEL = "Items";
-    DirectedGraphMediator.DEFAULT_TOOLTIP_SOURCE_LABEL = "From";
-    DirectedGraphMediator.DEFAULT_TOOLTIP_TARGET_LABEL = "To";
-    DirectedGraphMediator.DEFAULT_TOOLTIP_NAME_LABEL = "Name";
-    DirectedGraphMediator.DEFAULT_TOOLTIP_SIZE_LABEL = "Size";
-    DirectedGraphMediator.DEFAULT_TOOLTIP_FLAG_LABEL = "Flagged";
+    CustomGraphMediator.DEFAULT_TOOLTIP_ID_LABEL = "";
+    CustomGraphMediator.DEFAULT_TOOLTIP_DATA_LABEL = "Items";
+    CustomGraphMediator.DEFAULT_TOOLTIP_SOURCE_LABEL = "From";
+    CustomGraphMediator.DEFAULT_TOOLTIP_TARGET_LABEL = "To";
+    CustomGraphMediator.DEFAULT_TOOLTIP_NAME_LABEL = "Name";
+    CustomGraphMediator.DEFAULT_TOOLTIP_SIZE_LABEL = "Size";
+    CustomGraphMediator.DEFAULT_TOOLTIP_FLAG_LABEL = "Flagged";
 
-    DirectedGraphMediator.LEGEND_DEFAULT_LABEL = "In Data";
-    DirectedGraphMediator.LEGEND_MISSING_LABEL = "Filtered Out of Data";
-    DirectedGraphMediator.LEGEND_FOCUSED_LABEL = "Selected";
-    DirectedGraphMediator.LEGEND_CLUSTER_LABEL = "Clustered";
+    CustomGraphMediator.LEGEND_DEFAULT_LABEL = "In Data";
+    CustomGraphMediator.LEGEND_MISSING_LABEL = "Filtered Out of Data";
+    CustomGraphMediator.LEGEND_FOCUSED_LABEL = "Selected";
+    CustomGraphMediator.LEGEND_CLUSTER_LABEL = "Clustered";
 
-    return DirectedGraphMediator;
+    return CustomGraphMediator;
 })();
