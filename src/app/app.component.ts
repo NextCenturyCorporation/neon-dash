@@ -15,10 +15,8 @@
  */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
-import { NeonGTDConfig } from './neon-gtd-config';
 import { Dataset } from './dataset';
 import { DatasetService } from './services/dataset.service';
-import { NgGridItem } from 'angular2-grid/dist/main.js';
 
 @Component({
     selector: 'app-root',
@@ -40,7 +38,7 @@ export class AppComponent implements OnInit, OnDestroy {
             'sizex': 1,
             'sizey': 1
         }
-    },{
+    }, {
         'title': 'two',
         'config': {
             'col': 4,
@@ -48,7 +46,7 @@ export class AppComponent implements OnInit, OnDestroy {
             'sizex': 4,
             'sizey': 1
         }
-    },{
+    }, {
         'title': 'three',
         'config': {
             'col': 2,
@@ -56,7 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
             'sizex': 2,
             'sizey': 3
         }
-    },{
+    }, {
         'title': 'four',
         'config': {
             'col': 4,
@@ -67,7 +65,6 @@ export class AppComponent implements OnInit, OnDestroy {
     }];
 
     constructor(private datasetService: DatasetService) {
-        console.log("CONSTRUCTING!!");
         this.datasets = datasetService.getDatasets();
     }
 
@@ -80,6 +77,6 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        console.log('neon gtd onDestroy called')
+        console.log('neon gtd onDestroy called');
     }
 }

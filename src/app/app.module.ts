@@ -1,11 +1,8 @@
-// import { environment } from './environments/environment';
-import { NgModule, ApplicationRef } from '@angular/core';
-// import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { enableProdMode, provide } from '@angular/core';
+import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpModule, JsonpModule, HTTP_PROVIDERS } from '@angular/http';
+import { HttpModule, HTTP_PROVIDERS } from '@angular/http';
 
 import { MdButtonModule } from '@angular2-material/button';
 import { MdCoreModule } from '@angular2-material/core';
@@ -22,13 +19,15 @@ import { MdTabsModule } from '@angular2-material/tabs';
 import { MdToolbarModule } from '@angular2-material/toolbar';
 
 import { NgGrid, NgGridItem } from 'angular2-grid/dist/main.js';
+import * as log4javascript from 'log4javascript';
+//import * as neon from 'neon-framework/build/js/neon-nodeps.js';
 
 import { DatasetService } from './services/dataset.service';
 import { NeonGTDConfig } from './neon-gtd-config';
 
 import { AppComponent } from './app.component';
 
-export function createAppModule(config) {
+export function createAppModule(config: NeonGTDConfig) {
 @NgModule({
     declarations: [
         AppComponent,
@@ -53,9 +52,11 @@ export function createAppModule(config) {
         MdSidenavModule,
         MdTabsModule,
         MdToolbarModule
+        //log4javascript
+        //neon
     ],
     providers: [
-        HTTP_PROVIDERS, 
+        HTTP_PROVIDERS,
         DatasetService,
         {
           provide: 'config',

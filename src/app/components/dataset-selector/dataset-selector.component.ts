@@ -29,19 +29,19 @@ import { DatabaseMetaData } from '../../dataset.ts';
         'dataset-selector.component.less'
     ]
 })
-export class DatasetSelector implements OnInit, OnDestroy {
-    public HIDE_INFO_POPOVER: string = "sr-only";
+export class DatasetSelectorComponent implements OnInit, OnDestroy {
+    public HIDE_INFO_POPOVER: string = 'sr-only';
     private selectedDataset: string = 'Select a Dataset';
 
     private datasets: Dataset[] = [];
     private datasets: Dataset[] = [];
     private activeDataset: any = {
-        name: "Choose Dataset",
-        info: "",
+        name: 'Choose Dataset',
+        info: '',
         data: false
     };
 
-    private datasetName: string = "";
+    private datasetName: string = '';
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';
 
@@ -59,9 +59,11 @@ export class DatasetSelector implements OnInit, OnDestroy {
 
     /**
      * This is the array of custom relation objects configured by the user through the popup.  Each custom relation contains:
-     *     {Array} customRelationDatabases The array of custom relation database objects configured by the user through the popup.  Each custom relation database contains:
+     *     {Array} customRelationDatabases The array of custom relation database objects configured by the user through the popup.  
+     *             Each custom relation database contains:
      *         {Object} database The database object
-     *         {Array} customRelationTables The array of custom relation table objects configured by the user through the popup.  Each custom relation table contains:
+     *         {Array} customRelationTables The array of custom relation table objects configured by the user through the popup.  
+                   Each custom relation table contains:
      *             {Object} table The table object
      *             {Object} field The field object
      */
@@ -93,15 +95,15 @@ export class DatasetSelector implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.messenger = new neon.eventing.Messenger();
 
-        var params = $location.search();
+        let params = $location.search();
 
-        if(params.dashboard_state_id) {
+        if (params.dashboard_state_id) {
             parameterService.loadState(params.dashboard_state_id, params.filter_state_id);
         } else {
-            var activeDataset = (parameterService.findActiveDatasetInUrl() || "").toLowerCase();
-            $scope.datasets.some(function(dataset, index) {
-                if((activeDataset && activeDataset === dataset.name.toLowerCase()) || (!activeDataset && dataset.connectOnLoad)) {
-                    $scope.connectToPreset(index, true);
+            let activeDataset = (parameterService.findActiveDatasetInUrl() || '').toLowerCase();
+            this.datasets.some(function(dataset, index) {
+                if ((activeDataset && activeDataset === dataset.name.toLowerCase()) || (!activeDataset && dataset.connectOnLoad)) {
+                    this.connectToPreset(index, true);
                     return true;
                 }
                 return false;
@@ -109,30 +111,30 @@ export class DatasetSelector implements OnInit, OnDestroy {
         }
 
         $scope.messenger.subscribe(parameterService.STATE_CHANGED_CHANNEL, function(message) {
-            if(message && message.dataset) {
-                if(message.dataset) {
+            if (message && message.dataset) {
+                if (message.dataset) {
                     datasetService.setActiveDataset(message.dataset);
 
-                    $scope.activeDataset = {
+                    this.activeDataset = {
                         name: message.dataset.name,
                         info: $scope.HIDE_INFO_POPOVER,
                         data: true
                     };
                 }
-                if(message.dashboard) {
+                if (message.dashboard) {
                     $scope.$apply(function() {
-                        var layoutName = "savedDashboard-" + message.dashboardStateId;
+                        let layoutName = 'savedDashboard-' + message.dashboardStateId;
 
                         layouts[layoutName] = message.dashboard;
 
-                        if(message.dataset) {
+                        if (message.dataset) {
                             datasetService.setLayout(layoutName);
                         }
 
-                        $scope.gridsterConfigs = message.dashboard;
+                        this.gridsterConfigs = message.dashboard;
 
-                        for(var i = 0; i < $scope.gridsterConfigs.length; ++i) {
-                            $scope.gridsterConfigs[i].id = uuid();
+                        for (let i = 0; i < this.gridsterConfigs.length; ++i) {
+                            this.gridsterConfigs[i].id = uuid();
                         }
                     });
                 }
@@ -158,7 +160,7 @@ export class DatasetSelector implements OnInit, OnDestroy {
 //             hideAdvancedOptions: "="
 //         },
 //         link: function($scope, $element) {
-            
+
 
 //             var initialize = function() {
 //                 $scope.messenger = new neon.eventing.Messenger();
@@ -304,7 +306,7 @@ export class DatasetSelector implements OnInit, OnDestroy {
 //              * Updates the layout of visualizations in the dashboard for the custom visualizations set.
 //              * @method updateCustomLayout
 //              * @private
-             
+
 //             var updateCustomLayout = function() {
 //                 XDATA.userALE.log({
 //                     activity: "select",

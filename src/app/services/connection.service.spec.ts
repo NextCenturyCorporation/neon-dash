@@ -3,7 +3,7 @@
 import { addProviders, async, inject } from '@angular/core/testing';
 import { ConnectionService } from './connection.service';
 
-import * as neon from 'neon-framework/build/js/neon-nodeps.js';
+import { neon } from 'neon-framework/neon-nodeps';
 
 describe('Service: ConnectionService', () => {
   beforeEach(() => {
@@ -17,20 +17,15 @@ describe('Service: ConnectionService', () => {
 
   it('should have no active connections after creation',
     inject([ConnectionService], (service: ConnectionService) => {
-      expect(service.getDataset()).toEqual(new Dataset() );
+      expect(service.getActiveConnection()).toBeUndefined();
     }));
 
-  it('should return an active connection when requested.',
+  it('should return an active connection after one has been created.',
     inject([ConnectionService], (service: ConnectionService) => {
-      service.addDataset({
-        name: "d1",
-        databases: []
-      });
-
-      expect(service.getDatasetWithName("d1")).toEqual({
-        name: "d1",
-        databases: [],
-        dateFilterKeys: {}
-      });
+      let connection = service.createActiveConnection(neon.query.Connection.MONGO, 'foo');
+      expect(connection).toBeTruthy();
+      expect(connection.databaseType_).toEqual(neon.query.Connection.MONGO);
+      expect(connection.host_).toEqual('foo');
+      expect(service.getActiveConnection()).toBeTruthy();
     }));
 });
