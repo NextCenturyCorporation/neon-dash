@@ -477,16 +477,18 @@ coreMap.Map.prototype.createSelectControl = function(layer) {
             var obj = {
                 count: feature.attributes.count
             };
-            var pieces = feature.attributes.typeName.split('.');
-            var recursor = obj;
-            while(pieces.length > 0) {
-                var piece = pieces.shift();
-                if(pieces.length == 0) {
-                    recursor[piece] = feature.attributes.typeValue;
-                }
-                else {
-                    recursor[piece] = {};
-                    recursor = recursor[piece];
+            if(feature.attributes.typeName !== undefined) { // If you don't define a color field, don't do this.
+                var pieces = feature.attributes.typeName.split('.');
+                var recursor = obj;
+                while(pieces.length > 0) {
+                    var piece = pieces.shift();
+                    if(pieces.length == 0) {
+                        recursor[piece] = feature.attributes.typeValue;
+                    }
+                    else {
+                        recursor[piece] = {};
+                        recursor = recursor[piece];
+                    }
                 }
             }
             createAndShowFeaturePopup([obj]);

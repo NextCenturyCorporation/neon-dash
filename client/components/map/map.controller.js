@@ -946,6 +946,12 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
 
     $scope.functions.onToggleShowLayer = function(layer) {
         $scope.map.setLayerVisibility(layer.olLayer.id, layer.show);
+        if(layer.type == $scope.GRID_LAYER && layer.show) {
+            $scope.map.graticuleControl.activate();
+        }
+        else if(layer.type == $scope.GRID_LAYER) {
+            $scope.map.graticuleControl.deactivate();
+        }
     };
 
     /**
@@ -1141,9 +1147,11 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                             type_of_feature_point: 'grid_point',
                             count: mostToLeast[x].count,
                             pointRadius: $scope.gridLayerPointRadius,
-                            typeName: layer.colorField.prettyName || layer.colorField.columnName, // We need these to properly
-                            typeValue: mostToLeast[x][layer.colorField.columnName]                // create popups on point click.
                         };
+                        if(layer.colorField) {
+                            newPoint.typeName = layer.colorField.prettyName || layer.colorField.columnName; // We need these to properly
+                            newPoint.typeValue = mostToLeast[x][layer.colorField.columnName];               // create popups on point click.
+                        }
                         newPoint[layer.latitudeField.columnName] = bucket.top - boxHeight * (0.1 * row);
                         newPoint[layer.longitudeField.columnName] = bucket.left + boxHeight * (0.1 * column);
                         newPoint[layer.colorField.columnName] = newPoint.typeValue; // We need this so that coloring of points will work.
