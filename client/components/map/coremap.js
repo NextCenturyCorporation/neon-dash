@@ -477,7 +477,7 @@ coreMap.Map.prototype.createSelectControl = function(layer) {
             var obj = {
                 count: feature.attributes.count
             };
-            if(feature.attributes.typeName !== undefined) { // If you don't define a color field, don't do this.
+            if(feature.attributes.typeName) { // If you don't define a color field, don't do this.
                 var pieces = feature.attributes.typeName.split('.');
                 var recursor = obj;
                 while(pieces.length > 0) {

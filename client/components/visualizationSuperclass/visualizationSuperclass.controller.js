@@ -1171,7 +1171,7 @@ function($scope, external, externalRouteService, customFilters, connectionServic
         var layer = {
             databases: datasetService.getDatabases(),
             filterable: true,
-            show: true
+            show: config.show !== undefined ? config.show : true
         };
 
         layer.database = config.database ? datasetService.getDatabaseWithName(config.database) : layer.databases[0];

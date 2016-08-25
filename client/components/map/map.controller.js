@@ -273,7 +273,11 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         if(strict === true && $scope.currentGraticuleInterval <= $scope.map.minVisibleForGrid && $scope.map.getGraticuleInterval() <= $scope.map.minVisibleForGrid) {
             return undefined;
         }
-        return _.find($scope.active.layers, function(layer) { return layer.type === $scope.GRID_LAYER; });
+        var gridLayer = _.find($scope.active.layers, function(layer) { return layer.type === $scope.GRID_LAYER; });
+        if(strict === true && !gridLayer.show) {
+            return undefined;
+        }
+        return gridLayer;
     };
 
     var debounced = _.debounce(function() {
@@ -1151,10 +1155,11 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                         if(layer.colorField) {
                             newPoint.typeName = layer.colorField.prettyName || layer.colorField.columnName; // We need these to properly
                             newPoint.typeValue = mostToLeast[x][layer.colorField.columnName];               // create popups on point click.
+                            newPoint[layer.colorField.columnName] = newPoint.typeValue; // We need this so that coloring of points will work.
                         }
                         newPoint[layer.latitudeField.columnName] = bucket.top - boxHeight * (0.1 * row);
                         newPoint[layer.longitudeField.columnName] = bucket.left + boxHeight * (0.1 * column);
-                        newPoint[layer.colorField.columnName] = newPoint.typeValue; // We need this so that coloring of points will work.
+                        
                         newPointsList.push(newPoint);
                     }
                 }
