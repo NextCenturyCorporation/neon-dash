@@ -274,7 +274,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             return undefined;
         }
         var gridLayer = _.find($scope.active.layers, function(layer) { return layer.type === $scope.GRID_LAYER; });
-        if(strict === true && !gridLayer.show) {
+        if(strict === true && gridLayer !== undefined && !gridLayer.show) {
             return undefined;
         }
         return gridLayer;
@@ -1109,7 +1109,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 }
             });
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
-            $scope.map.graticuleControl.activate();
+            if(layer.show) {
+                $scope.map.graticuleControl.activate();
+            }
         } else if(layer.type === $scope.ROUTE_LAYER) {
             options.route = true;
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
@@ -1137,7 +1139,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     var transformToGridPoints = function(layer, data) {
         var newPointsList = [];
         if(data) {
-            $scope.map.graticuleControl.activate();
+            if(layer.show) {
+                $scope.map.graticuleControl.activate();
+            }
             data.forEach(function(bucket) {
                 if(bucket.data.length > 0) {
                     var totalPoints = 0
