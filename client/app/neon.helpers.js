@@ -84,7 +84,7 @@ neon.helpers = {
 
             var nestedValue = getNestedValueForField(headFields[0]);
             var updatedResults = [].concat.apply([], currentResults.map(function(currentResult) {
-                if(_.isArray(nestedValue)) {
+                if(_.isArray(nestedValue) && nestedValue.length > 0) {
                     return nestedValue.map(function(value) {
                         var updatedResult = _.cloneDeep(currentResult);
                         if(_.isObject(value)) {
