@@ -15,7 +15,7 @@
  *
  */
 import { Injectable } from '@angular/core';
-import { neon } from 'neon-framework/neon-nodeps';
+import { neon } from 'neon-framework/neon';
 
 @Injectable()
 export class ConnectionService {
@@ -29,8 +29,8 @@ export class ConnectionService {
      * @method createActiveConnection
      * @return {neon.query.Connection}
      */
-    public createActiveConnection(databaseType: string, host: string): neon.query.Connection {
-        if (!activeConnection || activeConnection.databaseType_ !== databaseType || activeConnection.host_ !== host) {
+    public createActiveConnection(databaseType?: string, host?: string): neon.query.Connection {
+        if (!this.activeConnection || this.activeConnection.databaseType_ !== databaseType || this.activeConnection.host_ !== host) {
             this.activeConnection = new neon.query.Connection();
         }
 

@@ -666,7 +666,7 @@ export class DatasetService {
      * @param {Number} index (optional)
      * @private
      */
-    public updateDatabases(dataset: Dataset, connection: any, callback: Function, index: number): void {
+    public updateDatabases(dataset: Dataset, connection: neon.query.Connection, callback?: Function, index?: number): void {
         let databaseIndex = index ? index : 0;
         let database = dataset.databases[databaseIndex];
         connection.getTableNamesAndFieldNames(database.name, function(tableNamesAndFieldNames) {

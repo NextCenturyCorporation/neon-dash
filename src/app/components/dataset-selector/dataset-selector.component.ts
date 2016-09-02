@@ -18,9 +18,11 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
-import { Dataset } from '.../../dataset';
+import { Dataset } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { DatabaseMetaData } from '../../dataset.ts';
+
+import * as neon from 'neon-framework';
 
 @Component({
     selector: 'dataset-selector',
@@ -34,7 +36,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     private selectedDataset: string = 'Select a Dataset';
 
     private datasets: Dataset[] = [];
-    private datasets: Dataset[] = [];
+
     private activeDataset: any = {
         name: 'Choose Dataset',
         info: '',
@@ -82,7 +84,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      */
     private customVisualizations: any[] = [];
 
-    private messenger: any = new neon.eventing.Messenger();
+    private messenger: neon.eventing.Messenger = new neon.eventing.Messenger();
 
     constructor(private datasetService: DatasetService, private parameterService: ParameterService) {
         this.datasets = datasetService.getDatasets();
