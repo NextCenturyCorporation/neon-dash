@@ -1,5 +1,3 @@
-'use strict';
-
 /*
  * Copyright 2016 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,21 +16,24 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
+import { ConnectionService } from '../../services/connection.service';
 import { Dataset } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
-import { DatabaseMetaData } from '../../dataset.ts';
+import { DatabaseMetaData, RelationMetaData, RelationTableMetaData } from '../../dataset.ts';
+import { ParameterService } from '../../services/parameter.service';
+import { neon } from 'neon-framework';
 
-import * as neon from 'neon-framework';
+import * as _ from 'lodash';
+//import * as uuid from 'node-uuid';
+declare var uuid: any;
 
 @Component({
     selector: 'dataset-selector',
     templateUrl: 'dataset-selector.component.html',
-    styleUrls: [
-        'dataset-selector.component.less'
-    ]
+    styleUrls: ['dataset-selector.component.less']
 })
 export class DatasetSelectorComponent implements OnInit, OnDestroy {
-    public HIDE_INFO_POPOVER: string = 'sr-only';
+    public static HIDE_INFO_POPOVER: string = 'sr-only';
     private selectedDataset: string = 'Select a Dataset';
 
     private datasets: Dataset[] = [];
@@ -46,6 +47,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     private datasetName: string = '';
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';
+    private layouts: { [key: string]: any } = [];
 
     /**
      * This is the array of custom database objects configured by the user through the popup.  Each custom database contains:
@@ -84,9 +86,12 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      */
     private customVisualizations: any[] = [];
 
-    private messenger: neon.eventing.Messenger = new neon.eventing.Messenger();
+    private gridsterConfigs: any[];
 
-    constructor(private datasetService: DatasetService, private parameterService: ParameterService) {
+    private messenger: neon.eventing.Messenger;
+
+    constructor(private connectionService: ConnectionService,
+        private datasetService: DatasetService, private parameterService: ParameterService) {
         this.datasets = datasetService.getDatasets();
     }
 
@@ -97,12 +102,14 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     ngOnInit(): void {
         this.messenger = new neon.eventing.Messenger();
 
-        let params = $location.search();
+        let params: URLSearchParams = new URLSearchParams();
+        let dashboardStateId: string = params.get('dashboard_state_id');
+        let filterStateId: string = params.get('filter_state_id');
 
-        if (params.dashboard_state_id) {
-            parameterService.loadState(params.dashboard_state_id, params.filter_state_id);
+        if (params.get('dashboard_state_id')) {
+            this.parameterService.loadState(dashboardStateId, filterStateId);
         } else {
-            let activeDataset = (parameterService.findActiveDatasetInUrl() || '').toLowerCase();
+            let activeDataset: string = (this.parameterService.findActiveDatasetInUrl() || '').toLowerCase();
             this.datasets.some(function(dataset, index) {
                 if ((activeDataset && activeDataset === dataset.name.toLowerCase()) || (!activeDataset && dataset.connectOnLoad)) {
                     this.connectToPreset(index, true);
@@ -112,33 +119,31 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             });
         }
 
-        $scope.messenger.subscribe(parameterService.STATE_CHANGED_CHANNEL, function(message) {
+        this.messenger.subscribe(ParameterService.STATE_CHANGED_CHANNEL, function(message) {
             if (message && message.dataset) {
                 if (message.dataset) {
-                    datasetService.setActiveDataset(message.dataset);
+                    this.datasetService.setActiveDataset(message.dataset);
 
                     this.activeDataset = {
                         name: message.dataset.name,
-                        info: $scope.HIDE_INFO_POPOVER,
+                        info: this.HIDE_INFO_POPOVER,
                         data: true
                     };
                 }
                 if (message.dashboard) {
-                    $scope.$apply(function() {
-                        let layoutName = 'savedDashboard-' + message.dashboardStateId;
+                    let layoutName: string = 'savedDashboard-' + message.dashboardStateId;
 
-                        layouts[layoutName] = message.dashboard;
+                    this.layouts[layoutName] = message.dashboard;
 
-                        if (message.dataset) {
-                            datasetService.setLayout(layoutName);
-                        }
+                    if (message.dataset) {
+                        this.datasetService.setLayout(layoutName);
+                    }
 
-                        this.gridsterConfigs = message.dashboard;
+                    this.gridsterConfigs = message.dashboard;
 
-                        for (let i = 0; i < this.gridsterConfigs.length; ++i) {
-                            this.gridsterConfigs[i].id = uuid();
-                        }
-                    });
+                    for (let i = 0; i < this.gridsterConfigs.length; ++i) {
+                        this.gridsterConfigs[i].id = uuid.v4();
+                    }
                 }
             }
         });
@@ -147,6 +152,74 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         console.log('dataset-selector destroyed');
     }
+
+    /**
+     * Connects to the preset dataset at the given index.
+     * @param {Number} index
+     * @param {Boolean} loadDashboardState Whether to load any saved dashboard states shown upon a dataset change
+     * @method connectToPreset
+     */
+    connectToPreset(index: number, loadDashboardState: boolean) {
+
+        this.activeDataset = {
+            name: this.datasets[index].name,
+            info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
+            data: true
+        };
+
+        this.datastoreType = this.datasets[index].datastore;
+        this.datastoreHost = this.datasets[index].hostname;
+
+        let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datastoreType, this.datastoreHost);
+        if(!connection) {
+            return;
+        }
+
+        // Don't update the dataset if its fields are already updated.
+        if(this.datasets[index].hasUpdatedFields) {
+            this.finishConnectToPreset(this.datasets[index], loadDashboardState);
+            return;
+        }
+
+        // Update the fields within each database and table within the selected dataset to include fields that weren't listed in the configuration file.
+        this.datasetService.updateDatabases(this.datasets[index], connection, function(dataset) {
+            this.datasets[index] = dataset;
+
+            // Wait to update the layout until after we finish the dataset updates.
+            this.finishConnectToPreset(dataset, loadDashboardState);
+        });
+    };
+
+    finishConnectToPreset(dataset: Dataset, loadDashboardState: boolean) {
+        this.datasetService.setActiveDataset(dataset);
+        this.updateLayout(loadDashboardState);
+    }
+
+    /**
+     * Updates the layout of visualizations in the dashboard for the active dataset.
+     * @param {Boolean} loadDashboardState Whether to load any saved dashboard states shown upon a dataset change
+     * @private
+     */
+    updateLayout(loadDashboardState: boolean) {
+        var layoutName = this.datasetService.getLayout();
+
+        // Clear any old filters prior to loading the new layout and dataset.
+        this.messenger.clearFiltersSilently();
+
+        // Use the default layout (if it exists) for custom datasets or datasets without a layout.
+        if(!layoutName || !this.layouts[layoutName]) {
+            layoutName = "default";
+        }
+
+        // Recreate the layout each time to ensure all visualizations are using the new dataset.
+        this.gridsterConfigs = this.layouts[layoutName] ? _.cloneDeep(this.layouts[layoutName]) : [];
+
+        this.gridsterConfigs.forEach(function(config) {
+            config.id = uuid.v4();
+        });
+
+        this.parameterService.addFiltersFromUrl(!loadDashboardState);
+    };
 }
 
 // angular.module('neonDemo.directives')
@@ -164,145 +237,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 //         link: function($scope, $element) {
 
 
-//             var initialize = function() {
-//                 $scope.messenger = new neon.eventing.Messenger();
 
-//                 var params = $location.search();
-
-//                 if(params.dashboard_state_id) {
-//                     parameterService.loadState(params.dashboard_state_id, params.filter_state_id);
-//                 } else {
-//                     var activeDataset = (parameterService.findActiveDatasetInUrl() || "").toLowerCase();
-//                     $scope.datasets.some(function(dataset, index) {
-//                         if((activeDataset && activeDataset === dataset.name.toLowerCase()) || (!activeDataset && dataset.connectOnLoad)) {
-//                             $scope.connectToPreset(index, true);
-//                             return true;
-//                         }
-//                         return false;
-//                     });
-//                 }
-
-//                 $scope.messenger.subscribe(parameterService.STATE_CHANGED_CHANNEL, function(message) {
-//                     if(message && message.dataset) {
-//                         if(message.dataset) {
-//                             datasetService.setActiveDataset(message.dataset);
-
-//                             $scope.activeDataset = {
-//                                 name: message.dataset.name,
-//                                 info: $scope.HIDE_INFO_POPOVER,
-//                                 data: true
-//                             };
-//                         }
-//                         if(message.dashboard) {
-//                             $scope.$apply(function() {
-//                                 var layoutName = "savedDashboard-" + message.dashboardStateId;
-
-//                                 layouts[layoutName] = message.dashboard;
-
-//                                 if(message.dataset) {
-//                                     datasetService.setLayout(layoutName);
-//                                 }
-
-//                                 $scope.gridsterConfigs = message.dashboard;
-
-//                                 for(var i = 0; i < $scope.gridsterConfigs.length; ++i) {
-//                                     $scope.gridsterConfigs[i].id = uuid();
-//                                 }
-//                             });
-//                         }
-//                     }
-//                 });
-//             };
-
-//             /**
-//              * Connects to the preset dataset at the given index.
-//              * @param {Number} index
-//              * @param {Boolean} loadDashboardState Whether to load any saved dashboard states shown upon a dataset change
-//              * @method connectToPreset
-//              */
-//             $scope.connectToPreset = function(index, loadDashboardState) {
-//                 XDATA.userALE.log({
-//                     activity: "select",
-//                     action: "click",
-//                     elementId: "dataset-menu",
-//                     elementType: "button",
-//                     elementGroup: "top",
-//                     source: "user",
-//                     tags: ["dataset", $scope.datasets[index].name, "connect"]
-//                 });
-
-//                 $scope.activeDataset = {
-//                     name: $scope.datasets[index].name,
-//                     info: $scope.HIDE_INFO_POPOVER,
-//                     data: true
-//                 };
-
-//                 $scope.datastoreType = $scope.datasets[index].datastore;
-//                 $scope.datastoreHost = $scope.datasets[index].hostname;
-
-//                 var connection = connectionService.createActiveConnection($scope.datastoreType, $scope.datastoreHost);
-//                 if(!connection) {
-//                     return;
-//                 }
-
-//                 var finishConnectToPreset = function(dataset, loadDashboardState) {
-//                     datasetService.setActiveDataset(dataset);
-//                     updateLayout(loadDashboardState);
-//                 };
-
-//                 // Don't update the dataset if its fields are already updated.
-//                 if($scope.datasets[index].hasUpdatedFields) {
-//                     finishConnectToPreset($scope.datasets[index], loadDashboardState);
-//                     return;
-//                 }
-
-//                 // Update the fields within each database and table within the selected dataset to include fields that weren't listed in the configuration file.
-//                 datasetService.updateDatabases($scope.datasets[index], connection, function(dataset) {
-//                     $scope.datasets[index] = dataset;
-//                     // Update the layout inside a $scope.$apply because we're inside a jQuery ajax callback thread.
-//                     $scope.$apply(function() {
-//                         // Wait to update the layout until after we finish the dataset updates.
-//                         finishConnectToPreset(dataset, loadDashboardState);
-//                     });
-//                 });
-//             };
-
-//             /**
-//              * Updates the layout of visualizations in the dashboard for the active dataset.
-//              * @param {Boolean} loadDashboardState Whether to load any saved dashboard states shown upon a dataset change
-//              * @method updateLayout
-//              * @private
-//              */
-//             var updateLayout = function(loadDashboardState) {
-//                 var layoutName = datasetService.getLayout();
-
-//                 XDATA.userALE.log({
-//                     activity: "select",
-//                     action: "show",
-//                     elementId: "dataset-selector",
-//                     elementType: "workspace",
-//                     elementGroup: "top",
-//                     source: "system",
-//                     tags: ["connect", "dataset"]
-//                 });
-
-//                 // Clear any old filters prior to loading the new layout and dataset.
-//                 $scope.messenger.clearFiltersSilently();
-
-//                 // Use the default layout (if it exists) for custom datasets or datasets without a layout.
-//                 if(!layoutName || !layouts[layoutName]) {
-//                     layoutName = "default";
-//                 }
-
-//                 // Recreate the layout each time to ensure all visualizations are using the new dataset.
-//                 $scope.gridsterConfigs = layouts[layoutName] ? angular.copy(layouts[layoutName]) : [];
-
-//                 $scope.gridsterConfigs.forEach(function(config) {
-//                     config.id = uuid();
-//                 });
-
-//                 parameterService.addFiltersFromUrl(!loadDashboardState);
-//             };
 
 //             *
 //              * Updates the layout of visualizations in the dashboard for the custom visualizations set.

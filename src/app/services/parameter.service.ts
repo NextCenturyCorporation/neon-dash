@@ -33,8 +33,8 @@ import * as _ from 'lodash';
 export class ParameterService {
 
     // The Dataset Service may ask the visualizations to update their data.
-    static STATE_CHANGED_CHANNEL: string = 'STATE_CHANGED';
-    static FILTER_KEY_PREFIX: string = "dashboard";
+    public static STATE_CHANGED_CHANNEL: string = 'STATE_CHANGED';
+    public static FILTER_KEY_PREFIX: string = "dashboard";
 
     static CUSTOM_NUMBER_MAPPING_PREFIX: string = "custom_number_";
     static CUSTOM_STRING_MAPPING_PREFIX: string = "custom_string_";
@@ -401,7 +401,6 @@ export class ParameterService {
      * Loads the dashboard and/or filter states for the given IDs and calls the given callback, if any, when finished.
      * @param {String} dashboardStateId
      * @param {String} filterStateId
-     * @method loadState
      */
     public loadState(dashboardStateId: string|number, filterStateId: string|number) {
         let connection: neon.query.Connection = this.connectionService.getActiveConnection() || this.connectionService.createActiveConnection();
@@ -425,7 +424,6 @@ export class ParameterService {
      * @param {Array} dashboardState.dashboard
      * @param {Object} dashboardState.dataset
      * @param {String} dashboardStateId
-     * @method loadStateSuccess
      */
     loadStateSuccess(dashboardState: any, dashboardStateId: number|string) {
         if(_.keys(dashboardState).length) {

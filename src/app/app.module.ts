@@ -20,19 +20,22 @@ import { MdToolbarModule } from '@angular2-material/toolbar';
 
 import { NgGrid, NgGridItem } from 'angular2-grid/dist/main.js';
 import * as log4javascript from 'log4javascript';
-//import * as neon from 'neon-framework/build/js/neon-nodeps.js';
 
 import { DatasetService } from './services/dataset.service';
 import { NeonGTDConfig } from './neon-gtd-config';
 
 import { AppComponent } from './app.component';
+import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
+import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 
 export function createAppModule(config: NeonGTDConfig) {
 @NgModule({
     declarations: [
         AppComponent,
         NgGrid,
-        NgGridItem
+        NgGridItem,
+        VisualizationContainerComponent,
+        DatasetSelectorComponent
     ],
     imports: [
         BrowserModule,
@@ -52,8 +55,6 @@ export function createAppModule(config: NeonGTDConfig) {
         MdSidenavModule,
         MdTabsModule,
         MdToolbarModule
-        //log4javascript
-        //neon
     ],
     providers: [
         HTTP_PROVIDERS,

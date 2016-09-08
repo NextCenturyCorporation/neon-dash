@@ -41,10 +41,21 @@ export interface TableMappings {
     [key: string]: string;
 }
 
+export class RelationTableMetaData {
+    table: TableMetaData;
+    field: FieldMetaData;
+}
+
+export class RelationMetaData {
+    database: DatabaseMetaData;
+    customRelationTables: RelationTableMetaData[];
+}
+
 export class Dataset {
     name: string;
     datastore: string;
     hostname: string;
+    connectOnLoad: boolean;
     databases: DatabaseMetaData[] = [];
     hasUpdatedFields: boolean;
     layout: string;
