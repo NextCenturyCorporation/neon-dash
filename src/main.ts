@@ -5,6 +5,7 @@ import { CookieXSRFStrategy, HTTP_PROVIDERS, Http, Request, XSRFStrategy } from 
 import { environment } from './app/environments/environment';
 import { createAppModule } from './app/app.module';
 import * as yaml from 'js-yaml';
+import * as neon from 'neon-framework';
 import 'rxjs/Rx';
 import 'rxjs/add/operator/toPromise';
 
@@ -53,5 +54,8 @@ if (environment.production) {
     enableProdMode();
 }
 
-loadConfigYaml().then(config => bootstrapWithData(config))
+neon.ready(function() {
+  loadConfigYaml().then(config => bootstrapWithData(config))
     .catch(handleConfigYamlError);
+})
+

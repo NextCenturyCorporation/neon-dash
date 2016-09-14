@@ -16,7 +16,7 @@
  */
 import { Inject, Injectable } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
-import { neon } from 'neon-framework/neon';
+import * as neon from 'neon-framework';
 import * as $ from 'jquery';
 
 import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData } from '../dataset';

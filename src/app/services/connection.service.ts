@@ -15,7 +15,7 @@
  *
  */
 import { Injectable } from '@angular/core';
-import { neon } from 'neon-framework/neon';
+import * as neon from 'neon-framework';
 
 @Injectable()
 export class ConnectionService {

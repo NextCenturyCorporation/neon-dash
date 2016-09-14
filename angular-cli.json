@@ -8,7 +8,9 @@
       "main": "src/main.ts",
       "tsconfig": "src/tsconfig.json",
       "mobile": false,
-      "scripts": "../node_modules/node-uuid"
+      "scripts": [
+        "node_modules/node-uuid/uuid.js"
+      ]
     }
   ],
   "addons": [],

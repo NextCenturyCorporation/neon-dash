@@ -21,8 +21,12 @@ import { MdToolbarModule } from '@angular2-material/toolbar';
 import { NgGrid, NgGridItem } from 'angular2-grid/dist/main.js';
 import * as log4javascript from 'log4javascript';
 
+import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
+import { ErrorNotificationService } from './services/error-notification.service';
+import { FilterService } from './services/filter.service';
 import { NeonGTDConfig } from './neon-gtd-config';
+import { ParameterService } from './services/parameter.service';
 
 import { AppComponent } from './app.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
@@ -58,7 +62,11 @@ export function createAppModule(config: NeonGTDConfig) {
     ],
     providers: [
         HTTP_PROVIDERS,
+        ConnectionService,
         DatasetService,
+        ErrorNotificationService,
+        FilterService,
+        ParameterService,
         {
           provide: 'config',
           useValue: config

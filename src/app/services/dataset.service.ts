@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { neon } from 'neon-framework/neon';
+import * as neon from 'neon-framework';
 
 import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';

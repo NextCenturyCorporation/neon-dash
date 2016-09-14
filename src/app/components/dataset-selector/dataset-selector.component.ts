@@ -21,11 +21,11 @@ import { Dataset } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { DatabaseMetaData, RelationMetaData, RelationTableMetaData } from '../../dataset.ts';
 import { ParameterService } from '../../services/parameter.service';
-import { neon } from 'neon-framework';
+//import { neon } from 'neon-framework';
+import * as neon from 'neon-framework';
 
 import * as _ from 'lodash';
-//import * as uuid from 'node-uuid';
-declare var uuid: any;
+import * as uuid from 'node-uuid';
 
 @Component({
     selector: 'dataset-selector',
@@ -92,7 +92,6 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
     constructor(private connectionService: ConnectionService,
         private datasetService: DatasetService, private parameterService: ParameterService) {
-        this.datasets = datasetService.getDatasets();
     }
 
     getDatasets(): Dataset[] {
@@ -100,11 +99,13 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        this.messenger = new neon.eventing.Messenger();
-
+        console.log("UUID --> " + JSON.stringify(uuid));
         let params: URLSearchParams = new URLSearchParams();
         let dashboardStateId: string = params.get('dashboard_state_id');
         let filterStateId: string = params.get('filter_state_id');
+
+        this.messenger = new neon.eventing.Messenger();
+        this.datasets = this.datasetService.getDatasets();
 
         if (params.get('dashboard_state_id')) {
             this.parameterService.loadState(dashboardStateId, filterStateId);
