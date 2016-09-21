@@ -792,17 +792,16 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     };
 
     $scope.functions.updateData = function(data) {
-        var inputData = data || [];
+        var inputData = data || [
+            [], // Valid dates
+            []  // Invalid dates
+        ];
 
-        var invalidData = _.filter(inputData, function(item) {
-            return item.invalidCount;
-        });
+        var invalidData = inputData[1];
 
         $scope.active.numberInvalid = invalidData.length ? invalidData[0].invalidCount : 0;
 
-        var validData = $scope.active.showInvalidDatesFilter ? [] : _.filter(inputData, function(item) {
-            return !item.invalidCount;
-        });
+        var validData = $scope.active.showInvalidDatesFilter ? [] : inputData[0];
 
         // Any time new data is fetched, the old MMPP analysis is invalidated.
         $scope.active.displayEventProbabilities = false;

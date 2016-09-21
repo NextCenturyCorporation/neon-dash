@@ -377,8 +377,6 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
      * @method showHighlight
      */
     this.showHighlight = function(date, value, highlight, xRange, yRange) {
-        console.log("Line 380");
-        console.log("Date: " + JSON.stringify(date) + "\nValue: " + JSON.stringify(value) + "\nHighlight: " + JSON.stringify(highlight) + "\nXRange: " + JSON.stringify(xRange) + "\nYRange: " + JSON.stringify(yRange));
         // TODO Create x, width, y, and height functions to combine the calculations for both the highlight bar and the other bars.
         var x = xRange(date);
         var width = xRange(d3.time[this.granularity].utc.offset(date, 1)) - x;
@@ -399,13 +397,17 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
             name: this.primarySeries.name
         });
 
-        var dateData = primaryData.data[0]
         for(var i = startIndex; i < endIndex; ++i) {
-            this.showHighlight(dateData.values[i].date, dateData.values[i].value, this.contextHighlights[i], this.xContext, this.yContext);
+            var date = primaryData.data[0].values[i].date;
+            var height = 0;
+            for(var x = 0; x < primaryData.data.length; x++) {
+                height += Math.abs(primaryData.data[x].values[i].value);
+            }
+            this.showHighlight(date, height, this.contextHighlights[i], this.xContext, this.yContext);
 
-            var focusIndex = this.focusDateToIndex[dateData.values[i].date.toUTCString()];
+            var focusIndex = this.focusDateToIndex[date.toUTCString()];
             if(focusIndex >= 0) {
-                this.showHighlight(dateData.values[i].date, dateData.values[i].value, this.focusHighlights[focusIndex], this.xFocus, this.yFocus);
+                this.showHighlight(date, height, this.focusHighlights[focusIndex], this.xFocus, this.yFocus);
             }
         }
     };
@@ -445,7 +447,7 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
         var bisect = d3.bisector(function(d) {
             return d.date;
         }).right;
-        return value ? bisect(value.data, graph_x) - 1 : -1;
+        return value ? bisect(value.data[0].values, graph_x) - 1 : -1;
     };
 
     /**
@@ -460,7 +462,7 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
         showTooltip(datum, d3.event);
 
         if(this.hoverListener) {
-            var date = datum.date;
+            var date = datum[0].date;
             var start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
             var end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, date.getHours());
 
@@ -615,7 +617,7 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
         }
 
         var xMin = d3.min(fullDataSet.map(function(d) {
-            return d3.min(d.values.map(function(dateBucket) { return d3.time[me.granularity].utc.offset(dateBucket.date, 1); }));
+            return d3.min(d.values.map(function(dateBucket) { return dateBucket.date; }));
         }));
         var xMax = d3.max(fullDataSet.map(function(d) {
             return d3.max(d.values.map(function(dateBucket) { return d3.time[me.granularity].utc.offset(dateBucket.date, 1); }));
@@ -709,9 +711,14 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
                 .attr("transform", "translate(" + xOffset + "," + ((me.heightFocus + (me.config.marginFocus.top * 2) + me.config.marginFocus.bottom) * seriesPos) + ")")
                 .on('mousemove', function() {
                     var index = me.findHoverIndexInData(this, series, me.xFocus);
-                    if(index >= 0 && index < series.data.length) {
-                        var contextIndex = me.contextDateToIndex[series.data[index].date.toUTCString()];
-                        me.onHover(series.data[index], contextIndex);
+                    if(index >= 0 && index < series.data[0].values.length) {
+                        var contextIndex = me.contextDateToIndex[series.data[0].values[index].date.toUTCString()];
+                        var datum = series.data.map(function(elem) {
+                            var element = elem.values[contextIndex];
+                            element.name = elem.name;
+                            return element;
+                        });
+                        me.onHover(datum, contextIndex);
                     }
                 })
                 .on('mouseover', function() {
@@ -798,21 +805,19 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
                             .y(function(d) { return d.value })
                             .offset(d3.stackOffsetNone);
                         var layers = stack(series.data);
-                        console.log("Line 826");
-                        console.log(layers);
 
                         var colors = d3.scale.category20();
 
                         var categories = contextContainer.selectAll(".bar")
                             .data(layers)
                             .enter().append("g")
-                            .attr("class", 'single_bar'/*function(d) { return "bar" + d.name ; }*/)
+                            .attr("class", 'single_bar')
                             .style('fill', function(d, i) { return colors(i) });
 
                         categories.selectAll('rect')
                             .data(function(d) { return d.values; })
                             .enter().append('rect')
-                            .attr("Class", function(d) { return "bar " + d.date; })
+                            .attr("class", function(d) { return "" + d.date; })
                             .attr('x', function(d) { return me.xContext(d.date); })
                             .attr('y', function(d) { return me.yContext(Math.max(0, d.value) + d.y0); })
                             .attr('width', function(d) { return me.xContext(d3.time[me.granularity].utc.offset(d.date, 1)) - me.xContext(d.date); })
@@ -904,7 +909,7 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
                 if(series.data.length) {
                     series.data[0].values.forEach(function() {
                         var highlight = contextContainer.append("rect")
-                            .attr("class", "highlight")
+                            .attr("class", "stacked_highlight")
                             .attr("x", 0).attr("width", 0)
                             .attr("y", -1).attr("height", heightContext + 2)
                             .style("visibility", "hidden");
@@ -952,9 +957,14 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
                 var series = _.find(values, {
                     name: me.primarySeries.name
                 });
-                var index = me.findHoverIndexInData(this, series, me.xContext);
-                if(index >= 0 && index < series.data.length) {
-                    me.onHover(series.data[index], index);
+                var index = me.findHoverIndexInData(this, series, me.xFocus);
+                if(index >= 0 && index < series.data[0].values.length) {
+                    var datum = series.data.map(function(elem) {
+                        var element = elem.values[index];
+                        element.name = elem.name;
+                        return element;
+                    });
+                    me.onHover(datum, index);
                 }
             })
             .on('mouseover', function() {
@@ -1101,19 +1111,28 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
             }
         });
         // Use lowest value or 0 for Y-axis domain, whichever is less (e.g. if negative)
-        var minY = d3.min(dataShown.map(function(bucket) {
-            return d3.min(bucket.values.map(function(value) { 
-                return value.value; 
-            }));
-        }));
+        var totalValues = [];
+        if(dataShown.length) {
+            for(var x = 0; x < dataShown[0].values.length; x++) {
+                var value = {
+                    positive: 0,
+                    negative: 0
+                };
+                for(var y = 0; y < dataShown.length; y++) {
+                    if(dataShown[y].values[x].value >= 0) {
+                        value.positive += dataShown[y].values[x].value;
+                    } else {
+                        value.negative += dataShown[y].values[x].value;
+                    }
+                }
+                totalValues.push(value);
+            }
+        }
+        var minY = d3.min(totalValues.map(function(value) { return value.negative; }));
         minY = minY < 0 ? minY : 0;
 
         // Use highest value for Y-axis domain, or 0 if there is no data
-        var maxY = d3.max(dataShown.map(function(bucket) {
-            return d3.max(bucket.values.map(function(value) { 
-                return value.value; 
-            }));
-        }));
+        var maxY = d3.max(totalValues.map(function(value) { return value.positive; }));
         maxY = maxY ? maxY : 0;
 
         yFocus.domain([minY, maxY]);
@@ -1134,13 +1153,12 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
         if(series.type == 'bar' && dataShown.length > 0 && dataShown[0].values.length < me.width) {
             var barheight = 0;
 
-            if(dataShown.length < 60) {
+            if(dataShown[0].values.length < 60) {
                 style = 'stroke:#f1f1f1;';
                 barheight++;
             }
 
             var anomalyStyle = style + 'fill: ' + anomalyColor + '; stroke: ' + anomalyColor + ';';
-            style += 'fill:' + series.color + ';';
 
             var stack = d3.layout.stack()
                 .values(function(d) { return d.values; })
@@ -1154,24 +1172,24 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
             var categories = focus.selectAll("rect.bar")
                 .data(layers)
                 .enter().append("g")
-                .attr("style", function(d) { return d.anomaly ? anomalyStyle : style; })
+                .attr("style", function(d) { return d.anomaly ? anomalyStyle : ''; })
+                .attr("class", 'single_bar')
                 .style('fill', function(d, i) { return colors(i) });
 
             categories.selectAll('rect')
                 .data(function(d) { return d.values; })
                 .enter().append('rect')
-                .attr("class", function(d) { return "bar " + d.date; })
-                .attr('x', function(d) { return me.xContext(d.date); })
+                .attr("class", function(d) { return "" + d.date; })
+                .attr('x', function(d) { return me.xFocus(d.date); })
                 .attr('y', function(d) { return yFocus(Math.max(0, d.value) + d.y0); })
-                .attr('width', function(d) { return me.xContext(d3.time[me.granularity].utc.offset(d.date, 1)) - me.xContext(d.date); })
+                .attr('width', function(d) { return me.xFocus(d3.time[me.granularity].utc.offset(d.date, 1)) - me.xFocus(d.date); })
                 .attr("height", function(d) {
                     var height = yFocus(d.value) - yFocus(0);
                     var offset = height / height || 0;
                     var calculatedHeight = Math.abs(height)  + (offset * barheight);
                     return calculatedHeight;
                 });
-
-
+                
         } else {
             var chartType = '';
 
@@ -1256,18 +1274,19 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
             });
         }
         
-
         if(me.primarySeries.name === series.name) {
             // Append the highlight bars after the other bars so it is drawn on top.
             me.focusHighlights = [];
-            dataShown.forEach(function() {
-                var highlight = focus.append("rect")
-                    .attr("class", "highlight")
-                    .attr("x", 0).attr("width", 0)
-                    .attr("y", -1).attr("height", me.heightFocus + 2)
-                    .style("visibility", "hidden");
-                me.focusHighlights.push(highlight);
-            });
+            if(dataShown.length > 0) {
+                dataShown[0].values.forEach(function() {
+                    var highlight = focus.append("rect")
+                        .attr("class", "stacked_highlight")
+                        .attr("x", 0).attr("width", 0)
+                        .attr("y", -1).attr("height", me.heightFocus + 2)
+                        .style("visibility", "hidden");
+                    me.focusHighlights.push(highlight);
+                });
+            }
         }
 
         return {
@@ -1321,18 +1340,19 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
     };
 
     var showTooltip = function(item, mouseEvent) {
-        var count = d3.format("0,000.00")(item.value);
         // Only show the part of the date that makes sense for the selected granularity
         var dateFormat = self.dateFormats[self.granularity];
         if(!dateFormat) {
             dateFormat = self.dateFormats.hour;
         }
-        var date = d3.time.format.utc(dateFormat)(item.date);
+        var date = d3.time.format.utc(dateFormat)(item[0].date);
 
         // Create the contents of the tooltip (#tooltip-container is reused among the various
         // visualizations)
-        var html = '<div><strong>Date:</strong> ' + _.escape(date) + '</div>' +
-            '<div><strong>Count:</strong> ' + count + '</div>';
+        var html = '<div><strong>Date:</strong> ' + _.escape(date) + '</div>';
+        item.forEach(function(category) {
+            html += '<div><strong>' + category.name + ':</strong> ' + category.value + '</div>';
+        });
         $("#tooltip-container").html(html);
         $("#tooltip-container").show();
         positionTooltip(d3.select('#tooltip-container'), mouseEvent);
