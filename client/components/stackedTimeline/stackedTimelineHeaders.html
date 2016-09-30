@@ -62,5 +62,30 @@
     </span>
 </div>
 
+<div class="neon-datetimefilter dropdown pull-right">
+    <div class="dropdown-toggle" role="button" data-toggle="dropdown" data-target="#" href="#">
+        Filter
+    </div>
+
+    <ul class="dropdown-menu" role="menu">
+        <table>
+            <tr>
+                <th>
+                    <span>{{(active.groupField) ? (active.groupField.prettyName ? active.groupField.prettyName : active.groupField.columnName) : ''}}</span>
+                </th>
+                <th>
+                    <span class="pull-right">
+                        <button class="btn btn-default done-button" ng-click="handleFilterDone()">Done</button>
+                    </span>
+                </th>
+            </tr>
+            <tr ng-repeat="category in data[0].data">
+                <td style="color: {{colorSet($index)}}">{{category.name}}</td>
+                <td><input type="checkbox" checked="true" id="{{category.name}}-stackedTimelineCheckBox"></td>
+            </tr>
+        </table>
+    </ul>
+</div>
+
 <filter-notification get-data="getFilterData" get-desc="createFilterDesc" get-text="createFilterText" get-links-popup-key="getLinksPopupDateKey" remove="removeFilter"
     show-links-popup-button="showLinksPopupButton" visualization-id="visualizationId"></filter-notification>

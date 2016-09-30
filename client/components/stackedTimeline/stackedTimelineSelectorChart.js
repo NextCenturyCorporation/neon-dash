@@ -57,6 +57,7 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
         hour: '%d %b %Y %H:%M'
     };
     this.groupField = undefined;
+    this.colorSet = d3.scale.category20();
     this.TOOLTIP_ID = 'tooltip';
     this.xDomain = [];
     this.collapsed = true;
@@ -110,6 +111,7 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
         };
         this.granularity = configuration.granularity || this.granularity;
         this.groupField = configuration.groupField || this.groupField;
+        this.colorSet = configuration.colorSet || this.colorSet;
         this.redrawOnResize();
 
         return this;
@@ -806,13 +808,11 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
                             .offset(d3.stackOffsetNone);
                         var layers = stack(series.data);
 
-                        var colors = d3.scale.category20();
-
                         var categories = contextContainer.selectAll(".bar")
                             .data(layers)
                             .enter().append("g")
                             .attr("class", 'single_bar')
-                            .style('fill', function(d, i) { return colors(i) });
+                            .style('fill', function(d, i) { return me.colorSet(i) });
 
                         categories.selectAll('rect')
                             .data(function(d) { return d.values; })
@@ -1167,14 +1167,12 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
                 .offset(d3.stackOffsetNone);
             var layers = stack(dataShown);
 
-            var colors = d3.scale.category20();
-
             var categories = focus.selectAll("rect.bar")
                 .data(layers)
                 .enter().append("g")
                 .attr("style", function(d) { return d.anomaly ? anomalyStyle : ''; })
                 .attr("class", 'single_bar')
-                .style('fill', function(d, i) { return colors(i) });
+                .style('fill', function(d, i) { return me.colorSet(i) });
 
             categories.selectAll('rect')
                 .data(function(d) { return d.values; })

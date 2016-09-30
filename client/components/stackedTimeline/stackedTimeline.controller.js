@@ -45,6 +45,12 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     $scope.active.startDateForDisplay = undefined;
     $scope.active.endDateForDisplay = undefined;
 
+    // Set of colors for categories.
+    $scope.colorSet = d3.scale.category20();
+
+    // Keeps track of all categories of the current group field.
+    $scope.categories = {};
+
     // Selected dates in the datetimepicker.
     $scope.active.filter = {
         start: undefined,
@@ -301,6 +307,13 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
         $scope.functions.getElement(".neon-datetimepicker").removeClass("open");
     };
 
+    $scope.handleFilterDone = function(control) {
+        $scope.functions.getElement("[id$=-stackedTimelineCheckBox]").each(function(index, checkbox) {
+            var categoryValue = checkbox.id.replace("-stackedTimelineCheckBox", "");
+        });
+        $scope.functions.getElement(".neon-datetimefilter").removeClass("open");
+    };
+
     /**
      * Update any book-keeping fields that need to change when the granularity changes.
      */
@@ -395,7 +408,8 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     $scope.functions.onInit = function() {
         $scope.functions.subscribe("date_selected", onDateSelected);
         $scope.chart = new charts.StackedTimelineSelectorChart($scope.functions.getElement(".stacked-timeline-selector-chart")[0], {
-            groupField: $scope.active.groupField
+            groupField: $scope.active.groupField,
+            coloerSet: $scope.colorSet
         });
         $scope.chart.render([]);
 
@@ -437,6 +451,10 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
         }
 
         $scope.functions.getElement(".neon-datetimepicker").on("hide.bs.dropdown", function() {
+            return false;
+        });
+
+        $scope.functions.getElement(".neon-datetimefilter").on("hide.bs.dropdown", function() {
             return false;
         });
 
@@ -915,19 +933,16 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
         });
     };
 
-    var getGroupValues = function(data) {
-        var values = [];
-        for(var x = 0; x < data.length; x++) {
-            var alreadyInValues = values.find(function(elem) { return elem === data[x][$scope.active.groupField.columnName]; });
-            if(alreadyInValues === undefined) {
-                values.push(data[x][$scope.active.groupField.columnName]);
+    var getGroups = function(data) {
+        data.forEach(function(item) {
+            if($scope.categories[item[$scope.active.groupField.columnName]] === undefined) {
+                $scope.categories[item[$scope.active.groupField.columnName]] = true;
             }
-        }
-        return values;
-    }
+        });
+    };
 
     /**
-     * Creates a new data array used to populate our contained timeline.  This function is used
+     * Creates a new data array used to populate our contained stackedtimeline.  This function is used
      * as or by Neon query handlers.
      * @param {Object} queryResults Results returned from a Neon query.
      * @param {Array} queryResults.data The aggregate numbers for the heat chart cells.
@@ -942,7 +957,9 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
         if(rawLength > 0) {
             var numBuckets = $scope.bucketizer.getNumBuckets();
 
-            var groupValues = getGroupValues(data);
+            getGroups(data);
+
+            var groupValues = _.filter(Object.keys($scope.categories), function(item) { return $scope.categories[item] === true; });
 
             for(var x = 0; x < groupValues.length; x++) {
                 // Create our bucket.
@@ -968,10 +985,9 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
                     queryData.find(function(elem) { return elem.name === data[i][$scope.active.groupField.columnName]; })
                     );
                 var bucketIndex = $scope.bucketizer.getBucketIndex(resultDate);
-                if(queryData[groupIndex].values[bucketIndex]) {
+                if(queryData[groupIndex].values[bucketIndex]) {                 // Cannot find stuff here. This is where the error is right now.
                     queryData[groupIndex].values[bucketIndex].date = resultDate;
                     queryData[groupIndex].values[bucketIndex].value = data[i].count;
-                    //queryData[bucketIndex][data[i][$scope.active.groupField.columnName]] = data[i].count;
                 }
             }
         }
@@ -1221,6 +1237,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     $scope.handleChangeGroupField = function() {
         $scope.chart.updateGroupField($scope.active.groupField);
         $scope.functions.logChangeAndUpdate("groupField", $scope.active.groupField.columnName);
+        $scope.categories = {};
     };
 
     $scope.functions.createExportDataObject = function(exportId, query) {
