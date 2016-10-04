@@ -48,8 +48,8 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     // Set of colors for categories.
     $scope.colorSet = d3.scale.category20();
 
-    // Keeps track of all categories of the current group field.
-    $scope.categories = {};
+    // Keeps track of all categories of the current group field. Categories are objects with 'name' and 'active' fields
+    $scope.categories = [];
 
     // Selected dates in the datetimepicker.
     $scope.active.filter = {
@@ -307,11 +307,51 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
         $scope.functions.getElement(".neon-datetimepicker").removeClass("open");
     };
 
-    $scope.handleFilterDone = function(control) {
+    $scope.handleGroupFilterDone = function(control) {
+        var filtersChanged = false;
+        var toChange = []; // Use this to temporarily store changes so that we can old filters, change the data, and then add new ones.
         $scope.functions.getElement("[id$=-stackedTimelineCheckBox]").each(function(index, checkbox) {
             var categoryValue = checkbox.id.replace("-stackedTimelineCheckBox", "");
+            var category = _.find($scope.categories, function(obj) { return obj.name === categoryValue; });
+            if(category.active !== checkbox.checked) {
+                toChange.push({
+                    name: categoryValue,
+                    active: checkbox.checked
+                });
+                filtersChanged = true;
+            }
         });
+        if(filtersChanged) {
+            onChangeGroupFilter(toChange);
+        }
         $scope.functions.getElement(".neon-datetimefilter").removeClass("open");
+    };
+
+    var onChangeGroupFilter = function(toChange) {
+        var options = {
+            fields: [
+                    $scope.active.groupField
+                ],
+            createNeonFilterClause: createGroupFilter,
+            queryAfterFilter: false
+        };
+        $scope.functions.removeNeonFilter(options);
+        toChange.forEach(function(change) {
+            var match = _.find($scope.categories, function(obj) { return obj.name === change.name; });
+            match.active = change.active;
+        });
+        options.queryAfterFilter = true;
+        $scope.functions.updateNeonFilter(options);
+    };
+
+    var createGroupFilter = function(databaseAndTableName, fieldName) {
+        var clauses = [];
+        $scope.categories.forEach(function(obj) {
+            if(!obj.active) {
+                clauses.push(neon.query.where(fieldName, '!=', obj.name));
+            }
+        });
+        return neon.query.and.apply(this, clauses);
     };
 
     /**
@@ -935,8 +975,12 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
 
     var getGroups = function(data) {
         data.forEach(function(item) {
-            if($scope.categories[item[$scope.active.groupField.columnName]] === undefined) {
-                $scope.categories[item[$scope.active.groupField.columnName]] = true;
+            var category = _.find($scope.categories, function(obj) { return obj.name === item[$scope.active.groupField.columnName]; });
+            if(category === undefined) {
+                $scope.categories.push({
+                    name: item[$scope.active.groupField.columnName],
+                    active: true
+                });
             }
         });
     };
@@ -959,12 +1003,12 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
 
             getGroups(data);
 
-            var groupValues = _.filter(Object.keys($scope.categories), function(item) { return $scope.categories[item] === true; });
+            var groupValues = _.filter($scope.categories, function(obj) { return obj.active === true; });
 
             for(var x = 0; x < groupValues.length; x++) {
                 // Create our bucket.
                 queryData[x] = {
-                    name: groupValues[x],
+                    name: groupValues[x].name,
                     values: []
                 };
                 // Initialize our time buckets.
@@ -1237,7 +1281,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     $scope.handleChangeGroupField = function() {
         $scope.chart.updateGroupField($scope.active.groupField);
         $scope.functions.logChangeAndUpdate("groupField", $scope.active.groupField.columnName);
-        $scope.categories = {};
+        $scope.categories = [];
     };
 
     $scope.functions.createExportDataObject = function(exportId, query) {
