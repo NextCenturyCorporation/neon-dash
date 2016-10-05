@@ -1,3 +1,10 @@
+/**
+ * This file defines browser safe typings for the "node-uuid" npm package without requiring 
+ * classes from Node (e.g., Buffer).  There are a number of typings available for this.  However,
+ * most assume node-uuid is running on a node server.
+ *
+ * See https://www.npmjs.com/package/node-uuid for more details about node-uuid.
+ */
 declare namespace uuid {
     export interface uuidV1Options {
         node?: Array<number>
@@ -22,31 +29,3 @@ declare namespace uuid {
 declare module "node-uuid" {
     export = uuid;
 }
-// export = uuid;
-// export as namespace uuid;
-// export = uuid;
-// export as namespace uuid;
-
-// interface uuidV1Options {
-//     node?: Array<number>
-//     clockseq?: number
-//     msecs: number | Date
-//     nsecs: number
-// }
-
-// interface uuidV4Options {
-//     random?: Array<number>
-//     rng: () => Array<number>
-// }
-
-// interface uuid {
-//     v1(options?: uuidV1Options): string;
-//     v1(options?: uuidV1Options, buffer?: Array<number>, offset?: number): Array<number>;
-//     v4(options?: uuidV4Options): string;
-//     v4(options?: uuidV4Options, buffer?: Array<number>, offset?: number): Array<number>;
-//     parse(id: string, buffer?: Array<number>, offset?: number): Array<number>;
-//     unparse(buffer?: Array<number>, offset?: number): string;
-//     noConflict(): void;
-// }
-
-// export = uuid;

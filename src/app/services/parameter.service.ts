@@ -57,7 +57,7 @@ export class ParameterService {
 
 loadState(dash: string, filter: string): any {};
 findActiveDatasetInUrl(): any {};
-addFiltersFromUrl(arg: boolean): any {};
+addFiltersFromUrl(arg?: boolean) {};
     // //private messenger: neon.eventing.Messenger;
     // private messenger: neon.eventing.Messenger;
 

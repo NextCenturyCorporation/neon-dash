@@ -13,19 +13,43 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
 import { ConnectionService } from '../../services/connection.service';
 import { Dataset } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
-import { DatabaseMetaData, RelationMetaData, RelationTableMetaData } from '../../dataset.ts';
+import { DatabaseMetaData, RelationMetaData, RelationTableMetaData, TableMetaData, FieldMetaData } from '../../dataset.ts';
 import { ParameterService } from '../../services/parameter.service';
-//import { neon } from 'neon-framework';
+import { NeonGridItem } from '../../neon-grid-item';
+import { neonVisualizationMinPixel } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
 import * as _ from 'lodash';
 import * as uuid from 'node-uuid';
+
+export interface CustomTable {
+    table: TableMetaData,
+    latitude: FieldMetaData,
+    longitude: FieldMetaData,
+    date: FieldMetaData,
+    tags: FieldMetaData
+}
+
+/**
+ * This interface defines the custom database objects configured by the user through the popup ialog.  Each custom database contains:
+ *     {Object} database The database object
+ *     {Array} customTables The array of custom table objects configured by the user through the popup.  Each custom table contains:
+ *         {Object} table The table object
+ *         {Object} latitude The field object for the latitude
+ *         {Object} longitude The field object for the longitude
+ *         {Object} date The field object for the date
+ *         {Object} tags The field object for the hashtags
+ */
+export interface CustomDatabase {
+   database: DatabaseMetaData;
+   customTables: CustomTable[]
+}
 
 @Component({
     selector: 'dataset-selector',
@@ -34,20 +58,12 @@ import * as uuid from 'node-uuid';
 })
 export class DatasetSelectorComponent implements OnInit, OnDestroy {
     public static HIDE_INFO_POPOVER: string = 'sr-only';
-    private selectedDataset: string = 'Select a Dataset';
 
     private datasets: Dataset[] = [];
-
-    private activeDataset: any = {
-        name: 'Choose Dataset',
-        info: '',
-        data: false
-    };
-
     private datasetName: string = '';
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';
-    private layouts: { [key: string]: any } = [];
+    private layouts: { [key: string]: any } = {};
 
     /**
      * This is the array of custom database objects configured by the user through the popup.  Each custom database contains:
@@ -59,7 +75,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      *         {Object} date The field object for the date
      *         {Object} tags The field object for the hashtags
      */
-   private customDatabases: DatabaseMetaData[] = [];
+   private customDatabases: CustomDatabase[] = [];
 
     /**
      * This is the array of custom relation objects configured by the user through the popup.  Each custom relation contains:
@@ -71,14 +87,14 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      *             {Object} table The table object
      *             {Object} field The field object
      */
-    private customRelations: RelationMetaData[] = [];
+    private customRelations: any[] = [];
 
     /**
      * This is the array of custom visualization objects configured by the user through the popup.  Each custom visualization contains:
      *     {String} type The visualization type
-     *     {Number} sizeX The width of the visualization
+     *     {Number} sizex The width of the visualization
      *     {Number} minSizeX The minimum width of the visualization
-     *     {Number} sizeY The height of the visualization
+     *     {Number} sizey The height of the visualization
      *     {Number} minSizeY The minimum height of the visualization
      *     {String} database The database name to connect to it
      *     {String} table The table name to connect to it
@@ -86,7 +102,14 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      */
     private customVisualizations: any[] = [];
 
-    private gridsterConfigs: any[];
+    @Input() gridItems: NeonGridItem[];
+    @Output() gridItemsChange: EventEmitter<NeonGridItem[]> = new EventEmitter<NeonGridItem[]>();
+    @Input() activeDataset: any = {
+        name: 'Choose a Dataset',
+        info: '',
+        data: false
+    };
+    @Output() activeDatasetChange: EventEmitter<any> = new EventEmitter<any>();
 
     private messenger: neon.eventing.Messenger;
 
@@ -99,13 +122,13 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        console.log("UUID --> " + JSON.stringify(uuid));
         let params: URLSearchParams = new URLSearchParams();
         let dashboardStateId: string = params.get('dashboard_state_id');
         let filterStateId: string = params.get('filter_state_id');
 
         this.messenger = new neon.eventing.Messenger();
         this.datasets = this.datasetService.getDatasets();
+        this.layouts = this.datasetService.getLayouts();
 
         if (params.get('dashboard_state_id')) {
             this.parameterService.loadState(dashboardStateId, filterStateId);
@@ -130,6 +153,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                         info: this.HIDE_INFO_POPOVER,
                         data: true
                     };
+                    this.activeDatasetChange.emit(this.activeDataset);
                 }
                 if (message.dashboard) {
                     let layoutName: string = 'savedDashboard-' + message.dashboardStateId;
@@ -140,11 +164,12 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                         this.datasetService.setLayout(layoutName);
                     }
 
-                    this.gridsterConfigs = message.dashboard;
+                    this.gridItems = message.dashboard;
 
-                    for (let i = 0; i < this.gridsterConfigs.length; ++i) {
-                        this.gridsterConfigs[i].id = uuid.v4();
+                    for (let i = 0; i < this.gridItems.length; ++i) {
+                        this.gridItems[i].id = uuid.v4();
                     }
+                    this.gridItemsChange.emit(this.gridItems);
                 }
             }
         });
@@ -161,13 +186,12 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      * @method connectToPreset
      */
     connectToPreset(index: number, loadDashboardState: boolean) {
-
         this.activeDataset = {
             name: this.datasets[index].name,
             info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
             data: true
         };
-
+        this.activeDatasetChange.emit(this.activeDataset);
         this.datastoreType = this.datasets[index].datastore;
         this.datastoreHost = this.datasets[index].hostname;
 
@@ -183,11 +207,12 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         }
 
         // Update the fields within each database and table within the selected dataset to include fields that weren't listed in the configuration file.
+        let me = this;
         this.datasetService.updateDatabases(this.datasets[index], connection, function(dataset) {
-            this.datasets[index] = dataset;
+            me.datasets[index] = dataset;
 
             // Wait to update the layout until after we finish the dataset updates.
-            this.finishConnectToPreset(dataset, loadDashboardState);
+            me.finishConnectToPreset(dataset, loadDashboardState);
         });
     };
 
@@ -202,7 +227,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      * @private
      */
     updateLayout(loadDashboardState: boolean) {
-        var layoutName = this.datasetService.getLayout();
+        let layoutName = this.datasetService.getLayout();
 
         // Clear any old filters prior to loading the new layout and dataset.
         this.messenger.clearFiltersSilently();
@@ -213,210 +238,145 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         }
 
         // Recreate the layout each time to ensure all visualizations are using the new dataset.
-        this.gridsterConfigs = this.layouts[layoutName] ? _.cloneDeep(this.layouts[layoutName]) : [];
+        this.gridItems = this.layouts[layoutName] ? _.cloneDeep(this.layouts[layoutName]) : [];
 
-        this.gridsterConfigs.forEach(function(config) {
+        this.gridItems.forEach(function(config) {
             config.id = uuid.v4();
+console.log("type: " + config.type + " sizey: " + config.sizey)
         });
-
+        this.gridItemsChange.emit(this.gridItems);
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
     };
+
+
+    /**
+     * Updates the layout of visualizations in the dashboard for the custom visualizations set.
+     * @method updateCustomLayout
+     * @private
+     */
+    updateCustomLayout() {
+        this.gridItems = [];
+
+        // Clear any old filters prior to loading the new layout and dataset.
+        this.messenger.clearFilters();
+
+        _.each(this.customVisualizations, function(visualization) {
+            let id: string = uuid.v4();
+            let layout: { [key: string]: any } = {
+                id: id,
+                bindings: {},
+                bordersize: 10,
+                dragHandle: 'drag-' + id,
+                payload: id,
+                minSizeX: visualization.minSizeX,
+                minSizeY: visualization.minSizeY,
+                minPixelX: neonVisualizationMinPixel.x, // jshint ignore:line
+                minPixelY: neonVisualizationMinPixel.y, // jshint ignore:line
+                sizex: visualization.sizex,
+                sizey: visualization.sizey,
+                title: visualization.title,
+                type: visualization.type
+            };
+console.log('sizey: ' + visualization.sizey);
+            if (visualization.database && visualization.table) {
+                layout['bindings'] = {
+                    "bind-database": "'" + visualization.database + "'",
+                    "bind-table": "'" + visualization.table + "'"
+                };
+            }
+
+            _.each(visualization.bindings, function(value, key) {
+                layout['bindings'][key] = "'" + value + "'";
+            });
+
+            this.gridItems.push(layout);
+        });
+
+        // TODO: Clear any saved states loaded through the parameters
+        // $location.search("dashboard_state_id", null);
+        // $location.search("filter_state_id", null);
+
+        this.parameterService.addFiltersFromUrl();
+    };
+
+    /**
+     * Selection event for the custom dataset popup.
+     */
+    selectCustom() {
+        // Removed call to xdata logger library
+    };
+
+    /**
+     * Creates and returns a new custom dataset object using the user configuration saved in the global variables.
+     * @return {Object}
+     */
+    createCustomDataset(): Dataset {
+        let dataset: Dataset = new Dataset(this.datasetName, this.datastoreType, this.datastoreHost);
+
+        this.customDatabases.forEach(function(customDatabase: CustomDatabase) {
+            let database: DatabaseMetaData = new DatabaseMetaData(customDatabase.database.name, customDatabase.database.prettyName);
+
+            customDatabase.customTables.forEach(function(customTable: CustomTable) {
+                let tableObject: TableMetaData = new TableMetaData(customTable.table.name,
+                    customTable.table.prettyName, customTable.table.fields, customTable.table.mappings);
+                database.tables.push(tableObject);
+            });
+
+            dataset.databases.push(database);
+        });
+
+        this.customRelations.forEach(function(customRelation) {
+            let relation = {};
+
+            customRelation.customRelationDatabases.forEach(function(customRelationDatabase) {
+                if (!relation[customRelationDatabase.database.name]) {
+                    relation[customRelationDatabase.database.name] = {};
+                }
+
+                customRelationDatabase.customRelationTables.forEach(function(customRelationTable) {
+                    relation[customRelationDatabase.database.name][customRelationTable.table.name] = customRelationTable.field.columnName;
+                });
+            });
+
+            dataset.relations.push(relation);
+        });
+
+        return dataset;
+    };
+
+    /**
+     * Sets the active dataset to the databases and tables in the list of custom databases
+     * in the given config and saves it in the Dataset Service.
+     * @param {Object} config
+     * @param {Array} config.customDatabases
+     * @param {Array} config.customRelations
+     * @param {Array} config.customVisualizations
+     * @param {String} config.datastoreType
+     * @param {String} config.datastoreHost
+     * @param {String} config.datasetName
+     * @method setDataset
+     */
+    setDataset(config: any) {
+        this.customDatabases = config.customDatabases;
+        this.customRelations = config.customRelations;
+        this.customVisualizations = config.customVisualizations;
+        this.datastoreType = config.datastoreType;
+        this.datastoreHost = config.datastoreHost;
+        this.datasetName = config.datasetName;
+
+        let dataset = this.createCustomDataset();
+
+        this.activeDataset = {
+            name: dataset.name,
+            info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
+            data: true
+        };
+        this.activeDatasetChange.emit(this.activeDataset);
+        this.datasets = this.datasetService.addDataset(dataset);
+        this.datasetService.setActiveDataset(dataset);
+        this.updateCustomLayout();
+
+        // TODO: Manage the custom connection modal.
+        // $element.find(".modal").modal("hide");
+    };
 }
-
-// angular.module('neonDemo.directives')
-// .directive('databaseConfig', ['$location', 'layouts', 'visualizations', 'ConnectionService', 'DatasetService', 'ParameterService',
-//     function($location, layouts, visualizations, connectionService, datasetService, parameterService) {
-//     return {
-//         templateUrl: 'components/databaseConfig/databaseConfig.html',
-//         restrict: 'E',
-//         scope: {
-//             storeSelect: '=',
-//             hostName: '=',
-//             gridsterConfigs: "=",
-//             hideAdvancedOptions: "="
-//         },
-//         link: function($scope, $element) {
-
-
-
-
-//             *
-//              * Updates the layout of visualizations in the dashboard for the custom visualizations set.
-//              * @method updateCustomLayout
-//              * @private
-
-//             var updateCustomLayout = function() {
-//                 XDATA.userALE.log({
-//                     activity: "select",
-//                     action: "show",
-//                     elementId: "dataset-selector",
-//                     elementType: "workspace",
-//                     elementGroup: "top",
-//                     source: "system",
-//                     tags: ["connect", "dataset"]
-//                 });
-
-//                 $scope.gridsterConfigs = [];
-
-//                 // Clear any old filters prior to loading the new layout and dataset.
-//                 $scope.messenger.clearFilters();
-
-//                 _.each($scope.customVisualizations, function(visualization) {
-//                     var layout = {
-//                         sizeX: visualization.sizeX,
-//                         sizeY: visualization.sizeY,
-//                         minSizeX: visualization.minSizeX,
-//                         minSizeY: visualization.minSizeY,
-//                         minPixelX: neonVisualizationMinPixel.x, // jshint ignore:line
-//                         minPixelY: neonVisualizationMinPixel.y, // jshint ignore:line
-//                         type: visualization.type,
-//                         id: uuid(),
-//                         bindings: {}
-//                     };
-
-//                     if(visualization.database && visualization.table) {
-//                         layout.bindings = {
-//                             "bind-database": "'" + visualization.database + "'",
-//                             "bind-table": "'" + visualization.table + "'"
-//                         };
-//                     }
-
-//                     _.each(visualization.bindings, function(value, key) {
-//                         layout.bindings[key] = "'" + value + "'";
-//                     });
-
-//                     $scope.gridsterConfigs.push(layout);
-//                 });
-
-//                 // Clear any saved states loaded through the parameters
-//                 $location.search("dashboard_state_id", null);
-//                 $location.search("filter_state_id", null);
-
-//                 parameterService.addFiltersFromUrl();
-//             };
-
-//             /**
-//              * Selection event for the custom dataset popup.
-//              * @method selectCustom
-//              */
-//             $scope.selectCustom = function() {
-//                 XDATA.userALE.log({
-//                     activity: "open",
-//                     action: "click",
-//                     elementId: "custom-dataset",
-//                     elementType: "button",
-//                     elementGroup: "top",
-//                     source: "user",
-//                     tags: ["custom", "dataset", "dialog"]
-//                 });
-//             };
-
-//             /**
-//              * Creates and returns a new custom dataset object using the user configuration saved in the global variables.
-//              * @method createCustomDataset
-//              * @return {Object}
-//              */
-//             var createCustomDataset = function() {
-//                 var dataset = {
-//                     name: $scope.datasetName,
-//                     datastore: $scope.datastoreType,
-//                     hostname: $scope.datastoreHost,
-//                     databases: [],
-//                     relations: [],
-//                     options: {
-//                         requery: 0
-//                     }
-//                 };
-
-//                 $scope.customDatabases.forEach(function(customDatabase) {
-//                     var database = {
-//                         name: customDatabase.database.name,
-//                         prettyName: customDatabase.database.prettyName,
-//                         tables: []
-//                     };
-
-//                     customDatabase.customTables.forEach(function(customTable) {
-//                         var tableObject = {
-//                             name: customTable.table.name,
-//                             prettyName: customTable.table.prettyName,
-//                             fields: customTable.table.fields,
-//                             mappings: customTable.table.mappings
-//                         };
-
-//                         database.tables.push(tableObject);
-//                     });
-
-//                     dataset.databases.push(database);
-//                 });
-
-//                 $scope.customRelations.forEach(function(customRelation) {
-//                     var relation = {};
-
-//                     customRelation.customRelationDatabases.forEach(function(customRelationDatabase) {
-//                         if(!relation[customRelationDatabase.database.name]) {
-//                             relation[customRelationDatabase.database.name] = {};
-//                         }
-
-//                         customRelationDatabase.customRelationTables.forEach(function(customRelationTable) {
-//                             relation[customRelationDatabase.database.name][customRelationTable.table.name] = customRelationTable.field.columnName;
-//                         });
-//                     });
-
-//                     dataset.relations.push(relation);
-//                 });
-
-//                 return dataset;
-//             };
-
-//             /**
-//              * Sets the active dataset to the databases and tables in the list of custom databases
-//              * in the given config and saves it in the Dataset Service.
-//              * @param {Object} config
-//              * @param {Array} config.customDatabases
-//              * @param {Array} config.customRelations
-//              * @param {Array} config.customVisualizations
-//              * @param {String} config.datastoreType
-//              * @param {String} config.datastoreHost
-//              * @param {String} config.datasetName
-//              * @method setDataset
-//              */
-//             $scope.setDataset = function(config) {
-//                 XDATA.userALE.log({
-//                     activity: "close",
-//                     action: "click",
-//                     elementId: "custom-dataset-done",
-//                     elementType: "button",
-//                     elementGroup: "top",
-//                     source: "user",
-//                     tags: ["custom", "dataset", "connect"]
-//                 });
-
-//                 $scope.customDatabases = config.customDatabases;
-//                 $scope.customRelations = config.customRelations;
-//                 $scope.customVisualizations = config.customVisualizations;
-//                 $scope.datastoreType = config.datastoreType;
-//                 $scope.datastoreHost = config.datastoreHost;
-//                 $scope.datasetName = config.datasetName;
-
-//                 var dataset = createCustomDataset();
-
-//                 $scope.activeDataset = {
-//                     name: dataset.name,
-//                     info: $scope.HIDE_INFO_POPOVER,
-//                     data: true
-//                 };
-
-//                 $scope.datasets = datasetService.addDataset(dataset);
-//                 datasetService.setActiveDataset(dataset);
-//                 updateCustomLayout();
-
-//                 $element.find(".modal").modal("hide");
-//             };
-
-//             // Wait for neon to be ready, the create our messenger and intialize the view and data.
-//             neon.ready(function() {
-//                 initialize();
-//             });
-//         }
-//     };
-// }]);

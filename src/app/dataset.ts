@@ -24,17 +24,30 @@ export class TableMetaData {
     prettyName: string;
     fields: FieldMetaData[];
     mappings: TableMappings;
+
+    constructor(name?: string, prettyName?: string, fields?: FieldMetaData[], mappings?: TableMappings) {
+        this.name = name;
+        this.prettyName = name;
+        this.fields = fields;
+        this.mappings = mappings;
+    }
 }
 
 export class DatabaseMetaData {
-    name: string;
-    prettyName: string;
+    name: string = "";
+    prettyName: string = "";
     tables: TableMetaData[];
+
+    constructor(name?: string, prettyName?: string) {
+        this.name = name;
+        this.prettyName = prettyName;
+        this.tables = [];
+    }
 }
 
 export class DatasetOptions {
-    colorMaps: Object;
-    requeryInterval: number;
+    colorMaps?: Object;
+    requeryInterval?: number;
 }
 
 export interface TableMappings {
@@ -52,18 +65,24 @@ export class RelationMetaData {
 }
 
 export class Dataset {
-    name: string;
-    datastore: string;
-    hostname: string;
-    connectOnLoad: boolean;
+    name: string = "";
+    datastore: string = "";
+    hostname: string = "";
+    connectOnLoad: boolean = false;
     databases: DatabaseMetaData[] = [];
-    hasUpdatedFields: boolean;
-    layout: string;
-    options: DatasetOptions;
-    mapLayers: Object[];
-    mapConfig: Object;
-    relations: Object[];
-    linkyConfig: Object;
-    dateFilterKeys: Object;
-    lineCharts: Object[];
+    hasUpdatedFields: boolean = false;
+    layout: string = "";
+    options: DatasetOptions = new DatasetOptions();
+    mapLayers: Object[] = undefined;
+    mapConfig: Object = undefined;
+    relations: Object[] = [];
+    linkyConfig: Object = undefined;
+    dateFilterKeys: Object = undefined;
+    lineCharts: Object[] = undefined;
+
+    constructor(name?: string, datastore?: string, hostname?: string) {
+        this.name = name;
+        this.datastore = datastore;
+        this.hostname = hostname;
+    }
 }

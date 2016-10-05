@@ -70,7 +70,7 @@ export class DatasetService {
     private datasets: Dataset[] = [];
 
     // The active dataset.
-    private dataset: Dataset;
+    private dataset: Dataset = new Dataset();
 
     // Use the Dataset Service to save settings for specific databases/tables and 
     // publish messages to all visualizations if those settings change.
@@ -195,11 +195,18 @@ export class DatasetService {
     }
 
     /**
-     * Returns the layout for the active dataset.
+     * Returns the layout name for the active dataset.
      * @return {String}
      */
     public getLayout(): string {
         return this.dataset.layout;
+    }
+
+    /**
+     * Returns all of the layouts.
+     */
+    public getLayouts(): { [key: string]: any } {
+        return this.config.layouts;
     }
 
     /**
@@ -669,6 +676,7 @@ export class DatasetService {
     public updateDatabases(dataset: Dataset, connection: neon.query.Connection, callback?: Function, index?: number): void {
         let databaseIndex = index ? index : 0;
         let database = dataset.databases[databaseIndex];
+        let me = this;
         connection.getTableNamesAndFieldNames(database.name, function(tableNamesAndFieldNames) {
             Object.keys(tableNamesAndFieldNames).forEach(function(tableName: string) {
                 let table = _.find(database.tables, function(item: TableMetaData) {
@@ -695,7 +703,7 @@ export class DatasetService {
             });
 
             if (++databaseIndex < dataset.databases.length) {
-                this.updateDatabases(dataset, connection, callback, databaseIndex);
+                me.updateDatabases(dataset, connection, callback, databaseIndex);
             } else if (callback) {
                 dataset.hasUpdatedFields = true;
                 callback(dataset);

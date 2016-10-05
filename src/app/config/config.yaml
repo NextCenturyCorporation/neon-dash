@@ -136,11 +136,6 @@ datasets:
               size_by: mag
               sort_by: time
               count_by: net
-              allCoordinates:
-                -
-                  latitude: latitude
-                  longitude: longitude
-              enableRowSelection: true
     mapConfig:
       myMap1:
         bounds:
@@ -161,8 +156,9 @@ datasets:
               fieldA: #123456
               fieldB: #654321
       mapBaseLayer:
-        color: light
+        color: dark
         protocol: https
+
   -
     name: Earthquakes and Contracts
     datastore: mongo
@@ -352,7 +348,7 @@ datasets:
               fieldA: #123456
               fieldB: #654321
       mapBaseLayer:
-        color: light
+        color: dark
         protocol: https
 
     relations:
@@ -364,24 +360,27 @@ datasets:
 layouts:
   default:
     -
-      sizeX: 12
+      sizex: 12
+      sizey: 2
+      row: 1
+      col: 1
       type: timeline
     -
-      sizeX: 12
+      sizex: 12
+      sizey: 4
+      col: 13
+      row: 1
       type: map
       bindings:
-        title: Map
-        baseLayerColor: light
-        baseLayerProtocol: https
         config:
           -
-            name: Earthquakes
             database: test
             table: earthquakes
-            type: points
-            limit: 10000
     -
-      sizeX: 12
+      sizex: 12
+      sizey: 2
+      row: 3
+      col: 1
       type: lineChart
       bindings:
         config:
@@ -389,142 +388,47 @@ layouts:
             database: test
             table: earthquakes
     -
-      type: scatterPlot
-      sizeX: 12
-      sizeY: 4
-    -
+      sizex: 4
+      sizey: 4
+      row: 5
+      col: 1
       type: aggregationTable
     -
+      sizex: 4
+      sizey: 4
+      row: 5
+      col: 5
       type: barChart
     -
+      sizex: 4
+      sizey: 4
+      row: 5
+      col: 9
       type: opsClock
     -
+      sizex: 12
+      sizey: 4
+      row: 5
+      col: 13
       type: dataTable
     -
+      sizex: 12
+      sizey: 4
+      row: 9
+      col: 13
       type: filterBuilder
-  cyber:
-    -
-      type: timeline
-      bindings:
-        title: Timeline
-        database: snort-logs
-        table: snort
-        dateField: "@timestamp"
-        granularity: hour
-    -
-      sizeX: 12
-      type: lineChart
-      bindings:
-        title: Snort Logs
-        granularity: hour
-        config:
-          -
-            name: Priority Events by Hour
-            database: snort-logs
-            table: snort
-            dateField: "@timestamp"
-            groupField: priority
-            aggregationType: count
-    -
-      sizeX: 12
-      type: dataTable
-      bindings:
-        title: Snort Logs
-        database: snort-logs
-        table: snort
-        idField: _id
-        sortField: "@timestamp"
-        sortDirection: 0
-        limit: 1000
-    -
-      sizeX: 6
-      type: aggregationTable
-      bindings:
-        title: Top Targets
-        database: snort-logs
-        table: snort
-        groupField: DstIp
-        aggregationType: count
-        limit: 100
-    -
-      sizeX: 6
-      type: barChart
-      bindings:
-        title: Alerts by Source IP
-        database: snort-logs
-        table: snort
-        groupField: SrcIp
-        aggregationType: count
-        limit: 50
-    -
-      sizeX: 6
-      type: newsFeed
-      bindings:
-        title: Recent Alerts
-        database: snort-logs
-        table: snort
-        primaryTitleField: DstIp
-        secondaryTitleField: DstPort
-        dateField: "@timestamp"
-        contentField: alert
-    -
-      sizeX: 6
-      type: opsClock
-      bindings:
-        title: myTitle
-        database: snort-logs
-        table: snort
-        dateField: "@timestamp"
-    -
-      sizeX: 6
-      type: scatterPlot
-      bindings:
-        title: myTitle
-        database: snort-logs
-        table: snort
-        type: scattergl
-        xAxisField: depth
-        yAxisField: mag
-        limit: time
-    -
-      sizeX: 6
-      type: sunburstChart
-      bindings:
-        title: myTitle
-        database: snort-logs
-        table: snort
-        groupFields: DstIp,DstPort
-        arcValue: count
-    -
-      sizeX: 6
-      type: textCloud
-      bindings:
-        title: Threat Links
-        database: snort-logs
-        table: snort
-        dataField: urls
-    -
-      type: networkGraph
-      bindings:
-        database: snort-logs
-        table: snort
-        nodeField: SrcIp
-        nameField: SrcIp
-        linkedNodeField: DstIp
-        linkedNameField: DstIp
-        dateField: "@timestamp"
   all-visualizations:
     -
-      sizeX: 12
+      sizex: 12
       type: timeline
     -
-      sizeX: 12
+      sizex: 12
       type: timeline
       bindings:
         database: uscontracts
         table: testcontracts
     -
-      sizeX: 12
+      sizex: 12
       type: map
       bindings:
         config:
@@ -546,7 +450,7 @@ layouts:
             lineSizeField: annualRev
             applyTransientDateFilter: false
     -
-      sizeX: 12
+      sizex: 12
       type: lineChart
       bindings:
         config:
@@ -576,7 +480,7 @@ layouts:
         table: testcontracts
     -
       type: newsFeed
-      sizeY: 6
+      sizey: 6
       bindings:
         database: uscontracts
         table: testcontracts
@@ -586,15 +490,15 @@ layouts:
         contentField: desc
     -
       type: textCloud
-      sizeY: 6
+      sizey: 6
       bindings:
         database: uscontracts
         table: testcontracts
         dataField: desc_array
     -
       type: ganttChart
-      sizeX: 12
-      sizeY: 6
+      sizex: 12
+      sizey: 6
       bindings:
         database: uscontracts
         table: testcontracts
@@ -604,16 +508,16 @@ layouts:
         colorField: state
     -
       type: sunburstChart
-      sizeX: 9
-      sizeY: 9
+      sizex: 9
+      sizey: 9
       bindings:
         database: uscontracts
         table: testcontracts
         groupFields: prod2,prod3,prod4,prod6
         valueField: base
     -
-      sizeX: 9
-      sizeY: 9
+      sizex: 9
+      sizey: 9
       type: networkGraph
       bindings:
         database: uscontracts
@@ -625,7 +529,7 @@ layouts:
         dateField: signed
   example-with-bindings:
     -
-      sizeX: 12
+      sizex: 12
       type: timeline
       bindings:
         title: myTitle
@@ -636,7 +540,7 @@ layouts:
         overrideStartDate: 1/1/2013
         overrideEndDate: "1388534399000"
     -
-      sizeX: 12
+      sizex: 12
       type: map
       bindings:
         title: myTitle
@@ -675,7 +579,7 @@ layouts:
               -
                 net
     -
-      sizeX: 12
+      sizex: 12
       type: lineChart
       bindings:
         title: myTitle
@@ -696,7 +600,7 @@ layouts:
             aggregationField: mag
             groupField: type
     -
-      sizeX: 12
+      sizex: 12
       type: dataTable
       bindings:
         title: myTitle
@@ -706,7 +610,7 @@ layouts:
         sortDirection: 1
         limit: 500
     -
-      sizeX: 6
+      sizex: 6
       type: aggregationTable
       bindings:
         title: myTitle
@@ -717,7 +621,7 @@ layouts:
         aggregationField: mag
         limit: 100
     -
-      sizeX: 6
+      sizex: 6
       type: barChart
       bindings:
         title: myTitle
@@ -728,7 +632,7 @@ layouts:
         aggregationField: mag
         limit: 50
     -
-      sizeX: 6
+      sizex: 6
       type: newsFeed
       bindings:
         title: myTitle
@@ -739,7 +643,7 @@ layouts:
         dateField: time
         contentField: mag
     -
-      sizeX: 6
+      sizex: 6
       type: opsClock
       bindings:
         title: myTitle
@@ -747,18 +651,18 @@ layouts:
         table: earthquakes
         dateField: time
     -
-      sizeX: 6
+      sizex: 6
       type: scatterPlot
       bindings:
         title: myTitle
         database: test
         table: earthquakes
-        type: scattergl
+        type: scatter
         xAxisField: depth
         yAxisField: mag
         limit: time
     -
-      sizeX: 6
+      sizex: 6
       type: sunburstChart
       bindings:
         title: myTitle
@@ -768,7 +672,7 @@ layouts:
         valueField: type
         arcValue: count
     -
-      sizeX: 6
+      sizex: 6
       type: textCloud
       bindings:
         title: myTitle
@@ -776,3 +680,79 @@ layouts:
         table: earthquakes
         dataField: net
 
+customFilters: 
+  test: 
+    earthquakes: 
+      -
+        label: Types
+        items:
+          -
+            label: Earthquake
+            field: type
+            value: earthquake
+          -
+            label: Explosion
+            field: type
+            value: explosion
+          -
+            label: Landslide
+            field: type
+            value: landslide
+          -
+            label: Mining Explosion
+            field: type
+            value: mining_explosion
+          -
+            label: Quarry
+            field: type
+            value: quarry
+          -
+            label: Quarry Blast
+            field: type
+            value: quarry_blast
+          -
+            label: Sonicboom
+            field: type
+            value: sonicboom
+      -
+        label: Networks
+        input:
+            field: net
+    myTable: 
+      -
+        label: My Group
+        items:
+          -
+            label: Equals My Value
+            field: myField
+            value: myValue
+          -
+            label: Contains My Value
+            field: myField
+            operator: contains
+            value: myValue
+          -
+            label: Not Null
+            field: myField
+        input:
+            field: myField
+            operator: contains
+      -
+        label: My Group 2
+        multi:
+          myField:
+            -
+              value: A
+            -
+              operator: contains
+              value: B
+            -
+              value:
+                - C
+                - D
+
+files:
+  datasets:
+    - ./app/config/sample.dataset.config.json
+  layouts:
+    - ./app/config/sample.layout.config.json

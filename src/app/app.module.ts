@@ -31,6 +31,7 @@ import { ParameterService } from './services/parameter.service';
 import { AppComponent } from './app.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
+import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 
 export function createAppModule(config: NeonGTDConfig) {
 @NgModule({
@@ -39,7 +40,8 @@ export function createAppModule(config: NeonGTDConfig) {
         NgGrid,
         NgGridItem,
         VisualizationContainerComponent,
-        DatasetSelectorComponent
+        DatasetSelectorComponent,
+        AboutNeonComponent
     ],
     imports: [
         BrowserModule,

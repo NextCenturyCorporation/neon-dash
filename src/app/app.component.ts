@@ -15,8 +15,11 @@
  */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
+import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { Dataset } from './dataset';
 import { DatasetService } from './services/dataset.service';
+import { NgGrid, NgGridItem } from 'angular2-grid'
+import { NeonGridItem } from './neon-grid-item'
 
 @Component({
     selector: 'app-root',
@@ -25,51 +28,54 @@ import { DatasetService } from './services/dataset.service';
         'app.component.less',
         '../../node_modules/angular2-grid/dist/NgGrid.css',
         '../../node_modules/@angular2-material/core/overlay/overlay.css'
-    ]
+    ],
+    directives: [NgGrid, NgGridItem, AboutNeonComponent]
 })
 export class AppComponent implements OnInit, OnDestroy {
-    selectedDataset: string = 'Select a Dataset';
+    activeDataset: any = {
+        name: "Choose!"
+    };
+    gridItems: NeonGridItem[];
+
     datasets: Dataset[] = [];
-    boxes: any[] = [{
-        'title': 'one',
-        'config': {
-            'col': 1,
-            'row': 1,
-            'sizex': 1,
-            'sizey': 1
-        }
-    }, {
-        'title': 'two',
-        'config': {
-            'col': 4,
-            'row': 1,
-            'sizex': 4,
-            'sizey': 1
-        }
-    }, {
-        'title': 'three',
-        'config': {
-            'col': 2,
-            'row': 3,
-            'sizex': 2,
-            'sizey': 3
-        }
-    }, {
-        'title': 'four',
-        'config': {
-            'col': 4,
-            'row': 4,
-            'sizex': 1,
-            'sizey': 4
-        }
-    }];
+
+    gridConfig: { [key: string]: any } = {
+        'resizeable': true, 
+        'margins': [10, 0, 0, 10], 
+        'min_cols': 1,
+        'max_cols': 24,
+        'min_rows': 0,
+        'max_rows': 0,
+        'min_width': 50,
+        'min_height': 50, 
+        'maintain_ratio': true,
+        'auto_style': true,
+        'auto_resize': true, 
+        'cascade': 'up',
+        'fix_to_grid': true
+    };
 
     constructor(private datasetService: DatasetService) {
         this.datasets = datasetService.getDatasets();
     }
 
+    gridItemsToString(): string {
+        return JSON.stringify(this.gridItems);
+    }
+
     getDatasets(): Dataset[] {
         return this.datasets;
+    }
+
+    onActiveDatasetChanged(value: any) {
+        console.log("dataset changed " + JSON.stringify(value));
+    }
+    onGridItemsChanged(value: NeonGridItem[]) {
+        console.log("items changed: " + value.length + " items");
+    }
+
+    toggleInfoDialog(): void {
+        console.log("toggling info dialog");
     }
 
     ngOnInit(): void {

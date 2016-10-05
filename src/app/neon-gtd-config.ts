@@ -83,4 +83,5 @@ export class NeonGTDConfig {
         url: ''
     };
     datasets: Dataset[] = [];
+    layouts: { [ key: string ]: any } = {};
 }
