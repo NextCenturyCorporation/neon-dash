@@ -1,4 +1,4 @@
-<md-sidenav-layout class="neon-gtd-sidenav">
+<md-sidenav-layout class="neon-gtd-sidenav neon-green-theme">
     <md-sidenav #sidenav class="neon-gtd-sidenav" md-fill align="start">
         <md-toolbar color="primary">
             <span class="md-36">Datasets</span>
@@ -13,23 +13,35 @@
         <button md-button (click)="sidenavaboutneon.close()">Close</button>
     </md-sidenav>
     <md-toolbar color="primary" layout-align="space-between center" flex>
-        <button md-button [attr.aria-label]="activeDataset.name" (click)="sidenav.toggle()"  class="neon-gtd-text-button">
+        <button md-button [attr.aria-label]="activeDataset.name" (click)="sidenav.toggle()"  
+            md-tooltip="Selects one of the available datasets." tooltip-position="below" class="neon-gtd-text-button">
             <i class="material-icons md-24" style="vertical-align: sub">menu</i>&nbsp;{{ activeDataset.name }}
         </button>
-        <span class="fill-remaining"></span>
-        <button md-icon-button aria-label="Add Visualization">
+        <button md-mini-fab aria-label="Add Visualization" md-tooltip="Add a new visualization to the current dashboard."
+            tooltip-position="below" >
             <md-icon class="md-24">add</md-icon>
         </button>
-        <button md-icon-button aria-label="About..." class="neon-gtd-text-button" (click)="sidenavaboutneon.toggle()">
-            i
-        </button>
-        <button md-icon-button  aria-label="Settings">
+        <span class="fill-remaining"></span>
+        <button md-icon-button  aria-label="Settings" [md-menu-trigger-for]="optionsMenu"
+            md-tooltip="Change the settings for the dashboard." tooltip-position="below" >
             <md-icon class="md-24">settings</md-icon>
         </button>
-        <button md-icon-button aria-label="Help" class="neon-gtd-text-button">
+        <button md-icon-button aria-label="About..." class="neon-gtd-text-button" (click)="sidenavaboutneon.toggle()"
+            md-tooltip="Display information about this application." tooltip-position="below" >
+            i
+        </button>
+        <button md-icon-button aria-label="Help" class="neon-gtd-text-button"
+            md-tooltip="Open the Users Guide" tooltip-position="below" >
             ?
         </button>
     </md-toolbar>
+
+    <md-menu #optionsMenu="mdMenu" y-position="below">
+        <button md-menu-item> Refresh </button>
+        <button md-menu-item> Settings </button>
+        <button md-menu-item> Help </button>
+        <button md-menu-item disabled> Sign Out </button>
+    </md-menu>
 
     <div class="neon-gtd-content" md-fill layout="col">
         <div [ngGrid]="gridConfig">
