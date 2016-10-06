@@ -23,13 +23,12 @@ import { NeonGridItem } from './neon-grid-item'
 
 @Component({
     selector: 'app-root',
-    templateUrl: 'app.component.html',
+    templateUrl: './app.component.html',
     styleUrls: [
-        'app.component.less',
+        './app.component.less',
         '../../node_modules/angular2-grid/dist/NgGrid.css',
         '../../node_modules/@angular2-material/core/overlay/overlay.css'
-    ],
-    directives: [NgGrid, NgGridItem, AboutNeonComponent]
+    ]
 })
 export class AppComponent implements OnInit, OnDestroy {
     activeDataset: any = {

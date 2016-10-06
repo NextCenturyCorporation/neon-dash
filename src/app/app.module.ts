@@ -2,23 +2,11 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpModule, HTTP_PROVIDERS } from '@angular/http';
+import { HttpModule } from '@angular/http';
 
-import { MdButtonModule } from '@angular2-material/button';
-import { MdCoreModule } from '@angular2-material/core';
-import { MdCardModule } from '@angular2-material/card';
-import { MdCheckboxModule } from '@angular2-material/checkbox';
-import { MdIconModule } from '@angular2-material/icon';
-import { MdInputModule } from '@angular2-material/input';
-import { MdListModule } from '@angular2-material/list';
-import { MdMenuModule } from '@angular2-material/menu';
-import { MdProgressCircleModule } from '@angular2-material/progress-circle';
-import { MdRadioModule } from '@angular2-material/radio';
-import { MdSidenavModule } from '@angular2-material/sidenav';
-import { MdTabsModule } from '@angular2-material/tabs';
-import { MdToolbarModule } from '@angular2-material/toolbar';
+import { MaterialModule } from '@angular/material';
 
-import { NgGrid, NgGridItem } from 'angular2-grid/dist/main.js';
+import { NgGrid, NgGridItem } from 'angular2-grid';
 import * as log4javascript from 'log4javascript';
 
 import { ConnectionService } from './services/connection.service';
@@ -48,22 +36,9 @@ export function createAppModule(config: NeonGTDConfig) {
         CommonModule,
         FormsModule,
         HttpModule,
-        MdButtonModule,
-        MdCoreModule,
-        MdCardModule,
-        MdCheckboxModule,
-        MdIconModule,
-        MdInputModule,
-        MdListModule,
-        MdMenuModule,
-        MdProgressCircleModule,
-        MdRadioModule,
-        MdSidenavModule,
-        MdTabsModule,
-        MdToolbarModule
+        MaterialModule.forRoot()
     ],
     providers: [
-        HTTP_PROVIDERS,
         ConnectionService,
         DatasetService,
         ErrorNotificationService,

@@ -1,13 +1,26 @@
-///<reference path='../typings/globals/hammerjs/index.d.ts'/>
+
+import './polyfills.ts';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { enableProdMode, ReflectiveInjector } from '@angular/core';
-import { CookieXSRFStrategy, HTTP_PROVIDERS, Http, Request, XSRFStrategy } from '@angular/http';
+import { BaseRequestOptions, BaseResponseOptions, BrowserXhr, HttpModule, CookieXSRFStrategy, Http, Request, RequestOptions, ResponseOptions, XHRBackend, XSRFStrategy } from '@angular/http';
 import { environment } from './app/environments/environment';
 import { createAppModule } from './app/app.module';
 import * as yaml from 'js-yaml';
 import * as neon from 'neon-framework';
 import 'rxjs/Rx';
 import 'rxjs/add/operator/toPromise';
+
+const HTTP_PROVIDERS = [
+    {provide: Http, useFactory: 
+      (xhrBackend: XHRBackend, requestOptions: RequestOptions): Http =>
+          new Http(xhrBackend, requestOptions), 
+          deps: [XHRBackend, RequestOptions]},
+    BrowserXhr,
+    {provide: RequestOptions, useClass: BaseRequestOptions},
+    {provide: ResponseOptions, useClass: BaseResponseOptions},
+    XHRBackend,
+    {provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy()},
+];
 
 // Since angular isn't bootstrapped, the platform browser isn't setup properly for cookies.
 // Since we're not using them, mock the cookie provider
@@ -28,7 +41,7 @@ function handleConfigJsonError(error) {
 }
 
 function loadConfigJson() {
-    return http.get('app/config/config.json')
+    return http.get('./app/config/config.json')
         .map(response => response.json())
         .toPromise();
 }
@@ -41,7 +54,7 @@ function handleConfigYamlError(error) {
 }
 
 function loadConfigYaml() {
-   return http.get('app/config/config.yaml')
+   return http.get('./app/config/config.yaml')
        .map(response => yaml.load(response.text()))
        .toPromise();
 }

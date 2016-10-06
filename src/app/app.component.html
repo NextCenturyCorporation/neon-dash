@@ -3,17 +3,13 @@
         <md-toolbar color="primary">
             <span class="md-36">Datasets</span>
         </md-toolbar>
-        <md-content>
-            <dataset-selector [(gridItems)]="gridItems" [(activeDataset)]="activeDataset"></dataset-selector>
-        </md-content>
+        <dataset-selector [(gridItems)]="gridItems" [(activeDataset)]="activeDataset"></dataset-selector>
     </md-sidenav>
     <md-sidenav #sidenavaboutneon class="neon-gtd-sidenav-about-neon" md-fill align="end">
         <md-toolbar color="primary">
             <span class="md-36">About...</span>
         </md-toolbar>
-        <md-content>
-            <about-neon></about-neon>
-        </md-content>
+        <about-neon></about-neon>
         <button md-button (click)="sidenavaboutneon.close()">Close</button>
     </md-sidenav>
     <md-toolbar color="primary" layout-align="space-between center" flex>
@@ -35,7 +31,7 @@
         </button>
     </md-toolbar>
 
-    <md-content class="neon-gtd-content" md-fill layout="col">
+    <div class="neon-gtd-content" md-fill layout="col">
         <div [ngGrid]="gridConfig">
             <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="gridItems[i]">
                 <div class="title">{{item.type}}</div>
@@ -50,5 +46,5 @@
                
             </div>
         </div>
-    </md-content>
+    </div>
 </md-sidenav-layout>
