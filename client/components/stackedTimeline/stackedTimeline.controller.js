@@ -290,7 +290,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
         }
 
         $scope.extent = [start, end];
-        onChangeFilter();
+        onChangeTimeFilter();
         $scope.chart.renderExtent($scope.extent);
     };
 
@@ -449,7 +449,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
         $scope.functions.subscribe("date_selected", onDateSelected);
         $scope.chart = new charts.StackedTimelineSelectorChart($scope.functions.getElement(".stacked-timeline-selector-chart")[0], {
             groupField: $scope.active.groupField,
-            coloerSet: $scope.colorSet
+            colorSet: $scope.colorSet
         });
         $scope.chart.render([]);
 
@@ -468,7 +468,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
                 });
 
                 $scope.extent = extent;
-                onChangeFilter();
+                onChangeTimeFilter();
 
                 if($scope.active.showFocus === "on_filter") {
                     $scope.chart.toggleFocus(true);
@@ -554,13 +554,13 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
             var newExtentEnd = $scope.bucketizer.roundUpBucket($scope.extent[1]);
             if(newExtentStart.getTime() !== $scope.extent[0].getTime() || newExtentEnd.getTime() !== $scope.extent[1].getTime()) {
                 $scope.extent = [newExtentStart, newExtentEnd];
-                onChangeFilter();
+                onChangeTimeFilter();
             }
         }
         $scope.functions.logChangeAndUpdate("granularity", $scope.active.granularity, "button");
     };
 
-    var onChangeFilter = function() {
+    var onChangeTimeFilter = function() {
         if($scope.extent.length) {
             if($scope.extent[0].getTime() === $scope.extent[1].getTime() && $scope.bucketizer.getStartDate() !== undefined && $scope.bucketizer.getEndDate() !== undefined) {
                 $scope.removeFilter();
@@ -627,7 +627,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
      */
     $scope.handleToggleInvalidDatesFilter = function() {
         $scope.extent = [];
-        onChangeFilter();
+        onChangeTimeFilter();
         if($scope.bucketizer.getStartDate() && $scope.bucketizer.getEndDate()) {
             setDateTimePickerStart($scope.bucketizer.getStartDate());
             setDateTimePickerEnd($scope.bucketizer.getEndDate());
@@ -679,7 +679,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     };
 
     $scope.functions.getFilterFields = function() {
-        return [$scope.active.dateField];
+        return [$scope.active.dateField, $scope.active.groupField];
     };
 
     $scope.functions.updateFilterValues = function(neonFilter) {
@@ -695,7 +695,9 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
 
     $scope.functions.removeFilterValues = function() {
         $scope.extent = [];
-        onChangeFilter();
+        onChangeTimeFilter();
+        _.each($scope.categories, function(obj) { obj.active = true; });
+        onChangeGroupFilter();
         $scope.active.showInvalidDatesFilter = false;
     };
 
@@ -1002,13 +1004,11 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
             var numBuckets = $scope.bucketizer.getNumBuckets();
 
             getGroups(data);
-
-            var groupValues = _.filter($scope.categories, function(obj) { return obj.active === true; });
-
-            for(var x = 0; x < groupValues.length; x++) {
+            
+            for(var x = 0; x < $scope.categories.length; x++) {
                 // Create our bucket.
                 queryData[x] = {
-                    name: groupValues[x].name,
+                    name: $scope.categories[x].name,
                     values: []
                 };
                 // Initialize our time buckets.
