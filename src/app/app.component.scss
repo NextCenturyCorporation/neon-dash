@@ -24,6 +24,12 @@
   font-weight: bold;
 }
 
+.neon-gtd-anchor-button {
+  font-size: 24px;
+  font-weight: bold;
+  padding: 8px 0px;
+}
+
 .neon-gtd-toolbar-menu {
   padding: 0 14px 0 14px;
   color: blue;
@@ -34,5 +40,9 @@
 }
 
 .neon-gtd-sidenav-about-neon {
+    width: 450px;
+}
+
+.neon-gtd-sidenav-dashboard-options {
     width: 450px;
 }

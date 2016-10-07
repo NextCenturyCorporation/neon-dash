@@ -5,12 +5,13 @@
         </md-toolbar>
         <dataset-selector [(gridItems)]="gridItems" [(activeDataset)]="activeDataset"></dataset-selector>
     </md-sidenav>
-    <md-sidenav #sidenavaboutneon class="neon-gtd-sidenav-about-neon" md-fill align="end">
+    <md-sidenav #sidenavright class="neon-gtd-sidenav-about-neon" md-fill align="end">
         <md-toolbar color="primary">
-            <span class="md-36">About...</span>
+            <span class="md-36">{{(showAbout) ? 'About...' : 'Options...'}}</span>
         </md-toolbar>
-        <about-neon></about-neon>
-        <button md-button (click)="sidenavaboutneon.close()">Close</button>
+        <about-neon *ngIf="showAbout"></about-neon>
+        <dashboard-options *ngIf="!showAbout"></dashboard-options>
+        <button md-button (click)="sidenavright.close()">Close</button>
     </md-sidenav>
     <md-toolbar color="primary" layout-align="space-between center" flex>
         <button md-button [attr.aria-label]="activeDataset.name" (click)="sidenav.toggle()"  
@@ -22,18 +23,19 @@
             <md-icon class="md-24">add</md-icon>
         </button>
         <span class="fill-remaining"></span>
-        <button md-icon-button  aria-label="Settings" [md-menu-trigger-for]="optionsMenu"
+        <button md-icon-button  aria-label="Settings" (click)="showAbout = false; sidenavright.toggle()"
             md-tooltip="Change the settings for the dashboard." tooltip-position="below" >
             <md-icon class="md-24">settings</md-icon>
         </button>
-        <button md-icon-button aria-label="About..." class="neon-gtd-text-button" (click)="sidenavaboutneon.toggle()"
+        <button md-icon-button aria-label="About..." class="neon-gtd-text-button" (click)="showAbout = true; sidenavright.toggle()"
             md-tooltip="Display information about this application." tooltip-position="below" >
             i
         </button>
-        <button md-icon-button aria-label="Help" class="neon-gtd-text-button"
+        <a md-icon-button href="https://github.com/NextCenturyCorporation/neon-gtd/wiki/Neon-Dashboard-User-Guide"
+            target="_blank" aria-label="Help" class="neon-gtd-anchor-button"
             md-tooltip="Open the Users Guide" tooltip-position="below" >
             ?
-        </button>
+        </a>
     </md-toolbar>
 
     <md-menu #optionsMenu="mdMenu" y-position="below">

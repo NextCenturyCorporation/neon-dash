@@ -16,6 +16,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
+import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
 import { DatasetService } from './services/dataset.service';
 import { NgGrid, NgGridItem } from 'angular2-grid'
@@ -27,18 +28,22 @@ import { NeonGridItem } from './neon-grid-item'
     styleUrls: [
         './app.component.scss',
         '../../node_modules/angular2-grid/dist/NgGrid.css',
-        '../../node_modules/@angular2-material/core/overlay/overlay.css'
+        '../../node_modules/@angular/material/core/overlay/overlay.css'
     ]
 })
 export class AppComponent implements OnInit, OnDestroy {
-    activeDataset: any = {
+    // Used to determine which pane is show in the right sidenav
+    private showAbout: boolean = true;
+
+    private activeDataset: any = {
         name: "Select a Dataset"
     };
-    gridItems: NeonGridItem[];
 
-    datasets: Dataset[] = [];
+    private gridItems: NeonGridItem[];
 
-    gridConfig: { [key: string]: any } = {
+    private datasets: Dataset[] = [];
+
+    private gridConfig: { [key: string]: any } = {
         'resizeable': true, 
         'margins': [10, 0, 0, 10], 
         'min_cols': 1,

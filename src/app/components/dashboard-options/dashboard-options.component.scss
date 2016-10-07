@@ -1,0 +1,19 @@
+.fake-dropdown-menu {
+    padding: 0px;
+    margin: 0px;
+
+    md-icon {
+        top: 10px;
+        left: -10px;
+    }
+
+    md-input {
+        .md-input-wrapper {
+            margin: 6px 0;
+        }
+    }
+    span {
+        margin: 0px;
+        padding: 0px;
+    }
+}

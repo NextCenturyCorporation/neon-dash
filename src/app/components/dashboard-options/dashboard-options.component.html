@@ -1,0 +1,52 @@
+<md-card align="left">
+    <md-card-content>
+        <form #optionsForm="ngForm">
+            <md-toolbar class="md-primary">
+                <span>Export Format</span>
+            </md-toolbar>
+            <div layout="row" md-margin>
+                <md-radio-group [(ngModel)]="formData.exportFormat" name="exportFormat">
+                    <md-radio-button md-menu-item value="CSV">CSV</md-radio-button>
+                    <md-radio-button md-menu-item value="XLSX">XLSX</md-radio-button>
+                </md-radio-group>
+                <button md-raised-button> Export All Visualizations </button>
+            </div>
+
+            <md-toolbar class="md-primary">
+              <span>Themes</span>
+            </md-toolbar>
+            <button md-menu-item disabled> Theme </button>
+            <button md-> Light Green </button>
+
+            <md-toolbar class="md-primary">
+              <span>Dashboard States</span>
+            </md-toolbar>
+            <md-input placeholder="New State Name" maxlength="100" name="stateToSave" dividerColor="accent"
+                [(ngModel)]="formData.stateToSave">
+            </md-input>
+            <button md-raised-button class="md-accent"> Save State </button>
+
+            <md-input placeholder="Select a State to Load" maxlength="100" name="stateToLoad"
+                [(ngModel)]="formData.stateToLoad">
+            </md-input>
+            <button md-raised-button class="md-primary"> Load State </button>
+
+            
+            <span md-button [md-menu-trigger-for]="deleteMenu" class="fake-dropdown-menu">
+                <md-input placeholder="Select a State to Delete" maxlength="100" name="stateToDelete"
+                    [(ngModel)]="formData.stateToDelete">
+                </md-input>
+               <md-icon>arrow_drop_down</md-icon>
+            </span>
+            <md-menu #deleteMenu="mdMenu" y-position="below">
+                <button md-menu-item> foo </button>
+                <button md-menu-item> bar </button>
+                <button md-menu-item> baz </button>
+            </md-menu>
+            <button md-raised-button class="md-warn"> Delete State</button>
+
+        </form>
+   </md-card-content>
+</md-card>
+
+
