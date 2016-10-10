@@ -5,11 +5,11 @@
                 <span>Export Format</span>
             </md-toolbar>
             <div layout="row" md-margin>
-                <md-radio-group [(ngModel)]="formData.exportFormat" name="exportFormatGroup">
-                    <md-radio-button md-menu-item value="CSV">CSV</md-radio-button>
-                    <md-radio-button md-menu-item value="XLSX">XLSX</md-radio-button>
+                <md-radio-group [(ngModel)]="formData.exportFormat" name="exportFormatGroup" (change)="setExportFormat(formData.exportFormat)">
+                    <md-radio-button md-menu-item *ngFor="let format of this.exportService.getFileFormats()" 
+                        [value]="format.value">{{ (format.name) ? format.name.toUpperCase() : 'Invalid Type'}}</md-radio-button>
                 </md-radio-group>
-                <button md-raised-button> Export All Visualizations </button>
+                <button md-raised-button (click)="exportAll()"> Export All Visualizations </button>
             </div>
             <p></p>
 

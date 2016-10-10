@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Renderer, ViewChild } from '@angular/core';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
@@ -33,6 +33,8 @@ import { NeonGridItem } from './neon-grid-item'
     ]
 })
 export class AppComponent implements OnInit, OnDestroy {
+    @ViewChild(DashboardOptionsComponent) dashboardOptions;
+
     // Used to determine which pane is show in the right sidenav
     private showAbout: boolean = true;
 
@@ -60,7 +62,7 @@ export class AppComponent implements OnInit, OnDestroy {
         'fix_to_grid': true
     };
 
-    constructor(private datasetService: DatasetService, private themesService: ThemesService) {
+    constructor(public renderer: Renderer, private datasetService: DatasetService, private themesService: ThemesService) {
         this.datasets = datasetService.getDatasets();
     }
 
@@ -85,5 +87,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
     ngOnDestroy(): void {
         console.log('neon gtd onDestroy called');
+    }
+
+    toggleDashboardOptions() {
+        this.dashboardOptions.loadStateNames(); 
+        this.showAbout = false; 
     }
 }

@@ -10,7 +10,7 @@
             <span class="md-36">{{(showAbout) ? 'About...' : 'Options...'}}</span>
         </md-toolbar>
         <about-neon *ngIf="showAbout"></about-neon>
-        <dashboard-options *ngIf="!showAbout"></dashboard-options>
+        <dashboard-options #mainDashboardOptions *ngIf="!showAbout"></dashboard-options>
         <button md-button (click)="sidenavright.close()">Close</button>
     </md-sidenav>
     <md-toolbar color="primary" layout-align="space-between center" flex>
@@ -23,7 +23,7 @@
             <md-icon class="md-24">add</md-icon>
         </button>
         <span class="fill-remaining"></span>
-        <button md-icon-button  aria-label="Settings" (click)="showAbout = false; sidenavright.toggle()"
+        <button md-icon-button  aria-label="Settings" (click)="showAbout = false; sidenavright.toggle();"
             md-tooltip="Change the settings for the dashboard." tooltip-position="below" >
             <md-icon class="md-24">settings</md-icon>
         </button>

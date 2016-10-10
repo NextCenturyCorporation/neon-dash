@@ -1,4 +1,3 @@
-'use strict';
 /*
  * Copyright 2016 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +28,7 @@ import * as _ from 'lodash';
 
 @Injectable()
 export class ErrorNotificationService {
-    showErrorMessage(error: Error|ExceptionInformation, message: string) {
+    showErrorMessage(error: Error|ExceptionInformation, message: string, stackTrace?: any[]) {
         console.log("An error occured: " + message + "\n" + error);
     };
 }

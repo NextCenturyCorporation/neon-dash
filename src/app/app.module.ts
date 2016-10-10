@@ -27,6 +27,7 @@ import * as log4javascript from 'log4javascript';
 import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
 import { ErrorNotificationService } from './services/error-notification.service';
+import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
 import { NeonGTDConfig } from './neon-gtd-config';
 import { ParameterService } from './services/parameter.service';
@@ -59,6 +60,7 @@ export function createAppModule(config: NeonGTDConfig) {
         ConnectionService,
         DatasetService,
         ErrorNotificationService,
+        ExportService,
         FilterService,
         ParameterService,
         ThemesService,
