@@ -22,7 +22,7 @@ $theme: md-light-theme($primary, $accent, $warn);
 // that you are using.
 @include angular-material-theme($theme);
 
-.neon-dark-green-theme {
+.neon-green-dark-theme {
   $dark-primary: md-palette($md-blue-grey, 700, 500, 900);
   $dark-accent:  md-palette($md-green, A400, A200, A700);
   $dark-warn:    md-palette($md-pink);

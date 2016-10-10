@@ -30,6 +30,7 @@ import { ErrorNotificationService } from './services/error-notification.service'
 import { FilterService } from './services/filter.service';
 import { NeonGTDConfig } from './neon-gtd-config';
 import { ParameterService } from './services/parameter.service';
+import { ThemesService } from './services/themes.service';
 
 import { AppComponent } from './app.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
@@ -60,6 +61,7 @@ export function createAppModule(config: NeonGTDConfig) {
         ErrorNotificationService,
         FilterService,
         ParameterService,
+        ThemesService,
         {
           provide: 'config',
           useValue: config

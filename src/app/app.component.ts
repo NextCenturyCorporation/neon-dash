@@ -19,6 +19,7 @@ import { AboutNeonComponent } from './components/about-neon/about-neon.component
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
 import { DatasetService } from './services/dataset.service';
+import { ThemesService } from './services/themes.service';
 import { NgGrid, NgGridItem } from 'angular2-grid'
 import { NeonGridItem } from './neon-grid-item'
 
@@ -59,7 +60,7 @@ export class AppComponent implements OnInit, OnDestroy {
         'fix_to_grid': true
     };
 
-    constructor(private datasetService: DatasetService) {
+    constructor(private datasetService: DatasetService, private themesService: ThemesService) {
         this.datasets = datasetService.getDatasets();
     }
 
@@ -76,10 +77,6 @@ export class AppComponent implements OnInit, OnDestroy {
     }
     onGridItemsChanged(value: NeonGridItem[]) {
         console.log("items changed: " + value.length + " items");
-    }
-
-    toggleInfoDialog(): void {
-        console.log("toggling info dialog");
     }
 
     ngOnInit(): void {

@@ -1,4 +1,4 @@
-<md-sidenav-layout class="neon-gtd-sidenav neon-green-theme">
+<md-sidenav-layout class="neon-gtd-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <md-sidenav #sidenav class="neon-gtd-sidenav" md-fill align="start">
         <md-toolbar color="primary">
             <span class="md-36">Datasets</span>
@@ -37,13 +37,6 @@
             ?
         </a>
     </md-toolbar>
-
-    <md-menu #optionsMenu="mdMenu" y-position="below">
-        <button md-menu-item> Refresh </button>
-        <button md-menu-item> Settings </button>
-        <button md-menu-item> Help </button>
-        <button md-menu-item disabled> Sign Out </button>
-    </md-menu>
 
     <div class="neon-gtd-content" md-fill layout="col">
         <div [ngGrid]="gridConfig">

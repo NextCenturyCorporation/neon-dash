@@ -1,6 +1,6 @@
 <md-nav-list md-layout="column" md-fill>
     <md-list-item  md-2-line *ngFor="let dataset of datasets; let i = index;" (click)="connectToPreset(i, false)"
-        [class.md-accent]="(activeDataset.name === dataset.name)">
+        [class.accent]="(activeDataset.name === dataset.name)">
         <h3 md-line>{{ dataset.name }}</h3>
         <p md-line>{{ dataset.databases.length }} Database</p>
     </md-list-item>

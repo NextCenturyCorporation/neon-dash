@@ -5,18 +5,24 @@
                 <span>Export Format</span>
             </md-toolbar>
             <div layout="row" md-margin>
-                <md-radio-group [(ngModel)]="formData.exportFormat" name="exportFormat">
+                <md-radio-group [(ngModel)]="formData.exportFormat" name="exportFormatGroup">
                     <md-radio-button md-menu-item value="CSV">CSV</md-radio-button>
                     <md-radio-button md-menu-item value="XLSX">XLSX</md-radio-button>
                 </md-radio-group>
                 <button md-raised-button> Export All Visualizations </button>
             </div>
+            <p></p>
 
             <md-toolbar class="md-primary">
               <span>Themes</span>
             </md-toolbar>
-            <button md-menu-item disabled> Theme </button>
-            <button md-> Light Green </button>
+            <div layout="row" md-margin>
+                <md-radio-group [(ngModel)]="formData.currentTheme" name="currentThemeGroup" (change)="setCurrentTheme(formData.currentTheme)">
+                    <md-radio-button md-menu-item *ngFor="let theme of themesService.getThemes()" 
+                        [value]="theme.id">{{ theme.name }}</md-radio-button>
+                </md-radio-group>
+            </div>
+            <p></p>
 
             <md-toolbar class="md-primary">
               <span>Dashboard States</span>
@@ -26,17 +32,24 @@
             </md-input>
             <button md-raised-button class="md-accent"> Save State </button>
 
-            <md-input placeholder="Select a State to Load" maxlength="100" name="stateToLoad"
-                [(ngModel)]="formData.stateToLoad">
-            </md-input>
-            <button md-raised-button class="md-primary"> Load State </button>
-
-            
-            <span md-button [md-menu-trigger-for]="deleteMenu" class="fake-dropdown-menu">
-                <md-input placeholder="Select a State to Delete" maxlength="100" name="stateToDelete"
-                    [(ngModel)]="formData.stateToDelete">
+            <span [md-menu-trigger-for]="loadMenu" class="fake-dropdown-menu">
+                <md-input placeholder="Select a State to Load" maxlength="100" name="stateToLoad"
+                    [(ngModel)]="formData.stateToLoad">
                 </md-input>
-               <md-icon>arrow_drop_down</md-icon>
+                <md-icon class="fake-dropdown-arrow">arrow_drop_down</md-icon>
+            </span>
+            <md-menu #loadMenu="mdMenu" y-position="below">
+                <button md-menu-item> foo </button>
+                <button md-menu-item> bar </button>
+                <button md-menu-item> baz </button>
+            </md-menu>
+            <button md-raised-button class="md-primary"> Load State </button>
+            
+            <span [md-menu-trigger-for]="deleteMenu" class="fake-dropdown-menu">
+                <md-input placeholder="Select a State to Delete" maxlength="100" name="stateToDelete"
+                    [(ngModel)]="formData.stateToDelete"> 
+                </md-input>
+                <md-icon class="fake-dropdown-arrow">arrow_drop_down</md-icon>
             </span>
             <md-menu #deleteMenu="mdMenu" y-position="below">
                 <button md-menu-item> foo </button>

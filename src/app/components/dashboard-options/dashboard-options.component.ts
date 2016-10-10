@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+
+import { ThemesService } from '../../services/themes.service';
 
 @Component({
   selector: 'dashboard-options',
@@ -19,10 +21,17 @@ export class DashboardOptionsComponent implements OnInit {
         deleteStateName: ''
     };
 
-    constructor() { }
+    constructor(private themesService: ThemesService) { }
 
     ngOnInit() {
         this.exportFormat = DashboardOptionsComponent.CSV;
+        this.formData.currentTheme = this.themesService.getCurrentTheme().id;
+    }
+
+    setCurrentTheme(themeId: any) {
+        if (themeId) {
+            this.themesService.setCurrentTheme(themeId);
+        }
     }
 
     toggleExportFormat(event: Event) {
