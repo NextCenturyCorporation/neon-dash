@@ -682,7 +682,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     };
 
     $scope.functions.getFilterFields = function() {
-        return [$scope.active.dateField, $scope.active.groupField];
+        return [$scope.active.dateField];
     };
 
     $scope.functions.updateFilterValues = function(neonFilter) {
