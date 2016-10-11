@@ -323,16 +323,16 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
      * @method selectDate
      */
     this.selectDate = function(startDate, endDate) {
-        if(!this.data || !this.data.length || !this.data[0].data || !this.data[0].data.length) {
+        if(!this.data || !this.data.length || !this.data[0].data[0].values || !this.data[0].data[0].values.length) {
             return;
         }
 
-        var dataLength = this.data[0].data.length;
+        var dataLength = this.data[0].data[0].values.length;
         var startIndex = -1;
         var endIndex = -1;
 
         var datesEqual = this.datesEqual;
-        this.data[0].data.forEach(function(datum, index) {
+        this.data[0].data[0].values.forEach(function(datum, index) {
             if(datum.date <= startDate || datesEqual(datum.date, startDate)) {
                 startIndex = index;
             }
@@ -341,8 +341,8 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
             }
         });
 
-        var dataStartDate = this.data[0].data[0].date;
-        var dataEndDate = this.data[0].data[dataLength - 1].date;
+        var dataStartDate = this.data[0].data[0].values[0].date;
+        var dataEndDate = this.data[0].data[0].values[dataLength - 1].date;
 
         // Add a month/year to the end month/year for month/year granularity so it includes the whole end month/year and not just the first day of the end month/year.
         if(this.granularity === "month") {
@@ -957,7 +957,7 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
                 var series = _.find(values, {
                     name: me.primarySeries.name
                 });
-                var index = me.findHoverIndexInData(this, series, me.xFocus);
+                var index = me.findHoverIndexInData(this, series, me.xContext);
                 if(index >= 0 && index < series.data[0].values.length) {
                     var datum = series.data.map(function(elem) {
                         var element = elem.values[index];
@@ -1347,10 +1347,13 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
 
         // Create the contents of the tooltip (#tooltip-container is reused among the various
         // visualizations)
-        var html = '<div><strong>Date:</strong> ' + _.escape(date) + '</div>';
+        var html = '';
+        var total = 0;
         item.forEach(function(category) {
             html += '<div><strong>' + category.name + ':</strong> ' + category.value + '</div>';
+            total += category.value;
         });
+        html = '<div><strong>Date:</strong> ' + _.escape(date) + '</div><div><strong>Total:</strong> ' + total + '<div><hr>' + html;
         $("#tooltip-container").html(html);
         $("#tooltip-container").show();
         positionTooltip(d3.select('#tooltip-container'), mouseEvent);

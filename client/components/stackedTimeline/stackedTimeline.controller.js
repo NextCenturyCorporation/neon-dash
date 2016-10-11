@@ -309,7 +309,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
 
     $scope.handleGroupFilterDone = function(control) {
         var filtersChanged = false;
-        var toChange = []; // Use this to temporarily store changes so that we can old filters, change the data, and then add new ones.
+        var toChange = []; // Use this to temporarily store changes so that we can remove old filters, change the data, and then add new ones.
         $scope.functions.getElement("[id$=-stackedTimelineCheckBox]").each(function(index, checkbox) {
             var categoryValue = checkbox.id.replace("-stackedTimelineCheckBox", "");
             var category = _.find($scope.categories, function(obj) { return obj.name === categoryValue; });
@@ -328,6 +328,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     };
 
     var onChangeGroupFilter = function(toChange) {
+        var categoriesToUpdate = toChange || [];
         var options = {
             fields: [
                     $scope.active.groupField
@@ -336,7 +337,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
             queryAfterFilter: false
         };
         $scope.functions.removeNeonFilter(options);
-        toChange.forEach(function(change) {
+        categoriesToUpdate.forEach(function(change) {
             var match = _.find($scope.categories, function(obj) { return obj.name === change.name; });
             match.active = change.active;
         });
@@ -351,7 +352,9 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
                 clauses.push(neon.query.where(fieldName, '!=', obj.name));
             }
         });
-        return neon.query.and.apply(this, clauses);
+        if(clauses.length) {
+            return neon.query.and.apply(this, clauses);
+        }
     };
 
     /**
@@ -694,10 +697,10 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     };
 
     $scope.functions.removeFilterValues = function() {
-        $scope.extent = [];
-        onChangeTimeFilter();
         _.each($scope.categories, function(obj) { obj.active = true; });
         onChangeGroupFilter();
+        $scope.extent = [];
+        onChangeTimeFilter();
         $scope.active.showInvalidDatesFilter = false;
     };
 
