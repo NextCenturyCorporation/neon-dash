@@ -81,7 +81,7 @@
             </tr>
             <tr ng-repeat="category in categories">
                 <td style="color: {{colorSet($index)}}">{{category.name}}</td>
-                <td><input type="checkbox" checked="{{category.active}}" id="{{category.name}}-stackedTimelineCheckBox"></td>
+                <td><input type="checkbox" ng-model="category.active" ng-click="registerGroupChange(category.name)" id="{{category.name}}-stackedTimelineCheckBox"></td>
             </tr>
         </table>
     </ul>

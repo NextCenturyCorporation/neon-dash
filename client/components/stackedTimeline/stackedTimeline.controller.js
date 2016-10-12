@@ -50,6 +50,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
 
     // Keeps track of all categories of the current group field. Categories are objects with 'name' and 'active' fields
     $scope.categories = [];
+    $scope.categoriesChanged = []; // List of categories whose values whave been updated since the last filter change.
 
     // Selected dates in the datetimepicker.
     $scope.active.filter = {
@@ -307,28 +308,25 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
         $scope.functions.getElement(".neon-datetimepicker").removeClass("open");
     };
 
-    $scope.handleGroupFilterDone = function(control) {
-        var filtersChanged = false;
-        var toChange = []; // Use this to temporarily store changes so that we can remove old filters, change the data, and then add new ones.
-        $scope.functions.getElement("[id$=-stackedTimelineCheckBox]").each(function(index, checkbox) {
-            var categoryValue = checkbox.id.replace("-stackedTimelineCheckBox", "");
-            var category = _.find($scope.categories, function(obj) { return obj.name === categoryValue; });
-            if(category.active !== checkbox.checked) {
-                toChange.push({
-                    name: categoryValue,
-                    active: checkbox.checked
-                });
-                filtersChanged = true;
-            }
-        });
-        if(filtersChanged) {
-            onChangeGroupFilter(toChange);
+    $scope.registerGroupChange = function(groupName) {
+        var index = _.indexOf($scope.categoriesChanged, groupName);
+        if(index >= 0) {
+            $scope.categoriesChanged.splice(index, 1);
         }
+        else {
+            $scope.categoriesChanged.push(groupName);
+        }
+    };
+
+    $scope.handleGroupFilterDone = function(control) {
+        if($scope.categoriesChanged.length) {
+            onChangeGroupFilter();
+        }
+        $scope.categoriesChanged = [];
         $scope.functions.getElement(".neon-datetimefilter").removeClass("open");
     };
 
-    var onChangeGroupFilter = function(toChange) {
-        var categoriesToUpdate = toChange || [];
+    var onChangeGroupFilter = function() {
         var options = {
             fields: [
                     $scope.active.groupField
@@ -337,10 +335,6 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
             queryAfterFilter: false
         };
         $scope.functions.removeNeonFilter(options);
-        categoriesToUpdate.forEach(function(change) {
-            var match = _.find($scope.categories, function(obj) { return obj.name === change.name; });
-            match.active = change.active;
-        });
         options.queryAfterFilter = true;
         $scope.functions.updateNeonFilter(options);
     };
@@ -509,6 +503,16 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
         });
     };
 
+    $scope.functions.onDestroy = function() {
+        $scope.functions.removeNeonFilter({
+            fields: [
+                $scope.active.groupField
+            ],
+            createNeonFilterClause: createGroupFilter,
+            queryAfterFilter: true
+        });
+    };
+
     /**
      * Event handler for date selected events issued over Neon's messaging channels.
      * @param {Object} message A Neon date selected message.
@@ -674,7 +678,10 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     };
 
     $scope.functions.isFilterSet = function() {
-        return $scope.extent.length === 2;
+        var numFilteredGroups = $scope.categories.reduce(function(previousValue, obj) { return (obj.active) ? previousValue : previousValue + 1; }, 0);
+        var numUnsetFilteredGroups = $scope.categoriesChanged.length;
+        var groupFilterExists = numFilteredGroups > numUnsetFilteredGroups;
+        return $scope.extent.length === 2 || groupFilterExists;
     };
 
     $scope.functions.areDataFieldsValid = function() {
@@ -682,7 +689,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     };
 
     $scope.functions.getFilterFields = function() {
-        return [$scope.active.dateField];
+        return [$scope.active.dateField, $scope.active.groupField];
     };
 
     $scope.functions.updateFilterValues = function(neonFilter) {
