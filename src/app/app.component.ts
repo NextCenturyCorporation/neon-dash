@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, OnDestroy, Renderer, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
@@ -29,11 +29,11 @@ import { NeonGridItem } from './neon-grid-item'
     styleUrls: [
         './app.component.scss',
         '../../node_modules/angular2-grid/dist/NgGrid.css',
-        '../../node_modules/@angular/material/core/overlay/overlay.css'
     ]
 })
-export class AppComponent implements OnInit, OnDestroy {
-    @ViewChild(DashboardOptionsComponent) dashboardOptions;
+export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
+    @ViewChild(DashboardOptionsComponent) dashboardOptionsComponent: DashboardOptionsComponent;
+    @ViewChild(NgGrid) grid: NgGrid;
 
     // Used to determine which pane is show in the right sidenav
     private showAbout: boolean = true;
@@ -42,7 +42,9 @@ export class AppComponent implements OnInit, OnDestroy {
         name: "Select a Dataset"
     };
 
-    private gridItems: NeonGridItem[];
+    private gridItems: NeonGridItem[] = [];
+    private gridHeight: string = "0px";
+    private activeLayout: NeonGridItem[] = [];
 
     private datasets: Dataset[] = [];
 
@@ -62,7 +64,7 @@ export class AppComponent implements OnInit, OnDestroy {
         'fix_to_grid': true
     };
 
-    constructor(public renderer: Renderer, private datasetService: DatasetService, private themesService: ThemesService) {
+    constructor(private datasetService: DatasetService, private themesService: ThemesService) {
         this.datasets = datasetService.getDatasets();
     }
 
@@ -74,11 +76,25 @@ export class AppComponent implements OnInit, OnDestroy {
         return this.datasets;
     }
 
-    onActiveDatasetChanged(value: any) {
-        console.log("dataset changed " + JSON.stringify(value));
-    }
     onGridItemsChanged(value: NeonGridItem[]) {
+        if (this.gridItems) {
+            for (let item of this.gridItems) {
+                this.grid.removeItem(item);
+            }
+            this.gridItems.length = 0;
+            this.gridHeight = "10px";
+        }
+
+        if (value.length > 0) {
+            for (let newItem of value) {
+                this.gridItems.push(newItem);
+            }
+        }
         console.log("items changed: " + value.length + " items");
+    }
+
+    ngAfterViewInit() {
+        // child is set
     }
 
     ngOnInit(): void {
@@ -90,7 +106,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     toggleDashboardOptions() {
-        this.dashboardOptions.loadStateNames(); 
-        this.showAbout = false; 
+        console.log(this.dashboardOptionsComponent);
+        if (this.dashboardOptionsComponent) {
+            this.dashboardOptionsComponent.loadStateNames();
+        }
+        this.showAbout = false;
     }
 }

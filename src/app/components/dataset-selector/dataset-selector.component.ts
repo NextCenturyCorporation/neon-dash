@@ -25,6 +25,7 @@ import { NeonGridItem } from '../../neon-grid-item';
 import { neonVisualizationMinPixel } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
+import { NgGrid } from 'angular2-grid';
 import * as _ from 'lodash';
 import * as uuid from 'node-uuid';
 
@@ -103,7 +104,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     private customVisualizations: any[] = [];
 
     @Input() gridItems: NeonGridItem[];
-    @Output() gridItemsChange: EventEmitter<NeonGridItem[]> = new EventEmitter<NeonGridItem[]>();
+    @Output() onGridItemsChanged: EventEmitter<NeonGridItem[]> = new EventEmitter<NeonGridItem[]>();
     @Input() activeDataset: any = {
         name: 'Choose a Dataset',
         info: '',
@@ -169,7 +170,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                     for (let i = 0; i < this.gridItems.length; ++i) {
                         this.gridItems[i].id = uuid.v4();
                     }
-                    this.gridItemsChange.emit(this.gridItems);
+                    this.onGridItemsChanged.emit(this.gridItems);
                 }
             }
         });
@@ -237,14 +238,29 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             layoutName = "default";
         }
 
+        // Clear the old grid items;
+        if (this.gridItems) {
+            this.gridItems.length = 0;
+        } else {
+            this.gridItems = [];
+        }
+
         // Recreate the layout each time to ensure all visualizations are using the new dataset.
-        this.gridItems = this.layouts[layoutName] ? _.cloneDeep(this.layouts[layoutName]) : [];
+        for (let i = 0; i < this.layouts[layoutName].length; i++) {
+            let item = _.cloneDeep(this.layouts[layoutName][i]);
+            item.gridConfig = {
+                row: item.row,
+                col: item.col,
+                sizex: item.sizex,
+                sizey: item.sizey
+            }
+            this.gridItems.push(item);
+        }
 
         this.gridItems.forEach(function(config) {
             config.id = uuid.v4();
-console.log("type: " + config.type + " sizey: " + config.sizey)
         });
-        this.gridItemsChange.emit(this.gridItems);
+        this.onGridItemsChanged.emit(this.gridItems);
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
     };
 
@@ -255,7 +271,12 @@ console.log("type: " + config.type + " sizey: " + config.sizey)
      * @private
      */
     updateCustomLayout() {
-        this.gridItems = [];
+        // Clear the old grid items;
+        if (this.gridItems) {
+            this.gridItems.length = 0;
+        } else {
+            this.gridItems = [];
+        }
 
         // Clear any old filters prior to loading the new layout and dataset.
         this.messenger.clearFilters();
@@ -267,6 +288,12 @@ console.log("type: " + config.type + " sizey: " + config.sizey)
                 bindings: {},
                 bordersize: 10,
                 dragHandle: 'drag-' + id,
+                gridConfig: {
+                    row: visualization.row,
+                    col: visualization.col,
+                    sizex: visualization.sizex,
+                    sizey: visualization.sizey
+                },
                 payload: id,
                 minSizeX: visualization.minSizeX,
                 minSizeY: visualization.minSizeY,
@@ -277,7 +304,7 @@ console.log("type: " + config.type + " sizey: " + config.sizey)
                 title: visualization.title,
                 type: visualization.type
             };
-console.log('sizey: ' + visualization.sizey);
+
             if (visualization.database && visualization.table) {
                 layout['bindings'] = {
                     "bind-database": "'" + visualization.database + "'",

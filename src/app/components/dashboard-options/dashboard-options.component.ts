@@ -24,8 +24,8 @@ export class DashboardOptionsComponent implements OnInit {
         exportFormat: 0,
         currentTheme: 'neon-green-theme',
         newStateName: '',
-        loadStateName: '',
-        deleteStateName: ''
+        stateToLoad: '',
+        stateToDelete: ''
     };
 
     private dashboardStateId: string = "";
@@ -45,6 +45,7 @@ export class DashboardOptionsComponent implements OnInit {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
         this.formData.currentTheme = this.themesService.getCurrentTheme().id;
         this.messenger = new neon.eventing.Messenger();
+        this.loadStateNames();
     }
 
     setCurrentTheme(themeId: any) {
@@ -112,35 +113,35 @@ export class DashboardOptionsComponent implements OnInit {
      * @method saveState
      */
     saveState(name) {
-        // TODO: Enable once the visualization service has been migrated
-        // let stateParams: any = {
-        //     dashboard: this.visualizations
-        // };
+        //TODO: Enable once the visualization service has been migrated
+        let stateParams: any = {
+            //dashboard: this.visualizations
+        };
 
-        // if(name) {
-        //     stateParams.stateName = name;
-        // }
+        if(name) {
+            stateParams.stateName = name;
+        }
 
-        // var connection = this.connectionService.getActiveConnection();
-        // if(connection) {
-        //     this.datasetService.setLineCharts({});
-        //     this.datasetService.setMapLayers({});
+        var connection = this.connectionService.getActiveConnection();
+        if(connection) {
+            this.datasetService.setLineCharts([{}]);
+            this.datasetService.setMapLayers([{}]);
 
-        //     // Get each visualization's bindings and save them to our dashboard state parameter
-        //     this.visualizationService.getWidgets().forEach(function(widget) {
-        //         var bindings = widget.callback();
-        //         var visualization = _.filter(stateParams.dashboard, {
-        //             id: widget.id
-        //         });
-        //         if(visualization && visualization.length) {
-        //             visualization[0].bindings = _.deepClone(bindings);
-        //         }
-        //     });
+            // Get each visualization's bindings and save them to our dashboard state parameter
+            // this.visualizationService.getWidgets().forEach(function(widget) {
+            //     var bindings = widget.callback();
+            //     var visualization = _.filter(stateParams.dashboard, {
+            //         id: widget.id
+            //     });
+            //     if(visualization && visualization.length) {
+            //         visualization[0].bindings = _.deepClone(bindings);
+            //     }
+            // });
 
-        //     stateParams.dataset = this.datasetService.getDataset();
+            stateParams.dataset = this.datasetService.getDataset();
 
-        //     connection.saveState(stateParams, this.handleSaveStateSuccess, this.handleStateFailure);
-        // }
+            connection.saveState(stateParams, this.handleSaveStateSuccess, this.handleStateFailure);
+        }
     };
 
     /*
@@ -233,19 +234,28 @@ export class DashboardOptionsComponent implements OnInit {
         this.stateName = "";
         this.stateNameError = false;
 
-        var connection = this.connectionService.getActiveConnection();
+        let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if(!connection) {
             connection = this.connectionService.createActiveConnection();
         }
 
+        let me = this;
         this.isLoading = true;
         connection.getAllStateNames(function(stateNames) {
-            this.isLoading = false;
-            this.stateNames = stateNames;
+            me.isLoading = false;
+            me.stateNames = stateNames;
         }, function(response) {
-            this.isLoading = false;
-            this.stateNames = [];
-            this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
+            me.isLoading = false;
+            me.stateNames = [];
+            me.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
         });
     };
+
+    setStateToLoad(name: string) {
+        this.formData.stateToLoad = name;
+    }
+
+    setStateToDelete(name: string) {
+        this.formData.stateToDelete = name;
+    }
 }

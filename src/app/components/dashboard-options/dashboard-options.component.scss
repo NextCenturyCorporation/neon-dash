@@ -1,4 +1,4 @@
-.fake-dropdown-menu {
+.fake-dropdown-span {
     padding: 0px;
     margin: 0px;
 }
@@ -10,4 +10,12 @@
     width: 1px;
     right: 24px;
     position: relative;
+}
+
+.fake-dropdown-menu {
+    width: 200px;
+}
+
+md-input {
+    width: 200px;
 }
