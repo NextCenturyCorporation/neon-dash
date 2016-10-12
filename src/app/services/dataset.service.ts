@@ -594,7 +594,7 @@ export class DatasetService {
      * Sets the map layer configuration for the active dataset.
      * @param {object} config A set of layer configuration objects.
      */
-    public setMapLayers(config): void {
+    public setMapLayers(config: any): void {
         this.dataset.mapLayers = config;
         this.updateDataset();
     };
@@ -613,7 +613,7 @@ export class DatasetService {
      * Returns the map layer configuration for the map with the given name in the active dataset.
      * @return {Array}
      */
-    public getMapLayers(name: string): Object[] {
+    public getMapLayers(name: string): any[] {
         return this.dataset.mapLayers[name] || [];
     };
 
@@ -621,7 +621,7 @@ export class DatasetService {
      * Sets the line chart configuration for the active dataset.
      * @param {Array<Object>} config A set of line chart configuration objects.
      */
-    public setLineCharts(config: Object[]): void {
+    public setLineCharts(config: any[]): void {
         this.dataset.lineCharts = config;
         this.updateDataset();
     };
