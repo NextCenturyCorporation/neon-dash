@@ -13,12 +13,13 @@
  * limitations under the License.
  *
  */
-import { NgGridItem } from 'angular2-grid';
+import { NgGridItemConfig } from 'angular2-grid';
 
-export interface NeonGridItem extends NgGridItem {
+export interface NeonGridItem {
     id?: string;
     type?: string;
     bindings?: any;
     title?: string;
     description?: string;
+    gridConfig: NgGridItemConfig;
 }

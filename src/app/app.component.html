@@ -3,8 +3,7 @@
         <md-toolbar color="primary">
             <span class="md-36">Datasets</span>
         </md-toolbar>
-        <dataset-selector [(gridItems)]="activeLayout" [(activeDataset)]="activeDataset" 
-            (onGridItemsChanged)="onGridItemsChanged($event)"></dataset-selector>
+        <dataset-selector [(activeDataset)]="activeDataset"></dataset-selector>
     </md-sidenav>
     <md-sidenav #sidenavright class="neon-gtd-sidenav-about-neon" md-fill align="end">
         <md-toolbar color="primary">
@@ -38,20 +37,21 @@
             ?
         </a>
     </md-toolbar>
-
     <div class="neon-gtd-content" md-fill layout="col">
         <div [ngGrid]="gridConfig" #grid [style.height]="gridHeight">
-            <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridConfig">
-                <div class="title">{{item.type}}</div>
-               
+            <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridConfig" name="item.id" id="item.id">
+                <visualization-container [visualization]="gridItems[i]">
+                    <div class="title">{{item.type}}</div>
+                   
                     {{item.description}}<br>
                     <ul>
-                        <li>sizex: {{ item.sizex }}</li>
-                        <li>sizey: {{ item.sizey }}</li>
-                        <li>col: {{ item.col }}</li>
-                        <li>row: {{ item.row }}</li>
+                        <li>sizex: {{ item.gridConfig.sizex }}</li>
+                        <li>sizey: {{ item.gridConfig.sizey }}</li>
+                        <li>col: {{ item.gridConfig.col }}</li>
+                        <li>row: {{ item.gridConfig.row }}</li>
                     </ul>
-               
+                </visualization-container>
+                <ng-content></ng-content>
             </div>
         </div>
     </div>

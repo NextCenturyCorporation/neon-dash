@@ -18,6 +18,8 @@ import { AfterViewInit, Component, OnInit, OnDestroy, ViewChild } from '@angular
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
+
+import { ActiveGridService } from './services/active-grid.service';
 import { DatasetService } from './services/dataset.service';
 import { ThemesService } from './services/themes.service';
 import { NgGrid, NgGridItem } from 'angular2-grid'
@@ -27,8 +29,8 @@ import { NeonGridItem } from './neon-grid-item'
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: [
-        './app.component.scss',
         '../../node_modules/angular2-grid/dist/NgGrid.css',
+        './app.component.scss'
     ]
 })
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
@@ -43,8 +45,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     };
 
     private gridItems: NeonGridItem[] = [];
-    private gridHeight: string = "0px";
-    private activeLayout: NeonGridItem[] = [];
 
     private datasets: Dataset[] = [];
 
@@ -64,7 +64,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         'fix_to_grid': true
     };
 
-    constructor(private datasetService: DatasetService, private themesService: ThemesService) {
+    constructor(private datasetService: DatasetService, private themesService: ThemesService,
+        private activeGridService: ActiveGridService) {
         this.datasets = datasetService.getDatasets();
     }
 
@@ -76,29 +77,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         return this.datasets;
     }
 
-    onGridItemsChanged(value: NeonGridItem[]) {
-        if (this.gridItems) {
-            for (let item of this.gridItems) {
-                this.grid.removeItem(item);
-            }
-            this.gridItems.length = 0;
-            this.gridHeight = "10px";
-        }
-
-        if (value.length > 0) {
-            for (let newItem of value) {
-                this.gridItems.push(newItem);
-            }
-        }
-        console.log("items changed: " + value.length + " items");
-    }
-
     ngAfterViewInit() {
         // child is set
     }
 
     ngOnInit(): void {
-        this.getDatasets();
+        this.gridItems = this.activeGridService.getGridItems();
     }
 
     ngOnDestroy(): void {

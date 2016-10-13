@@ -365,12 +365,14 @@ layouts:
       row: 1
       col: 1
       type: timeline
+      title: Timeline
     -
       sizex: 12
       sizey: 4
       col: 13
       row: 1
       type: map
+      title: Map
       bindings:
         config:
           -
@@ -382,6 +384,7 @@ layouts:
       row: 3
       col: 1
       type: lineChart
+      title: Data plots
       bindings:
         config:
           -
@@ -392,6 +395,7 @@ layouts:
       sizey: 4
       row: 5
       col: 1
+      title: Aggregation Table
       type: aggregationTable
     -
       sizex: 4

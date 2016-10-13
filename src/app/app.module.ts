@@ -24,6 +24,7 @@ import { MaterialModule } from '@angular/material';
 import { NgGridModule } from 'angular2-grid';
 import * as log4javascript from 'log4javascript';
 
+import { ActiveGridService } from './services/active-grid.service';
 import { ConnectionService } from './services/connection.service';
 import { DatasetService } from './services/dataset.service';
 import { ErrorNotificationService } from './services/error-notification.service';
@@ -33,11 +34,11 @@ import { NeonGTDConfig } from './neon-gtd-config';
 import { ParameterService } from './services/parameter.service';
 import { ThemesService } from './services/themes.service';
 
-import { AppComponent } from './app.component';
-import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
-import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
+import { AppComponent } from './app.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
+import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
+import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 
 export function createAppModule(config: NeonGTDConfig) {
 @NgModule({
@@ -57,6 +58,7 @@ export function createAppModule(config: NeonGTDConfig) {
         NgGridModule
     ],
     providers: [
+        ActiveGridService,
         ConnectionService,
         DatasetService,
         ErrorNotificationService,

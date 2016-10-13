@@ -16,6 +16,7 @@
 import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { Dataset } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
@@ -103,19 +104,18 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      */
     private customVisualizations: any[] = [];
 
-    @Input() gridItems: NeonGridItem[];
-    @Output() onGridItemsChanged: EventEmitter<NeonGridItem[]> = new EventEmitter<NeonGridItem[]>();
     @Input() activeDataset: any = {
         name: 'Choose a Dataset',
         info: '',
         data: false
     };
-    @Output() activeDatasetChange: EventEmitter<any> = new EventEmitter<any>();
+    @Output() onGridItemsChanged: EventEmitter<number> = new EventEmitter<number>();
+    @Output() onActiveDatasetChanged: EventEmitter<Dataset> = new EventEmitter<Dataset>();
 
     private messenger: neon.eventing.Messenger;
 
-    constructor(private connectionService: ConnectionService,
-        private datasetService: DatasetService, private parameterService: ParameterService) {
+    constructor(private connectionService: ConnectionService, private datasetService: DatasetService,
+        private parameterService: ParameterService, private activeGridService: ActiveGridService) {
     }
 
     getDatasets(): Dataset[] {
@@ -144,33 +144,33 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             });
         }
 
+        var me = this;
         this.messenger.subscribe(ParameterService.STATE_CHANGED_CHANNEL, function(message) {
             if (message && message.dataset) {
                 if (message.dataset) {
-                    this.datasetService.setActiveDataset(message.dataset);
+                    me.datasetService.setActiveDataset(message.dataset);
 
-                    this.activeDataset = {
+                    me.activeDataset = {
                         name: message.dataset.name,
-                        info: this.HIDE_INFO_POPOVER,
+                        info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
                         data: true
                     };
-                    this.activeDatasetChange.emit(this.activeDataset);
+                    me.onActiveDatasetChanged.emit(me.activeDataset);
                 }
                 if (message.dashboard) {
                     let layoutName: string = 'savedDashboard-' + message.dashboardStateId;
 
-                    this.layouts[layoutName] = message.dashboard;
+                    me.layouts[layoutName] = message.dashboard;
 
                     if (message.dataset) {
-                        this.datasetService.setLayout(layoutName);
+                        me.datasetService.setLayout(layoutName);
                     }
 
-                    this.gridItems = message.dashboard;
-
-                    for (let i = 0; i < this.gridItems.length; ++i) {
-                        this.gridItems[i].id = uuid.v4();
+                    for (let i = 0; i < message.dashboard.length; ++i) {
+                        message.dashboard[i].id = uuid.v4();
                     }
-                    this.onGridItemsChanged.emit(this.gridItems);
+                    me.activeGridService.setGridItems(message.dashboard);
+                    me.onGridItemsChanged.emit(message.dashboard.length);
                 }
             }
         });
@@ -192,7 +192,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
             data: true
         };
-        this.activeDatasetChange.emit(this.activeDataset);
+        this.onActiveDatasetChanged.emit(this.activeDataset);
         this.datastoreType = this.datasets[index].datastore;
         this.datastoreHost = this.datasets[index].hostname;
 
@@ -239,11 +239,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         }
 
         // Clear the old grid items;
-        if (this.gridItems) {
-            this.gridItems.length = 0;
-        } else {
-            this.gridItems = [];
-        }
+        this.activeGridService.clear();
 
         // Recreate the layout each time to ensure all visualizations are using the new dataset.
         for (let i = 0; i < this.layouts[layoutName].length; i++) {
@@ -254,13 +250,11 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                 sizex: item.sizex,
                 sizey: item.sizey
             }
-            this.gridItems.push(item);
+            item.id = uuid.v4();
+            this.activeGridService.addItem(item);
         }
 
-        this.gridItems.forEach(function(config) {
-            config.id = uuid.v4();
-        });
-        this.onGridItemsChanged.emit(this.gridItems);
+        this.onGridItemsChanged.emit(this.layouts[layoutName].length);
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
     };
 
@@ -272,11 +266,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      */
     updateCustomLayout() {
         // Clear the old grid items;
-        if (this.gridItems) {
-            this.gridItems.length = 0;
-        } else {
-            this.gridItems = [];
-        }
+        this.activeGridService.clear();
 
         // Clear any old filters prior to loading the new layout and dataset.
         this.messenger.clearFilters();
@@ -316,13 +306,14 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                 layout['bindings'][key] = "'" + value + "'";
             });
 
-            this.gridItems.push(layout);
+            this.activeGridService.addItem(layout);
         });
 
         // TODO: Clear any saved states loaded through the parameters
         // $location.search("dashboard_state_id", null);
         // $location.search("filter_state_id", null);
-
+        
+        this.onGridItemsChanged.emit(this.customVisualizations.length);
         this.parameterService.addFiltersFromUrl();
     };
 
@@ -398,7 +389,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
             data: true
         };
-        this.activeDatasetChange.emit(this.activeDataset);
+        this.onActiveDatasetChanged.emit(this.activeDataset);
         this.datasets = this.datasetService.addDataset(dataset);
         this.datasetService.setActiveDataset(dataset);
         this.updateCustomLayout();
