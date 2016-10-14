@@ -29,13 +29,13 @@ export class VisualizationContainerComponent implements OnInit {
     }
 
     contract() {
-        this.saveGridConfig();
         this.expanded = false;
+        this.activeGridService.contractItem(this.visualization);
     }
 
     expand() {
-        this.saveGridConfig();
         this.expanded = true;
+        this.activeGridService.expandItem(this.visualization);
     }
 
     moveToTop() {
@@ -45,9 +45,4 @@ export class VisualizationContainerComponent implements OnInit {
     moveToBottom() {
         this.activeGridService.moveItemToBottom(this.visualization);
     }
-
-    saveGridConfig() {
-        this.previousGridConfig = _.clone(this.visualization.gridConfig);
-    }
-
 }

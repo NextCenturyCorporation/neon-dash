@@ -15,3 +15,32 @@
 /* Rules for using icons as white on a dark background. */
 .material-icons.md-light { color: rgba(255, 255, 255, 1); }
 .material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
+
+/* General layout styles. */
+.fill-remaining {
+    flex: 1 1 auto;
+}
+
+/* Angular2-Grid Overrides */
+.grid {
+    position: relative;
+}
+
+.grid-item {
+    position: absolute;
+}
+
+.grid-item.moving {
+    z-index: z-index + 1;
+}
+
+.placeholder {
+    position: absolute;
+}
+
+.grid-placeholder {
+    background-color: gray;
+    border: 2px dotted black;
+    opacity: 0.3;
+    z-index: 10;
+}

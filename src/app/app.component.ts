@@ -22,8 +22,8 @@ import { Dataset } from './dataset';
 import { ActiveGridService } from './services/active-grid.service';
 import { DatasetService } from './services/dataset.service';
 import { ThemesService } from './services/themes.service';
-import { NgGrid, NgGridItem } from 'angular2-grid'
-import { NeonGridItem } from './neon-grid-item'
+import { NgGrid, NgGridConfig, NgGridItem } from 'angular2-grid';
+import { NeonGridItem } from './neon-grid-item';
 
 @Component({
     selector: 'app-root',
@@ -48,8 +48,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     private datasets: Dataset[] = [];
 
-    private gridConfig: { [key: string]: any } = {
-        'resizeable': true, 
+    private gridConfig: NgGridConfig = {
+        'resizable': true, 
         'margins': [10, 0, 0, 10], 
         'min_cols': 1,
         'max_cols': 24,
@@ -83,6 +83,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.gridItems = this.activeGridService.getGridItems();
+        this.activeGridService.setGrid(this.grid);
+        this.activeGridService.setGridConfig(this.gridConfig);
     }
 
     ngOnDestroy(): void {

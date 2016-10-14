@@ -42,14 +42,6 @@
             <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridConfig" name="item.id" id="item.id">
                 <visualization-container [visualization]="gridItems[i]">
                     <div class="title">{{item.type}}</div>
-                   
-                    {{item.description}}<br>
-                    <ul>
-                        <li>sizex: {{ item.gridConfig.sizex }}</li>
-                        <li>sizey: {{ item.gridConfig.sizey }}</li>
-                        <li>col: {{ item.gridConfig.col }}</li>
-                        <li>row: {{ item.gridConfig.row }}</li>
-                    </ul>
                 </visualization-container>
                 <ng-content></ng-content>
             </div>

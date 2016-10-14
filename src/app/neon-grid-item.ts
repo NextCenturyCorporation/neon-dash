@@ -22,4 +22,5 @@ export interface NeonGridItem {
     title?: string;
     description?: string;
     gridConfig: NgGridItemConfig;
+    lastGridConfig?: NgGridItemConfig;
 }

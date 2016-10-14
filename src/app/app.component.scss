@@ -15,10 +15,6 @@
  */
 
 /* Rules for the Neon GTD App. */
-.fill-remaining {
-    flex: 1 1 auto;
-}
-
 .neon-gtd-text-button {
     font-size: 24px;
     font-weight: bold;
@@ -45,15 +41,4 @@
 
 .neon-gtd-sidenav-dashboard-options {
     width: 450px;
-}
-
-/* Grid overrides */
-.grid-placeholder {
-    border: 2px dotted blue;
-    z-index: z-index + 1;
-}
-
-.neon-gtd-content > .placeholder {
-    border: 2px dotted blue;
-    z-index: z-index + 1;
 }
