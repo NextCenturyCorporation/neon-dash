@@ -1,4 +1,5 @@
-<md-toolbar color="accent" class="visualization-toolbar" layout-align="space-between center" flex>
+<div style="height:60px; opacity: 0; z-index:0; width: 100%; position: absolute;" (mouseenter)="showToolbar=true;" *ngIf="!showToolbar"></div>
+<md-toolbar color="accent" class="visualization-toolbar" layout-align="space-between center" flex *ngIf="showToolbar" (mouseleave)="showToolbar=false;">
     <span class="">{{visualization.title || ""}}</span>
     <span class="fill-remaining"></span>
     <button md-icon-button  aria-label="Move to top" class="neon-gtd-text-button"

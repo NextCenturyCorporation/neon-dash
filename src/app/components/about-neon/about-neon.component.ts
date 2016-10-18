@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, Injectable, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Http, Response } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map';
@@ -22,7 +22,7 @@ import 'rxjs/add/operator/catch';
 import * as neon from 'neon-framework';
 
 @Component({
-    selector: 'about-neon',
+    selector: 'app-about-neon',
     templateUrl: 'about-neon.component.html',
     styleUrls: ['about-neon.component.less']
 })
@@ -38,8 +38,7 @@ export class AboutNeonComponent implements OnInit {
     constructor(private http: Http) { }
 
     private handleError(error: any) {
-        console.log("Error: " + error.message);
-        return Observable.throw(error)
+        return Observable.throw(error);
     }
 
     private loadNeonGTDVersionFile(): Observable<VersionInfo> {
@@ -49,7 +48,7 @@ export class AboutNeonComponent implements OnInit {
     }
 
     private loadNeonInfo() {
-        var me = this;
+        let me = this;
         neon.util.infoUtils.getNeonVersion(function(result) {
             me.serverVersionString = result;
             me.serverInfoLoaded = false;
@@ -57,14 +56,14 @@ export class AboutNeonComponent implements OnInit {
     }
 
     ngOnInit() {
-        var me = this;
+        let me = this;
         if (!this.neonGTDVersionLoaded) {
             this.loadNeonGTDVersionFile().subscribe(function(versionInfo: VersionInfo) {
                 me.neonGTDVersionString = versionInfo.version;
                 me.neonGTDVersionLoaded = true;
             });
         }
-        
+
         if (!this.serverInfoLoaded) {
             this.loadNeonInfo();
         }

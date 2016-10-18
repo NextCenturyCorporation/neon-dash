@@ -15,6 +15,13 @@
  */
 import { Injectable } from '@angular/core';
 
+import * as _ from 'lodash';
+
+export interface VisualizationAdapter {
+    id: string;
+    callback: ( any ) => void;
+}
+
 /**
  * This provides an Angular service for registering and unregistering visualizations on a page.
  *
@@ -23,31 +30,20 @@ import { Injectable } from '@angular/core';
  */
 @Injectable()
 export class VisualizationService {
-    private widgets
+    private widgets;
 
-  constructor() { }
-
-}
-
-
-
-
-
-angular.module('neonDemo.services')
-.factory('VisualizationService', function() {
-    var widgets = [];
-
-    var service = {};
+    constructor() {
+        this.widgets = [];
+    }
 
     /**
      * Registers a function to this service, so that it can be executed as part of a bulk operation. Should be called by visualization
      * widgets upon being created.
      * @param {String} visualizationId The unique id for the visualization.
      * @param {Function} bundleFunction The function to register.
-     * @method register
      */
-    service.register = function(visualizationId, bundleFunction) {
-        widgets.push({
+    register(visualizationId: string, bundleFunction: ( any ) => void) {
+        this.widgets.push({
             id: visualizationId,
             callback: bundleFunction
         });
@@ -56,24 +52,20 @@ angular.module('neonDemo.services')
     /**
      * Unregisters a function with the given ID from this service. Should be called by visualization widgets upon being destroyed.
      * @param {String} visualizationId The unique ID of the function being unregistered.
-     * @method unregister
      */
-    service.unregister = function(visualizationId) {
-        var index = _.findIndex(widgets, {
+    unregister(visualizationId) {
+        let index: number = _.findIndex(this.widgets, {
             id: visualizationId
         });
-        widgets.splice(index, 1);
+        this.widgets.splice(index, 1);
     };
 
     /**
      * Returns a list of all objects currently registered to this service, so the functions they have references to can
      * be used for bulk operations.
      * @return {Array} The list of objects subsrcibed to this service.
-     * @method getWidgets
      */
-    service.getWidgets = function() {
-        return widgets;
+    getWidgets(): VisualizationAdapter[] {
+        return this.widgets;
     };
-
-    return service;
-});
+}

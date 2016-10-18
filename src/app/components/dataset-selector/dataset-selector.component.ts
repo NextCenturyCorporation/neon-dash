@@ -20,22 +20,20 @@ import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { Dataset } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
-import { DatabaseMetaData, RelationMetaData, RelationTableMetaData, TableMetaData, FieldMetaData } from '../../dataset.ts';
+import { DatabaseMetaData, TableMetaData, FieldMetaData } from '../../dataset.ts';
 import { ParameterService } from '../../services/parameter.service';
-import { NeonGridItem } from '../../neon-grid-item';
 import { neonVisualizationMinPixel } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
-import { NgGrid } from 'angular2-grid';
 import * as _ from 'lodash';
 import * as uuid from 'node-uuid';
 
 export interface CustomTable {
-    table: TableMetaData,
-    latitude: FieldMetaData,
-    longitude: FieldMetaData,
-    date: FieldMetaData,
-    tags: FieldMetaData
+    table: TableMetaData;
+    latitude: FieldMetaData;
+    longitude: FieldMetaData;
+    date: FieldMetaData;
+    tags: FieldMetaData;
 }
 
 /**
@@ -50,11 +48,11 @@ export interface CustomTable {
  */
 export interface CustomDatabase {
    database: DatabaseMetaData;
-   customTables: CustomTable[]
+   customTables: CustomTable[];
 }
 
 @Component({
-    selector: 'dataset-selector',
+    selector: 'app-dataset-selector',
     templateUrl: 'dataset-selector.component.html',
     styleUrls: ['dataset-selector.component.less']
 })
@@ -110,7 +108,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         data: false
     };
     @Output() onGridItemsChanged: EventEmitter<number> = new EventEmitter<number>();
-    @Output() onActiveDatasetChanged: EventEmitter<Dataset> = new EventEmitter<Dataset>();
+    @Output() onActiveDatasetChanged: EventEmitter<any> = new EventEmitter<any>();
 
     private messenger: neon.eventing.Messenger;
 
@@ -144,7 +142,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             });
         }
 
-        var me = this;
+        let me = this;
         this.messenger.subscribe(ParameterService.STATE_CHANGED_CHANNEL, function(message) {
             if (message && message.dataset) {
                 if (message.dataset) {
@@ -170,6 +168,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                         message.dashboard[i].id = uuid.v4();
                     }
                     me.activeGridService.setGridItems(message.dashboard);
+                    me.onActiveDatasetChanged.emit(me.activeDataset);
                     me.onGridItemsChanged.emit(message.dashboard.length);
                 }
             }
@@ -192,22 +191,22 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
             data: true
         };
-        this.onActiveDatasetChanged.emit(this.activeDataset);
         this.datastoreType = this.datasets[index].datastore;
         this.datastoreHost = this.datasets[index].hostname;
 
         let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datastoreType, this.datastoreHost);
-        if(!connection) {
+        if (!connection) {
             return;
         }
 
         // Don't update the dataset if its fields are already updated.
-        if(this.datasets[index].hasUpdatedFields) {
+        if (this.datasets[index].hasUpdatedFields) {
             this.finishConnectToPreset(this.datasets[index], loadDashboardState);
             return;
         }
 
-        // Update the fields within each database and table within the selected dataset to include fields that weren't listed in the configuration file.
+        // Update the fields within each database and table within the selected dataset 
+        // to include fields that weren't listed in the configuration file.
         let me = this;
         this.datasetService.updateDatabases(this.datasets[index], connection, function(dataset) {
             me.datasets[index] = dataset;
@@ -234,8 +233,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         this.messenger.clearFiltersSilently();
 
         // Use the default layout (if it exists) for custom datasets or datasets without a layout.
-        if(!layoutName || !this.layouts[layoutName]) {
-            layoutName = "default";
+        if (!layoutName || !this.layouts[layoutName]) {
+            layoutName = 'default';
         }
 
         // Clear the old grid items;
@@ -249,12 +248,13 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                 col: item.col,
                 sizex: item.sizex,
                 sizey: item.sizey
-            }
+            };
             item.id = uuid.v4();
             this.activeGridService.addItem(item);
         }
 
         this.onGridItemsChanged.emit(this.layouts[layoutName].length);
+        this.onActiveDatasetChanged.emit(this.activeDataset);
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
     };
 
@@ -297,13 +297,13 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
             if (visualization.database && visualization.table) {
                 layout['bindings'] = {
-                    "bind-database": "'" + visualization.database + "'",
-                    "bind-table": "'" + visualization.table + "'"
+                    'bind-database': '\'' + visualization.database + '\'',
+                    'bind-table': '\'' + visualization.table + '\''
                 };
             }
 
             _.each(visualization.bindings, function(value, key) {
-                layout['bindings'][key] = "'" + value + "'";
+                layout['bindings'][key] = '\'' + value + '\'';
             });
 
             this.activeGridService.addItem(layout);
@@ -312,7 +312,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         // TODO: Clear any saved states loaded through the parameters
         // $location.search("dashboard_state_id", null);
         // $location.search("filter_state_id", null);
-        
+
         this.onGridItemsChanged.emit(this.customVisualizations.length);
         this.parameterService.addFiltersFromUrl();
     };

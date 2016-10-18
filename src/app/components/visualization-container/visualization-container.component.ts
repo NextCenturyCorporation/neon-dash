@@ -3,22 +3,22 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { NeonGridItem } from '../../neon-grid-item';
 
-import * as _ from 'lodash';
-
 @Component({
-  selector: 'visualization-container',
+  selector: 'app-visualization-container',
   templateUrl: 'visualization-container.component.html',
   styleUrls: ['visualization-container.component.scss']
 })
 export class VisualizationContainerComponent implements OnInit {
 
-    private expanded: boolean = false;
-    private showToolbar = false;
-    private previousGridConfig;
+    private expanded: boolean;
+    private showToolbar: boolean;
 
     @Input() visualization: NeonGridItem;
 
-    constructor(private activeGridService: ActiveGridService) { }
+    constructor(private activeGridService: ActiveGridService) {
+        this.expanded = false;
+        this.showToolbar = false;
+    }
 
     ngOnInit() {
 

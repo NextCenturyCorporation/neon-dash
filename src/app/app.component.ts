@@ -15,14 +15,13 @@
  */
 import { AfterViewInit, Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 
-import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
 
 import { ActiveGridService } from './services/active-grid.service';
 import { DatasetService } from './services/dataset.service';
 import { ThemesService } from './services/themes.service';
-import { NgGrid, NgGridConfig, NgGridItem } from 'angular2-grid';
+import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { NeonGridItem } from './neon-grid-item';
 
 @Component({
@@ -40,26 +39,22 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     // Used to determine which pane is show in the right sidenav
     private showAbout: boolean = true;
 
-    private activeDataset: any = {
-        name: "Select a Dataset"
-    };
-
     private gridItems: NeonGridItem[] = [];
 
     private datasets: Dataset[] = [];
 
     private gridConfig: NgGridConfig = {
-        'resizable': true, 
-        'margins': [10, 0, 0, 10], 
+        'resizable': true,
+        'margins': [10, 0, 0, 10],
         'min_cols': 1,
         'max_cols': 24,
         'min_rows': 0,
         'max_rows': 0,
         'min_width': 50,
-        'min_height': 50, 
+        'min_height': 50,
         'maintain_ratio': true,
         'auto_style': true,
-        'auto_resize': true, 
+        'auto_resize': true,
         'cascade': 'up',
         'fix_to_grid': true
     };

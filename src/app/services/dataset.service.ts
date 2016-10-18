@@ -12,6 +12,21 @@ export class DatasetService {
     // The Dataset Service may ask the visualizations to update their data.
     static UPDATE_DATA_CHANNEL: string = 'update_data';
 
+    private datasets: Dataset[] = [];
+
+    // The active dataset.
+    private dataset: Dataset = new Dataset();
+
+    // Use the Dataset Service to save settings for specific databases/tables and 
+    // publish messages to all visualizations if those settings change.
+    private messenger: any;
+
+    // The active update interval if required by the current active dataset.
+    private updateInterval: Observable<number>;
+
+    // The subscription that fires on the update interval.
+    private updateSubscription: Subscription;
+
     // ---
     // STATIC METHODS
     // --
@@ -67,24 +82,9 @@ export class DatasetService {
         this.removeFromArray(dataset.databases, indexListToRemove);
     };
 
-    private datasets: Dataset[] = [];
-
-    // The active dataset.
-    private dataset: Dataset = new Dataset();
-
-    // Use the Dataset Service to save settings for specific databases/tables and 
-    // publish messages to all visualizations if those settings change.
-    private messenger: any;
-
-    // The active update interval if required by the current active dataset.
-    private updateInterval: Observable<number>;
-
-    // The subscription that fires on the update interval.
-    private updateSubscription: Subscription;
-
     constructor(@Inject('config') private config: NeonGTDConfig) {
         this.datasets = config.datasets;
-        this.messenger = {} //new neon.eventing.Messenger();
+        this.messenger = new neon.eventing.Messenger();
         this.datasets.forEach(function(dataset) {
             DatasetService.validateDatabases(dataset);
         });
@@ -417,7 +417,8 @@ export class DatasetService {
 
         fields.sort(function(x, y) {
             // Compare field pretty names and ignore case.
-            return (x.prettyName.toUpperCase() < y.prettyName.toUpperCase()) ? -1 : ((x.prettyName.toUpperCase() > y.prettyName.toUpperCase()) ? 1 : 0);
+            return (x.prettyName.toUpperCase() < y.prettyName.toUpperCase()) ?
+                -1 : ((x.prettyName.toUpperCase() > y.prettyName.toUpperCase()) ? 1 : 0);
         });
 
         return fields;
@@ -505,7 +506,8 @@ export class DatasetService {
             // Iterate through each relation to compare with the current field.
             relations.forEach(function(relation) {
                 let relationFieldNamesForInput = relation[databaseName] ? relation[databaseName][tableName] : [];
-                relationFieldNamesForInput = _.isArray(relationFieldNamesForInput) ? relationFieldNamesForInput : [relationFieldNamesForInput];
+                relationFieldNamesForInput = _.isArray(relationFieldNamesForInput) ?
+                    relationFieldNamesForInput : [relationFieldNamesForInput];
                 // If the current relation contains a match for the input database/table/field,
                 // iterate through the elements in the current relation.
                 if (relationFieldNamesForInput.indexOf(fieldName) >= 0) {
@@ -527,8 +529,8 @@ export class DatasetService {
                             if (existingFieldIndex >= 0) {
                                 relationFieldNames.forEach(function(relationFieldName) {
                                     // If the relation fields do not exist in the relation, add them to the mapping.
-                                    if (relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.indexOf(relationFieldName) < 0) {
-                                        relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.push(relationFieldName);
+                                    if (relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.indexOf(relationFieldName) < 0) { // eslint-disable-line max-len
+                                        relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.push(relationFieldName); // eslint-disable-line max-len
                                     }
                                 });
                             } else {

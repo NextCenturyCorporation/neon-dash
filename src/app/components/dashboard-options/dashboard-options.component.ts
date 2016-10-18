@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
 import { MdSnackBar, MdSnackBarConfig } from '@angular/material';
@@ -6,7 +6,7 @@ import { MdSnackBar, MdSnackBarConfig } from '@angular/material';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ExportService, ExportInfo } from '../../services/export.service';
+import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
 
@@ -14,12 +14,11 @@ import * as _ from 'lodash';
 import * as neon from 'neon-framework';
 
 @Component({
-  selector: 'dashboard-options',
+  selector: 'app-dashboard-options',
   templateUrl: './dashboard-options.component.html',
   styleUrls: ['./dashboard-options.component.scss']
 })
 export class DashboardOptionsComponent implements OnInit {
-    private exportFormat: string;
     private formData: any = {
         exportFormat: 0,
         currentTheme: 'neon-green-theme',
@@ -28,15 +27,15 @@ export class DashboardOptionsComponent implements OnInit {
         stateToDelete: ''
     };
 
-    private dashboardStateId: string = "";
-    private filterStateId: string = "";
+    private dashboardStateId: string = '';
+    private filterStateId: string = '';
     private isLoading: boolean = false;
     private messenger: neon.eventing.Messenger;
     private stateNames: string[] = [];
-    private stateName: string = "";
+    private stateName: string = '';
     private stateNameError: boolean = false;
 
-    constructor(private connectionService: ConnectionService,  private datasetService: DatasetService, 
+    constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
         private errorNotificationService: ErrorNotificationService, private exportService: ExportService,
         private mdSnackBar: MdSnackBar, private parameterService: ParameterService,
         private themesService: ThemesService, private viewContainerRef: ViewContainerRef) { }
@@ -59,19 +58,19 @@ export class DashboardOptionsComponent implements OnInit {
     }
 
     toggleExportFormat(event: Event) {
-        event.preventDefault()
+        event.preventDefault();
     }
 
     exportSuccess(queryResults) {
         let config = new MdSnackBarConfig(this.viewContainerRef);
-        console.log("shoop");
+        console.log('shoop');
         this.mdSnackBar.open('Export In Progress...', 'OK', config);
-        window.location.assign("/neon/services/exportservice/generateZip/" + queryResults.data);
+        window.location.assign('/neon/services/exportservice/generateZip/' + queryResults.data);
     };
 
     exportFail(response) {
         let config = new MdSnackBarConfig(this.viewContainerRef);
-        if(response.responseJSON) {
+        if (response.responseJSON) {
             this.mdSnackBar.open('Error: ' + response.responseJSON.error, 'Close', config);
         } else {
             this.mdSnackBar.open('Error: The export service failed to respond properly.', 'Close', config);
@@ -83,23 +82,23 @@ export class DashboardOptionsComponent implements OnInit {
         let config = new MdSnackBarConfig(this.viewContainerRef);
         let data = {
             // TODO Change this hardcoded value to something like a user ID.
-            name: "All_Widgets",
+            name: 'All_Widgets',
             data: []
         };
 
-        if(!connection) {
+        if (!connection) {
             this.mdSnackBar.open('Please select a dataset before exporting.', 'OK', config);
             return;
         }
 
         this.exportService.getWidgets().forEach(function(widget) {
             let widgetObject = widget.callback();
-            for(var x = 0; x < widgetObject.data.length; x++) {
+            for(let x = 0; x < widgetObject.data.length; x++) {
                 data.data.push(widgetObject.data[x]);
             }
         });
 
-        if(this.exportService.getWidgets().length === 0) {
+        if (this.exportService.getWidgets().length === 0) {
             this.mdSnackBar.open('There are no visualizations to export.', 'OK', config);
             return;
         }
@@ -113,24 +112,24 @@ export class DashboardOptionsComponent implements OnInit {
      * @method saveState
      */
     saveState(name) {
-        //TODO: Enable once the visualization service has been migrated
+        // TODO: Enable once the visualization service has been migrated
         let stateParams: any = {
-            //dashboard: this.visualizations
+            // dashboard: this.visualizations
         };
 
-        if(name) {
+        if (name) {
             stateParams.stateName = name;
         }
 
-        var connection = this.connectionService.getActiveConnection();
-        if(connection) {
+        let connection: neon.query.Connection = this.connectionService.getActiveConnection();
+        if (connection) {
             this.datasetService.setLineCharts([{}]);
             this.datasetService.setMapLayers([{}]);
 
             // Get each visualization's bindings and save them to our dashboard state parameter
             // this.visualizationService.getWidgets().forEach(function(widget) {
-            //     var bindings = widget.callback();
-            //     var visualization = _.filter(stateParams.dashboard, {
+            //     let bindings = widget.callback();
+            //     let visualization = _.filter(stateParams.dashboard, {
             //         id: widget.id
             //     });
             //     if(visualization && visualization.length) {
@@ -155,20 +154,20 @@ export class DashboardOptionsComponent implements OnInit {
      * Loads the states for the name choosen and updates the dashboard and url parameters.
      */
     loadState() {
-        var connection = this.connectionService.getActiveConnection();
-        if(connection) {
-            var params = {
+        let connection: neon.query.Connection = this.connectionService.getActiveConnection();
+        if (connection) {
+            let params = {
                 stateName: this.stateName
             };
             connection.loadState(params, function(dashboardState) {
-                if(_.keys(dashboardState).length) {
+                if (_.keys(dashboardState).length) {
                     let params: URLSearchParams = new URLSearchParams();
                     let dashboardStateId: string = params.get('dashboard_state_id');
                     let filterStateId: string = params.get('filter_state_id');
 
                     this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
                 } else {
-                    this.errorNotificationService.showErrorMessage(null, "State " + this.stateName + " not found.");
+                    this.errorNotificationService.showErrorMessage(null, 'State ' + this.stateName + ' not found.');
                 }
             }, this.handleStateFailure);
         }
@@ -179,8 +178,8 @@ export class DashboardOptionsComponent implements OnInit {
      * @method deleteState
      */
     deleteState() {
-        var connection = this.connectionService.getActiveConnection();
-        if(connection) {
+        let connection: neon.query.Connection = this.connectionService.getActiveConnection();
+        if (connection) {
             connection.deleteState(this.stateName, function(stateIds) {
                 let params: URLSearchParams = new URLSearchParams();
                 let dashboardStateId: string = params.get('dashboard_state_id');
@@ -231,11 +230,11 @@ export class DashboardOptionsComponent implements OnInit {
      * @private
      */
     loadStateNames() {
-        this.stateName = "";
+        this.stateName = '';
         this.stateNameError = false;
 
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
-        if(!connection) {
+        if (!connection) {
             connection = this.connectionService.createActiveConnection();
         }
 

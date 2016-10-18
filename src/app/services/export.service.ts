@@ -16,8 +16,8 @@
 import { Injectable } from '@angular/core';
 
 export interface ExportInfo {
-    id: number|string,
-    callback: Function
+    id: number|string;
+    callback: Function;
 }
 
 /**
@@ -55,7 +55,8 @@ export class ExportService {
         limit: 100000
     };
 
-    // These will tell a query to not ignore any filters - useful for visualizations like the timeline that ignore their own filters by default.
+    // These will tell a query to not ignore any filters - useful for visualizations like the timeline 
+    // that ignore their own filters by default.
     private ignoreFilters_: boolean = false;
     private ignoredFilterIds_: string[] = [];
 
@@ -83,10 +84,10 @@ export class ExportService {
      * Unregisters a function with the given ID from this  Should be called by visualization widgets upon being destroyed.
      * @param uuid {String} The unique ID of the function being unregistered.
      */
-    unregister(uuid: string) {
-        var x = this.widgets.length - 1;
-        for(x; x >= 0; x--) {
-            if((this.widgets[x]).id === uuid) {
+    unregister(uuid: string): void {
+        let x: number = this.widgets.length - 1;
+        for (x; x >= 0; x--) {
+            if ((this.widgets[x]).id === uuid) {
                 this.widgets.splice(x, 1);
                 return;
             }

@@ -21,7 +21,7 @@ export class ThemesService {
     public static THEMES: any[] = [{
         id: 'neon-green-theme',
         name: 'Neon Green'
-    },{
+    }, {
         id: 'neon-green-dark-theme',
         name: 'Neon Green (dark)'
     }];
@@ -39,7 +39,7 @@ export class ThemesService {
     }
 
     setCurrentTheme(theme: string) {
-        var index = _.findIndex(ThemesService.THEMES, function(item) {
+        let index: number = _.findIndex(ThemesService.THEMES, function(item) {
             return item.id === theme;
         });
 

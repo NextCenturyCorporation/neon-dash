@@ -3,20 +3,20 @@
         <md-toolbar color="primary">
             <span class="md-36">Datasets</span>
         </md-toolbar>
-        <dataset-selector [(activeDataset)]="activeDataset"></dataset-selector>
+        <app-dataset-selector></app-dataset-selector>
     </md-sidenav>
     <md-sidenav #sidenavright class="neon-gtd-sidenav-about-neon" md-fill align="end">
         <md-toolbar color="primary">
             <span class="md-36">{{(showAbout) ? 'About...' : 'Options...'}}</span>
         </md-toolbar>
-        <about-neon *ngIf="showAbout"></about-neon>
-        <dashboard-options #mainDashboardOptions *ngIf="!showAbout"></dashboard-options>
+        <app-about-neon *ngIf="showAbout"></app-about-neon>
+        <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout"></app-dashboard-options>
         <button md-button (click)="sidenavright.close()">Close</button>
     </md-sidenav>
     <md-toolbar color="primary" layout-align="space-between center" flex>
-        <button md-button [attr.aria-label]="activeDataset.name" (click)="sidenav.toggle()"  
+        <button md-button [attr.aria-label]="datasetService.getName() || 'Choose Data'" (click)="sidenav.toggle()"  
             md-tooltip="Selects one of the available datasets." tooltip-position="below" class="neon-gtd-text-button">
-            <i class="material-icons md-24" style="vertical-align: sub">menu</i>&nbsp;{{ activeDataset.name }}
+            <i class="material-icons md-24" style="vertical-align: sub">menu</i>&nbsp;{{ datasetService.getName() || "Choose Data..." }}
         </button>
         <button md-mini-fab aria-label="Add Visualization" md-tooltip="Add a new visualization to the current dashboard."
             tooltip-position="below" >
@@ -40,9 +40,9 @@
     <div class="neon-gtd-content" md-fill layout="col">
         <div [ngGrid]="gridConfig" #grid [style.height]="gridHeight">
             <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridConfig" name="item.id" id="item.id">
-                <visualization-container [visualization]="gridItems[i]">
+                <app-visualization-container [visualization]="gridItems[i]">
                     <div class="title">{{item.type}}</div>
-                </visualization-container>
+                </app-visualization-container>
                 <ng-content></ng-content>
             </div>
         </div>

@@ -34,8 +34,8 @@ export class TableMetaData {
 }
 
 export class DatabaseMetaData {
-    name: string = "";
-    prettyName: string = "";
+    name: string = '';
+    prettyName: string = '';
     tables: TableMetaData[];
 
     constructor(name?: string, prettyName?: string) {
@@ -65,13 +65,13 @@ export class RelationMetaData {
 }
 
 export class Dataset {
-    name: string = "";
-    datastore: string = "";
-    hostname: string = "";
+    name: string = '';
+    datastore: string = '';
+    hostname: string = '';
     connectOnLoad: boolean = false;
     databases: DatabaseMetaData[] = [];
     hasUpdatedFields: boolean = false;
-    layout: string = "";
+    layout: string = '';
     options: DatasetOptions = new DatasetOptions();
     mapLayers: Object[] = undefined;
     mapConfig: Object = undefined;

@@ -13,22 +13,11 @@
  * limitations under the License.
  *
  */
-import { Inject, Injectable } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
-import * as neon from 'neon-framework';
-import * as $ from 'jquery';
-
-import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData } from '../dataset';
-import { ConnectionService } from './connection.service';
-import { DatasetService } from './dataset.service';
-import { Subscription, Observable } from 'rxjs/Rx';
-import { NeonGTDConfig } from '../neon-gtd-config';
-import { neonMappings } from '../neon-namespaces';
-import * as _ from 'lodash';
+import { Injectable } from '@angular/core';
 
 @Injectable()
 export class ErrorNotificationService {
     showErrorMessage(error: Error|ExceptionInformation, message: string, stackTrace?: any[]) {
-        console.log("An error occured: " + message + "\n" + error);
+        console.log('An error occured: ' + message + '\n' + error);
     };
 }

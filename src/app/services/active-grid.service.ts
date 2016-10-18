@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 import { NeonGridItem } from '../neon-grid-item';
 
-import { NgGrid, NgGridConfig, NgGridItem } from 'angular2-grid';
+import { NgGrid, NgGridConfig } from 'angular2-grid';
 import * as _ from 'lodash';
 
 @Injectable()
@@ -44,7 +44,7 @@ export class ActiveGridService {
     }
 
     getMaxColInUse(): number {
-        let maxCol: number = 0;
+        let maxCol = 0;
 
         for (let i = 0; i < this.gridItems.length; i++) {
             maxCol = Math.max(maxCol, (this.gridItems[i].gridConfig.col + this.gridItems[i].gridConfig.sizex - 1));
@@ -53,7 +53,7 @@ export class ActiveGridService {
     }
 
     getMaxRowInUse(): number {
-        let maxRow: number = 0;
+        let maxRow = 0;
 
         for (let i = 0; i < this.gridItems.length; i++) {
             maxRow = Math.max(maxRow, (this.gridItems[i].gridConfig.row + this.gridItems[i].gridConfig.sizey - 1));
