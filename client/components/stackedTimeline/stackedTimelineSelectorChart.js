@@ -323,7 +323,7 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
      * @method selectDate
      */
     this.selectDate = function(startDate, endDate) {
-        if(!this.data || !this.data.length || !this.data[0].data[0].values || !this.data[0].data[0].values.length) {
+        if(!this.data || !this.data.length || !this.data[0].data || !this.data[0].data.length || !this.data[0].data[0].values || !this.data[0].data[0].values.length) {
             return;
         }
 
@@ -1147,7 +1147,7 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
         // configurable parameter that is passed in with the series, like series.color.
         var anomalyColor = 'red';
 
-        focus.selectAll("rect.bar").remove();
+        focus.selectAll("rect.focus_bar").remove();
         focus.selectAll("path." + series.type).remove();
         // If type is bar AND the data isn't too long, render a bar plot
         if(series.type == 'bar' && dataShown.length > 0 && dataShown[0].values.length < me.width) {
@@ -1167,7 +1167,7 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
                 .offset(d3.stackOffsetNone);
             var layers = stack(dataShown);
 
-            var categories = focus.selectAll("rect.bar")
+            var categories = focus.selectAll("rect.focus_bar")
                 .data(layers)
                 .enter().append("g")
                 .attr("style", function(d) { return d.anomaly ? anomalyStyle : ''; })
@@ -1177,7 +1177,7 @@ charts.StackedTimelineSelectorChart = function(element, configuration) {
             categories.selectAll('rect')
                 .data(function(d) { return d.values; })
                 .enter().append('rect')
-                .attr("class", function(d) { return "" + d.date; })
+                .attr("class", function(d) { return "focus_bar " + d.date; })
                 .attr('x', function(d) { return me.xFocus(d.date); })
                 .attr('y', function(d) { return yFocus(Math.max(0, d.value) + d.y0); })
                 .attr('width', function(d) { return me.xFocus(d3.time[me.granularity].utc.offset(d.date, 1)) - me.xFocus(d.date); })

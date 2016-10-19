@@ -332,11 +332,15 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
                     $scope.active.groupField
                 ],
             createNeonFilterClause: createGroupFilter,
-            queryAfterFilter: false
+            queryAfterFilter: true
         };
-        $scope.functions.removeNeonFilter(options);
-        options.queryAfterFilter = true;
-        $scope.functions.updateNeonFilter(options);
+        var allActive = _.every($scope.categories, function(obj) { return obj.active; });
+        if(allActive) {
+            $scope.functions.removeNeonFilter(options);
+        }
+        else {
+            $scope.functions.updateNeonFilter(options);
+        }
     };
 
     var createGroupFilter = function(databaseAndTableName, fieldName) {
@@ -591,10 +595,12 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
         updateChartTimesAndTotal();
 
         if($scope.extent.length) {
-            $scope.functions.updateNeonFilter();
+            $scope.functions.updateNeonFilter({
+                fields: [$scope.active.dateField]
+            });
         }
 
-        if($scope.showFocus === "on_filter") {
+        if($scope.active.showFocus === "on_filter") {
             $scope.chart.toggleFocus($scope.extent.length);
         }
 
@@ -640,6 +646,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
             setDateTimePickerEnd($scope.bucketizer.getEndDate());
         }
         $scope.functions.updateNeonFilter({
+            fields: [$scope.active.dateField],
             queryAfterFilter: true
         });
     };
@@ -689,6 +696,8 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     };
 
     $scope.functions.getFilterFields = function() {
+        // If groupField is not included here, removal of stacked timeline filters from the filter tray breaks things.
+        // Group checkboxes are all made active, but the group filter is not actually removed.
         return [$scope.active.dateField, $scope.active.groupField];
     };
 
@@ -1276,12 +1285,14 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
      * Removes the timeline extent and filter.
      * @method removeFilter
      */
-    $scope.removeFilter = function() {
+    $scope.removeFilter = function(value) {
         if($scope.bucketizer.getStartDate() && $scope.bucketizer.getEndDate()) {
             setDateTimePickerStart($scope.bucketizer.getStartDate());
             setDateTimePickerEnd($scope.bucketizer.getEndDate());
         }
-        $scope.functions.removeNeonFilter();
+        $scope.functions.removeNeonFilter({
+            fields: [$scope.active.dateField]
+        });
     };
 
     $scope.handleChangeDateField = function() {
