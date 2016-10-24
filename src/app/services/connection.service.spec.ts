@@ -1,16 +1,22 @@
 /* tslint:disable:no-unused-variable */
 
-import { addProviders, async, inject } from '@angular/core/testing';
+import { TestBed, async, inject } from '@angular/core/testing';
 import { ConnectionService } from './connection.service';
 
-import { neon } from 'neon-framework/neon-nodeps';
+import * as neon from 'neon-framework';
 
 describe('Service: ConnectionService', () => {
-  beforeEach(() => {
-    addProviders([ConnectionService]);
-  });
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            providers: [ConnectionService]
+        });
+    });
 
-  it('should create the service',
+    it('should ...', inject([ConnectionService], (service: ConnectionService) => {
+      expect(service).toBeTruthy();
+    }));
+
+    it('should create the service',
     inject([ConnectionService], (service: ConnectionService) => {
       expect(service).toBeTruthy();
     }));

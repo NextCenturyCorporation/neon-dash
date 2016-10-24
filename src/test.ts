@@ -16,6 +16,7 @@ __karma__.loaded = function () {};
 
 
 Promise.all([
+  System.import('@angular/material'),
   System.import('@angular/core/testing'),
   System.import('@angular/platform-browser-dynamic/testing')
 ])

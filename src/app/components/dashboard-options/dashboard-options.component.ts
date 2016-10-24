@@ -93,7 +93,7 @@ export class DashboardOptionsComponent implements OnInit {
 
         this.exportService.getWidgets().forEach(function(widget) {
             let widgetObject = widget.callback();
-            for(let x = 0; x < widgetObject.data.length; x++) {
+            for (let x = 0; x < widgetObject.data.length; x++) {
                 data.data.push(widgetObject.data[x]);
             }
         });

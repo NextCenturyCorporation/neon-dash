@@ -18,16 +18,16 @@ describe('App: NeonGtd', () => {
     expect(app).toBeTruthy();
   }));
 
-  it(`should have as title 'app works!'`, async(() => {
+  it(`should have as title 'NeonGtd'`, async(() => {
     let fixture = TestBed.createComponent(AppComponent);
     let app = fixture.debugElement.componentInstance;
-    expect(app.title).toEqual('app works!');
+    expect(app.title).toEqual('NeonGtd');
   }));
 
-  it('should render title in a h1 tag', async(() => {
+  it('should include a sidenav layout as the main interface', async(() => {
     let fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     let compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent).toContain('app works!');
+    expect(compiled.querySelector('md-sidenav-layout').class).toContain('neon-gtd-sidenav');
   }));
 });

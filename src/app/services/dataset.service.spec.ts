@@ -1,16 +1,25 @@
+
 /* tslint:disable:no-unused-variable */
 
-import { addProviders, async, inject } from '@angular/core/testing';
+import { TestBed, async, inject } from '@angular/core/testing';
 import { Dataset } from '../dataset';
 import { DatasetService } from './dataset.service';
+import { NeonGTDConfig } from '../neon-gtd-config';
 
 describe('Service: DatasetService', () => {
+    let testConfig = new NeonGTDConfig();
+
     beforeEach(() => {
-      addProviders([DatasetService]);
+
+        TestBed.configureTestingModule({
+            providers: [
+                DatasetService,
+                { provide: 'config', useValue: this.config }
+            ]
+        });
     });
 
-    it('should create the service',
-        inject([DatasetService], (service: DatasetService) => {
+    it('should be injectable', inject([DatasetService, testConfig], (service: DatasetService, config: NeonGTDConfig) => {
         expect(service).toBeTruthy();
     }));
 

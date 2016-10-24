@@ -1,13 +1,19 @@
 /* tslint:disable:no-unused-variable */
 
-import { By }           from '@angular/platform-browser';
-import { DebugElement } from '@angular/core';
-import { addProviders, async, inject } from '@angular/core/testing';
+import { TestBed, async, inject } from '@angular/core/testing';
 import { VisualizationContainerComponent } from './visualization-container.component';
+import { ActiveGridService } from '../../services/active-grid.service';
 
 describe('Component: VisualizationContainer', () => {
-  it('should create an instance', () => {
-    let component = new VisualizationContainerComponent();
-    expect(component).toBeTruthy();
-  });
+
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [ ActiveGridService ]
+        });
+    });
+
+    it('should create an instance', inject([ActiveGridService], (ags: ActiveGridService) => {
+        let component = new VisualizationContainerComponent(ags);
+        expect(component).toBeTruthy();
+    }));
 });

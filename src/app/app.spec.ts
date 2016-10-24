@@ -15,22 +15,20 @@
  */
 /* tslint:disable:no-unused-variable */
 
-import { addProviders, async, inject } from '@angular/core/testing';
+import { TestBed, async, inject } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { DatasetService } from './services/dataset.service';
 
 describe('App: AppComponent', () => {
   beforeEach(() => {
-    addProviders([DatasetService, AppComponent]);
-  });
+        TestBed.configureTestingModule({
+            providers: [AppComponent, DatasetService]
+        });
+    });
 
   it('should create the app',
     inject([AppComponent], (app: AppComponent) => {
       expect(app).toBeTruthy();
     }));
 
-  it('should have no dataset select at start',
-    inject([AppComponent], (app: AppComponent) => {
-      expect(app.selectedDataset).toEqual('Select a Dataset');
-    }));
 });

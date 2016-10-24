@@ -15,11 +15,17 @@
  */
 /* tslint:disable:no-unused-variable */
 
-import { addProviders, async, inject } from '@angular/core/testing';
-import {NeonMappings} from './neon-mappings';
+import { TestBed, async, inject } from '@angular/core/testing';
+import { neonMappings } from './neon-namespaces';
 
 describe('NeonMappings', () => {
-  it('should create an instance', () => {
-    expect(new NeonMappings()).toBeTruthy();
-  });
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            providers: [neonMappings]
+        });
+    });
+
+    it('should create an instance', () => {
+        expect(neonMappings).toBeTruthy();
+    });
 });

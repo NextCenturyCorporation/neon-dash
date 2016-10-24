@@ -17,7 +17,7 @@ export class DatasetService {
     // The active dataset.
     private dataset: Dataset = new Dataset();
 
-    // Use the Dataset Service to save settings for specific databases/tables and 
+    // Use the Dataset Service to save settings for specific databases/tables and
     // publish messages to all visualizations if those settings change.
     private messenger: any;
 
@@ -346,7 +346,7 @@ export class DatasetService {
     /**
      * Returns an object containing the first database, table, and fields found in the active dataset with all the given mappings.
      * @param {Array} The array of mapping keys that the database and table must contain.
-     * @return {Object} An object containing {String} database, {String} table, 
+     * @return {Object} An object containing {String} database, {String} table,
      * and {Object} fields linking {String} mapping to {String} field.
      * If no match was found, an empty object is returned instead.
      */
@@ -397,7 +397,7 @@ export class DatasetService {
     };
 
     /**
-     * Returns a sorted copy of the array of field objects for the database and table with the given names, 
+     * Returns a sorted copy of the array of field objects for the database and table with the given names,
      * ignoring hidden fields if specified.
      * @param {String} The database name
      * @param {String} The table name
@@ -529,8 +529,8 @@ export class DatasetService {
                             if (existingFieldIndex >= 0) {
                                 relationFieldNames.forEach(function(relationFieldName) {
                                     // If the relation fields do not exist in the relation, add them to the mapping.
-                                    if (relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.indexOf(relationFieldName) < 0) { // eslint-disable-line max-len
-                                        relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.push(relationFieldName); // eslint-disable-line max-len
+                                    if (relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.indexOf(relationFieldName) < 0) { /* tslint:disable:max-line-length */
+                                        relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.push(relationFieldName); /* tslint:disable:max-line-length */
                                     }
                                 });
                             } else {
@@ -565,7 +565,7 @@ export class DatasetService {
             return results;
         }
 
-        // If the input fields do not have any related fields in other tables, 
+        // If the input fields do not have any related fields in other tables,
         // return a list containing a relation object for the input database/table/fields.
         let result = {
             database: databaseName,
@@ -650,7 +650,7 @@ export class DatasetService {
      * Returns the linky configuration for the active dataset.
      * @return {Object}
      */
-    public getLinkyConfig(): Object {
+    public getLinkyConfig(): any {
         return this.dataset.linkyConfig;
     };
 
