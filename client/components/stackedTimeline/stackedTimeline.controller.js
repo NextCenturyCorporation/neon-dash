@@ -22,7 +22,7 @@
  * @class timelineController
  * @constructor
  */
-angular.module('neonDemo.controllers').controller('stackedTimelineController', ['$scope', '$timeout', '$interval', '$filter', 'opencpu', function($scope, $timeout, $interval, $filter, opencpu) {
+angular.module('neonDemo.controllers').controller('stackedTimelineController', ['$scope', '$timeout', '$interval', '$filter', 'FilterService', 'opencpu', function($scope, $timeout, $interval, $filter, filterService, opencpu) {
     $scope.active.OPENCPU = opencpu;
     $scope.active.YEAR = "year";
     $scope.active.MONTH = "month";
@@ -328,9 +328,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
 
     var onChangeGroupFilter = function() {
         var options = {
-            fields: [
-                    $scope.active.groupField
-                ],
+            fields: [$scope.active.groupField],
             createNeonFilterClause: createGroupFilter,
             queryAfterFilter: true
         };
@@ -446,6 +444,10 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
         return formattedEndDate;
     };
 
+    $scope.functions.getMaxFiltersPerLayer = function() {
+        return 2; // Date filter and group filter.
+    }
+
     $scope.functions.onInit = function() {
         $scope.functions.subscribe("date_selected", onDateSelected);
         $scope.chart = new charts.StackedTimelineSelectorChart($scope.functions.getElement(".stacked-timeline-selector-chart")[0], {
@@ -509,9 +511,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
 
     $scope.functions.onDestroy = function() {
         $scope.functions.removeNeonFilter({
-            fields: [
-                $scope.active.groupField
-            ],
+            fields: [$scope.active.groupField],
             createNeonFilterClause: createGroupFilter,
             queryAfterFilter: true
         });
@@ -713,11 +713,17 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     };
 
     $scope.functions.removeFilterValues = function() {
-        _.each($scope.categories, function(obj) { obj.active = true; });
-        onChangeGroupFilter();
-        $scope.extent = [];
-        onChangeTimeFilter();
-        $scope.active.showInvalidDatesFilter = false;
+        var filtersForGroup = filterService.getFilters($scope.active.database.name, $scope.active.table.name, $scope.active.groupField.columnName);
+        var filtersForDate = filterService.getFilters($scope.active.database.name, $scope.active.table.name, $scope.active.dateField.columnName);
+        if(!filtersForGroup.length) {
+            _.each($scope.categories, function(obj) { obj.active = true; });
+            onChangeGroupFilter();
+        }
+        if(!filtersForDate.length) {
+            $scope.extent = [];
+            onChangeTimeFilter();
+            $scope.active.showInvalidDatesFilter = false;
+        }
     };
 
     $scope.functions.onUpdateFields = function() {
@@ -1291,7 +1297,8 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
             setDateTimePickerEnd($scope.bucketizer.getEndDate());
         }
         $scope.functions.removeNeonFilter({
-            fields: [$scope.active.dateField]
+            fields: [$scope.active.dateField],
+            queryAfterFilter: true
         });
     };
 
