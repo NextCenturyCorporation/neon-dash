@@ -2,12 +2,25 @@
 
 import { TestBed, async } from '@angular/core/testing';
 import { AppComponent } from './app.component';
+import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
+import { AboutNeonComponent } from './components/about-neon/about-neon.component';
+import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
+
+import { MdIcon, MdList, MdSidenav, MdToolbar, MdToolbarRow } from '@angular/material';
 
 describe('App: NeonGtd', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [
-        AppComponent
+        AppComponent,
+        AboutNeonComponent,
+        DashboardOptionsComponent,
+        DatasetSelectorComponent,
+        MdIcon
+        MdList,
+        MdSidenav,
+        MdToolbar,
+        MdToolbarRow
       ],
     });
   });

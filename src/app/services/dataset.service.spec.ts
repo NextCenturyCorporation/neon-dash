@@ -4,6 +4,7 @@
 import { TestBed, async, inject } from '@angular/core/testing';
 import { Dataset } from '../dataset';
 import { DatasetService } from './dataset.service';
+import { ActiveGridService } from './active-grid.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
 
 describe('Service: DatasetService', () => {
@@ -13,13 +14,14 @@ describe('Service: DatasetService', () => {
 
         TestBed.configureTestingModule({
             providers: [
+                ActiveGridService,
                 DatasetService,
-                { provide: 'config', useValue: this.config }
+                { provide: 'config', useValue: testConfig }
             ]
         });
     });
 
-    it('should be injectable', inject([DatasetService, testConfig], (service: DatasetService, config: NeonGTDConfig) => {
+    it('should be injectable', inject([DatasetService], (service: DatasetService) => {
         expect(service).toBeTruthy();
     }));
 

@@ -1,5 +1,6 @@
 /* tslint:disable:no-unused-variable */
 
+import { URLSearchParams } from '@angular/http';
 import { ViewContainerRef } from '@angular/core';
 import { TestBed, async, inject } from '@angular/core/testing';
 import { DashboardOptionsComponent } from './dashboard-options.component';
@@ -9,15 +10,31 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
-import { MdSnackBar } from '@angular/material';
+
+import { MdCard, MdCardContent, MdIcon, MdInput, MdMenu, MdRadioButton, MdRadioGroup, MdToolbar } from '@angular/material';
+import { MdSnackBar, MdSnackBarConfig } from '@angular/material';
 
 describe('Component: DashboardOptionsComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [
-        DashboardOptionsComponent, ConnectionService, DatasetService, ErrorNotificationService,
-        ExportService, MdSnackBar, ParameterService, ThemesService, ViewContainerRef
+          DashboardOptionsComponent,
+          MdCard,
+          MdCardContent,
+          MdIcon,
+          MdMenu,
+          MdRadioButton,
+          MdToolbar
+      ],
+      providers: [
+          ConnectionService,
+          DatasetService, ErrorNotificationService,
+          ExportService,
+          MdSnackBar,
+          ParameterService,
+          ThemesService,
+          ViewContainerRef
       ],
     });
   });
