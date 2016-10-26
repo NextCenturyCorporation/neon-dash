@@ -41,42 +41,42 @@ import { DatasetSelectorComponent } from './components/dataset-selector/dataset-
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 
 export function createAppModule(config: NeonGTDConfig) {
-@NgModule({
-    declarations: [
-        AppComponent,
-        VisualizationContainerComponent,
-        DatasetSelectorComponent,
-        AboutNeonComponent,
-        DashboardOptionsComponent
-    ],
-    imports: [
-        BrowserModule,
-        CommonModule,
-        FormsModule,
-        HttpModule,
-        MaterialModule.forRoot(),
-        NgGridModule
-    ],
-    providers: [
-        ActiveGridService,
-        ConnectionService,
-        DatasetService,
-        ErrorNotificationService,
-        ExportService,
-        FilterService,
-        ParameterService,
-        ThemesService,
-        {
-          provide: 'config',
-          useValue: config
-        }
-    ],
-    entryComponents: [AppComponent],
-    bootstrap: [AppComponent]
-})
-class AppModule {
+    @NgModule({
+        declarations: [
+            AppComponent,
+            VisualizationContainerComponent,
+            DatasetSelectorComponent,
+            AboutNeonComponent,
+            DashboardOptionsComponent
+        ],
+        imports: [
+            BrowserModule,
+            CommonModule,
+            FormsModule,
+            HttpModule,
+            MaterialModule.forRoot(),
+            NgGridModule
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            ErrorNotificationService,
+            ExportService,
+            FilterService,
+            ParameterService,
+            ThemesService,
+            {
+              provide: 'config',
+              useValue: config
+            }
+        ],
+        entryComponents: [AppComponent],
+        bootstrap: [AppComponent]
+    })
+    class AppModule {
 
-}
+    }
 
-return AppModule;
+    return AppModule;
 }

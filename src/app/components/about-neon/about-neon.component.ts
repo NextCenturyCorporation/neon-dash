@@ -41,7 +41,7 @@ export class AboutNeonComponent implements OnInit {
         return Observable.throw(error);
     }
 
-    private loadNeonGTDVersionFile(): Observable<VersionInfo> {
+    private loadNeonGTDVersionFile(): Observable<any> {
        return this.http.get(AboutNeonComponent.NEON_GTD_VERSION_FILE)
            .map((resp: Response) => resp.json())
            .catch(this.handleError);

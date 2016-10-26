@@ -18,7 +18,8 @@ __karma__.loaded = function () {};
 Promise.all([
   System.import('@angular/core/testing'),
   System.import('@angular/platform-browser-dynamic/testing'),
-  System.import('@angular/material')
+  System.import('@angular/material'),
+  System.import('@angular/http')
 ])
   // First, initialize the Angular testing environment.
   .then((providers) => {
@@ -27,7 +28,8 @@ Promise.all([
     testing.getTestBed().initTestEnvironment(
       testingBrowser.BrowserDynamicTestingModule,
       testingBrowser.platformBrowserDynamicTesting(),
-      testingBrowser.MaterialModule
+      testingBrowser.MaterialModule,
+      testingBrowser.HttpModule
     );
   })
   // Then we find all the tests.

@@ -1,8 +1,12 @@
 /* tslint:disable:no-unused-variable */
+import { ComponentFixture, async, inject, TestBed } from '@angular/core/testing';
+import { By }              from '@angular/platform-browser';
+import { DebugElement }    from '@angular/core';
 
+import { FormsModule } from '@angular/forms';
 import { URLSearchParams } from '@angular/http';
-import { ViewContainerRef } from '@angular/core';
-import { TestBed, async, inject } from '@angular/core/testing';
+import { NgModule, ViewContainerRef } from '@angular/core';
+
 import { DashboardOptionsComponent } from './dashboard-options.component';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -11,41 +15,45 @@ import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
 
-import { MdCard, MdCardContent, MdIcon, MdInput, MdMenu, MdRadioButton, MdRadioGroup, MdToolbar } from '@angular/material';
+import { MaterialModule } from '@angular/material';
 import { MdSnackBar, MdSnackBarConfig } from '@angular/material';
+import { NeonGTDConfig } from '../../neon-gtd-config';
 
 describe('Component: DashboardOptionsComponent', () => {
+    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let fixture: ComponentFixture<DashboardOptionsComponent>;
+    let de: DebugElement;
+    let el: HTMLElement;
+    let component: DashboardOptionsComponent;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [
-          DashboardOptionsComponent,
-          MdCard,
-          MdCardContent,
-          MdIcon,
-          MdMenu,
-          MdRadioButton,
-          MdToolbar
-      ],
-      providers: [
-          ConnectionService,
-          DatasetService, ErrorNotificationService,
-          ExportService,
-          MdSnackBar,
-          ParameterService,
-          ThemesService,
-          ViewContainerRef
-      ],
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [
+                DashboardOptionsComponent
+            ],
+            imports: [
+                FormsModule,
+                MaterialModule,
+                MaterialModule.forRoot(),
+            ],
+            providers: [
+                ConnectionService,
+                DatasetService,
+                ErrorNotificationService,
+                ExportService,
+                MdSnackBar,
+                ParameterService,
+                ThemesService,
+                ViewContainerRef,
+                { provide: 'config', useValue: testConfig }
+            ]
+        });
+
+        fixture = TestBed.createComponent(DashboardOptionsComponent);
+        component = fixture.componentInstance;
     });
-  });
 
-  it('should create an instance', inject([ConnectionService, DatasetService, ErrorNotificationService,
-        ExportService, MdSnackBar, ParameterService, ThemesService, ViewContainerRef],
-        (cs: ConnectionService,  ds: DatasetService,
-            ens: ErrorNotificationService, exs: ExportService,
-            mdSnackBar: MdSnackBar, ps: ParameterService,
-            ts: ThemesService, viewContainerRef: ViewContainerRef) => {
-    let component = new DashboardOptionsComponent(cs, ds, ens, exs, mdSnackBar, ps, ts, viewContainerRef);
-    expect(component).toBeTruthy();
-  }));
+    it('should create an instance', () => {
+        expect(component).toBeTruthy();
+    });
 });
