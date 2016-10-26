@@ -24,7 +24,7 @@ import * as neon from 'neon-framework';
 @Component({
     selector: 'app-about-neon',
     templateUrl: 'about-neon.component.html',
-    styleUrls: ['about-neon.component.less']
+    styleUrls: ['about-neon.component.scss']
 })
 export class AboutNeonComponent implements OnInit {
 

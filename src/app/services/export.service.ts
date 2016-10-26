@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Next Century Corporation
+ * Copyright 2016 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -55,7 +55,7 @@ export class ExportService {
         limit: 100000
     };
 
-    // These will tell a query to not ignore any filters - useful for visualizations like the timeline 
+    // These will tell a query to not ignore any filters - useful for visualizations like the timeline
     // that ignore their own filters by default.
     private ignoreFilters_: boolean = false;
     private ignoredFilterIds_: string[] = [];
@@ -97,7 +97,7 @@ export class ExportService {
     /**
      * Returns a list of all objects currently registered to this  so the functions they have references to can
      * be used for bulk operations.
-     * @return {Array} The list of objects subsrcibed to this 
+     * @return {Array} The list of objects subsrcibed to this
      */
     getWidgets(): ExportInfo[] {
         return this.widgets;

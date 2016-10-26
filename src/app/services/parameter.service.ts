@@ -1,4 +1,3 @@
-'use strict';
 /*
  * Copyright 2016 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -443,7 +442,7 @@ addFiltersFromUrl(arg?: boolean) {};
     //             }
 
     //             let connection: neon.query.Connection = this.connectionService.createActiveConnection(matchingDataset.datastore, matchingDataset.hostname);
- 
+
     //             // Update dataset fields, then set as active and update the dashboard
     //             this.datasetService.updateDatabases(matchingDataset, connection, function(dataset: Dataset) {
     //                 this.filterService.getFilterState(function() {

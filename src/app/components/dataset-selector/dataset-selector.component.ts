@@ -54,7 +54,7 @@ export interface CustomDatabase {
 @Component({
     selector: 'app-dataset-selector',
     templateUrl: 'dataset-selector.component.html',
-    styleUrls: ['dataset-selector.component.less']
+    styleUrls: ['dataset-selector.component.scss']
 })
 export class DatasetSelectorComponent implements OnInit, OnDestroy {
     public static HIDE_INFO_POPOVER: string = 'sr-only';
@@ -79,10 +79,10 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
     /**
      * This is the array of custom relation objects configured by the user through the popup.  Each custom relation contains:
-     *     {Array} customRelationDatabases The array of custom relation database objects configured by the user through the popup.  
+     *     {Array} customRelationDatabases The array of custom relation database objects configured by the user through the popup.
      *             Each custom relation database contains:
      *         {Object} database The database object
-     *         {Array} customRelationTables The array of custom relation table objects configured by the user through the popup.  
+     *         {Array} customRelationTables The array of custom relation table objects configured by the user through the popup.
                    Each custom relation table contains:
      *             {Object} table The table object
      *             {Object} field The field object
@@ -205,7 +205,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             return;
         }
 
-        // Update the fields within each database and table within the selected dataset 
+        // Update the fields within each database and table within the selected dataset
         // to include fields that weren't listed in the configuration file.
         let me = this;
         this.datasetService.updateDatabases(this.datasets[index], connection, function(dataset) {
