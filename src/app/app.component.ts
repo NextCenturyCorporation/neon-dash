@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { AfterViewInit, Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
 
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
@@ -23,6 +23,9 @@ import { DatasetService } from './services/dataset.service';
 import { ThemesService } from './services/themes.service';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { NeonGridItem } from './neon-grid-item';
+import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
+
+import { MdDialog, MdDialogConfig, MdDialogRef } from '@angular/material';
 
 @Component({
     selector: 'app-root',
@@ -59,8 +62,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         'fix_to_grid': true
     };
 
+    /* A reference to the dialog for adding visualizations. */
+    private addVisDialogRef: MdDialogRef<AddVisualizationComponent>;
+
     constructor(private datasetService: DatasetService, private themesService: ThemesService,
-        private activeGridService: ActiveGridService) {
+        private activeGridService: ActiveGridService, public dialog: MdDialog, public viewContainerRef: ViewContainerRef) {
         this.datasets = datasetService.getDatasets();
     }
 
@@ -70,6 +76,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     getDatasets(): Dataset[] {
         return this.datasets;
+    }
+
+    openAddVisualizationDialog() {
+        let config = new MdDialogConfig();
+        config.viewContainerRef = this.viewContainerRef;
+
+        this.addVisDialogRef = this.dialog.open(AddVisualizationComponent, config);
+        this.addVisDialogRef.afterClosed().subscribe(result => {
+            this.addVisDialogRef = null;
+        });
     }
 
     ngAfterViewInit() {

@@ -39,6 +39,7 @@ import { AppComponent } from './app.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
+import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 
 export function createAppModule(config: NeonGTDConfig) {
     @NgModule({
@@ -47,7 +48,8 @@ export function createAppModule(config: NeonGTDConfig) {
             VisualizationContainerComponent,
             DatasetSelectorComponent,
             AboutNeonComponent,
-            DashboardOptionsComponent
+            DashboardOptionsComponent,
+            AddVisualizationComponent
         ],
         imports: [
             BrowserModule,
@@ -71,7 +73,7 @@ export function createAppModule(config: NeonGTDConfig) {
               useValue: config
             }
         ],
-        entryComponents: [AppComponent],
+        entryComponents: [AppComponent, AddVisualizationComponent],
         bootstrap: [AppComponent]
     })
     class AppModule {

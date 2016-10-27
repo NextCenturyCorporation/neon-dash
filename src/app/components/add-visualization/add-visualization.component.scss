@@ -1,0 +1,67 @@
+.add-visualization {
+    .alert-success {
+        display: inline;
+        font-weight: bold;
+        height: 35px;
+        line-height: 15px;
+        margin: 0px;
+        padding: 10px;
+        width: 400px;
+    }
+
+    .add-visualization-image {
+/*        background-color: @visualization-box-background;*/
+    }
+
+    .add-visualization-button{
+        padding: 0px;
+        display: block;
+
+        a {
+            background: none;
+            border: 0;
+      /*      color: @main-text-color;*/
+            display: block;
+            padding-bottom: 15px;
+            padding-top: 15px;
+
+            &:focus, &:hover, &.collapsed:hover {
+  /*              color: @accent-bright;*/
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+
+app-add-visualizations-dialog {
+    padding: 0px;
+    margin: 0px;
+}
+
+.add-visualization-message {
+    display: inline;
+    font-weight: bold;
+    height: 35px;
+    line-height: 15px;
+    margin: 0px;
+    padding: 10px;
+    width: 400px;
+}
+
+.add-visualization-tile {
+    padding: 0px;
+    display: block;
+
+    & > a {
+        background: none;
+        border: 0;
+        display: block;
+        padding-bottom: 15px;
+        padding-top: 15px;
+
+        &:focus, &:hover, &.collapsed:hover {
+            cursor: pointer;
+        }
+    }
+}
