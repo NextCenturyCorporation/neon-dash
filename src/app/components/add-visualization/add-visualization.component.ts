@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { MaterialModule, MdDialogRef } from '@angular/material';
 
 import { ActiveGridService } from '../../services/active-grid.service';
+import { ThemesService } from '../../services/themes.service';
 import { neonVisualizations } from '../../neon-namespaces';
 
 @Component({
@@ -13,11 +14,22 @@ import { neonVisualizations } from '../../neon-namespaces';
 export class AddVisualizationComponent implements OnInit {
 
     private visualizations: any[];
+    private selectedIndex: number = -1;
 
-    constructor(public dialogRef: MdDialogRef<AddVisualizationComponent>) { }
+    constructor(private activeGridService: ActiveGridService, private themesService: ThemesService,
+        public dialogRef: MdDialogRef<AddVisualizationComponent>) { }
 
     ngOnInit() {
         this.visualizations = neonVisualizations;
     }
 
+    public onItemSelected(index) {
+        if (this.selectedIndex != -1) {
+            this.visualizations[this.selectedIndex].selected = false;
+        }
+        this.visualizations[index].selected = true;
+        this.selectedIndex = index;
+
+        this.activeGridService.addItemInFirstFit(this.visualizations[index]);
+    }
 }

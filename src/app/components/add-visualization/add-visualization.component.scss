@@ -1,17 +1,4 @@
 .add-visualization {
-    .alert-success {
-        display: inline;
-        font-weight: bold;
-        height: 35px;
-        line-height: 15px;
-        margin: 0px;
-        padding: 10px;
-        width: 400px;
-    }
-
-    .add-visualization-image {
-/*        background-color: @visualization-box-background;*/
-    }
 
     .add-visualization-button{
         padding: 0px;
@@ -33,10 +20,11 @@
     }
 }
 
-
-app-add-visualizations-dialog {
-    padding: 0px;
-    margin: 0px;
+.add-visualization-grid-container {
+    height: 400px;
+    overflow-y: auto;
+    margin: 10px;
+    width: 550px;
 }
 
 .add-visualization-message {
@@ -50,10 +38,12 @@ app-add-visualizations-dialog {
 }
 
 .add-visualization-tile {
+    min-height: 130px;
+    min-width: 120px;
     padding: 0px;
     display: block;
 
-    & > a {
+    a {
         background: none;
         border: 0;
         display: block;
@@ -62,6 +52,12 @@ app-add-visualizations-dialog {
 
         &:focus, &:hover, &.collapsed:hover {
             cursor: pointer;
+            color: green;
         }
     }
+}
+
+.selected {
+    border: 1px solid #39B54A;
+    border-radius: 7px;
 }

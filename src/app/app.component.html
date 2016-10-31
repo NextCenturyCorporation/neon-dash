@@ -19,7 +19,7 @@
             <i class="material-icons md-24" style="vertical-align: sub">menu</i>&nbsp;{{ datasetService.getName() || "Choose Data..." }}
         </button>
         <button md-mini-fab aria-label="Add Visualization" md-tooltip="Add a new visualization to the current dashboard."
-            tooltip-position="below" (click)="openAddVisualizationDialog()" >
+            tooltip-position="below" (click)="openAddVisualizationDialog()" *ngIf="showAddVisualizationButton">
             <md-icon class="md-24">add</md-icon>
         </button>
         <span class="fill-remaining"></span>

@@ -175,9 +175,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         });
     }
 
-    ngOnDestroy(): void {
-        console.log('dataset-selector destroyed');
-    }
+    ngOnDestroy(): void { }
 
     /**
      * Connects to the preset dataset at the given index.
@@ -322,6 +320,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      */
     selectCustom() {
         // Removed call to xdata logger library
+        // Custom connection dialog is not yet implemented.
     };
 
     /**

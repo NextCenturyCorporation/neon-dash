@@ -1,25 +1,27 @@
-<md-toolbar color="primary">
-    <span class="md-36">Add Visualizations</span>
-</md-toolbar>
-
-<md-grid-list cols="4" rowHeight="1:1" gutterSize="5px" [style.background]="'lightblue'">
-   <md-grid-tile *ngFor="let item of visualizations; let i = index;"  [class.selected]="item.selected" [colspan]="1" [rowspan]="1"
-        class="add-visualization-tile">
-        <div class="neon-popup-thumbnail center-block text-center">
-            <a ng-click="onItemSelected(item)" tabindex="0">
-                <div class="center-block">
-                    <div class="center-block icon-container">
-                        <div class="icon-{{item.icon}} neon-sprite"></div>
-                    </div>
+<div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <md-toolbar color="primary">
+        <span class="md-36">Add Visualizations</span>
+    </md-toolbar>
+    <div class="add-visualization-grid-container" md-fill>
+        <md-grid-list cols="4" rowHeight="130px" gutterSize="5px">
+           <md-grid-tile *ngFor="let item of visualizations; let i = index;"  [class.selected]="item.selected" [colspan]="1" [rowspan]="1"
+                class="add-visualization-tile">
+                <div class="neon-popup-thumbnail center-block text-center">
+                    <a (click)="onItemSelected(i)" tabindex="0">
+                        <div class="center-block">
+                            <div class="center-block icon-container">
+                                <div class="icon-{{item.icon}} neon-sprite"></div>
+                            </div>
+                        </div>
+                        <span class="text-uppercase">{{ item.name }}</span>
+                    </a>
                 </div>
-                <span class="text-uppercase">{{ item.name }}</span>
-            </a>
-        </div>
-    </md-grid-tile>
-</md-grid-list>
-
-<md-toolbar>
-    <span class="fill-remaining"></span>
-    <button md-raised-button class="md-primary" (click)="dialogRef.close('close')"> Close </button>
-</md-toolbar>
+            </md-grid-tile>
+        </md-grid-list>
+    </div>
+    <md-toolbar>
+        <span class="fill-remaining"></span>
+        <button md-raised-button class="md-primary" (click)="dialogRef.close('close')"> Close </button>
+    </md-toolbar>
+</div>
 
