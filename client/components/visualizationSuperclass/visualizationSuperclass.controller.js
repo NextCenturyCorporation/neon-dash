@@ -1219,7 +1219,7 @@ function($scope, external, externalRouteService, customFilters, connectionServic
         return $scope.active.layers;
     };
 
-  
+    /*
      * Checks for Neon filters for all filterable layers in this visualization.  Adds, replaces, or removes the filter displayed by this visualization if needed.
      * Queries for new data for the database and table with the given names (or all layers if a filter was changed or no names were given) and updates this visualization.
      * @method checkNeonDashboardFilters
