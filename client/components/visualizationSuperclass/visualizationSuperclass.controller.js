@@ -462,6 +462,7 @@ function($scope, external, customFilters, connectionService, datasetService, err
         var layer = createLayerFromConfig({});
         layer.edit = true;
         layer.new = true;
+        return layer;
     };
 
     /**
@@ -783,6 +784,9 @@ function($scope, external, customFilters, connectionService, datasetService, err
      * @param {Number} newIndexReversed The new index of the layer in the list of layers (reversed).
      */
     $scope.functions.reorderLayer = function(layer, newIndexReversed) {
+        if(layer === undefined || layer === null) {
+            return;
+        }
         var newIndex = $scope.active.layers.length - 1 - newIndexReversed;
         var oldIndex = $scope.active.layers.indexOf(layer);
         $scope.active.layers.splice(oldIndex, 1);
@@ -1207,6 +1211,16 @@ function($scope, external, customFilters, connectionService, datasetService, err
     };
 
     /**
+     * Returns the maximum number of distinct filters that can be applied to any given layer of this visualization.
+     * For most visualizations this will be 1.
+     * @method $scope.getMaxFiltersPerLayer
+     * @return {Number}
+     */
+    $scope.functions.getMaxFiltersPerLayer = function() {
+        return 1;
+    };
+
+    /**
      * Checks for Neon filters for all filterable layers in this visualization.  Adds, replaces, or removes the filter displayed by this visualization if needed.
      * Queries for new data for the database and table with the given names (or all layers if a filter was changed or no names were given) and updates this visualization.
      * @method checkNeonDashboardFilters
@@ -1232,7 +1246,7 @@ function($scope, external, customFilters, connectionService, datasetService, err
 
         // If some of the filtered data in this visualization do not have any Neon filters set, remove the filter from this visualization if it is set.
         // Note for single layer visualizations that this will always be true if a filter is set in this visualization but not in the Neon dashboard.
-        if((!neonFilters.length || neonFilters.length < data.length) && $scope.functions.isFilterSet()) {
+        if((!neonFilters.length || neonFilters.length < (data.length * $scope.functions.getMaxFiltersPerLayer())) && $scope.functions.isFilterSet()) {
             $scope.functions.removeFilterValues();
             runDefaultQueryAndUpdate();
             return;

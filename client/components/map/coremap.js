@@ -24,7 +24,7 @@ var coreMap = coreMap || {};
  * @namespace coreMap
 
  * @param {String} elementId id of a div or span which the map component will replace.
- * @param {Object} opts A collection of optional key/value pairs used for configuration parameters:
+ * @param {Object} options A collection of optional key/value pairs used for configuration parameters:
  * <ul>
  *     <li>width - The width of the map in pixels.</li>
  *     <li>height - The height of the map in pixels.</li>
@@ -38,41 +38,45 @@ var coreMap = coreMap || {};
  *     var map = new coreMap.Map('map');
  *
  * @example
- *     var opts = {
+ *     var options = {
  *            latitudeMapping: function(element){ return element[0]; },
  *            longitudeMapping: function(element){ return element[1]; },
  *            sizeMapping: function(element){ return element[2]; }
  *     };
- *     var map = new coreMap.Map('map', opts);
+ *     var map = new coreMap.Map('map', options);
  *
  **/
 
-coreMap.Map = function(elementId, opts) {
-    opts = opts || {};
+coreMap.Map = function(elementId, options) {
+    options = options || {};
 
     this.elementId = elementId;
     this.selector = $("#" + elementId);
-    this.onZoomRect = opts.onZoomRect;
-    this.responsive = opts.responsive;
-    this.queryForMapPopupDataFunction = opts.queryForMapPopupDataFunction || function(database, table, idField, id, callback) {
+    this.onZoomRect = options.onZoomRect;
+    this.responsive = options.responsive;
+    this.queryForMapPopupDataFunction = options.queryForMapPopupDataFunction || function(database, table, idField, id, callback) {
         callback({});
     };
-    this.linksPopupService = {};
+    this.makeQueryForRouteDataFunction = options.makeQueryForRouteDataFunction;
+    this.linksPopupService = options.linksPopupService || {};
+    this.routeService = options.routeService || {};
+    this.createMapLayerFunction = options.createMapLayerFunction;
 
     if(this.responsive) {
         this.resizeOnWindowResize();
     } else {
-        this.width = opts.width || coreMap.Map.DEFAULT_WIDTH;
-        this.height = opts.height || coreMap.Map.DEFAULT_HEIGHT;
+        this.width = options.width || coreMap.Map.DEFAULT_WIDTH;
+        this.height = options.height || coreMap.Map.DEFAULT_HEIGHT;
     }
 
-    this.baseLayerColor = (opts.mapBaseLayer ? opts.mapBaseLayer.color : null) || "light";
-    this.baseLayerProtocol = (opts.mapBaseLayer ? opts.mapBaseLayer.protocol : null) || "http";
+    this.baseLayerColor = (options.mapBaseLayer ? options.mapBaseLayer.color : null) || "light";
+    this.baseLayerProtocol = (options.mapBaseLayer ? options.mapBaseLayer.protocol : null) || "http";
 
     this.selectableLayers = [];
     this.selectControls = [];
     this.initializeMap();
     this.setupLayers();
+
     this.setupControls();
     this.resetZoom();
 };
@@ -90,6 +94,7 @@ coreMap.Map.POINTS_LAYER = 'points';
 coreMap.Map.HEATMAP_LAYER = 'heatmap';
 coreMap.Map.CLUSTER_LAYER = 'cluster';
 coreMap.Map.NODE_LAYER = 'nodes and arrows';
+coreMap.Map.ROUTE_LAYER = 'route';
 
 coreMap.Map.MAP_TILES = {
     light: {
@@ -368,7 +373,9 @@ coreMap.Map.prototype.configureFilterOnZoomRectangle = function() {
     this.map.addControl(control);
 };
 
-coreMap.Map.prototype.createSelectControl =  function(layer) {
+var removePopup;
+
+coreMap.Map.prototype.createSelectControl = function(layer) {
     var me = this;
     var onFeatureSelect = function(feature) {
         XDATA.userALE.log({
@@ -489,7 +496,7 @@ coreMap.Map.prototype.createSelectControl =  function(layer) {
         removePopup();
     };
 
-    var removePopup = function() {
+    removePopup = function() {
         if(me.featurePopup) {
             me.map.removePopup(me.featurePopup);
             me.featurePopup.destroy();
@@ -503,6 +510,8 @@ coreMap.Map.prototype.createSelectControl =  function(layer) {
         onUnselect: onFeatureUnselect
     });
 };
+
+    
 
 /**
  * Initializes the map layers and adds the base layer.
@@ -518,6 +527,11 @@ coreMap.Map.prototype.setupLayers = function() {
         displayInLayerSwitcher: false
     });
     this.map.addLayer(this.boxLayer);
+
+    this.markerLayer = new OpenLayers.Layer.Markers('Routing', {
+        projection: coreMap.Map.DESTINATION_PROJECTION
+    });
+    this.map.addLayer(this.markerLayer);
 };
 
 /**
@@ -559,7 +573,14 @@ coreMap.Map.prototype.setupControls = function() {
     });
 
     this.selectControl = this.createSelectControl([]);
-    this.map.addControls([this.zoomControl, this.cacheReader, this.cacheWriter, this.selectControl]);
+    this.clickControl = new OpenLayers.Control.Click({
+        markerLayer: this.markerLayer,
+        routeService: this.routeService,
+        makeQueryForRouteDataFunction: this.makeQueryForRouteDataFunction,
+        createMapLayerFunction: this.createMapLayerFunction,
+    });
+    this.map.addControls([this.zoomControl, this.clickControl, this.cacheReader, this.cacheWriter, this.selectControl]);
+    this.clickControl.activate();
 };
 
 /**
@@ -680,3 +701,150 @@ coreMap.Map.prototype.setBaseLayerColor = function(color) {
     this.baseLayerColor = color;
     this.addBaseLayer();
 };
+
+OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
+    routeStartAndEnd: {
+        start: undefined,
+        end: undefined
+    },
+    defaultHandlerOptions: {
+        single: true,
+        double: false,
+        pixelTolerance: 0,
+        stopSingle: false,
+        stopDouble: false
+    },
+
+    initialize: function(options) {
+        this.markerLayer = options.markerLayer;
+        this.routeService = options.routeService;
+        this.handlerOptions = OpenLayers.Util.extend({}, this.defaultHandlerOptions);
+        OpenLayers.Control.prototype.initialize.apply(this, arguments);
+        this.handler = new OpenLayers.Handler.Click(this, {
+            click: this.createRoutePointMenu
+        }, this.handlerOptions);
+        this.makeQueryForRouteDataFunction = options.makeQueryForRouteDataFunction;
+        this.createMapLayerFunction = options.createMapLayerFunction;
+    },
+
+    runRouteRequestAndUpdate: function(me, data) {
+        if(!me.routeService.url || !me.routeService.get || !me.routeService.post) {
+            return;
+        }
+
+        // TODO Should be set in the dashboard configuration file!
+        var routeRequestConfig = {
+            timeout: 5000,
+            type: "GET",
+            url: me.routeService.url
+        }
+
+        if(data) {
+            data.request = {
+                lat1: me.routeStartAndEnd.start.lat,
+                lat2: me.routeStartAndEnd.end.lat,
+                lon1: me.routeStartAndEnd.start.lon,
+                lon2: me.routeStartAndEnd.end.lon
+            };
+            routeRequestConfig.contentType = "application/json";
+            routeRequestConfig.type = "POST";
+            routeRequestConfig.url += me.routeService.post;
+            routeRequestConfig.data = JSON.stringify(data);
+        } else {
+            routeRequestConfig.url += me.routeService.get;
+            routeRequestConfig.url = routeRequestConfig.url.replace(new RegExp(me.routeService.replacements.lat1, "g"), me.routeStartAndEnd.start.lat)
+                .replace(new RegExp(me.routeService.replacements.lon1, "g"), me.routeStartAndEnd.start.lon)
+                .replace(new RegExp(me.routeService.replacements.lat2, "g"), me.routeStartAndEnd.end.lat)
+                .replace(new RegExp(me.routeService.replacements.lon2, "g"), me.routeStartAndEnd.end.lon);
+        }
+        $.ajax(routeRequestConfig).done(function(response) {
+            var json = JSON.parse(response);
+            var routeLayers = me.map.getLayersBy("route", true);
+            if(json.paths && json.paths.length && json.paths[0].points) {
+                if(!routeLayers.length) {
+                    me.createMapLayerFunction(coreMap.Map.ROUTE_LAYER, "Route");
+                    routeLayers = me.map.getLayersBy("route", true);
+                }
+                routeLayers[0].setData(json.paths[0].points);
+            }
+        }).fail(function(response) {
+            if(response.responseJSON && response.responseJSON.message) {
+                // TODO Show error notification.
+                console.error("Error in route request [" + routeRequestConfig.url + ":  " + response.responseJSON.message);
+            } else {
+                // TODO Show error.
+                console.error("Unknown error in route request [" + routeRequestConfig.url + "]");
+            }
+        }).always(function() {
+            me.routeStartAndEnd = { start: undefined, end: undefined };
+        });
+    },
+
+    createRoutePointMenu: function(args) {
+        var me = this;
+        var text = "<div><input type='button' class='btn btn-default' id='start_point_button' value='Place Start'/>";
+        text = me.routeStartAndEnd.start !== undefined ? text + "<input type='button' class='btn btn-default' id='end_point_button' value='Place End'/>" : text;
+        text += "</div>";
+        me.featurePopup = new OpenLayers.Popup.FramedCloud("Routing",
+            me.map.getLonLatFromPixel(args.xy),
+            null,
+            text,
+            null,
+            true,
+            function() {
+                me.map.removePopup(me.featurePopup);
+            });
+        me.featurePopup.events.remove("click");
+        me.map.addPopup(me.featurePopup, true);
+        $("#start_point_button").on('click', function(evnt) { me.map.removePopup(me.featurePopup); me.addRoutePointAndUpdate(args, "start"); } );
+        $("#end_point_button").on('click', function(evnt) { me.map.removePopup(me.featurePopup); me.addRoutePointAndUpdate(args, "end"); } );
+    },
+
+    addRoutePointAndUpdate: function(args, pointType) {
+        if(this.routeService.disabled) {
+            return;
+        }
+
+        if(this.routeStartAndEnd.start === undefined && this.routeStartAndEnd.end === undefined) {
+            this.markerLayer.clearMarkers();
+            var routeLayers = this.map.getLayersBy("route", true);
+            if(routeLayers.length) {
+                routeLayers[0].setData([]);
+            }
+        }
+
+        var routePoint = this.map.getLonLatFromPixel(args.xy).transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
+        routePoint.type = pointType;
+        if(pointType === 'start') {
+            if(this.routeStartAndEnd.start !== undefined && this.routeStartAndEnd.start.marker !== undefined) {
+                this.markerLayer.removeMarker(this.routeStartAndEnd.start.marker);
+            }
+            this.routeStartAndEnd.start = routePoint;
+        }
+        else if(pointType === 'end') {
+            if(this.routeStartAndEnd.end !== undefined && this.routeStartAndEnd.end.marker !== undefined) {
+                this.markerLayer.removeMarker(this.routeStartAndEnd.end.marker);
+            }
+            this.routeStartAndEnd.end = routePoint;
+        }
+
+        var size = new OpenLayers.Size(25, 25);
+        var offset = new OpenLayers.Pixel(-(size.w / 2 + 1), -size.h);
+        var markerIcon = new OpenLayers.Icon("assets/images/Marker_" + pointType + "_40x40.png", size, offset);
+        var markerPoint = new OpenLayers.LonLat(routePoint.lon, routePoint.lat).transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
+        routePoint.marker = new OpenLayers.Marker(markerPoint, markerIcon);
+        this.markerLayer.addMarker(routePoint.marker);
+
+        if(this.routeStartAndEnd.start === undefined || this.routeStartAndEnd.end === undefined) {
+            return;
+        }
+
+        if(this.makeQueryForRouteDataFunction) {
+            var me = this;
+            var heatmapQueryData = this.makeQueryForRouteDataFunction(this.routeStartAndEnd);
+            this.runRouteRequestAndUpdate(me, heatmapQueryData)
+        } else {
+            this.runRouteRequestAndUpdate();
+        }
+    }
+});

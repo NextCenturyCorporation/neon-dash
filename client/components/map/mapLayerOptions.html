@@ -170,4 +170,11 @@
             </option>
         </select>
     </div>
+
+    <div class="form-group layer-options-col">
+        <label>Location Field</label>
+        <select class="form-control" ng-cancel-drag ng-model="layer.locationField" ng-options="field.prettyName for field in layer.fields" ng-required="false" ng-disabled="!(layer.fields.length > 0)">
+            <option value="">None</option>
+        </select>
+    </div>
 </div>

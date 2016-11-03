@@ -22,11 +22,12 @@
  * @class mapController
  * @constructor
  */
-angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$filter', function($scope, $filter) {
+angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$filter', 'ConnectionService', function($scope, $filter, connectionService) {
     $scope.POINT_LAYER = coreMap.Map.POINTS_LAYER;
     $scope.CLUSTER_LAYER = coreMap.Map.CLUSTER_LAYER;
     $scope.HEATMAP_LAYER = coreMap.Map.HEATMAP_LAYER;
     $scope.NODE_AND_ARROW_LAYER = coreMap.Map.NODE_LAYER;
+    $scope.ROUTE_LAYER = coreMap.Map.ROUTE_LAYER;
     $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER];
     $scope.DEFAULT_LIMIT = 1000;
     $scope.DEFAULT_NEW_LAYER_TYPE = $scope.MAP_LAYER_TYPES[0];
@@ -107,11 +108,19 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.functions.onInit = function() {
         $scope.map = new coreMap.Map($scope.visualizationId, {
             responsive: false,
+            routeService: $scope.functions.getRouteServiceConfig(),
+            makeQueryForRouteDataFunction: makeQueryForRouteData,
             queryForMapPopupDataFunction: queryForMapPopupData,
             mapBaseLayer: {
                 color: $scope.active.baseLayerColor || 'light',
                 protocol: $scope.active.baseLayerProtocol || 'http'
-            }
+            },
+            createMapLayerFunction: function(layerType, layerName) { // Creates a new layer, sets its name and type, and adds it to the map.
+                var layer = $scope.functions.createLayer();
+                layer.type = layerType;
+                layer.name = layerName;
+                createMapLayer(layer);
+            },
         });
         $scope.map.linksPopupService = $scope.functions.getLinksPopupService();
         $scope.setDefaultView();
@@ -211,6 +220,47 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
 
     $scope.functions.shouldQueryAfterFilter = function() {
         return true;
+    };
+
+    /**
+     * Creates an object containing data needed to run a query for route data using the given start and end points.
+     * @method makeQueryForRouteData
+     * @param {Array} routeStartAndEnd An object containing  start and end values, each containing {Number} lat and {Number} lon
+     * @private
+     */
+    var makeQueryForRouteData = function(routeStartAndEnd) {
+        // FIXME this call should really be part of the neon.js library so we wouldnt need to use jquery.ajax here
+        if(!$scope.active.layers.length) {
+            return;
+        }
+        var connection = connectionService.getActiveConnection();
+        var minLat = Math.min(routeStartAndEnd.start.lat, routeStartAndEnd.end.lat);
+        var minLon = Math.min(routeStartAndEnd.start.lon, routeStartAndEnd.end.lon);
+        var maxLat = Math.max(routeStartAndEnd.start.lat, routeStartAndEnd.end.lat);
+        var maxLon = Math.max(routeStartAndEnd.start.lon, routeStartAndEnd.end.lon);
+
+        var data = {
+            minLat: minLat,
+            minLon: minLon,
+            maxLat: maxLat,
+            maxLon: maxLon,
+            host: connection.host_,
+            databaseType: connection.databaseType_,
+            query: {
+                filter: {
+                    databaseName: $scope.active.layers[0].database.name,
+                    tableName: $scope.active.layers[0].table.name
+                }
+            }
+        };
+        if(data.databaseType === 'mongo') {
+            data.latField = $scope.active.layers[0].latitudeField.columnName;
+            data.lonField = $scope.active.layers[0].longitudeField.columnName
+        }
+        else {
+            data.locationField = $scope.active.layers[0].locationField.columnName;
+        }
+        return data
     };
 
     /**
@@ -461,8 +511,14 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     $scope.functions.updateData = function(data, layers) {
-        $scope.dataBounds = computeDataBounds(data || []);
-        zoomToDataBounds();
+        var dataBounds = computeDataBounds(data || []);
+        var newBounds = new OpenLayers.Bounds(dataBounds.left, dataBounds.bottom, dataBounds.right, dataBounds.top)
+            .transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
+        var mapExtent = $scope.map.map.getExtent();
+        if(Math.abs(newBounds.left - newBounds.right) < Math.abs(mapExtent.left - mapExtent.right)) {
+            $scope.dataBounds = dataBounds;
+            zoomToDataBounds();
+        }
 
         (layers || $scope.active.layers).forEach(function(layer) {
             if(layer.olLayer) {
@@ -954,12 +1010,14 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         } else if(layer.type === $scope.CLUSTER_LAYER) {
             options.cluster = true;
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
+        } else if(layer.type === $scope.ROUTE_LAYER) {
+            options.route = true;
+            olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
         } else if(layer.type === $scope.HEATMAP_LAYER) {
             olLayer = new coreMap.Map.Layer.HeatmapLayer(layer.name, $scope.map.map, $scope.map.map.baseLayer, options);
         } else if(layer.type === $scope.NODE_AND_ARROW_LAYER) {
             olLayer = new coreMap.Map.Layer.NodeLayer(layer.name, options);
         }
-
         if(olLayer) {
             $scope.map.addLayer(olLayer);
         }
@@ -992,6 +1050,14 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
 
     $scope.functions.onReorderLayers = function() {
         $scope.map.reorderLayers(_.filter($scope.active.layers, function(layer) {
+            if(layer=== undefined || layer === null) {
+                for(var index = 0; index < $scope.active.layers.length; index ++) {
+                    if($scope.active.layers[index] === layer) {
+                        $scope.active.layers.splice(index, 1);
+                    }
+                    return;
+                }
+            }
             return !layer.new;
         }).map(function(item) {
             return item.olLayer;
@@ -1006,6 +1072,10 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         if($scope.map) {
             $scope.map.setBaseLayerColor($scope.active.baseLayerColor);
         }
+    };
+
+    $scope.updateRouteLayerDisabled = function() {
+        // TODO Logging
     };
 
     $scope.getFilterData = function() {
