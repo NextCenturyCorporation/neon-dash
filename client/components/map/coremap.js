@@ -52,7 +52,6 @@ coreMap.Map = function(elementId, options) {
 
     this.graticuleIntervalList = [90, 45, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.01, 0.005, 0.002, 0.001];
     this.minVisibleForGrid = 1; // If the graticule's granularity drops lower than this, we hide it and treat any grid layer as a point layer.
->
 
     this.elementId = elementId;
     this.selector = $("#" + elementId);
