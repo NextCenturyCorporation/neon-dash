@@ -1,6 +1,6 @@
 'use strict';
 
-/*
+/**
  * Copyright 2016 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1219,7 +1219,16 @@ function($scope, external, externalRouteService, customFilters, connectionServic
         return $scope.active.layers;
     };
 
-    /*
+    /**
+     * Returns the meximum number of filters that can be placed on a single data layer for this visualization. Should be 1 in most cases.
+     * @method getMaxFiltersPerLayer
+     * @return {Number}
+     */
+    $scope.functions.getMaxFiltersPerLayer = function() {
+        return 1;
+    }
+
+    /**
      * Checks for Neon filters for all filterable layers in this visualization.  Adds, replaces, or removes the filter displayed by this visualization if needed.
      * Queries for new data for the database and table with the given names (or all layers if a filter was changed or no names were given) and updates this visualization.
      * @method checkNeonDashboardFilters
