@@ -23,8 +23,8 @@
  * @constructor
  */
 angular.module('neonDemo.controllers').controller('visualizationSuperclassController',
-['$scope', 'external', 'customFilters', 'ConnectionService', 'DatasetService', 'ErrorNotificationService', 'FilterService', 'ExportService', 'LinksPopupService', 'ThemeService', 'TranslationService', 'VisualizationService',
-function($scope, external, customFilters, connectionService, datasetService, errorNotificationService, filterService, exportService, linksPopupService, themeService, translationService, visualizationService) {
+['$scope', 'external', 'externalRouteService', 'customFilters', 'ConnectionService', 'DatasetService', 'ErrorNotificationService', 'FilterService', 'ExportService', 'LinksPopupService', 'ThemeService', 'TranslationService', 'VisualizationService',
+function($scope, external, externalRouteService, customFilters, connectionService, datasetService, errorNotificationService, filterService, exportService, linksPopupService, themeService, translationService, visualizationService) {
     // Options for the implementation property.
     $scope.SINGLE_LAYER = "singleLayer";
     $scope.MULTIPLE_LAYER = "multipleLayer";
@@ -674,6 +674,15 @@ function($scope, external, customFilters, connectionService, datasetService, err
     };
 
     /**
+     * Returns the configuration for the route service as defined in the dashboard configuration.
+     * @method $scope.functions.getRouteServiceConfig
+     * @return {Object}
+     */
+    $scope.functions.getRouteServiceConfig = function() {
+        return externalRouteService;
+    };
+
+    /**
      * Returns the list of sorted fields for the database and table in the given layer (in alphabetical order).
      * @method $scope.functions.getSortedFields
      * @param {Object} layer
@@ -1210,17 +1219,7 @@ function($scope, external, customFilters, connectionService, datasetService, err
         return $scope.active.layers;
     };
 
-    /**
-     * Returns the maximum number of distinct filters that can be applied to any given layer of this visualization.
-     * For most visualizations this will be 1.
-     * @method $scope.getMaxFiltersPerLayer
-     * @return {Number}
-     */
-    $scope.functions.getMaxFiltersPerLayer = function() {
-        return 1;
-    };
-
-    /**
+  
      * Checks for Neon filters for all filterable layers in this visualization.  Adds, replaces, or removes the filter displayed by this visualization if needed.
      * Queries for new data for the database and table with the given names (or all layers if a filter was changed or no names were given) and updates this visualization.
      * @method checkNeonDashboardFilters

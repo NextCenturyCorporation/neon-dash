@@ -48,7 +48,7 @@ angular.module('neonDemo.controllers').controller('networkGraphController', ['$s
     $scope.active.linkedNodeField = {};
     $scope.active.linkedNameField = {};
     $scope.active.linkedSizeField = {};
-    $scope.active.limit = 500000;
+    $scope.active.limit = 50000;
     $scope.active.flagMode = "";
 
     $scope.active.clusterNodes = true;
@@ -160,7 +160,7 @@ angular.module('neonDemo.controllers').controller('networkGraphController', ['$s
             });
         };
 
-        $scope.mediator = new mediators.DirectedGraphMediator($scope.functions.getElement()[0], ".directed-graph", {
+        $scope.mediator = new mediators.CustomGraphMediator($scope.functions.getElement()[0], ".directed-graph", {
             calculateGraphHeight: function() {
                 return $scope.functions.getElement(".directed-graph").height();
             },
@@ -205,8 +205,8 @@ angular.module('neonDemo.controllers').controller('networkGraphController', ['$s
             if($scope.functions.isFieldValid($scope.active.textField)) {
                 fields.push($scope.active.textField.columnName);
             }
-
-            neon.helpers.getNestedValues(item, fields).forEach(function(value) {
+            // console.log("in controller:" + fields);
+            Array.from(neon.helpers.getNestedValues(item, fields)).forEach(function(value) {
                 news.push({
                     primaryTitle: value[$scope.active.nodeField.columnName],
                     secondaryTitle: $scope.functions.isFieldValid($scope.active.nameField) ? value[$scope.active.nameField.columnName] : undefined,
@@ -377,6 +377,7 @@ angular.module('neonDemo.controllers').controller('networkGraphController', ['$s
     };
 
     $scope.functions.updateData = function(data) {
+        // alert("controllerUpdateData data is " + JSON.stringify(data, null, 4));
         if(data) {
             // Reset runQuery on a response containing data (as opposed to a reset in which the data is null).
             $scope.runQuery = false;

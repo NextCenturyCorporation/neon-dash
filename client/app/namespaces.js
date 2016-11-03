@@ -365,6 +365,7 @@ neonWizard.visualizationBindings["timeline-selector"] = [
                 prettyName: "Hour"
             }
         ]
+
     }
 ];
 

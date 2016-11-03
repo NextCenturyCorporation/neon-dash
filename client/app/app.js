@@ -92,6 +92,7 @@ var saveNeonConfig = function($http, config) {
     NeonGTDSetup.saveUserAle(config);
     NeonGTDSetup.saveOpenCpu(config);
     NeonGTDSetup.saveCustomFilters(config);
+    NeonGTDSetup.saveExternalRouteService(config);
     NeonGTDSetup.saveDashboards(config);
 
     var files = (config.files || []);

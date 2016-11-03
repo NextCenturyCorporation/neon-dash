@@ -23,12 +23,21 @@
  * @constructor
  */
 angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$filter', 'ConnectionService', function($scope, $filter, connectionService) {
+    $scope.gridLayerPointRadius = 5;
+    $scope.maxNumGridPoints = 4;
+    $scope.currentGraticuleInterval;
+    
     $scope.POINT_LAYER = coreMap.Map.POINTS_LAYER;
     $scope.CLUSTER_LAYER = coreMap.Map.CLUSTER_LAYER;
     $scope.HEATMAP_LAYER = coreMap.Map.HEATMAP_LAYER;
     $scope.NODE_AND_ARROW_LAYER = coreMap.Map.NODE_LAYER;
     $scope.ROUTE_LAYER = coreMap.Map.ROUTE_LAYER;
+<<<<<<< HEAD
     $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER];
+=======
+    $scope.GRID_LAYER = coreMap.Map.GRID_LAYER;
+    $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER, $scope.GRID_LAYER];
+>>>>>>> branch 'master' of https://gitlab.nextcentury.com/LORELEI.THOR/Lorelei-demo.git
     $scope.DEFAULT_LIMIT = 1000;
     $scope.DEFAULT_NEW_LAYER_TYPE = $scope.MAP_LAYER_TYPES[0];
 
@@ -255,13 +264,33 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         };
         if(data.databaseType === 'mongo') {
             data.latField = $scope.active.layers[0].latitudeField.columnName;
-            data.lonField = $scope.active.layers[0].longitudeField.columnName
+            data.lonField = $scope.active.layers[0].longitudeField.columnName;
         }
         else {
             data.locationField = $scope.active.layers[0].locationField.columnName;
         }
+<<<<<<< HEAD
         return data
+=======
+        return data;
+>>>>>>> branch 'master' of https://gitlab.nextcentury.com/LORELEI.THOR/Lorelei-demo.git
     };
+
+    // Returns the map's grid layer. If strict is true, only looks for grid layers if the map is (or is about to be) zoomed out far enough for the grid to be visible.
+    var getGridLayer = function(strict) {
+        if(strict === true && $scope.currentGraticuleInterval <= $scope.map.minVisibleForGrid && $scope.map.getGraticuleInterval() <= $scope.map.minVisibleForGrid) {
+            return undefined;
+        }
+        var gridLayer = _.find($scope.active.layers, function(layer) { return layer.type === $scope.GRID_LAYER; });
+        if(strict === true && gridLayer !== undefined && !gridLayer.show) {
+            return undefined;
+        }
+        return gridLayer;
+    };
+
+    var debounced = _.debounce(function() {
+        $scope.functions.updateLayer(getGridLayer());
+    }, 1000);
 
     /**
      * A simple handler for emitting USER-ALE messages from common user events on a map.
@@ -270,6 +299,12 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
      */
     var onMapEvent = function(message) {
         var type = message.type;
+
+        var gridLayer = getGridLayer(true);
+        if(gridLayer !== undefined && $scope.map.getGraticuleInterval() !== $scope.currentGraticuleInterval) {
+            $scope.currentGraticuleInterval = $scope.map.getGraticuleInterval();
+            debounced();
+        }
 
         if(type === "zoomend" && $scope.map.featurePopup) {
             $scope.map.map.removePopup($scope.map.featurePopup);
@@ -523,7 +558,13 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         (layers || $scope.active.layers).forEach(function(layer) {
             if(layer.olLayer) {
                 layer.error = undefined;
-                var colorMappings = layer.olLayer.setData(angular.copy(data || []), layer.limit);
+                var colorMappings = undefined;
+                if(layer.type === $scope.GRID_LAYER && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
+                    colorMappings = transformToGridPoints(layer, data);
+                }
+                else {
+                    colorMappings = layer.olLayer.setData(angular.copy(data || []), layer.limit);
+                }
 
                 // Update the legend
                 var index = _.findIndex($scope.active.legend.layers, {
@@ -564,6 +605,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 }
             }
         });
+        if(getGridLayer(true) === undefined) {
+            $scope.map.graticuleControl.deactivate();
+        }
     };
 
     /**
@@ -717,6 +761,40 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 });
             }
 
+            var extent = $scope.map.map.getExtent().transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
+            if(layer.type === $scope.GRID_LAYER && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
+                var interval = $scope.map.getGraticuleInterval();
+                var bottom = getNearestMultiple(interval, extent.bottom, 'lower');
+                var top = getNearestMultiple(interval, extent.top, 'higher');
+                var left = getNearestMultiple(interval, extent.left, 'lower');
+                var right = getNearestMultiple(interval, extent.right, 'higher');
+                var params = {
+                    latField: layer.latitudeField.columnName,
+                    lonField: layer.longitudeField.columnName,
+                    aggregationField: (layer.colorField) ? layer.colorField.prettyName : "",
+                    minLat: bottom,
+                    maxLat: top,
+                    minLon: left,
+                    maxLon: right,
+                    numTilesVertical: (top - bottom) / interval,
+                    numTilesHorizontal: (right - left) / interval
+                };
+                query.transform(new neon.query.Transform('com.ncc.neon.query.transform.GeoGridTransformer').params(params));
+                if(layer.colorField) {
+                    layerFields.push({
+                        columnName: layer.colorField.columnName,
+                        prettyName: layer.colorField.prettyName
+                    });
+                }
+                var whereClauses = neon.query.and(
+                    neon.query.where(layer.latitudeField.columnName, '>=', bottom),
+                    neon.query.where(layer.latitudeField.columnName, '<=', top),
+                    neon.query.where(layer.longitudeField.columnName, '>=', left),
+                    neon.query.where(layer.longitudeField.columnName, '<=', right)
+                );
+                query.where(whereClauses);
+            }
+
             addFields(layerFields);
 
             // Use the highest limit for the data query from all layers for the given database/table.
@@ -727,6 +805,22 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         query.limit(limit || $scope.DEFAULT_LIMIT).withFields(Object.keys(queryFields));
         return query;
     };
+
+    /**
+     * Gets the nearest multiple of a number that is either higher or lower than the given value.
+     * @param {Number} multiple - The value 
+     * @method getNearestMultiple
+     */
+    var getNearestMultiple = function(multiple, value, highOrLow) { // Multiple is assumed > 0, highOrLow is a string eqaling "higher" or "lower"
+        var toReturn = value - (value % multiple);
+        if(highOrLow === 'higher' && toReturn < value) {
+            toReturn += multiple;
+        }
+        else if(highOrLow === 'lower' && toReturn > value) {
+            toReturn -= multiple;
+        }
+        return toReturn;
+    }
 
     $scope.functions.createNeonQueryWhereClause = function(layers) {
         var validation = $scope.functions.getDatasetOptions().checkForCoordinateValidation;
@@ -864,6 +958,12 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
 
     $scope.functions.onToggleShowLayer = function(layer) {
         $scope.map.setLayerVisibility(layer.olLayer.id, layer.show);
+        if(layer.type == $scope.GRID_LAYER && layer.show) {
+            $scope.map.graticuleControl.activate();
+        }
+        else if(layer.type == $scope.GRID_LAYER) {
+            $scope.map.graticuleControl.deactivate();
+        }
     };
 
     /**
@@ -1010,6 +1110,19 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         } else if(layer.type === $scope.CLUSTER_LAYER) {
             options.cluster = true;
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
+<<<<<<< HEAD
+=======
+        } else if(layer.type === $scope.GRID_LAYER) {
+            options.styleMap = new OpenLayers.StyleMap({
+                'default': {
+                    pointRadius: $scope.gridLayerPointRadius
+                }
+            });
+            olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
+            if(layer.show) {
+                $scope.map.graticuleControl.activate();
+            }
+>>>>>>> branch 'master' of https://gitlab.nextcentury.com/LORELEI.THOR/Lorelei-demo.git
         } else if(layer.type === $scope.ROUTE_LAYER) {
             options.route = true;
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
@@ -1018,6 +1131,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         } else if(layer.type === $scope.NODE_AND_ARROW_LAYER) {
             olLayer = new coreMap.Map.Layer.NodeLayer(layer.name, options);
         }
+
         if(olLayer) {
             $scope.map.addLayer(olLayer);
         }
@@ -1031,6 +1145,42 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             .concat((layer.gradientColorCode3 ? [layer.gradientColorCode3] : []))
             .concat((layer.gradientColorCode4 ? [layer.gradientColorCode4] : []))
             .concat((layer.gradientColorCode5 ? [layer.gradientColorCode5] : []));
+    };
+
+    var transformToGridPoints = function(layer, data) {
+        var newPointsList = [];
+        if(data) {
+            if(layer.show) {
+                $scope.map.graticuleControl.activate();
+            }
+            data.forEach(function(bucket) {
+                if(bucket.data.length > 0) {
+                    var totalPoints = 0
+                    var boxHeight = bucket.top - bucket.bottom;
+                    var mostToLeast = bucket.data.sort(function(a, b) { return b.count - a.count; });
+                    var numPoints = Math.min(mostToLeast.length, $scope.maxNumGridPoints);
+                    for(var x = 0; x < numPoints; x++) {
+                        var row = Math.floor(x / 10) + 1;
+                        var column = (x % 10) + 1;
+                        var newPoint = {
+                            type_of_feature_point: 'grid_point',
+                            count: mostToLeast[x].count,
+                            pointRadius: $scope.gridLayerPointRadius,
+                        };
+                        if(layer.colorField) {
+                            newPoint.typeName = layer.colorField.prettyName || layer.colorField.columnName; // We need these to properly
+                            newPoint.typeValue = mostToLeast[x][layer.colorField.columnName];               // create popups on point click.
+                            newPoint[layer.colorField.columnName] = newPoint.typeValue; // We need this so that coloring of points will work.
+                        }
+                        newPoint[layer.latitudeField.columnName] = bucket.top - boxHeight * (0.1 * row);
+                        newPoint[layer.longitudeField.columnName] = bucket.left + boxHeight * (0.1 * column);
+                        
+                        newPointsList.push(newPoint);
+                    }
+                }
+            });
+        }
+        return layer.olLayer.setData(newPointsList || [], layer.limit);
     };
 
     $scope.functions.onDeleteLayer = function(layer) {
