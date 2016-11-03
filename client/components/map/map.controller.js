@@ -32,12 +32,10 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.HEATMAP_LAYER = coreMap.Map.HEATMAP_LAYER;
     $scope.NODE_AND_ARROW_LAYER = coreMap.Map.NODE_LAYER;
     $scope.ROUTE_LAYER = coreMap.Map.ROUTE_LAYER;
-<<<<<<< HEAD
-    $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER];
-=======
+
     $scope.GRID_LAYER = coreMap.Map.GRID_LAYER;
     $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER, $scope.GRID_LAYER];
->>>>>>> branch 'master' of https://gitlab.nextcentury.com/LORELEI.THOR/Lorelei-demo.git
+
     $scope.DEFAULT_LIMIT = 1000;
     $scope.DEFAULT_NEW_LAYER_TYPE = $scope.MAP_LAYER_TYPES[0];
 
@@ -269,11 +267,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         else {
             data.locationField = $scope.active.layers[0].locationField.columnName;
         }
-<<<<<<< HEAD
-        return data
-=======
+
         return data;
->>>>>>> branch 'master' of https://gitlab.nextcentury.com/LORELEI.THOR/Lorelei-demo.git
+
     };
 
     // Returns the map's grid layer. If strict is true, only looks for grid layers if the map is (or is about to be) zoomed out far enough for the grid to be visible.
@@ -1110,8 +1106,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         } else if(layer.type === $scope.CLUSTER_LAYER) {
             options.cluster = true;
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
-<<<<<<< HEAD
-=======
+
         } else if(layer.type === $scope.GRID_LAYER) {
             options.styleMap = new OpenLayers.StyleMap({
                 'default': {
@@ -1122,7 +1117,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             if(layer.show) {
                 $scope.map.graticuleControl.activate();
             }
->>>>>>> branch 'master' of https://gitlab.nextcentury.com/LORELEI.THOR/Lorelei-demo.git
+
         } else if(layer.type === $scope.ROUTE_LAYER) {
             options.route = true;
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);

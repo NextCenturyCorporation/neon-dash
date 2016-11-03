@@ -49,12 +49,10 @@ var coreMap = coreMap || {};
 
 coreMap.Map = function(elementId, options) {
     options = options || {};
-<<<<<<< HEAD
-=======
 
     this.graticuleIntervalList = [90, 45, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.01, 0.005, 0.002, 0.001];
     this.minVisibleForGrid = 1; // If the graticule's granularity drops lower than this, we hide it and treat any grid layer as a point layer.
->>>>>>> branch 'master' of https://gitlab.nextcentury.com/LORELEI.THOR/Lorelei-demo.git
+>
 
     this.elementId = elementId;
     this.selector = $("#" + elementId);
@@ -101,10 +99,8 @@ coreMap.Map.HEATMAP_LAYER = 'heatmap';
 coreMap.Map.CLUSTER_LAYER = 'cluster';
 coreMap.Map.NODE_LAYER = 'nodes and arrows';
 coreMap.Map.ROUTE_LAYER = 'route';
-<<<<<<< HEAD
-=======
+
 coreMap.Map.GRID_LAYER = 'grid';
->>>>>>> branch 'master' of https://gitlab.nextcentury.com/LORELEI.THOR/Lorelei-demo.git
 
 coreMap.Map.MAP_TILES = {
     light: {
