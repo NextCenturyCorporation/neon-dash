@@ -25,6 +25,8 @@ import * as _ from 'lodash';
  * move an item up/down, to expand/contract an item, or to add/remove an item.
  *
  * NOTE:  The current implementation assumes a bounded grid that has a maximum number of columns allowed.
+ * Additionally, angular2-grid uses 1-based row/column indexing.  So the top left corner is at position row 1, col 1.
+ * Row and column calculations should take this into account.
  */
 @Injectable()
 export class ActiveGridService {
@@ -59,7 +61,7 @@ export class ActiveGridService {
 
         item.lastGridConfig  = _.clone(item.gridConfig);
         item.gridConfig.sizex = (this.gridConfig) ? this.gridConfig.max_cols : this.getMaxColInUse();
-        item.gridConfig.col = 0;
+        item.gridConfig.col = 1;
         // TODO:  Puzzle out why this exceeds the visible space by a couple rows.
         item.gridConfig.sizey = (visibleRows > 0) ? visibleRows : item.gridConfig.sizex;
     }
@@ -68,6 +70,10 @@ export class ActiveGridService {
         return this.gridItems;
     }
 
+    /**
+     * Returns the 1-based index of the last column occupied.  Thus, for a 10 column grid, 10 would be the
+     * largest possble max column in use.  If no columns are filled (i.e., an empty grid), 0 is returned.
+     */
     getMaxColInUse(): number {
         let maxCol = 0;
 
@@ -77,6 +83,10 @@ export class ActiveGridService {
         return maxCol;
     }
 
+    /**
+     * Returns the 1-based index of the last row occupied.  Thus, for a 10 row grid, 10 would be the
+     * largest possble max row in use.  If no rows are filled (i.e., an empty grid), 0 is returned.
+     */
     getMaxRowInUse(): number {
         let maxRow = 0;
 
@@ -134,32 +144,32 @@ export class ActiveGridService {
 
         let newItem = _.cloneDeep(item);
         newItem.gridConfig = {
-            col: 0,
-            row: 0,
+            col: 1,
+            row: 1,
             sizex: (item.sizex) ? item.sizex : ActiveGridService.DEFAULT_SIZEX,
             sizey: (item.sizey) ? item.sizey : ActiveGridService.DEFAULT_SIZEY
         };
 
         // Check for unbound columns/rows.
-        if (maxRow <= 0) {
+        if (maxRow <= 1) {
             maxRow = ActiveGridService.UNBOUND;
         }
 
-        if (maxCol <= 0) {
+        if (maxCol <= 1) {
             maxCol = ActiveGridService.UNBOUND;
         }
 
         // Adjust the contraints to account for the visualization size.
-        maxCol = maxCol - newItem.gridConfig.sizex;
-        maxRow = maxRow - newItem.gridConfig.sizey;
+        maxCol = maxCol - newItem.gridConfig.sizex + 1;
+        maxRow = maxRow - newItem.gridConfig.sizey + 1;
 
         // Find the first spot in which the visualization fits.
-        let x = 0;
-        let y = 0;
+        let x = 1;
+        let y = 1;
         let found = false;
-        while (y < maxRow && !found) {
-            x = 0;
-            while (x < maxCol && !found) {
+        while (y <= maxRow && !found) {
+            x = 1;
+            while (x <= maxCol && !found) {
                 newItem.gridConfig.col = x;
                 newItem.gridConfig.row = y;
                 found = this.itemFits(newItem, x, y);
