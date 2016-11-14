@@ -19,6 +19,7 @@ import { NeonGridItem } from '../neon-grid-item';
 
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import * as _ from 'lodash';
+import * as uuid from 'node-uuid';
 
 /*
  * This service manages the active grid on the current dashboard.  This service can be used to
@@ -143,6 +144,7 @@ export class ActiveGridService {
         let maxRow: number = this.gridConfig.max_rows;
 
         let newItem = _.cloneDeep(item);
+        newItem.id = uuid.v4();
         newItem.gridConfig = {
             col: 1,
             row: 1,

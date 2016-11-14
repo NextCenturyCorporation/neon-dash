@@ -51,6 +51,13 @@ export interface CustomDatabase {
    customTables: CustomTable[];
 }
 
+/**
+ * The dataset selector allows a user to select one of the pre-configured datasets stored in the application
+ * config file/service.
+ * TODO: Refactoring the updateLayout methods that clone layout components to use the active layout
+ * service instead.  This may be accomplished by adding a vis factory method to the service that takes
+ * the generic JSON in the config file and returns a valid NeonGridItem
+ */
 @Component({
     selector: 'app-dataset-selector',
     templateUrl: 'dataset-selector.component.html',
