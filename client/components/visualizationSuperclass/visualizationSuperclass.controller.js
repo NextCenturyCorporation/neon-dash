@@ -1,6 +1,6 @@
 'use strict';
 
-/*
+/**
  * Copyright 2016 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1220,6 +1220,15 @@ function($scope, external, externalRouteService, customFilters, connectionServic
     };
 
     /**
+     * Returns the meximum number of filters that can be placed on a single data layer for this visualization. Should be 1 in most cases.
+     * @method getMaxFiltersPerLayer
+     * @return {Number}
+     */
+    $scope.functions.getMaxFiltersPerLayer = function() {
+        return 1;
+    }
+
+    /**
      * Checks for Neon filters for all filterable layers in this visualization.  Adds, replaces, or removes the filter displayed by this visualization if needed.
      * Queries for new data for the database and table with the given names (or all layers if a filter was changed or no names were given) and updates this visualization.
      * @method checkNeonDashboardFilters
@@ -1245,7 +1254,7 @@ function($scope, external, externalRouteService, customFilters, connectionServic
 
         // If some of the filtered data in this visualization do not have any Neon filters set, remove the filter from this visualization if it is set.
         // Note for single layer visualizations that this will always be true if a filter is set in this visualization but not in the Neon dashboard.
-        if((!neonFilters.length || neonFilters.length < data.length) && $scope.functions.isFilterSet()) {
+        if((!neonFilters.length || neonFilters.length < (data.length * $scope.functions.getMaxFiltersPerLayer())) && $scope.functions.isFilterSet()) {
             $scope.functions.removeFilterValues();
             runDefaultQueryAndUpdate();
             return;
