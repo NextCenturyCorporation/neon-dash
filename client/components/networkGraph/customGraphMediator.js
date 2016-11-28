@@ -376,7 +376,8 @@ mediators.CustomGraphMediator = (function() {
         maps.networkIdsToNodeIds[0] = [];
 
         // Maps the IDs of nodes with only one source or target to the IDs of the cluster nodes to which they are linked.  Needed to save used cluster IDs.
-        var nodeIdsToLinkedClusterIds = {};
+        var sourceNodeIdsToTargetClusterIds = {};
+        var targetNodeIdsToSourceClusterIds = {};
 
         nodes.forEach(function(node) {
             sortNodeDates(node);
@@ -404,7 +405,7 @@ mediators.CustomGraphMediator = (function() {
                 numberOfNodesToCluster = findNumberOfNodesToCluster(targetId, maps.targetsToSources, maps.sourcesToTargets);
                 if(useNodeClusters && numberOfNodesToCluster > 1) {
                     if(shouldAddClusterNode(targetId, maps.targetsToSources, maps.sourcesToTargets, numberOfNodesToCluster, hasSelected, hideSimpleNetworks, maps.nodeIdsToFlags)) {
-                        nodeIdsToLinkedClusterIds[targetId] = addCluster(resultNodes, nodeIdsToLinkedClusterIds[targetId] || nextFreeClusterId++, node, maps.nodeIdsToClusterIds);
+                        targetNodeIdsToSourceClusterIds[targetId] = addCluster(resultNodes, targetNodeIdsToSourceClusterIds[targetId] || nextFreeClusterId++, node, maps.nodeIdsToClusterIds);
                     }
                 } else if(shouldAddSingleLinkNode(targetId, maps.targetsToSources, hasSelected, hideSimpleNetworks, maps.nodeIdsToFlags)) {
                     resultNodes.push(node);
@@ -414,7 +415,7 @@ mediators.CustomGraphMediator = (function() {
                 numberOfNodesToCluster = findNumberOfNodesToCluster(sourceId, maps.sourcesToTargets, maps.targetsToSources);
                 if(useNodeClusters && numberOfNodesToCluster > 1) {
                     if(shouldAddClusterNode(sourceId, maps.sourcesToTargets, maps.targetsToSources, numberOfNodesToCluster, hasSelected, hideSimpleNetworks, maps.nodeIdsToFlags)) {
-                        nodeIdsToLinkedClusterIds[sourceId] = addCluster(resultNodes, nodeIdsToLinkedClusterIds[sourceId] || nextFreeClusterId++, node, maps.nodeIdsToClusterIds);
+                        sourceNodeIdsToTargetClusterIds[sourceId] = addCluster(resultNodes, sourceNodeIdsToTargetClusterIds[sourceId] || nextFreeClusterId++, node, maps.nodeIdsToClusterIds);
                     }
                 } else if(shouldAddSingleLinkNode(sourceId, maps.sourcesToTargets, hasSelected, hideSimpleNetworks, maps.nodeIdsToFlags)) {
                     resultNodes.push(node);

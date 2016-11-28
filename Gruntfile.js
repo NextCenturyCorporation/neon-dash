@@ -66,8 +66,10 @@ module.exports = function(grunt) {
                     /html5shiv/,
                     /respond/,
                     // Exclude the remaining libraries because they do not have bower.json files.
-                    /threedubmedia/,
-                    /mergesort/,
+                    /underscore/,
+                    /log4javascript/,
+                    /node-uuid/,
+                    /postal/,
                     /opencpu/,
                     /openlayers/,
                     /heatmapjs/,
@@ -216,8 +218,12 @@ module.exports = function(grunt) {
         copy: {
             bootstrap: {
                 expand: true,
-                cwd: "client/bower_components/bootstrap/dist/",
-                src: ["fonts/**"],
+                cwd: "client/",
+                src: [
+                    "bower_components/bootstrap/dist/fonts/**",
+                    "bower_components/bootstrap/dist/css/bootstrap.min.css",
+                    "bower_components/bootstrap/dist/js/bootstrap.min.js"
+                ],
                 dest: "dist/"
             },
             jquery_ui_lightness: {

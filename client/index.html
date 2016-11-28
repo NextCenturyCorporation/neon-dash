@@ -11,6 +11,8 @@
         <!-- OpenLayers will automatically add the link for its style during runtime if it can't find it in the index.html file even if it's included in the CSS package.  Put the link here so the style is defined before the Neon Dashboard style. -->
         <link rel="stylesheet" href="bower_components/openlayers/theme/default/style.css" />
 
+        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" />
+
         <!-- build:css app/app.min.css -->
         <!-- bower:css -->
         <link rel="stylesheet" href="bower_components/ag-grid/dist/ag-grid.css" />
@@ -20,13 +22,10 @@
         <link rel="stylesheet" href="bower_components/angular-bootstrap-datetimepicker/src/css/datetimepicker.css" />
         <link rel="stylesheet" href="bower_components/angular-gridster/dist/angular-gridster.min.css" />
         <link rel="stylesheet" href="bower_components/angular-ui-tree/dist/angular-ui-tree.min.css" />
-        <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
         <!-- endbower -->
 
         <link rel="stylesheet" href="bower_components/angular-gantt/assets/angular-gantt.css" />
         <link rel="stylesheet" href="bower_components/angular-gantt/assets/angular-gantt-plugins.css" />
-        <link rel="stylesheet" href="bower_components/jquery-ui/themes/ui-lightness/jquery-ui.css" />
-        <link rel="stylesheet" href="bower_components/jquery-ui/themes/ui-lightness/jquery.ui.theme.css" />
 
         <link rel="stylesheet" type="text/css" href="app/sprites.css">
         <!-- endbuild -->
@@ -165,9 +164,15 @@
 
         <links-popup></links-popup>
 
-        <!-- Including neon before angular here as neon has lodash and jquery wrapped into it.  If this is
-             loaded first, angular should pick up the included jQuery. -->
-        <script src="/neon/js/neon.js"></script>
+        <!-- Including the neon dependencies prior to loading neon lib. -->
+        <!-- build:js(client) neon.min.js -->
+        <script src="bower_components/lodash/dist/lodash.js"></script>
+        <script src="bower_components/log4javascript/js/log4javascript.js"></script>
+        <script src="bower_components/node-uuid/uuid.js"></script>
+        <script src="bower_components/postal/lib/postal.js"></script>
+        <script src="bower_components/jquery/dist/jquery.js"></script>
+        <!-- endbuild -->
+        <script src="https://s3.amazonaws.com/neonframework.org/neon/versions/latest/neon-nodeps.js"></script>
 
         <!-- Include OpenLayers outside the JS package because OpenLayers scans the index.html file for its own include to extract its relative path. -->
         <script src="bower_components/openlayers/OpenLayers.js"></script>
@@ -179,7 +184,6 @@
 
         <!-- build:js(client) app/lib.min.js -->
         <!-- bower:js -->
-        <script src="bower_components/jquery/dist/jquery.js"></script>
         <script src="bower_components/angular/angular.js"></script>
         <script src="bower_components/moment/moment.js"></script>
         <script src="bower_components/angular-bootstrap-datetimepicker/src/js/datetimepicker.js"></script>
@@ -192,9 +196,9 @@
         <script src="bower_components/angular-ui-tree/dist/angular-ui-tree.js"></script>
         <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
         <script src="bower_components/d3/d3.js"></script>
-        <script src="bower_components/jquery-ui/ui/jquery-ui.js"></script>
         <script src="bower_components/jquery.tagcloud/jquery.tagcloud.js"></script>
         <script src="bower_components/js-yaml/dist/js-yaml.js"></script>
+        <script src="bower_components/lodash/lodash.js"></script>
         <script src="bower_components/mustache/mustache.js"></script>
         <script src="bower_components/ngDraggable/ngDraggable.js"></script>
         <script src="bower_components/remarkable-bootstrap-notify/bootstrap-notify.js"></script>
@@ -216,10 +220,7 @@
         <script src="bower_components/javascript-detect-element-resize/jquery.resize.js"></script>
         <script src="bower_components/heatmapjs/build/heatmap.js"></script>
         <script src="assets/vendor/openlayers-heatmapjs/heatmap-openlayers.js"></script>
-        <script src="bower_components/threedubmedia.jquery.event/event.drag/jquery.event.drag.js"></script>
-        <script src="bower_components/threedubmedia.jquery.event/event.drop/jquery.event.drop.js"></script>
         <script src="bower_components/jquery.linky/jquery.linky.js"></script>
-        <script src="bower_components/mergesort/merge-sort.js"></script>
         <script src="bower_components/rainbowvis.js/rainbowvis.js"></script>
         <!-- endbuild -->
 

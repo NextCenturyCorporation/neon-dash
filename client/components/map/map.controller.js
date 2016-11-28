@@ -22,7 +22,7 @@
  * @class mapController
  * @constructor
  */
-angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$filter', 'ConnectionService', function($scope, $filter, connectionService) {
+angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$filter', 'DatasetService', 'ConnectionService', function($scope, $filter, datasetService, connectionService) {
     $scope.gridLayerPointRadius = 5;
     $scope.maxNumGridPoints = 4;
     $scope.currentGraticuleInterval;
@@ -977,18 +977,21 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         if(message.data) {
             var allCoordinates = $scope.functions.getMapping("allCoordinates", message.database, message.table) || [];
             var layer = new coreMap.Map.Layer.SelectedPointsLayer("Selected Points");
+            var data = _.isArray(message.data) ? message.data : [message.data];
 
             var createPointsAndFeatures = function(latitudeField, longitudeField) {
                 var features = [];
-                message.data.forEach(function(item) {
-                    neon.helpers.getNestedValues(item, [longitudeField, latitudeField]).forEach(function(pointValue) {
-                        var openLayersPoint = new OpenLayers.Geometry.Point(pointValue[latitudeField], pointValue[longitudeField]);
-                        openLayersPoint.transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
-                        var feature = new OpenLayers.Feature.Vector(openLayersPoint);
-                        feature.attributes = item;
-                        features.push(feature);
+                if(latitudeField && longitudeField) {
+                    data.forEach(function(item) {
+                        neon.helpers.getNestedValues(item, [longitudeField, latitudeField]).forEach(function(pointValue) {
+                            var openLayersPoint = new OpenLayers.Geometry.Point(pointValue[longitudeField], pointValue[latitudeField]);
+                            openLayersPoint.transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
+                            var feature = new OpenLayers.Feature.Vector(openLayersPoint);
+                            feature.attributes = item;
+                            features.push(feature);
+                        });
                     });
-                });
+                }
                 return features;
             };
 
@@ -1010,8 +1013,12 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                     database: message.database,
                     table: message.table
                 });
-                var latitudeField = pointsLayer ? pointsLayer.latitudeMapping : "latitude";
-                var longitudeField = pointsLayer ? pointsLayer.longitudeMapping : "longitude";
+                // If no mapping is provided, check the table before just blindly assigning lat/lon.
+
+                var latitudeField = (pointsLayer && pointsLayer.latitudeMapping) ? pointsLayer.latitudeMapping :
+                    (datasetService.getMapping(message.database, message.table, 'latitude') || "latitude");
+                var longitudeField = (pointsLayer && pointsLayer.longitudeMapping) ? pointsLayer.longitudeMapping :
+                    (datasetService.getMapping(message.database, message.table, 'longitude') || "longitude");
                 layer.addFeatures(createPointsAndFeatures(latitudeField, longitudeField));
             }
             $scope.map.addLayer(layer);
@@ -1120,6 +1127,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         } else if(layer.type === $scope.NODE_AND_ARROW_LAYER) {
             olLayer = new coreMap.Map.Layer.NodeLayer(layer.name, options);
         }
+
         if(olLayer) {
             $scope.map.addLayer(olLayer);
         }

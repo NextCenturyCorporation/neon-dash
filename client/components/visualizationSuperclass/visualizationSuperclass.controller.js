@@ -1455,10 +1455,11 @@ function($scope, external, externalRouteService, customFilters, connectionServic
                 tags: ["receive", $scope.type]
             });
 
-            $scope.$apply(function() {
-                updateDataFunction(response.data, item.layers);
-                queryAndUpdate(data, ++index, addToQueryFunction, executeQueryFunction, updateDataFunction);
-            });
+            //$scope.$apply(function() {
+            // The response for an array-counts query is an array and the response for other queries is an object containing a data array.
+            updateDataFunction(response.data || response, item.layers);
+            queryAndUpdate(data, ++index, addToQueryFunction, executeQueryFunction, updateDataFunction);
+            //});
 
             XDATA.userALE.log({
                 activity: "alter",
