@@ -467,4 +467,8 @@ var neonVisualizations = [{   // jshint ignore:line
     name: "Timeline",
     type: "timeline",
     icon: "Timeline64"
+}, {
+    name: "Stacked Timeline",
+    type: "stackedTimeline",
+    icon: "Timeline64"
 }];
