@@ -397,7 +397,7 @@ neonWizard.visualizationBindings["stacked-timeline-selector"] = [
     }
 ];
 
-var neonVisualizationMinPixel = { // jshint ignore:line
+var neonVisualizationMinPixel = {
     x: 320,
     y: 240
 };
@@ -466,10 +466,5 @@ var neonVisualizations = [{   // jshint ignore:line
 }, {
     name: "Timeline",
     type: "timeline",
-    icon: "Timeline64"
-},
-{
-    name: "Stacked Timeline",
-    type: "stackedTimeline",
     icon: "Timeline64"
 }];
