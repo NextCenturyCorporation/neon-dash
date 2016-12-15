@@ -40,6 +40,8 @@ import { DashboardOptionsComponent } from './components/dashboard-options/dashbo
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
+import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
+import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
 
 export function createAppModule(config: NeonGTDConfig) {
     @NgModule({
@@ -49,7 +51,9 @@ export function createAppModule(config: NeonGTDConfig) {
             DatasetSelectorComponent,
             AboutNeonComponent,
             DashboardOptionsComponent,
-            AddVisualizationComponent
+            AddVisualizationComponent,
+            TextCloudComponent,
+            VisualizationInjectorComponent
         ],
         imports: [
             BrowserModule,

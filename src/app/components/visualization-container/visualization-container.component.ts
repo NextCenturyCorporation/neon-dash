@@ -21,7 +21,6 @@ export class VisualizationContainerComponent implements OnInit {
     }
 
     ngOnInit() {
-
     }
 
     close() {

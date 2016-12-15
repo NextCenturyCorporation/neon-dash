@@ -22,5 +22,13 @@
         <md-icon class="md-24">close</md-icon>
     </button>
 </md-toolbar>
-{{ visualization.name }}
-<ng-content></ng-content>
+<div class="title">
+    {{visualization.name}}<br>
+    {{visualization.id}}<br>
+    {{visualization.type}}<br>
+    row: {{visualization.gridConfig.row}}<br>
+    col: {{visualization.gridConfig.col}}<br>
+    sizex: {{visualization.gridConfig.sizex}}<br>
+    sizey: {{visualization.gridConfig.sizey}}
+</div>
+<app-visualization-injector [componentData]="visualization"></app-visualization-injector>
