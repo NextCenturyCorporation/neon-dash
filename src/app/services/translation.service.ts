@@ -1,13 +1,13 @@
 /*
  * Copyright 2016 Next Century Corporation
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -23,36 +23,36 @@ import { ConnectionService } from './connection.service';
 @Injectable()
 export class TranslationService {
 
-	private apis: {};
-	private chosenApi: string;
+    private apis: {};
+    private chosenApi: string;
     private translationCache: {};
 
     constructor(@Inject('config') private config: NeonGTDConfig, private connectionService: ConnectionService,
-    	private http: Http) {
-    	this.apis = {
-	        google: {
-	            base: "https://www.googleapis.com/language/translate/v2",
-	            key: (config.translationKeys) ? config.translationKeys["google"] : undefined,
-	            methods: {
-	                translate: "",
-	                detect: "/detect",
-	                languages: "/languages"
-	            },
-	            params: {
-	                key: "key",
-	                from: "source",
-	                to: "target",
-	                text: "q",
-	                other: ["format=text"]
-	            },
-	            languages: {}
-	        }
-	    };
+        private http: Http) {
+        this.apis = {
+            google: {
+                base: 'https://www.googleapis.com/language/translate/v2',
+                key: (config.translationKeys) ? config.translationKeys['google'] : undefined,
+                methods: {
+                    translate: '',
+                    detect: '/detect',
+                    languages: '/languages'
+                },
+                params: {
+                    key: 'key',
+                    from: 'source',
+                    to: 'target',
+                    text: 'q',
+                    other: ['format=text']
+                },
+                languages: {}
+            }
+        };
     };
 
     ngOnInit() {
-    	this.setService("google");
-    	this.loadTranslationCache();
+        this.setService('google');
+        this.loadTranslationCache();
     };
 
     /**
@@ -63,22 +63,22 @@ export class TranslationService {
      * @method setService
      */
     setService(serviceName: string, successCallback?: (resp: any) => any, failureCallback?: (resp: any) => any) {
-    	this.chosenApi = serviceName;
+        this.chosenApi = serviceName;
 
-    	if (!this.apis[this.chosenApi].key) {
-    		if (failureCallback) {
-    			failureCallback({
-    				message: "No key available",
-    				reason: "No key set for " + this.chosenApi
-    			});
-    		}
-    	} else if (!this.apis[this.chosenApi].languages || _.keys(this.apis[this.chosenApi].languages).length === 0) {
-    		this.setSupportedLanguages().then(successCallback, failureCallback);
-    	} else {
-    		if (successCallback) {
-    			successCallback(null);
-    		}
-    	}
+        if (!this.apis[this.chosenApi].key) {
+            if (failureCallback) {
+                failureCallback({
+                    message: 'No key available',
+                    reason: 'No key set for ' + this.chosenApi
+                });
+            }
+        } else if (!this.apis[this.chosenApi].languages || _.keys(this.apis[this.chosenApi].languages).length === 0) {
+            this.setSupportedLanguages().then(successCallback, failureCallback);
+        } else {
+            if (successCallback) {
+                successCallback(null);
+            }
+        }
     };
 
     /**
@@ -87,7 +87,7 @@ export class TranslationService {
      * @return {Array} List of all the translation services.
      */
     getAllServices(): string[] {
-    	return _.keys(this.apis);
+        return _.keys(this.apis);
     };
 
     /**
@@ -96,7 +96,7 @@ export class TranslationService {
      * @return {Boolean} True if there is an API key being used, false otherwise.
      */
     hasKey(): boolean {
-    	return this.apis[this.chosenApi].key ? true : false;
+        return this.apis[this.chosenApi].key ? true : false;
     };
 
     /**
@@ -111,73 +111,73 @@ export class TranslationService {
      * @method translate
      */
     translate(text: string[], to: string, successCallback: (resp: any) => any, failureCallback: (resp: any) => any, from?: string) {
-    	if (!this.apis[this.chosenApi].key) {
-    		failureCallback({
-    			message: "Key not provided",
-    			reason: "Key not provided"
-    		});
-    	} else if(!text.length) {
-    		failureCallback({
-    			message: "No text provided",
-    			reason: "No text provided"
-    		});
-    	} else {
-    		this.translationCache[to] = this.translationCache[to] || {};
+        if (!this.apis[this.chosenApi].key) {
+            failureCallback({
+                message: 'Key not provided',
+                reason: 'Key not provided'
+            });
+        } else if (!text.length) {
+            failureCallback({
+                message: 'No text provided',
+                reason: 'No text provided'
+            });
+        } else {
+            this.translationCache[to] = this.translationCache[to] || {};
 
-    		let translateCallback = (): Promise<{}> => {
-    			let params = this.apis[this.chosenApi].params.key + "=" + this.apis[this.chosenApi].key;
+            let translateCallback = (): Promise<{}> => {
+                let params = this.apis[this.chosenApi].params.key + '=' + this.apis[this.chosenApi].key;
 
-    			this.apis[this.chosenApi].params.other.forEach(param => {
-    				params += "&" + param;
-    			});
+                this.apis[this.chosenApi].params.other.forEach(param => {
+                    params += '&' + param;
+                });
 
-    			let cached = [];
+                let cached = [];
 
-    			text.forEach(elem => {
-    				if (this.translationCache[to][elem]) {
-    					// Add a blank parameter so their indicies match the indices of the list of cached translations.
-    					params =+ "&" + this.apis[this.chosenApi].params.text + "=";
-    					cached.push(this.translationCache[to][elem]);
-    				} else {
-    					params += "&" + this.apis[this.chosenApi].params.text + "=" + encodeURIComponent(elem);
-    					// Add a blank element to the list of cached translations so its indices match the indices of the parameters.
-    					cached.push("");
-    				}
-    			});
+                text.forEach(elem => {
+                    if (this.translationCache[to][elem]) {
+                        // Add a blank parameter so their indicies match the indices of the list of cached translations.
+                        params += '&' + this.apis[this.chosenApi].params.text + '=';
+                        cached.push(this.translationCache[to][elem]);
+                    } else {
+                        params += '&' + this.apis[this.chosenApi].params.text + '=' + encodeURIComponent(elem);
+                        // Add a blank element to the list of cached translations so its indices match the indices of the parameters.
+                        cached.push('');
+                    }
+                });
 
-    			if (!to || !this.apis[this.chosenApi].languages[to]) {
-    				return Promise.reject({
-                        message: "Unknown target language",
-                        reason: "Unknown target language"
+                if (!to || !this.apis[this.chosenApi].languages[to]) {
+                    return Promise.reject({
+                        message: 'Unknown target language',
+                        reason: 'Unknown target language'
                     });
-    			}
+                }
 
-    			params += "&" + this.apis[this.chosenApi].params.to + "=" + to;
+                params += '&' + this.apis[this.chosenApi].params.to + '=' + to;
 
-    			// If no 'from' (source) language is given, each text is auto-detected individually.
-    			// If it does exist, check that the language code is in the set of supported languages
-    			if (from && !this.apis[this.chosenApi].languages[from[]]) {
-    				return Promise.reject({
-                        message: "Unknown source language",
-                        reason: "Unknown source language"
+                // If no 'from' (source) language is given, each text is auto-detected individually.
+                // If it does exist, check that the language code is in the set of supported languages
+                if (from && !this.apis[this.chosenApi].languages[from]) {
+                    return Promise.reject({
+                        message: 'Unknown source language',
+                        reason: 'Unknown source language'
                     });
-    			} else if (from) {
-    				params += "&" + this.apis[this.chosenApi].params.from + "=" + from;
-    			}
+                } else if (from) {
+                    params += '&' + this.apis[this.chosenApi].params.from + '=' + from;
+                }
 
-    			return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.translate + "?" + params)
-    				.toPromise()
+                return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.translate + '?' + params)
+                    .toPromise()
                     .then(response => {
                         // Cache the translations for later use.
-                        response["data"].data.translations.forEach((item, index) => {
-                            if(!cached[index]) {
+                        response['data'].data.translations.forEach((item, index) => {
+                            if (!cached[index]) {
                                 this.translationCache[to][text[index]] = item.translatedText;
                             }
                         });
                         // Add the cached translations in the response data for the callback.
                         cached.forEach((item, index) => {
-                            if(item) {
-                                response["data"].data.translations[index].translatedText = item;
+                            if (item) {
+                                response['data'].data.translations[index].translatedText = item;
                             }
                         });
                         return response;
@@ -188,17 +188,17 @@ export class TranslationService {
                             reason: this.concatErrorResponses(response.data.error.errors)
                         })
                     );
-    		};
+            };
 
-    		if (!this.apis[this.chosenApi].languages || _.keys(this.apis[this.chosenApi].languages).length === 0) {
-    			this.setSupportedLanguages().then(
-    				data => translateCallback().then(successCallback, failureCallback),
+            if (!this.apis[this.chosenApi].languages || _.keys(this.apis[this.chosenApi].languages).length === 0) {
+                this.setSupportedLanguages().then(
+                    data => translateCallback().then(successCallback, failureCallback),
                     failureCallback
                 );
-    		} else {
-    			translateCallback().then(successCallback, failureCallback);
-    		}
-    	}
+            } else {
+                translateCallback().then(successCallback, failureCallback);
+            }
+        }
     };
 
     /**
@@ -206,10 +206,10 @@ export class TranslationService {
      * @method saveTranslationCache
      */
     saveTranslationCache() {
-    	let connection = this.connectionService.getActiveConnection();
-    	if (connection) {
-    		connection.setTranslationCache(this.translationCache, () => {});
-    	}
+        let connection = this.connectionService.getActiveConnection();
+        if (connection) {
+            connection.setTranslationCache(this.translationCache, () => {});
+        }
     };
 
     /**
@@ -219,7 +219,7 @@ export class TranslationService {
      * @method getSupportedLanguages
      */
     getSupportedLanguages(successCallback: (resp: any) => any, failureCallback: (resp: any) => any) {
-    	if (!this.apis[this.chosenApi].languages || _.keys(this.apis[this.chosenApi].languages).length === 0) {
+        if (!this.apis[this.chosenApi].languages || _.keys(this.apis[this.chosenApi].languages).length === 0) {
             this.setSupportedLanguages().then(successCallback, failureCallback);
         } else {
             successCallback(this.apis[this.chosenApi].languages);
@@ -233,21 +233,21 @@ export class TranslationService {
      * @private
      */
     private setSupportedLanguages(): Promise<{}> {
-    	let params = this.apis[this.chosenApi].params.key + "=" + this.apis[this.chosenApi].key +
-            "&" + this.apis[this.chosenApi].params.to + "=en";
+        let params = this.apis[this.chosenApi].params.key + '=' + this.apis[this.chosenApi].key +
+            '&' + this.apis[this.chosenApi].params.to + '=en';
 
-        return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.languages + "?" + params)
-        	.toPromise()
-        	.then(response => {
-        		_.forEach(response["data"].data.languages, (elem) => {
+        return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.languages + '?' + params)
+            .toPromise()
+            .then(response => {
+                _.forEach(response['data'].data.languages, (elem) => {
                     this.apis[this.chosenApi].languages[elem.language] = elem.name;
                 });
                 return this.apis[this.chosenApi].languages;
-        	})
-        	.catch(error => Observable.throw({
-        		message: error.data.error.message,
+            })
+            .catch(error => Observable.throw({
+                message: error.data.error.message,
                 reason: this.concatErrorResponses(error.data.error.errors)
-        	}));
+            }));
     };
 
     /**
@@ -259,9 +259,9 @@ export class TranslationService {
      * @private
      */
     private concatErrorResponses(errors: string[]): string {
-    	let reasons = "Reasons:\n";
+        let reasons = 'Reasons:\n';
         _.forEach(errors, (error) => {
-            reasons += error["reason"] + "\n";
+            reasons += error['reason'] + '\n';
         });
         return reasons;
     };

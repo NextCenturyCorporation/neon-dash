@@ -2,6 +2,8 @@
 
 import { TestBed, async, inject } from '@angular/core/testing';
 import { VisualizationContainerComponent } from './visualization-container.component';
+import { VisualizationInjectorComponent } from '../visualization-injector/visualization-injector.component';
+import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 
 import { MdIcon, MdToolbar, MdToolbarRow } from '@angular/material';
@@ -14,7 +16,9 @@ describe('Component: VisualizationContainer', () => {
                 MdIcon,
                 MdToolbar,
                 MdToolbarRow,
-                VisualizationContainerComponent
+                VisualizationContainerComponent,
+                VisualizationInjectorComponent,
+                TextCloudComponent
             ],
             providers: [ ActiveGridService ]
         });

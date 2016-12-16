@@ -21,6 +21,8 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { ParameterService } from '../../services/parameter.service';
+import { FilterService } from '../../services/filter.service';
+import { ErrorNotificationService } from '../../services/error-notification.service';
 
 import { MdList, MdListItem, MdToolbar, MdToolbarRow } from '@angular/material';
 
@@ -42,13 +44,16 @@ describe('Component: DatasetSelector', () => {
                 ConnectionService,
                 DatasetService,
                 ParameterService,
+                ErrorNotificationService,
+                FilterService,
                 { provide: 'config', useValue: testConfig }
             ]
         });
     });
 
     it('should create an instance', inject([ ActiveGridService, ConnectionService,
-                DatasetService, ParameterService ], (ags: ActiveGridService, cs: ConnectionService, ds: DatasetService, ps: ParameterService) => {
+                DatasetService, ParameterService ],
+                (ags: ActiveGridService, cs: ConnectionService, ds: DatasetService, ps: ParameterService) => {
         let component = new DatasetSelectorComponent(cs, ds, ps, ags);
         expect(component).toBeTruthy();
     }));

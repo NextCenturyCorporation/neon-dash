@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MaterialModule, MdDialogRef } from '@angular/material';
+import { MdDialogRef } from '@angular/material';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ThemesService } from '../../services/themes.service';
@@ -24,7 +23,7 @@ export class AddVisualizationComponent implements OnInit {
     }
 
     public onItemSelected(index) {
-        if (this.selectedIndex != -1) {
+        if (this.selectedIndex !== -1) {
             this.visualizations[this.selectedIndex].selected = false;
         }
         this.visualizations[index].selected = true;

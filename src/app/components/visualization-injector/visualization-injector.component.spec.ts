@@ -1,28 +1,25 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed, inject } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { DebugElement } from '@angular/core';
+import { DebugElement, ComponentFactoryResolver } from '@angular/core';
 
 import { VisualizationInjectorComponent } from './visualization-injector.component';
+import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 
-describe('VisualizationInjectorComponent', () => {
-  let component: VisualizationInjectorComponent;
-  let fixture: ComponentFixture<VisualizationInjectorComponent>;
+describe('Component: VisualizationInjector', () => {
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ VisualizationInjectorComponent ]
-    })
-    .compileComponents();
-  }));
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [
+                VisualizationInjectorComponent,
+                TextCloudComponent
+            ],
+            providers: [ ComponentFactoryResolver ]
+        });
+    });
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(VisualizationInjectorComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create an instance', inject([ComponentFactoryResolver], (resolver: ComponentFactoryResolver) => {
+        let component = new VisualizationInjectorComponent(resolver);
+        expect(component).toBeTruthy();
+    }));
 });

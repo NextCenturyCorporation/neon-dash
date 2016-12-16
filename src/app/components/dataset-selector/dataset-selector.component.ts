@@ -20,7 +20,7 @@ import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { Dataset } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
-import { DatabaseMetaData, TableMetaData, FieldMetaData } from '../../dataset.ts';
+import { DatabaseMetaData, TableMetaData, FieldMetaData } from '../../dataset';
 import { ParameterService } from '../../services/parameter.service';
 import { neonVisualizationMinPixel } from '../../neon-namespaces';
 import * as neon from 'neon-framework';

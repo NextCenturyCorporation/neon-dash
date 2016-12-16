@@ -24,6 +24,8 @@ import { AboutNeonComponent } from './components/about-neon/about-neon.component
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
+import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
+import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 
 import { NeonGTDConfig } from './neon-gtd-config';
 
@@ -56,7 +58,9 @@ describe('App: NeonGtd', () => {
         AboutNeonComponent,
         DashboardOptionsComponent,
         DatasetSelectorComponent,
-        VisualizationContainerComponent
+        VisualizationContainerComponent,
+        VisualizationInjectorComponent,
+        TextCloudComponent
       ],
       imports: [
         FormsModule,
@@ -93,7 +97,7 @@ describe('App: NeonGtd', () => {
     expect(de.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
     // Since the about pane and options pane are rendered only after a user opens their sidenav area,
     // these should not exist upon initial render.
-    expect(de.nativeElement.querySelectorAll('app-about-neon').length ===0).toBeTruthy();
+    expect(de.nativeElement.querySelectorAll('app-about-neon').length === 0).toBeTruthy();
     expect(de.nativeElement.querySelectorAll('app-dashboard-options').length === 0).toBeTruthy();
   }));
 });

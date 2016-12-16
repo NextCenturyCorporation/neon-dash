@@ -29,6 +29,7 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
+import { FilterService } from '../../services/filter.service';
 
 import { MaterialModule } from '@angular/material';
 import { MdSnackBar, MdSnackBarConfig } from '@angular/material';
@@ -60,6 +61,7 @@ describe('Component: DashboardOptionsComponent', () => {
                 ParameterService,
                 ThemesService,
                 ViewContainerRef,
+                FilterService,
                 { provide: 'config', useValue: testConfig }
             ]
         });

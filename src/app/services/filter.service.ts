@@ -1,40 +1,35 @@
 /*
  * Copyright 2016 Next Century Corporation
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the 'License');
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License is distributed on an 'AS IS' BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
  */
-import { Inject, Injectable } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
+import { Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
-import * as $ from 'jquery';
 
-import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData } from '../dataset';
+import { TableMetaData } from '../dataset';
 import { ErrorNotificationService } from './error-notification.service';
 import { DatasetService } from './dataset.service';
-import { Subscription, Observable } from 'rxjs/Rx';
-import { NeonGTDConfig } from '../neon-gtd-config';
-import { neonMappings } from '../neon-namespaces';
 import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
 
 @Injectable()
 export class FilterService {
 
-	private filters: any[];
-	private messenger: neon.eventing.Messenger;
-
     // The beginning of the filter builder filter name to ignore when searching for filters
-	static FILTER_BUILDER_PREFIX: string = "Filter Builder";
+    static FILTER_BUILDER_PREFIX: string = 'Filter Builder';
+
+    private filters: any[];
+    private messenger: neon.eventing.Messenger;
 
     constructor(private errorNotificationService: ErrorNotificationService, private datasetService: DatasetService) {
         this.messenger = new neon.eventing.Messenger();
@@ -46,19 +41,19 @@ export class FilterService {
      * @param {Function} [errorCallback] Optional error callback
      * @method getFilterState
      */
-    getFilterState(successCallback?: () => any, errorCallback?: () => any) {
-    	neon.query.Filter.getFilterState('*', '*', (filters) => {
-    		this.filters = filters;
-    		if (successCallback) {
-    			successCallback();
-    		}
-    	}, (response) => {
-    		if (errorCallback) {
-    			errorCallback();
-    		} else if (response.responseJSON) {
-    			this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
-    		}
-    	});
+    getFilterState(successCallback?: () => any, errorCallback?: (resp: any) => any) {
+        neon.query.Filter.getFilterState('*', '*', (filters) => {
+            this.filters = filters;
+            if (successCallback) {
+                successCallback();
+            }
+        }, (response) => {
+            if (errorCallback) {
+                errorCallback(response);
+            } else if (response.responseJSON) {
+                this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
+            }
+        });
     };
 
     /*
@@ -81,14 +76,16 @@ export class FilterService {
         createFilterClauseFunction: (dbAndTableName: {}, fieldNames: any) => any, filterName: any,
         successCallback?: (resp: any) => any, errorCallback?: (resp: any) => any) {
 
-    	let filters = this.getFilters(database, table, fields);
-    	let relations = this.datasetService.getRelations(database, table, fields);
+        let filters = this.getFilters(database, table, fields);
+        let relations = this.datasetService.getRelations(database, table, fields);
 
-    	if (filters.length) {
-    		this.replaceFilter(messenger, relations, createFilterClauseFunction, this.getFilterNameString(filterName, relations), successCallback, errorCallback);
-    	} else {
-    		this.addNewFilter(messenger, relations, createFilterClauseFunction, this.getFilterNameString(filterName, relations), successCallback, errorCallback);
-    	}
+        if (filters.length) {
+            this.replaceFilter(messenger, relations, createFilterClauseFunction,
+                this.getFilterNameString(filterName, relations), successCallback, errorCallback);
+        } else {
+            this.addNewFilter(messenger, relations, createFilterClauseFunction,
+                this.getFilterNameString(filterName, relations), successCallback, errorCallback);
+        }
     };
 
     /*
@@ -102,20 +99,20 @@ export class FilterService {
      * @method removeFilter
      */
     removeFilter(database: string, table: string, fields: string[], successCallback?: (resp: any) => any,
-    	errorCallback?: (resp: any) => any, messenger?: neon.eventing.Messenger) {
+        errorCallback?: (resp: any) => any, messenger?: neon.eventing.Messenger) {
 
-    	let relations = this.datasetService.getRelations(database, table, fields);
-    	let filterKeys = this.getRelationsFilterKeys(relations);
+        let relations = this.datasetService.getRelations(database, table, fields);
+        let filterKeys = this.getRelationsFilterKeys(relations);
 
-    	if (filterKeys.length) {
-    		if (messenger) {
-    			this.removeFilters(messenger, filterKeys, successCallback, errorCallback);
-    		} else {
-    			this.removeFilters(this.messenger, filterKeys, successCallback, errorCallback);
-    		}
-    	} else if (successCallback) {
-    		successCallback(null);
-    	}
+        if (filterKeys.length) {
+            if (messenger) {
+                this.removeFilters(messenger, filterKeys, successCallback, errorCallback);
+            } else {
+                this.removeFilters(this.messenger, filterKeys, successCallback, errorCallback);
+            }
+        } else if (successCallback) {
+            successCallback(null);
+        }
     };
 
     /*
@@ -128,37 +125,37 @@ export class FilterService {
      * @method replaceFilterForKey
      */
     replaceFilterForKey(messenger: neon.eventing.Messenger, filterKey: string, filter: any,
-    	successCallback?: () => any, errorCallback?: (resp: any) => any) {
+        successCallback?: () => any, errorCallback?: (resp: any) => any) {
 
-    	this.messenger.replaceFilter(filterKey, filter, () => {
-    		let index = _.findIndex(this.filters, {
-    			id: filterKey
-    		});
+        this.messenger.replaceFilter(filterKey, filter, () => {
+            let index = _.findIndex(this.filters, {
+                id: filterKey
+            });
 
-    		if (index === -1) {
-    			this.filters.push({
-    				id: filterKey,
-    				dataSet: {
-    					databaseName: filter.databaseName,
-    					tableName: filter.tableName
-    				},
-    				filter: filter
-    			})
-    		} else {
-    			this.filters[index] = {
-    				id: filterKey,
-    				dataSet: {
-    					databaseName: filter.databaseName,
-    					tableName: filter.tableName
-    				},
-    				filter: filter
-    			};
-    		}
+            if (index === -1) {
+                this.filters.push({
+                    id: filterKey,
+                    dataSet: {
+                        databaseName: filter.databaseName,
+                        tableName: filter.tableName
+                    },
+                    filter: filter
+                });
+            } else {
+                this.filters[index] = {
+                    id: filterKey,
+                    dataSet: {
+                        databaseName: filter.databaseName,
+                        tableName: filter.tableName
+                    },
+                    filter: filter
+                };
+            }
 
-    		if (successCallback) {
-    			successCallback();
-    		}
-    	}, errorCallback);
+            if (successCallback) {
+                successCallback();
+            }
+        }, errorCallback);
     };
 
     /*
@@ -169,11 +166,11 @@ export class FilterService {
      * @method removeFiltersForKeys
      */
     removeFiltersForKeys(filterKeys: string[], successCallback?: (resp: any) => any, errorCallback?: (resp: any) => any) {
-    	if (filterKeys.length) {
-    		this.removeFilters(this.messenger, filterKeys, successCallback, errorCallback);
-    	} else if (successCallback) {
-    		successCallback(null);
-    	}
+        if (filterKeys.length) {
+            this.removeFilters(this.messenger, filterKeys, successCallback, errorCallback);
+        } else if (successCallback) {
+            successCallback(null);
+        }
     };
 
     /*
@@ -187,15 +184,15 @@ export class FilterService {
      * @return The filter key matching the given filter, or undefined if no filter was found.
      */
     getFilterKey(databaseName: string, tableName: string, filterClause: any, includeAllFilters?: boolean): string {
-    	for(let i = 0; i < this.filters.length; i++) {
-    		if (databaseName === this.filters[i].filter.databaseName &&
-    			tableName === this.filters[i].filter.tableName &&
-    			(includeAllFilters || this.filters[i].filter.filterName.indexOf(FilterService.FILTER_BUILDER_PREFIX) !== 0) &&
-    			this.areClausesEqual(this.filters[i].filter.whereClause, filterClause)) {
-    			return this.filters[i].id;
-    		}
-    	}
-    	return undefined;
+        for (let i = 0; i < this.filters.length; i++) {
+            if (databaseName === this.filters[i].filter.databaseName &&
+                tableName === this.filters[i].filter.tableName &&
+                (includeAllFilters || this.filters[i].filter.filterName.indexOf(FilterService.FILTER_BUILDER_PREFIX) !== 0) &&
+                this.areClausesEqual(this.filters[i].filter.whereClause, filterClause)) {
+                return this.filters[i].id;
+            }
+        }
+        return undefined;
     };
 
     /*
@@ -204,7 +201,7 @@ export class FilterService {
      * @return {Array}
      */
     getAllFilters(): any[] {
-    	return this.filters;
+        return this.filters;
     }
 
     /*
@@ -218,29 +215,29 @@ export class FilterService {
      * @return {Array}
      */
     getFilters(database: string, table: string, fields: string[], includeAllFilters?: boolean): any[] {
-    	let checkClauses = (clause) => {
-    		if (clause.type === "where" && field.indexOf(clause.lhs) >= 0) {
-    			return true;
-    		} else if (clause.type !== "where") {
-    			for(let i = 0; i < clause.whereClauses.length; i++) {
-    				if (!checkClauses(clause.whereClauses[i])) {
-    					return false;
-    				}
-    			}
-    			return true;
-    		}
-    	};
+        let checkClauses = (clause) => {
+            if (clause.type === 'where' && fields.indexOf(clause.lhs) >= 0) {
+                return true;
+            } else if (clause.type !== 'where') {
+                for (let i = 0; i < clause.whereClauses.length; i++) {
+                    if (!checkClauses(clause.whereClauses[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        };
 
-    	let filters = [];
-    	this.filters.forEach(filter => {
-    		if ((includeAllFilters || filter.filter.filterName.indexOf(FilterService.FILTER_BUILDER_PREFIX) !== 0) &&
-    			filter.dataSet.databaseName === database && filter.dataSet.tableName === table &&
-    			checkClauses(filter.filter.whereClauses)) {
-    			filters.push(filter);
-    		}
-    	});
+        let filters = [];
+        this.filters.forEach(filter => {
+            if ((includeAllFilters || filter.filter.filterName.indexOf(FilterService.FILTER_BUILDER_PREFIX) !== 0) &&
+                filter.dataSet.databaseName === database && filter.dataSet.tableName === table &&
+                checkClauses(filter.filter.whereClauses)) {
+                filters.push(filter);
+            }
+        });
 
-    	return filters;
+        return filters;
     };
 
     /*
@@ -251,29 +248,29 @@ export class FilterService {
      * @return {Boolean}
      */
     areClausesEqual(firstClause: any, secondClause: any): boolean {
-    	let clausesEqual = (first, second) => {
-    		if (first.lhs === second.lhs && first.operator === second.operator && first.rhs === second.rhs) {
-    			return true;
-    		} else if ((_.isDate(firstClause.rhs) || _.isDate(secondClause.rhs)) &&
-    			new Date(first.rhs).valueOf() === new Date(second.rhs).valueOf()) {
-    			return true;
-    		}
-    		return false;
-    	};
+        let clausesEqual = (first, second) => {
+            if (first.lhs === second.lhs && first.operator === second.operator && first.rhs === second.rhs) {
+                return true;
+            } else if ((_.isDate(firstClause.rhs) || _.isDate(secondClause.rhs)) &&
+                new Date(first.rhs).valueOf() === new Date(second.rhs).valueOf()) {
+                return true;
+            }
+            return false;
+        };
 
-    	if (firstClause.type === secondClause.type) {
-    		if (firstClause.type === "where") {
-    			return clausesEqual(firstClause, secondClause);
-    		} else if (firstClause.type !== "where" && firstClause.whereClauses.length === secondClause.whereClauses.length) {
-    			for(let i = 0; i < firstClause.whereClauses.length; i++) {
-    				if (!this.areClausesEqual(firstClause.whereClauses[i], secondClause.whereClauses[i])) {
-    					return false;
-    				}
-    			}
-    			return true;
-    		}
-    	}
-    	return false;
+        if (firstClause.type === secondClause.type) {
+            if (firstClause.type === 'where') {
+                return clausesEqual(firstClause, secondClause);
+            } else if (firstClause.type !== 'where' && firstClause.whereClauses.length === secondClause.whereClauses.length) {
+                for (let i = 0; i < firstClause.whereClauses.length; i++) {
+                    if (!this.areClausesEqual(firstClause.whereClauses[i], secondClause.whereClauses[i])) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
     };
 
     /*
@@ -283,7 +280,7 @@ export class FilterService {
      * @return {Boolean}
      */
     hasSingleClause(filter: any): boolean {
-    	return filter.filter.whereClause.type === "where";
+        return filter.filter.whereClause.type === 'where';
     };
 
     /*
@@ -293,7 +290,7 @@ export class FilterService {
      * @return {Boolean}
      */
     hasMultipleClauses(filter: any): boolean {
-    	return filter.filter.whereClause.type === "and" || filter.filter.whereClauses.type === "or";
+        return filter.filter.whereClause.type === 'and' || filter.filter.whereClauses.type === 'or';
     };
 
     /*
@@ -303,7 +300,7 @@ export class FilterService {
      * @return {Number}
      */
     getMultipleClausesLength(filter: any): number {
-    	return this.hasMultipleClauses(filter) ? filter.filter.whereClause.whereClauses.length : 0;
+        return this.hasMultipleClauses(filter) ? filter.filter.whereClause.whereClauses.length : 0;
     };
 
     /*
@@ -321,39 +318,40 @@ export class FilterService {
      * @method replaceFilter
      * @private
      */
-    private replaceFilter(messenger: neon.eventing.Messenger, relations: any[], createFilterClauseFunction: (dbAndTableName: {}, fieldNames: any) => any,
-    	filterName: any, successCallback?: (resp: any) => any, errorCallback?: (resp: any) => any) {
+    private replaceFilter(messenger: neon.eventing.Messenger, relations: any[],
+        createFilterClauseFunction: (dbAndTableName: {}, fieldNames: any) => any,
+        filterName: any, successCallback?: (resp: any) => any, errorCallback?: (resp: any) => any) {
 
-    	let replaceNextFilter = () => {
-    		if (relations.length) {
-    			this.replaceFilter(messenger, relations, createFilterClauseFunction, filterName, successCallback, errorCallback);
-    		} else if (successCallback) {
-    			successCallback(null);
-    		}
-    	};
+        let replaceNextFilter = () => {
+            if (relations.length) {
+                this.replaceFilter(messenger, relations, createFilterClauseFunction, filterName, successCallback, errorCallback);
+            } else if (successCallback) {
+                successCallback(null);
+            }
+        };
 
-    	let relation = relations.shift();
-    	let filter = this.createFilter(relation, createFilterClauseFunction, filterName);
-    	if (!filter) {
-    		replaceNextFilter();
-    		return;
-    	}
+        let relation = relations.shift();
+        let filter = this.createFilter(relation, createFilterClauseFunction, filterName);
+        if (!filter) {
+            replaceNextFilter();
+            return;
+        }
 
-    	let id = this.getRelationsFilterKeys([relation])[0];
-    	messenger.replaceFilter(id, filter, () => {
-    		let index = _.findIndex(this.filters, {
-    			id: id
-    		});
-    		this.filters[index] = {
-    			id: id,
-    			dataSet: {
-    				databaseName: filter.databaseName,
-    				tableName: filter.tableName
-    			},
-    			filter: filter
-    		};
-    		replaceNextFilter();
-    	}, errorCallback);
+        let id = this.getRelationsFilterKeys([relation])[0];
+        messenger.replaceFilter(id, filter, () => {
+            let index = _.findIndex(this.filters, {
+                id: id
+            });
+            this.filters[index] = {
+                id: id,
+                dataSet: {
+                    databaseName: filter.databaseName,
+                    tableName: filter.tableName
+                },
+                filter: filter
+            };
+            replaceNextFilter();
+        }, errorCallback);
     };
 
     /**
@@ -371,62 +369,64 @@ export class FilterService {
      * @method addNewFilter
      * @private
      */
-    private addNewFilter(messenger: neon.eventing.Messenger, relations: any[], createFilterClauseFunction: (dbAndTableName: {}, fieldNames: any) => any,
-    	filterName: any, successCallback?: (resp) => any, errorCallback?: (resp: any) => any) {
+    private addNewFilter(messenger: neon.eventing.Messenger, relations: any[],
+        createFilterClauseFunction: (dbAndTableName: {}, fieldNames: any) => any,
+        filterName: any, successCallback?: (resp) => any, errorCallback?: (resp: any) => any) {
 
-    	let addNextFilter = () => {
-    		if (relations.length) {
-    			this.addNewFilter(messenger, relations, createFilterClauseFunction, filterName, successCallback, errorCallback);
-    		} else if (successCallback) {
-    			successCallback(null);
-    		}
-    	};
+        let addNextFilter = () => {
+            if (relations.length) {
+                this.addNewFilter(messenger, relations, createFilterClauseFunction, filterName, successCallback, errorCallback);
+            } else if (successCallback) {
+                successCallback(null);
+            }
+        };
 
-    	let relation = relations.shift();
-    	let filter = this.createFilter(relation, createFilterClauseFunction, filterName);
-    	if (!filter) {
-    		addNextFilter();
-    		return;
-    	}
+        let relation = relations.shift();
+        let filter = this.createFilter(relation, createFilterClauseFunction, filterName);
+        if (!filter) {
+            addNextFilter();
+            return;
+        }
 
-    	let id = relation.database + "-" + relation.table + "-" + uuid.v4();
-    	messenger.addFilter(id, filter, () => {
-    		this.filters.push({
-    			id: id,
-    			dataset: {
-    				databasename: filter.databasename,
-    				tableName: filter.tableName
-    			},
-    			filter: filter
-    		});
-    		addNextFilter();
-    	}, errorCallback);
+        let id = relation.database + '-' + relation.table + '-' + uuid.v4();
+        messenger.addFilter(id, filter, () => {
+            this.filters.push({
+                id: id,
+                dataset: {
+                    databasename: filter.databasename,
+                    tableName: filter.tableName
+                },
+                filter: filter
+            });
+            addNextFilter();
+        }, errorCallback);
     };
 
     /**
      * Removes filters for all the given filter keys.
      * @param {Object} messenger The messenger object used to remove the filters
-     * @param {Array} or {Object} filterKeys The array of filter keys or the map of database and table names to filter keys used by the messenger
+     * @param {Array} or {Object} filterKeys The array of filter keys or the map of database and table names to
+     * filter keys used by the messenger
      * @param {Function} successCallback The function called once all the filters have been removed (optional)
      * @param {Function} errorCallback The function called if an error is returned for any of the filter calls (optional)
      * @method removeFilters
      * @private
      */
     private removeFilters(messenger: neon.eventing.Messenger, filterKeys: any,
-    	successCallback?: (resp: any) => any, errorCallback?: (resp: any) => any) {
+        successCallback?: (resp: any) => any, errorCallback?: (resp: any) => any) {
 
-    	let filterKey = filterKeys.shift();
-    	messenger.removeFilter(filterKey, () => {
-    		let index = _.findIndex(this.filters, {
-    			id: filterKey
-    		});
-    		this.filters.splice(index, 1);
-    		if (filterKeys.length) {
-    			this.removeFilters(messenger, filterKeys, successCallback, errorCallback);
-    		} else if (successCallback) {
-    			successCallback(null);
-    		}
-    	}, errorCallback);
+        let filterKey = filterKeys.shift();
+        messenger.removeFilter(filterKey, () => {
+            let index = _.findIndex(this.filters, {
+                id: filterKey
+            });
+            this.filters.splice(index, 1);
+            if (filterKeys.length) {
+                this.removeFilters(messenger, filterKeys, successCallback, errorCallback);
+            } else if (successCallback) {
+                successCallback(null);
+            }
+        }, errorCallback);
     };
 
     /**
@@ -448,8 +448,8 @@ export class FilterService {
      * @private
      */
     private createFilter(relation: any, createFilterClauseFunction: (dbAndTableName: {}, fieldNames: any) => any, filterName: any): any {
-    	// Creates a list of arguments for the filter clause creation function. Each element is either
-    	// a {String} or an {Array} depending on the number of field keys in 'relation.fields'.
+        // Creates a list of arguments for the filter clause creation function. Each element is either
+        // a {String} or an {Array} depending on the number of field keys in 'relation.fields'.
         let argumentFieldsList = this.getArgumentFieldsList(relation);
         let relationDatabaseAndTableName = {
             database: relation.database,
@@ -458,77 +458,81 @@ export class FilterService {
 
         let filterClause;
         if (argumentFieldsList.length === 1) {
-        	filterClause = createFilterClauseFunction(relationDatabaseAndTableName, argumentFieldsList[0]);
+            filterClause = createFilterClauseFunction(relationDatabaseAndTableName, argumentFieldsList[0]);
         } else {
-        	let filterClauses = [];
-        	for(let i = 0; i < argumentFieldsList.length; i++) {
-        		let result = createFilterClauseFunction(relationDatabaseAndTableName, argumentFieldsList[i]);
-        		if (result) {
-        			filterClauses.push(result);
-        		}
-        	}
-        	if (filterClauses.length) {
-        		filterClause = neon.query.or.apply(neon.query, filterClauses);
-        	}
+            let filterClauses = [];
+            for (let i = 0; i < argumentFieldsList.length; i++) {
+                let result = createFilterClauseFunction(relationDatabaseAndTableName, argumentFieldsList[i]);
+                if (result) {
+                    filterClauses.push(result);
+                }
+            }
+            if (filterClauses.length) {
+                filterClause = neon.query.or.apply(neon.query, filterClauses);
+            }
         }
 
         if (filterClause) {
-        	let query = new neon.query.Filter().selectFrom(relation.database, relation.table).where.apply(neon.query, filterClause);
-        	if (filterName) {
-        		query = query.name(filterName);
-        	}
-        	return query;
+            let query = new neon.query.Filter().selectFrom(relation.database, relation.table).where.apply(neon.query, filterClause);
+            if (filterName) {
+                query = query.name(filterName);
+            }
+            return query;
         }
 
         return undefined;
     };
 
     /**
-     * Returns the list of field names or arrays based on the data contained within the array of fields in the given relation to be used by a filter clause creation function.
+     * Returns the list of field names or arrays based on the data contained within the array of fields in the given
+     * relation to be used by a filter clause creation function.
      * @param {Object} relation A relation object containing a map of field names to arrays of related field names
      * @method getArgumentFieldsList
-     * @return {Array} A list of {String} related field names if the map of field names in the given relation object only contains one field name key;
-     * otherwise, a list of {Array} lists of {String} related field names representing each combination of the different field name keys.  Either way, the
+     * @return {Array} A list of {String} related field names if the map of field names in the given relation object only
+     * contains one field name key;
+     * otherwise, a list of {Array} lists of {String} related field names representing each combination of the different
+     * field name keys.  Either way, the
      * elements of this list will be used to call the filter clause creation functions in filterService.createFilter() below.
      * @private
      */
     private getArgumentFieldsList(relation: any): any[] {
-    	// The relation contains an object with the name of each initial field and the array of related fields for each initial field.
-    	// Keep the same order of the fields array. This order may be used in the filter clause creation function.
-    	let fieldNames = relation.fields.map(field => field.intial);
+        // The relation contains an object with the name of each initial field and the array of related fields for each initial field.
+        // Keep the same order of the fields array. This order may be used in the filter clause creation function.
+        let fieldNames = relation.fields.map(field => field.intial);
 
-    	// If only one field is used by the filter clause creation function, just return the list of related fields for that field.
-    	if (fieldNames.length === 1) {
-    		return relation.fields[0].related;
-    	}
+        // If only one field is used by the filter clause creation function, just return the list of related fields for that field.
+        if (fieldNames.length === 1) {
+            return relation.fields[0].related;
+        }
 
-    	// Else we need to create a list of all combinations of rht related fields. First, create a list containing all the list of related fields.
-    	let relationFieldsList = [];
-    	for(let i = 0; i < fieldNames.length; i++) {
-    		relationFieldsList.push(relation.fields[i].related);
-    	}
+        // Else we need to create a list of all combinations of rht related fields.
+        // First, create a list containing all the list of related fields.
+        let relationFieldsList = [];
+        for (let i = 0; i < fieldNames.length; i++) {
+            relationFieldsList.push(relation.fields[i].related);
+        }
 
-    	// Create a list of arguments representing the fields using all the combinations of the related fields.
-    	let getArgumentFieldsListHelper = (unfinishedArgumentFields, unusedRelationFields) => {
-    		let argumentFieldsList = [];
-    		// Iterate over each element (list) in the first unused relation field.
-    		for(let i = 0; i < unusedRelationFields[0].length; ++i) {
-    			// Clone the unfinished arguments array and append the current unused relation field element.
-    			let fields = unfinishedArgumentFields.slice(0);
-    			fields.push(unusedRelationFields[0][i]);
+        // Create a list of arguments representing the fields using all the combinations of the related fields.
+        let getArgumentFieldsListHelper = (unfinishedArgumentFields, unusedRelationFields) => {
+            let argumentFieldsList = [];
+            // Iterate over each element (list) in the first unused relation field.
+            for (let i = 0; i < unusedRelationFields[0].length; ++i) {
+                // Clone the unfinished arguments array and append the current unused relation field element.
+                let fields = unfinishedArgumentFields.slice(0);
+                fields.push(unusedRelationFields[0][i]);
 
-    			if (unusedRelationFields.length === 1) {
-    				// If there are no more unused relation fields, we have finished creating this arguments array.
-    				argumentFieldsList.push(fields);
-    			} else {
-    				// Else, get the next element for the arguments array from the next unused relation fields.
-    				argumentFieldsList = argumentFieldsList.concat(getArgumentFieldsListHelper(fields, unusedRelationFields.slice(1)));
-    			}
-    		}
-    		return argumentFieldsList;
-    	};
+                if (unusedRelationFields.length === 1) {
+                    // If there are no more unused relation fields, we have finished creating this arguments array.
+                    argumentFieldsList.push(fields);
+                } else {
+                    // Else, get the next element for the arguments array from the next unused relation fields.
+                    argumentFieldsList = argumentFieldsList.concat(getArgumentFieldsListHelper(fields, unusedRelationFields.slice(1)));
+                }
+            }
+            return argumentFieldsList;
+        };
 
-    	return getArgumentFieldsListHelper([], relationFieldsList);
+        return getArgumentFieldsListHelper([], relationFieldsList);
     };
 
     /*
@@ -540,26 +544,26 @@ export class FilterService {
      * @private
      */
     private getFilterNameString(filterName: any, relations: any[]): string {
-    	if (typeof name === 'object') {
-    		let string = "";
-    		if (name["visName"]) {
-    			string += name["visName"] + " - ";
-    		}
-    		let tableString: string;
-    		let table: TableMetaData;
-    		if (relations.length > 0) {
-    			table = this.datasetService.getTableWithName(relations[0].database, relations[0].table);
-    			tableString = table.prettyName;
-    		}
-    		for(let i = 1; i < relations.length; i++) {
-    			table = this.datasetService.getTableWithName(relations[i].database, relations[i].table);
-    			tableString += ("/" + table.prettyName);
-    		}
+        if (typeof name === 'object') {
+            let string = '';
+            if (name['visName']) {
+                string += name['visName'] + ' - ';
+            }
+            let tableString: string;
+            let table: TableMetaData;
+            if (relations.length > 0) {
+                table = this.datasetService.getTableWithName(relations[0].database, relations[0].table);
+                tableString = table.prettyName;
+            }
+            for (let i = 1; i < relations.length; i++) {
+                table = this.datasetService.getTableWithName(relations[i].database, relations[i].table);
+                tableString += ('/' + table.prettyName);
+            }
 
-    		return string + tableString + (name["text"] ? ": " + name["text"] : "");
-    	} else {
-    		return name;
-    	}
+            return string + tableString + (name['text'] ? ': ' + name['text'] : '');
+        } else {
+            return name;
+        }
     };
 
     /*
@@ -570,16 +574,16 @@ export class FilterService {
      * @private
      */
     private getRelationsFilterKeys(relations: {}): any[] {
-    	let keys = [];
-    	_.each(relations, (relation) => {
-    		let attrs = [];
+        let keys = [];
+        _.each(relations, (relation) => {
+            let attrs = [];
 
-    		_.each(relations["fields"], field =>
-    			attrs.push(field.relation[0])
-    		);
+            _.each(relations['fields'], field =>
+                attrs.push(field.relation[0])
+            );
 
-    		keys = keys.concat(this.getFilters(relation["database"], relation["table"], attrs).map(filter => filter.id));
-    	});
-    	return keys;
+            keys = keys.concat(this.getFilters(relation['database'], relation['table'], attrs).map(filter => filter.id));
+        });
+        return keys;
     };
 }
