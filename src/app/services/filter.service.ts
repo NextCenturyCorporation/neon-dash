@@ -219,7 +219,7 @@ export class FilterService {
      */
     getFilters(database: string, table: string, fields: string[], includeAllFilters?: boolean): any[] {
     	let checkClauses = (clause) => {
-    		if (clause.type === "where" && field.indexOf(clause.lhs) >= 0) {
+    		if (clause.type === "where" && fields.indexOf(clause.lhs) >= 0) {
     			return true;
     		} else if (clause.type !== "where") {
     			for(let i = 0; i < clause.whereClauses.length; i++) {
