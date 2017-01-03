@@ -22,7 +22,6 @@ import { HttpModule } from '@angular/http';
 import { MaterialModule } from '@angular/material';
 
 import { NgGridModule } from 'angular2-grid';
-import * as log4javascript from 'log4javascript';
 
 import { ActiveGridService } from './services/active-grid.service';
 import { ConnectionService } from './services/connection.service';

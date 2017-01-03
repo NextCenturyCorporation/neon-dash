@@ -1,3 +1,4 @@
+/* tslint:disable */
 /**
  * This file defines browser safe typings for the "node-uuid" npm package without requiring 
  * classes from Node (e.g., Buffer).  There are a number of typings available for this.  However,

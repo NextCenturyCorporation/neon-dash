@@ -179,6 +179,7 @@ export class DashboardOptionsComponent implements OnInit {
                     let params: URLSearchParams = new URLSearchParams();
                     let dashboardStateId: string = params.get('dashboard_state_id');
                     let filterStateId: string = params.get('filter_state_id');
+                    console.log('loaded ' + dashboardStateId + ' ' + filterStateId);
 
                     this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
                 } else {
@@ -199,6 +200,7 @@ export class DashboardOptionsComponent implements OnInit {
                 let params: URLSearchParams = new URLSearchParams();
                 let dashboardStateId: string = params.get('dashboard_state_id');
                 let filterStateId: string = params.get('filter_state_id');
+                console.log('loaded ' + dashboardStateId + ' ' + filterStateId);
 
                 // Delete the state parameters if either match the IDs deleted
                 // TODO: Enable after replacing old $location calls with appropriate router calls.
