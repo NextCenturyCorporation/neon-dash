@@ -20,8 +20,9 @@ import * as _ from 'lodash';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import { ConnectionService } from './connection.service';
 
-// TODO Fix the tslint error below
-/* tslint:disable-next-line:use-life-cycle-interface */
+// TODO Fix the tslint error below. Currently it's being left in because tslint outputs an empty
+// file instead of an XML file with no entries when there are no errors; the empty file causes
+// Jenkins to fail the build.
 @Injectable()
 export class TranslationService {
 
