@@ -31,6 +31,7 @@ angular.module('neonDemo.controllers').controller('barChartController', ['$scope
     $scope.active.aggregationField = {};
     $scope.active.groupField = {};
     $scope.active.limit = $scope.bindings.limit || 100;
+    $scope.active.useVertical = $scope.bindings.useVertical || true;
     $scope.active.aggregateArraysByElement = false;
 
     $scope.functions.createMenuText = function() {
@@ -68,6 +69,10 @@ angular.module('neonDemo.controllers').controller('barChartController', ['$scope
 
     $scope.handleChangeLimit = function() {
         $scope.functions.logChangeAndUpdate("limit", $scope.active.limit);
+    };
+
+    $scope.handleChangeOrientation = function() {
+        $scope.functions.logChangeAndUpdate("orientation", $scope.active.useVertical);
     };
 
     $scope.handleChangeAggregateArraysByElement = function() {
@@ -139,18 +144,19 @@ angular.module('neonDemo.controllers').controller('barChartController', ['$scope
         $scope.functions.removeNeonFilter();
     };
 
-    $scope.functions.updateData = function(data) {
+    $scope.functions.updateData = function(data) {      //xkcd
         var opts = {
             data: data || [],
-            x: $scope.active.groupField.columnName,
-            y: COUNT_FIELD_NAME,
+            x: ($scope.active.useVertical? $scope.active.groupField.columnName: COUNT_FIELD_NAME),
+            y: ($scope.active.useVertical? COUNT_FIELD_NAME: $scope.active.groupField.columnName),
             responsive: false,
             selectedKey: $scope.filter,
             clickHandler: function(value) {
                 $scope.filter = value;
                 updateLinks();
                 $scope.functions.updateNeonFilter();
-            }
+            },
+            useVertical: $scope.active.useVertical
         };
 
         if($scope.chart) {
@@ -261,6 +267,7 @@ angular.module('neonDemo.controllers').controller('barChartController', ['$scope
         var hasAggField = $scope.active.aggregation && $scope.active.aggregation !== 'count' && $scope.functions.isFieldValid($scope.active.aggregationField);
         bindings.aggregationField = hasAggField ? $scope.active.aggregationField.columnName : undefined;
         bindings.limit = $scope.active.limit;
+        bindings.useVertical = $scope.active.useVertical;
         return bindings;
     };
 

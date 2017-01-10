@@ -15,9 +15,10 @@
 
 .barChartDirective {
     .barchart {
+        width: inherit;
         height: inherit;
         overflow-x: auto;
-        overflow-y: hidden;
+        overflow-y: auto;
 
         .tick {
             fill: @chart-text-color;
@@ -107,13 +108,13 @@
                 }
 
                 .tick {
-                    &:first-child, line {
-                        display: none;
+                    &:first-child {
+                        display: inline;
                     }
                 }
 
                 path {
-                  display: none;
+                    display: none;
                 }
             }
         }
@@ -144,7 +145,7 @@
 
         #plot {
             font-size: 10px;
-            height: inherit;
+            padding-right: 15px;
         }
     }
 }

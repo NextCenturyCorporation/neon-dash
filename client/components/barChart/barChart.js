@@ -90,22 +90,30 @@ charts.BarChart.prototype.setOptsConfiguration = function(opts) {
 
     if(!opts.responsive) {
         this.userSetWidth_ = opts.width;
+        this.userSetHeight_ = opts.height;
     }
-    this.userSetHeight_ = opts.height;
 
     this.xAttribute_ = opts.x;
     this.xLabel_ = opts.xLabel || this.determineXLabel_();
-    this.yAttribute_ = opts.y;
+    this.xMinAttribute_ = opts.xMin;
     this.yMinAttribute_ = opts.yMin;
+    this.yAttribute_ = opts.y;
     this.yLabel_ = opts.yLabel || this.determineYLabel_();
-    this.margin = $.extend({}, charts.BarChart.DEFAULT_MARGIN_, opts.margin || {});
 
-    this.viewboxXMin = 0;
-    this.viewboxYMin = 0;
-    this.viewboxXMax = 618;
-    this.viewboxYMax = 270;
+    this.margin = $.extend({}, (opts.useVertical? charts.BarChart.DEFAULT_MARGIN_: charts.BarChart.DEFAULT_HORIZ_MARGIN_), opts.margin || {});
+
+    this.textMargin = 20; //only used in horizontal chart
+
+    // this.viewboxXMin = 0;
+    // this.viewboxYMin = 0;
+    // this.viewboxXMax = 618;
+    // this.viewboxYMax = 270;
 
     this.maxCategoryLength = 10;
+
+    this.useVertical = opts.useVertical;
+
+    this.colorSet = d3.scale.category20();
 
     if(opts.init) {
         opts.init.call(this, opts);
@@ -132,12 +140,18 @@ charts.BarChart.prototype.setOptsConfiguration = function(opts) {
 };
 
 charts.BarChart.DEFAULT_HEIGHT_ = 250;
-charts.BarChart.DEFAULT_WIDTH_ = 600;
+charts.BarChart.DEFAULT_WIDTH_ = 600; 
 charts.BarChart.DEFAULT_MARGIN_ = {
     top: 10,
-    bottom: 65,
+    bottom: 45,
     left: 35,
     right: 0
+};
+charts.BarChart.DEFAULT_HORIZ_MARGIN_ = {
+    top: 10,
+    bottom: 30,
+    left: 55,
+    right: 30
 };
 charts.BarChart.DEFAULT_BAR_WIDTH_ = 15;
 charts.BarChart.TOOLTIP_ID_ = 'tooltip';
@@ -191,21 +205,31 @@ charts.BarChart.prototype.truncateFormat = function(item) {
  * @protected
  */
 charts.BarChart.prototype.categoryForItem = function(item) {
-    if(typeof this.xAttribute_ === 'function') {
-        return this.xAttribute_.call(this, item);
+    var curAttribute_ = (this.useVertical? this.xAttribute_: this.yAttribute_);
+
+    if(typeof curAttribute_ === 'function') {
+        return curAttribute_.call(this, item);
     }
-    return item[this.xAttribute_];
+    return item[curAttribute_];
 };
 
-charts.BarChart.prototype.determineXLabel_ = function() {
-    if(typeof this.xAttribute_ === 'string') {
-        return this.xAttribute_;
+charts.BarChart.prototype.determineDomainLabel = function(attribute) {
+    if(typeof attribute === 'string') {
+        return attribute;
     }
-    return 'x';
+    return 'y';
+}
+
+charts.BarChart.prototype.determineRangeLabel = function(attribute) {
+    return attribute ? attribute : "Count";
+}
+
+charts.BarChart.prototype.determineXLabel_ = function() {        //xkcd
+    return this.useVertical? this.determineDomainLabel(this.xAttribute_): this.determineRangeLabel(this.xAttribute_);
 };
 
-charts.BarChart.prototype.determineYLabel_ = function() {
-    return this.yAttribute_ ? this.yAttribute_ : "Count";
+charts.BarChart.prototype.determineYLabel_ = function() {        //xkcd
+    return this.useVertical? this.determineRangeLabel(this.yAttribute_): this.determineDomainLabel(this.yAttribute_);
 };
 
 charts.BarChart.prototype.createCategories_ = function(categories, data) {
@@ -222,6 +246,18 @@ charts.BarChart.prototype.computeTickValues_ = function(tickValues) {
     return tickValues;
 };
 
+charts.BarChart.prototype.calculateMaxValue = function() {
+    var maxValue = d3.max(this.data_, function(d) {
+        return d.values;
+    });
+
+    // may be NaN if no data
+    if(!maxValue) {
+        maxValue = 0;
+    }
+    return maxValue;
+};
+
 charts.BarChart.prototype.determineViewboxString = function() {
     return this.viewboxXMin + " " + this.viewboxYMin + " " + this.viewboxXMax + " " + this.viewboxYMax;
 };
@@ -236,7 +272,7 @@ charts.BarChart.prototype.createCategoriesFromUniqueValues_ = function(data) {
         .filter(function(item) {
             return !_.isNull(item) && !_.isUndefined(item);
         })
-        .sort(charts.BarChart.sortComparator_)
+        .sort(charts.BarChart.sortComparator_)  //this might be where the bars are sorted?
         .value();
 };
 
@@ -274,24 +310,38 @@ charts.BarChart.compareValues_ = function(a, b) {
     return 0;
 };
 
-charts.BarChart.prototype.createXScale_ = function() {
+charts.BarChart.prototype.createDomainScale_ = function(span) {
     return d3.scale.ordinal()
         .domain(this.categories)
-        .rangeRoundBands([0, this.width - this.hMargin_]);
+        .rangeRoundBands(span);
+}
+
+charts.BarChart.prototype.createRangeScale_ = function(span) {
+    
+    var scale = d3.scale.linear()
+        .domain([0, this.maxValue])
+        .rangeRound(span);
+
+    return scale;
+}
+
+charts.BarChart.prototype.createXScale_ = function() {
+    return (this.useVertical ? 
+                    this.createDomainScale_([0, this.width - this.hMargin_]): 
+                    this.createRangeScale_([0, this.width - this.hMargin_]));
 };
 
 charts.BarChart.prototype.createYScale_ = function() {
-    var maxCount = d3.max(this.data_, function(d) {
-        return d.values;
-    });
+    return (this.useVertical ? 
+                    this.createRangeScale_([this.height - this.vMargin_, 0]): 
+                    this.createDomainScale_([this.height - this.vMargin_,0]));
+};
 
-    // may be NaN if no data
-    if(!maxCount) {
-        maxCount = 0;
+charts.BarChart.prototype.computePlotHeight_ = function() {
+    if(this.categories.length > 0) {
+        return this.y.rangeBand() * this.categories.length;
     }
-    return d3.scale.linear()
-        .domain([0, maxCount])
-        .rangeRound([this.height - this.vMargin_, 0]);
+    return this.height;
 };
 
 charts.BarChart.prototype.computePlotWidth_ = function() {
@@ -301,30 +351,55 @@ charts.BarChart.prototype.computePlotWidth_ = function() {
     return this.width;
 };
 
-charts.BarChart.prototype.createXAxis_ = function() {
+charts.BarChart.prototype.createXAxis_ = function() {       //xkcd
     var xAxis = d3.svg.axis()
         .scale(this.x)
         .orient('bottom');
 
-    if(this.tickFormat_) {
-        xAxis = xAxis.tickFormat(this.tickFormat_);
-    } else {
-        xAxis = xAxis.tickFormat(this.truncateFormat);
-    }
-    if(this.tickValues_) {
-        xAxis = xAxis.tickValues(this.tickValues_);
-    }
+    if (this.useVertical) {
 
-    return xAxis;
+        if(this.tickFormat_) {
+            xAxis = xAxis.tickFormat(this.tickFormat_);
+        } else {
+            xAxis = xAxis.tickFormat(this.truncateFormat);
+        }
+        if(this.tickValues_) {
+            xAxis = xAxis.tickValues(this.tickValues_);
+        }
+        return xAxis;
+    }
+    // This puts one tick every 40 pixels (only applicable when the graph is horizontal).
+    var numTicks = this.x(this.maxValue) / 40;
+
+    return xAxis.ticks(numTicks).tickFormat(charts.BarChart.createXAxisTickFormat_());
 };
 
-charts.BarChart.prototype.createYAxis_ = function() {
-    return d3.svg.axis()
+charts.BarChart.prototype.createYAxis_ = function() {       //xkcd
+    var yAxis = d3.svg.axis()
         .scale(this.y)
-        .orient('left')
-        .ticks(3)
-        .tickFormat(charts.BarChart.createYAxisTickFormat_())
-        .tickValues(this.y.domain());
+        .orient('left');
+
+    if (this.useVertical) {
+        return yAxis.ticks(3)
+                    .tickFormat(charts.BarChart.createYAxisTickFormat_())
+                    .tickValues(this.y.domain());
+    }
+
+    if(this.tickFormat_) {
+        yAxis = yAxis.tickFormat(this.tickFormat_);
+    } else {
+        yAxis = yAxis.tickFormat(this.truncateFormat);
+    }
+    if(this.tickValues_) {
+        yAxis = yAxis.tickValues(this.tickValues_);
+    }
+    return yAxis;
+};
+
+charts.BarChart.createXAxisTickFormat_ = function() {       //xkcd
+    return function(val) {
+        return val === 0 ? val : d3.format('.2s')(val);
+    };
 };
 
 charts.BarChart.createYAxisTickFormat_ = function() {
@@ -340,6 +415,8 @@ charts.BarChart.createYAxisTickFormat_ = function() {
  */
 charts.BarChart.prototype.draw = function() {
     var me = this;
+    d3.selectAll(".barchart").style( "overflow-x", (me.useVertical? "auto": "hidden"));
+    d3.selectAll(".barchart").style( "overflow-y", (me.useVertical? "hidden": "auto"));
 
     me.preparePropertiesForDrawing_();
     $(me.element[0]).empty();
@@ -347,10 +424,25 @@ charts.BarChart.prototype.draw = function() {
         me.displayError();
     } else {
         var chart = me.drawChartSVG_();
-        me.bindData_(chart);
-        me.drawXAxis_(chart);
-        me.drawYAxis_(chart);
+        if (me.useVertical) {
+            me.bindData_(chart);
+            me.drawXAxis_(chart);
+            me.drawYAxis_(chart);
+        }
+        else {
+            me.drawXAxisAndGrid_(chart);    // in this order so the grid is on bottom
+            me.bindData_(chart);            // followed by bars
+            me.drawYAxis_(chart);           // with the y-axis (which overlaps the bars) on top
+        }
     }
+
+    // me.element.selectAll(charts.BarChart.SVG_ELEMENT_)   //Set different colors for each bar
+        // .style('fill', function(d, i) { return me.colorSet(i) });
+        // .style("fill","purple");
+
+    // me.element.selectAll(charts.BarChart.SVG_ELEMENT_) //gives a black outline
+    //     .style("stroke","black")
+    //     .style("stroke-width", 1);
 
     if(me.selectedKey) {
         var rects = me.element.selectAll(charts.BarChart.SVG_ELEMENT_ + '.' + charts.BarChart.BAR_CLASS_)[0];
@@ -368,16 +460,28 @@ charts.BarChart.prototype.draw = function() {
     return me;
 };
 
-charts.BarChart.prototype.preparePropertiesForDrawing_ = function() {
+charts.BarChart.prototype.preparePropertiesForDrawing_ = function() {       //xkcd
     this.width = this.determineWidth_(this.element);
     this.height = this.determineHeight_(this.element);
     this.setMargins_();
+
+    this.maxValue = this.calculateMaxValue();
+
     this.x = this.createXScale_();
-    // set the width to be as close to the user specified size (but not larger) so the bars divide evenly into
-    // the plot area
-    this.plotWidth = this.computePlotWidth_();
-    this.x.rangeRoundBands([0, this.plotWidth]);
     this.y = this.createYScale_();
+
+    // set the width/height to be as close to the user specified size (but not larger) so the bars divide evenly into
+    // the plot area
+    if (this.useVertical) {
+        this.plotWidth = this.computePlotWidth_();
+        this.x.rangeRoundBands([this.plotWidth, 0]);
+        this.plotHeight = this.height;
+    }
+    else {
+        this.plotHeight = this.computePlotHeight_();
+        this.y.rangeRoundBands([0, this.plotHeight]);
+        this.plotWidth = this.width;
+    }
     this.xAxis_ = this.createXAxis_();
     this.yAxis_ = this.createYAxis_();
 };
@@ -393,19 +497,20 @@ charts.BarChart.prototype.displayError = function() {
         this.categories.length + " pixels.</div>");
 };
 
-charts.BarChart.prototype.drawChartSVG_ = function() {
+charts.BarChart.prototype.drawChartSVG_ = function() {       //xkcd, this might be wrong
     var chart = this.element
         .append('svg')
-        //.attr("viewBox", this.determineViewboxString())
+        // .attr("viewBox", this.determineViewboxString())
         .attr('id', 'plot')
-        .attr("width", this.width)
-        .append('g')
+        .attr("height", this.height-4)
+        .attr("width", this.width-4)
+        // .append('g')
         .attr('transform', 'translate(' + this.margin.left + ',' + this.margin.top + ')');
 
     return chart;
 };
 
-charts.BarChart.prototype.bindData_ = function(chart) {
+charts.BarChart.prototype.bindData_ = function(chart) {       //xkcd
     var me = this;
 
     var bars = chart.selectAll(charts.BarChart.SVG_ELEMENT_)
@@ -420,19 +525,33 @@ charts.BarChart.prototype.bindData_ = function(chart) {
             return classString;
         })
         .attr('x', function(d) {
-            return me.x(d.key);
+            return (me.useVertical? me.x(d.key): 0);
         })
         .attr('y', function(d) {
-            return me.y(d.values);
+            return (me.useVertical? me.y(d.values): me.y(d.key) + me.y.rangeBand()/4); //the latter term to eliminate unnecessary space between bottom bar and x-axis
         })
-        .attr('width', this.x.rangeBand())
-        .attr('height', function(d) {
-            if(me.yMinAttribute_ && d[me.yMinAttribute_]) {
-                return me.height - me.vMargin_ - me.y(d[me.yMinAttribute_]);
-            } else {
-                return me.height - me.vMargin_ - me.y(d.values);
-            }
-        })
+        .attr('width', (this.useVertical ? 
+                            this.x.rangeBand()
+                            :
+                            function(d) {
+                                if(me.xMinAttribute_ && d[me.xMinAttribute_]) {
+                                    return me.width - me.hMargin_ - me.x(d[me.xMinAttribute_]);
+                                } else {
+                                    return me.x(d.values);
+                                }
+                            })
+        )
+        .attr('height', (this.useVertical ? 
+                            function(d) {
+                                if(me.yMinAttribute_ && d[me.yMinAttribute_]) {
+                                    return me.height - me.vMargin_ - me.y(d[me.yMinAttribute_]);
+                                } else {
+                                    return  me.height - me.vMargin_ - me.y(d.values);
+                                }
+                            }
+                            :
+                            this.y.rangeBand()*0.7)//FIXME could be any width
+        )
         // using the same color for the border of the bars as the svg background gives separation for adjacent bars
         .attr('stroke', '#FFFFFF')
         .on('mousemove', function(d) {
@@ -451,7 +570,37 @@ charts.BarChart.prototype.bindData_ = function(chart) {
 
     // initially all bars active, so just apply the active style
     this.applyStyle_(bars, charts.BarChart.ACTIVE_STYLE_KEY_);
+
+    if (this.useVertical) {
+        return;
+    }
+
+    var barTextPadding = Math.floor(me.y.rangeBand()/10);
+
+    // places text near the end of each bar.
+    chart.selectAll(".bartext")
+        .data(me.data_)
+        .enter()
+        .append('text')
+        .attr("class", "bartext")
+        // .style("dominant-baseline", "middle") //apparently this isn't supported in IE though. Will have to ask if it matters.
+        // .attr("dy","-2.45em")
+        .style("text-anchor", function(d)  {
+                // So that the text will be inside the bar when it's long, and outside when it's short
+                return (d.values > me.maxValue/3 ? "end": "start"); 
+            })
+        .attr({ 'x':function(d) {
+                                    // So that the text will be inside the bar when it's long, and outside when it's short
+                                    return me.x(d.values) + (d.values > me.maxValue/3 ? -2: 1) * barTextPadding; 
+                                },
+                'y':function(d){
+                                    return me.y(d.key) + me.y.rangeBand()/4 + me.y.rangeBand()/2;   //one 1/4 for the spacing I put on each bar, and the other to 
+                                }                                                                   // move the words to the center of the bar.
+            })
+        .text(function(d){ return d.values; }).style({'fill':'#333','font-size': 4 + Math.floor(me.y.rangeBand()/4) + 'px'});
+;
 };
+
 
 charts.BarChart.prototype.setBarSelected = function(selectedBar, selectedKey, preventClickHandler) {
     this.selectedKey = selectedKey;
@@ -520,7 +669,12 @@ charts.BarChart.prototype.setInactive = function(predicate) {
     this.applyStyle_(d3.selectAll('.' + charts.BarChart.INACTIVE_BAR_CLASS_), charts.BarChart.INACTIVE_STYLE_KEY_);
 };
 
+
 charts.BarChart.prototype.showTooltipXaxis_ = function(item, mouseEvent) {
+    if (!this.useVertical) {
+        return;
+    }
+
     var yValue = 0;
     this.data_.forEach(function(d) {
         if(item === d.key) {
@@ -547,12 +701,43 @@ charts.BarChart.prototype.showTooltipXaxis_ = function(item, mouseEvent) {
     });
 };
 
-charts.BarChart.prototype.showTooltip_ = function(item, mouseEvent) {
-    var xValue = this.tickFormat_ ? this.tickFormat_(item.key) : item.key;
-    var yValue = this.isStacked ? (item.values - item[this.yMinAttribute_]) : item.values;
-    yValue = d3.format("0,000.00")(yValue);
 
-    var html = this.createTooltipBody_(this.xLabel_, this.yLabel_, xValue, yValue);
+charts.BarChart.prototype.showTooltipYaxis_ = function(item, mouseEvent) {      //xkcd
+    if (this.useVertical) {
+        return;
+    }
+    var xValue = 0;
+    this.data_.forEach(function(d) {
+        if(item === d.key) {
+            xValue = d.values;
+        }
+    });
+
+    var html = this.createTooltipBody_(this.yLabel_, this.xLabel_, xValue, item);
+
+    $("#tooltip-container").html(html);
+    $("#tooltip-container").show();
+
+    this.positionTooltip_(d3.select('#tooltip-container'), mouseEvent);
+
+    XDATA.userALE.log({
+        activity: "show",
+        action: "mouseover",
+        elementId: "barchart",
+        elementType: "tooltip",
+        elementSub: "barchart",
+        elementGroup: "chart_group",
+        source: "user",
+        tags: ["tooltip", "barchart"]
+    });
+};
+
+charts.BarChart.prototype.showTooltip_ = function(item, mouseEvent) {      //xkcd
+    var xValue = this.isStacked ? (item.values - item[this.xMinAttribute_]) : item.values;
+    xValue = d3.format("0,000.00")(xValue);
+    var yValue = this.tickFormat_ ? this.tickFormat_(item.key) : item.key;
+    
+    var html = this.createTooltipBody_(this.yLabel_, this.xLabel_, yValue, xValue);
 
     $("#tooltip-container").html(html);
     $("#tooltip-container").show();
@@ -608,6 +793,7 @@ charts.BarChart.prototype.hideTooltip_ = function() {
 };
 
 charts.BarChart.prototype.drawXAxis_ = function(chart) {
+    // this is for the vertical bar chart
     var me = this;
 
     var axis = chart.append('g')
@@ -635,18 +821,125 @@ charts.BarChart.prototype.drawXAxis_ = function(chart) {
             me.hideTooltip_();
         });
 
-    this.viewboxYMax = this.viewboxYMax + $(this.element[0]).find('g.x')[0].getBoundingClientRect().height;
+    // this.viewboxYMax = this.viewboxYMax + $(this.element[0]).find('g.x')[0].getBoundingClientRect().height;
+    // TODO This resizing conflicts with the resizing done by the barchart directive.  Determine whether to remove resizing and the height
+    // constructor option from this chart or have this chart measure the dynamically-sized header in the barchart directive.
+    //$(this.element[0]).height(this.height - this.margin.bottom + $(this.element[0]).find('g.x')[0].getBoundingClientRect().height);
+    // this.viewboxYMax = me.margin.top + me.plotHeight;
+
+    return axis;
+};
+
+charts.BarChart.prototype.drawXAxisAndGrid_ = function(chart) {     //xkcd
+    // this is for the horizontal bar chart
+    var me = this;
+    var axis = chart.append('g')
+        .attr('class', 'x axis')
+        .attr("transform", "translate(0," + (this.margin.top + this.computePlotHeight_()) + ")")
+        .call(this.xAxis_);
+
+    // flip the locations of the tick and label, so the label is on bottom and the tick on top.
+    // axis.selectAll("line")
+    //     .attr("transform", "translate(0," + (this.textMargin/2) + ")");
+    
+    // axis.selectAll("text")
+    //     .attr("transform", "translate(0," + 3*this.textMargin/2 + ")")
+        // .attr("transform", "translate(0," + (this.height - this.margin.bottom) + ")")
+
+    // var plotHeight = me.computePlotHeight_();
+
+    var ticks = [];
+    // var me = this;
+    axis.selectAll(".tick").each(function(data) {
+        // collect all the tick values
+        ticks.push(data);
+    });
+
+    // adds a grid line for each tick mark, aligned with said tick mark
+    var grids = chart.append('g')
+        .attr('id','grid')
+        // .attr('transform',"translate(" + me.margin.left + "," + me.margin.top + ")")
+        .selectAll('line')
+        .data(ticks)
+        .enter()
+        .append('line')
+        .style("anchor", "end")
+        .attr({'x1':function(d,i){ return me.x(d); },
+            'y1':function(d){ return 0; },
+            'x2':function(d,i){ return me.x(d); },
+            'y2':function(d){ return me.margin.top + me.plotHeight; },
+        })
+        .style({'stroke':'#adadad','stroke-width':'1px'});
+
+    var line = chart.append('g').append('line');
+    line.attr({
+            'x1':0,
+            'y1':me.margin.top + me.plotHeight,//me.height - me.margin.bottom - me.textMargin,//me.height - me.vMargin_,
+            'x2':me.width - me.hMargin_,
+            'y2':me.margin.top + me.plotHeight,//me.height - me.margin.bottom - me.textMargin,//me.height - me.vMargin_,
+            })
+        .style({'stroke':'#444','stroke-width':'1px'});
+
+    // this.viewboxYMax = me.margin.top + me.plotHeight;// this.viewboxYMax + $(this.element[0]).find('g.x')[0].getBoundingClientRect().height;
+};
+
+
+charts.BarChart.prototype.drawYAxis_ = function(chart) {        //xkcd
+    var me = this;
+
+    var axis = chart.append('g')
+        .attr('class', 'y axis')
+        .call(me.yAxis_);
+
+    if (me.useVertical) {
+        return;
+    }
+
+
+    axis
+        .attr("transform", "translate(0," + me.y.rangeBand()/4 + ")") //to align with the bars which were also translated down slightly.
+        .selectAll("text")
+        .style("text-anchor", "end")
+        // .attr("dx", "-1.8em")
+        .attr("dy", "-0.28em")
+        .text(function(d) {
+            if(_.isArray(d)) {
+                return "[" + (d[0] || "") + (d.length > 1 ? ",..." : "") + "]";
+            }
+            return d.length > 8 ? d.substring(0, 6) + "..." : d;
+        })
+        .on('mouseover', function(d) {
+            me.showTooltipYaxis_(d, d3.event);
+        })
+        .on('mouseout', function() {
+            me.hideTooltip_();
+        });
+
+    axis.selectAll("line")
+        .attr("transform", "translate(0," + (0 - me.y.rangeBand()/4) + ")"); //somehow the ticks aren't aligned with the text or bars.
+
+    console.log("translate(0," + (0 - me.y.rangeBand()/2) + ")");
+
+    if (me.categories.length > 0){
+
+        var line = chart.append('g').append('line');
+        line.attr({
+                'x1':0,
+                'y1':0,
+                'x2':0,
+                'y2':me.margin.top + me.plotHeight,//me.height - me.margin.bottom - me.textMargin,
+                })
+            .style({'stroke':'#444','stroke-width':'1px'});
+    }
+    //It doesn't appear that this is needed?
+    // this.viewboxXMax = me.margin.left + me.plotWidth;
+    // this.viewboxXMax = this.viewboxXMax + $(this.element[0]).find('g.y')[0].getBoundingClientRect().width;
+
     // TODO This resizing conflicts with the resizing done by the barchart directive.  Determine whether to remove resizing and the height
     // constructor option from this chart or have this chart measure the dynamically-sized header in the barchart directive.
     //$(this.element[0]).height(this.height - this.margin.bottom + $(this.element[0]).find('g.x')[0].getBoundingClientRect().height);
 
     return axis;
-};
-
-charts.BarChart.prototype.drawYAxis_ = function(chart) {
-    chart.append('g')
-        .attr('class', 'y axis')
-        .call(this.yAxis_);
 };
 
 /**
@@ -668,7 +961,7 @@ charts.BarChart.prototype.aggregateData_ = function(data) {
  * @method rollupDataByCategory_
  * @private
  */
-charts.BarChart.prototype.rollupDataByCategory_ = function(data) {
+charts.BarChart.prototype.rollupDataByCategory_ = function(data) {        //xkcd
     var me = this;
 
     // if the attributes are non-strings, they must be converted because d3 rolls them up as strings, so
@@ -694,7 +987,7 @@ charts.BarChart.prototype.rollupDataByCategory_ = function(data) {
             }
 
             data[i].key = category;
-            data[i].values = data[i][me.yAttribute_];
+            data[i].values = data[i][( me.useVertical? me.yAttribute_ :me.xAttribute_)];       //xkcd
         }
 
         data = data.sort(function(a, b) {
@@ -722,7 +1015,8 @@ charts.BarChart.prototype.rollupDataByCategory_ = function(data) {
                 return category;
             }).rollup(function(d) {
                 return d3.sum(d, function(el) {
-                    return me.yAttribute_ ? el[me.yAttribute_] : 1;
+                    var attrib = ( me.useVertical? me.yAttribute_: me.xAttribute_);
+                    return attrib ? el[attrib] : 1;        //xkcd?       this gives the right values to be put into data
                 });
             }).entries(data);
 
@@ -818,30 +1112,48 @@ charts.BarChart.prototype.removeDataWithNoMatchingCategory_ = function(aggregate
     });
 };
 
-charts.BarChart.prototype.determineWidth_ = function(element) {
-    var width = charts.BarChart.DEFAULT_WIDTH_;
-
-    if(this.userSetWidth_) {
-        width = this.userSetWidth_;
-    } else if($(element[0]).width() !== 0) {
-        width = $(element[0]).width();
+charts.BarChart.prototype.determineLengthDomainSide_ = function(userSetLength, elementLength, defaultLength, margin) {
+    
+    if(userSetLength) {
+        defaultLength = userSetLength;
+    } else if(elementLength !== 0) {
+        defaultLength = elementLength;
     }
 
-    var calculatedChartWidth = (this.categories.length * charts.BarChart.DEFAULT_BAR_WIDTH_) + this.margin.left + this.margin.right;
+    var calculatedChartLength = (this.categories.length * charts.BarChart.DEFAULT_BAR_WIDTH_) + margin;
 
-    if(calculatedChartWidth > width) {
-        return calculatedChartWidth;
+    if(calculatedChartLength > defaultLength) {
+        return calculatedChartLength;
     }
-    return width;
+    return defaultLength;
+
 };
 
-charts.BarChart.prototype.determineHeight_ = function(element) {
-    if(this.userSetHeight_) {
-        return this.userSetHeight_;
-    } else if($(element[0]).height() !== 0) {
-        return $(element[0]).height();
+charts.BarChart.prototype.determineLengthRangeSide_ = function(userSetLength, elementLength, defaultLength, margin) {
+    if(userSetLength) {
+        return userSetLength;
+    } else if(elementLength !== 0) {
+        return elementLength;
     }
-    return charts.BarChart.DEFAULT_HEIGHT_;
+    return defaultLength + margin;
+};
+
+charts.BarChart.prototype.determineWidth_ = function(element) {        //xkcd
+    if (this.useVertical) {
+        return this.determineLengthDomainSide_(this.userSetWidth_, $(element[0]).width(), charts.BarChart.DEFAULT_WIDTH_, this.hMargin_);
+    }
+    else {
+        return this.determineLengthRangeSide_(this.userSetWidth_, $(element[0]).width(), charts.BarChart.DEFAULT_WIDTH_, this.hMargin_);
+    }
+};
+
+charts.BarChart.prototype.determineHeight_ = function(element) {        //xkcd
+    if (this.useVertical) {
+        return this.determineLengthRangeSide_(this.userSetHeight_, $(element[0]).height(), charts.BarChart.DEFAULT_HEIGHT_, this.vMargin_);
+    }
+    else {
+        return this.determineLengthDomainSide_(this.userSetHeight_, $(element[0]).height(), charts.BarChart.DEFAULT_HEIGHT_, this.vMargin_);
+    }
 };
 
 charts.BarChart.prototype.redrawOnResize_ = function() {
