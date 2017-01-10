@@ -133,7 +133,7 @@ coreMap.Map.Layer.PointsLayer = OpenLayers.Class(OpenLayers.Layer.Vector, {
                     // Here, we are basing the radius of the cluster on the number of
                     // digits in the total feature count.
 
-                    var count = feature.cluster.length*feature.cluster.length;
+                    var count = feature.cluster.length;
 
                     var zoomLevel = (layer.map.zoom >= 1) ? layer.map.zoom : 1;
 
@@ -164,7 +164,7 @@ coreMap.Map.Layer.PointsLayer = OpenLayers.Class(OpenLayers.Layer.Vector, {
                     return Math.floor(radius);
                 },
                 count: function(feature) {
-                    return feature.cluster.length*feature.cluster.length;
+                    return feature.cluster.length;
                 }
             }
         });
