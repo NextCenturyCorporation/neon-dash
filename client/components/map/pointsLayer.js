@@ -130,15 +130,41 @@ coreMap.Map.Layer.PointsLayer = OpenLayers.Class(OpenLayers.Layer.Vector, {
                     return (layer.calculateColor(feature.cluster[0].attributes));
                 },
                 radius: function(feature) {
-                    // Here, we are basing the size of the cluster on the number of
+                    // Here, we are basing the radius of the cluster on the number of
                     // digits in the total feature count.
-                    var count = feature.cluster.length;
-                    var digits = Math.log10(count);
-                    digits = (digits >= 1) ? digits : 1;
-                    return Math.floor(5 + (5 * digits));
+
+                    var count = feature.cluster.length*feature.cluster.length;
+
+                    var zoomLevel = (layer.map.zoom >= 1) ? layer.map.zoom : 1;
+
+                    //original log scale
+                    // var digits = Math.log10(count);
+                    // digits = (digits >= 1) ? digits : 1;
+                    // return Math.floor(5 + (5 * digits));
+
+                    //linear scale
+                    // var radius = Math.floor(11 + (count/50));
+
+                    //sqrt scale
+                    // var radius = Math.floor(11 + (Math.sqrt(count)/7));
+
+                    //final
+                    //log10(count^8) gives the right kind of scale. Increase slope of scale slightly as you zoom in - making the difference between small
+                    //things more apparent at higher zoom levels.
+                    var scaledValue = Math.log10(Math.pow(count, 8))*(Math.sqrt(zoomLevel)/4) - 1;
+                    scaledValue = (scaledValue >= 1) ? scaledValue : 1;
+
+                    //increase the minimum radius slightly as you zoom in.
+                    var radius = Math.log(zoomLevel + 0.8)*4 + (4 * scaledValue); // min here is log(1+0.8)*4 + 4*1 = 5.0somethingsomething
+
+                    //scale it up so that nothing is smaller than 8 (min radius is 5, so 5 + (12-5)/2 = 8)
+                    radius = (radius > 12) ? radius : radius + (12-radius)/2;
+
+
+                    return Math.floor(radius);
                 },
                 count: function(feature) {
-                    return feature.cluster.length;
+                    return feature.cluster.length*feature.cluster.length;
                 }
             }
         });
