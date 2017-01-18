@@ -41,8 +41,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     // Used to determine which pane is show in the right sidenav
     private showAbout: boolean = true;
-    // TODO: Default to false and set to true only after a dataset has been selected.
-    // private showAddVisualizationButton: boolean = true;
+    private showAddVisualizationButton: boolean = false;
 
     private gridItems: NeonGridItem[] = [];
 
@@ -69,6 +68,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     constructor(private datasetService: DatasetService, private themesService: ThemesService,
         private activeGridService: ActiveGridService, public dialog: MdDialog, public viewContainerRef: ViewContainerRef) {
+        // TODO: Default to false and set to true only after a dataset has been selected.
+        this.showAddVisualizationButton = true;
         this.datasets = datasetService.getDatasets();
     }
 
