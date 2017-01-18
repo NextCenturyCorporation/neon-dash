@@ -42,7 +42,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     // Used to determine which pane is show in the right sidenav
     private showAbout: boolean = true;
     // TODO: Default to false and set to true only after a dataset has been selected.
-    private showAddVisualizationButton: boolean = true;
+    // private showAddVisualizationButton: boolean = true;
 
     private gridItems: NeonGridItem[] = [];
 

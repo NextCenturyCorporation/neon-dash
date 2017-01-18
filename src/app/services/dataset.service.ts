@@ -419,7 +419,7 @@ export class DatasetService {
      * @param {Boolean} Whether to ignore fields in the table marked as hidden (optional)
      * @return {Array} The sorted copy of the array of field objects if a match exists or an empty array otherwise.
      */
-    public getSortedFields(databaseName: string, tableName: string, ignoreHiddenFields: boolean): FieldMetaData[] {
+    public getSortedFields(databaseName: string, tableName: string, ignoreHiddenFields?: boolean): FieldMetaData[] {
         let table = this.getTableWithName(databaseName, tableName);
 
         if ( !table ) {

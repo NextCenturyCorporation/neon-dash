@@ -21,8 +21,9 @@ import { HttpModule } from '@angular/http';
 
 import { MaterialModule } from '@angular/material';
 
+import 'hammerjs';
+
 import { NgGridModule } from 'angular2-grid';
-import * as log4javascript from 'log4javascript';
 
 import { ActiveGridService } from './services/active-grid.service';
 import { ConnectionService } from './services/connection.service';
@@ -30,9 +31,13 @@ import { DatasetService } from './services/dataset.service';
 import { ErrorNotificationService } from './services/error-notification.service';
 import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
-import { NeonGTDConfig } from './neon-gtd-config';
+import { ImportService } from './services/import.service';
 import { ParameterService } from './services/parameter.service';
 import { ThemesService } from './services/themes.service';
+import { TranslationService } from './services/translation.service';
+import { VisualizationService } from './services/visualization.service';
+
+import { NeonGTDConfig } from './neon-gtd-config';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AppComponent } from './app.component';
@@ -70,8 +75,11 @@ export function createAppModule(config: NeonGTDConfig) {
             ErrorNotificationService,
             ExportService,
             FilterService,
+            ImportService,
             ParameterService,
             ThemesService,
+            TranslationService,
+            VisualizationService,
             {
               provide: 'config',
               useValue: config

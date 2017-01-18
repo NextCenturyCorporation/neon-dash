@@ -24,7 +24,7 @@ export interface ExportInfo {
  * This provides an Angular for registering and unregistering widgets on a page and their export methods, as well as getting those widgets
  * and getting/setting the type of file the page is set to export.
  *
- * @class neonDemo..ExportService
+ * @class neonDemo.ExportService
  * @constructor
  */
 @Injectable()

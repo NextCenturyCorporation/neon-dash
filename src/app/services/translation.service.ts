@@ -48,9 +48,7 @@ export class TranslationService {
                 languages: {}
             }
         };
-    };
 
-    ngOnInit() {
         this.setService('google');
         this.loadTranslationCache();
     };

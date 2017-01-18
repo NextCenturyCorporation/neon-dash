@@ -19,6 +19,8 @@ import { By }              from '@angular/platform-browser';
 import { DebugElement }    from '@angular/core';
 import { FormsModule }     from '@angular/forms';
 
+import 'hammerjs';
+
 import { AppComponent } from './app.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';

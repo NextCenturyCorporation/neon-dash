@@ -301,13 +301,14 @@ export class ParameterService {
      * @private
      * @return {Number} or {String}
      */
+    /* tslint:disable:no-unused-variable */
     private cleanValue(value: string, operator: string): number|string {
         let retVal: number|string = value;
 
         if ($.isNumeric(value) && operator !== 'contains') {
             retVal = parseFloat(value);
         } else if (value && ((value.charAt(0) === '"' && value.charAt(value.length - 1) === '"') ||
-            (value.charAt(0) === "'" && value.charAt(value.length - 1) === "'"))) {
+            (value.charAt(0) === "'" && value.charAt(value.length - 1) === "'"))) { // tslint:disable-line:quotemark
             retVal = value.substring(1, value.length - 1);
         }
         return retVal;

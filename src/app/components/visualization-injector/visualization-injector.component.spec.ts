@@ -2,6 +2,8 @@
 import { async, ComponentFixture, TestBed, inject } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { DebugElement, ComponentFactoryResolver } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MaterialModule } from '@angular/material';
 
 import { VisualizationInjectorComponent } from './visualization-injector.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
@@ -14,7 +16,12 @@ describe('Component: VisualizationInjector', () => {
                 VisualizationInjectorComponent,
                 TextCloudComponent
             ],
-            providers: [ ComponentFactoryResolver ]
+            providers: [ ComponentFactoryResolver ],
+            imports: [
+                MaterialModule,
+                MaterialModule.forRoot(),
+                FormsModule
+            ]
         });
     });
 

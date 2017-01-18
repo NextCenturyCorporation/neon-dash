@@ -1,4 +1,4 @@
-<div style="height:60px; opacity: 0; z-index:0; width: 100%; position: absolute;" (mouseenter)="showToolbar=true;" *ngIf="!showToolbar"></div>
+<div style="height:10px; opacity: 0; z-index:1000; width: 100%; position: absolute;" (mouseenter)="showToolbar=true;" *ngIf="!showToolbar"></div>
 <md-toolbar color="accent" class="visualization-toolbar" layout-align="space-between center" flex *ngIf="showToolbar" (mouseleave)="showToolbar=false;">
     <span class="">{{visualization.title || ""}}</span>
     <span class="fill-remaining"></span>
@@ -22,13 +22,4 @@
         <md-icon class="md-24">close</md-icon>
     </button>
 </md-toolbar>
-<div class="title">
-    {{visualization.name}}<br>
-    {{visualization.id}}<br>
-    {{visualization.type}}<br>
-    row: {{visualization.gridConfig.row}}<br>
-    col: {{visualization.gridConfig.col}}<br>
-    sizex: {{visualization.gridConfig.sizex}}<br>
-    sizey: {{visualization.gridConfig.sizey}}
-</div>
 <app-visualization-injector [componentData]="visualization"></app-visualization-injector>

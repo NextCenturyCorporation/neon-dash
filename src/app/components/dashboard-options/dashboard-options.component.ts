@@ -77,14 +77,16 @@ export class DashboardOptionsComponent implements OnInit {
     }
 
     exportSuccess(queryResults) {
-        let config = new MdSnackBarConfig(this.viewContainerRef);
+        let config = new MdSnackBarConfig();
+        config.viewContainerRef = this.viewContainerRef;
         console.log('shoop');
         this.mdSnackBar.open('Export In Progress...', 'OK', config);
         window.location.assign('/neon/services/exportservice/generateZip/' + queryResults.data);
     };
 
     exportFail(response) {
-        let config = new MdSnackBarConfig(this.viewContainerRef);
+        let config = new MdSnackBarConfig();
+        config.viewContainerRef = this.viewContainerRef;
         if (response.responseJSON) {
             this.mdSnackBar.open('Error: ' + response.responseJSON.error, 'Close', config);
         } else {
@@ -94,7 +96,8 @@ export class DashboardOptionsComponent implements OnInit {
 
     exportAll() {
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
-        let config = new MdSnackBarConfig(this.viewContainerRef);
+        let config = new MdSnackBarConfig();
+        config.viewContainerRef = this.viewContainerRef;
         let data = {
             // TODO Change this hardcoded value to something like a user ID.
             name: 'All_Widgets',
@@ -177,8 +180,8 @@ export class DashboardOptionsComponent implements OnInit {
             connection.loadState(params, function(dashboardState) {
                 if (_.keys(dashboardState).length) {
                     let params: URLSearchParams = new URLSearchParams();
-                    let dashboardStateId: string = params.get('dashboard_state_id');
-                    let filterStateId: string = params.get('filter_state_id');
+                    dashboardState.dashboardStateId = params.get('dashboard_state_id');
+                    dashboardState.filterStateId = params.get('filter_state_id');
 
                     this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
                 } else {
@@ -201,13 +204,12 @@ export class DashboardOptionsComponent implements OnInit {
                 let filterStateId: string = params.get('filter_state_id');
 
                 // Delete the state parameters if either match the IDs deleted
-                // TODO: Enable after replacing old $location calls with appropriate router calls.
-                // if(dashboardStateId && stateIds.dashboardStateId && dashboardStateId === stateIds.dashboardStateId)  {
-                //     $location.search("dashboard_state_id", null);
-                // }
-                // if(filterStateId && stateIds.filterStateId && filterStateId === stateIds.filterStateId)  {
-                //     $location.search("filter_state_id", null);
-                // }
+                if (dashboardStateId && stateIds.dashboardStateId && dashboardStateId === stateIds.dashboardStateId)  {
+                    params.delete('dashboard_state_id');
+                }
+                if (filterStateId && stateIds.filterStateId && filterStateId === stateIds.filterStateId)  {
+                    params.delete('filter_state_id');
+                }
             }, this.handleStateFailure);
         }
     };

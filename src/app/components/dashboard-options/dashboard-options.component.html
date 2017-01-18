@@ -6,7 +6,7 @@
             </md-toolbar>
             <div layout="row" md-margin>
                 <md-radio-group [(ngModel)]="formData.exportFormat" name="exportFormatGroup" (change)="setExportFormat(formData.exportFormat)">
-                    <md-radio-button md-menu-item *ngFor="let format of exportService.getFileFormats()" 
+                    <md-radio-button *ngFor="let format of exportService.getFileFormats()" 
                         [value]="format.value">{{ (format.name) ? format.name.toUpperCase() : 'Invalid Type'}}</md-radio-button>
                 </md-radio-group>
                 <button md-raised-button (click)="exportAll()"> Export All Visualizations </button>
@@ -18,7 +18,7 @@
             </md-toolbar>
             <div layout="row" md-margin>
                 <md-radio-group [(ngModel)]="formData.currentTheme" name="currentThemeGroup" (change)="setCurrentTheme(formData.currentTheme)">
-                    <md-radio-button md-menu-item *ngFor="let theme of themesService.getThemes()" 
+                    <md-radio-button *ngFor="let theme of themesService.getThemes()" 
                         [value]="theme.id">{{ theme.name }}</md-radio-button>
                 </md-radio-group>
             </div>

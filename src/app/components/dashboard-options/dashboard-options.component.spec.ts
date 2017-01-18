@@ -68,6 +68,7 @@ describe('Component: DashboardOptionsComponent', () => {
 
         fixture = TestBed.createComponent(DashboardOptionsComponent);
         component = fixture.componentInstance;
+        fixture.detectChanges();
     });
 
     it('should create an instance', () => {

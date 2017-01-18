@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-import { async, inject, TestBed } from '@angular/core/testing';
+import { ComponentFixture, async, inject, TestBed } from '@angular/core/testing';
 import { DatasetSelectorComponent } from './dataset-selector.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -24,37 +24,42 @@ import { ParameterService } from '../../services/parameter.service';
 import { FilterService } from '../../services/filter.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 
-import { MdList, MdListItem, MdToolbar, MdToolbarRow } from '@angular/material';
+import { FormsModule } from '@angular/forms';
+import { MaterialModule } from '@angular/material';
 
 describe('Component: DatasetSelector', () => {
 
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+  let testConfig: NeonGTDConfig = new NeonGTDConfig();
+  let fixture: ComponentFixture<DatasetSelectorComponent>;
+  let el: HTMLElement;
+  let component: DatasetSelectorComponent;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                DatasetSelectorComponent,
-                MdList,
-                MdListItem,
-                MdToolbar,
-                MdToolbarRow
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                ParameterService,
-                ErrorNotificationService,
-                FilterService,
-                { provide: 'config', useValue: testConfig }
-            ]
-        });
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      declarations: [
+        DatasetSelectorComponent
+      ],
+      providers: [
+        ActiveGridService,
+        ConnectionService,
+        DatasetService,
+        ParameterService,
+        ErrorNotificationService,
+        FilterService,
+        { provide: 'config', useValue: testConfig }
+      ],
+      imports: [
+        FormsModule,
+        MaterialModule,
+        MaterialModule.forRoot()
+      ]
     });
 
-    it('should create an instance', inject([ ActiveGridService, ConnectionService,
-                DatasetService, ParameterService ],
-                (ags: ActiveGridService, cs: ConnectionService, ds: DatasetService, ps: ParameterService) => {
-        let component = new DatasetSelectorComponent(cs, ds, ps, ags);
-        expect(component).toBeTruthy();
-    }));
+    fixture = TestBed.createComponent(DatasetSelectorComponent);
+    component = fixture.componentInstance;
+  });
+
+  it('should create an instance', async(() => {
+    expect(component).toBeTruthy();
+  }));
 });

@@ -2,7 +2,8 @@
 import './polyfills.ts';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { enableProdMode, ReflectiveInjector } from '@angular/core';
-import { BaseRequestOptions, BaseResponseOptions, BrowserXhr, HttpModule, CookieXSRFStrategy, Http, Request, RequestOptions, ResponseOptions, XHRBackend, XSRFStrategy } from '@angular/http';
+import { BaseRequestOptions, BaseResponseOptions, BrowserXhr, CookieXSRFStrategy, Http, Request, RequestOptions,
+    ResponseOptions, XHRBackend, XSRFStrategy } from '@angular/http';
 import { environment } from './app/environments/environment';
 import { createAppModule } from './app/app.module';
 import * as yaml from 'js-yaml';
@@ -11,9 +12,9 @@ import 'rxjs/Rx';
 import 'rxjs/add/operator/toPromise';
 
 const HTTP_PROVIDERS = [
-    {provide: Http, useFactory: 
+    {provide: Http, useFactory:
       (xhrBackend: XHRBackend, requestOptions: RequestOptions): Http =>
-          new Http(xhrBackend, requestOptions), 
+          new Http(xhrBackend, requestOptions),
           deps: [XHRBackend, RequestOptions]},
     BrowserXhr,
     {provide: RequestOptions, useClass: BaseRequestOptions},
@@ -70,5 +71,5 @@ if (environment.production) {
 neon.ready(function() {
   loadConfigYaml().then(config => bootstrapWithData(config))
     .catch(handleConfigYamlError);
-})
+});
 
