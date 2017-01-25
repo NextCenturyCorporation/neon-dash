@@ -35,6 +35,7 @@ module.exports = function(config){
         'client/bower_components/angular-mocks//angular-mocks.js',
         'client/bower_components/ag-grid/dist/ag-grid.js',
         'https://s3.amazonaws.com/neonframework.org/neon/versions/latest/neon-nodeps.js',
+        // USE THIS LINE INSTEAD FOR HIGHSIDE 'client/bower_components/neon/neon-nodeps.js',
         'client/bower_components/javascript-detect-element-resize/jquery.resize.js',
         'client/bower_components/opencpu/opencpu-0.5.js',
         'client/bower_components/user-ale/client/www/js/draper.activity_logger-2.1.1.js',

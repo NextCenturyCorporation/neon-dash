@@ -538,7 +538,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     $scope.functions.updateData = function(data, layers) {
-        var dataBounds = computeDataBounds(data || []);
+        var dataForBounds = (data != undefined && data.length > 1) ? data[1] : ( (data != undefined) ? data[0] : [] ); // Calculate our bounds from the grid layer's query if it exists, and otherwise from the normal query.
+        var dataBounds = computeDataBounds(dataForBounds);
         var newBounds = new OpenLayers.Bounds(dataBounds.left, dataBounds.bottom, dataBounds.right, dataBounds.top)
             .transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
         var mapExtent = $scope.map.map.getExtent();
@@ -551,11 +552,12 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             if(layer.olLayer) {
                 layer.error = undefined;
                 var colorMappings = undefined;
-                if(layer.type === $scope.GRID_LAYER && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
-                    colorMappings = transformToGridPoints(layer, data);
+                if(layer.type === $scope.GRID_LAYER && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid && data != undefined && data.length > 1) {
+                    colorMappings = transformToGridPoints(layer, data[1]);
                 }
                 else {
-                    colorMappings = layer.olLayer.setData(angular.copy(data || []), layer.limit);
+                    var useData = (data != undefined) ? data[0] : []; // If data is not undefined, it should always have at least one element - we always send the points query.
+                    colorMappings = layer.olLayer.setData(angular.copy(useData), layer.limit);
                 }
 
                 // Update the legend
@@ -720,6 +722,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.functions.addToQuery = function(query, unsharedFilterWhereClause, layers) {
         var queryFields = {};
         var limit;
+        var queryGroup = new neon.query.QueryGroup();
+        var pointsQuery = query;
+        var gridQuery;
 
         var addFields = function(layerFields) {
             layerFields.forEach(function(field) {
@@ -755,6 +760,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
 
             var extent = $scope.map.map.getExtent().transform(coreMap.Map.DESTINATION_PROJECTION, coreMap.Map.SOURCE_PROJECTION);
             if(layer.type === $scope.GRID_LAYER && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
+                gridQuery = angular.copy(pointsQuery);
                 var interval = $scope.map.getGraticuleInterval();
                 var bottom = getNearestMultiple(interval, extent.bottom, 'lower');
                 var top = getNearestMultiple(interval, extent.top, 'higher');
@@ -771,7 +777,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                     numTilesVertical: (top - bottom) / interval,
                     numTilesHorizontal: (right - left) / interval
                 };
-                query.transform(new neon.query.Transform('com.ncc.neon.query.transform.GeoGridTransformer').params(params));
+                gridQuery.transform(new neon.query.Transform('com.ncc.neon.query.transform.GeoGridTransformer').params(params));
                 if(layer.colorField) {
                     layerFields.push({
                         columnName: layer.colorField.columnName,
@@ -784,7 +790,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                     neon.query.where(layer.longitudeField.columnName, '>=', left),
                     neon.query.where(layer.longitudeField.columnName, '<=', right)
                 );
-                query.where(whereClauses);
+                gridQuery.where(whereClauses);
             }
 
             addFields(layerFields);
@@ -794,8 +800,22 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             limit = limit ? Math.max(limit, layer.limit) : layer.limit;
         });
 
-        query.limit(limit || $scope.DEFAULT_LIMIT).withFields(Object.keys(queryFields));
-        return query;
+        pointsQuery.limit(limit || $scope.DEFAULT_LIMIT).withFields(Object.keys(queryFields));
+        queryGroup.addQuery(pointsQuery);
+        if(gridQuery !== undefined) {
+            gridQuery.withFields(Object.keys(queryFields));
+            queryGroup.addQuery(gridQuery);
+        }
+        return queryGroup;
+    };
+    
+    $scope.functions.executeQuery = function(connection, query) {
+        if(query instanceof neon.query.Query) {
+            return connection.executeQuery(query);
+        }
+        else {
+            return connection.executeQueryGroup(query);
+        }
     };
 
     /**
