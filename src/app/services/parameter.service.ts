@@ -308,7 +308,7 @@ export class ParameterService {
         if ($.isNumeric(value) && operator !== 'contains') {
             retVal = parseFloat(value);
         } else if (value && ((value.charAt(0) === '"' && value.charAt(value.length - 1) === '"') ||
-            (value.charAt(0) === "'" && value.charAt(value.length - 1) === "'"))) { // tslint:disable-line:quotemark
+            (value.charAt(0) === "'" && value.charAt(value.length - 1) === "'"))) {
             retVal = value.substring(1, value.length - 1);
         }
         return retVal;
