@@ -14,8 +14,7 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, async, inject, TestBed } from '@angular/core/testing';
-import { By }              from '@angular/platform-browser';
+import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { DebugElement }    from '@angular/core';
 import { FormsModule }     from '@angular/forms';
 
@@ -42,7 +41,7 @@ import { ParameterService } from './services/parameter.service';
 import { ThemesService } from './services/themes.service';
 import { VisualizationService } from './services/visualization.service';
 
-import { NgGridModule, NgGrid, NgGridItem } from 'angular2-grid';
+import { NgGridModule } from 'angular2-grid';
 
 import { MaterialModule } from '@angular/material';
 
@@ -50,7 +49,6 @@ describe('App: NeonGtd', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
   let fixture: ComponentFixture<AppComponent>;
   let de: DebugElement;
-  let el: HTMLElement;
   let component: AppComponent;
 
   beforeEach(() => {
@@ -94,7 +92,6 @@ describe('App: NeonGtd', () => {
   }));
 
   it('should include top level layout components', async(() => {
-    let compiled = fixture.debugElement.nativeElement;
     expect(de.nativeElement.querySelectorAll('md-sidenav-layout')).toBeTruthy();
     expect(de.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
     // Since the about pane and options pane are rendered only after a user opens their sidenav area,

@@ -107,7 +107,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
             this.translationService.getSupportedLanguages((languages: Object) => {
                 this.languages.fromLanguageOptions = languages;
                 this.languages.toLanguageOptions = languages;
-            }, (response) => {
+            }, (/*response*/) => {
                 if (this.errorMessage) {
                     // errorNotificationService.hideErrorMessage($scope.errorMessage);
                     this.errorMessage = undefined;
@@ -623,25 +623,25 @@ export class TextCloudComponent implements OnInit, OnDestroy {
 
     handleChangeDatabase() {
         this.updateTables();
-        this.logChangeAndUpdate('database', this.active.database.name);
+        this.logChangeAndUpdate(); // ('database', this.active.database.name);
     };
 
     handleChangeTable() {
         this.updateFields();
-        this.logChangeAndUpdate('table', this.active.table.name);
+        this.logChangeAndUpdate(); // ('table', this.active.table.name);
     };
 
     handleChangeDataField() {
-        this.logChangeAndUpdate('dataField', this.active.dataField.columnName);
+        this.logChangeAndUpdate(); // ('dataField', this.active.dataField.columnName);
     };
 
     handleChangeLimit() {
         this.active.limit = this.active.limit || 1;
-        this.logChangeAndUpdate('limit', this.active.limit, 'button');
+        this.logChangeAndUpdate(); // ('limit', this.active.limit, 'button');
     };
 
     handleChangeAndFilters() {
-        this.logChangeAndUpdate('andFilters', this.active.andFilters, 'button');
+        this.logChangeAndUpdate(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
     };
 
@@ -652,14 +652,14 @@ export class TextCloudComponent implements OnInit, OnDestroy {
 
     handleRemoveUnsharedFilter() {
         this.active.unsharedFilterValue = '';
-        this.logChangeAndUpdate('unsharedFilter', '', 'button');
+        this.logChangeAndUpdate(); // ('unsharedFilter', '', 'button');
     };
 
     handleChangeUnsharedFilterValue() {
-        this.logChangeAndUpdate('unsharedFilterValue', this.active.unsharedFilterValue);
+        this.logChangeAndUpdate(); // ('unsharedFilterValue', this.active.unsharedFilterValue);
     };
 
-    logChangeAndUpdate(option: string, value: any, type?: string) {
+    logChangeAndUpdate() { // (option: string, value: any, type?: string) { 
         // this.logChange(option, value, type);
         if (!this.initializing) {
             this.checkNeonDashboardFilters({ queryAndUpdate: true });

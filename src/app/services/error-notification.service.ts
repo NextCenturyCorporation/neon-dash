@@ -17,7 +17,7 @@ import { Injectable } from '@angular/core';
 
 @Injectable()
 export class ErrorNotificationService {
-    showErrorMessage(error: Error|ExceptionInformation, message: string, stackTrace?: any[]) {
+    showErrorMessage(error: Error|ExceptionInformation, message: string) {
         // TODO: Replace testing log with a call to MdSnackBar to
         console.log('An error occured: ' + message + '\n' + error);
     };

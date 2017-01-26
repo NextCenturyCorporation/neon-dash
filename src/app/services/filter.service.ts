@@ -127,7 +127,8 @@ export class FilterService {
     replaceFilterForKey(messenger: neon.eventing.Messenger, filterKey: string, filter: any,
         successCallback?: () => any, errorCallback?: (resp: any) => any) {
 
-        this.messenger.replaceFilter(filterKey, filter, () => {
+        // TODO: Use this.messenger or messenger ??
+        messenger.replaceFilter(filterKey, filter, () => {
             let index = _.findIndex(this.filters, {
                 id: filterKey
             });
@@ -544,10 +545,10 @@ export class FilterService {
      * @private
      */
     private getFilterNameString(filterName: any, relations: any[]): string {
-        if (typeof name === 'object') {
+        if (typeof filterName === 'object') {
             let string = '';
-            if (name['visName']) {
-                string += name['visName'] + ' - ';
+            if (filterName['visName']) {
+                string += filterName['visName'] + ' - ';
             }
             let tableString: string;
             let table: TableMetaData;
@@ -560,9 +561,9 @@ export class FilterService {
                 tableString += ('/' + table.prettyName);
             }
 
-            return string + tableString + (name['text'] ? ': ' + name['text'] : '');
+            return string + tableString + (filterName['text'] ? ': ' + filterName['text'] : '');
         } else {
-            return name;
+            return filterName;
         }
     };
 

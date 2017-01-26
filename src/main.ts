@@ -8,7 +8,6 @@ import {
     BrowserXhr,
     CookieXSRFStrategy,
     Http,
-    Request,
     RequestOptions,
     ResponseOptions,
     XHRBackend,
@@ -36,7 +35,7 @@ const HTTP_PROVIDERS = [
 // Since angular isn't bootstrapped, the platform browser isn't setup properly for cookies.
 // Since we're not using them, mock the cookie provider
 class NoCheckCookieXSRFStrategy extends CookieXSRFStrategy {
-  configureRequest(request: Request) {}
+  configureRequest() {}
 }
 
 let injector = ReflectiveInjector.resolveAndCreate([HTTP_PROVIDERS, {

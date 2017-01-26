@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-import { TestBed, async, inject } from '@angular/core/testing';
+import { TestBed, inject } from '@angular/core/testing';
 import { ErrorNotificationService } from './error-notification.service';
 import { DatasetService } from './dataset.service';
 import { FilterService } from './filter.service';

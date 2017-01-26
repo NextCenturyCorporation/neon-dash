@@ -16,7 +16,9 @@ export class AddVisualizationComponent implements OnInit {
     private selectedIndex: number = -1;
 
     constructor(private activeGridService: ActiveGridService, private themesService: ThemesService,
-        public dialogRef: MdDialogRef<AddVisualizationComponent>) { }
+        public dialogRef: MdDialogRef<AddVisualizationComponent>) {
+        this.themesService = themesService;
+    }
 
     ngOnInit() {
         this.visualizations = neonVisualizations;

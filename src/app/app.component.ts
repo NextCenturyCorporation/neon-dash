@@ -70,7 +70,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         private activeGridService: ActiveGridService, public dialog: MdDialog, public viewContainerRef: ViewContainerRef) {
         // TODO: Default to false and set to true only after a dataset has been selected.
         this.showAddVisualizationButton = true;
-        this.datasets = datasetService.getDatasets();
+        this.datasets = this.datasetService.getDatasets();
+        this.themesService = themesService;
     }
 
     gridItemsToString(): string {
@@ -86,7 +87,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         config.viewContainerRef = this.viewContainerRef;
 
         this.addVisDialogRef = this.dialog.open(AddVisualizationComponent, config);
-        this.addVisDialogRef.afterClosed().subscribe(result => {
+        this.addVisDialogRef.afterClosed().subscribe(() => {
             this.addVisDialogRef = null;
         });
     }

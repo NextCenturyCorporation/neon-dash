@@ -1,7 +1,6 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed, inject } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
-import { DebugElement, ComponentFactoryResolver } from '@angular/core';
+import { TestBed, inject } from '@angular/core/testing';
+import { ComponentFactoryResolver } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '@angular/material';
 

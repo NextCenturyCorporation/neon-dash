@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, async, inject, TestBed } from '@angular/core/testing';
+import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { DatasetSelectorComponent } from './dataset-selector.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -31,7 +31,6 @@ describe('Component: DatasetSelector', () => {
 
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
   let fixture: ComponentFixture<DatasetSelectorComponent>;
-  let el: HTMLElement;
   let component: DatasetSelectorComponent;
 
   beforeEach(() => {

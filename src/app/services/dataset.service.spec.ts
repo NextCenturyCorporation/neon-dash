@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-import { TestBed, async, inject } from '@angular/core/testing';
+import { TestBed, inject } from '@angular/core/testing';
 import { Dataset } from '../dataset';
 import { DatasetService } from './dataset.service';
 import { ActiveGridService } from './active-grid.service';

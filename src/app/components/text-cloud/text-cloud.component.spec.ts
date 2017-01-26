@@ -1,6 +1,5 @@
 /* tslint:disable:no-unused-variable */
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
@@ -19,7 +18,6 @@ describe('Component: TextCloud', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
   let component: TextCloudComponent;
   let fixture: ComponentFixture<TextCloudComponent>;
-  let el: HTMLElement;
 
   beforeEach(() => {
     TestBed.configureTestingModule({

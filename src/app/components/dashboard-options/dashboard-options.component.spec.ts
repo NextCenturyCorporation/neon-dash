@@ -14,13 +14,10 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, async, inject, TestBed } from '@angular/core/testing';
-import { By }              from '@angular/platform-browser';
-import { DebugElement }    from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { FormsModule } from '@angular/forms';
-import { URLSearchParams } from '@angular/http';
-import { NgModule, ViewContainerRef } from '@angular/core';
+import { ViewContainerRef } from '@angular/core';
 
 import { DashboardOptionsComponent } from './dashboard-options.component';
 import { ConnectionService } from '../../services/connection.service';
@@ -32,14 +29,12 @@ import { ThemesService } from '../../services/themes.service';
 import { FilterService } from '../../services/filter.service';
 
 import { MaterialModule } from '@angular/material';
-import { MdSnackBar, MdSnackBarConfig } from '@angular/material';
+import { MdSnackBar } from '@angular/material';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 describe('Component: DashboardOptionsComponent', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let fixture: ComponentFixture<DashboardOptionsComponent>;
-    let de: DebugElement;
-    let el: HTMLElement;
     let component: DashboardOptionsComponent;
 
     beforeEach(() => {

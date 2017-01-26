@@ -1,6 +1,6 @@
 /* tslint:disable:no-unused-variable */
 
-import { TestBed, async, inject, ComponentFixture } from '@angular/core/testing';
+import { TestBed, async, ComponentFixture } from '@angular/core/testing';
 import { VisualizationContainerComponent } from './visualization-container.component';
 import { VisualizationInjectorComponent } from '../visualization-injector/visualization-injector.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
@@ -14,7 +14,6 @@ describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: VisualizationContainerComponent;
     let fixture: ComponentFixture<VisualizationContainerComponent>;
-    let el: HTMLElement;
 
     beforeEach(() => {
         TestBed.configureTestingModule({

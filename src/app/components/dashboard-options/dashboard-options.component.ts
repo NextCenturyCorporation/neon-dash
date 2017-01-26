@@ -177,15 +177,16 @@ export class DashboardOptionsComponent implements OnInit {
             let params = {
                 stateName: this.stateName
             };
+            let me = this;
             connection.loadState(params, function(dashboardState) {
                 if (_.keys(dashboardState).length) {
                     let params: URLSearchParams = new URLSearchParams();
                     dashboardState.dashboardStateId = params.get('dashboard_state_id');
                     dashboardState.filterStateId = params.get('filter_state_id');
 
-                    this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
+                    me.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
                 } else {
-                    this.errorNotificationService.showErrorMessage(null, 'State ' + this.stateName + ' not found.');
+                    me.errorNotificationService.showErrorMessage(null, 'State ' + this.stateName + ' not found.');
                 }
             }, this.handleStateFailure);
         }

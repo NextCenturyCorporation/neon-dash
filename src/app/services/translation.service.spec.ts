@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-import { TestBed, async, inject } from '@angular/core/testing';
+import { TestBed, inject } from '@angular/core/testing';
 import { HttpModule } from '@angular/http';
 import { TranslationService } from './translation.service';
 import { ConnectionService } from './connection.service';

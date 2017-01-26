@@ -174,7 +174,7 @@ export class ActiveGridService {
             while (x <= maxCol && !found) {
                 newItem.gridConfig.col = x;
                 newItem.gridConfig.row = y;
-                found = this.itemFits(newItem, x, y);
+                found = this.itemFits(newItem); // (newItem, x, y);
                 x++;
             }
             y++;
@@ -209,7 +209,7 @@ export class ActiveGridService {
      * @param col the column in which to place the item's top-left corner
      * @param row the row in which to place the item's top-left corner
      */
-    itemFits(item: NeonGridItem, col: number, row: number) {
+    itemFits(item: NeonGridItem) { // (item: NeonGridItem, col: number, row: number) {
         for (let i = 0; i < this.gridItems.length; i++) {
             if (this.itemsOverlap(item, this.gridItems[i])) {
                 return false;

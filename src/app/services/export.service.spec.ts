@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-import { TestBed, async, inject } from '@angular/core/testing';
+import { TestBed, inject } from '@angular/core/testing';
 import { ExportService } from './export.service';
 
 describe('Service: Export', () => {

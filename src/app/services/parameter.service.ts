@@ -399,24 +399,23 @@ export class ParameterService {
      * @return {Function}
      */
     private createSimpleFilterClauseCallback(operator: string, value: any): Function {
-        return (databaseAndTableName: string, fieldName: string) => {
+        return (fieldName: string) => {
             return neon.query.where(fieldName, operator, value);
         };
     };
 
     /**
-     * Returns a function to create a date filter clause using the given operator and list of dates.
-     * @param {String} operator
+     * Returns a function to create a date filter clause using the given list of dates.
      * @param {Array} dateList An array containing two or more {Date} objects:  dateList[0] is the inclusive
      * start date and date[1] is the exclusive end date;
      * @private
      * @return {Function}
      */
-    private createDateFilterClauseCallback(operator: string, dateList: Date[]): Function {
+    private createDateFilterClauseCallback(dateList: Date[]): Function {
         let startDate: Date = dateList[0];
         let endDate: Date = dateList.length > 1 ? dateList[1] : null;
 
-        return (databaseAndTableName: any, fieldName: string) => {
+        return (fieldName: string) => {
             let startFilterClause = neon.query.where(fieldName, '>=', startDate);
             if (!endDate) {
                 return startFilterClause;
@@ -427,21 +426,20 @@ export class ParameterService {
     };
 
     /**
-     * Returns a function to create a geographic bounds filter clause using the given operator and list of geographic bounds.
-     * @param {String} operator
+     * Returns a function to create a geographic bounds filter clause using the given list of geographic bounds.
      * @param {Array} boundsList
      * @param {Array} boundsList An array containing four or more numbers:  the minimum and maximum latitude and longitude at
      * indices BOUNDS_MIN_LAT, BOUNDS_MAX_LAT, BOUNDS_MIN_LON, and BOUNDS_MAX_LON; all other indices are ignored.
      * @private
      * @return {Function}
      */
-    private createBoundsFilterClauseCallback(operator: string, boundsList: number[]) {
+    private createBoundsFilterClauseCallback(boundsList: number[]) {
         let minimumLatitude: number = Number(boundsList[ParameterService.BOUNDS_MIN_LAT]);
         let maximumLatitude: number = Number(boundsList[ParameterService.BOUNDS_MAX_LAT]);
         let minimumLongitude: number = Number(boundsList[ParameterService.BOUNDS_MIN_LON]);
         let maximumLongitude: number = Number(boundsList[ParameterService.BOUNDS_MAX_LON]);
 
-        return function(databaseAndTableName: any, fieldNames: string[]): neon.query.BooleanClause {
+        return function(fieldNames: string[]): neon.query.BooleanClause {
             // Copied from map.js
             let latitudeFieldName: string = fieldNames[0];
             let longitudeFieldName: string = fieldNames[1];

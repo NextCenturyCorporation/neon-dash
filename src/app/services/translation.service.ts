@@ -32,7 +32,7 @@ export class TranslationService {
         this.apis = {
             google: {
                 base: 'https://www.googleapis.com/language/translate/v2',
-                key: (config.translationKeys) ? config.translationKeys['google'] : undefined,
+                key: (this.config.translationKeys) ? this.config.translationKeys['google'] : undefined,
                 methods: {
                     translate: '',
                     detect: '/detect',
@@ -190,7 +190,7 @@ export class TranslationService {
 
             if (!this.apis[this.chosenApi].languages || _.keys(this.apis[this.chosenApi].languages).length === 0) {
                 this.setSupportedLanguages().then(
-                    data => translateCallback().then(successCallback, failureCallback),
+                    () => translateCallback().then(successCallback, failureCallback),
                     failureCallback
                 );
             } else {

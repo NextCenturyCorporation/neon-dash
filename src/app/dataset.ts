@@ -27,7 +27,7 @@ export class TableMetaData {
 
     constructor(name?: string, prettyName?: string, fields?: FieldMetaData[], mappings?: TableMappings) {
         this.name = name;
-        this.prettyName = name;
+        this.prettyName = prettyName;
         this.fields = fields;
         this.mappings = mappings;
     }

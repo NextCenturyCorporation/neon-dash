@@ -14,7 +14,7 @@
  * limitations under the License.
  *
  */
-import { TestBed, async, inject } from '@angular/core/testing';
+import { TestBed, inject } from '@angular/core/testing';
 import { MdDialogRef, MdGridList, MdToolbar, MdToolbarRow } from '@angular/material';
 import { MdGridTile } from '@angular/material/grid-list/grid-tile';
 import { AddVisualizationComponent } from './add-visualization.component';

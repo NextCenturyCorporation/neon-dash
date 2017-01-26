@@ -14,13 +14,9 @@
  * limitations under the License.
  *
  */
-import { ComponentFixture, async, inject, TestBed } from '@angular/core/testing';
-import { By }              from '@angular/platform-browser';
-import { DebugElement }    from '@angular/core';
+import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 
-
-import { HttpModule, Http } from '@angular/http';
-import { Observable } from 'rxjs/Observable';
+import { HttpModule } from '@angular/http';
 
 import { MaterialModule } from '@angular/material';
 import { AboutNeonComponent } from './about-neon.component';
@@ -30,8 +26,6 @@ describe('Component: AboutNeonComponent', () => {
 
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let fixture: ComponentFixture<AboutNeonComponent>;
-    let de: DebugElement;
-    let el: HTMLElement;
     let component: AboutNeonComponent;
     let neonStub: any = {
         util: {
@@ -45,11 +39,6 @@ describe('Component: AboutNeonComponent', () => {
                 }
             }
         }
-    };
-
-    let version = {
-        'name': 'neon-gtd',
-        'version': '0.0.0-test-version'
     };
 
     beforeEach(() => {
