@@ -728,6 +728,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
 
     $scope.functions.onUpdateFields = function() {
         $scope.active.dateField = $scope.functions.findFieldObject("dateField", neonMappings.DATE);
+        $scope.active.groupField = $scope.functions.findFieldObject("groupField", neonMappings.BAR_GROUPS);
     };
 
     $scope.functions.onChangeOption = function() {
@@ -1349,6 +1350,7 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
 
     $scope.functions.addToBindings = function(bindings) {
         bindings.dateField = $scope.functions.isFieldValid($scope.active.dateField) ? $scope.active.dateField.columnName : undefined;
+        bindings.groupField = $scope.functions.isFieldValid($scope.active.groupField) ? $scope.active.groupField.columnName : undefined;
         bindings.granularity = $scope.active.granularity || undefined;
         return bindings;
     };

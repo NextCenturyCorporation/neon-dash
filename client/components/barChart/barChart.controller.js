@@ -31,7 +31,7 @@ angular.module('neonDemo.controllers').controller('barChartController', ['$scope
     $scope.active.aggregationField = {};
     $scope.active.groupField = {};
     $scope.active.limit = $scope.bindings.limit || 100;
-    $scope.active.useVertical = $scope.bindings.useVertical || true;
+    $scope.active.useVertical = ($scope.bindings.useVertical !== undefined) ? $scope.bindings.useVertical : true;
     $scope.active.aggregateArraysByElement = false;
 
     $scope.functions.createMenuText = function() {
