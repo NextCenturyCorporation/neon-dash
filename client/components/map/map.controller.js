@@ -1154,6 +1154,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             if(layer.show) {
                 $scope.map.graticuleControl.activate();
             }
+            mergeMultipleValues(data, layer);
             data.forEach(function(bucket) {
                 if(bucket.data.length > 0) {
                     var totalPoints = 0
@@ -1182,6 +1183,38 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             });
         }
         return layer.olLayer.setData(newPointsList || [], layer.limit);
+    };
+
+    var mergeMultipleValues = function(data, layer) { // DOES THIS WORK? I DON'T KNOW. TODO
+        data.forEach(function(bucket) {
+            if(bucket.data.length < 1 || !(bucket.data[0][layer.colorField.columnName] instanceof Array)) {
+                return;
+            }
+            var newData = [];
+            bucket.data.forEach(function(record) {
+                if(record[layer.colorField.columnName].length < 2) {
+                    newData.push(record);
+                }
+            });
+            bucket.data.forEach(function(record) {
+                if(record[layer.colorField.columnName].length >= 2) {
+                    record[layer.colorField.columnName].forEach(function(arrayValue) {
+                        var matching = _.find(newData, function(val) { val[layer.colorField.columnName][0] === arrayValue; });
+                        if(matching !== undefined) {
+                            matching.count += record.count;
+                        }
+                        else {
+                            var newObject = {
+                                count: record.count
+                            };
+                            newObject[layer.colorField.columnName] = [arrayValue];
+                            newData.push(newObject);
+                        }
+                    });
+                }
+            });
+            bucket.data = newData;
+        });
     };
 
     $scope.functions.onDeleteLayer = function(layer) {
