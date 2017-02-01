@@ -1191,15 +1191,18 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 return;
             }
             var newData = [];
-            bucket.data.forEach(function(record) {
-                if(record[layer.colorField.columnName].length < 2) {
-                    newData.push(record);
+            for(var x = bucket.data.length - 1; x >= 0; x--) {
+                if(bucket.data[x][layer.colorField.columnName].length < 2) {
+                    newData.push(bucket.data[x]);
+                    bucket.data.splice(x, 1);
                 }
-            });
+            }
             bucket.data.forEach(function(record) {
                 if(record[layer.colorField.columnName].length >= 2) {
                     record[layer.colorField.columnName].forEach(function(arrayValue) {
-                        var matching = _.find(newData, function(val) { val[layer.colorField.columnName][0] === arrayValue; });
+                        var matching = _.find(newData, function(val) {
+                            return val[layer.colorField.columnName][0] === arrayValue;
+                        });
                         if(matching !== undefined) {
                             matching.count += record.count;
                         }
