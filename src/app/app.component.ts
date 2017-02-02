@@ -107,7 +107,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     toggleDashboardOptions() {
-        console.log(this.dashboardOptionsComponent);
         if (this.dashboardOptionsComponent) {
             this.dashboardOptionsComponent.loadStateNames();
         }

@@ -33,6 +33,7 @@ export class FilterService {
 
     constructor(private errorNotificationService: ErrorNotificationService, private datasetService: DatasetService) {
         this.messenger = new neon.eventing.Messenger();
+        this.filters = [];
     };
 
     /*
@@ -233,7 +234,7 @@ export class FilterService {
         this.filters.forEach(filter => {
             if ((includeAllFilters || filter.filter.filterName.indexOf(FilterService.FILTER_BUILDER_PREFIX) !== 0) &&
                 filter.dataSet.databaseName === database && filter.dataSet.tableName === table &&
-                checkClauses(filter.filter.whereClauses)) {
+                checkClauses(filter.filter.whereClause)) {
                 filters.push(filter);
             }
         });
@@ -393,8 +394,8 @@ export class FilterService {
         messenger.addFilter(id, filter, () => {
             this.filters.push({
                 id: id,
-                dataset: {
-                    databasename: filter.databasename,
+                dataSet: {
+                    databaseName: filter.databaseName,
                     tableName: filter.tableName
                 },
                 filter: filter
@@ -474,7 +475,8 @@ export class FilterService {
         }
 
         if (filterClause) {
-            let query = new neon.query.Filter().selectFrom(relation.database, relation.table).where.apply(neon.query, filterClause);
+            let query = new neon.query.Filter().selectFrom(relation.database, relation.table);
+            query.whereClause = filterClause;
             if (filterName) {
                 query = query.name(filterName);
             }
@@ -579,8 +581,8 @@ export class FilterService {
         _.each(relations, (relation) => {
             let attrs = [];
 
-            _.each(relations['fields'], field =>
-                attrs.push(field.relation[0])
+            _.each(relation['fields'], field =>
+                attrs.push(field.related[0])
             );
 
             keys = keys.concat(this.getFilters(relation['database'], relation['table'], attrs).map(filter => filter.id));

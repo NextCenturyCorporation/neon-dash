@@ -47,6 +47,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
         limit: number,
         textColor: string,
         allowsTranslations: boolean,
+        filterable: boolean,
         layers: any[],
         databases: DatabaseMetaData[],
         database: DatabaseMetaData,
@@ -78,6 +79,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
             limit: 40,
             textColor: '#111',
             allowsTranslations: true,
+            filterable: true,
             layers: [],
             databases: [],
             database: new DatabaseMetaData(),
@@ -239,11 +241,12 @@ export class TextCloudComponent implements OnInit, OnDestroy {
     checkNeonDashboardFilters(options: { databaseName?: string, tableName?: string, queryAndUpdate?: boolean}) {
         let neonFilters = [];
         let neonFilterFields = [];
+        let me = this;
 
         // Check for Neon filters on all filterable database/table/field combinations in the layers.
         let data = this.findFilterData();
         data.forEach(function(item) {
-            let neonFiltersForItem = this.filterService.getFilters(item['database'], item['table'], item['fields']);
+            let neonFiltersForItem = me.filterService.getFilters(item['database'], item['table'], item['fields']);
             if (neonFiltersForItem.length) {
                 neonFilters = neonFilters.concat(neonFiltersForItem);
                 neonFilterFields.push(item['fields']);
@@ -254,8 +257,8 @@ export class TextCloudComponent implements OnInit, OnDestroy {
         // visualization if it is set. Note for single layer visualizations that this will always be true if a filter
         // is set in this visualization but not in the Neon dashboard.
         if ((!neonFilters.length || neonFilters.length < data.length) && this.isFilterSet()) {
-            this.removeFilterValues();
-            this.runDefaultQueryAndUpdate();
+            me.removeFilterValues();
+            me.runDefaultQueryAndUpdate();
             return;
         }
 
@@ -264,30 +267,31 @@ export class TextCloudComponent implements OnInit, OnDestroy {
         // a filter is set in the Neon dashboard.
         if (neonFilters.length && neonFilters.length === data.length) {
             // Use the first element of the filter arrays because they should all be the same (or equivalent).
-            this.updateFilterValues(neonFilters[0]);
-            this.runDefaultQueryAndUpdate();
+            me.updateFilterValues(neonFilters[0]);
+            me.runDefaultQueryAndUpdate();
             return;
         }
 
         if (options.queryAndUpdate) {
-            this.runDefaultQueryAndUpdate(options.databaseName, options.tableName);
+            me.runDefaultQueryAndUpdate(options.databaseName, options.tableName);
         }
     };
 
     findFilterData(databaseName?: string, tableName?: string, fields?: string[], layers?: Object[], ignoreFilter?: boolean): Object[] {
         let data = [];
+        let me = this;
 
-        (layers || this.getDataLayers()).forEach(function(layer) {
+        (layers || me.getDataLayers()).forEach(function(layer) {
             if (!layer['new'] && (layer['filterable'] || ignoreFilter) &&
                 ((databaseName && tableName) ?
                     (databaseName === layer['database'].name && tableName === layer['table']['name']) : true)) {
-                let valid = (fields || this.getFilterFields(layer)).every(function(field) {
-                    return this.datasetService.isFieldValid(field);
+                let valid = (fields || me.getFilterFields()).every(function(field: FieldMetaData) {
+                    return me.datasetService.isFieldValid(field);
                 });
 
                 if (valid) {
                     // Check whether the database/table/filter fields for this layer already exist in the data.
-                    let fieldNames = (fields || this.getFilterFields(layer)).map(function(field) {
+                    let fieldNames = (fields || me.getFilterFields()).map(function(field: FieldMetaData) {
                         return field.columnName;
                     });
                     let index = _.findIndex(data, {
@@ -364,14 +368,81 @@ export class TextCloudComponent implements OnInit, OnDestroy {
         if (this.getNumberOfFilterClauses(neonFilter) === 1) {
             this.addFilterValue(neonFilter.filter.whereClause.rhs);
         } else {
+            let me = this;
             neonFilter.filter.whereClause.whereClauses.forEach(function(whereClause) {
-                this.addFilterValue(whereClause.rhs);
+                me.addFilterValue(whereClause.rhs);
             });
         }
     };
 
+    updateNeonFilter(options?: any) {
+        let args = options || {};
+        this.addFiltersForData(
+            this.findFilterData(args.databaseName, args.tableName, args.fields),
+            0, args.createNeonFilterClause || this.createNeonFilterClause.bind(this), args.queryAfterFilter, args.callback);
+    };
+
+    createNeonFilterClause(_databaseAndTableName: {}, fieldName: string) {
+        var filterClauses = this.filters.map(function(filter) {
+            return neon.query.where(fieldName, "=", filter.value);
+        });
+        if(filterClauses.length === 1) {
+            return filterClauses[0];
+        }
+        if(this.active.andFilters) {
+            return neon.query.and.apply(neon.query, filterClauses);
+        }
+        return neon.query.or.apply(neon.query, filterClauses);
+    };
+
+    addFiltersForData(data: any, index: number, createNeonFilterClauseFunction: () => {},
+        queryAfterFilter?: boolean, callback?:  () => {}) {
+        var me = this;
+        if(!data.length || index >= data.length) {
+            data.forEach(function(item) {
+                me.runDefaultQueryAndUpdate(item.database, item.table);
+            });
+
+            if(callback) {
+                callback();
+            }
+
+            return;
+        }
+
+        var item = data[index];
+        this.filterService.addFilter(this.messenger, item.database, item.table, item.fields, createNeonFilterClauseFunction, {
+            visName: 'Text Cloud',
+            text: this.createFilterTrayText()
+        }, function() {
+            /*XDATA.userALE.log({
+                activity: "select",
+                action: "click",
+                elementId: $scope.type,
+                elementType: $scope.logElementType,
+                elementSub: $scope.type,
+                elementGroup: $scope.logElementGroup,
+                source: "user",
+                tags: ["filter", $scope.type]
+            });*/
+            me.addFiltersForData(data, ++index, createNeonFilterClauseFunction, queryAfterFilter, callback);
+        });
+    };
+
+    createFilterTrayText() {
+        return (_.map(this.filters, (this.active.allowsTranslations ? "translated" : "value"))).join(", ");
+    };
+
     getNumberOfFilterClauses(neonFilter: neon.query.Filter): number {
         return this.filterService.hasSingleClause(neonFilter) ? 1 : this.filterService.getMultipleClausesLength(neonFilter);
+    };
+
+    addFilter(value: string, translated: string) {
+        let index = _.findIndex(this.filters, { value: value });
+        if (index < 0) {
+            this.addFilterValue(value, translated);
+            this.updateNeonFilter();
+        }
     };
 
     addFilterValue(value: string, translated?: string) {
@@ -395,9 +466,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
 
         if (this.isFilterSet() && this.active.andFilters) {
             cloudData = cloudData.filter((item) => {
-                let index = _.findIndex(this.filters, {
-                    value: item[this.active.dataField.columnName]
-                });
+                let index = _.findIndex(this.filters, { value: item[this.active.dataField.columnName] });
                 return index === -1;
             });
         }
@@ -514,7 +583,6 @@ export class TextCloudComponent implements OnInit, OnDestroy {
             // an object containing a data array.
             updateDataFunction(response.data || response, item.layers);
             me.queryAndUpdate(data, ++index, addToQueryFunction, executeQueryFunction, updateDataFunction);
-
             /* XDATA.userALE.log({
                 activity: 'alter',
                 action: 'render',

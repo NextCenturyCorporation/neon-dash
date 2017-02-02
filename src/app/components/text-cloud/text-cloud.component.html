@@ -95,7 +95,7 @@
 	</md-sidenav>
 
     <div class="text-cloud" md-fill layout="col">
-        <a class="text" *ngFor="let item of active.data" [rel]="item.count"
+        <a (click)="addFilter(item.key, item.keyTranslated)" class="text" *ngFor="let item of active.data" [rel]="item.count"
             [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">{{ item.key }}</a>
     </div>
 </md-sidenav-layout>

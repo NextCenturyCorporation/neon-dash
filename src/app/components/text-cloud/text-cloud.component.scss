@@ -14,8 +14,9 @@
  *
  */
 
- .visualization-sidenav {
+.visualization-sidenav {
     height: 100%;
+    cursor: default;
 
     .header.text {
 		font-weight: bold;
@@ -38,4 +39,14 @@
 
 .text-cloud {
 	overflow-wrap: break-word;
+
+    .text {
+        display: inline-block;
+        padding: 4px 8px;
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
 }
