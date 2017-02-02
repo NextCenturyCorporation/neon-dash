@@ -383,13 +383,13 @@ export class TextCloudComponent implements OnInit, OnDestroy {
     };
 
     createNeonFilterClause(_databaseAndTableName: {}, fieldName: string) {
-        var filterClauses = this.filters.map(function(filter) {
-            return neon.query.where(fieldName, "=", filter.value);
+        let filterClauses = this.filters.map(function(filter) {
+            return neon.query.where(fieldName, '=', filter.value);
         });
-        if(filterClauses.length === 1) {
+        if (filterClauses.length === 1) {
             return filterClauses[0];
         }
-        if(this.active.andFilters) {
+        if (this.active.andFilters) {
             return neon.query.and.apply(neon.query, filterClauses);
         }
         return neon.query.or.apply(neon.query, filterClauses);
@@ -397,20 +397,20 @@ export class TextCloudComponent implements OnInit, OnDestroy {
 
     addFiltersForData(data: any, index: number, createNeonFilterClauseFunction: () => {},
         queryAfterFilter?: boolean, callback?:  () => {}) {
-        var me = this;
-        if(!data.length || index >= data.length) {
+        let me = this;
+        if (!data.length || index >= data.length) {
             data.forEach(function(item) {
                 me.runDefaultQueryAndUpdate(item.database, item.table);
             });
 
-            if(callback) {
+            if (callback) {
                 callback();
             }
 
             return;
         }
 
-        var item = data[index];
+        let item = data[index];
         this.filterService.addFilter(this.messenger, item.database, item.table, item.fields, createNeonFilterClauseFunction, {
             visName: 'Text Cloud',
             text: this.createFilterTrayText()
@@ -430,7 +430,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
     };
 
     createFilterTrayText() {
-        return (_.map(this.filters, (this.active.allowsTranslations ? "translated" : "value"))).join(", ");
+        return (_.map(this.filters, (this.active.allowsTranslations ? 'translated' : 'value'))).join(', ');
     };
 
     getNumberOfFilterClauses(neonFilter: neon.query.Filter): number {
