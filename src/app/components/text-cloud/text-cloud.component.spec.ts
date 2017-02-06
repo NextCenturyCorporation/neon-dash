@@ -11,6 +11,7 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { TranslationService } from '../../services/translation.service';
 import { FilterService } from '../../services/filter.service';
+import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
@@ -31,6 +32,7 @@ describe('Component: TextCloud', () => {
         ExportService,
         TranslationService,
         ErrorNotificationService,
+        ThemesService,
         Injector,
         { provide: 'config', useValue: testConfig }
       ],

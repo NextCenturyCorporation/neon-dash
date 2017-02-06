@@ -47,6 +47,7 @@ import { VisualizationContainerComponent } from './components/visualization-cont
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
+import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 
 export function createAppModule(config: NeonGTDConfig) {
     @NgModule({
@@ -58,7 +59,8 @@ export function createAppModule(config: NeonGTDConfig) {
             DashboardOptionsComponent,
             AddVisualizationComponent,
             TextCloudComponent,
-            VisualizationInjectorComponent
+            VisualizationInjectorComponent,
+            FilterTrayComponent
         ],
         imports: [
             BrowserModule,
@@ -85,7 +87,7 @@ export function createAppModule(config: NeonGTDConfig) {
               useValue: config
             }
         ],
-        entryComponents: [AppComponent, AddVisualizationComponent],
+        entryComponents: [AppComponent, AddVisualizationComponent, FilterTrayComponent],
         bootstrap: [AppComponent]
     })
     class AppModule {

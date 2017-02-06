@@ -14,6 +14,9 @@
  *
  */
 
+@import '~@angular/material/core/theming/theming';
+@import 'src/themes/neon-green-theme.scss';
+
 .visualization-sidenav {
     height: 100%;
     cursor: default;
@@ -22,31 +25,65 @@
 		font-weight: bold;
 		text-transform: uppercase;
     }
-}
 
-.visualization-sidenav-options {
-    min-width: 320px;
+    .visualization-sidenav-options {
+        min-width: 320px;
 
-    md-select, table, md-input {
-    	width: 100%;
-    	margin-top: 15px;
-    }
-
-    .error-icon {
-    	vertical-align: middle;
-    }
-}
-
-.text-cloud {
-	overflow-wrap: break-word;
-
-    .text {
-        display: inline-block;
-        padding: 4px 8px;
-        cursor: pointer;
-
-        &:hover {
-            text-decoration: none;
+        md-select, table, md-input {
+            width: 100%;
+            margin-top: 15px;
         }
+
+        .error-icon {
+            vertical-align: middle;
+        }
+    }
+
+    .filter-reset {
+        float: right;
+        padding-left: 5px;
+        margin-left: 5px;
+        line-height: 18px;
+        border-radius: 3px;
+        margin: 2px;
+        background-color: md-color($accent);
+
+        .filter-label {
+            display: inline-block;
+            max-width: 100px;
+            overflow: hidden;
+            position: relative;
+            text-overflow: ellipsis;
+            top: 4px;
+            white-space: nowrap;
+            color: white;
+        }
+
+        button {
+            color: white;
+        }
+    }
+
+    .text-cloud {
+        overflow-wrap: break-word;
+        display: inline-block;
+
+        .text {
+            display: inline-block;
+            padding: 4px 8px;
+            cursor: pointer;
+
+            &:hover {
+                text-decoration: none;
+            }
+        }
+    }
+}
+
+
+
+.neon-green-dark-theme {
+    .filter-reset {
+        background-color: md-color($primary);
     }
 }

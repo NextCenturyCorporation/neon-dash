@@ -78,6 +78,7 @@ if (environment.production) {
 }
 
 neon.ready(function() {
+  neon.setNeonServerUrl('http://localhost:4200/neon');
   loadConfigYaml().then(config => bootstrapWithData(config))
     .catch(handleConfigYamlError);
 });

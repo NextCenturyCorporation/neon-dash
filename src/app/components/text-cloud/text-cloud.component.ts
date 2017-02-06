@@ -5,6 +5,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { TranslationService } from '../../services/translation.service';
+import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import { neonMappings } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
@@ -61,7 +62,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
 
     constructor(private connectionService: ConnectionService, private datasetService: DatasetService,
         private filterService: FilterService, private exportService: ExportService, private translationService: TranslationService,
-        private injector: Injector) {
+        private injector: Injector, private themesService: ThemesService) {
         this.bindings = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -70,6 +71,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
+        this.themesService = themesService;
         this.messenger = new neon.eventing.Messenger();
         this.filters = [];
         this.translationsOn = false;
@@ -736,6 +738,111 @@ export class TextCloudComponent implements OnInit, OnDestroy {
 
     getButtonText() {
         return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length;
+    };
+
+    getFilterData() {
+        return this.filters.map((filter) => {
+            return filter.value;
+        });
+    };
+
+    createFilterDesc(value: string) {
+        return this.active.dataField.columnName + ' = ' + value;
+    };
+
+    createFilterText(value: string) {
+        if (!this.active.allowsTranslations) {
+            return value;
+        }
+
+        let text = '';
+        this.filters.forEach((filter) => {
+            if (filter.value === value) {
+                text = filter.translated || filter.value;
+            }
+        });
+
+        return text;
+    };
+
+    getRemoveDesc(value: string) {
+        return 'Delete Filter ' + this.createFilterDesc(value);
+    };
+
+    removeFilter(value: string) {
+        let index = _.findIndex(this.filters, {
+            value: value
+        });
+
+        if (index >= 0) {
+            this.filters.splice(index, 1);
+            // TODO: Add Links
+            // $scope.functions.removeLinks(this.active.dataField, value);
+
+            /*XDATA.userALE.log({
+                activity: "remove",
+                action: "click",
+                elementId: "textCloud",
+                elementType: "button",
+                elementSub: "textCloud",
+                elementGroup: "chart_group",
+                source: "user",
+                tags: ["filter", "textCloud", value]
+            });*/
+        }
+
+        if (this.filters.length) {
+            this.updateNeonFilter();
+        } else {
+            this.removeNeonFilter();
+        }
+    };
+
+    removeNeonFilter(options?: any) {
+        let args = options || {};
+        this.removeFiltersForData(
+            this.findFilterData(args.databaseName, args.tableName, args.fields, args.layers, true),
+            0, args.queryAfterFilter, args.fromSystem, args.callback);
+    };
+
+    removeFiltersForData(data: any, index: number, queryAfterFilter?: boolean, fromSystem?: boolean, callback?: () => {}) {
+        let me = this;
+        if (!data.length || index >= data.length) {
+            let unfiltered = this.getDataLayers().every(function(layer) {
+                return !layer['filterable'];
+            });
+
+            if (unfiltered) {
+                this.removeFilterValues();
+            }
+
+            data.forEach(function(item) {
+                me.runDefaultQueryAndUpdate(item.database, item.table);
+            });
+
+            if (callback) {
+                callback();
+            }
+
+            return;
+        }
+
+        let item = data[index];
+        this.filterService.removeFilter(item.database, item.table, item.fields, function() {
+            /*if (!fromSystem) {
+                XDATA.userALE.log({
+                    activity: "deselect",
+                    action: "click",
+                    elementId: $scope.type,
+                    elementType: "button",
+                    elementSub: $scope.type,
+                    elementGroup: $scope.logElementGroup,
+                    source: "user",
+                    tags: ["filter", $scope.type]
+                });
+            }*/
+            me.removeFiltersForData(data, ++index, queryAfterFilter, fromSystem, callback);
+        });
     };
 
     requestExport() {

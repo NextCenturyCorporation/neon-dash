@@ -23,7 +23,11 @@
             <md-icon class="md-24">add</md-icon>
         </button>
         <span class="fill-remaining"></span>
-        <button md-icon-button  aria-label="Settings" (click)="toggleDashboardOptions(); sidenavright.toggle();"
+        <button md-icon-button aria-label="Show Filters" md-tooltip="Show Filters"
+            tooltip-position="below" (click)="openFilterTrayDialog()" *ngIf="showFilterTrayButton">
+            <md-icon class="md-24">notifications</md-icon>
+        </button>
+        <button md-icon-button aria-label="Settings" (click)="toggleDashboardOptions(); sidenavright.toggle();"
             md-tooltip="Change the settings for the dashboard." tooltip-position="below" >
             <md-icon class="md-24">settings</md-icon>
         </button>

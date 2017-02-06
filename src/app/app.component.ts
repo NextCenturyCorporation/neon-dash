@@ -24,6 +24,7 @@ import { ThemesService } from './services/themes.service';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { NeonGridItem } from './neon-grid-item';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
+import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 
 import { MdDialog, MdDialogConfig, MdDialogRef } from '@angular/material';
 
@@ -42,6 +43,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     // Used to determine which pane is show in the right sidenav
     private showAbout: boolean = true;
     private showAddVisualizationButton: boolean = false;
+    private showFilterTrayButton: boolean = false;
 
     private gridItems: NeonGridItem[] = [];
 
@@ -66,10 +68,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     /* A reference to the dialog for adding visualizations. */
     private addVisDialogRef: MdDialogRef<AddVisualizationComponent>;
 
+    /* A reference to the dialog for the filter tray. */
+    private filterTrayDialogRef: MdDialogRef<FilterTrayComponent>;
+
+
     constructor(private datasetService: DatasetService, private themesService: ThemesService,
         private activeGridService: ActiveGridService, public dialog: MdDialog, public viewContainerRef: ViewContainerRef) {
         // TODO: Default to false and set to true only after a dataset has been selected.
         this.showAddVisualizationButton = true;
+        this.showFilterTrayButton = true;
         this.datasets = this.datasetService.getDatasets();
         this.themesService = themesService;
     }
@@ -89,6 +96,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.addVisDialogRef = this.dialog.open(AddVisualizationComponent, config);
         this.addVisDialogRef.afterClosed().subscribe(() => {
             this.addVisDialogRef = null;
+        });
+    }
+
+    openFilterTrayDialog() {
+        let config = new MdDialogConfig();
+        config.viewContainerRef = this.viewContainerRef;
+
+        this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);
+        this.filterTrayDialogRef.afterClosed().subscribe(() => {
+            this.filterTrayDialogRef = null;
         });
     }
 

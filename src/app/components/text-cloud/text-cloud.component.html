@@ -1,4 +1,4 @@
-<md-sidenav-layout class="visualization-sidenav">
+<md-sidenav-layout class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <md-toolbar color="primary" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
@@ -93,6 +93,14 @@
             </md-card-content>
         </md-card>
 	</md-sidenav>
+
+    <div class="filter-reset" *ngFor="let value of getFilterData()">
+        <span class="filter-label" [title]="createFilterDesc(value)">{{ createFilterText(value) }}</span>
+        <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveDesc(value)" tooltip-position="below"
+            (click)="removeFilter(value)">
+            <md-icon class="md-18">close</md-icon>
+        </button>
+    </div>
 
     <div class="text-cloud" md-fill layout="col">
         <a (click)="addFilter(item.key, item.keyTranslated)" class="text" *ngFor="let item of active.data" [rel]="item.count"
