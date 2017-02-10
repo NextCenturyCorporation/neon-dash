@@ -538,8 +538,15 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     $scope.functions.updateData = function(data, layers) {
-        var pointData = (data && data.length) ? (data[0].data !== undefined ? data[0].data : data[0]) : [];
-        var gridData = (data && data.length > 1) ? data[1].data : []; 
+        var pointData = [];
+        var gridData = [];
+        if(data && data.length && data[0].data instanceof Array && Object.keys(data[0]).length === 1) { // If the data we're given fits the grid+points query format of: [{data: [stuff]}, {data: [stuff]}]
+            pointData = (data && data.length) ? (data[0].data !== undefined ? data[0].data : data[0]) : [];
+            gridData = (data && data.length > 1) ? data[1].data : [];
+        }
+        else if(data) {
+            pointData = data;
+        }
         var dataForBounds = gridData.length > 0 ? gridData : (pointData.length > 0 ? pointData : []); // Calculate our bounds from the grid layer's query if it exists, and otherwise from the normal query.
         var dataBounds = computeDataBounds(dataForBounds);
         var newBounds = new OpenLayers.Bounds(dataBounds.left, dataBounds.bottom, dataBounds.right, dataBounds.top)
@@ -723,7 +730,6 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.functions.addToQuery = function(query, unsharedFilterWhereClause, layers) {
         var queryFields = {};
         var limit;
-        var queryGroup = new neon.query.QueryGroup();
 
         var addFields = function(layerFields) {
             layerFields.forEach(function(field) {
