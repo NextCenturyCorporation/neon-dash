@@ -136,6 +136,10 @@ angular.module('neonDemo.controllers').controller('ganttChartController', ['$sco
         return $scope.filter;
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "GANTT Chart";
+    };
+
     $scope.functions.areDataFieldsValid = function() {
         return $scope.functions.isFieldValid($scope.active.startField) && $scope.functions.isFieldValid($scope.active.endField);
     };

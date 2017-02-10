@@ -172,6 +172,10 @@ angular.module('neonDemo.controllers').controller('opsClockController', ['$scope
         $scope.functions.logChangeAndUpdate("dateField", $scope.active.dateField.columnName);
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Ops Clock";
+    };
+
     $scope.functions.hideHeaders = function() {
         return false;
     };

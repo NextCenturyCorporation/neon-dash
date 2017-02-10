@@ -41,6 +41,10 @@ angular.module('neonDemo.controllers').controller('barChartController', ['$scope
         return "";
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Bar Chart";
+    };
+
     $scope.functions.showMenuText = function() {
         return $scope.queryLimit > 0;
     };

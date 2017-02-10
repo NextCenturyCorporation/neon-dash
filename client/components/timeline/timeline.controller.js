@@ -1223,6 +1223,10 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
         return ($scope.active.numberValid || "No") + " Valid Records" + ($scope.active.numberInvalid ? "(" + $scope.active.numberInvalid + " Invalid)" : "");
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Timeline";
+    };
+
     $scope.functions.showMenuText = function() {
         return $scope.active.numberValid || $scope.active.numberInvalid;
     };

@@ -314,6 +314,10 @@ angular.module('neonDemo.controllers').controller('textCloudController', ['$scop
         return !$scope.functions.isFilterSet() && !$scope.active.data.length ? "No Data" : "Top " + $scope.active.data.length;
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Text Cloud";
+    };
+
     $scope.functions.showMenuText = function() {
         return true;
     };

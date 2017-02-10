@@ -75,6 +75,10 @@ angular.module('neonDemo.controllers').controller('customFilterListController', 
         return $scope.active.fields;
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Custom Filter List";
+    };
+
     $scope.functions.createFilterTrayText = function(database, table, fields) {
         var text = "";
         fields.forEach(function(field, index) {

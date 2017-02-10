@@ -48,6 +48,10 @@ angular.module('neonDemo.controllers').controller('lineChartController', ['$scop
         return "";
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Line Chart";
+    };
+
     $scope.functions.showMenuText = function() {
         return !$scope.hideNoDataError;
     };

@@ -78,6 +78,10 @@ angular.module('neonDemo.controllers').controller('dataTableController', ['$scop
         return ($scope.active.count && $scope.active.total) ? $scope.active.count + " of " + $scope.active.total + " Records" : "No Data";
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Data Table";
+    };
+
     $scope.functions.showMenuText = function() {
         return true;
     };

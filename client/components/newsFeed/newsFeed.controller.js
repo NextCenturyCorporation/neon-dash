@@ -78,6 +78,10 @@ angular.module('neonDemo.controllers').controller('newsFeedController', ['$scope
         return "No News";
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Newsfeed";
+    };
+
     $scope.functions.showMenuText = function() {
         return true;
     };

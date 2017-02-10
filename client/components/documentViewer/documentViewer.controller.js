@@ -666,6 +666,10 @@ angular.module('neonDemo.controllers').controller('documentViewerController', ['
         return ($scope.active.documents.length >= $scope.active.queryDocumentLimit ? "Limited to " : "") + ($scope.active.documents.length ? ("Top " + $scope.active.documents.length) : "No Data");
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Document Viewer";
+    };
+
     $scope.functions.showMenuText = function() {
         return true;
     };

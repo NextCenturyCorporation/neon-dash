@@ -126,6 +126,10 @@ angular.module('neonDemo.controllers').controller('sunburstChartController', ['$
         $scope.active.hasData = true;
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Sunburst Chart";
+    };
+
     $scope.handleChangeCountField = function() {
         $scope.functions.logChangeAndUpdate("countField", $scope.active.valueField.columnName);
     };

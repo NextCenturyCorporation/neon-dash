@@ -69,6 +69,10 @@ angular.module('neonDemo.controllers').controller('networkGraphController', ['$s
         return text;
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Network Graph";
+    };
+
     $scope.functions.showMenuText = function() {
         return true;
     };

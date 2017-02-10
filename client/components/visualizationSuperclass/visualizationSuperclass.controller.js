@@ -190,6 +190,17 @@ function($scope, external, externalRouteService, customFilters, connectionServic
     };
 
     /**
+     * Returns the pretty name of the visualization, to be presented in the options menu.
+     * Called by the options-menu directive.
+     *
+     * @method $scope.functions.getVisualizationName
+     * @return {String}
+     */
+    $scope.functions.getVisualizationName = function() {
+        return "";
+    }
+
+    /**
      * Creates and returns the Neon where clause for a Neon filter on the given database, table, and fields using the filters set in this visualization.
      * Called by the Filter Service.
      * @method $scope.functions.createNeonFilterClause

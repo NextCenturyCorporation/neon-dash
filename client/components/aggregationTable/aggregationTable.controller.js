@@ -311,6 +311,10 @@ angular.module('neonDemo.controllers').controller('aggregationTableController', 
         return ($scope.active.dataLength >= $scope.active.queryLimit ? "Limited to " : "") + ($scope.active.dataLength || "No") + " Groups";
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Aggregation Table";
+    };
+
     $scope.functions.showMenuText = function() {
         return true;
     };

@@ -63,6 +63,10 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         return text;
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Map";
+    };
+
     $scope.functions.showMenuText = function() {
         return $scope.active.layers.some(function(layer) {
             return !layer.new && layer.show;

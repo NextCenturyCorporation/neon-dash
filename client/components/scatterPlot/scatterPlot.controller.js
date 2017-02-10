@@ -484,6 +484,10 @@ angular.module('neonDemo.controllers').controller('scatterPlotController', ['$sc
         return ($scope.pointCount || "No") + " Point" + ($scope.pointCount === 1 ? "" : "s");
     };
 
+    $scope.functions.getVisualizationName = function() {
+        return "Scatterplot";
+    };
+
     $scope.functions.showMenuText = function() {
         return true;
     };

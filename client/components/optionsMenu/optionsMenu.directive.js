@@ -26,7 +26,8 @@ angular.module('neonDemo.directives')
             resizeMenu: '=?',
             buttonText: '=?',
             showButtonText: '=?',
-            exportFunction: '=?'
+            exportFunction: '=?',
+            visualizationName: "=?"
         },
         link: function($scope, $element) {
             // Buffer needed above and below the chart options popover based on popover position, container padding (both set in the CSS), and UX.
@@ -58,6 +59,13 @@ angular.module('neonDemo.directives')
                 }
                 return $scope.buttonText;
             };
+
+            $scope.getVisualizationType = function() {
+                if($.isFunction($scope.visualizationName)) {
+                    return $scope.visualizationName();
+                }
+                return $scope.visualizationName;
+            }
 
             var resizeButton = function() {
                 var optionsButtonElement = $element.find(".options-menu .options-menu-button");
