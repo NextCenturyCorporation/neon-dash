@@ -66,6 +66,8 @@
                 </div>
 
                 <div class="container" ng-hide="hideNavbarItems">
+
+                    <!-- Powered By Neon logo -->
                     <div powered-by-neon class="pull-right"></div>
 
                     <!-- Help Button -->
@@ -123,12 +125,15 @@
                         </ul>
                     </div>
 
+                    <!-- Name of currently-loaded state if one is loaded -->
+                    <div><span class="navbar-text pull-right" ng-bind="loadedStateName"></span></div>
+
                     <!-- Import and Remove Dataset Popups -->
                     <div import-file gridster-configs="visualizations" ng-show="showImport"></div>
                     <div remove-dataset gridster-configs="visualizations" ng-show="showImport"></div>
 
                     <!-- Save and Load States Popups -->
-                    <div saved-states gridster-configs="visualizations" loaded-state-name="loadedStateName"></div>
+                    <div saved-states gridster-configs="visualizations" loaded-state-name="loadedStateName" name-update-function="updateStateName"></div>
 
                     <div class="clearfix visible-xs"></div>
 

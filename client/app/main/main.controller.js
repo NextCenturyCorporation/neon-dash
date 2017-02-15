@@ -83,7 +83,7 @@ function($scope, $timeout, $location, config, datasets, themeService, connection
                     // Only open the overwrite state modal if the dashboard and filter state
                     // IDs both come from the same state name
                     if(response.stateName) {
-                        $scope.loadedStateName = response.stateName;
+                        $scope.updateStateName(response.stateName);
                         $('#overwriteStateModal').modal('show');
                     } else {
                         $('#saveNewStateModal').modal('show');
@@ -95,6 +95,10 @@ function($scope, $timeout, $location, config, datasets, themeService, connection
         } else {
             $('#saveNewStateModal').modal('show');
         }
+    };
+
+    $scope.updateStateName = function(name) {
+        $scope.loadedStateName = name;
     };
 
     /**

@@ -28,6 +28,9 @@ angular.module('neonDemo.directives')
     return {
         templateUrl: 'components/savedStates/savedStates.html',
         restrict: 'EA',
+        scope: {
+            nameUpdateFunction: "="
+        },
         link: function($scope) {
             $scope.stateNames = [];
             $scope.stateName = "";
@@ -105,6 +108,7 @@ angular.module('neonDemo.directives')
                             $location.search("filter_state_id", dashboardState.filterStateId);
 
                             parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
+                            $scope.nameUpdateFunction(params.stateName);
                         } else {
                             errorNotificationService.showErrorMessage(null, "State " + $scope.stateName + " not found.");
                         }
