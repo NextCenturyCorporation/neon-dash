@@ -31,11 +31,31 @@
                     <md-option *ngFor="let field of active.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
                 <p></p>
-                <md-select placeholder="Text Field" [(ngModel)]="active.aggregation" required="true" (ngModelChange)="handleChangeAggregation()" [disabled]="active.fields.length == 0">
+
+                <md-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true" (ngModelChange)="handleChangeAggregation()" [disabled]="active.fields.length == 0">
                     <md-option value="count">Count</md-option>
                     <md-option value="sum">Sum</md-option>
                     <md-option value="average">Average</md-option>
                 </md-select>
+                <p></p>
+
+                <md-select *ngIf="!active.aggregationFieldHidden" placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField" required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="active.fields.length == 0">
+                    <md-option *ngFor="let field of active.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <table cellspacing="0">
+                    <tr>
+                        <td>
+                            <md-input placeholder="Text Limit" [(ngModel)]="active.limit" required="true"></md-input>
+                        </td>
+                        <td>
+                            <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                                <md-icon class="md-24">refresh</md-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
                 <p></p>
                 <!--<table cellspacing="0">
                     <tr>

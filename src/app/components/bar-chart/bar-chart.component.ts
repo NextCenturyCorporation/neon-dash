@@ -44,11 +44,15 @@ export class BarChartComponent implements OnInit,
         database: string,
         table: string,
         dataField: string,
+        aggregation: string,
+        aggregationField: string,
         unsharedFilterField: Object,
         unsharedFilterValue: string
     };
     private active: {
         dataField: FieldMetaData,
+        aggregationField: FieldMetaData,
+        aggregationFieldHidden: boolean,
         andFilters: boolean,
         limit: number,
         filterable: boolean,
@@ -89,6 +93,8 @@ export class BarChartComponent implements OnInit,
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
             dataField: this.injector.get('dataField', null),
+            aggregation: this.injector.get('aggregation', null),
+            aggregationField: this.injector.get('aggregationField', null),
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
@@ -97,8 +103,10 @@ export class BarChartComponent implements OnInit,
         this.filters = [];
         this.active = {
             dataField: new FieldMetaData(),
+            aggregationField: new FieldMetaData(),
+            aggregationFieldHidden: true,
             andFilters: true,
-            limit: 40,
+            limit: 100,
             filterable: true,
             layers: [],
             databases: [],
@@ -111,6 +119,7 @@ export class BarChartComponent implements OnInit,
             data: [],
             aggregation: "count"
         };
+
         this.chartDefaults = {
             activeColor: 'rgba(57, 181, 74, 0.9)',
             inactiveColor: 'rgba(57, 181, 74, 0.3)'
@@ -180,6 +189,7 @@ export class BarChartComponent implements OnInit,
         //TODO initial query
 
         this.initializing = false;
+        this.executeQueryChain();
     };
 
     ngOnDestroy() {
@@ -259,6 +269,10 @@ export class BarChartComponent implements OnInit,
     };
 
     onUpdateFields() {
+        if (this.optionsFromConfig.aggregation) {
+            this.active.aggregation = this.optionsFromConfig.aggregation;
+        }
+        this.active.aggregationField = this.findFieldObject('aggregationField', neonMappings.TAGS);
         this.active.dataField = this.findFieldObject('dataField', neonMappings.TAGS);
     };
 
@@ -384,9 +398,20 @@ export class BarChartComponent implements OnInit,
         let tableName = this.active.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        let yAxisField = this.active.aggregationField.columnName;
+        let dataField = this.active.dataField.columnName;
+        switch (this.active.aggregation) {
+            case 'count':
+                return query.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
+                    .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
+            case 'sum':
+                return query.where(whereClause).groupBy(dataField).aggregate(neon.query['SUM'], yAxisField, 'value')
+                    .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
+            case 'average':
+                return query.where(whereClause).groupBy(dataField).aggregate(neon.query['AVG'], yAxisField, 'value')
+                    .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
+        }
 
-        return query.where(whereClause).groupBy(this.active.dataField.columnName).aggregate(neon.query['COUNT'], '*', 'count')
-            .sortBy('count', neon.query['DESCENDING']).limit(this.active.limit).enableAggregateArraysByElement();
     };
 
     executeQuery = function(query: neon.query.Query) {
@@ -443,7 +468,7 @@ export class BarChartComponent implements OnInit,
         for (let row of response.data) {
             if (row[colName]) {
                 labels.push(row[colName]);
-                values.push(row.count);
+                values.push(row.value);
             }
         }
         let dataset = {
@@ -481,14 +506,17 @@ export class BarChartComponent implements OnInit,
             field = find(this.getMapping(mappingKey));
         }
 
-        return field || this
-            .datasetService
-            .createBlankField();
+        return field || this.datasetService.createBlankField();
     };
 
     getMapping = function(key: string): string {
         return this.datasetService.getMapping(this.active.database.name, this.active.table.name, key);
     };
+
+    handleChangeAggregation() {
+        this.active.aggregationFieldHidden = (this.active.aggregation === 'count');
+        this.executeQueryChain();
+    }
 
     handleFiltersChangedEvent() {
         console.log("filters changed");
@@ -505,8 +533,8 @@ export class BarChartComponent implements OnInit,
                 let value = filter.filter.whereClause.rhs;
                 this.addLocalFilter(key, value, key);
             }
-        }else{
-          this.filters=[];
+        } else {
+            this.filters = [];
         }
         this.executeQueryChain();
     };
@@ -528,7 +556,15 @@ export class BarChartComponent implements OnInit,
         this.logChangeAndStartQueryChain(); // ('table', this.active.table.name);
     };
 
+    handleChangeLimit() {
+        this.logChangeAndStartQueryChain();
+    }
+
     handleChangeDataField() {
+        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+    };
+
+    handleChangeAggregationField() {
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
     };
 
@@ -552,6 +588,7 @@ export class BarChartComponent implements OnInit,
         //console.log("TODO - see getButtonText()")
     };
 
+    //Get filters and format for each call in HTML
     getCloseableFilters() {
         let closeableFilters = this.filters.map((filter) => {
             return filter.value;

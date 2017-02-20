@@ -49,6 +49,9 @@ import { TextCloudComponent } from './components/text-cloud/text-cloud.component
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 
+import { BarChartComponent } from './components/bar-chart/bar-chart.component';
+import { ChartModule } from 'angular2-chartjs';
+
 export function createAppModule(config: NeonGTDConfig) {
     @NgModule({
         declarations: [
@@ -59,6 +62,7 @@ export function createAppModule(config: NeonGTDConfig) {
             DashboardOptionsComponent,
             AddVisualizationComponent,
             TextCloudComponent,
+            BarChartComponent,
             VisualizationInjectorComponent,
             FilterTrayComponent
         ],
@@ -68,7 +72,8 @@ export function createAppModule(config: NeonGTDConfig) {
             FormsModule,
             HttpModule,
             MaterialModule.forRoot(),
-            NgGridModule
+            NgGridModule,
+            ChartModule
         ],
         providers: [
             ActiveGridService,

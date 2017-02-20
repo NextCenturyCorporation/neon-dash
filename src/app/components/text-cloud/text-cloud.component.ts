@@ -98,9 +98,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
         this.initializing = true;
 
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.runDefaultQueryAndUpdate.bind(this));
-        this.messenger.events({
-            filtersChanged: this.handleFiltersChangedEvent
-        });
+        this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
 
         this.exportId = this.exportService.register(this.getExportData);
         // this.themesService.registerListener(this.visualizationId, this.handleThemeChangedEvent);
@@ -117,7 +115,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
                     this.errorMessage = undefined;
                 }
                 this.errorMessage = 'Error'; // errorNotificationService.showErrorMessage($scope.element,
-                                            // response.message,  response.reason);
+                // response.message,  response.reason);
             });
         }
 
@@ -240,7 +238,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
         this.active.dataField = this.findFieldObject('dataField', neonMappings.TAGS);
     };
 
-    checkNeonDashboardFilters(options: { databaseName?: string, tableName?: string, queryAndUpdate?: boolean}) {
+    checkNeonDashboardFilters(options: { databaseName?: string, tableName?: string, queryAndUpdate?: boolean }) {
         let neonFilters = [];
         let neonFilterFields = [];
         let me = this;
@@ -331,7 +329,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
         return this.filters.length > 0;
     };
 
-    removeFilterValues () {
+    removeFilterValues() {
         this.filters = [];
         // this.removeLinks(this.active.dataField);
     };
@@ -398,7 +396,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
     };
 
     addFiltersForData(data: any, index: number, createNeonFilterClauseFunction: () => {},
-        queryAfterFilter?: boolean, callback?:  () => {}) {
+        queryAfterFilter?: boolean, callback?: () => {}) {
         let me = this;
         if (!data.length || index >= data.length) {
             data.forEach(function(item) {
@@ -627,7 +625,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
                 // See if the error response contains a Neon notification to show through the Error Notification Service.
                 if (response.responseJSON) {
                     me.errorMessage = 'Error'; // errorNotificationService.showErrorMessage($scope.element,
-                                               // response.responseJSON.error, response.responseJSON.stackTrace);
+                    // response.responseJSON.error, response.responseJSON.stackTrace);
                 }
             }
         });
@@ -687,9 +685,15 @@ export class TextCloudComponent implements OnInit, OnDestroy {
         return this.datasetService.getMapping(this.active.database.name, this.active.table.name, key);
     };
 
-    handleFiltersChangedEvent() {};
+    handleFiltersChangedEvent() {
+      this.checkNeonDashboardFilters({
+          queryAndUpdate: true,
+          databaseName: this.active.database.name,
+          tableName: this.active.table.name
+      });
+    };
 
-    getExportData() {};
+    getExportData() { };
 
     handleChangeDatabase() {
         this.updateTables();
@@ -729,7 +733,7 @@ export class TextCloudComponent implements OnInit, OnDestroy {
         this.logChangeAndUpdate(); // ('unsharedFilterValue', this.active.unsharedFilterValue);
     };
 
-    logChangeAndUpdate() { // (option: string, value: any, type?: string) { 
+    logChangeAndUpdate() { // (option: string, value: any, type?: string) {
         // this.logChange(option, value, type);
         if (!this.initializing) {
             this.checkNeonDashboardFilters({ queryAndUpdate: true });
@@ -883,10 +887,10 @@ export class TextCloudComponent implements OnInit, OnDestroy {
         window.location.assign('/neon/services/exportservice/generateZip/' + queryResults.data);
     };
 
-    exportFail (response: any) {
+    exportFail(response: any) {
         if (response.responseJSON) {
             this.errorMessage = 'Error'; // errorNotificationService.showErrorMessage($element,
-                                        // response.responseJSON.error, response.responseJSON.stackTrace);
+            // response.responseJSON.error, response.responseJSON.stackTrace);
         }
     };
 

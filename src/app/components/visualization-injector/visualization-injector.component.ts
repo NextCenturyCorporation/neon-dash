@@ -1,11 +1,12 @@
 import { Component, Input, ViewContainerRef, ViewChild, ReflectiveInjector, ComponentFactoryResolver } from '@angular/core';
 
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
+import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { NeonGridItem } from '../../neon-grid-item';
 
 @Component({
     selector: 'app-visualization-injector',
-    entryComponents: [TextCloudComponent],
+    entryComponents: [TextCloudComponent, BarChartComponent],
     template: `<div #dynamicComponentContainer></div>`,
 })
 export class VisualizationInjectorComponent {
@@ -54,7 +55,10 @@ export class VisualizationInjectorComponent {
 
     getComponent(type: string): any {
         switch (type) {
+            //case 'scatterPlot': return TextCloudComponent;
             case 'textCloud': return TextCloudComponent;
+            case 'barChart': return BarChartComponent;
+            //case 'barChart' : return TestTextCloudComponent;
             default: return null;
         }
     }
