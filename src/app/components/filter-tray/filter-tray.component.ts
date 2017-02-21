@@ -41,10 +41,14 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
         });
 
         this.messenger.subscribe(ParameterService.STATE_CHANGED_CHANNEL, this.onEventChanged);
+        this.onEventChanged();
     }
 
     removeFilter(filterIds: string[]) {
-        this.filterService.removeFiltersForKeys(filterIds);
+        let onSuccess = () => {
+            this.onEventChanged();
+        }
+        this.filterService.removeFiltersForKeys(filterIds, onSuccess.bind(this));
     };
 
     onEventChanged() {
