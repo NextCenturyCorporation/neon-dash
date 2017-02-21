@@ -16,6 +16,7 @@ import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import {ChartModule} from 'angular2-chartjs';
+import * as Chartjs from 'chart.js';
 declare var Chart: any;
 
 @Component({
@@ -68,11 +69,7 @@ export class BarChartComponent implements OnInit,
         aggregation: string
     };
 
-    private chart: {
-        type: string,
-        data: Object,
-        options: Object
-    };
+    private chart: Chartjs.ChartConfiguration;
 
     private chartDefaults: {
         activeColor: string,
@@ -186,8 +183,6 @@ export class BarChartComponent implements OnInit,
         }
         this.initData();
 
-        //TODO initial query
-
         this.initializing = false;
         this.executeQueryChain();
     };
@@ -298,12 +293,6 @@ export class BarChartComponent implements OnInit,
     };
 
     addOrReplaceFiltersToNeon() {
-        //let database = this.active.database.name;
-        //let table = this.active.table.name;
-        //let fields = [this.active.dataField.columnName];
-        //let neonFilters=this.filterService.getFilters(database, table, fields);
-        //console.log(neonFilters);
-        //TODO edit to replace when appropriate
         //This widget will always replace which add already handles, I think...
         this.addNeonFilter();
     }
@@ -488,7 +477,9 @@ export class BarChartComponent implements OnInit,
         this.refreshChartColor();
     };
 
-    //not sure what this does, but not changing it at the moment
+    /**
+    * Get field object from the key into the config options
+    */
     findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
         let me = this;
         let find = function(name) {
@@ -519,8 +510,6 @@ export class BarChartComponent implements OnInit,
     }
 
     handleFiltersChangedEvent() {
-        console.log("filters changed");
-        //TODO
         //Get neon filters
         //See if any neon filters are local filters and set/clear appropriately
         let database = this.active.database.name;
@@ -581,7 +570,7 @@ export class BarChartComponent implements OnInit,
     };
 
     getButtonText() {
-        //TODO figure out what this does.  It gets called a lot
+        //TODO Fix this.  It gets called a lot
         //return !this.isFilterSet() && !this.active.data.length
         //    ? 'No Data'
         //    : 'Top ' + this.active.data.length;
