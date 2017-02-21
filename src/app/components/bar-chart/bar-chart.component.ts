@@ -157,10 +157,23 @@ export class BarChartComponent implements OnInit,
                     onHover: null
 
                 },
-                legend: Chart.defaults.global.legend
+                legend: Chart.defaults.global.legend,
+                tooltips: Chart.defaults.global.tooltips
             }
         };
         this.chart.options['legend'].display = false;
+
+        let tooltipTitleFunc = (tooltips) => {
+            let title = this.active.dataField.prettyName + ": " + tooltips[0].xLabel;
+            return title;
+        };
+        let tooltipDataFunc = (tooltips) => {
+            let data = this.active.aggregation + ": " + tooltips.yLabel
+            return data;
+        };
+        this.chart.options.tooltips.callbacks.title = tooltipTitleFunc.bind(this);
+        this.chart.options.tooltips.callbacks.label = tooltipDataFunc.bind(this);
+
     };
     ngOnInit() {
         this.initializing = true;
