@@ -5,7 +5,9 @@ import { Injector } from '@angular/core';
 
 import { MaterialModule } from '@angular/material';
 
-import { TextCloudComponent } from './text-cloud.component';
+import {} from 'jasmine';
+
+import { BarChartComponent } from './bar-chart.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -17,13 +19,13 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 
 describe('Component: TextCloud', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
-  let component: TextCloudComponent;
-  let fixture: ComponentFixture<TextCloudComponent>;
+  let component: BarChartComponent;
+  let fixture: ComponentFixture<BarChartComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [
-        TextCloudComponent
+        BarChartComponent
       ],
       providers: [
         ConnectionService,
@@ -42,7 +44,7 @@ describe('Component: TextCloud', () => {
         FormsModule
       ]
     });
-    fixture = TestBed.createComponent(TextCloudComponent);
+    fixture = TestBed.createComponent(BarChartComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

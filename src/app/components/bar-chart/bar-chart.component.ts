@@ -16,7 +16,7 @@ import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import {ChartModule} from 'angular2-chartjs';
-import * as Chartjs from 'chart.js';
+//import * as Chartjs from '@types/chart.js';
 declare var Chart: any;
 
 @Component({
@@ -69,7 +69,8 @@ export class BarChartComponent implements OnInit,
         aggregation: string
     };
 
-    private chart: Chartjs.ChartConfiguration;
+    //private chart: Chartjs.ChartConfiguration;
+    private chart: any;
 
     private chartDefaults: {
         activeColor: string,
