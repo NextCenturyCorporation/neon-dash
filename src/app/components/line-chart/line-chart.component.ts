@@ -75,7 +75,11 @@ export class LineChartComponent implements OnInit,
     };
 
     // private chart: Chartjs.ChartConfiguration;
-    private chart: any;
+    private chart: {
+        data: Object,
+        type: string,
+        options: Object
+    };
 
     private chartDefaults: {
         activeColor: string,
@@ -178,8 +182,8 @@ export class LineChartComponent implements OnInit,
             let data = this.active.aggregation + ': ' + tooltips.yLabel;
             return data;
         };
-        this.chart.options.tooltips.callbacks.title = tooltipTitleFunc.bind(this);
-        this.chart.options.tooltips.callbacks.label = tooltipDataFunc.bind(this);
+        this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
+        this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
 
     };
     ngOnInit() {
