@@ -16,7 +16,7 @@ import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import {ChartModule} from 'angular2-chartjs';
-//import * as Chartjs from '@types/chart.js';
+// import * as Chartjs from '@types/chart.js';
 declare var Chart: any;
 
 @Component({
@@ -27,7 +27,7 @@ declare var Chart: any;
 })
 export class BarChartComponent implements OnInit,
     OnDestroy {
-    @ViewChild("myChart") chartModule: ChartModule;
+    @ViewChild('myChart') chartModule: ChartModule;
     private queryTitle: string;
     private messenger: neon.eventing.Messenger;
     private outstandingDataQuery: Object;
@@ -35,10 +35,10 @@ export class BarChartComponent implements OnInit,
         key: string,
         value: string,
         prettyKey: string
-    }[]
-    //private errorMessage: string;
+    }[];
+    // private errorMessage: string;
     private initializing: boolean;
-    //private exportId: number;
+    // private exportId: number;
 
     private optionsFromConfig: {
         title: string,
@@ -69,7 +69,7 @@ export class BarChartComponent implements OnInit,
         aggregation: string
     };
 
-    //private chart: Chartjs.ChartConfiguration;
+    // private chart: Chartjs.ChartConfiguration;
     private chart: any;
 
     private chartDefaults: {
@@ -115,18 +115,18 @@ export class BarChartComponent implements OnInit,
             unsharedFilterValue: '',
             fields: [],
             data: [],
-            aggregation: "count"
+            aggregation: 'count'
         };
 
         this.chartDefaults = {
             activeColor: 'rgba(57, 181, 74, 0.9)',
             inactiveColor: 'rgba(57, 181, 74, 0.3)'
-        }
+        };
 
         this.onClick = (event, elements: any[]) => {
             console.log(event);
             for (let el of elements) {
-                let value = el._model.label
+                let value = el._model.label;
                 let key = this.active.dataField.columnName;
                 let prettyKey = this.active.dataField.prettyName;
                 this.addLocalFilter(key, value, prettyKey);
@@ -134,7 +134,7 @@ export class BarChartComponent implements OnInit,
                 this.refreshChartColor();
             }
 
-        }
+        };
 
         this.onClick = this.onClick.bind(this);
         this.chart = {
@@ -143,7 +143,7 @@ export class BarChartComponent implements OnInit,
                 labels: [],
                 datasets: [
                     {
-                        label: "dataset",
+                        label: 'dataset',
                         data: []
                     }
                 ]
@@ -151,10 +151,10 @@ export class BarChartComponent implements OnInit,
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                events: ["mousemove", "mouseout", "click", "touchstart", "touchmove", "touchend"],
+                events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
                 onClick: this.onClick,
                 hover: {
-                    mode: "point",
+                    mode: 'point',
                     onHover: null
 
                 },
@@ -165,23 +165,24 @@ export class BarChartComponent implements OnInit,
         this.chart.options['legend'].display = false;
 
         let tooltipTitleFunc = (tooltips) => {
-            let title = this.active.dataField.prettyName + ": " + tooltips[0].xLabel;
+            let title = this.active.dataField.prettyName + ': ' + tooltips[0].xLabel;
             return title;
         };
         let tooltipDataFunc = (tooltips) => {
-            let data = this.active.aggregation + ": " + tooltips.yLabel
+            let data = this.active.aggregation + ': ' + tooltips.yLabel;
             return data;
         };
         this.chart.options.tooltips.callbacks.title = tooltipTitleFunc.bind(this);
         this.chart.options.tooltips.callbacks.label = tooltipDataFunc.bind(this);
 
     };
+
     ngOnInit() {
         this.initializing = true;
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
 
-        //this.exportId = this.exportService.register(this.getExportData);
+        // this.exportId = this.exportService.register(this.getExportData);
         // TODO: Resize??
         /*
             $scope.element.resize(resize);
@@ -190,7 +191,7 @@ export class BarChartComponent implements OnInit,
             resize();
         */
 
-        //prefill outstanding data query object so it has all databases
+        // prefill outstanding data query object so it has all databases
         this.outstandingDataQuery = {};
         for (let database of this.datasetService.getDatabases()) {
             this.outstandingDataQuery[database.name] = {};
@@ -290,8 +291,8 @@ export class BarChartComponent implements OnInit,
             key: key,
             value: value,
             prettyKey: prettyKey
-        }
-    }
+        };
+    };
 
     createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
         let filterClauses = this.filters.map(function(filter) {
@@ -307,7 +308,7 @@ export class BarChartComponent implements OnInit,
     };
 
     addOrReplaceFiltersToNeon() {
-        //This widget will always replace which add already handles, I think...
+        // This widget will always replace which add already handles, I think...
         this.addNeonFilter();
     }
 
@@ -323,10 +324,10 @@ export class BarChartComponent implements OnInit,
             }
             ,
             () => {
-                console.log("filter set successfully");
+                console.log('filter set successfully');
             },
             () => {
-                console.log("filter failed to set");
+                console.log('filter failed to set');
             });
     }
 
@@ -336,7 +337,7 @@ export class BarChartComponent implements OnInit,
             let activeValue = this.filters[0].value;
 
             for (let i = 0; i < this.chart.data['datasets'][dsIndex].backgroundColor.length; i++) {
-                if (this.chart.data['labels'][i] == activeValue) {
+                if (this.chart.data['labels'][i] === activeValue) {
                     this.chart.data['datasets'][dsIndex].backgroundColor[i] = this.chartDefaults.activeColor;
                 } else {
                     this.chart.data['datasets'][dsIndex].backgroundColor[i] = this.chartDefaults.inactiveColor;
@@ -382,7 +383,7 @@ export class BarChartComponent implements OnInit,
         let database = this.active.database.name;
         let table = this.active.table.name;
         let fields = [this.active.dataField.columnName];
-        //get relevant neon filters and check for filters that should be ignored and add that to query
+        // get relevant neon filters and check for filters that should be ignored and add that to query
         let neonFilters = this.filterService.getFilters(database, table, fields);
         console.log(neonFilters);
         if (neonFilters.length > 0) {
@@ -438,8 +439,8 @@ export class BarChartComponent implements OnInit,
         // Visualizations that do not execute data queries will not return a query
         // object.
         if (!this.outstandingDataQuery[database][table]) {
-            //TODO do something
-            console.log("execute query did not return an object");
+            // TODO do something
+            console.log('execute query did not return an object');
         }
 
         this.outstandingDataQuery[database][table].always(function() {
@@ -451,9 +452,9 @@ export class BarChartComponent implements OnInit,
         this.outstandingDataQuery[database][table].fail(function(response) {
             console.error(response);
             if (response.status === 0) {
-                //TODO handle error
+                // TODO handle error
             } else {
-                //TODO handle error
+                // TODO handle error
             }
         });
     };
@@ -461,13 +462,13 @@ export class BarChartComponent implements OnInit,
     onQuerySuccess = (response) => {
         console.log(response);
         let colName = this.active.dataField.columnName;
-        //let prettyColName = this.active.dataField.prettyName;
+        // let prettyColName = this.active.dataField.prettyName;
         let d = {
             datasets: [],
             labels: []
         };
         let labels = [];
-        let values = []
+        let values = [];
         for (let row of response.data) {
             if (row[colName]) {
                 labels.push(row[colName]);
@@ -524,8 +525,8 @@ export class BarChartComponent implements OnInit,
     }
 
     handleFiltersChangedEvent() {
-        //Get neon filters
-        //See if any neon filters are local filters and set/clear appropriately
+        // Get neon filters
+        // See if any neon filters are local filters and set/clear appropriately
         let database = this.active.database.name;
         let table = this.active.table.name;
         let fields = [this.active.dataField.columnName];
@@ -543,7 +544,7 @@ export class BarChartComponent implements OnInit,
     };
 
     onUpdateDataChannelEvent(event) {
-        console.log("update data channel event");
+        console.log('update data channel event');
         console.log(event);
     }
 
@@ -584,14 +585,14 @@ export class BarChartComponent implements OnInit,
     };
 
     getButtonText() {
-        //TODO Fix this.  It gets called a lot
-        //return !this.isFilterSet() && !this.active.data.length
+        // TODO Fix this.  It gets called a lot
+        // return !this.isFilterSet() && !this.active.data.length
         //    ? 'No Data'
         //    : 'Top ' + this.active.data.length;
-        //console.log("TODO - see getButtonText()")
+        // console.log('TODO - see getButtonText()')
     };
 
-    //Get filters and format for each call in HTML
+    // Get filters and format for each call in HTML
     getCloseableFilters() {
         let closeableFilters = this.filters.map((filter) => {
             return filter.value;
@@ -612,7 +613,7 @@ export class BarChartComponent implements OnInit,
     };
 
     removeLocalFilterFromLocalAndNeon(value: string) {
-        //If we are removing a filter, assume its both local and neon so it should be removed in both
+        // If we are removing a filter, assume its both local and neon so it should be removed in both
         let me = this;
         let database = this.active.database.name;
         let table = this.active.table.name;
@@ -621,10 +622,10 @@ export class BarChartComponent implements OnInit,
             () => {
                 me.filters = [];
                 me.refreshChartColor();
-                console.log("remove filter" + value);
+                console.log('remove filter' + value);
             },
             () => {
-                console.error("error removing filter");
+                console.error('error removing filter');
             }, this.messenger);
 
     };
