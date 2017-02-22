@@ -27,6 +27,8 @@ import { DashboardOptionsComponent } from './components/dashboard-options/dashbo
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
+import { BarChartComponent } from './components/bar-chart/bar-chart.component';
+import { LineChartComponent } from './components/line-chart/line-chart.component';
 
 import { NeonGTDConfig } from './neon-gtd-config';
 
@@ -60,7 +62,9 @@ describe('App: NeonGtd', () => {
         DatasetSelectorComponent,
         VisualizationContainerComponent,
         VisualizationInjectorComponent,
-        TextCloudComponent
+        TextCloudComponent,
+        BarChartComponent,
+        LineChartComponent
       ],
       imports: [
         FormsModule,

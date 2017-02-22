@@ -2,11 +2,12 @@ import { Component, Input, ViewContainerRef, ViewChild, ReflectiveInjector, Comp
 
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
+import { LineChartComponent } from '../line-chart/line-chart.component';
 import { NeonGridItem } from '../../neon-grid-item';
 
 @Component({
     selector: 'app-visualization-injector',
-    entryComponents: [TextCloudComponent, BarChartComponent],
+    entryComponents: [TextCloudComponent, BarChartComponent, LineChartComponent],
     template: `<div #dynamicComponentContainer></div>`,
 })
 export class VisualizationInjectorComponent {
@@ -58,6 +59,7 @@ export class VisualizationInjectorComponent {
             //case 'scatterPlot': return TextCloudComponent;
             case 'textCloud': return TextCloudComponent;
             case 'barChart': return BarChartComponent;
+            case 'lineChart': return LineChartComponent;
             //case 'barChart' : return TestTextCloudComponent;
             default: return null;
         }

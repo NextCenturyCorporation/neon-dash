@@ -6,6 +6,8 @@ import { MaterialModule } from '@angular/material';
 
 import { VisualizationInjectorComponent } from './visualization-injector.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
+import { BarChartComponent } from '../bar-chart/bar-chart.component';
+import { LineChartComponent } from '../line-chart/line-chart.component';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -13,7 +15,9 @@ describe('Component: VisualizationInjector', () => {
         TestBed.configureTestingModule({
             declarations: [
                 VisualizationInjectorComponent,
-                TextCloudComponent
+                TextCloudComponent,
+                BarChartComponent,
+                LineChartComponent
             ],
             providers: [ ComponentFactoryResolver ],
             imports: [

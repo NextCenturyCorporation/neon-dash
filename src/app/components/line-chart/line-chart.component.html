@@ -1,0 +1,142 @@
+<md-sidenav-layout class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <md-toolbar color="primary" layout-align="space-between center" flex>
+        <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }} Test</div>
+        <span class="fill-remaining"></span>
+        <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
+        <button md-icon-button aria-label="Settings" md-tooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+            <md-icon class="md-24">settings</md-icon>
+        </button>
+    </md-toolbar>
+
+    <md-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+        <md-card align="left">
+            <md-card-content>
+                <label style="display: inline;">
+                    <md-icon class="error-icon">error</md-icon>
+                    {{ getButtonText() }}
+                </label>
+                <p></p>
+
+                <md-select placeholder="Database" [(ngModel)]="active.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="active.databases.length < 2">
+                    <md-option *ngFor="let database of active.databases" [value]="database">{{ database.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Table" [(ngModel)]="active.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="active.tables.length < 2">
+                    <md-option *ngFor="let table of active.tables" [value]="table">{{ table.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true" (ngModelChange)="handleChangeDateField()" [disabled]="active.fields.length == 0">
+                    <md-option *ngFor="let field of active.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true" (ngModelChange)="handleChangeGroupField()" [disabled]="active.fields.length == 0">
+                    <md-option *ngFor="let field of active.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true" (ngModelChange)="handleChangeAggregation()" [disabled]="active.fields.length == 0">
+                    <md-option value="count">Count</md-option>
+                    <md-option value="sum">Sum</md-option>
+                    <md-option value="average">Average</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select *ngIf="!active.aggregationFieldHidden" placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField" required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="active.fields.length == 0">
+                    <md-option *ngFor="let field of active.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+                <!--
+                <table cellspacing="0">
+                    <tr>
+                        <td>
+                            <md-input placeholder="Text Limit" [(ngModel)]="active.limit" required="true"></md-input>
+                        </td>
+                        <td>
+                            <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                                <md-icon class="md-24">refresh</md-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <p></p>-->
+
+                <!--<table cellspacing="0">
+                    <tr>
+                        <td>
+                            <md-input placeholder="Text Limit" [(ngModel)]="active.limit" required="true"></md-input>
+                        </td>
+                        <td>
+                            <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                                <md-icon class="md-24">refresh</md-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <p></p>-->
+
+                <!--<md-toolbar class="md-primary">
+                    <span>Show Records With</span>
+                </md-toolbar>
+                <md-button-toggle-group name="filters" [(ngModel)]="active.andFilters" (change)="handleChangeAndFilters()">
+                    <md-button-toggle [value]="true">All Filters</md-button-toggle>
+                    <md-button-toggle [value]="false">Any Filters</md-button-toggle>
+                </md-button-toggle-group>
+                <p></p>
+                -->
+
+                <!--
+                <md-toolbar class="md-primary">
+                    <span>Unshared Filter</span>
+                </md-toolbar>
+                <md-select placeholder="Filter Field" [(ngModel)]="active.unsharedFilterField" required="false" [disabled]="active.fields.length === 0" (ngModelChange)="handleChangeUnsharedFilterField()">
+                    <md-option *ngFor="let field of active.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+                <table cellspacing="0">
+                    <tr>
+                        <td>
+                            <md-input [placeholder]="'Filter for ' + active.unsharedFilterField.prettyName + '...'" [(ngModel)]="active.unsharedFilterValue" [disabled]="!(active.unsharedFilterField.columnName)"></md-input>
+                        </td>
+                        <td>
+                            <button md-icon-button md-tooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()" [disabled]="(active.unsharedFilterField.columnName == undefined || active.unsharedFilterValue == '')">
+                                <md-icon class="md-16">clear</md-icon>
+                            </button>
+                        </td>
+                        <td>
+                            <button md-icon-button md-tooltip="Set Unshared Filter" tooltip-position="below" (click)="handleChangeUnsharedFilterValue()">
+                                <md-icon class="md-16">refresh</md-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <p></p>
+              -->
+
+                <!--
+                <button md-raised-button color="primary" class="export" (click)="requestExport()">
+                    Export to File
+                </button>
+              -->
+            </md-card-content>
+        </md-card>
+    </md-sidenav>
+
+    <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
+        <span class="filter-label" [title]="getFilterTitle(value)">{{ getFilterCloseText(value) }}</span>
+        <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveFilterTooltip(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value)">
+            <md-icon class="md-18">close</md-icon>
+        </button>
+    </div>
+    <chart #myChart [type]="chart.type" [data]="chart.data" [options]="chart.options"></chart>
+    <!--<div class="text-cloud" md-fill layout="col">
+        <a (click)="addFilter(item.key, item.keyTranslated)" class="text" *ngFor="let item of active.data" [rel]="item.count"
+            [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
+                <div>
+                    {{ item.key }}
+                </div>
+            </a>
+    </div>-->
+</md-sidenav-layout>
