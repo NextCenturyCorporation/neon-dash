@@ -10,6 +10,7 @@ import { ActiveGridService } from '../../services/active-grid.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { MaterialModule } from '@angular/material';
+import { ChartModule } from 'angular2-chartjs';
 import { FormsModule } from '@angular/forms';
 
 describe('Component: VisualizationContainer', () => {
@@ -33,7 +34,8 @@ describe('Component: VisualizationContainer', () => {
             imports: [
                 MaterialModule,
                 MaterialModule.forRoot(),
-                FormsModule
+                FormsModule,
+                ChartModule
             ]
         });
         fixture = TestBed.createComponent(VisualizationContainerComponent);

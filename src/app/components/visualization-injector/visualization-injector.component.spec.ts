@@ -3,6 +3,7 @@ import { TestBed, inject } from '@angular/core/testing';
 import { ComponentFactoryResolver } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '@angular/material';
+import { ChartModule } from 'angular2-chartjs';
 
 import { VisualizationInjectorComponent } from './visualization-injector.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
@@ -23,7 +24,8 @@ describe('Component: VisualizationInjector', () => {
             imports: [
                 MaterialModule,
                 MaterialModule.forRoot(),
-                FormsModule
+                FormsModule,
+                ChartModule
             ]
         });
     });

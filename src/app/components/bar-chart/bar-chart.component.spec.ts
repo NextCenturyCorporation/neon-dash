@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
 import { MaterialModule } from '@angular/material';
+import { ChartModule } from 'angular2-chartjs';
 
 import {} from 'jasmine';
 
@@ -17,7 +18,7 @@ import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-describe('Component: TextCloud', () => {
+describe('Component: BarChart', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
   let component: BarChartComponent;
   let fixture: ComponentFixture<BarChartComponent>;
@@ -41,7 +42,8 @@ describe('Component: TextCloud', () => {
       imports: [
         MaterialModule,
         MaterialModule.forRoot(),
-        FormsModule
+        FormsModule,
+        ChartModule
       ]
     });
     fixture = TestBed.createComponent(BarChartComponent);

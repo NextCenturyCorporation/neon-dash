@@ -46,6 +46,7 @@ import { VisualizationService } from './services/visualization.service';
 import { NgGridModule } from 'angular2-grid';
 
 import { MaterialModule } from '@angular/material';
+import { ChartModule } from 'angular2-chartjs';
 
 describe('App: NeonGtd', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -70,7 +71,8 @@ describe('App: NeonGtd', () => {
         FormsModule,
         MaterialModule,
         MaterialModule.forRoot(),
-        NgGridModule
+        NgGridModule,
+        ChartModule
       ],
       providers: [
         { provide: 'config', useValue: testConfig },
