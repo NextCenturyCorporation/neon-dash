@@ -70,7 +70,7 @@ export class BarChartComponent implements OnInit,
         aggregation: string
     };
 
-    //private chart: Chartjs.ChartConfiguration;
+    // private chart: Chartjs.ChartConfiguration;
     private chart: {
         data: Object,
         type: string,
@@ -383,9 +383,9 @@ export class BarChartComponent implements OnInit,
     from another visualization
      */
     executeQueryChain() {
-        let isValidQuery = this.isValidQuery()
-        if (!isValidQuery){
-          return;
+        let isValidQuery = this.isValidQuery();
+        if (!isValidQuery) {
+            return;
         }
         this.queryTitle = this.createTitle(true);
         let query = this.createQuery();
@@ -406,14 +406,14 @@ export class BarChartComponent implements OnInit,
         this.executeQuery(query);
     }
 
-    isValidQuery(){
-      let valid=true;
-      valid = (this.active.database && valid);
-      valid = (this.active.table && valid);
-      valid = (this.active.dataField && valid);
-      valid = (this.active.aggregationField && valid);
-      //valid = (this.active.aggregation && valid);
-      return valid;
+    isValidQuery() {
+        let valid = true;
+        valid = (this.active.database && valid);
+        valid = (this.active.table && valid);
+        valid = (this.active.dataField && valid);
+        valid = (this.active.aggregationField && valid);
+        // valid = (this.active.aggregation && valid);
+        return valid;
     }
 
     createQuery(): neon.query.Query {

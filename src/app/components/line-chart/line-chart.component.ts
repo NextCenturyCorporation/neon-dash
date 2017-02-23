@@ -388,7 +388,7 @@ export class LineChartComponent implements OnInit,
     from another visualization
      */
     executeQueryChain() {
-        let isValidQuery = this.isValidQuery()
+        let isValidQuery = this.isValidQuery();
         if (!isValidQuery) {
             return;
         }
@@ -411,14 +411,14 @@ export class LineChartComponent implements OnInit,
         this.executeQuery(query);
     }
 
-    isValidQuery(){
-      let valid=true;
-      valid = (this.active.database && valid);
-      valid = (this.active.table && valid);
-      valid = (this.active.dateField && valid);
-      valid = (this.active.aggregationField && valid);
-      valid = (this.active.aggregation && valid);
-      return valid;
+    isValidQuery() {
+        let valid = true;
+        valid = (this.active.database && valid);
+        valid = (this.active.table && valid);
+        valid = (this.active.dateField && valid);
+        valid = (this.active.aggregationField && valid);
+        valid = (this.active.aggregation && valid);
+        return valid;
     }
 
     createQuery(): neon.query.Query {
