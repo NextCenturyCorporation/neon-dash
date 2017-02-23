@@ -1339,7 +1339,7 @@ function($scope, external, externalRouteService, customFilters, connectionServic
     var runDefaultQueryAndUpdate = function(databaseName, tableName) {
         // Save the title during the query so the title doesn't change immediately if the user changes the unshared filter.
         $scope.queryTitle = $scope.createTitle(true);
-
+        $scope.visualizationTitle();
         // Resize the title and display after the error is hidden and the title is changed.
         resize();
 
@@ -1635,7 +1635,7 @@ function($scope, external, externalRouteService, customFilters, connectionServic
      */
     var getBindings = function() {
         var bindings = {
-            title: $scope.createTitle()
+            title: $scope.visualizationTitle()
         };
 
         return $scope.functions.addToBindings($scope.addLayerConfigToBindings(bindings));
@@ -1787,6 +1787,19 @@ function($scope, external, externalRouteService, customFilters, connectionServic
         }
         return $scope.bindings.title || $scope.name;
     };
+
+    $scope.visualizationTitle = function(newTitle) {
+        if(newTitle) {
+            $scope.queryTitle = newTitle;
+            $scope.bindings.title = newTitle;
+        }
+        else {
+            if($scope.queryTitle) {
+                return $scope.queryTitle;
+            }
+            return $scope.bindings.title || $scope.name;
+        }
+    }
 
     /**
      * Creates and returns the object containing the export data for this visualization.

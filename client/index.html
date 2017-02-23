@@ -126,14 +126,14 @@
                     </div>
 
                     <!-- Name of currently-loaded state if one is loaded -->
-                    <div><span class="navbar-text pull-right" ng-bind="loadedStateName"></span></div>
+                    <!-- <div><span class="navbar-text pull-right" ng-bind="loadedStateName"></span></div> -->
 
                     <!-- Import and Remove Dataset Popups -->
                     <div import-file gridster-configs="visualizations" ng-show="showImport"></div>
                     <div remove-dataset gridster-configs="visualizations" ng-show="showImport"></div>
 
                     <!-- Save and Load States Popups -->
-                    <div saved-states gridster-configs="visualizations" loaded-state-name="loadedStateName" name-update-function="updateStateName"></div>
+                    <div saved-states gridster-configs="visualizations" loaded-state-name="loadedStateName"></div>
 
                     <div class="clearfix visible-xs"></div>
 
@@ -247,6 +247,7 @@
         <script src="app/translation.service.js"></script>
         <script src="app/visualization.service.js"></script>
         <script src="app/main/main.controller.js"></script>
+        <script src="app/contentEditable.directive.js"></script>
         
         <script src="components/addVisualization/addVisualization.directive.js"></script>
         <script src="components/aggregationTable/aggregationTable.controller.js"></script>
