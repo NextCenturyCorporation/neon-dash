@@ -17,6 +17,7 @@ import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import {DateBucketizer} from './DateBucketizer';
 import {ChartModule} from 'angular2-chartjs';
 // import * as Chartjs from 'chart.js';
 declare var Chart: any;
@@ -142,7 +143,7 @@ export class LineChartComponent implements OnInit,
                 let prettyKey = this.active.dateField.prettyName;
                 this.addLocalFilter(key, value, prettyKey);
                 this.addOrReplaceFiltersToNeon();
-                this.refreshChartColor();
+                this.refreshChart();
             }
         };
 
@@ -341,7 +342,7 @@ export class LineChartComponent implements OnInit,
             });
     }
 
-    refreshChartColor() {
+    refreshChart() {
         /*let dsIndex = 0;
         if (this.filters[0] && this.filters[0].value) {
             let activeValue = this.filters[0].value;
@@ -498,30 +499,43 @@ export class LineChartComponent implements OnInit,
 
     onQuerySuccess = (response) => {
         console.log(response);
-        let colName = this.active.dateField.columnName;
+        let dataSetField = this.active.groupField.columnName;
         // let prettyColName = this.active.dateField.prettyName;
         let myData = {};
+        let startDate = response.data[0].date;
+        let endDate = response.data[response.data.length - 1].date;
+        let bucketizer = new DateBucketizer();
+        bucketizer.setStartDate(new Date(startDate));
+        bucketizer.setEndDate(new Date(endDate));
+        let length = bucketizer.getNumBuckets();
 
         for (let row of response.data) {
-            if (row[colName]) {
-                myData[''] = null;
+            if (row[dataSetField]) {
+                let dataSet = row[dataSetField];
+                let idx = bucketizer.getBucketIndex(new Date(row.date));
+                let ds = myData[dataSet];
+                if (!ds) {
+                    myData[dataSet] = new Array(length).fill(0);
+                }
+                myData[dataSet][idx] = row.value;
             }
         }
-        let dataset = {
-            label: this.queryTitle,
-            data: null,
-            backgroundColor: []
-        };
-
-        for (let i = 0; i < dataset.data.length; i++) {
-            dataset.backgroundColor[i] = this.chartDefaults.activeColor;
+        let datasets = []; // TODO type to chartjs
+        for (let datasetName in myData) {
+            if (myData.hasOwnProperty(datasetName)) {
+                let d = {
+                    label: datasetName,
+                    data: myData[datasetName]
+                };
+                datasets.push(d);
+            }
         }
-        let d: any = null;
-        d.datasets = [];
-        d.datasets.push(dataset);
-        d.labels = null;
-        this.chart.data = d;
-        this.refreshChartColor();
+        let labels = new Array(length).fill('1');
+        this.chart.data = {
+            labels: labels,
+            datasets: datasets
+        };
+        this.refreshChart();
     };
 
     /**
@@ -657,7 +671,7 @@ export class LineChartComponent implements OnInit,
         this.filterService.removeFilter(database, table, fields,
             () => {
                 me.filters = [];
-                me.refreshChartColor();
+                me.refreshChart();
                 console.log('remove filter' + value);
             },
             () => {
