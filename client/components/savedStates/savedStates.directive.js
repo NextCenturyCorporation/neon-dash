@@ -28,7 +28,7 @@ angular.module('neonDemo.directives')
     return {
         templateUrl: 'components/savedStates/savedStates.html',
         restrict: 'EA',
-        /*scope: {
+/*        scope: {
             nameUpdateFunction: "="
         },*/
         link: function($scope) {
@@ -69,7 +69,6 @@ angular.module('neonDemo.directives')
                     });
 
                     stateParams.dataset = datasetService.getDataset();
-
                     connection.saveState(stateParams, handleSaveStateSuccess, handleStateFailure);
                 }
             };
@@ -108,7 +107,7 @@ angular.module('neonDemo.directives')
                             $location.search("filter_state_id", dashboardState.filterStateId);
 
                             parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
-//                            $scope.nameUpdateFunction(params.stateName);
+                            $scope.loadedStateName = params.stateName; // $scope.loadedStateName inherited from main.controller.js 
                         } else {
                             errorNotificationService.showErrorMessage(null, "State " + $scope.stateName + " not found.");
                         }
@@ -156,6 +155,7 @@ angular.module('neonDemo.directives')
                     $scope.dashboardStateId = response.dashboardStateId;
                     $scope.filterStateId = response.filterStateId;
 
+                    $scope.loadedStateName = $scope.stateName;
                     // Add/Replace state ids in the url parameters
                     $location.search("dashboard_state_id", response.dashboardStateId);
                     $location.search("filter_state_id", response.filterStateId);

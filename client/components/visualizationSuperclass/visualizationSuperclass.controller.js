@@ -1339,7 +1339,6 @@ function($scope, external, externalRouteService, customFilters, connectionServic
     var runDefaultQueryAndUpdate = function(databaseName, tableName) {
         // Save the title during the query so the title doesn't change immediately if the user changes the unshared filter.
         $scope.queryTitle = $scope.createTitle(true);
-        $scope.visualizationTitle();
         // Resize the title and display after the error is hidden and the title is changed.
         resize();
 
