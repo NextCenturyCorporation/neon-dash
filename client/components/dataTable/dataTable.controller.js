@@ -338,6 +338,22 @@ angular.module('neonDemo.controllers').controller('dataTableController', ['$scop
         $scope.active.gridOptions.api.setSortModel([sort]);
     };
 
+    $scope.handleShowAll = function() {
+        $scope.active.gridOptions.columnApi.getAllColumns().forEach(function(column) {
+            if(column.visible === false) {
+                $scope.active.gridOptions.columnApi.setColumnVisible(column, true);
+            }
+        });
+    };
+
+    $scope.handleHideAll = function() {
+        $scope.active.gridOptions.columnApi.getAllColumns().forEach(function(column) {
+            if(column.visible === true) {
+                $scope.active.gridOptions.columnApi.setColumnVisible(column, false);
+            }
+        });
+    };
+
     $scope.handleChangeSortField = function() {
         updateSort();
         $scope.functions.logChangeAndUpdate("sortField", $scope.active.sortByField.columnName);
