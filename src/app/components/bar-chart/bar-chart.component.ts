@@ -509,7 +509,7 @@ export class BarChartComponent implements OnInit,
         d.labels = labels;
         this.chart.data = d;
         this.refreshChartColor();
-    };
+    }
 
     /**
     * Get field object from the key into the config options

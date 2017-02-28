@@ -536,7 +536,7 @@ export class LineChartComponent implements OnInit,
             datasets: datasets
         };
         this.refreshChart();
-    };
+    }
 
     /**
     * Get field object from the key into the config options
