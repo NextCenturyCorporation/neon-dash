@@ -28,6 +28,8 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
     $scope.active.MONTH = "month";
     $scope.active.DAY = "day";
     $scope.active.HOUR = "hour";
+    $scope.active.LINEAR_SCALE = "linear";
+    $scope.active.LOG_SCALE = "logarithmic";
 
     var DAY_HOUR_BUCKETIZER = dateBucketizer();
     var MONTH_BUCKETIZER = monthBucketizer();
@@ -58,6 +60,7 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
     $scope.active.numberValid = 0;
     $scope.active.primarySeries = undefined;
     $scope.active.showFocus = "on_filter";
+    $scope.active.yAxisScale = $scope.active.LINEAR_SCALE;
 
     // Animation controls.
     $scope.active.animatingTime = false;
@@ -433,6 +436,8 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
             updateBucketizer();
         }
 
+        $scope.active.yAxisScale = $scope.bindings.yAxisScale === $scope.active.LOG_SCALE ? $scope.active.LOG_SCALE : $scope.active.LINEAR_SCALE;
+
         $scope.functions.getElement(".neon-datetimepicker").on("hide.bs.dropdown", function() {
             return false;
         });
@@ -533,6 +538,22 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
         // Resize the dropdown toggle to an arbitrary small value to stop the date filter notification from wrapping in small timeline
         // visualizations.  It will be automatically resized based on the visualization width after a short delay.
         $scope.functions.getElement(".neon-datetimepicker .dropdown-toggle").css("max-width", "40px");
+    };
+
+    $scope.handleChangeYAxisScale = function() {
+        XDATA.userALE.log({
+            activity: "alter",
+            action: "click",
+            elementId: "timeline",
+            elementType: "button",
+            elementSub: "showFocus",
+            elementGroup: "chart_group",
+            source: "user",
+            tags: ["timeline", "yAxisScale", $scope.active.yAxisScale]
+        });
+
+        $scope.chart.setYAxisScaleLogarithmic($scope.active.yAxisScale === $scope.active.LOG_SCALE);
+        $scope.chart.redrawChart();
     };
 
     $scope.handleChangeShowFocus = function() {
@@ -802,6 +823,7 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
                 updateChartTimesAndTotal();
                 addTimeSeriesAnalysis($scope.data[0].data, timelineData);
                 $scope.chart.updateGranularity($scope.active.granularity);
+                $scope.chart.setYAxisScaleLogarithmic($scope.active.yAxisScale === $scope.active.LOG_SCALE);
                 $scope.chart.render($scope.data);
                 $scope.chart.renderExtent($scope.extent);
             };
@@ -827,6 +849,7 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
             $scope.active.showNoDataError = !$scope.data || !$scope.data.length || !$scope.data[0].data || !$scope.data[0].data.length;
             updateChartTimesAndTotal();
             $scope.chart.updateGranularity($scope.active.granularity);
+            $scope.chart.setYAxisScaleLogarithmic($scope.active.yAxisScale === $scope.active.LOG_SCALE);
             $scope.chart.render($scope.data);
             $scope.chart.renderExtent($scope.extent);
         }
@@ -1014,6 +1037,7 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
                 $scope.active.displayEventProbabilities = true;
             });
             $scope.chart.updateGranularity($scope.active.granularity);
+            $scope.chart.setYAxisScaleLogarithmic($scope.active.yAxisScale === $scope.active.LOG_SCALE);
             $scope.chart.render($scope.data);
             $scope.chart.renderExtent($scope.extent);
         }).fail(function() {
@@ -1179,6 +1203,13 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
     };
 
     $scope.functions.createExportDataObject = function(exportId, query) {
+        // Exporting only supports one query, but the timeline has a query for the timeline and a
+        // query for the invalid records. Only export the timeline data
+        if (query && query.queries && query.queries.length >= 1) {
+            var timelineQuery = query.queries[0];
+            delete query.queries;
+            _.assign(query, timelineQuery);
+        }
         var finalObject = {
             name: "Timeline",
             data: [{
@@ -1194,8 +1225,6 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
         // The timelineSelector always asks for count and date, so it's fine to hard-code these in.
         // GroupBy clauses will always be added to the query in the same order, so this takes advantage
         // of that to add the pretty names of the clauses in the same order for as many as were added.
-        // TODO NEON-1973
-        /*
         var counter = 0;
         var prettyNames = ["Year", "Month", "Day", "Hour"];
         query.groupByClauses.forEach(function(field) {
@@ -1205,7 +1234,6 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
             });
             counter++;
         });
-        */
         finalObject.data[0].fields.push({
             query: "count",
             pretty: "Count"
@@ -1216,6 +1244,7 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
     $scope.functions.addToBindings = function(bindings) {
         bindings.dateField = $scope.functions.isFieldValid($scope.active.dateField) ? $scope.active.dateField.columnName : undefined;
         bindings.granularity = $scope.active.granularity || undefined;
+        bindings.yAxisScale = $scope.active.yAxisScale || undefined;
         return bindings;
     };
 
