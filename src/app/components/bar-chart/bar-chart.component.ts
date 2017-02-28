@@ -128,8 +128,9 @@ export class BarChartComponent implements OnInit,
             inactiveColor: 'rgba(57, 181, 74, 0.3)'
         };
 
-        this.onClick = (event, elements: any[]) => {
-            console.log(event);
+        this.onClick = (_event, elements: any[]) => {
+            // console.log(event);
+            //event.toString();
             for (let el of elements) {
                 let value = el._model.label;
                 let key = this.active.dataField.columnName;
@@ -394,7 +395,7 @@ export class BarChartComponent implements OnInit,
         let fields = [this.active.dataField.columnName];
         // get relevant neon filters and check for filters that should be ignored and add that to query
         let neonFilters = this.filterService.getFilters(database, table, fields);
-        console.log(neonFilters);
+        // console.log(neonFilters);
         if (neonFilters.length > 0) {
             let ignoredFilterIds = [];
             for (let filter of neonFilters) {
@@ -479,7 +480,7 @@ export class BarChartComponent implements OnInit,
     };
 
     onQuerySuccess = (response) => {
-        console.log(response);
+        // console.log(response);
         let colName = this.active.dataField.columnName;
         // let prettyColName = this.active.dataField.prettyName;
         let d = {

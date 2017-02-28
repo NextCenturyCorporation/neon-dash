@@ -37,8 +37,8 @@ export class LineChartComponent implements OnInit,
     private outstandingDataQuery: Object;
     private filters: {
         key: string,
-        value: string,
-        prettyKey: string
+        startDate: string,
+        endDate: string
     }[];
     // private errorMessage: string;
     private initializing: boolean;
@@ -72,12 +72,16 @@ export class LineChartComponent implements OnInit,
         unsharedFilterValue: string,
         fields: FieldMetaData[],
         data: Object[],
-        aggregation: string
+        aggregation: string,
+        dateBucketizer: DateBucketizer
     };
 
     // private chart: Chartjs.ChartConfiguration;
     private chart: {
-        data: Object,
+        data: {
+            labels: any[],
+            datasets: any[]
+        },
         type: string,
         options: Object
     };
@@ -87,9 +91,19 @@ export class LineChartComponent implements OnInit,
         inactiveColor: string
     };
 
-    private onClick;
-
-
+    private selection: {
+        mouseDown: boolean
+        startX: number,
+        height: number,
+        width: number,
+        x: number,
+        y: number,
+        visibleOverlay: boolean,
+        startIndex: number,
+        endIndex: number,
+        startDate: Date,
+        endDate: Date
+    };
 
     constructor(private connectionService: ConnectionService, private datasetService: DatasetService, private filterService: FilterService,
         private exportService: ExportService, private injector: Injector, private themesService: ThemesService) {
@@ -127,7 +141,22 @@ export class LineChartComponent implements OnInit,
             unsharedFilterValue: '',
             fields: [],
             data: [],
-            aggregation: 'count'
+            aggregation: 'count',
+            dateBucketizer: null
+        };
+
+        this.selection = {
+            mouseDown: false,
+            height: 20,
+            width: 20,
+            x: 20,
+            y: 200,
+            startX: 0,
+            visibleOverlay: false,
+            startIndex: -1,
+            endIndex: -1,
+            startDate: null,
+            endDate: null
         };
 
         this.chartDefaults = {
@@ -135,19 +164,7 @@ export class LineChartComponent implements OnInit,
             inactiveColor: 'rgba(57, 181, 74, 0.3)'
         };
 
-        this.onClick = (event, elements: any[]) => {
-            console.log(event);
-            for (let el of elements) {
-                let value = el._model.label;
-                let key = this.active.dateField.columnName;
-                let prettyKey = this.active.dateField.prettyName;
-                this.addLocalFilter(key, value, prettyKey);
-                this.addOrReplaceFiltersToNeon();
-                this.refreshChart();
-            }
-        };
-
-        this.onClick = this.onClick.bind(this);
+        this.onHover = this.onHover.bind(this);
         this.chart = {
             type: null,
             data: {
@@ -163,25 +180,38 @@ export class LineChartComponent implements OnInit,
                 responsive: true,
                 maintainAspectRatio: false,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
-                onClick: this.onClick,
+                onClick: null,
                 hover: {
-                    mode: 'point',
-                    onHover: null
+                    mode: 'index',
+                    intersect: false,
+                    onHover: this.onHover
 
                 },
                 legend: Chart.defaults.global.legend,
-                tooltips: Chart.defaults.global.tooltips
+                tooltips: Chart.defaults.global.tooltips,
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        position: 'bottom'
+                    }]
+                }
             }
         };
         this.chart.options['legend'].display = false;
 
         let tooltipTitleFunc = (tooltips) => {
-            let title = this.active.dateField.prettyName + ': ' + tooltips[0].xLabel;
+            let monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                'July', 'August', 'September', 'October', 'November', 'December'
+            ];
+            let index = tooltips[0].index;
+            let date = this.active.dateBucketizer.getDateForBucket(index);
+            let month = monthNames[date.getUTCMonth()];
+            let title = date.getUTCDate() + ' ' + month + ' ' + date.getUTCFullYear();
             return title;
         };
         let tooltipDataFunc = (tooltips) => {
-            let data = this.active.aggregation + ': ' + tooltips.yLabel;
-            return data;
+            let label = this.active.aggregation + ': ' + tooltips.yLabel;
+            return label;
         };
         this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
         this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
@@ -297,46 +327,150 @@ export class LineChartComponent implements OnInit,
         this.active.groupField = this.findFieldObject('groupField', neonMappings.TAGS);
     };
 
-    addLocalFilter(key, value, prettyKey) {
+    addLocalFilter(key, startDate, endDate) {
         this.filters[0] = {
             key: key,
-            value: value,
-            prettyKey: prettyKey
+            startDate: startDate,
+            endDate: endDate
         };
     };
 
-    createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
-        let filterClauses = this.filters.map(function(filter) {
-            return neon.query.where(fieldName, '=', filter.value);
-        });
-        if (filterClauses.length === 1) {
-            return filterClauses[0];
+    /**
+    * returns -1 if cannot be found
+    */
+    getPointXLocationByIndex(chart, index): number {
+        let dsMeta = chart.controller.getDatasetMeta(0);
+        if (dsMeta.data.length > index) {
+            let pointMeta = dsMeta.data[index];
+            let x = pointMeta.getCenterPoint().x;
+            return x;
         }
-        if (this.active.andFilters) {
-            return neon.query.and.apply(neon.query, filterClauses);
-        }
-        return neon.query.or.apply(neon.query, filterClauses);
-    };
-
-    addOrReplaceFiltersToNeon() {
-        // This widget will always replace which add already handles, I think...
-        this.addNeonFilter();
+        return -1;
     }
 
-    addNeonFilter() {
+    onHover(event, items) {
+        if (items.length === 0) {
+            return;
+        }
+        let isMouseUp = false;
+        if (!this.selection.mouseDown && event.buttons > 0) {
+            // mouse down event
+            this.selection.mouseDown = true;
+            this.selection.startX = items[0].getCenterPoint().x;
+            this.selection.startIndex = items[0]._index;
+        }
+
+        if (this.selection.mouseDown && event.buttons === 0) {
+            // mouse up event
+            this.selection.mouseDown = false;
+            this.selection.endIndex = items[0]._index;
+            isMouseUp = true;
+        }
+        if (items && items.length > 0 && this.selection.mouseDown) {
+            // drag event near items
+            let chartArea = items[0]._chart.controller.chartArea;
+            let chartBottom = chartArea.bottom;
+            let chartTop = chartArea.top;
+            let startIndex: number = this.selection.startIndex;
+            let endIndex: number = items[0]._index;
+            //let endX = items[0].getCenterPoint().x;
+            //let startX = this.selection.startX
+            let endX: number = -1;
+            let startX: number = -1;
+            if (startIndex > endIndex) {
+                let temp = startIndex;
+                startIndex = endIndex;
+                endIndex = temp;
+            }
+            // at this point, start Index is <= end index
+            if (startIndex === 0) {
+                //first element, so don't go off the chart
+                startX = this.getPointXLocationByIndex(items[0]._chart, startIndex);
+            } else {
+                let a = this.getPointXLocationByIndex(items[0]._chart, startIndex - 1);
+                let b = this.getPointXLocationByIndex(items[0]._chart, startIndex);
+                startX = (b - a) / 2 + a;
+            }
+
+            if (endIndex >= this.chart.data.labels.length - 1) {
+                //last element, so don't go off the chart
+                endX = this.getPointXLocationByIndex(items[0]._chart, endIndex);
+            } else {
+                let a = this.getPointXLocationByIndex(items[0]._chart, endIndex);
+                let b = this.getPointXLocationByIndex(items[0]._chart, endIndex + 1);
+                endX = (b - a) / 2 + a;
+            }
+            this.selection.width = Math.abs(startX - endX);
+            this.selection.x = Math.min(startX, endX);
+            this.selection.height = chartBottom - chartTop;
+            this.selection.y = chartTop;
+
+            //this.selection.visibleOverlay=!this.selection.visibleOverlay;
+        }
+        if (isMouseUp) {
+            //The button was clicked, handle the selection.
+            this.selection.startDate = this.active.dateBucketizer.getDateForBucket(this.selection.startIndex);
+            this.selection.endDate = this.active.dateBucketizer.getDateForBucket(this.selection.endIndex);
+            let key = this.active.dateField.columnName;
+            this.addLocalFilter(key, this.selection.startDate, this.selection.endDate);
+            this.addNeonFilter(true);
+        }
+
+        this.stopEventPropagation(event);
+        //console.log(event);
+        //console.log(items);
+    }
+
+    stopEventPropagation(event) {
+        if (event.stopPropagation) {
+            event.stopPropagation();
+        } else {
+            event.returnValue = false;
+        }
+    }
+
+    createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
+        let filterClauses = [];
+        filterClauses[0] = neon.query.where(fieldName, '>=', this.selection.startDate);
+        let endDatePlusOne = this.selection.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
+        let endDatePlusOneDate = new Date(endDatePlusOne);
+        filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
+        return neon.query.and.apply(neon.query, filterClauses);
+    };
+
+    getFilterText() {
+        // I.E. test - earthquakes - time = 10/11/2015 to 5/1/2016"
+        let database = this.active.database.name;
+        let table = this.active.table.name;
+        let field = this.active.dateField.columnName;
+        let text = database + ' - ' + table + ' - ' + field + ' = ';
+        let date = this.selection.startDate;
+        text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
+        date = this.selection.endDate;
+        text += ' to ';
+        text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
+        return text;
+    }
+
+    addNeonFilter(executeQueryChainOnSuccess) {
         let database = this.active.database.name;
         let table = this.active.table.name;
         let fields = [this.active.dateField.columnName];
+        let text = this.getFilterText();
+
+        let onSuccess = () => {
+            console.log('filter set successfully');
+            if (executeQueryChainOnSuccess) {
+                this.executeQueryChain();
+            }
+        };
         this.filterService.addFilter(this.messenger, database, table, fields,
             this.createNeonFilterClauseEquals.bind(this),
             {
                 visName: 'Line chart',
-                text: this.filters[0].value
+                text: text
             }
-            ,
-            () => {
-                console.log('filter set successfully');
-            },
+            , onSuccess.bind(this),
             () => {
                 console.log('filter failed to set');
             });
@@ -395,19 +529,22 @@ export class LineChartComponent implements OnInit,
         }
         this.queryTitle = this.createTitle(true);
         let query = this.createQuery();
-        let database = this.active.database.name;
-        let table = this.active.table.name;
-        let fields = [this.active.dateField.columnName];
+        // TODO evaluate what filters to ignore
+
+        //let database = this.active.database.name;
+        //let table = this.active.table.name;
+        //let fields = [this.active.dateField.columnName];
         // get relevant neon filters and check for filters that should be ignored and add that to query
-        let neonFilters = this.filterService.getFilters(database, table, fields);
-        console.log(neonFilters);
-        if (neonFilters.length > 0) {
-            let ignoredFilterIds = [];
-            for (let filter of neonFilters) {
-                ignoredFilterIds.push(filter.id);
-            }
-            query.ignoreFilters(ignoredFilterIds);
-        }
+
+        //let neonFilters = this.filterService.getFilters(database, table, fields);
+        //console.log(neonFilters);
+        //if (neonFilters.length > 0) {
+        //let ignoredFilterIds = [];
+        //for (let filter of neonFilters) {
+        //    ignoredFilterIds.push(filter.id);
+        //}
+        //query.ignoreFilters(ignoredFilterIds);
+        //}
 
         this.executeQuery(query);
     }
@@ -498,13 +635,27 @@ export class LineChartComponent implements OnInit,
     };
 
     onQuerySuccess = (response) => {
-        console.log(response);
+        //console.log(response);
+        // TODO get better color scheme
+        let colors = ['rgba(255,0,0,1)', 'rgba(0,255,0,1)', 'rgba(0,0,255,1)',
+            'rgba(75,192,192,1)', 'rgba(75,192,192,1)', 'rgba(75,192,192,1)',
+            'rgba(75,192,192,1)', 'rgba(75,192,192,1)', 'rgba(75,192,192,1)',
+            'rgba(75,192,192,1)', 'rgba(75,192,192,1)', 'rgba(75,192,192,1)',
+        ];
+
+        // need to reset chart when data potentially changes type (or number of datasets)
+        let ctx = this.chartModule['chart'].chart.ctx;
+        this.chartModule['chart'].destroy();
+        this.chartModule['chart'] = new Chart(ctx, this.chart);
+        //this.chartModule['chart'].reset();
+
         let dataSetField = this.active.groupField.columnName;
         // let prettyColName = this.active.dateField.prettyName;
         let myData = {};
         let startDate = response.data[0].date;
         let endDate = response.data[response.data.length - 1].date;
-        let bucketizer = new DateBucketizer();
+        this.active.dateBucketizer = new DateBucketizer();
+        let bucketizer = this.active.dateBucketizer;
         bucketizer.setStartDate(new Date(startDate));
         bucketizer.setEndDate(new Date(endDate));
         let length = bucketizer.getNumBuckets();
@@ -521,22 +672,43 @@ export class LineChartComponent implements OnInit,
             }
         }
         let datasets = []; // TODO type to chartjs
+        let datasetIndex = 0;
         for (let datasetName in myData) {
             if (myData.hasOwnProperty(datasetName)) {
                 let d = {
                     label: datasetName,
-                    data: myData[datasetName]
+                    data: myData[datasetName],
+                    borderColor: colors[datasetIndex],
+                    pointBorderColor: colors[datasetIndex],
+                    backgroundColor: 'rgba(0,0,0,0)',
+                    pointBackgroundColor: 'rgba(0,0,0,0)'
                 };
                 datasets.push(d);
+                datasetIndex++;
             }
         }
-        let labels = new Array(length).fill('1');
+        let labels = new Array(length);
+        for (let i = 0; i < length; i++) {
+            let date = bucketizer.getDateForBucket(i);
+
+            // TODO is there a better way to get date into ISO format so moment is happy?
+            let tmp: number = date.getUTCMonth() + 1;
+            let month: String = String(tmp);
+            month = (tmp < 10 ? '0' + month : month);
+
+            tmp = date.getUTCDate();
+            let day: String = String(date.getUTCDate());
+            day = (tmp < 10 ? '0' + day : day);
+
+            labels[i] = date.getUTCFullYear() + '-' + month + '-' + day;
+            //   labels[i] = date.toUTCString();
+        }
         this.chart.data = {
             labels: labels,
             datasets: datasets
         };
         this.refreshChart();
-    };
+    }
 
     /**
     * Get field object from the key into the config options
@@ -644,10 +816,15 @@ export class LineChartComponent implements OnInit,
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
-        let closeableFilters = this.filters.map((filter) => {
-            return filter.value;
-        });
-        return closeableFilters;
+        // let closeableFilters = this.filters.map((filter) => {
+        //    return filter.key + " Filter";
+        //});
+        //return closeableFilters;
+        if (this.filters.length > 0) {
+            return ['Date Filter'];
+        } else {
+            return [];
+        }
     };
 
     getFilterTitle(value: string) {
@@ -671,7 +848,7 @@ export class LineChartComponent implements OnInit,
         this.filterService.removeFilter(database, table, fields,
             () => {
                 me.filters = [];
-                me.refreshChart();
+                me.executeQueryChain();
                 console.log('remove filter' + value);
             },
             () => {

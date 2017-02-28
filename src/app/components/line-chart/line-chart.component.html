@@ -123,14 +123,23 @@
             </md-card-content>
         </md-card>
     </md-sidenav>
-
-    <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
-        <span class="filter-label" [title]="getFilterTitle(value)">{{ getFilterCloseText(value) }}</span>
-        <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveFilterTooltip(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value)">
+    <div class="body-container">
+        <div class="text-container">
+            <div>LEGEND</div>
+            <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
+                <span class="filter-label" [title]="getFilterTitle(value)">{{ getFilterCloseText(value) }}</span>
+                <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveFilterTooltip(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value)">
             <md-icon class="md-18">close</md-icon>
         </button>
+            </div>
+        </div>
+        <div class="chart-container" (click)="stopClickPropagation(event)">
+            <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
+            <chart class="chart" #myChart [type]="chart.type" [data]="chart.data" [options]="chart.options">
+            </chart>
+
+        </div>
     </div>
-    <chart #myChart [type]="chart.type" [data]="chart.data" [options]="chart.options"></chart>
     <!--<div class="text-cloud" md-fill layout="col">
         <a (click)="addFilter(item.key, item.keyTranslated)" class="text" *ngFor="let item of active.data" [rel]="item.count"
             [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">

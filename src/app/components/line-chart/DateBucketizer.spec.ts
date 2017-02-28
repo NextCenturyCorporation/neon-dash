@@ -186,17 +186,34 @@ describe('dateBucketizer', function() {
         let startDate = new Date(Date.UTC(1980, 1, 2, 3, 4, 5));
         bucketizer.setStartDate(startDate);
         bucketizer.setEndDate(startDate);
-        // All data is expected to be before the zeroed out end date, so if the end date is the same
-        // as the start date, then there can't be any data.
-        expect(bucketizer.getNumBuckets()).toBe(0);
+
+        expect(bucketizer.getNumBuckets()).toBe(1);
+    });
+
+    it('get num buckets for same day', function() {
+        let startDate = new Date(Date.UTC(1980, 1, 2, 3, 4, 5));
+        let laterThatDay = new Date(Date.UTC(1980, 1, 2, 3, 4, 7));
+        bucketizer.setStartDate(startDate);
+        bucketizer.setEndDate(laterThatDay);
+
+        expect(bucketizer.getNumBuckets()).toBe(1);
     });
 
     it('get num buckets for start of next day', function() {
         let startDate = new Date(Date.UTC(1980, 1, 2, 3, 4, 5));
-        let laterThatDay = new Date(Date.UTC(1980, 1, 3, 0, 0, 0));
+        let endDate = new Date(Date.UTC(1980, 1, 3, 0, 0, 0));
+        bucketizer.setStartDate(startDate);
+        bucketizer.setEndDate(endDate);
+        // So long as the end date is on the following UTC day, there will be 2 buckets.  One for each day.
+        expect(bucketizer.getNumBuckets()).toBe(2);
+    });
+
+    it('get num buckets for mid  of next day', function() {
+        let startDate = new Date(Date.UTC(1980, 1, 2, 3, 4, 5));
+        let laterThatDay = new Date(Date.UTC(1980, 1, 3, 5, 7, 9));
         bucketizer.setStartDate(startDate);
         bucketizer.setEndDate(laterThatDay);
-        // So long as the end date is on the following UTC day, there will be 1 bucket
-        expect(bucketizer.getNumBuckets()).toBe(1);
+        // So long as the end date is on the following UTC day, there will be 2 buckets. One for each day.
+        expect(bucketizer.getNumBuckets()).toBe(2);
     });
 });

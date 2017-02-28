@@ -117,7 +117,9 @@ export class DateBucketizer {
      */
     getNumBuckets(): number {
         let effectiveStartDate = this.zeroOutDate(this.getStartDate());
-        let effectiveEndDate = this.zeroOutDate(this.getEndDate());
+        //We want the start of the next bucket, however, roundUpBucket will not go past the end date and we need this to
+        let endDatePlusOneDay = new Date(this.getEndDate().getTime() + this.millisMultiplier);
+        let effectiveEndDate = this.zeroOutDate(endDatePlusOneDay);
 
         // TODO - The absolute value doesn't make sense here; we just don't want negative
         // values
