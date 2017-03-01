@@ -1,10 +1,10 @@
-<md-sidenav-layout class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<md-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <md-toolbar color="primary" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }} Test</div>
         <span class="fill-remaining"></span>
         <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
         <button md-icon-button aria-label="Settings" md-tooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <md-icon class="md-24">settings</md-icon>
+            <md-icon class="mat-24">settings</md-icon>
         </button>
     </md-toolbar>
 
@@ -52,11 +52,11 @@
                 <table cellspacing="0">
                     <tr>
                         <td>
-                            <md-input placeholder="Text Limit" [(ngModel)]="active.limit" required="true"></md-input>
+                            <input mdInput  placeholder="Text Limit" [(ngModel)]="active.limit" required="true"></input>
                         </td>
                         <td>
                             <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <md-icon class="md-24">refresh</md-icon>
+                                <md-icon class="mat-24">refresh</md-icon>
                             </button>
                         </td>
                     </tr>
@@ -66,18 +66,18 @@
                 <!--<table cellspacing="0">
                     <tr>
                         <td>
-                            <md-input placeholder="Text Limit" [(ngModel)]="active.limit" required="true"></md-input>
+                            <input mdInput  placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
                         </td>
                         <td>
                             <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <md-icon class="md-24">refresh</md-icon>
+                                <md-icon class="mat-24">refresh</md-icon>
                             </button>
                         </td>
                     </tr>
                 </table>
                 <p></p>-->
 
-                <!--<md-toolbar class="md-primary">
+                <!--<md-toolbar class="mat-primary">
                     <span>Show Records With</span>
                 </md-toolbar>
                 <md-button-toggle-group name="filters" [(ngModel)]="active.andFilters" (change)="handleChangeAndFilters()">
@@ -88,7 +88,7 @@
                 -->
 
                 <!--
-                <md-toolbar class="md-primary">
+                <md-toolbar class="mat-primary">
                     <span>Unshared Filter</span>
                 </md-toolbar>
                 <md-select placeholder="Filter Field" [(ngModel)]="active.unsharedFilterField" required="false" [disabled]="active.fields.length === 0" (ngModelChange)="handleChangeUnsharedFilterField()">
@@ -98,16 +98,16 @@
                 <table cellspacing="0">
                     <tr>
                         <td>
-                            <md-input [placeholder]="'Filter for ' + active.unsharedFilterField.prettyName + '...'" [(ngModel)]="active.unsharedFilterValue" [disabled]="!(active.unsharedFilterField.columnName)"></md-input>
+                            <input mdInput [placeholder]="'Filter for ' + active.unsharedFilterField.prettyName + '...'" [(ngModel)]="active.unsharedFilterValue" [disabled]="!(active.unsharedFilterField.columnName)"></input>
                         </td>
                         <td>
                             <button md-icon-button md-tooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()" [disabled]="(active.unsharedFilterField.columnName == undefined || active.unsharedFilterValue == '')">
-                                <md-icon class="md-16">clear</md-icon>
+                                <md-icon class="mat-16">clear</md-icon>
                             </button>
                         </td>
                         <td>
                             <button md-icon-button md-tooltip="Set Unshared Filter" tooltip-position="below" (click)="handleChangeUnsharedFilterValue()">
-                                <md-icon class="md-16">refresh</md-icon>
+                                <md-icon class="mat-16">refresh</md-icon>
                             </button>
                         </td>
                     </tr>
@@ -131,7 +131,7 @@
             <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
                 <span class="filter-label" [title]="getFilterTitle(value)">{{ getFilterCloseText(value) }}</span>
                 <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveFilterTooltip(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value)">
-            <md-icon class="md-18">close</md-icon>
+            <md-icon class="mat-18">close</md-icon>
         </button>
             </div>
         </div>
@@ -150,4 +150,4 @@
                 </div>
             </a>
     </div>-->
-</md-sidenav-layout>
+</md-sidenav-container>

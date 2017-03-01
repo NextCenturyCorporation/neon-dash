@@ -47,7 +47,7 @@
         line-height: 18px;
         border-radius: 3px;
         margin: 2px;
-        background-color: md-color($accent);
+        background-color: mat-color($accent);
 
         .filter-label {
             display: inline-block;
@@ -96,6 +96,6 @@
 
 .neon-green-dark-theme {
     .filter-reset {
-        background-color: md-color($primary);
+        background-color: mat-color($primary);
     }
 }

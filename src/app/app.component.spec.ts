@@ -100,7 +100,7 @@ describe('App: NeonGtd', () => {
   }));
 
   it('should include top level layout components', async(() => {
-    expect(de.nativeElement.querySelectorAll('md-sidenav-layout')).toBeTruthy();
+    expect(de.nativeElement.querySelectorAll('md-sidenav-container')).toBeTruthy();
     expect(de.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
     // Since the about pane and options pane are rendered only after a user opens their sidenav area,
     // these should not exist upon initial render.
