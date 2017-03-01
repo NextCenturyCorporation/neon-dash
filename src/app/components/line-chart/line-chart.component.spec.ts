@@ -9,6 +9,7 @@ import { ChartModule } from 'angular2-chartjs';
 import {} from 'jasmine';
 
 import { LineChartComponent } from './line-chart.component';
+import { LegendComponent } from '../legend/legend.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -26,7 +27,8 @@ describe('Component: LineChart', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [
-        LineChartComponent
+        LineChartComponent,
+        LegendComponent
       ],
       providers: [
         ConnectionService,

@@ -9,6 +9,7 @@ import { VisualizationInjectorComponent } from './visualization-injector.compone
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
+import { LegendComponent } from '../legend/legend.component';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -18,7 +19,8 @@ describe('Component: VisualizationInjector', () => {
                 VisualizationInjectorComponent,
                 TextCloudComponent,
                 BarChartComponent,
-                LineChartComponent
+                LineChartComponent,
+                LegendComponent
             ],
             providers: [ ComponentFactoryResolver ],
             imports: [

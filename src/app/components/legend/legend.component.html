@@ -1,0 +1,9 @@
+<button md-button [md-menu-trigger-for]="menu">
+  Legend
+</button>
+<md-menu #menu="mdMenu">
+    <button md-menu-item *ngFor="let item of data">
+      <md-icon size="24" [ngStyle]="{'color': item.color}">{{getIcon(item.active)}}</md-icon>
+      <span [ngStyle]="{'color': (item.active ? item.activeColor : item.inactiveColor)}" >{{item.prettyName}}</span>
+    </button>
+</md-menu>

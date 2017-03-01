@@ -6,6 +6,7 @@ import { VisualizationInjectorComponent } from '../visualization-injector/visual
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
+import { LegendComponent } from '../legend/legend.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
@@ -25,7 +26,8 @@ describe('Component: VisualizationContainer', () => {
                 VisualizationInjectorComponent,
                 TextCloudComponent,
                 BarChartComponent,
-                LineChartComponent
+                LineChartComponent,
+                LegendComponent
             ],
             providers: [
                 ActiveGridService,

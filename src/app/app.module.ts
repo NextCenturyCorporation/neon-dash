@@ -50,6 +50,7 @@ import { VisualizationInjectorComponent } from './components/visualization-injec
 import { FilterTrayComponent } from  './components/filter-tray/filter-tray.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
+import { LegendComponent } from './components/legend/legend.component'
 import { ChartModule } from 'angular2-chartjs';
 
 export function createAppModule(config: NeonGTDConfig) {
@@ -65,7 +66,8 @@ export function createAppModule(config: NeonGTDConfig) {
             BarChartComponent,
             LineChartComponent,
             VisualizationInjectorComponent,
-            FilterTrayComponent
+            FilterTrayComponent,
+            LegendComponent
         ],
         imports: [
             BrowserModule,

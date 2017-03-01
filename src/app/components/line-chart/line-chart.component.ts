@@ -19,6 +19,7 @@ import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import {DateBucketizer} from './DateBucketizer';
 import {ChartModule} from 'angular2-chartjs';
+import {LegendItem} from '../legend/legend.component';
 // import * as Chartjs from 'chart.js';
 declare var Chart: any;
 
@@ -105,6 +106,8 @@ export class LineChartComponent implements OnInit,
         endDate: Date
     };
 
+    private colorScheme: string[];
+
     constructor(private connectionService: ConnectionService, private datasetService: DatasetService, private filterService: FilterService,
         private exportService: ExportService, private injector: Injector, private themesService: ThemesService) {
         console.log(this.exportService);
@@ -124,6 +127,13 @@ export class LineChartComponent implements OnInit,
         this.themesService = themesService;
         this.messenger = new neon.eventing.Messenger();
         this.filters = [];
+
+        this.colorScheme = ['rgba(255,0,0,1)', 'rgba(0,255,0,1)', 'rgba(0,0,255,1)',
+            'rgba(75,192,192,1)', 'rgba(75,192,192,1)', 'rgba(75,192,192,1)',
+            'rgba(75,192,192,1)', 'rgba(75,192,192,1)', 'rgba(75,192,192,1)',
+            'rgba(75,192,192,1)', 'rgba(75,192,192,1)', 'rgba(75,192,192,1)',
+        ];
+
         this.active = {
             dateField: new FieldMetaData(),
             aggregationField: new FieldMetaData(),
@@ -637,11 +647,7 @@ export class LineChartComponent implements OnInit,
     onQuerySuccess = (response) => {
         //console.log(response);
         // TODO get better color scheme
-        let colors = ['rgba(255,0,0,1)', 'rgba(0,255,0,1)', 'rgba(0,0,255,1)',
-            'rgba(75,192,192,1)', 'rgba(75,192,192,1)', 'rgba(75,192,192,1)',
-            'rgba(75,192,192,1)', 'rgba(75,192,192,1)', 'rgba(75,192,192,1)',
-            'rgba(75,192,192,1)', 'rgba(75,192,192,1)', 'rgba(75,192,192,1)',
-        ];
+
 
         // need to reset chart when data potentially changes type (or number of datasets)
         let ctx = this.chartModule['chart'].chart.ctx;
@@ -678,8 +684,8 @@ export class LineChartComponent implements OnInit,
                 let d = {
                     label: datasetName,
                     data: myData[datasetName],
-                    borderColor: colors[datasetIndex],
-                    pointBorderColor: colors[datasetIndex],
+                    borderColor: this.colorScheme[datasetIndex],
+                    pointBorderColor: this.colorScheme[datasetIndex],
                     backgroundColor: 'rgba(0,0,0,0)',
                     pointBackgroundColor: 'rgba(0,0,0,0)'
                 };
@@ -813,6 +819,23 @@ export class LineChartComponent implements OnInit,
         //    : 'Top ' + this.active.data.length;
         // console.log('TODO - see getButtonText()')
     };
+
+    getLegendData(): LegendItem[] {
+        let legendData: LegendItem[] = [];
+        let datasets = this.chart.data.datasets;
+        for (let i = 0; i < datasets.length; i++) {
+            let item: LegendItem = {
+                prettyName: datasets[i].label,
+                accessName: datasets[i].label,
+                activeColor: datasets[i].pointBorderColor,
+                inactiveColor: 'rgba(50,50,50,1)',
+                active: true
+            };
+            legendData[i] = item;
+        }
+        return legendData;
+    }
+
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {

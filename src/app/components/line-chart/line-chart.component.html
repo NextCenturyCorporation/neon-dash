@@ -125,7 +125,9 @@
     </md-sidenav>
     <div class="body-container">
         <div class="text-container">
-            <div>LEGEND</div>
+            <div>
+                <app-legend [data]="getLegendData()"></app-legend>
+            </div>
             <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
                 <span class="filter-label" [title]="getFilterTitle(value)">{{ getFilterCloseText(value) }}</span>
                 <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveFilterTooltip(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value)">
