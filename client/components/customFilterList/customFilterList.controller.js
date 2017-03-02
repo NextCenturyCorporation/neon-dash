@@ -29,6 +29,9 @@ angular.module('neonDemo.controllers').controller('customFilterListController', 
     // The custom filter for the active database and table displayed in this visualization.
     $scope.active.customFilters = [];
 
+    // The custom filter builder doesn't have any queries, so prevent it from displaying an export button.
+    $scope.excludeFromExport = true;
+
     $scope.functions.onUpdateFields = function() {
         $scope.active.customFilters = $scope.customFilters[$scope.active.database.name] ? ($scope.customFilters[$scope.active.database.name][$scope.active.table.name] || []) : [];
 
@@ -140,14 +143,6 @@ angular.module('neonDemo.controllers').controller('customFilterListController', 
                 item.on = false;
             });
         });
-    };
-
-    $scope.functions.createExportDataObject = function() {
-        // The custom filter list visualization does not query the database so do not include any data queries.
-        return {
-            name: "Custom Filter List",
-            data: []
-        };
     };
 
     $scope.toggleFilterAndAddOrRemove = function(item) {

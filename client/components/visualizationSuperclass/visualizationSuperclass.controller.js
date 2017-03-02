@@ -33,6 +33,9 @@ function($scope, external, externalRouteService, customFilters, connectionServic
     $scope.logElementGroup = $scope.logElementGroup || "chart_group";
     $scope.logElementType = $scope.logElementType || "canvas";
 
+    // Set to true by visualizations that don't want to have an "Export Data" button. See optionsMenu.html, line 20 for more information.
+    $scope.excludeFromExport = false;
+
     /**
      * The active properties for this visualization.
      * @property $scope.active
@@ -1818,7 +1821,6 @@ function($scope, external, externalRouteService, customFilters, connectionServic
             source: "user",
             tags: ["options", $scope.type, "export"]
         });
-
         return $scope.createExportData(buildQuery, exportService);
     };
 

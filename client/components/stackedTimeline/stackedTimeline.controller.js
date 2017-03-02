@@ -1314,6 +1314,11 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
     };
 
     $scope.functions.createExportDataObject = function(exportId, query) {
+        if (query && query.queries && query.queries.length >= 1) {
+            var timelineQuery = query.queries[0];
+            delete query.queries;
+            _.assign(query, timelineQuery);
+        }
         var finalObject = {
             name: "Stacked Timeline",
             data: [{
@@ -1330,17 +1335,24 @@ angular.module('neonDemo.controllers').controller('stackedTimelineController', [
         // GroupBy clauses will always be added to the query in the same order, so this takes advantage
         // of that to add the pretty names of the clauses in the same order for as many as were added.
         // TODO NEON-1973
-        /*
         var counter = 0;
         var prettyNames = ["Year", "Month", "Day", "Hour"];
+        var lastAdded = undefined;
         query.groupByClauses.forEach(function(field) {
-            finalObject.data[0].fields.push({
-                query: field.name,
-                pretty: prettyNames[counter]
-            });
-            counter++;
+            if(field instanceof neon.query.GroupByFunctionClause) {
+                finalObject.data[0].fields.push({
+                    query: field.name,
+                    pretty: prettyNames[counter]
+                });
+                counter++;
+            }
+            else { // The group clause isn't a function clause. It's just a normal SimpleWhereClause.
+                finalObject.data[0].fields.push({
+                    query: $scope.active.groupField.columnName,
+                    pretty: $scope.active.groupField.prettyName || $scope.groupField.columnName
+                });
+            }
         });
-        */
         finalObject.data[0].fields.push({
             query: "count",
             pretty: "Count"

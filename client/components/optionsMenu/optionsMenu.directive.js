@@ -27,7 +27,8 @@ angular.module('neonDemo.directives')
             buttonText: '=?',
             showButtonText: '=?',
             exportFunction: '=?',
-            visualizationName: "=?"
+            visualizationName: "=?",
+            excludeFromExport: '=?'
         },
         link: function($scope, $element) {
             // Buffer needed above and below the chart options popover based on popover position, container padding (both set in the CSS), and UX.

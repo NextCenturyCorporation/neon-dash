@@ -33,6 +33,9 @@ angular.module('neonDemo.controllers').controller('textCloudController', ['$scop
     // Set this option so the superclass shows the translation options in the options menu.
     $scope.active.allowsTranslations = true;
 
+    // The text cloud sends an array count query rather than a normal one - for now, let's disable the export button to keep that from throwing errors.
+    $scope.excludeFromExport = true; // hen we don't need this anymore, also remove reutrn {} from createExportDataObject below.
+
     $scope.functions.onInit = function() {
         updateTagcloudPluginSettings();
     };
@@ -263,6 +266,7 @@ angular.module('neonDemo.controllers').controller('textCloudController', ['$scop
     };
 
     $scope.functions.createExportDataObject = function(exportId) {
+        return {}; // This is part of disabling export temporarily. When we don't need this anymore, also remove $scope.excludeFromExport = true above.
         var finalObject = {
             name: "Text_Cloud",
             data: [{

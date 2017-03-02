@@ -141,6 +141,36 @@ angular.module('neonDemo.controllers').controller('scatterPlotController', ['$sc
         return query;
     };
 
+    $scope.functions.createExportDataObject = function(exportId, query) {
+        var finalObject = {
+            name: "Scatter_Plot",
+            data: [{
+                query: query,
+                name: "scatterPlot-" + exportId,
+                fields: [],
+                ignoreFilters: query.ignoreFilters_,
+                selectionOnly: query.selectionOnly_,
+                ignoredFilterIds: query.ignoredFilterIds_,
+                type: "query"
+            }]
+        };
+        finalObject.data[0].fields.push({
+            query: $scope.active.xAxisField.columnName,
+            pretty: ($scope.active.xAxisField.prettyName || $scope.active.xAxisField.columnName) + ' (X Axis)'
+        });
+        finalObject.data[0].fields.push({
+            query: $scope.active.yAxisField.columnName,
+            pretty: ($scope.active.yAxisField.prettyName || $scope.active.xAxisField.columnName) + ' (Y Axis)'
+        });
+        if($scope.functions.isFieldValid($scope.active.textField)) {
+            finalObject.data[0].fields.push({
+                query: $scope.active.textField.columnName,
+                pretty: ($scope.active.textField.prettyName || $scope.active.textField.columnName) + ' (Text)'
+            });
+        }
+        return finalObject;
+    }
+
     $scope.functions.hideHeaders = function() {
         return true;
     };

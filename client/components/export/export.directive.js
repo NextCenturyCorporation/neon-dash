@@ -60,6 +60,9 @@ angular.module('neonDemo.directives')
                 };
                 exportService.getWidgets().forEach(function(widget) {
                     var widgetObject = widget.callback();
+                    if(Object.keys(widgetObject).length === 0) {
+                        return; // Ignore the responses from any widget who doesn't have anything to export (e.g. the custom filter list).
+                    }
                     for(var x = 0; x < widgetObject.data.length; x++) {
                         data.data.push(widgetObject.data[x]);
                     }

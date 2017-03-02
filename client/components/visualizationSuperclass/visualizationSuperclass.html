@@ -5,7 +5,7 @@
         <div class="text-container options-container" ng-hide="bindings.hideHeader">
             <div class="header text pull-left" contenteditable ng-model="visualizationTitle" ng-model-options="{ getterSetter: true }"></div>
 
-            <options-menu parent-element="element" export-function="getExportData" resize-menu="resizeOptionsMenu" button-text="functions.createMenuText" show-button-text="functions.showMenuText" visualization-name="functions.getVisualizationName">
+            <options-menu parent-element="element" export-function="getExportData" resize-menu="resizeOptionsMenu" button-text="functions.createMenuText" show-button-text="functions.showMenuText" visualization-name="functions.getVisualizationName" exclude-from-export="excludeFromExport">
                 <translation-options ng-if="translationsOn" on-translate="handleToggleTranslations"
                     from-language-change="handleChangeFromLanguage" to-language-change="handleChangeToLanguage"
                     from-language-options="languages.fromLanguageOptions" to-language-options="languages.toLanguageOptions">
