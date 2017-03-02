@@ -573,7 +573,7 @@ export class LineChartComponent implements OnInit,
         valid = (this.active.aggregation && valid);
         if (valid && this.active.aggregation !== 'count') {
             let aggCol = this.active.aggregationField.columnName;
-            valid = aggCol && valid && aggCol !== "";
+            valid = aggCol && valid && aggCol !== '';
         }
         return valid;
     }
