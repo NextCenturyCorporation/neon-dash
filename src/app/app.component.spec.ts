@@ -95,6 +95,10 @@ describe('App: NeonGtd', () => {
     de = fixture.debugElement;
   });
 
+  afterEach(() => {
+      fixture.detectChanges();
+  });
+
   it('should create an instance', async(() => {
     expect(component).toBeTruthy();
   }));
