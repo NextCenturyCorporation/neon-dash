@@ -1,5 +1,5 @@
 /* tslint:disable:no-unused-variable */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {  ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
@@ -19,39 +19,39 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 describe('Component: BarChart', () => {
-  let testConfig: NeonGTDConfig = new NeonGTDConfig();
-  let component: BarChartComponent;
-  let fixture: ComponentFixture<BarChartComponent>;
+    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let component: BarChartComponent;
+    let fixture: ComponentFixture<BarChartComponent>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [
-        BarChartComponent
-      ],
-      providers: [
-        ConnectionService,
-        DatasetService,
-        FilterService,
-        ExportService,
-        TranslationService,
-        ErrorNotificationService,
-        ThemesService,
-        Injector,
-        { provide: 'config', useValue: testConfig }
-      ],
-      imports: [
-        MaterialModule,
-        MaterialModule.forRoot(),
-        FormsModule,
-        ChartModule
-      ]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [
+                BarChartComponent
+            ],
+            providers: [
+                ConnectionService,
+                DatasetService,
+                FilterService,
+                ExportService,
+                TranslationService,
+                ErrorNotificationService,
+                ThemesService,
+                Injector,
+                { provide: 'config', useValue: testConfig }
+            ],
+            imports: [
+                MaterialModule,
+                MaterialModule.forRoot(),
+                FormsModule,
+                ChartModule
+            ]
+        });
+        fixture = TestBed.createComponent(BarChartComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
     });
-    fixture = TestBed.createComponent(BarChartComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
 
-  it('should create an instance', async(() => {
-    expect(component).toBeTruthy();
-  }));
+    it('should create an instance', (() => {
+        expect(component).toBeTruthy();
+    }));
 });
