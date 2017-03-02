@@ -1301,7 +1301,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         };
 
         queries.forEach(function(queryData) {
-            if(queryData.query.transforms && queryData.query.transforms.transsformName === 'com.ncc.neon.query.transform.GeoGridTransformer') {
+            if(queryData.query.transforms && queryData.query.transforms[0].transformName === 'com.ncc.neon.query.transform.GeoGridTransformer') {
                 return; // Ignore grid queries.
             }
             var tempObject = {
