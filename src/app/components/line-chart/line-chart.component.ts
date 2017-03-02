@@ -106,7 +106,8 @@ export class LineChartComponent implements OnInit,
         endDate: Date
     };
 
-    private colorScheme: string[];
+    private colorScheme6: string[];
+    private colorScheme12: string[];
 
     constructor(private connectionService: ConnectionService, private datasetService: DatasetService, private filterService: FilterService,
         private exportService: ExportService, private injector: Injector, private themesService: ThemesService) {
@@ -128,10 +129,14 @@ export class LineChartComponent implements OnInit,
         this.messenger = new neon.eventing.Messenger();
         this.filters = [];
 
-        this.colorScheme = ['rgba(255,0,0,1)', 'rgba(0,255,0,1)', 'rgba(0,0,255,1)',
-            'rgba(75,192,192,1)', 'rgba(75,192,192,1)', 'rgba(75,192,192,1)',
-            'rgba(75,192,192,1)', 'rgba(75,192,192,1)', 'rgba(75,192,192,1)',
-            'rgba(75,192,192,1)', 'rgba(75,192,192,1)', 'rgba(75,192,192,1)',
+
+        this.colorScheme6 = ['rgb(228,26,28)', 'rgb(55,126,184)', 'rgb(77,175,74)',
+            'rgb(152,78,163)', 'rgb(255,127,0)', 'rgb(255,255,51)'];
+
+        this.colorScheme12 = ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)',
+            'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)',
+            'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)', 'rgb(255,255,153)',
+            'rgb(177,89,40)'
         ];
 
         this.active = {
@@ -566,6 +571,10 @@ export class LineChartComponent implements OnInit,
         valid = (this.active.dateField && valid);
         valid = (this.active.aggregationField && valid);
         valid = (this.active.aggregation && valid);
+        if (valid && this.active.aggregation !== 'count') {
+            let aggCol = this.active.aggregationField.columnName;
+            valid = aggCol && valid && aggCol !== "";
+        }
         return valid;
     }
 
@@ -599,6 +608,10 @@ export class LineChartComponent implements OnInit,
                 return query.aggregate(neon.query['SUM'], yAxisField, 'value');
             case 'average':
                 return query.aggregate(neon.query['AVG'], yAxisField, 'value');
+            case 'min':
+                return query.aggregate(neon.query['MIN'], yAxisField, 'value');
+            case 'max':
+                return query.aggregate(neon.query['MAX'], yAxisField, 'value');
         }
 
     };
@@ -644,6 +657,18 @@ export class LineChartComponent implements OnInit,
         });
     };
 
+    getColorFromScheme(index, numDatasets) {
+        let colorScheme = null;
+        if (numDatasets <= 6 && numDatasets > 0) {
+            colorScheme = this.colorScheme6;
+        } else {
+            colorScheme = this.colorScheme12;
+        }
+        let i = index % colorScheme.length;
+        let color = colorScheme[i];
+        return color;
+    }
+
     onQuerySuccess = (response) => {
         //console.log(response);
         // TODO get better color scheme
@@ -665,14 +690,16 @@ export class LineChartComponent implements OnInit,
         bucketizer.setStartDate(new Date(startDate));
         bucketizer.setEndDate(new Date(endDate));
         let length = bucketizer.getNumBuckets();
-
+        let fillValue = (this.active.aggregation === 'count' ? 0 : null);
+        let numDatasets = 0;
         for (let row of response.data) {
             if (row[dataSetField]) {
                 let dataSet = row[dataSetField];
                 let idx = bucketizer.getBucketIndex(new Date(row.date));
                 let ds = myData[dataSet];
                 if (!ds) {
-                    myData[dataSet] = new Array(length).fill(0);
+                    myData[dataSet] = new Array(length).fill(fillValue);
+                    numDatasets++;
                 }
                 myData[dataSet][idx] = row.value;
             }
@@ -684,8 +711,8 @@ export class LineChartComponent implements OnInit,
                 let d = {
                     label: datasetName,
                     data: myData[datasetName],
-                    borderColor: this.colorScheme[datasetIndex],
-                    pointBorderColor: this.colorScheme[datasetIndex],
+                    borderColor: this.getColorFromScheme(datasetIndex, numDatasets),
+                    pointBorderColor: this.getColorFromScheme(datasetIndex, numDatasets),
                     backgroundColor: 'rgba(0,0,0,0)',
                     pointBackgroundColor: 'rgba(0,0,0,0)'
                 };
