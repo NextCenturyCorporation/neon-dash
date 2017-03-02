@@ -5,7 +5,7 @@ import {
     ViewEncapsulation,
     ChangeDetectionStrategy,
     //Injector,
-    //ViewChild,
+    ViewChild,
     Input
 } from '@angular/core';
 //import {ConnectionService} from '../../services/connection.service';
@@ -28,10 +28,13 @@ import {
 export class LegendComponent implements OnInit,
     OnDestroy {
     @Input() data: LegendItem[];
+    @ViewChild('menu') menu: any;
+    private menuIcon: string;
 
     constructor() {
         //private connectionService: ConnectionService, private datasetService: DatasetService, private filterService: FilterService,
         //private exportService: ExportService, private injector: Injector, private themesService: ThemesService) {
+        this.menuIcon = 'keyboard_arrow_down';
     }
 
     ngOnInit() {
@@ -47,6 +50,14 @@ export class LegendComponent implements OnInit,
         } else {
             return 'check_box_outline_blank';
         }
+    }
+
+    onMenuOpen() {
+        this.menuIcon = 'keyboard_arrow_up';
+    }
+
+    onMenuClose() {
+        this.menuIcon = 'keyboard_arrow_down';
     }
 }
 
