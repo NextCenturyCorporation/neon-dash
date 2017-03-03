@@ -16,9 +16,12 @@
       "mobile": false,
       "styles": [
         "styles.scss",
-        "themes/neon-green-theme.scss"
+        "themes/neon-green-theme.scss",
+        "../node_modules/cesium/Build/Cesium/Widgets/widgets.css"
       ],
-      "scripts": [],
+      "scripts": [
+        
+      ],
       "environments": {
         "source": "environments/environment.ts",
         "dev": "environments/environment.ts",

@@ -29,6 +29,7 @@ import { VisualizationInjectorComponent } from './components/visualization-injec
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
+import { MapComponent } from './components//map/map.component';
 import { LegendComponent } from './components/legend/legend.component';
 
 import { NeonGTDConfig } from './neon-gtd-config';
@@ -67,7 +68,8 @@ describe('App: NeonGtd', () => {
         TextCloudComponent,
         BarChartComponent,
         LineChartComponent,
-        LegendComponent
+        LegendComponent,
+        MapComponent
       ],
       imports: [
         FormsModule,
