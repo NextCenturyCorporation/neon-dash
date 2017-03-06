@@ -82,22 +82,33 @@
 }
 
 .body-container {
-    height: 100%;
+    position: absolute;
+    top: 64px;
+    bottom: 0;
+    width: 100%;
 }
 
 .map-container {
-    
+    position: absolute;
+    width: 100%;
+    top: 0;
+    bottom: 0;
 }
 
 .text-container {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    height: 45px;
+    position: absolute;
+    top: 5px;
+    width: 100%;
 }
 
 #cesiumContainer {
-    height: 100%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
 }
 
 .neon-green-dark-theme {

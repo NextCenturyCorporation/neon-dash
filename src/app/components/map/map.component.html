@@ -152,8 +152,8 @@
         </button>
             </div>
         </div>
-        <div class="map-container " (click)="stopEventPropagation($event) ">
-            <div #cesiumContainer id="cesiumContainer "></div>
+        <div class="map-container" (click)="stopEventPropagation($event)">
+            <div #cesiumContainer id="cesiumContainer" (click)="stopEventPropagation($event)"></div>
         </div>
     </div>
 
