@@ -37,9 +37,9 @@ export class MapComponent implements OnInit,
     private messenger: neon.eventing.Messenger;
     private outstandingDataQuery: Object;
     private filters: {
-        key: string,
-        startDate: string,
-        endDate: string
+        latField: string,
+        lonField: string,
+        filterName: string
     }[];
     // private errorMessage: string;
     private initializing: boolean;
@@ -79,10 +79,19 @@ export class MapComponent implements OnInit,
     };
 
     private selection: {
-        mouseDown: boolean
-        startX: number,
+        selectionDown: boolean,
         startY: number,
-        visibleOverlay: boolean
+        startX: number,
+        endX: number,
+        endY: number,
+        startLat: number,
+        startLon: number,
+        endLat: number,
+        endLon: number,
+        height: number,
+        width: number,
+        x: number,
+        y: number
     };
 
     private legendData: LegendItem[];
@@ -150,10 +159,19 @@ export class MapComponent implements OnInit,
         };
 
         this.selection = {
-            mouseDown: false,
+            selectionDown: false,
             startY: 0,
             startX: 0,
-            visibleOverlay: false
+            endX: 0,
+            endY: 0,
+            startLat: 0,
+            startLon: 0,
+            endLat: 0,
+            endLon: 0,
+            height: 0,
+            width: 0,
+            x: 0,
+            y: 0
         };
 
         this.legendData = [];
@@ -187,7 +205,154 @@ export class MapComponent implements OnInit,
     };
 
     ngAfterViewInit() {
-        this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement);
+        let imagerySources = Cesium.createDefaultImageryProviderViewModels();
+        // In order to get a minimal viable product in the short time span we have, we decided to disable the following Cesium features:
+        //  3D Map and Columbus view.
+        //  Rotating 2D map
+        // These were mostly done to prevent the more complex problem of drawing on a 3D map.
+
+        this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
+            sceneMode: Cesium.SceneMode.SCENE2D,
+            imageryProviderViewModels: imagerySources,
+            //set default imagery to eliminate annoying text and using a bing key by default
+            selectedImageryProviderViewModel: imagerySources[12],
+            fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
+            timeline: false, //disable timeline widget
+            animation: false, // disable animation widget
+            mapMode2D: Cesium.MapMode2D.ROTATE,
+            sceneModePicker: false,
+            navigationHelpButton: false
+        });
+
+        this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
+          Cesium.ScreenSpaceEventType.LEFT_DOWN, Cesium.KeyboardEventModifier.SHIFT);
+        this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
+          Cesium.ScreenSpaceEventType.LEFT_UP, Cesium.KeyboardEventModifier.SHIFT);
+        this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
+          Cesium.ScreenSpaceEventType.MOUSE_MOVE, Cesium.KeyboardEventModifier.SHIFT);
+        this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
+          Cesium.ScreenSpaceEventType.LEFT_CLICK, Cesium.KeyboardEventModifier.SHIFT);
+
+        this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onSelectDown.bind(this),
+        Cesium.ScreenSpaceEventType.LEFT_DOWN, Cesium.KeyboardEventModifier.SHIFT);
+        this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onSelectUp.bind(this),
+        Cesium.ScreenSpaceEventType.LEFT_UP, Cesium.KeyboardEventModifier.SHIFT);
+        this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onSelectUp.bind(this),
+        Cesium.ScreenSpaceEventType.LEFT_UP);
+        this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onMouseMove.bind(this),
+        Cesium.ScreenSpaceEventType.MOUSE_MOVE, Cesium.KeyboardEventModifier.SHIFT);
+        this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onMouseMove.bind(this),
+        Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+
+        //Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
+        this.cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
+    }
+
+    onSelectDown(event) {
+        this.selection.selectionDown = true;
+        let geoPos = this.xyToLatLon(event.position);
+        this.selection.startLat = geoPos.lat;
+        this.selection.startLon = geoPos.lon;
+        this.selection.startX = event.position.x;
+        this.selection.startY = event.position.y;
+        this.selection.endLat = geoPos.lat;
+        this.selection.endLon = geoPos.lon;
+        this.selection.endX = event.position.x;
+        this.selection.endY = event.position.y;
+        this.selection.x = event.position.x;
+        this.selection.y = event.position.y;
+        this.selection.width = 0;
+        this.selection.height = 0;
+
+    }
+
+    onSelectUp(event) {
+        if (this.selection.selectionDown && event) {
+            this.setEndPos(event.position);
+            this.selection.selectionDown = false;
+            this.addLocalFilter(this.active.latitudeField.columnName, this.active.longitudeField.columnName, this.getFilterText());
+            this.addNeonFilter(true);
+        }
+    }
+
+    onMouseMove(movement) {
+        if (this.selection.selectionDown && movement) {
+            this.setEndPos(movement.endPosition);
+
+        }
+        //console.log(movement.endPosition);
+        //console.log(this.xyToLatLon(movement.endPosition))
+    }
+
+    setEndPos(position) {
+        let geoPos = this.xyToLatLon(position);
+        if (geoPos) {
+            this.selection.endLat = geoPos.lat;
+            this.selection.endLon = geoPos.lon;
+            this.selection.endX = position.x;
+            this.selection.endY = position.y;
+            this.correctSelectionToMapExtents();
+            this.selection.x = Math.min(this.selection.endX, this.selection.startX);
+            this.selection.y = Math.min(this.selection.endY, this.selection.startY);
+            this.selection.width = Math.abs(this.selection.endX - this.selection.startX);
+            this.selection.height = Math.abs(this.selection.endY - this.selection.startY);
+        }
+    }
+
+    correctSelectionToMapExtents() {
+        let a = '1';
+        let b = '2';
+        if (a === b) {//TODO fix this later
+            this.correctLatLon(this.selection, 'startLat', 'startX', 'startLon', 'startY');
+            this.correctLatLon(this.selection, 'endLat', 'endX', 'endLon', 'endY');
+        }
+    }
+
+    correctLatLon(obj, lat, x, lon, y) {
+        let needCorrection = false;
+        if (obj[lat] < -90) {
+            obj[lat] = -90;
+            needCorrection = true;
+        } else if (obj[lat] > 90) {
+            obj[lat] = 90;
+            needCorrection = true;
+        }
+        if (obj[lon] < -180) {
+            obj[lon] = -180;
+            needCorrection = true;
+        } else if (obj[lon] > 180) {
+            obj[lon] = 180;
+            needCorrection = true;
+        }
+        if (needCorrection) {
+            let correctedXy = this.latLonToXy({ 'lat': obj[lat], 'lon': obj[lon] });
+            obj[x] = correctedXy.x;
+            obj[y] = correctedXy.y;
+        }
+    }
+
+
+    latLonToXy(position) {
+        let viewer = this.cesiumViewer;
+        let p = viewer.scene.globe.ellipsoid.cartographicToCartesian({ 'latitude': position.lat, 'longitude': position.lon });
+        let pos = Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, p);
+        return pos;
+    }
+
+    xyToLatLon(position) {
+        let viewer = this.cesiumViewer;
+        let cartesian = viewer.camera.pickEllipsoid(position, viewer.scene.globe.ellipsoid);
+        if (cartesian) {
+            let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+            let longitude = Cesium.Math.toDegrees(cartographic.longitude);
+            let latitude = Cesium.Math.toDegrees(cartographic.latitude);
+            let geoPosition = {
+                lat: latitude,
+                lon: longitude
+            };
+            return geoPosition;
+        }
+        return null;
     }
 
     ngOnDestroy() {
@@ -274,11 +439,11 @@ export class MapComponent implements OnInit,
         this.active.dateField = this.findFieldObject('dateField', neonMappings.TAGS);
     };
 
-    addLocalFilter(key, startDate, endDate) {
+    addLocalFilter(latField, lonField, name) {
         this.filters[0] = {
-            key: key,
-            startDate: startDate,
-            endDate: endDate
+            latField: latField,
+            lonField: lonField,
+            filterName: name
         };
     };
 
@@ -290,10 +455,19 @@ export class MapComponent implements OnInit,
         }
     }
 
-    createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
+    createNeonFilterClauseEquals(_databaseAndTableName: {}, latLonFieldNames: string[]) {
         let filterClauses = [];
-        console.log(fieldName);
-        //filterClauses[0] = neon.query.where(fieldName, '>=', this.selection.startDate);
+        //console.log(fieldName);
+        let latField = latLonFieldNames[0];
+        let lonField = latLonFieldNames[1];
+        let minLat = Math.min(this.selection.startLat, this.selection.endLat);
+        let maxLat = Math.max(this.selection.startLat, this.selection.endLat);
+        let minLon = Math.min(this.selection.startLon, this.selection.endLon);
+        let maxLon = Math.max(this.selection.startLon, this.selection.endLon);
+        filterClauses[0] = neon.query.where(latField, '>=', minLat);
+        filterClauses[1] = neon.query.where(latField, '<=', maxLat);
+        filterClauses[2] = neon.query.where(lonField, '>=', minLon);
+        filterClauses[3] = neon.query.where(lonField, '<=', maxLon);
         //let endDatePlusOne = this.selection.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
         //let endDatePlusOneDate = new Date(endDatePlusOne);
         //filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
@@ -301,10 +475,11 @@ export class MapComponent implements OnInit,
     };
 
     getFilterText() {
-        //TODO Fix
         let database = this.active.database.name;
         let table = this.active.table.name;
-        let text = database + ' - ' + table + ' - Map Filter';
+        let latField = this.active.latitudeField.columnName;
+        let lonField = this.active.longitudeField.columnName;
+        let text = database + ' - ' + table + ' - ' + latField + ', ' + lonField;
         return text;
     }
 
@@ -323,7 +498,7 @@ export class MapComponent implements OnInit,
         this.filterService.addFilter(this.messenger, database, table, fields,
             this.createNeonFilterClauseEquals.bind(this),
             {
-                visName: 'Line chart',
+                visName: 'Map',
                 text: text
             }
             , onSuccess.bind(this),
@@ -365,22 +540,6 @@ export class MapComponent implements OnInit,
         }
         this.queryTitle = this.createTitle(true);
         let query = this.createQuery();
-        // TODO evaluate what filters to ignore
-
-        //let database = this.active.database.name;
-        //let table = this.active.table.name;
-        //let fields = [this.active.dateField.columnName];
-        // get relevant neon filters and check for filters that should be ignored and add that to query
-
-        //let neonFilters = this.filterService.getFilters(database, table, fields);
-        //console.log(neonFilters);
-        //if (neonFilters.length > 0) {
-        //let ignoredFilterIds = [];
-        //for (let filter of neonFilters) {
-        //    ignoredFilterIds.push(filter.id);
-        //}
-        //query.ignoreFilters(ignoredFilterIds);
-        //}
 
         this.executeQuery(query);
     }
@@ -564,9 +723,22 @@ export class MapComponent implements OnInit,
         let neonFilters = this.filterService.getFilters(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
             for (let filter of neonFilters) {
-                let key = filter.filter.whereClause.lhs;
-                let value = filter.filter.whereClause.rhs;
-                this.addLocalFilter(key, value, key);
+                console.log(filter);
+                let filterName = filter.filter.filterName;
+                if (filter.filter.whereClause.type === 'and') {
+                    let applicable = true;
+                    for (let where of filter.filter.whereClause.whereClauses) {
+                        if (where.lhs === this.active.latitudeField.columnName || where.lhs === this.active.longitudeField.columnName) {
+
+                        } else {
+                            applicable = false;
+                            break;
+                        }
+                    }
+                    if (applicable) {
+                        this.addLocalFilter(this.active.latitudeField.columnName, this.active.longitudeField.columnName, filterName);
+                    }
+                }
             }
         } else {
             this.filters = [];

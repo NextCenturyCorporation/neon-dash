@@ -141,6 +141,11 @@
         </md-card>
     </md-sidenav>
     <div class="body-container" (click)="stopEventPropagation($event)">
+        <div class="map-container" (click)="stopEventPropagation($event)">
+
+            <div #cesiumContainer id="cesiumContainer" (click)="stopEventPropagation($event)"></div>
+            <div class="map-selection" *ngIf="selection.selectionDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
+        </div>
         <div class=" text-container ">
             <div>
                 <app-legend [data]="legendData"></app-legend>
@@ -148,13 +153,9 @@
             <div class="filter-reset " *ngFor="let value of getCloseableFilters() ">
                 <span class="filter-label " [title]="getFilterTitle(value) ">{{ getFilterCloseText(value) }}</span>
                 <button md-icon-button aria-label="Close " [md-tooltip]="getRemoveFilterTooltip(value) " tooltip-position="below " (click)="removeLocalFilterFromLocalAndNeon(value) ">
-            <md-icon class="mat-18 ">close</md-icon>
-        </button>
+                    <md-icon class="mat-18 ">close</md-icon>
+                  </button>
             </div>
         </div>
-        <div class="map-container" (click)="stopEventPropagation($event)">
-            <div #cesiumContainer id="cesiumContainer" (click)="stopEventPropagation($event)"></div>
-        </div>
     </div>
-
 </md-sidenav-container>
