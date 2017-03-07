@@ -91,7 +91,10 @@ export class MapComponent implements OnInit,
         height: number,
         width: number,
         x: number,
-        y: number
+        y: number,
+        //showSelection: boolean
+        selectionGeometry: any,
+        rectangle: any
     };
 
     private legendData: LegendItem[];
@@ -171,7 +174,9 @@ export class MapComponent implements OnInit,
             height: 0,
             width: 0,
             x: 0,
-            y: 0
+            y: 0,
+            selectionGeometry: null,
+            rectangle: null
         };
 
         this.legendData = [];
@@ -215,7 +220,8 @@ export class MapComponent implements OnInit,
             sceneMode: Cesium.SceneMode.SCENE2D,
             imageryProviderViewModels: imagerySources,
             //set default imagery to eliminate annoying text and using a bing key by default
-            selectedImageryProviderViewModel: imagerySources[12],
+            selectedImageryProviderViewModel: imagerySources[9],
+            terrainProviderViewModels: [],
             fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
             timeline: false, //disable timeline widget
             animation: false, // disable animation widget
@@ -225,27 +231,28 @@ export class MapComponent implements OnInit,
         });
 
         this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
-          Cesium.ScreenSpaceEventType.LEFT_DOWN, Cesium.KeyboardEventModifier.SHIFT);
+            Cesium.ScreenSpaceEventType.LEFT_DOWN, Cesium.KeyboardEventModifier.SHIFT);
         this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
-          Cesium.ScreenSpaceEventType.LEFT_UP, Cesium.KeyboardEventModifier.SHIFT);
+            Cesium.ScreenSpaceEventType.LEFT_UP, Cesium.KeyboardEventModifier.SHIFT);
         this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
-          Cesium.ScreenSpaceEventType.MOUSE_MOVE, Cesium.KeyboardEventModifier.SHIFT);
+            Cesium.ScreenSpaceEventType.MOUSE_MOVE, Cesium.KeyboardEventModifier.SHIFT);
         this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
-          Cesium.ScreenSpaceEventType.LEFT_CLICK, Cesium.KeyboardEventModifier.SHIFT);
+            Cesium.ScreenSpaceEventType.LEFT_CLICK, Cesium.KeyboardEventModifier.SHIFT);
 
         this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onSelectDown.bind(this),
-        Cesium.ScreenSpaceEventType.LEFT_DOWN, Cesium.KeyboardEventModifier.SHIFT);
+            Cesium.ScreenSpaceEventType.LEFT_DOWN, Cesium.KeyboardEventModifier.SHIFT);
         this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onSelectUp.bind(this),
-        Cesium.ScreenSpaceEventType.LEFT_UP, Cesium.KeyboardEventModifier.SHIFT);
+            Cesium.ScreenSpaceEventType.LEFT_UP, Cesium.KeyboardEventModifier.SHIFT);
         this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onSelectUp.bind(this),
-        Cesium.ScreenSpaceEventType.LEFT_UP);
+            Cesium.ScreenSpaceEventType.LEFT_UP);
         this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onMouseMove.bind(this),
-        Cesium.ScreenSpaceEventType.MOUSE_MOVE, Cesium.KeyboardEventModifier.SHIFT);
+            Cesium.ScreenSpaceEventType.MOUSE_MOVE, Cesium.KeyboardEventModifier.SHIFT);
         this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onMouseMove.bind(this),
-        Cesium.ScreenSpaceEventType.MOUSE_MOVE);
+            Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
         //Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
         this.cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
+        this.cesiumViewer.camera.flyHome(0);
     }
 
     onSelectDown(event) {
@@ -264,21 +271,77 @@ export class MapComponent implements OnInit,
         this.selection.width = 0;
         this.selection.height = 0;
 
+        this.drawSelection();
+
+    }
+
+    getSelectionRectangle() {
+        let south = Math.min(this.selection.startLat, this.selection.endLat);
+        let north = Math.max(this.selection.startLat, this.selection.endLat);
+        let west = Math.min(this.selection.startLon, this.selection.endLon);
+        let east = Math.max(this.selection.startLon, this.selection.endLon);
+        let r = Cesium.Rectangle.fromDegrees(west, south, east, north);
+        return r;
+    }
+
+    drawSelection() {
+        if (!this.selection.selectionGeometry) {
+            let geo = this.cesiumViewer.entities.add({
+                name: 'SelectionRectangle',
+                rectangle: {
+                    coordinates: new Cesium.CallbackProperty(this.getSelectionRectangle.bind(this), false),
+                    material: Cesium.Color.GREEN.withAlpha(0.0),
+                    height: 0,
+                    outline: true,
+                    outlineColor: Cesium.Color.GREEN
+                }
+            });
+            this.selection.selectionGeometry = geo;
+        }
     }
 
     onSelectUp(event) {
-        if (this.selection.selectionDown && event) {
+        if (this.selection.selectionDown && event && this.selection.selectionGeometry) {
             this.setEndPos(event.position);
             this.selection.selectionDown = false;
-            this.addLocalFilter(this.active.latitudeField.columnName, this.active.longitudeField.columnName, this.getFilterText());
-            this.addNeonFilter(true);
+            let rect = this.getSelectionRectangle();
+            let validFilter = (rect.east !== rect.west) && (rect.north !== rect.south);
+            if (validFilter) {
+                this.addLocalFilter(this.active.latitudeField.columnName, this.active.longitudeField.columnName, this.getFilterText());
+                this.addNeonFilter(true);
+
+                let zoomRect = rect;
+                let vDiff = zoomRect.north - zoomRect.south;
+                let hDiff = zoomRect.east - zoomRect.west;
+                let delta = .05;
+                zoomRect.north += vDiff * delta;
+                zoomRect.south -= vDiff * delta;
+                zoomRect.east += hDiff * delta;
+                zoomRect.west -= hDiff * delta;
+                this.cesiumViewer.camera.flyTo({
+                    destination: zoomRect,
+                    duration: .5
+                });
+
+                this.drawSelection();
+            } else {
+                this.removeFilterBox();
+            }
+        }
+    }
+
+    removeFilterBox() {
+        if (this.selection.selectionGeometry) {
+            this.cesiumViewer.entities.remove(this.selection.selectionGeometry);
+            this.selection.selectionGeometry = null;
+            this.selection.rectangle = null;
         }
     }
 
     onMouseMove(movement) {
         if (this.selection.selectionDown && movement) {
             this.setEndPos(movement.endPosition);
-
+            this.drawSelection();
         }
         //console.log(movement.endPosition);
         //console.log(this.xyToLatLon(movement.endPosition))
@@ -643,6 +706,9 @@ export class MapComponent implements OnInit,
         let colorField = this.active.colorField.columnName;
         let entities = this.cesiumViewer.entities;
         entities.removeAll();
+        if (this.selection.selectionGeometry) {
+            entities.add(this.selection.selectionGeometry);
+        }
         let numDatasets = 7; //forces to larger color scheme
         let legendMap = {};
         this.legendData = [];
@@ -676,7 +742,7 @@ export class MapComponent implements OnInit,
                 point: {
                     show: true, // default
                     color: color, // default: WHITE
-                    pixelSize: 2, // default: 1
+                    pixelSize: 4, // default: 1
                     outlineColor: color, // default: BLACK
                     outlineWidth: 0 // default: 0
                 }
@@ -742,6 +808,7 @@ export class MapComponent implements OnInit,
             }
         } else {
             this.filters = [];
+            this.removeFilterBox();
         }
         this.executeQueryChain();
     };
@@ -843,12 +910,16 @@ export class MapComponent implements OnInit,
         this.filterService.removeFilter(database, table, fields,
             () => {
                 me.filters = [];
+                this.removeFilterBox();
                 me.executeQueryChain();
                 console.log('remove filter' + value);
             },
             () => {
                 console.error('error removing filter');
             }, this.messenger);
+        if (this.filters.length === 0) {
+            this.removeFilterBox();
+        }
 
     };
 }

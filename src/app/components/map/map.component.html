@@ -42,6 +42,7 @@
                 </md-select>
                 <p></p>
 
+                <!--
                 <md-select placeholder="Size Field" [(ngModel)]="active.sizeField" required="true" (ngModelChange)="handleChangeSizeField()" [disabled]="active.fields.length == 0">
                     <md-option *ngFor="let field of active.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
@@ -50,7 +51,7 @@
                 <md-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true" (ngModelChange)="handleChangeDateField()" [disabled]="active.fields.length == 0">
                     <md-option *ngFor="let field of active.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
-                <p></p>
+                <p></p>-->
 
                 <!--<md-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true" (ngModelChange)="handleChangeAggregation()" [disabled]="active.fields.length == 0">
                     <md-option value="count">Count</md-option>
@@ -144,7 +145,7 @@
         <div class="map-container" (click)="stopEventPropagation($event)">
 
             <div #cesiumContainer id="cesiumContainer" (click)="stopEventPropagation($event)"></div>
-            <div class="map-selection" *ngIf="selection.selectionDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
+            <div class="map-selection" *ngIf="selection.showSelection" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
         </div>
         <div class=" text-container ">
             <div>
