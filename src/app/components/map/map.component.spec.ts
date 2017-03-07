@@ -21,7 +21,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 
 function webgl_support(): any {
     try {
-        var canvas = document.createElement('canvas');
+        let canvas = document.createElement('canvas');
         return !!window['WebGLRenderingContext'] && (
             canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
     } catch (e) { return false; }
@@ -67,7 +67,7 @@ describe('Component: Map', () => {
     // Disabling this test until i can find a resolution.
     it('should create an instance', () => {
         if (!webgl_support()) {
-            pending("Cesium requires webgl which is not supported by the browser implementation.");
+            pending('Cesium requires webgl which is not supported by the browser implementation.');
         }
         expect(component).toBeTruthy();
     });
