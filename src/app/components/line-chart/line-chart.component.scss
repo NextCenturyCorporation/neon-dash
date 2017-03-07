@@ -81,6 +81,13 @@
     }
 }
 
+.body-container {
+    position: absolute;
+    top: 64px;
+    bottom: 0;
+    width: 100%;
+}
+
 .text-container {
     display: flex;
     flex-direction: row;
@@ -89,8 +96,10 @@
 }
 
 .chart-container {
-    position: relative;
-    height: 100%;
+    position: absolute;
+    width: 100%;
+    top: 45px;
+    bottom: 0;
 }
 
 .chart {
