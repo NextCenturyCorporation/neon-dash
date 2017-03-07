@@ -816,7 +816,7 @@ export class MapComponent implements OnInit,
         //return closeableFilters;
         //TODO
         if (this.filters.length > 0) {
-            return ['Date Filter'];
+            return ['Map Filter'];
         } else {
             return [];
         }
