@@ -17,6 +17,7 @@ import { TranslationService } from '../../services/translation.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
+import { ColorSchemeService } from '../../services/color-scheme.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 function webgl_support(): any {
@@ -47,6 +48,7 @@ describe('Component: Map', () => {
                 ErrorNotificationService,
                 ThemesService,
                 Injector,
+                ColorSchemeService,
                 { provide: 'config', useValue: testConfig }
             ],
             imports: [

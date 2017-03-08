@@ -14,6 +14,7 @@ import {DatasetService} from '../../services/dataset.service';
 import {FilterService} from '../../services/filter.service';
 import {ExportService} from '../../services/export.service';
 import {ThemesService} from '../../services/themes.service';
+import {ColorSchemeService} from '../../services/color-scheme.service';
 import {FieldMetaData} from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
@@ -85,15 +86,16 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
 
     private legendData: LegendItem[];
 
-    private colorScheme6: string[];
-    private colorScheme12: string[];
+    private colorSchemeService: ColorSchemeService;
+
     private cesiumViewer: any;
     @ViewChild('cesiumContainer') cesiumContainer: ElementRef;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService) {
+        exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService) {
         super(connectionService, datasetService, filterService, exportService, injector, themesService);
         (<any>window).CESIUM_BASE_URL = '/assets/Cesium';
+        this.colorSchemeService = colorSchemeSrv;
         this.FIELD_ID = '_id';
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
@@ -109,14 +111,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             unsharedFilterValue: ''
         };
         this.filters = [];
-        this.colorScheme6 = ['rgb(228,26,28)', 'rgb(55,126,184)', 'rgb(77,175,74)',
-            'rgb(152,78,163)', 'rgb(255,127,0)', 'rgb(255,255,51)'];
-
-        this.colorScheme12 = ['rgb(166,206,227)', 'rgb(31,120,180)', 'rgb(178,223,138)',
-            'rgb(51,160,44)', 'rgb(251,154,153)', 'rgb(227,26,28)', 'rgb(253,191,111)',
-            'rgb(255,127,0)', 'rgb(202,178,214)', 'rgb(106,61,154)', 'rgb(255,255,153)',
-            'rgb(177,89,40)'
-        ];
 
         let limit = this.optionsFromConfig.limit;
         limit = (limit ? limit : 1000);
@@ -471,15 +465,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         return query;
     };
 
-    getColorFromScheme(index, numDatasets) {
-        let colorScheme = null;
-        if (numDatasets <= 6 && numDatasets > 0) {
-            colorScheme = this.colorScheme6;
-        } else {
-            colorScheme = this.colorScheme12;
-        }
-        let i = index % colorScheme.length;
-        let color = (colorScheme[i]);
+    getColorFromScheme(index) {
+        let color = this.colorSchemeService.getColorAsRgb(index);
         return color;
     }
 
@@ -494,7 +481,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         if (this.selection.selectionGeometry) {
             entities.add(this.selection.selectionGeometry);
         }
-        let numDatasets = 7; //forces to larger color scheme
         let legendMap = {};
         this.legendData = [];
         let legendIndex = 0;
@@ -506,7 +492,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
                 if (legendMap[colorKey]) {
                     color = legendMap[colorKey];
                 } else {
-                    let colorString = this.getColorFromScheme(legendIndex, numDatasets);
+                    let colorString = this.getColorFromScheme(legendIndex);
                     let legendItem: LegendItem = {
                         prettyName: colorKey,
                         accessName: colorKey,
@@ -641,6 +627,11 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
     removeFilter(/*value*/): void {
         this.filters = [];
     }
+
+    handleRemoveFilter(value): void {
+        this.removeLocalFilterFromLocalAndNeon(value, true, false);
+        this.removeFilterBox();
+    };
 
     /*removeLocalFilterFromLocalAndNeon(value: string) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both

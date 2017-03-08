@@ -36,6 +36,7 @@ import { ParameterService } from './services/parameter.service';
 import { ThemesService } from './services/themes.service';
 import { TranslationService } from './services/translation.service';
 import { VisualizationService } from './services/visualization.service';
+import { ColorSchemeService } from './services/color-scheme.service';
 
 import { NeonGTDConfig } from './neon-gtd-config';
 
@@ -92,6 +93,7 @@ export function createAppModule(config: NeonGTDConfig) {
             ThemesService,
             TranslationService,
             VisualizationService,
+            ColorSchemeService,
             {
               provide: 'config',
               useValue: config

@@ -16,6 +16,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { TranslationService } from '../../services/translation.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
+import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
@@ -38,6 +39,7 @@ describe('Component: LineChart', () => {
         TranslationService,
         ErrorNotificationService,
         ThemesService,
+        ColorSchemeService,
         Injector,
         { provide: 'config', useValue: testConfig }
       ],
