@@ -14,11 +14,12 @@ import {DatasetService} from '../../services/dataset.service';
 import {FilterService} from '../../services/filter.service';
 import {ExportService} from '../../services/export.service';
 import {ThemesService} from '../../services/themes.service';
-import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
+import {FieldMetaData} from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import * as _ from 'lodash';
+//import * as _ from 'lodash';
 import {LegendItem} from '../legend/legend.component';
+import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import 'cesium/Build/Cesium/Cesium.js';
 
 @Component({
@@ -27,23 +28,15 @@ import 'cesium/Build/Cesium/Cesium.js';
     styleUrls: ['./map.component.scss'],
     encapsulation: ViewEncapsulation.Emulated, changeDetection: ChangeDetectionStrategy.Default
 })
-export class MapComponent implements OnInit,
+export class MapComponent extends BaseNeonComponent implements OnInit,
     OnDestroy, AfterViewInit {
 
     private FIELD_ID: string;
-    //@ViewChild('myChart') chartModule: ChartModule;
-    //@Input() chartType: string;
-    private queryTitle: string;
-    private messenger: neon.eventing.Messenger;
-    private outstandingDataQuery: Object;
     private filters: {
         latField: string,
         lonField: string,
         filterName: string
     }[];
-    // private errorMessage: string;
-    private initializing: boolean;
-    // private exportId: number;
 
     private optionsFromConfig: {
         title: string,
@@ -68,13 +61,6 @@ export class MapComponent implements OnInit,
         limit: number,
         filterable: boolean,
         layers: any[],
-        databases: DatabaseMetaData[],
-        database: DatabaseMetaData,
-        tables: TableMetaData[],
-        table: TableMetaData,
-        unsharedFilterField: Object,
-        unsharedFilterValue: string,
-        fields: FieldMetaData[],
         data: Object[]
     };
 
@@ -104,13 +90,11 @@ export class MapComponent implements OnInit,
     private cesiumViewer: any;
     @ViewChild('cesiumContainer') cesiumContainer: ElementRef;
 
-    constructor(private connectionService: ConnectionService, private datasetService: DatasetService, private filterService: FilterService,
-        private exportService: ExportService, private injector: Injector, private themesService: ThemesService) {
+    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
+        exportService: ExportService, injector: Injector, themesService: ThemesService) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService);
         (<any>window).CESIUM_BASE_URL = '/assets/Cesium';
         this.FIELD_ID = '_id';
-        console.log(this.exportService);
-        console.log(this.filterService);
-        console.log(this.connectionService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -124,11 +108,7 @@ export class MapComponent implements OnInit,
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
-        this.themesService = themesService;
-        this.messenger = new neon.eventing.Messenger();
         this.filters = [];
-
-
         this.colorScheme6 = ['rgb(228,26,28)', 'rgb(55,126,184)', 'rgb(77,175,74)',
             'rgb(152,78,163)', 'rgb(255,127,0)', 'rgb(255,255,51)'];
 
@@ -151,13 +131,6 @@ export class MapComponent implements OnInit,
             limit: limit,
             filterable: true,
             layers: [],
-            databases: [],
-            database: new DatabaseMetaData(),
-            tables: [],
-            table: new TableMetaData(),
-            unsharedFilterField: {},
-            unsharedFilterValue: '',
-            fields: [],
             data: [],
         };
 
@@ -182,31 +155,8 @@ export class MapComponent implements OnInit,
         this.legendData = [];
 
     };
-    ngOnInit() {
-        this.initializing = true;
-        this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
-        this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
-        //var viewer = new Cesium.Viewer('cesiumContainer');
-        //console.log(viewer);
-
-        // this.exportId = this.exportService.register(this.getExportData);
-        // TODO: Resize??
-        /*
-            $scope.element.resize(resize);
-            $scope.element.find('.headers-container').resize(resizeDisplay);
-            $scope.element.find('.options-menu-button').resize(resizeTitle);
-            resize();
-        */
-
-        // prefill outstanding data query object so it has all databases
-        this.outstandingDataQuery = {};
-        for (let database of this.datasetService.getDatabases()) {
-            this.outstandingDataQuery[database.name] = {};
-        }
-        this.initData();
-
-        this.initializing = false;
-        this.executeQueryChain();
+    subNgOnInit() {
+        //do nothing
     };
 
     ngAfterViewInit() {
@@ -254,6 +204,14 @@ export class MapComponent implements OnInit,
         this.cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
         this.cesiumViewer.camera.flyHome(0);
     }
+
+    subNgOnDestroy() {
+        //do nothing
+    };
+
+    getOptionFromConfig(field) {
+        return this.optionsFromConfig[field];
+    };
 
     onSelectDown(event) {
         this.selection.selectionDown = true;
@@ -418,82 +376,6 @@ export class MapComponent implements OnInit,
         return null;
     }
 
-    ngOnDestroy() {
-        /* $scope.element.off('resize', resize);
-        $scope.element.find('.headers-container').off('resize', resizeDisplay);
-        $scope.element.find('.options-menu-button').off('resize', resizeTitle);
-        $scope.messenger.unsubscribeAll();
-
-        if($scope.functions.isFilterSet()) {
-            $scope.functions.removeNeonFilter({
-                fromSystem: true
-            });
-        }
-
-        exportService.unregister($scope.exportId);
-        linksPopupService.deleteLinks($scope.visualizationId);
-        $scope.getDataLayers().forEach(function(layer) {
-            linksPopupService.deleteLinks(createLayerLinksSource(layer));
-        });
-        themeService.unregisterListener($scope.visualizationId);
-        visualizationService.unregister($scope.stateId);
-
-        resizeListeners.forEach(function(element) {
-            $scope.element.find(element).off('resize', resize);
-        }); */
-    };
-
-    initData() {
-        this.initDatabases();
-    };
-
-    initDatabases() {
-        this.active.databases = this.datasetService.getDatabases();
-        this.active.database = this.active.databases[0];
-
-        if (this.active.databases.length > 0) {
-            if (this.optionsFromConfig.database) {
-                for (let database of this.active.databases) {
-                    if (this.optionsFromConfig.database === database.name) {
-                        this.active.database = database;
-                        break;
-                    }
-                }
-            }
-
-            this.initTables();
-        }
-    };
-
-    initTables() {
-        this.active.tables = this.datasetService.getTables(this.active.database['name']);
-        this.active.table = this.active.tables[0];
-
-        if (this.active.tables.length > 0) {
-            if (this.optionsFromConfig.table) {
-                for (let table of this.active.tables) {
-                    if (this.optionsFromConfig.table === table.name) {
-                        this.active.table = table;
-                        break;
-                    }
-                }
-            }
-            this.initFields();
-        }
-    };
-
-    initFields() {
-        // Sort the fields that are displayed in the dropdowns in the options menus
-        // alphabetically.
-        this.active.fields = this.datasetService
-            .getSortedFields(this.active.database['name'], this.active.table['name']);
-
-        this.active.unsharedFilterField = this.findFieldObject('unsharedFilterField');
-        this.active.unsharedFilterValue = this.optionsFromConfig.unsharedFilterValue || '';
-
-        this.onUpdateFields();
-    };
-
     onUpdateFields() {
         this.active.latitudeField = this.findFieldObject('latitudeField', neonMappings.TAGS);
         this.active.longitudeField = this.findFieldObject('longitudeField', neonMappings.TAGS);
@@ -509,14 +391,6 @@ export class MapComponent implements OnInit,
             filterName: name
         };
     };
-
-    stopEventPropagation(event) {
-        if (event.stopPropagation) {
-            event.stopPropagation();
-        } else {
-            event.returnValue = false;
-        }
-    }
 
     createNeonFilterClauseEquals(_databaseAndTableName: {}, latLonFieldNames: string[]) {
         let filterClauses = [];
@@ -538,87 +412,39 @@ export class MapComponent implements OnInit,
     };
 
     getFilterText() {
-        let database = this.active.database.name;
-        let table = this.active.table.name;
+        let database = this.meta.database.name;
+        let table = this.meta.table.name;
         let latField = this.active.latitudeField.columnName;
         let lonField = this.active.longitudeField.columnName;
         let text = database + ' - ' + table + ' - ' + latField + ', ' + lonField;
         return text;
     }
 
-    addNeonFilter(executeQueryChainOnSuccess) {
-        let database = this.active.database.name;
-        let table = this.active.table.name;
+    getNeonFilterFields() {
         let fields = [this.active.latitudeField.columnName, this.active.longitudeField.columnName];
-        let text = this.getFilterText();
-
-        let onSuccess = () => {
-            console.log('filter set successfully');
-            if (executeQueryChainOnSuccess) {
-                this.executeQueryChain();
-            }
-        };
-        this.filterService.addFilter(this.messenger, database, table, fields,
-            this.createNeonFilterClauseEquals.bind(this),
-            {
-                visName: 'Map',
-                text: text
-            }
-            , onSuccess.bind(this),
-            () => {
-                console.log('filter failed to set');
-            });
+        return fields;
     }
 
-    createTitle(resetQueryTitle?: boolean): string {
-        if (resetQueryTitle) {
-            this.queryTitle = '';
-        }
-        if (this.queryTitle) {
-            return this.queryTitle;
-        }
-        if (this.optionsFromConfig.title) {
-            return this.optionsFromConfig.title;
-        }
-        let title = this.active.unsharedFilterValue
-            ? this.active.unsharedFilterValue + ' '
-            : '';
-        if (_.keys(this.active).length) {
-            return title + (this.active.table && this.active.table.name
-                ? this.active.table.prettyName
-                : '');
-        }
-        return title;
-    };
+    getVisualizationName() {
+        return 'Map';
+    }
 
-    /**
-    This is expected to get called whenever a query is expected to be run.
-    This could be startup, user action to change field, relevant filter change
-    from another visualization
-     */
-    executeQueryChain() {
-        let isValidQuery = this.isValidQuery();
-        if (!isValidQuery) {
-            return;
-        }
-        this.queryTitle = this.createTitle(true);
-        let query = this.createQuery();
-
-        this.executeQuery(query);
+    getFiltersToIgnore() {
+        return null;
     }
 
     isValidQuery() {
         let valid = true;
-        valid = (this.active.database && valid);
-        valid = (this.active.table && valid);
+        valid = (this.meta.database && valid);
+        valid = (this.meta.table && valid);
         valid = (this.active.longitudeField && valid);
         valid = (this.active.latitudeField && valid);
         return valid;
     }
 
     createQuery(): neon.query.Query {
-        let databaseName = this.active.database.name;
-        let tableName = this.active.table.name;
+        let databaseName = this.meta.database.name;
+        let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClauses = [];
         let latitudeField = this.active.latitudeField.columnName;
@@ -645,47 +471,6 @@ export class MapComponent implements OnInit,
         return query;
     };
 
-    executeQuery = function(query: neon.query.Query) {
-        let me = this;
-        let database = this.active.database.name;
-        let table = this.active.table.name;
-        let connection = this.connectionService.getActiveConnection();
-        if (!connection || !this.datasetService.isFieldValid(this.active.latitudeField)
-            || !this.datasetService.isFieldValid(this.active.longitudeField)) {
-            return;
-        }
-        // Cancel any previous data query currently running.
-        if (this.outstandingDataQuery[database] && this.outstandingDataQuery[database][table]) {
-            this.outstandingDataQuery[database][table].abort();
-        }
-
-        // Execute the data query, calling the function defined in 'done' or 'fail' as
-        // needed.
-        this.outstandingDataQuery[database][table] = connection.executeQuery(query, null);
-
-        // Visualizations that do not execute data queries will not return a query
-        // object.
-        if (!this.outstandingDataQuery[database][table]) {
-            // TODO do something
-            console.log('execute query did not return an object');
-        }
-
-        this.outstandingDataQuery[database][table].always(function() {
-            me.outstandingDataQuery[database][table] = undefined;
-        });
-
-        this.outstandingDataQuery[database][table].done(this.onQuerySuccess.bind(this));
-
-        this.outstandingDataQuery[database][table].fail(function(response) {
-            console.error(response);
-            if (response.status === 0) {
-                // TODO handle error
-            } else {
-                // TODO handle error
-            }
-        });
-    };
-
     getColorFromScheme(index, numDatasets) {
         let colorScheme = null;
         if (numDatasets <= 6 && numDatasets > 0) {
@@ -698,7 +483,7 @@ export class MapComponent implements OnInit,
         return color;
     }
 
-    onQuerySuccess = (response) => {
+    onQuerySuccess(response) {
         // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
         // TODO break this function into smaller bits so it is more understandable.
         let lngField = this.active.longitudeField.columnName;
@@ -749,47 +534,23 @@ export class MapComponent implements OnInit,
             };
             entities.add(entity);
         }
-        console.log(response);
-
+        //console.log(response);
     }
 
-    /**
-    * Get field object from the key into the config options
-    */
-    findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
-        let me = this;
-        let find = function(name) {
-            return _.find(me.active.fields, function(field) {
-                return field['columnName'] === name;
-            });
-        };
-
-        let field;
-        if (bindingKey) {
-            field = find(this.optionsFromConfig[bindingKey]);
-        }
-
-        if (!field && mappingKey) {
-            field = find(this.getMapping(mappingKey));
-        }
-
-        return field || this.datasetService.createBlankField();
-    };
-
-    getMapping = function(key: string): string {
-        return this.datasetService.getMapping(this.active.database.name, this.active.table.name, key);
-    };
+    refreshVisualization() {
+        //Cesium doesn't need to be refreshed manually
+    }
 
     handleFiltersChangedEvent() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        let database = this.active.database.name;
-        let table = this.active.table.name;
-        let fields = [this.active.latitudeField.columnName, this.active.longitudeField.columnName];
+        let database = this.meta.database.name;
+        let table = this.meta.table.name;
+        let fields = this.getNeonFilterFields();
         let neonFilters = this.filterService.getFilters(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
             for (let filter of neonFilters) {
-                console.log(filter);
+                //console.log(filter);
                 let filterName = filter.filter.filterName;
                 if (filter.filter.whereClause.type === 'and') {
                     let applicable = true;
@@ -811,23 +572,6 @@ export class MapComponent implements OnInit,
             this.removeFilterBox();
         }
         this.executeQueryChain();
-    };
-
-    onUpdateDataChannelEvent(event) {
-        console.log('update data channel event');
-        console.log(event);
-    }
-
-    getExportData() { };
-
-    handleChangeDatabase() {
-        this.initTables();
-        this.logChangeAndStartQueryChain(); // ('database', this.active.database.name);
-    };
-
-    handleChangeTable() {
-        this.initFields();
-        this.logChangeAndStartQueryChain(); // ('table', this.active.table.name);
     };
 
     handleChangeLimit() {
@@ -857,13 +601,6 @@ export class MapComponent implements OnInit,
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
-    };
-
-    logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
-        // this.logChange(option, value, type);
-        if (!this.initializing) {
-            this.executeQueryChain();
-        }
     };
 
     getButtonText() {
@@ -901,7 +638,11 @@ export class MapComponent implements OnInit,
         return 'Delete ' + this.getFilterTitle();
     };
 
-    removeLocalFilterFromLocalAndNeon(value: string) {
+    removeFilter(/*value*/): void {
+        this.filters = [];
+    }
+
+    /*removeLocalFilterFromLocalAndNeon(value: string) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
         let me = this;
         let database = this.active.database.name;
@@ -921,5 +662,5 @@ export class MapComponent implements OnInit,
             this.removeFilterBox();
         }
 
-    };
+    };*/
 }
