@@ -33,6 +33,7 @@ declare var Chart: any;
 export class LineChartComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
     @ViewChild('myChart') chartModule: ChartModule;
+
     private filters: {
         key: string,
         startDate: string,
@@ -61,7 +62,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         layers: any[],
         data: Object[],
         aggregation: string,
-        dateBucketizer: DateBucketizer
+        dateBucketizer: DateBucketizer,
+        granularity: string
     };
 
     private chartDefaults: {
@@ -122,7 +124,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             layers: [],
             data: [],
             aggregation: 'count',
-            dateBucketizer: null
+            dateBucketizer: null,
+            granularity: 'day'
         };
 
         this.selection = {
@@ -364,8 +367,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     createQuery(): neon.query.Query {
-        let hourGranularity = false;
-
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
@@ -378,7 +379,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
         groupBys.push(new neon.query.GroupByFunctionClause('month', dateField, 'month'));
         groupBys.push(new neon.query.GroupByFunctionClause('dayOfMonth', dateField, 'day'));
-        if (hourGranularity) {
+        if (this.active.granularity === 'hour') {
             groupBys.push(new neon.query.GroupByFunctionClause('hour', dateField, 'hour'));
         }
         groupBys.push(groupField);
@@ -428,6 +429,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let endDate = response.data[response.data.length - 1].date;
         this.active.dateBucketizer = new DateBucketizer();
         let bucketizer = this.active.dateBucketizer;
+        bucketizer.setGranularity(this.active.granularity === 'hour' ? bucketizer.HOUR : bucketizer.DAY);
         bucketizer.setStartDate(new Date(startDate));
         bucketizer.setEndDate(new Date(endDate));
         let length = bucketizer.getNumBuckets();
@@ -464,17 +466,13 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let labels = new Array(length);
         for (let i = 0; i < length; i++) {
             let date = bucketizer.getDateForBucket(i);
-
-            // TODO is there a better way to get date into ISO format so moment is happy?
-            let tmp: number = date.getUTCMonth() + 1;
-            let month: String = String(tmp);
-            month = (tmp < 10 ? '0' + month : month);
-
-            tmp = date.getUTCDate();
-            let day: String = String(date.getUTCDate());
-            day = (tmp < 10 ? '0' + day : day);
-
-            labels[i] = date.getUTCFullYear() + '-' + month + '-' + day;
+            let dateString = null;
+            if (this.active.granularity === 'hour') {
+                dateString = this.dateToIsoDayHour(date);
+            } else {
+                dateString = this.dateToIsoDay(date);
+            }
+            labels[i] = dateString;
             //   labels[i] = date.toUTCString();
         }
         this.chart.data = {
@@ -484,8 +482,44 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.refreshVisualization();
     };
 
+    dateToIsoDayHour(date: Date): string {
+        // 2017-03-09T15:21:01Z
+        let ret: string = this.dateToIsoDay(date);
+
+        let tmp: number = date.getUTCHours();
+        let hours: String = String(tmp);
+        hours = (tmp < 10 ? '0' + hours : hours);
+
+        tmp = date.getUTCMinutes();
+        let mins: String = String(tmp);
+        mins = (tmp < 10 ? '0' + mins : mins);
+
+        tmp = date.getUTCSeconds();
+        let secs: String = String(tmp);
+        secs = (tmp < 10 ? '0' + secs : secs);
+        ret += 'T' + hours + ':' + mins + ':' + secs + 'Z';
+        return ret;
+    }
+
+    dateToIsoDay(date: Date): string {
+        // 2017-03-09
+        // TODO is there a better way to get date into ISO format so moment is happy?
+        let tmp: number = date.getUTCMonth() + 1;
+        let month: String = String(tmp);
+        month = (tmp < 10 ? '0' + month : month);
+
+        tmp = date.getUTCDate();
+        let day: String = String(date.getUTCDate());
+        day = (tmp < 10 ? '0' + day : day);
+        return date.getUTCFullYear() + '-' + month + '-' + day;
+    }
+
     handleChangeAggregation() {
         this.active.aggregationFieldHidden = (this.active.aggregation === 'count');
+        this.executeQueryChain();
+    }
+
+    handleChangeGranularity() {
         this.executeQueryChain();
     }
 

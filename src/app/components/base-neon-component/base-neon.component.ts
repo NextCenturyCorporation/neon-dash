@@ -84,6 +84,7 @@ export abstract class BaseNeonComponent implements OnInit,
     abstract getOptionFromConfig(option: string);
 
     ngOnDestroy() {
+      this.messenger.unsubscribeAll();
         /* $scope.element.off('resize', resize);
         $scope.element.find('.headers-container').off('resize', resizeDisplay);
         $scope.element.find('.options-menu-button').off('resize', resizeTitle);
@@ -241,7 +242,9 @@ export abstract class BaseNeonComponent implements OnInit,
         let query = this.createQuery();
 
         let filtersToIgnore = this.getFiltersToIgnore();
-        query.ignoreFilters(filtersToIgnore);
+        if (filtersToIgnore && filtersToIgnore.length > 0) {
+            query.ignoreFilters(filtersToIgnore);
+        }
 
         this.executeQuery(query);
     }
