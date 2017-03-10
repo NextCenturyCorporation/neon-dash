@@ -31,3 +31,6 @@ testem.log
 #System Files
 .DS_Store
 Thumbs.db
+
+#config files
+src/app/config/config.json
