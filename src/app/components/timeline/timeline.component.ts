@@ -5,7 +5,7 @@ import {
     ViewEncapsulation,
     ChangeDetectionStrategy,
     Injector,
-    ViewChild
+    //ViewChild
 } from '@angular/core';
 import {ConnectionService} from '../../services/connection.service';
 import {DatasetService} from '../../services/dataset.service';
@@ -18,21 +18,21 @@ import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 //import * as _ from 'lodash';
 import {DateBucketizer} from '../bucketizers/DateBucketizer';
-import {LegendItem} from '../legend/legend.component';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
-import {ChartModule} from 'angular2-chartjs';
+//import {ChartModule} from 'angular2-chartjs';
 // import * as Chartjs from 'chart.js';
-declare var Chart: any;
+//declare var Chart: any;
 
 @Component({
-    selector: 'app-line-chart',
-    templateUrl: './line-chart.component.html',
-    styleUrls: ['./line-chart.component.scss'],
+    selector: 'app-timeline',
+    templateUrl: './timeline.component.html',
+    styleUrls: ['./timeline.component.scss'],
     encapsulation: ViewEncapsulation.Emulated, changeDetection: ChangeDetectionStrategy.Default
 })
-export class LineChartComponent extends BaseNeonComponent implements OnInit,
+export class TimelineComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
-    @ViewChild('myChart') chartModule: ChartModule;
+    //@ViewChild('filterChart') filterChartModule: ChartModule;
+    //@ViewChild('overviewChart') overviewChartModule: ChartModule;
 
     private filters: {
         key: string,
@@ -45,25 +45,19 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         database: string,
         table: string,
         dateField: string,
-        groupField: string,
-        aggregation: string,
-        aggregationField: string,
+        granularity: string,
         unsharedFilterField: Object,
         unsharedFilterValue: string
     };
+
     private active: {
         dateField: FieldMetaData,
-        aggregationField: FieldMetaData,
-        aggregationFieldHidden: boolean,
-        groupField: FieldMetaData,
         andFilters: boolean,
-        limit: number,
         filterable: boolean,
         layers: any[],
         data: Object[],
-        aggregation: string,
         dateBucketizer: DateBucketizer,
-        granularity: string
+        granularity: string,
     };
 
     private chartDefaults: {
@@ -74,10 +68,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     private selection: {
         mouseDown: boolean
         startX: number,
-        height: number,
         width: number,
         x: number,
-        y: number,
         visibleOverlay: boolean,
         startIndex: number,
         endIndex: number,
@@ -85,7 +77,16 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         endDate: Date
     };
 
-    protected chart: {
+    protected filterChart: {
+        data: {
+            labels: any[],
+            datasets: any[]
+        },
+        type: string,
+        options: Object
+    };
+
+    protected overviewChart: {
         data: {
             labels: any[],
             datasets: any[]
@@ -104,9 +105,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
             dateField: this.injector.get('dateField', null),
-            groupField: this.injector.get('groupField', null),
-            aggregation: this.injector.get('aggregation', null),
-            aggregationField: this.injector.get('aggregationField', null),
+            granularity: this.injector.get('granularity', 'day'),
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
@@ -115,25 +114,18 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
         this.active = {
             dateField: new FieldMetaData(),
-            aggregationField: new FieldMetaData(),
-            aggregationFieldHidden: true,
-            groupField: new FieldMetaData(),
             andFilters: true,
-            limit: 1000,
             filterable: true,
             layers: [],
             data: [],
-            aggregation: 'count',
             dateBucketizer: null,
             granularity: 'day'
         };
 
         this.selection = {
             mouseDown: false,
-            height: 20,
             width: 20,
             x: 20,
-            y: 200,
             startX: 0,
             visibleOverlay: false,
             startIndex: -1,
@@ -148,8 +140,16 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         };
 
         this.onHover = this.onHover.bind(this);
-        this.chart = {
-            type: null,
+        //this.overviewChart = this.getDefaultChartOptions();
+        //this.filterChart = this.getDefaultChartOptions();
+        //this.overviewChart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
+        //this.overviewChart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
+
+    };
+
+    /*getDefaultChartOptions(): any {
+        let chart = {
+            type: 'bar',
             data: {
                 labels: [],
                 datasets: [
@@ -174,34 +174,34 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 tooltips: Chart.defaults.global.tooltips,
                 scales: {
                     xAxes: [{
-                        type: 'time',
+                        type: 'category',
                         position: 'bottom'
                     }]
                 }
             }
         };
-        this.chart.options['legend'].display = false;
+        chart.options['legend'].display = false;
+        
+                let tooltipTitleFunc = (tooltips) => {
+                    let monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                        'July', 'August', 'September', 'October', 'November', 'December'
+                    ];
+                    let index = tooltips[0].index;
+                    let date = this.active.dateBucketizer.getDateForBucket(index);
+                    let month = monthNames[date.getUTCMonth()];
+                    let title = date.getUTCDate() + ' ' + month + ' ' + date.getUTCFullYear();
+                    return title;
+                };
+                let tooltipDataFunc = (tooltips) => {
+                    let label = 'FIXME' + ': ' + tooltips.yLabel;
+                    return label;
+                };
 
-        let tooltipTitleFunc = (tooltips) => {
-            let monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'
-            ];
-            let index = tooltips[0].index;
-            let date = this.active.dateBucketizer.getDateForBucket(index);
-            let month = monthNames[date.getUTCMonth()];
-            let title = date.getUTCDate() + ' ' + month + ' ' + date.getUTCFullYear();
-            return title;
-        };
-        let tooltipDataFunc = (tooltips) => {
-            let label = this.active.aggregation + ': ' + tooltips.yLabel;
-            return label;
-        };
-        this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
-        this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
+        return chart;
+    }*/
 
-    };
     subNgOnInit() {
-        this.chart.type = 'line';
+
     };
 
     subNgOnDestroy() {
@@ -213,12 +213,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     };
 
     onUpdateFields() {
-        if (this.optionsFromConfig.aggregation) {
-            this.active.aggregation = this.optionsFromConfig.aggregation;
-        }
-        this.active.aggregationField = this.findFieldObject('aggregationField', neonMappings.TAGS);
         this.active.dateField = this.findFieldObject('dateField', neonMappings.TAGS);
-        this.active.groupField = this.findFieldObject('groupField', neonMappings.TAGS);
     };
 
     addLocalFilter(key, startDate, endDate) {
@@ -242,8 +237,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         return -1;
     }
 
-    onHover(event, items) {
-        if (items.length === 0) {
+    onHover(/*event, items*/) {
+        /*if (items.length === 0) {
             return;
         }
         let isMouseUp = false;
@@ -312,7 +307,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
         this.stopEventPropagation(event);
         //console.log(event);
-        //console.log(items);
+        //console.log(items);*/
     }
 
     createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
@@ -325,7 +320,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     };
 
     getFilterText() {
-        // I.E. test - earthquakes - time = 10/11/2015 to 5/1/2016"
+        // I.E. TIMELINE - EARTHQUAKES: 8 AUG 2015 TO 20 DEC 2015
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let field = this.active.dateField.columnName;
@@ -343,13 +338,14 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let fields = [this.active.dateField.columnName];
         return fields;
     }
+
     getVisualizationName() {
-        return 'Line Chart';
+        return 'Timeline';
     }
 
-
     refreshVisualization() {
-        this.chartModule['chart'].update();
+        //this.filterChartModule['chart'].update();
+        //this.overviewChartModule['chart'].update();
     }
 
     isValidQuery() {
@@ -357,12 +353,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         valid = (this.meta.database && valid);
         valid = (this.meta.table && valid);
         valid = (this.active.dateField && valid);
-        valid = (this.active.aggregationField && valid);
-        valid = (this.active.aggregation && valid);
-        if (valid && this.active.aggregation !== 'count') {
-            let aggCol = this.active.aggregationField.columnName;
-            valid = aggCol && valid && aggCol !== '';
-        }
         return valid;
     }
 
@@ -371,35 +361,28 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = neon.query.where(this.active.dateField.columnName, '!=', null);
-        let yAxisField = this.active.aggregationField.columnName;
         let dateField = this.active.dateField.columnName;
-        let groupField = this.active.groupField.columnName;
         query = query.aggregate(neon.query['MIN'], dateField, 'date');
         let groupBys: any[] = [];
-        groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
-        groupBys.push(new neon.query.GroupByFunctionClause('month', dateField, 'month'));
-        groupBys.push(new neon.query.GroupByFunctionClause('dayOfMonth', dateField, 'day'));
-        if (this.active.granularity === 'hour') {
-            groupBys.push(new neon.query.GroupByFunctionClause('hour', dateField, 'hour'));
+        switch (this.active.granularity) {
+            //Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
+            case 'hour':
+                groupBys.push(new neon.query.GroupByFunctionClause('hour', dateField, 'hour'));
+            /* falls through */
+            case 'day':
+                groupBys.push(new neon.query.GroupByFunctionClause('dayOfMonth', dateField, 'day'));
+            /* falls through */
+            case 'month':
+                groupBys.push(new neon.query.GroupByFunctionClause('month', dateField, 'month'));
+            /* falls through */
+            case 'year':
+                groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
+            /* falls through */
         }
-        groupBys.push(groupField);
         query = query.groupBy(groupBys);
         query = query.sortBy('date', neon.query['ASCENDING']);
         query = query.where(whereClause);
-        query = query.limit(this.active.limit);
-        switch (this.active.aggregation) {
-            case 'count':
-                return query.aggregate(neon.query['COUNT'], '*', 'value');
-            case 'sum':
-                return query.aggregate(neon.query['SUM'], yAxisField, 'value');
-            case 'average':
-                return query.aggregate(neon.query['AVG'], yAxisField, 'value');
-            case 'min':
-                return query.aggregate(neon.query['MIN'], yAxisField, 'value');
-            case 'max':
-                return query.aggregate(neon.query['MAX'], yAxisField, 'value');
-        }
-
+        return query.aggregate(neon.query['COUNT'], '*', 'value');
     };
 
     getColorFromScheme(index) {
@@ -411,72 +394,93 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         return null;
     }
 
-    onQuerySuccess(response) {
-        // need to reset chart when data potentially changes type (or number of datasets)
-        let ctx = this.chartModule['chart'].chart.ctx;
-        this.chartModule['chart'].destroy();
-        this.chartModule['chart'] = new Chart(ctx, this.chart);
-        //this.chartModule['chart'].reset();
+    /*resetChartjs(chartModule: ChartModule, chart): void {
+        let ctx = chartModule['chart'].chart.ctx;
+        chartModule['chart'].destroy();
+        chartModule['chart'] = new Chart(ctx, chart);
+    }*/
 
-        let dataSetField = this.active.groupField.columnName;
-        // let prettyColName = this.active.dateField.prettyName;
-        let myData = {};
+    onQuerySuccess(response) {
+        let disabled = true;
+        if (disabled) {
+            return;
+        }
+        console.log(response);
+        // need to reset chart when data potentially changes type (or number of datasets)
+        //this.resetChartjs(this.filterChartModule, this.filterChart);
+        //this.resetChartjs(this.overviewChartModule, this.overviewChart);
+
+        let dateToLabelFunc = null;
+        let bucketizer = null;
+        switch (this.active.granularity) {
+            case 'hour':
+                bucketizer = new DateBucketizer();
+                bucketizer.setGranularity(bucketizer.HOUR);
+                dateToLabelFunc = this.dateToIsoDayHour;
+                break;
+            case 'day':
+                bucketizer = new DateBucketizer();
+                bucketizer.setGranularity(bucketizer.DAY);
+                dateToLabelFunc = this.dateToIsoDay;
+                break;
+            case 'month':
+                console.error('need month bucketizer');
+                return;
+            case 'year':
+                console.error('need year bucketizer');
+                return;
+        }
+        dateToLabelFunc = dateToLabelFunc.bind(this);
+        this.active.dateBucketizer = bucketizer;
+
         let startDate = response.data[0].date;
         let endDate = response.data[response.data.length - 1].date;
-        this.active.dateBucketizer = new DateBucketizer();
-        let bucketizer = this.active.dateBucketizer;
-        bucketizer.setGranularity(this.active.granularity === 'hour' ? bucketizer.HOUR : bucketizer.DAY);
         bucketizer.setStartDate(new Date(startDate));
         bucketizer.setEndDate(new Date(endDate));
         let length = bucketizer.getNumBuckets();
-        let fillValue = (this.active.aggregation === 'count' ? 0 : null);
-        let numDatasets = 0;
+        let myData: number[] = new Array(length).fill(0);
         for (let row of response.data) {
-            if (row[dataSetField]) {
-                let dataSet = row[dataSetField];
-                let idx = bucketizer.getBucketIndex(new Date(row.date));
-                let ds = myData[dataSet];
-                if (!ds) {
-                    myData[dataSet] = new Array(length).fill(fillValue);
-                    numDatasets++;
-                }
-                myData[dataSet][idx] = row.value;
-            }
+            let idx = bucketizer.getBucketIndex(new Date(row.date));
+            myData[idx] = row.value;
         }
-        let datasets = []; // TODO type to chartjs
-        let datasetIndex = 0;
-        for (let datasetName in myData) {
-            if (myData.hasOwnProperty(datasetName)) {
-                let d = {
-                    label: datasetName,
-                    data: myData[datasetName],
-                    borderColor: this.getColorFromScheme(datasetIndex),
-                    pointBorderColor: this.getColorFromScheme(datasetIndex),
-                    backgroundColor: 'rgba(0,0,0,0)',
-                    pointBackgroundColor: 'rgba(0,0,0,0)'
-                };
-                datasets.push(d);
-                datasetIndex++;
-            }
-        }
+
         let labels = new Array(length);
         for (let i = 0; i < length; i++) {
             let date = bucketizer.getDateForBucket(i);
-            let dateString = null;
-            if (this.active.granularity === 'hour') {
-                dateString = this.dateToIsoDayHour(date);
-            } else {
-                dateString = this.dateToIsoDay(date);
-            }
+            let dateString = dateToLabelFunc(date);
             labels[i] = dateString;
-            //   labels[i] = date.toUTCString();
         }
-        this.chart.data = {
-            labels: labels,
-            datasets: datasets
+
+        //for (let i = 0; i < dataset.data.length; i++) {
+        //    dataset.backgroundColor[i] = this.chartDefaults.activeColor;
+        //}
+
+        let d = {
+            label: 'datasetName',
+            data: myData,
+            backgroundColor: this.chartDefaults.activeColor
         };
+
+        this.overviewChart.data = {
+            labels: labels,
+            datasets: [d]
+        };
+
         this.refreshVisualization();
     };
+
+    dateToIsoDay(date: Date): string {
+        // 2017-03-09
+        // TODO is there a better way to get date into ISO format so moment is happy?
+        let tmp: number = date.getUTCMonth() + 1;
+        let month: String = String(tmp);
+        month = (tmp < 10 ? '0' + month : month);
+
+        tmp = date.getUTCDate();
+        let day: String = String(date.getUTCDate());
+        day = (tmp < 10 ? '0' + day : day);
+        return date.getUTCFullYear() + '-' + month + '-' + day;
+    }
 
     dateToIsoDayHour(date: Date): string {
         // 2017-03-09T15:21:01Z
@@ -495,24 +499,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         secs = (tmp < 10 ? '0' + secs : secs);
         ret += 'T' + hours + ':' + mins + ':' + secs + 'Z';
         return ret;
-    }
-
-    dateToIsoDay(date: Date): string {
-        // 2017-03-09
-        // TODO is there a better way to get date into ISO format so moment is happy?
-        let tmp: number = date.getUTCMonth() + 1;
-        let month: String = String(tmp);
-        month = (tmp < 10 ? '0' + month : month);
-
-        tmp = date.getUTCDate();
-        let day: String = String(date.getUTCDate());
-        day = (tmp < 10 ? '0' + day : day);
-        return date.getUTCFullYear() + '-' + month + '-' + day;
-    }
-
-    handleChangeAggregation() {
-        this.active.aggregationFieldHidden = (this.active.aggregation === 'count');
-        this.logChangeAndStartQueryChain();
     }
 
     handleChangeGranularity() {
@@ -538,19 +524,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.executeQueryChain();
     };
 
-    handleChangeLimit() {
-        this.logChangeAndStartQueryChain();
-    }
-
     handleChangeDateField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
-
-    handleChangeGroupField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
-
-    handleChangeAggregationField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
     };
 
@@ -573,23 +547,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         //    : 'Top ' + this.active.data.length;
         // console.log('TODO - see getButtonText()')
     };
-
-    getLegendData(): LegendItem[] {
-        let legendData: LegendItem[] = [];
-        let datasets = this.chart.data.datasets;
-        for (let i = 0; i < datasets.length; i++) {
-            let item: LegendItem = {
-                prettyName: datasets[i].label,
-                accessName: datasets[i].label,
-                activeColor: datasets[i].pointBorderColor,
-                inactiveColor: 'rgba(50,50,50,1)',
-                active: true
-            };
-            legendData[i] = item;
-        }
-        return legendData;
-    }
-
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {

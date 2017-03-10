@@ -22,7 +22,7 @@ describe('Component: VisualizationInjector', () => {
                 BarChartComponent,
                 LineChartComponent,
                 LegendComponent,
-                MapComponent
+                MapComponent,
             ],
             providers: [ ComponentFactoryResolver ],
             imports: [

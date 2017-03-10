@@ -6,35 +6,28 @@ import { Injector } from '@angular/core';
 import { MaterialModule } from '@angular/material';
 import { ChartModule } from 'angular2-chartjs';
 
-import { TextCloudComponent } from './text-cloud.component';
-import { BarChartComponent } from '../bar-chart/bar-chart.component';
-import { LineChartComponent } from '../line-chart/line-chart.component';
-import { MapComponent } from '../map/map.component';
-//import { TimelineComponent } from '../timeline/timeline.component';
-import { LegendComponent } from '../legend/legend.component';
+import {} from 'jasmine';
+
+import { TimelineComponent } from './timeline.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { TranslationService } from '../../services/translation.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
+import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-describe('Component: TextCloud', () => {
+describe('Component: Timeline', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
-  let component: TextCloudComponent;
-  let fixture: ComponentFixture<TextCloudComponent>;
+  let component: TimelineComponent;
+  let fixture: ComponentFixture<TimelineComponent>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [
-        TextCloudComponent,
-        BarChartComponent,
-        LineChartComponent,
-        LegendComponent,
-        MapComponent,
-//        TimelineComponent
+        TimelineComponent
       ],
       providers: [
         ConnectionService,
@@ -44,6 +37,7 @@ describe('Component: TextCloud', () => {
         TranslationService,
         ErrorNotificationService,
         ThemesService,
+        ColorSchemeService,
         Injector,
         { provide: 'config', useValue: testConfig }
       ],
@@ -54,12 +48,12 @@ describe('Component: TextCloud', () => {
         ChartModule
       ]
     });
-    fixture = TestBed.createComponent(TextCloudComponent);
+    fixture = TestBed.createComponent(TimelineComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create an instance', (() => {
+  it('should create an instance', () => {
     expect(component).toBeTruthy();
-  }));
+  });
 });

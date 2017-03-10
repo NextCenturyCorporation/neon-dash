@@ -84,7 +84,7 @@ export abstract class BaseNeonComponent implements OnInit,
     abstract getOptionFromConfig(option: string);
 
     ngOnDestroy() {
-      this.messenger.unsubscribeAll();
+        this.messenger.unsubscribeAll();
         /* $scope.element.off('resize', resize);
         $scope.element.find('.headers-container').off('resize', resizeDisplay);
         $scope.element.find('.options-menu-button').off('resize', resizeTitle);
