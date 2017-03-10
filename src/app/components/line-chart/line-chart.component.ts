@@ -119,7 +119,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             aggregationFieldHidden: true,
             groupField: new FieldMetaData(),
             andFilters: true,
-            limit: 100,
+            limit: 1000,
             filterable: true,
             layers: [],
             data: [],
@@ -412,10 +412,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response) {
-        //console.log(response);
-        // TODO get better color scheme
-
-
         // need to reset chart when data potentially changes type (or number of datasets)
         let ctx = this.chartModule['chart'].chart.ctx;
         this.chartModule['chart'].destroy();
@@ -516,11 +512,11 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeAggregation() {
         this.active.aggregationFieldHidden = (this.active.aggregation === 'count');
-        this.executeQueryChain();
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeGranularity() {
-        this.executeQueryChain();
+        this.logChangeAndStartQueryChain();
     }
 
     handleFiltersChangedEvent() {
