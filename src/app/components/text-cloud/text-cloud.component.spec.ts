@@ -10,7 +10,7 @@ import { TextCloudComponent } from './text-cloud.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
-//import { TimelineComponent } from '../timeline/timeline.component';
+import { TimelineComponent } from '../timeline/timeline.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -34,7 +34,7 @@ describe('Component: TextCloud', () => {
         LineChartComponent,
         LegendComponent,
         MapComponent,
-//        TimelineComponent
+        TimelineComponent
       ],
       providers: [
         ConnectionService,

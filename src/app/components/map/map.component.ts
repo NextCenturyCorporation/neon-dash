@@ -149,9 +149,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         this.legendData = [];
 
     };
+
     subNgOnInit() {
-        //do nothing
-    };
+
+    }
 
     ngAfterViewInit() {
         let imagerySources = Cesium.createDefaultImageryProviderViewModels();
