@@ -23,6 +23,7 @@
     "@angular/platform-browser-dynamic": "2.4.8",
     "@angular/router": "3.4.8",
     "@angular/upgrade": "2.4.8",
+    "@swimlane/ngx-datatable": "6.3.0",
     "@types/chart.js": "0.0.14",
     "@types/hammerjs": "2.0.30",
     "angular2-chartjs": "0.1.6",

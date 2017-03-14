@@ -3,14 +3,14 @@ import { Component, Input, ViewContainerRef, ViewChild, ReflectiveInjector, Comp
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
-
+import { DataTableComponent } from '../data-table/data-table.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { MapComponent } from '../map/map.component';
 import { NeonGridItem } from '../../neon-grid-item';
 
 @Component({
     selector: 'app-visualization-injector',
-    entryComponents: [TextCloudComponent, BarChartComponent, LineChartComponent, MapComponent, TimelineComponent],
+    entryComponents: [TextCloudComponent, BarChartComponent, LineChartComponent, MapComponent, TimelineComponent, DataTableComponent],
     template: `<div #dynamicComponentContainer></div>`,
 })
 export class VisualizationInjectorComponent {
@@ -59,7 +59,7 @@ export class VisualizationInjectorComponent {
 
     getComponent(type: string): any {
         switch (type) {
-            // case 'scatterPlot': return TextCloudComponent;
+            case 'dataTable': return DataTableComponent;
             case 'textCloud': return TextCloudComponent;
             case 'barChart': return BarChartComponent;
             case 'lineChart': return LineChartComponent;

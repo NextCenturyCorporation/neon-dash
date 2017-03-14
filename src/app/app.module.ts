@@ -54,7 +54,9 @@ import { LineChartComponent } from './components/line-chart/line-chart.component
 import { MapComponent } from './components/map/map.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { LegendComponent } from './components/legend/legend.component';
+import { DataTableComponent } from './components/data-table/data-table.component';
 import { ChartModule } from 'angular2-chartjs';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 export function createAppModule(config: NeonGTDConfig) {
     @NgModule({
@@ -72,7 +74,8 @@ export function createAppModule(config: NeonGTDConfig) {
             FilterTrayComponent,
             LegendComponent,
             MapComponent,
-            TimelineComponent
+            TimelineComponent,
+            DataTableComponent
         ],
         imports: [
             BrowserModule,
@@ -81,7 +84,8 @@ export function createAppModule(config: NeonGTDConfig) {
             HttpModule,
             MaterialModule.forRoot(),
             NgGridModule,
-            ChartModule
+            ChartModule,
+            NgxDatatableModule
         ],
         providers: [
             ActiveGridService,

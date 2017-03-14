@@ -7,11 +7,6 @@ import { MaterialModule } from '@angular/material';
 import { ChartModule } from 'angular2-chartjs';
 
 import { TextCloudComponent } from './text-cloud.component';
-import { BarChartComponent } from '../bar-chart/bar-chart.component';
-import { LineChartComponent } from '../line-chart/line-chart.component';
-import { MapComponent } from '../map/map.component';
-import { TimelineComponent } from '../timeline/timeline.component';
-import { LegendComponent } from '../legend/legend.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -29,12 +24,7 @@ describe('Component: TextCloud', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [
-        TextCloudComponent,
-        BarChartComponent,
-        LineChartComponent,
-        LegendComponent,
-        MapComponent,
-        TimelineComponent
+        TextCloudComponent
       ],
       providers: [
         ConnectionService,

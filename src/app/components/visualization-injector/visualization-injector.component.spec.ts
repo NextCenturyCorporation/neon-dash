@@ -4,6 +4,7 @@ import { ComponentFactoryResolver } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '@angular/material';
 import { ChartModule } from 'angular2-chartjs';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 import { VisualizationInjectorComponent } from './visualization-injector.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
@@ -12,6 +13,7 @@ import { LineChartComponent } from '../line-chart/line-chart.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { MapComponent } from '../map/map.component';
 import { LegendComponent } from '../legend/legend.component';
+import { DataTableComponent } from '../data-table/data-table.component';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -24,15 +26,17 @@ describe('Component: VisualizationInjector', () => {
                 LineChartComponent,
                 LegendComponent,
                 MapComponent,
-                TimelineComponent
+                TimelineComponent,
+                DataTableComponent,
 
             ],
-            providers: [ ComponentFactoryResolver ],
+            providers: [ComponentFactoryResolver],
             imports: [
                 MaterialModule,
                 MaterialModule.forRoot(),
                 FormsModule,
-                ChartModule
+                ChartModule,
+                NgxDatatableModule
             ]
         });
     });

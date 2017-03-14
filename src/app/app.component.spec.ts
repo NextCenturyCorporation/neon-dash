@@ -32,6 +32,7 @@ import { LineChartComponent } from './components/line-chart/line-chart.component
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { MapComponent } from './components//map/map.component';
 import { LegendComponent } from './components/legend/legend.component';
+import { DataTableComponent } from './components/data-table/data-table.component';
 
 import { NeonGTDConfig } from './neon-gtd-config';
 
@@ -51,6 +52,7 @@ import { NgGridModule } from 'angular2-grid';
 
 import { MaterialModule } from '@angular/material';
 import { ChartModule } from 'angular2-chartjs';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 describe('App: NeonGtd', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -72,14 +74,16 @@ describe('App: NeonGtd', () => {
         LineChartComponent,
         TimelineComponent,
         LegendComponent,
-        MapComponent
+        MapComponent,
+        DataTableComponent,
       ],
       imports: [
         FormsModule,
         MaterialModule,
         MaterialModule.forRoot(),
         NgGridModule,
-        ChartModule
+        ChartModule,
+        NgxDatatableModule,
       ],
       providers: [
         { provide: 'config', useValue: testConfig },

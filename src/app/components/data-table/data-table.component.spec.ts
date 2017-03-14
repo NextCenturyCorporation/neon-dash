@@ -1,14 +1,14 @@
 /* tslint:disable:no-unused-variable */
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {  ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
 import { MaterialModule } from '@angular/material';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 import {} from 'jasmine';
 
-import { MapComponent } from './map.component';
-import { LegendComponent } from '../legend/legend.component';
+import { DataTableComponent } from './data-table.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -16,27 +16,17 @@ import { TranslationService } from '../../services/translation.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-function webgl_support(): any {
-    try {
-        let canvas = document.createElement('canvas');
-        return !!window['WebGLRenderingContext'] && (
-            canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
-    } catch (e) { return false; }
-};
-
-describe('Component: Map', () => {
+describe('Component: DataTable', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
-    let component: MapComponent;
-    let fixture: ComponentFixture<MapComponent>;
+    let component: DataTableComponent;
+    let fixture: ComponentFixture<DataTableComponent>;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
-                MapComponent,
-                LegendComponent
+                DataTableComponent
             ],
             providers: [
                 ConnectionService,
@@ -47,29 +37,21 @@ describe('Component: Map', () => {
                 ErrorNotificationService,
                 ThemesService,
                 Injector,
-                ColorSchemeService,
                 { provide: 'config', useValue: testConfig }
             ],
             imports: [
                 MaterialModule,
                 MaterialModule.forRoot(),
                 FormsModule,
+                NgxDatatableModule,
             ]
         });
-        fixture = TestBed.createComponent(MapComponent);
+        fixture = TestBed.createComponent(DataTableComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
 
-
-
-    // Cesium causes the test to fail just because PhantomJS does not have webgl.
-    // Disabling this test until i can find a resolution.
-    it('should create an instance', () => {
-        if (!webgl_support()) {
-            pending('Cesium requires webgl which is not supported by the browser implementation.');
-        }
+    it('should create an instance', (() => {
         expect(component).toBeTruthy();
-    });
-
+    }));
 });

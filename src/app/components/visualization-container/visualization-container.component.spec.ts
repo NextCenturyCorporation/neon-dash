@@ -8,6 +8,7 @@ import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { MapComponent } from '../map/map.component';
+import { DataTableComponent } from '../data-table/data-table.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -15,6 +16,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { MaterialModule } from '@angular/material';
 import { ChartModule } from 'angular2-chartjs';
 import { FormsModule } from '@angular/forms';
+import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -31,7 +33,8 @@ describe('Component: VisualizationContainer', () => {
                 LineChartComponent,
                 TimelineComponent,
                 LegendComponent,
-                MapComponent
+                MapComponent,
+                DataTableComponent,
             ],
             providers: [
                 ActiveGridService,
@@ -41,7 +44,8 @@ describe('Component: VisualizationContainer', () => {
                 MaterialModule,
                 MaterialModule.forRoot(),
                 FormsModule,
-                ChartModule
+                ChartModule,
+                NgxDatatableModule
             ]
         });
         fixture = TestBed.createComponent(VisualizationContainerComponent);
