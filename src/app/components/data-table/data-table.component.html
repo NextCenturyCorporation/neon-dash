@@ -144,8 +144,11 @@
                       <md-icon class="column-selector-close-icon">close</md-icon>
                   </button>
                 </div>
-                <md-list dense class="column-selector-list">
-                    <md-list-item *ngFor="let header of active.headers">
+
+                <md-list dense class="column-selector-list" (mouseleave)="onMouseLeaveArea(i)" (mousemove)="onMouseMove($event)">
+                    <md-list-item *ngFor="let header of active.headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
+                        (mouseleave)="onMouseLeaveItem(i)" [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
+                        <md-icon (mousedown)="onMouseDown(i)">drag_handle</md-icon>
                         <md-checkbox [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{header.name}}</md-checkbox>
                     </md-list-item>
                 </md-list>

@@ -101,18 +101,16 @@
     vertical-align: middle;
     font-size: 1.4em;
     border: 1px solid lightgrey;
-
 }
 
 .column-selector-close {
     font-size: 12px;
-
 }
 
 .column-selector {
     position: relative;
     height: 100%;
-    width: 200px;
+    width: 300px;
     bottom: 0;
     top: 0;
     overflow-y: hidden;
@@ -125,6 +123,11 @@
     position: relative;
     bottom: 0;
     overflow-y: scroll;
+    user-select: none;
+}
+
+.dragView {
+    position: fixed;
 }
 
 /deep/ .datatable-row-even {

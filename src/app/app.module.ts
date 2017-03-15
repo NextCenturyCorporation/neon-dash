@@ -85,7 +85,7 @@ export function createAppModule(config: NeonGTDConfig) {
             MaterialModule.forRoot(),
             NgGridModule,
             ChartModule,
-            NgxDatatableModule
+            NgxDatatableModule,
         ],
         providers: [
             ActiveGridService,
@@ -101,8 +101,8 @@ export function createAppModule(config: NeonGTDConfig) {
             VisualizationService,
             ColorSchemeService,
             {
-              provide: 'config',
-              useValue: config
+                provide: 'config',
+                useValue: config
             }
         ],
         entryComponents: [AppComponent, AddVisualizationComponent, FilterTrayComponent],

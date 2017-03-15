@@ -5,7 +5,8 @@ import {
     ViewEncapsulation,
     ChangeDetectionStrategy,
     Injector,
-    ViewChild
+    ViewChild,
+    ElementRef
 } from '@angular/core';
 import {ConnectionService} from '../../services/connection.service';
 import {DatasetService} from '../../services/dataset.service';
@@ -28,6 +29,7 @@ import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 export class DataTableComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
     @ViewChild('table') table: any;
+    @ViewChild('dragView') dragView: ElementRef;
 
     private filters: {
         key: string,
@@ -51,10 +53,20 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         filterable: boolean,
         layers: any[],
         data: Object[],
-        headers: { prop: string, name: string, active: boolean }[],
-        activeHeaders: { prop: string, name: string, active: boolean }[],
+        headers: { prop: string, name: string, active: boolean, style: Object }[],
+        activeHeaders: { prop: string, name: string, active: boolean, style: Object }[],
         showColumnSelector: string
     };
+
+    private drag: {
+        mousedown: boolean,
+        downIndex: number,
+        currentIndex: number,
+        field: { prop: string, name: string, active: boolean },
+        x: number,
+        y: number,
+    };
+
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService) {
@@ -80,6 +92,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
             activeHeaders: [],
             showColumnSelector: 'hide'
         };
+
+        this.drag = {
+            mousedown: false,
+            downIndex: -1,
+            currentIndex: -1,
+            field: null,
+            x: 0,
+            y: 0,
+        };
     };
 
     subNgOnInit() {
@@ -97,7 +118,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
     onUpdateFields() {
         this.active.sortField = this.findFieldObject('sortField', neonMappings.TAGS);
         for (let f of this.meta.fields) {
-            this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: true });
+            this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: true, style: {} });
         }
         this.recalculateActiveHeaders();
     };
@@ -213,6 +234,88 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
     handleChangeSortField() {
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
     };
+
+    isDragging(): boolean {
+        return (this.drag.mousedown && this.drag.downIndex >= 0);
+    }
+
+    //mouse up in a drag and drop element
+    onMouseUp(i) {
+        if (this.isDragging && this.drag.downIndex !== this.drag.currentIndex) {
+            let length = this.active.headers.length;
+            if (this.drag.downIndex >= length || i >= length || this.drag.downIndex < 0 || i < 0) {
+                console.log('index out of bounds!');
+            } else {
+              //  console.log('move index ' + this.drag.downIndex + ' to ' + i);
+                let h = this.active.headers;
+                let si = this.drag.downIndex; // startIndex
+                let ei = i; // endIndex
+                let dir = (si > ei ? -1 : 1);
+                let moved = h[si];
+                for (let ci = si; ci !== ei; ci += dir) {
+                    h[ci] = h[ci + dir];
+                }
+                h[ei] = moved;
+                this.recalculateActiveHeaders();
+            }
+        }
+        this.clearHeaderStyles();
+        this.drag.downIndex = -1;
+        this.drag.mousedown = false;
+    }
+
+    //clicks on a drag and drop icon of an element
+    onMouseDown(i) {
+        if (i >= 0) {
+            this.drag.downIndex = i;
+            this.drag.mousedown = true;
+            this.active.headers[i].style['backgroundColor'] = 'rgba(0, 0, 0, .2)';
+            this.active.headers[i].style['border'] = 'gray dashed 1px';
+        }
+    }
+
+    //enters a NEW drag and drop element
+    onMouseEnter(i) {
+        if (this.isDragging()) {
+            this.drag.currentIndex = i;
+            let style = 'thick solid gray';
+            if (i < this.drag.downIndex) {
+                this.active.headers[i].style['borderTop'] = style;
+            } else if (i > this.drag.downIndex) {
+                this.active.headers[i].style['borderBottom'] = style;
+            }
+        }
+    }
+
+    onMouseLeaveItem(i) {
+        if (this.isDragging()) {
+            if (i !== this.drag.downIndex) {
+                this.active.headers[i].style['borderBottom'] = null;
+                this.active.headers[i].style['borderTop'] = null;
+            }
+        }
+    }
+
+    //leaves drag and drop area
+    onMouseLeaveArea() {
+        this.drag.downIndex = -1;
+        this.drag.mousedown = false;
+        this.clearHeaderStyles();
+    }
+
+    //moving in drag and drop area
+    onMouseMove(event) {
+        if (this.isDragging()) {
+            this.drag.x = event.screenX;
+            this.drag.y = event.screenY;
+        }
+    }
+
+    clearHeaderStyles() {
+        for (let header of this.active.headers) {
+            header.style = {};
+        }
+    }
 
     getButtonText() {
         // TODO Fix this.  It gets called a lot
