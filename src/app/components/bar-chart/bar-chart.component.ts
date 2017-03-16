@@ -74,7 +74,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-         exportService: ExportService, injector: Injector, themesService: ThemesService) {
+        exportService: ExportService, injector: Injector, themesService: ThemesService) {
         super(connectionService, datasetService, filterService, exportService, injector, themesService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
@@ -164,8 +164,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             let value = el._model.label;
             let key = this.active.dataField.columnName;
             let prettyKey = this.active.dataField.prettyName;
-            this.addLocalFilter(key, value, prettyKey);
-            this.addNeonFilter(false);
+            let filter = {
+                key: key,
+                value: value,
+                prettyKey: prettyKey
+            };
+            this.addLocalFilter(filter);
+            this.addNeonFilter(false, filter);
             this.refreshVisualization();
         }
     };
@@ -178,12 +183,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.active.dataField = this.findFieldObject('dataField', neonMappings.TAGS);
     };
 
-    addLocalFilter(key, value, prettyKey) {
-        this.filters[0] = {
-            key: key,
-            value: value,
-            prettyKey: prettyKey
-        };
+    addLocalFilter(filter) {
+        this.filters[0] = filter;
     };
 
     createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
@@ -206,8 +207,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         return 'Bar Chart';
     }
 
-    getFilterText() {
-        return this.filters[0].value;
+    getFilterText(filter) {
+        return filter.value;
     }
 
     refreshVisualization() {
@@ -327,7 +328,12 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             for (let filter of neonFilters) {
                 let key = filter.filter.whereClause.lhs;
                 let value = filter.filter.whereClause.rhs;
-                this.addLocalFilter(key, value, key);
+                let f = {
+                    key: key,
+                    value: value,
+                    prettyKey: key
+                };
+                this.addLocalFilter(f);
             }
         } else {
             this.filters = [];

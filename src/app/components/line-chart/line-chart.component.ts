@@ -221,12 +221,16 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.active.groupField = this.findFieldObject('groupField', neonMappings.TAGS);
     };
 
-    addLocalFilter(key, startDate, endDate) {
-        this.filters[0] = {
+    createFilter(key, startDate, endDate) {
+        return {
             key: key,
             startDate: startDate,
             endDate: endDate
         };
+    }
+
+    addLocalFilter(f) {
+        this.filters[0] = f;
     };
 
     /**
@@ -306,8 +310,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             this.selection.startDate = this.active.dateBucketizer.getDateForBucket(this.selection.startIndex);
             this.selection.endDate = this.active.dateBucketizer.getDateForBucket(this.selection.endIndex);
             let key = this.active.dateField.columnName;
-            this.addLocalFilter(key, this.selection.startDate, this.selection.endDate);
-            this.addNeonFilter(true);
+            let f = this.createFilter(key, this.selection.startDate, this.selection.endDate);
+            this.addLocalFilter(f);
+            this.addNeonFilter(true, f);
         }
 
         this.stopEventPropagation(event);
@@ -530,7 +535,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             for (let filter of neonFilters) {
                 let key = filter.filter.whereClause.lhs;
                 let value = filter.filter.whereClause.rhs;
-                this.addLocalFilter(key, value, key);
+                let f = this.createFilter(key, value, key);
+                this.addLocalFilter(f);
             }
         } else {
             this.filters = [];

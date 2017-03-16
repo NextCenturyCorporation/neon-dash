@@ -17,18 +17,19 @@
                 </label>
                 <p></p>
 
-                <md-select placeholder="Database" [(ngModel)]="active.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="active.databases.length < 2">
-                    <md-option *ngFor="let database of active.databases" [value]="database">{{ database.prettyName }}</md-option>
+                <md-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                    <md-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</md-option>
                 </md-select>
                 <p></p>
 
-                <md-select placeholder="Table" [(ngModel)]="active.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="active.tables.length < 2">
-                    <md-option *ngFor="let table of active.tables" [value]="table">{{ table.prettyName }}</md-option>
+                <md-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                    <md-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</md-option>
                 </md-select>
                 <p></p>
 
-                <md-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeDataField()" [disabled]="active.fields.length == 0">
-                    <md-option *ngFor="let field of active.fields" [value]="field">{{ field.prettyName }}</md-option>
+                <md-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeDataField()"
+                    [disabled]="meta.fields.length == 0">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
                 <p></p>
 
@@ -58,18 +59,21 @@
                 <md-toolbar class="mat-primary">
                     <span>Unshared Filter</span>
                 </md-toolbar>
-                <md-select placeholder="Filter Field" [(ngModel)]="active.unsharedFilterField" required="false" [disabled]="active.fields.length === 0" (ngModelChange)="handleChangeUnsharedFilterField()">
-                    <md-option *ngFor="let field of active.fields" [value]="field">{{ field.prettyName }}</md-option>
+                <md-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField" required="false" [disabled]="meta.fields.length === 0"
+                    (ngModelChange)="handleChangeUnsharedFilterField()">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
                 <p></p>
                 <table cellspacing="0">
                     <tr>
                         <td>
-                            <input mdInput [placeholder]="'Filter for ' + active.unsharedFilterField.prettyName + '...'" [(ngModel)]="active.unsharedFilterValue" [disabled]="!(active.unsharedFilterField.columnName)">
+                            <input mdInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue"
+                                [disabled]="!(meta.unsharedFilterField.columnName)">
 
                         </td>
                         <td>
-                            <button md-icon-button md-tooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()" [disabled]="(active.unsharedFilterField.columnName == undefined || active.unsharedFilterValue == '')">
+                            <button md-icon-button md-tooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()"
+                                [disabled]="(meta.unsharedFilterField.columnName == undefined || meta.unsharedFilterValue == '')">
                                 <md-icon class="mat-16">clear</md-icon>
                             </button>
                         </td>
@@ -91,12 +95,12 @@
 
     <div class="filter-reset" *ngFor="let value of getFilterData()">
         <span class="filter-label" [title]="createFilterDesc(value)">{{ createFilterText(value) }}</span>
-        <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveDesc(value)" tooltip-position="below" (click)="removeFilter(value)">
+        <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveDesc(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value, true, false)">
             <md-icon class="mat-18">close</md-icon>
         </button>
     </div>
 
     <div class="text-cloud" md-fill layout="col">
-        <a (click)="addFilter(item.key, item.keyTranslated)" class="text" *ngFor="let item of active.data" [rel]="item.count" [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">{{ item.key }}</a>
+        <a (click)="onClick(item)" class="text" *ngFor="let item of active.data" [rel]="item.count" [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">{{ item.key }}</a>
     </div>
 </md-sidenav-container>

@@ -260,8 +260,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             let rect = this.getSelectionRectangle();
             let validFilter = (rect.east !== rect.west) && (rect.north !== rect.south);
             if (validFilter) {
-                this.addLocalFilter(this.active.latitudeField.columnName, this.active.longitudeField.columnName, this.getFilterText());
-                this.addNeonFilter(true);
+                let f = this.createFilter(
+                    this.active.latitudeField.columnName, this.active.longitudeField.columnName, this.getFilterText());
+                this.addLocalFilter(f);
+                this.addNeonFilter(true, f);
 
                 let zoomRect = rect;
                 let vDiff = zoomRect.north - zoomRect.south;
@@ -379,12 +381,16 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         this.active.dateField = this.findFieldObject('dateField', neonMappings.TAGS);
     };
 
-    addLocalFilter(latField, lonField, name) {
-        this.filters[0] = {
+    createFilter(latField, lonField, name) {
+        return {
             latField: latField,
             lonField: lonField,
             filterName: name
         };
+    };
+
+    addLocalFilter(filter) {
+        this.filters[0] = filter;
     };
 
     createNeonFilterClauseEquals(_databaseAndTableName: {}, latLonFieldNames: string[]) {
@@ -550,7 +556,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
                         }
                     }
                     if (applicable) {
-                        this.addLocalFilter(this.active.latitudeField.columnName, this.active.longitudeField.columnName, filterName);
+                        let f = this.createFilter(this.active.latitudeField.columnName, this.active.longitudeField.columnName, filterName);
+                        this.addLocalFilter(f);
                     }
                 }
             }

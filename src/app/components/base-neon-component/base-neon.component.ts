@@ -171,7 +171,7 @@ export abstract class BaseNeonComponent implements OnInit,
         }
     }
 
-    abstract getFilterText(): string;
+    abstract getFilterText(filter): string;
     abstract createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: any);
     abstract getNeonFilterFields(): string[];
     abstract getVisualizationName(): string;
@@ -181,11 +181,11 @@ export abstract class BaseNeonComponent implements OnInit,
     */
     abstract getFiltersToIgnore(): string[];
 
-    addNeonFilter(executeQueryChainOnSuccess) {
+    addNeonFilter(executeQueryChainOnSuccess, filter) {
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields: string[] = this.getNeonFilterFields();
-        let text = this.getFilterText();
+        let text = this.getFilterText(filter);
         let visName = this.getVisualizationName();
 
         let onSuccess = () => {
