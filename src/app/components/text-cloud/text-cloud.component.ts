@@ -142,9 +142,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     onQuerySuccess(response): void {
         let data = response.data;
-        console.log(response);
-        let colName = this.active.dataField.columnName;
-        console.log(colName);
         let cloudData = data || [];
         this.active.data = cloudData.map((item) => {
             item.key = item[this.active.dataField.columnName];

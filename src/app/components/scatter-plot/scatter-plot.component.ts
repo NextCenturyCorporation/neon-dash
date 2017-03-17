@@ -61,6 +61,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         data: Object[],
         xAxisIsNumeric: boolean,
         yAxisIsNumeric: boolean,
+        pointLabels: string[],
     };
 
     private chartDefaults: {
@@ -120,6 +121,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             data: [],
             xAxisIsNumeric: true,
             yAxisIsNumeric: true,
+            pointLabels: [],
         };
 
         this.selection = {
@@ -165,7 +167,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
                 onClick: null,
                 hover: {
-                    mode: 'index',
+                    mode: 'point',
                     intersect: false,
                     onHover: null //this.onHover
 
@@ -185,9 +187,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         };
         this.scatter.options['legend'] = {};
         this.scatter.options['legend'].display = false;
-        let tooltipTitleFunc = (/*tooltips*/) => {
-            //TODO
-            let title = this.active.xField.prettyName + ' x ' + this.active.yField.prettyName;
+        let tooltipTitleFunc = (tooltips) => {
+          console.log(tooltips.length);
+            let title = this.active.pointLabels[tooltips[0].index];
             return title;
         };
         let tooltipDataFunc = (tooltips) => {
@@ -429,6 +431,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         let yAxisIsNumeric = true;
         let xAxisLabels = [];
         let yAxisLabels = [];
+        this.active.pointLabels = [];
         for (let point of data) {
             let x = point[xField];
             let y = point[yField];
@@ -441,6 +444,11 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             xAxisIsNumeric = xAxisIsNumeric && this.isNumber(x);
             yAxisIsNumeric = yAxisIsNumeric && this.isNumber(y);
             points.push(p);
+            let label = '';
+            if (point.hasOwnProperty(this.active.labelField.columnName)) {
+                label = point[this.active.labelField.columnName];
+            }
+            this.active.pointLabels.push(label);
         }
 
         if (xAxisIsNumeric) {
