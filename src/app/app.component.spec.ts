@@ -33,6 +33,7 @@ import { TimelineComponent } from './components/timeline/timeline.component';
 import { MapComponent } from './components//map/map.component';
 import { LegendComponent } from './components/legend/legend.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
+import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 
 import { NeonGTDConfig } from './neon-gtd-config';
 
@@ -55,70 +56,71 @@ import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 describe('App: NeonGtd', () => {
-  let testConfig: NeonGTDConfig = new NeonGTDConfig();
-  let fixture: ComponentFixture<AppComponent>;
-  let de: DebugElement;
-  let component: AppComponent;
+    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let fixture: ComponentFixture<AppComponent>;
+    let de: DebugElement;
+    let component: AppComponent;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [
-        AppComponent,
-        AboutNeonComponent,
-        DashboardOptionsComponent,
-        DatasetSelectorComponent,
-        VisualizationContainerComponent,
-        VisualizationInjectorComponent,
-        TextCloudComponent,
-        BarChartComponent,
-        LineChartComponent,
-        TimelineComponent,
-        LegendComponent,
-        MapComponent,
-        DataTableComponent,
-      ],
-      imports: [
-        FormsModule,
-        MaterialModule,
-        MaterialModule.forRoot(),
-        NgGridModule,
-        ChartModule,
-        NgxDatatableModule,
-      ],
-      providers: [
-        { provide: 'config', useValue: testConfig },
-        ActiveGridService,
-        DatasetService,
-        ConnectionService,
-        ErrorNotificationService,
-        ExportService,
-        FilterService,
-        ParameterService,
-        ThemesService,
-        VisualizationService,
-        ColorSchemeService
-      ]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [
+                AppComponent,
+                AboutNeonComponent,
+                DashboardOptionsComponent,
+                DatasetSelectorComponent,
+                VisualizationContainerComponent,
+                VisualizationInjectorComponent,
+                TextCloudComponent,
+                BarChartComponent,
+                LineChartComponent,
+                TimelineComponent,
+                LegendComponent,
+                MapComponent,
+                DataTableComponent,
+                ScatterPlotComponent,
+            ],
+            imports: [
+                FormsModule,
+                MaterialModule,
+                MaterialModule.forRoot(),
+                NgGridModule,
+                ChartModule,
+                NgxDatatableModule,
+            ],
+            providers: [
+                { provide: 'config', useValue: testConfig },
+                ActiveGridService,
+                DatasetService,
+                ConnectionService,
+                ErrorNotificationService,
+                ExportService,
+                FilterService,
+                ParameterService,
+                ThemesService,
+                VisualizationService,
+                ColorSchemeService
+            ]
+        });
+
+        fixture = TestBed.createComponent(AppComponent);
+        component = fixture.componentInstance;
+        de = fixture.debugElement;
     });
 
-    fixture = TestBed.createComponent(AppComponent);
-    component = fixture.componentInstance;
-    de = fixture.debugElement;
-  });
+    afterEach(() => {
+        fixture.detectChanges();
+    });
 
-  afterEach(() => {
-      fixture.detectChanges();
-  });
+    it('should create an instance', async(() => {
+        expect(component).toBeTruthy();
+    }));
 
-  it('should create an instance', async(() => {
-    expect(component).toBeTruthy();
-  }));
-
-  it('should include top level layout components', async(() => {
-    expect(de.nativeElement.querySelectorAll('md-sidenav-container')).toBeTruthy();
-    expect(de.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
-    // Since the about pane and options pane are rendered only after a user opens their sidenav area,
-    // these should not exist upon initial render.
-    expect(de.nativeElement.querySelectorAll('app-about-neon').length === 0).toBeTruthy();
-    expect(de.nativeElement.querySelectorAll('app-dashboard-options').length === 0).toBeTruthy();
-  }));
+    it('should include top level layout components', async(() => {
+        expect(de.nativeElement.querySelectorAll('md-sidenav-container')).toBeTruthy();
+        expect(de.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
+        // Since the about pane and options pane are rendered only after a user opens their sidenav area,
+        // these should not exist upon initial render.
+        expect(de.nativeElement.querySelectorAll('app-about-neon').length === 0).toBeTruthy();
+        expect(de.nativeElement.querySelectorAll('app-dashboard-options').length === 0).toBeTruthy();
+    }));
 });

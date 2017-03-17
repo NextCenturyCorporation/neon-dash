@@ -6,11 +6,13 @@ import { LineChartComponent } from '../line-chart/line-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { MapComponent } from '../map/map.component';
+import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { NeonGridItem } from '../../neon-grid-item';
 
 @Component({
     selector: 'app-visualization-injector',
-    entryComponents: [TextCloudComponent, BarChartComponent, LineChartComponent, MapComponent, TimelineComponent, DataTableComponent],
+    entryComponents: [TextCloudComponent, BarChartComponent, LineChartComponent, MapComponent, TimelineComponent,
+        DataTableComponent, ScatterPlotComponent],
     template: `<div #dynamicComponentContainer></div>`,
 })
 export class VisualizationInjectorComponent {
@@ -64,7 +66,8 @@ export class VisualizationInjectorComponent {
             case 'barChart': return BarChartComponent;
             case 'lineChart': return LineChartComponent;
             case 'map': return MapComponent;
-            case 'timeline' : return TimelineComponent;
+            case 'timeline': return TimelineComponent;
+            case 'scatterPlot': return ScatterPlotComponent;
 
 
             default: return null;

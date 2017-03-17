@@ -170,8 +170,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                     onHover: this.onHover
 
                 },
-                legend: Chart.defaults.global.legend,
-                tooltips: Chart.defaults.global.tooltips,
+                //legend: Chart.defaults.global.legend,
+                //  tooltips: Chart.defaults.global.tooltips,
                 scales: {
                     xAxes: [{
                         type: 'time',
@@ -180,6 +180,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         };
+        this.chart.options['legend'] = {};
         this.chart.options['legend'].display = false;
 
         let tooltipTitleFunc = (tooltips) => {
@@ -196,6 +197,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             let label = this.active.aggregation + ': ' + tooltips.yLabel;
             return label;
         };
+        this.chart.options['tooltips'] = { callbacks: {} };
         this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
         this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
 

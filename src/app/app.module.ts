@@ -55,6 +55,7 @@ import { MapComponent } from './components/map/map.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { LegendComponent } from './components/legend/legend.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
+import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
@@ -75,7 +76,8 @@ export function createAppModule(config: NeonGTDConfig) {
             LegendComponent,
             MapComponent,
             TimelineComponent,
-            DataTableComponent
+            DataTableComponent,
+            ScatterPlotComponent,
         ],
         imports: [
             BrowserModule,

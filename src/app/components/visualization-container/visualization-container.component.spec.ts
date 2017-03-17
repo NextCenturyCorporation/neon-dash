@@ -9,6 +9,7 @@ import { LineChartComponent } from '../line-chart/line-chart.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { MapComponent } from '../map/map.component';
 import { DataTableComponent } from '../data-table/data-table.component';
+import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -35,6 +36,7 @@ describe('Component: VisualizationContainer', () => {
                 LegendComponent,
                 MapComponent,
                 DataTableComponent,
+                ScatterPlotComponent,
             ],
             providers: [
                 ActiveGridService,

@@ -130,6 +130,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 tooltips: Chart.defaults.global.tooltips
             }
         };
+        this.chart.options['legend'] = {};
         this.chart.options['legend'].display = false;
 
         let tooltipTitleFunc = (tooltips) => {
@@ -140,6 +141,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             let data = this.active.aggregation + ': ' + tooltips.yLabel;
             return data;
         };
+        this.chart.options['tooltips'] = { callbacks: {} };
         this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
         this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
 
