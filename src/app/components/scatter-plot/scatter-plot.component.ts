@@ -34,11 +34,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
     @ViewChild('scatter') chartModule: ChartModule;
 
-    private filters: {
-        key: string,
-        startDate: string,
-        endDate: string
-    }[];
+    private filters: ScatterPlotFilter[];
 
     private optionsFromConfig: {
         title: string,
@@ -58,7 +54,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         limit: number,
         filterable: boolean,
         layers: any[],
-        data: Object[],
         xAxisIsNumeric: boolean,
         yAxisIsNumeric: boolean,
         pointLabels: string[],
@@ -118,7 +113,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             limit: 200,
             filterable: true,
             layers: [],
-            data: [],
             xAxisIsNumeric: true,
             yAxisIsNumeric: true,
             pointLabels: [],
@@ -165,11 +159,11 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 responsive: true,
                 maintainAspectRatio: false,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
-                onClick: null,
+                onClick: this.onClick.bind(this),
                 hover: {
                     mode: 'point',
                     intersect: false,
-                    onHover: null //this.onHover
+                    onHover: this.onHover
 
                 },
                 legend: Chart.defaults.global.legend,
@@ -188,7 +182,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.scatter.options['legend'] = {};
         this.scatter.options['legend'].display = false;
         let tooltipTitleFunc = (tooltips) => {
-          console.log(tooltips.length);
+            console.log(tooltips.length);
             let title = this.active.pointLabels[tooltips[0].index];
             return title;
         };
@@ -258,86 +252,102 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return -1;
     }
 
-    onHover(/*event, items*/) {
-        /*if (items.length === 0) {
-            return;
+    onClick(/*event*/) {
+
+    }
+
+    forcePosInsideChart(pos, min, max) {
+        if (pos < min) {
+            pos = min;
+        } else if (pos > max) {
+            pos = max;
         }
+        return pos;
+    }
+
+    onHover(event) {
+        let chart = this.chartModule['chart'];
+        let chartArea = chart.chartArea;
+        let chartXPos = event.offsetX;
+        let chartYPos = event.offsetY;
         let isMouseUp = false;
         if (!this.selection.mouseDown && event.buttons > 0) {
             // mouse down event
             this.selection.mouseDown = true;
-            this.selection.startX = items[0].getCenterPoint().x;
-            this.selection.startIndex = items[0]._index;
+            this.selection.startX = this.forcePosInsideChart(chartXPos, chartArea.left, chartArea.right);
+            this.selection.startY = this.forcePosInsideChart(chartYPos, chartArea.top, chartArea.bottom);
         }
 
+        //console.log(chartXPos);
+
+        if (this.selection.mouseDown) {
+            // drag event near items
+            //console.log(chartXPos);
+            this.selection.endX = this.forcePosInsideChart(chartXPos, chartArea.left, chartArea.right);
+            this.selection.endY = this.forcePosInsideChart(chartYPos, chartArea.top, chartArea.bottom);
+            //console.log(this.selection.endX);
+            this.selection.x = Math.min(this.selection.startX, this.selection.endX);
+            this.selection.y = Math.min(this.selection.startY, this.selection.endY);
+            this.selection.width = Math.abs(this.selection.startX - this.selection.endX);
+            this.selection.height = Math.abs(this.selection.startY - this.selection.endY);
+            //console.log("x: " + this.selection.startX + " " + this.selection.endX);
+            //console.log(this.selection.x + " " + this.selection.width);
+        }
         if (this.selection.mouseDown && event.buttons === 0) {
             // mouse up event
             this.selection.mouseDown = false;
-            this.selection.endIndex = items[0]._index;
             isMouseUp = true;
-        }
-        if (items && items.length > 0 && this.selection.mouseDown) {
-            // drag event near items
-            let chartArea = items[0]._chart.controller.chartArea;
-            let chartBottom = chartArea.bottom;
-            let chartTop = chartArea.top;
-            let startIndex: number = this.selection.startIndex;
-            let endIndex: number = items[0]._index;
-            //let endX = items[0].getCenterPoint().x;
-            //let startX = this.selection.startX
-            let endX: number = -1;
-            let startX: number = -1;
-            if (startIndex > endIndex) {
-                let temp = startIndex;
-                startIndex = endIndex;
-                endIndex = temp;
-            }
-            // at this point, start Index is <= end index
-            if (startIndex === 0) {
-                //first element, so don't go off the chart
-                startX = this.getPointXLocationByIndex(items[0]._chart, startIndex);
-            } else {
-                let a = this.getPointXLocationByIndex(items[0]._chart, startIndex - 1);
-                let b = this.getPointXLocationByIndex(items[0]._chart, startIndex);
-                startX = (b - a) / 2 + a;
-            }
-
-            if (endIndex >= this.scatter.data.labels.length - 1) {
-                //last element, so don't go off the chart
-                endX = this.getPointXLocationByIndex(items[0]._chart, endIndex);
-            } else {
-                let a = this.getPointXLocationByIndex(items[0]._chart, endIndex);
-                let b = this.getPointXLocationByIndex(items[0]._chart, endIndex + 1);
-                endX = (b - a) / 2 + a;
-            }
-            this.selection.width = Math.abs(startX - endX);
-            this.selection.x = Math.min(startX, endX);
-            this.selection.height = chartBottom - chartTop;
-            this.selection.y = chartTop;
-
-            //this.selection.visibleOverlay=!this.selection.visibleOverlay;
+            let filter = this.getFilterFromSelectionPositions();
+            this.addLocalFilter(filter);
+            this.addNeonFilter(true, filter);
         }
         if (isMouseUp) {
             //The button was clicked, handle the selection.
-            this.selection.startDate = this.active.dateBucketizer.getDateForBucket(this.selection.startIndex);
-            this.selection.endDate = this.active.dateBucketizer.getDateForBucket(this.selection.endIndex);
-            let key = this.active.dateField.columnName;
-            let f = this.createFilter(key, this.selection.startDate, this.selection.endDate);
-            this.addLocalFilter(f);
-            this.addNeonFilter(true, f);
+            //let f = this.createFilter(key, this.selection.startDate, this.selection.endDate);
+            //
         }
-
         this.stopEventPropagation(event);
-        //console.log(event);
-        //console.log(items);*/
     }
 
-    createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
+    getFilterFromSelectionPositions() {
+        let chart = this.chartModule['chart'];
+        let x1 = chart.scales['x-axis-0'].getValueForPixel(this.selection.startX);
+        let y1 = chart.scales['y-axis-0'].getValueForPixel(this.selection.startY);
+        let x2 = chart.scales['x-axis-0'].getValueForPixel(this.selection.endX);
+        let y2 = chart.scales['y-axis-0'].getValueForPixel(this.selection.endY);
+        let temp = Math.max(x1, x2);
+        x1 = Math.min(x1, x2);
+        x2 = temp;
+        temp = Math.max(y1, y2);
+        y1 = Math.min(y1, y2);
+        y2 = temp;
+        if (!this.active.xAxisIsNumeric) {
+            let i = Math.ceil(x1);
+            x1 = this.scatter.data['xLabels'][i];
+            i = Math.floor(x2);
+            x2 = this.scatter.data['xLabels'][i];
+        }
+        if (!this.active.yAxisIsNumeric) {
+            let i = Math.ceil(y1);
+            y1 = this.scatter.data['yLabels'][i];
+            i = Math.floor(y2);
+            y2 = this.scatter.data['yLabels'][i];
+        }
+        return {
+            xMin: x1, xMax: x2, yMin: y1, yMax: y2,
+            xField: this.active.xField.columnName, yField: this.active.yField.columnName
+        };
+    }
+
+    createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldNames: string[]) {
         let filterClauses = [];
-        filterClauses[0] = neon.query.where(fieldName, '>=', 0);
-        //let endDatePlusOne = this.selection.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
-        //let endDatePlusOneDate = new Date(endDatePlusOne);
-        //filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
+        let xField = fieldNames[0];
+        let yField = fieldNames[1];
+        let filter = this.filters[0];
+        filterClauses[0] = neon.query.where(xField, '>=', filter.xMin);
+        filterClauses[1] = neon.query.where(xField, '<=', filter.xMax);
+        filterClauses[2] = neon.query.where(yField, '>=', filter.yMin);
+        filterClauses[3] = neon.query.where(yField, '<=', filter.yMax);
         return neon.query.and.apply(neon.query, filterClauses);
     };
 
@@ -454,7 +464,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         if (xAxisIsNumeric) {
             this.scatter.options['scales'].xAxes[0] = { position: 'bottom' };
             this.scatter.options['scales'].xAxes[0].type = 'linear';
-            this.scatter.data.xLabels = null;
+            this.scatter.data.xLabels = [];
         } else {
             let xLabels = this.removeDuplicatesAndSort(xAxisLabels);
             this.scatter.data.xLabels = xLabels;
@@ -482,7 +492,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         }
         if (yAxisIsNumeric) {
             this.scatter.options['scales'].yAxes[0].type = 'linear';
-            this.scatter.data.yLabels = null;
+            this.scatter.data.yLabels = [];
         } else {
             let yLabels = this.removeDuplicatesAndSort(yAxisLabels);
             this.scatter.options['scales'].yAxes[0].type = 'linear';
@@ -586,3 +596,12 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.filters = [];
     }
 }
+
+export class ScatterPlotFilter {
+    xMin: any;
+    xMax: any;
+    yMin: any;
+    yMax: any;
+    xField: string;
+    yField: string;
+};

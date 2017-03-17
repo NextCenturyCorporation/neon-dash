@@ -77,7 +77,7 @@
             </div>
         </div>
         <div class="chart-container" (click)="stopEventPropagation($event)">
-            <!--<div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>-->
+            <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
             <chart class="chart" #scatter [type]="scatter.type" [data]="scatter.data" [options]="scatter.options">
             </chart>
 
