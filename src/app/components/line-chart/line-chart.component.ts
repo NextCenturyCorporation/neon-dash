@@ -192,7 +192,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             let format = 'll';
             if (this.active.granularity === 'hour') {
                 // locale-specific format that shows time
-                format = 'lll'
+                format = 'lll';
             }
             let title = date.format(format);
             return title;
