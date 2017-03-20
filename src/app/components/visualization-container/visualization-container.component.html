@@ -1,21 +1,18 @@
 <div style="height:10px; opacity: 0; z-index:1000; width: 100%; position: absolute;" (mouseenter)="showToolbar=true;" *ngIf="!showToolbar"></div>
 <md-toolbar color="accent" class="visualization-toolbar" layout-align="space-between center" flex *ngIf="showToolbar" (mouseleave)="showToolbar=false;">
-    <span class="">{{visualization.title || ""}}</span>
-    <span class="fill-remaining"></span>
-    <button md-icon-button  aria-label="Move to top" class="neon-gtd-text-button"
-        (click)="moveToTop()">
+    <span class="fill-remaining drag-handle" style="height: 100%;">
+      <span class="" style="padding-top: 21px; position: absolute;">{{visualization.title || ""}}</span>
+    </span>
+    <button md-icon-button aria-label="Move to top" class="neon-gtd-text-button" (click)="moveToTop()">
         <md-icon class="mat-24">arrow_upward</md-icon>
     </button>
-    <button md-icon-button  aria-label="Move to bottom" class="neon-gtd-text-button"
-        (click)="moveToBottom()">
+    <button md-icon-button aria-label="Move to bottom" class="neon-gtd-text-button" (click)="moveToBottom()">
         <md-icon class="mat-24">arrow_downward</md-icon>
     </button>
-    <button md-icon-button aria-label="Menu" class="neon-gtd-text-button" tooltip-position="below"
-        (click)="expand()" *ngIf="!expanded">
+    <button md-icon-button aria-label="Menu" class="neon-gtd-text-button" tooltip-position="below" (click)="expand()" *ngIf="!expanded">
         <md-icon class="mat-24">fullscreen</md-icon>
     </button>
-    <button md-icon-button aria-label="Menu" class="neon-gtd-text-button" tooltip-position="below"
-        (click)="contract()" *ngIf="expanded">
+    <button md-icon-button aria-label="Menu" class="neon-gtd-text-button" tooltip-position="below" (click)="contract()" *ngIf="expanded">
         <md-icon class="mat-24">fullscreen_exit</md-icon>
     </button>
     <button md-icon-button aria-label="Close" class="neon-gtd-text-button" (click)="close()">
