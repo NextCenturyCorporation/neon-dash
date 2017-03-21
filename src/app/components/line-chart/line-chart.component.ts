@@ -21,7 +21,7 @@ import {DateBucketizer} from '../bucketizers/DateBucketizer';
 import {LegendItem} from '../legend/legend.component';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {ChartModule} from 'angular2-chartjs';
-// import * as Chartjs from 'chart.js';
+import * as moment from 'moment';
 declare var Chart: any;
 
 @Component({
@@ -184,13 +184,17 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.chart.options['legend'].display = false;
 
         let tooltipTitleFunc = (tooltips) => {
-            let monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'
-            ];
             let index = tooltips[0].index;
-            let date = this.active.dateBucketizer.getDateForBucket(index);
-            let month = monthNames[date.getUTCMonth()];
-            let title = date.getUTCDate() + ' ' + month + ' ' + date.getUTCFullYear();
+            // Chart.js uses moment to format the date axis, so use moment for the tooltips as well
+            let date = moment(this.active.dateBucketizer.getDateForBucket(index));
+            // 'll' is the locale-specific format for displaying month, day, and year in an
+            // abbreviated format. See "Localized formats" in http://momentjs.com/docs/#/displaying/format/
+            let format = 'll';
+            if (this.active.granularity === 'hour') {
+                // locale-specific format that shows time
+                format = 'lll';
+            }
+            let title = date.format(format);
             return title;
         };
         let tooltipDataFunc = (tooltips) => {
