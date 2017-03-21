@@ -424,7 +424,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.chartModule['chart'].destroy();
         this.chartModule['chart'] = new Chart(ctx, this.chart);
         //this.chartModule['chart'].reset();
-
+        if (response.data.length === 0) {
+            return;
+        }
         let dataSetField = this.active.groupField.columnName;
         // let prettyColName = this.active.dateField.prettyName;
         let myData = {};

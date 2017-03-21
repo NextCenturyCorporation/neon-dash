@@ -15,6 +15,7 @@ import { MapComponent } from '../map/map.component';
 import { LegendComponent } from '../legend/legend.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
+import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -30,6 +31,7 @@ describe('Component: VisualizationInjector', () => {
                 TimelineComponent,
                 DataTableComponent,
                 ScatterPlotComponent,
+                FilterBuilderComponent,
 
             ],
             providers: [ComponentFactoryResolver],

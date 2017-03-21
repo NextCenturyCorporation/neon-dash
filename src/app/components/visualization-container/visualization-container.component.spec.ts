@@ -10,6 +10,7 @@ import { TimelineComponent } from '../timeline/timeline.component';
 import { MapComponent } from '../map/map.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
+import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -37,6 +38,7 @@ describe('Component: VisualizationContainer', () => {
                 MapComponent,
                 DataTableComponent,
                 ScatterPlotComponent,
+                FilterBuilderComponent,
             ],
             providers: [
                 ActiveGridService,

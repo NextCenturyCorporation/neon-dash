@@ -34,6 +34,7 @@ import { MapComponent } from './components//map/map.component';
 import { LegendComponent } from './components/legend/legend.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
+import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 
 import { NeonGTDConfig } from './neon-gtd-config';
 
@@ -78,6 +79,7 @@ describe('App: NeonGtd', () => {
                 MapComponent,
                 DataTableComponent,
                 ScatterPlotComponent,
+                FilterBuilderComponent,
             ],
             imports: [
                 FormsModule,

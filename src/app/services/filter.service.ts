@@ -116,6 +116,32 @@ export class FilterService {
         }
     };
 
+    replaceFilterById(messenger: neon.eventing.Messenger, database: string, table: string, fields: string[],
+        createFilterClauseFunction: (dbAndTableName: {}, fieldNames: any) => any, filterName: any, id: string,
+        successCallback?: (resp: any) => any, errorCallback?: (resp: any) => any) {
+
+          let relations = this.datasetService.getRelations(database, table, fields);
+          let nameString = this.getFilterNameString(filterName, relations);
+          let filter = this.createFilter(relations[0], createFilterClauseFunction, nameString);
+
+          messenger.replaceFilter(id, filter, () => {
+              let index = _.findIndex(this.filters, {
+                  id: id
+              });
+              this.filters[index] = {
+                  id: id,
+                  dataSet: {
+                      databaseName: filter.databaseName,
+                      tableName: filter.tableName
+                  },
+                  filter: filter
+              };
+              if (successCallback) {
+                  successCallback(null);
+              }
+          }, errorCallback);
+    }
+
     /*
      * Replaces a filter with the given filter key.
      * @param {neon.eventing.Messenger} messenger The messenger object used to replace the filter
