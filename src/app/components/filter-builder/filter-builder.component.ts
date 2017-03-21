@@ -70,6 +70,10 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         this.addBlankWhereClause();
     };
 
+    postInit() {
+        //Do nothing
+    };
+
     subNgOnDestroy() {
         //Do nothing
     };

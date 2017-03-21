@@ -74,11 +74,11 @@ export abstract class BaseNeonComponent implements OnInit,
         this.initData();
 
         this.subNgOnInit();
-
         this.initializing = false;
-        this.executeQueryChain();
+        this.postInit();
     };
 
+    abstract postInit();
     abstract subNgOnInit();
     abstract subNgOnDestroy();
     abstract getOptionFromConfig(option: string);

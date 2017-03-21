@@ -68,6 +68,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.updateTextCloudSettings();
     };
 
+    postInit() {
+
+    };
+
     subNgOnDestroy() {
         //Do nothing
     };
@@ -120,9 +124,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     isValidQuery() {
         let valid = true;
-        valid = (this.meta.database && valid);
-        valid = (this.meta.table && valid);
-        valid = (this.active.dataField && valid);
+        valid = (this.meta.database && this.meta.database.name && valid);
+        valid = (this.meta.table && this.meta.table.name && valid);
+        valid = (this.active.dataField && this.active.dataField.columnName && valid);
         return valid;
     }
 

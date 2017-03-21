@@ -154,6 +154,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
 
     }
 
+    postInit() {
+
+    };
+
     ngAfterViewInit() {
         let imagerySources = Cesium.createDefaultImageryProviderViewModels();
         // In order to get a minimal viable product in the short time span we have, we decided to disable the following Cesium features:
@@ -198,6 +202,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         //Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
         this.cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
         this.cesiumViewer.camera.flyHome(0);
+        this.executeQueryChain();
     }
 
     subNgOnDestroy() {
@@ -436,10 +441,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
 
     isValidQuery() {
         let valid = true;
-        valid = (this.meta.database && valid);
-        valid = (this.meta.table && valid);
-        valid = (this.active.longitudeField && valid);
-        valid = (this.active.latitudeField && valid);
+        valid = (this.meta.database && this.meta.database.name && valid);
+        valid = (this.meta.table && this.meta.table.name && valid);
+        valid = (this.active.longitudeField && this.active.longitudeField.columnName && valid);
+        valid = (this.active.latitudeField && this.active.latitudeField.columnName && valid);
         return valid;
     }
 

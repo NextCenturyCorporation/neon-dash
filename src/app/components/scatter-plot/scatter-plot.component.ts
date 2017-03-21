@@ -212,6 +212,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         // do nothing
     };
 
+    postInit() {
+        this.executeQueryChain();
+    };
+
     subNgOnDestroy() {
 
     };
@@ -380,10 +384,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     isValidQuery() {
         let valid = true;
-        valid = (this.meta.database && valid);
-        valid = (this.meta.table && valid);
-        valid = (this.active.xField && valid);
-        valid = (this.active.yField && valid);
+        valid = (this.meta.database && this.meta.database.name && valid);
+        valid = (this.meta.table && this.meta.table.name && valid);
+        valid = (this.active.xField && this.active.xField.columnName && valid);
+        valid = (this.active.yField && this.active.yField.columnName && valid);
         //valid = (this.active.labelField && valid);
         return valid;
     }

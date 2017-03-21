@@ -151,6 +151,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         //Do nothing
     };
 
+    postInit() {
+        this.executeQueryChain();
+    };
+
     subNgOnDestroy() {
         //Do nothing
     };
@@ -235,10 +239,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     isValidQuery() {
         let valid = true;
-        valid = (this.meta.database && valid);
-        valid = (this.meta.table && valid);
-        valid = (this.active.dataField && valid);
-        valid = (this.active.aggregationField && valid);
+        valid = (this.meta.database && this.meta.database.name && valid);
+        valid = (this.meta.table && this.meta.table.name && valid);
+        valid = (this.active.dataField && this.active.dataField.columnName && valid);
+        valid = (this.active.aggregationField && this.active.aggregationField.columnName && valid);
         // valid = (this.active.aggregation && valid);
         return valid;
     }

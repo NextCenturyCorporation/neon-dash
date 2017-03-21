@@ -181,7 +181,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             }
         };
         chart.options['legend'].display = false;
-        
+
                 let tooltipTitleFunc = (tooltips) => {
                     let monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
                         'July', 'August', 'September', 'October', 'November', 'December'
@@ -201,6 +201,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }*/
 
     subNgOnInit() {
+
+    };
+
+    postInit() {
 
     };
 
@@ -350,9 +354,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     isValidQuery() {
         let valid = true;
-        valid = (this.meta.database && valid);
-        valid = (this.meta.table && valid);
-        valid = (this.active.dateField && valid);
+        valid = (this.meta.database && this.meta.database.name && valid);
+        valid = (this.meta.table && this.meta.table.name && valid);
+        valid = (this.active.dateField && this.active.dateField.columnName && valid);
         return valid;
     }
 
