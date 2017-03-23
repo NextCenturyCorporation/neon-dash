@@ -1,26 +1,34 @@
-<div (mouseleave)="showToolbar=false;">
-    <div [ngStyle]="{'height.px':(showToolbar ? 1 : 10)}" style="opacity: 0; z-index:1000; width: 100%; position: absolute;"
-        (mouseenter)="showToolbar=true;"></div>
+<div (mouseleave)="showToolbar=false;" class="drag-handle">
     <!-- *ngIf="!showToolbar" -->
-    <md-toolbar color="accent" class="visualization-toolbar" layout-align="space-between center" flex *ngIf="showToolbar" (mouseleave)="showToolbar=false;">
-        <span class="fill-remaining drag-handle" style="height: 100%;">
-      <span class="" style="padding-top: 21px; position: absolute;">{{visualization.title || ""}}</span>
-        </span>
-        <button md-icon-button aria-label="Move to top" class="neon-gtd-text-button" (click)="moveToTop()">
-        <md-icon class="mat-24">arrow_upward</md-icon>
-    </button>
-        <button md-icon-button aria-label="Move to bottom" class="neon-gtd-text-button" (click)="moveToBottom()">
-        <md-icon class="mat-24">arrow_downward</md-icon>
-    </button>
-        <button md-icon-button aria-label="Menu" class="neon-gtd-text-button" tooltip-position="below" (click)="expand()" *ngIf="!expanded">
-        <md-icon class="mat-24">fullscreen</md-icon>
-    </button>
-        <button md-icon-button aria-label="Menu" class="neon-gtd-text-button" tooltip-position="below" (click)="contract()" *ngIf="expanded">
-        <md-icon class="mat-24">fullscreen_exit</md-icon>
-    </button>
-        <button md-icon-button aria-label="Close" class="neon-gtd-text-button" (click)="close()">
-        <md-icon class="mat-24">close</md-icon>
-    </button>
-    </md-toolbar>
+    <div style="width:100%" (mouseleave)="showToolbar=false;" *ngIf="showToolbar">
+        <div class="fill-remaining drag-handle above-icons">
+            <!--  <span class="" style="padding-top: 21px; position: absolute;"></span>-->
+        </div>
+        <div class="visualization-toolbar" layout-align="space-between center" flex flex-direction="column">
+            <div class="icon-container">
+                <button md-icon-button aria-label="Move to top" class="neon-gtd-text-button" md-tooltip="Move to Top" tooltip-position="below"
+                    (click)="moveToTop()">
+                      <md-icon class="mat-18">arrow_upward</md-icon>
+                    </button>
+                <button md-icon-button aria-label="Move to bottom" class="neon-gtd-text-button" md-tooltip="Move to Bottom" tooltip-position="below"
+                    (click)="moveToBottom()">
+                      <md-icon class="mat-18">arrow_downward</md-icon>
+                    </button>
+                <button md-icon-button aria-label="Menu" class="neon-gtd-text-button" md-tooltip="Expand" tooltip-position="below" (click)="expand()"
+                    *ngIf="!expanded">
+                      <md-icon class="mat-18">fullscreen</md-icon>
+                    </button>
+                <button md-icon-button aria-label="Menu" class="neon-gtd-text-button" md-tooltip="Contract" tooltip-position="below" (click)="contract()"
+                    *ngIf="expanded">
+                      <md-icon class="mat-18">fullscreen_exit</md-icon>
+                    </button>
+                <button md-icon-button aria-label="Close" class="neon-gtd-text-button" (click)="close()" md-tooltip="Close visualization"
+                    tooltip-position="below">
+                      <md-icon class="mat-18 warn-text">close</md-icon>
+                    </button>
+            </div>
+        </div>
+    </div>
+    <div *ngIf="!showToolbar" class="activation-toolbar drag-handle" [ngStyle]="{'height.px':(showToolbar ? 0 : 10)}" (mouseenter)="showToolbar=true;"></div>
 </div>
-<app-visualization-injector [componentData]="visualization"></app-visualization-injector>
+<app-visualization-injector [componentData]="visualization" class="visualization-container"></app-visualization-injector>
