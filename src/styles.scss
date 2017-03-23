@@ -23,12 +23,17 @@
     flex: 1 1 auto;
 }
 
+.rounded {
+  border-radius: 3px;
+}
+
 /* Angular2-Grid Overrides */
 .grid {
     position: relative;
 }
 
 .grid-item {
+    border-radius: 3px;
     position: absolute;
 }
 

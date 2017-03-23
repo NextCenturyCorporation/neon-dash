@@ -3,7 +3,8 @@
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
         <!--<span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>-->
-        <md-button-toggle-group #showColumnSelector="mdButtonToggleGroup" [(ngModel)]="active.andor" (change)="andOrChanged()">
+        <md-button-toggle-group #showColumnSelector="mdButtonToggleGroup" [(ngModel)]="active.andor" (change)="andOrChanged()" class="rounded"
+            style="margin-right: 5px;">
             <md-button-toggle value="and">
                 and
             </md-button-toggle>
