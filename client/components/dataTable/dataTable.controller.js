@@ -46,7 +46,8 @@ angular.module('neonDemo.controllers').controller('dataTableController', ['$scop
         onColumnVisible: handleColumnVisibiltyChange
     };
 
-    var hiddenFields = [];
+    var hiddenFields = $scope.bindings.colState || {};
+    var hasSetUpColumns = (hiddenFields === {}) ? true : false;
 
     var handleColumnVisibiltyChange = function(event) {
         if(event.column.visible && hiddenFields[event.column.colId]) {
@@ -106,6 +107,15 @@ angular.module('neonDemo.controllers').controller('dataTableController', ['$scop
      * @private
      */
     var updateColumns = function() {
+        if($scope.active.gridOptions.columnApi.getAllColumns().length) { // If we have columns, then this function has already run at least once; we're reloading, not loading.
+            hiddenFields = {};
+            $scope.active.gridOptions.columnApi.getAllColumns().forEach(function(column) {
+                if(!column.visible) {
+                    hiddenFields[column.colId] = true; // Update hiddenFields to reflect current state. Unnecessary if we ever get handleColumnVisibiltyChange working.
+                }
+            });
+        }
+
         var OBJECT = "{...}";
 
         var getCellText = function(data, fields) {
@@ -143,7 +153,7 @@ angular.module('neonDemo.controllers').controller('dataTableController', ['$scop
                 config.cellClass = fieldObject.class;
             }
 
-            if(hiddenFields[fieldObject.columnName]) {
+            if(hiddenFields[fieldObject.columnName]) { // This is why the shown columns are resetting on querying for data. 
                 config.hide = true;
             }
 
@@ -339,19 +349,21 @@ angular.module('neonDemo.controllers').controller('dataTableController', ['$scop
     };
 
     $scope.handleShowAll = function() {
-        $scope.active.gridOptions.columnApi.getAllColumns().forEach(function(column) {
-            if(column.visible === false) {
-                $scope.active.gridOptions.columnApi.setColumnVisible(column, true);
-            }
+        var columns = $scope.active.gridOptions.columnApi.getAllColumns();
+        columns.forEach(function(column) {
+            column.visible = true;
         });
+        $scope.active.gridOptions.columnApi.setColumnVisible(columns[0], true);
+        hiddenFields = {};
     };
 
     $scope.handleHideAll = function() {
-        $scope.active.gridOptions.columnApi.getAllColumns().forEach(function(column) {
-            if(column.visible === true) {
-                $scope.active.gridOptions.columnApi.setColumnVisible(column, false);
-            }
+        var columns = $scope.active.gridOptions.columnApi.getAllColumns();
+        columns.forEach(function(column) {
+            column.visible = false;
+            hiddenFields[column.colId] = true;
         });
+        $scope.active.gridOptions.columnApi.setColumnVisible(columns[0], false);
     };
 
     $scope.handleChangeSortField = function() {
@@ -373,6 +385,15 @@ angular.module('neonDemo.controllers').controller('dataTableController', ['$scop
         bindings.sortField = $scope.functions.isFieldValid($scope.active.sortByField) ? $scope.active.sortByField.columnName : undefined;
         bindings.sortDirection = $scope.active.sortDirection;
         bindings.limit = $scope.active.limit;
+        if($scope.active.gridOptions.columnApi.getAllColumns().length) { // This can all be removes if handleColumnVisibiltyChange ever starts working.
+            hiddenFields = {};
+            $scope.active.gridOptions.columnApi.getAllColumns().forEach(function(column) {
+                if(column.visible === false) {
+                    hiddenFields[column.colId] = true;
+                }
+            });
+        }
+        bindings.colState = hiddenFields;
         return bindings;
     };
 
