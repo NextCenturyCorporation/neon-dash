@@ -4,14 +4,16 @@
 module.exports = function (config) {
     config.set({
         basePath: '',
-        frameworks: ['jasmine', 'angular-cli'],
+        frameworks: ['jasmine', '@angular/cli'],
         plugins: [
+            require('phantomjs-prebuilt'),
             require('karma-jasmine'),
             require('karma-chrome-launcher'),
+            require('karma-jasmine-html-reporter'),
             require('karma-phantomjs-launcher'),
-            require('karma-remap-istanbul'),
+            require('karma-coverage-istanbul-reporter'),
             require('karma-junit-reporter'),
-            require('angular-cli/plugins/karma')
+            require('@angular/cli/plugins/karma')
         ],
         files: [
             // Include support libraries and angular material
@@ -20,24 +22,20 @@ module.exports = function (config) {
             { pattern: './src/app/config/version.json', watched: false, included: false }
         ],
         preprocessors: {
-            './src/test.ts': ['angular-cli']
+            './src/test.ts': ['@angular/cli']
         },
-        remapIstanbulReporter: {
-            reports: {
-                html: 'reports/coverage',
-                lcovonly: './reports/coverage/coverage.lcov',
-                // Include cobertura reports for Jenkins
-                cobertura: './reports/coverage/cobertura-coverage.xml'
-            }
+        coverageIstanbulReporter: {
+            reports: [ 'html', 'lcovonly', 'cobertura-coverage' ],
+            fixWebpackSourcePaths: true
         },
         angularCli: {
             config: './angular-cli.json',
             environment: 'dev'
         },
         mime: {
-	    'text/x-typescript': ['ts','tsx']
+	       'text/x-typescript': ['ts','tsx']
         },
-        reporters: ['progress', 'karma-remap-istanbul', 'junit'],
+        reporters: ['progress', 'coverage-istanbul', 'junit'],
         junitReporter: {
             outputDir: 'reports/tests'
         },
@@ -48,7 +46,8 @@ module.exports = function (config) {
         browsers: ['Chrome', 'PhantomJS'],
         singleRun: false,
         client: {
-            captureConsole: true
+            captureConsole: true,
+            clearContext: false
         }
     });
 };
