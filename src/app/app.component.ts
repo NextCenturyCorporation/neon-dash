@@ -32,7 +32,7 @@ import { MdDialog, MdDialogConfig, MdDialogRef } from '@angular/material';
     selector: 'app-root',
     templateUrl: './app.component.html',
     styleUrls: [
-        '../../node_modules/angular2-grid/dist/NgGrid.css',
+        '../../node_modules/angular2-grid/NgGrid.css',
         './app.component.scss'
     ]
 })
