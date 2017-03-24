@@ -4,17 +4,20 @@
     </md-toolbar>
     <div class="add-visualization-grid-container" md-fill>
         <md-grid-list cols="4" rowHeight="130px" gutterSize="5px">
-            <md-grid-tile *ngFor="let item of visualizations; let i = index;" [class.selected]="item.selected" [colspan]="1" [rowspan]="1" class="add-visualization-tile">
-                <div class="neon-popup-thumbnail center-block text-center">
-                    <a (click)="onItemSelected(i)" tabindex="0">
+            <md-grid-tile *ngFor="let item of visualizations; let i = index;" [class.selected]="item.selected" [colspan]="1" [rowspan]="1"
+                class="add-visualization-tile" md-ripple [mdRippleCentered]="true" [mdRippleRadius]="64">
+                <a (click)="onItemSelected(i)" tabindex="0">
+                    <div class="neon-popup-thumbnail center-block text-center">
                         <div class="center-block">
                             <div class="center-block icon-container">
                                 <div class="icon-{{item.icon}} neon-sprite"></div>
                             </div>
+                            <div class="center-contents">
+                                <span class="text-uppercase">{{ item.name }}</span>
+                            </div>
                         </div>
-                        <span class="text-uppercase">{{ item.name }}</span>
-                    </a>
-                </div>
+                    </div>
+                </a>
             </md-grid-tile>
         </md-grid-list>
     </div>

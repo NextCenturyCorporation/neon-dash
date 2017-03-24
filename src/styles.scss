@@ -1,32 +1,62 @@
 /* You can add global styles to this file, and also import other style files */
 @import '~@angular/material/core/theming/prebuilt/deeppurple-amber.css';
 @import '~@angular/material/core/theming/prebuilt/purple-green.css';
-
 /* Rules for sizing the icons. */
-.material-icons.md-8 { font-size: 8px; }
-.material-icons.md-12 { font-size: 12px; }
-.material-icons.md-18 { font-size: 18px; }
-.material-icons.md-24 { font-size: 24px; }
-.material-icons.md-36 { font-size: 36px; }
-.material-icons.md-48 { font-size: 48px; }
+.material-icons.md-8 {
+    font-size: 8px;
+}
 
+.material-icons.md-12 {
+    font-size: 12px;
+}
+
+.material-icons.md-18 {
+    font-size: 18px;
+}
+
+.material-icons.md-24 {
+    font-size: 24px;
+}
+
+.material-icons.md-36 {
+    font-size: 36px;
+}
+
+.material-icons.md-48 {
+    font-size: 48px;
+}
 /* Rules for using icons as black on a light background. */
-.material-icons.md-dark { color: rgba(0, 0, 0, 0.54); }
-.material-icons.md-dark.md-inactive { color: rgba(0, 0, 0, 0.26); }
+.material-icons.md-dark {
+    color: rgba(0, 0, 0, 0.54);
+}
 
+.material-icons.md-dark.md-inactive {
+    color: rgba(0, 0, 0, 0.26);
+}
 /* Rules for using icons as white on a dark background. */
-.material-icons.md-light { color: rgba(255, 255, 255, 1); }
-.material-icons.md-light.md-inactive { color: rgba(255, 255, 255, 0.3); }
+.material-icons.md-light {
+    color: rgba(255, 255, 255, 1);
+}
 
+.material-icons.md-light.md-inactive {
+    color: rgba(255, 255, 255, 0.3);
+}
 /* General layout styles. */
 .fill-remaining {
     flex: 1 1 auto;
 }
 
 .rounded {
-  border-radius: 3px;
+    border-radius: 3px;
 }
 
+.rounded-left {
+    border-radius: 3px 0 0 3px;
+}
+
+.rounded-right {
+    border-radius: 0 3px 3px 0;
+}
 /* Angular2-Grid Overrides */
 .grid {
     position: relative;
@@ -51,8 +81,104 @@
     opacity: 0.3;
     z-index: 10;
 }
-
 /* Angular Material Overrides */
 .md-dialog-container {
-    padding: 0px;
+    padding: 0;
+}
+
+.icon-BarChart64 {
+    background-position: -192px -64px
+}
+
+.icon-Count64 {
+    background-position: -192px -128px
+}
+
+.icon-CreateFilter64 {
+    background-position: 0 -192px
+}
+
+.icon-Gantt64 {
+    background-position: -64px -192px
+}
+
+.icon-Graph64 {
+    background-position: -128px -192px
+}
+
+.icon-LineChart64 {
+    background-position: 0 0
+}
+
+.icon-Map64 {
+    background-position: -256px 0
+}
+
+.icon-News64 {
+    background-position: -256px -64px
+}
+
+.icon-OPS64 {
+    background-position: -256px -128px
+}
+
+.icon-OpsClock64 {
+    background-position: -256px -192px
+}
+
+.icon-PieChart64 {
+    background-position: 0 -256px;
+}
+
+.icon-ScatterPlot64 {
+    background-position: -64px -256px
+}
+
+.icon-Sunburst64 {
+    background-position: -192px 0
+}
+
+.icon-TagCloud64 {
+    background-position: -128px -128px
+}
+
+.icon-Timeline64 {
+    background-position: -64px -128px
+}
+
+.icon-ViewData64 {
+    background-position: 0 -128px
+}
+
+.icon-Bar-Chart {
+    background-position: -128px -64px
+}
+
+.icon-Create-Filter {
+    background-position: -128px 0
+}
+
+.icon-Graph {
+    background-position: -64px -64px
+}
+
+.icon-LineChart {
+    background-position: 0 -64px
+}
+
+.icon-PieChart {
+    background-position: -64px 0
+}
+
+.icon-container {
+    justify-content: center;
+    display: flex;
+}
+
+.neon-sprite {
+    display: inline-block;
+    vertical-align: middle;
+    background-image: url("assets/images/spritesheet.png");
+    width: 64px;
+    height: 64px;
 }

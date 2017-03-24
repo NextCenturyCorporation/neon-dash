@@ -14,8 +14,8 @@
  *
  */
 /* eslist-disable */
-export namespace charts {};
-export namespace mediators {};
+export namespace charts { };
+export namespace mediators { };
 
 export namespace neonColors {
     export const GREEN = '#39b54a';
@@ -377,69 +377,83 @@ export namespace neonVisualizationMinPixel { // jshint ignore:line
     export const y = 240;
 };
 
-export const neonVisualizations: any[] = [{   // jshint ignore:line
-    name: 'Aggregation Table',
-    type: 'aggregationTable',
-    icon: 'Count64'
-}, {
-    name: 'Bar Chart',
-    type: 'barChart',
-    icon: 'BarChart64'
-}, {
-    name: 'Custom Filter List',
-    type: 'customFilterList',
-    icon: 'CustomFilterList64'
-}, {
-    name: 'Data Table',
-    type: 'dataTable',
-    icon: 'ViewData64'
-}, {
-    name: 'Document Viewer',
-    type: 'documentViewer',
-    icon: 'DocumentViewer64'
-}, {
-    minPixelX: 480,
-    name: 'Filter Builder',
-    type: 'filterBuilder',
-    icon: 'CreateFilter64'
-}, {
-    name: 'Gantt Chart',
-    type: 'ganttChart',
-    icon: 'Gantt64'
-}, {
-    name: 'Line Chart',
-    type: 'lineChart',
-    icon: 'LineChart64'
-}, {
-    name: 'Map',
-    type: 'map',
-    icon: 'Map64'
-}, {
-    name: 'Network Graph',
-    type: 'networkGraph',
-    icon: 'Graph64'
-}, {
-    name: 'Newsfeed',
-    type: 'newsFeed',
-    icon: 'News64'
-}, {
-    name: 'Ops Clock',
-    type: 'opsClock',
-    icon: 'OpsClock64'
-}, {
-    name: 'Scatter Plot',
-    type: 'scatterPlot',
-    icon: 'ScatterPlot64'
-}, {
-    name: 'Sunburst Chart',
-    type: 'sunburstChart',
-    icon: 'Sunburst64'
-}, {
-    name: 'Text Cloud',
-    type: 'textCloud',
-    icon: 'TagCloud64'
-}, {
-    name: 'Timeline',
-    type: 'timeline',
-    icon: 'Timeline64'
-}];
+export const neonVisualizations: any[] = [
+    //    {   // jshint ignore:line
+    //        name: 'Aggregation Table',
+    //        type: 'aggregationTable',
+    //        icon: 'Count64'
+    //    },
+    {
+        name: 'Bar Chart',
+        type: 'barChart',
+        icon: 'BarChart64'
+    },
+    //{
+    //    name: 'Custom Filter List',
+    //    type: 'customFilterList',
+    //    icon: 'CustomFilterList64'
+    //},
+    {
+        name: 'Data Table',
+        type: 'dataTable',
+        icon: 'ViewData64'
+    },
+    //{
+    //    name: 'Document Viewer',
+    //    type: 'documentViewer',
+    //    icon: 'DocumentViewer64'
+    //},
+    {
+        minPixelX: 480,
+        name: 'Filter Builder',
+        type: 'filterBuilder',
+        icon: 'CreateFilter64'
+    },
+    //{
+    //    name: 'Gantt Chart',
+    //    type: 'ganttChart',
+    //    icon: 'Gantt64'
+    //},
+    {
+        name: 'Line Chart',
+        type: 'lineChart',
+        icon: 'LineChart64'
+    }, {
+        name: 'Map',
+        type: 'map',
+        icon: 'Map64'
+    },
+    //{
+    //    name: 'Network Graph',
+    //    type: 'networkGraph',
+    //    icon: 'Graph64'
+    //},
+    //{
+    //    name: 'Newsfeed',
+    //    type: 'newsFeed',
+    //    icon: 'News64'
+    //},
+    // {
+    //    name: 'Ops Clock',
+    //    type: 'opsClock',
+    //    icon: 'OpsClock64'
+    //},
+    {
+        name: 'Scatter Plot',
+        type: 'scatterPlot',
+        icon: 'ScatterPlot64'
+    },
+    //{
+    //    name: 'Sunburst Chart',
+    //    type: 'sunburstChart',
+    //    icon: 'Sunburst64'
+    //},
+    {
+        name: 'Text Cloud',
+        type: 'textCloud',
+        icon: 'TagCloud64'
+    }, {
+        name: 'Timeline',
+        type: 'timeline',
+        icon: 'Timeline64'
+    }];

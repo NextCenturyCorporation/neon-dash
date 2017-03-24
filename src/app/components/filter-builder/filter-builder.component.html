@@ -5,10 +5,10 @@
         <!--<span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>-->
         <md-button-toggle-group #showColumnSelector="mdButtonToggleGroup" [(ngModel)]="active.andor" (change)="andOrChanged()" class="rounded"
             style="margin-right: 5px;">
-            <md-button-toggle value="and">
+            <md-button-toggle class="rounded-left" value="and">
                 and
             </md-button-toggle>
-            <md-button-toggle value="or">
+            <md-button-toggle class="rounded-right" value="or">
                 or
             </md-button-toggle>
         </md-button-toggle-group>

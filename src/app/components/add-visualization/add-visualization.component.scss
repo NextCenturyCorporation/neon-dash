@@ -7,13 +7,15 @@
         a {
             background: none;
             border: 0;
-      /*      color: @main-text-color;*/
+            /*      color: @main-text-color;*/
             display: block;
             padding-bottom: 15px;
             padding-top: 15px;
 
-            &:focus, &:hover, &.collapsed:hover {
-  /*              color: @accent-bright;*/
+            &.collapsed:hover,
+            &:focus,
+            &:hover {
+                /*              color: @accent-bright;*/
                 cursor: pointer;
             }
         }
@@ -42,6 +44,7 @@
     min-width: 120px;
     padding: 0px;
     display: block;
+    box-sizing: border-box;
 
     a {
         background: none;
@@ -49,15 +52,30 @@
         display: block;
         padding-bottom: 15px;
         padding-top: 15px;
+        outline: 0;
+        width: 100%;
 
-        &:focus, &:hover, &.collapsed:hover {
+        &.collapsed:hover,
+        &:focus,
+        &:hover {
             cursor: pointer;
             color: green;
         }
     }
 }
 
-.selected {
+.center-contents {
+    justify-content: center;
+    display: flex;
+}
+
+//.selected {
+.add-visualization-tile:hover {
+    border: 1px solid #39B54A;
+    border-radius: 7px;
+}
+
+.add-visualization-tile:active {
     border: 1px solid #39B54A;
     border-radius: 7px;
 }
