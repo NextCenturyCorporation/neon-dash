@@ -242,7 +242,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         valid = (this.meta.database && this.meta.database.name && valid);
         valid = (this.meta.table && this.meta.table.name && valid);
         valid = (this.active.dataField && this.active.dataField.columnName && valid);
-        valid = (this.active.aggregationField && this.active.aggregationField.columnName && valid);
+        valid = (this.active.aggregation && this.active.aggregation && valid);
+        if (this.active.aggregation !== 'count') {
+            valid = (this.active.aggregationField && this.active.aggregationField.columnName && valid);
+        }
         // valid = (this.active.aggregation && valid);
         return valid;
     }

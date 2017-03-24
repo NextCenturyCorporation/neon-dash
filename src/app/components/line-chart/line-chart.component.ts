@@ -372,7 +372,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         valid = (this.meta.database && this.meta.database.name && valid);
         valid = (this.meta.table && this.meta.table.name && valid);
         valid = (this.active.dateField && this.active.dateField.columnName && valid);
-        valid = (this.active.aggregationField && this.active.aggregationField.columnName && valid);
         valid = (this.active.aggregation && valid);
         if (valid && this.active.aggregation !== 'count') {
             let aggCol = this.active.aggregationField.columnName;
