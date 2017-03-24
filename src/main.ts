@@ -14,7 +14,7 @@ import {
     XSRFStrategy
 } from '@angular/http';
 import { environment } from './app/environments/environment';
-import { createAppModule } from './app/app.module';
+import { AppModule } from './app/app.module';
 import * as yaml from 'js-yaml';
 import * as neon from 'neon-framework';
 import 'rxjs/Rx';
@@ -70,7 +70,8 @@ function loadConfigYaml() {
 }
 
 function bootstrapWithData(config) {
-    return platformBrowserDynamic().bootstrapModule(createAppModule(config));
+  window['appConfig'] = config;
+  return platformBrowserDynamic().bootstrapModule(AppModule);
 }
 
 if (environment.production) {

@@ -38,8 +38,6 @@ import { TranslationService } from './services/translation.service';
 import { VisualizationService } from './services/visualization.service';
 import { ColorSchemeService } from './services/color-scheme.service';
 
-import { NeonGTDConfig } from './neon-gtd-config';
-
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AppComponent } from './app.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
@@ -60,61 +58,62 @@ import { FilterBuilderComponent } from './components/filter-builder/filter-build
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
-export function createAppModule(config: NeonGTDConfig) {
-    @NgModule({
-        declarations: [
-            AppComponent,
-            VisualizationContainerComponent,
-            DatasetSelectorComponent,
-            AboutNeonComponent,
-            DashboardOptionsComponent,
-            AddVisualizationComponent,
-            TextCloudComponent,
-            BarChartComponent,
-            LineChartComponent,
-            VisualizationInjectorComponent,
-            FilterTrayComponent,
-            LegendComponent,
-            MapComponent,
-            TimelineComponent,
-            DataTableComponent,
-            ScatterPlotComponent,
-            FilterBuilderComponent,
-        ],
-        imports: [
-            BrowserModule,
-            CommonModule,
-            FormsModule,
-            HttpModule,
-            MaterialModule.forRoot(),
-            NgGridModule,
-            ChartModule,
-            NgxDatatableModule,
-        ],
-        providers: [
-            ActiveGridService,
-            ConnectionService,
-            DatasetService,
-            ErrorNotificationService,
-            ExportService,
-            FilterService,
-            ImportService,
-            ParameterService,
-            ThemesService,
-            TranslationService,
-            VisualizationService,
-            ColorSchemeService,
-            {
-                provide: 'config',
-                useValue: config
-            }
-        ],
-        entryComponents: [AppComponent, AddVisualizationComponent, FilterTrayComponent],
-        bootstrap: [AppComponent]
-    })
-    class AppModule {
+export function getAppConfig() {
+    return window['appConfig'];
+}
 
-    }
+@NgModule({
+    declarations: [
+        AppComponent,
+        VisualizationContainerComponent,
+        DatasetSelectorComponent,
+        AboutNeonComponent,
+        DashboardOptionsComponent,
+        AddVisualizationComponent,
+        TextCloudComponent,
+        BarChartComponent,
+        LineChartComponent,
+        VisualizationInjectorComponent,
+        FilterTrayComponent,
+        LegendComponent,
+        MapComponent,
+        TimelineComponent,
+        DataTableComponent,
+        ScatterPlotComponent,
+        FilterBuilderComponent
+    ],
+    imports: [
+        BrowserModule,
+        CommonModule,
+        FormsModule,
+        HttpModule,
+        MaterialModule.forRoot(),
+        NgGridModule,
+        ChartModule,
+        NgxDatatableModule,
+    ],
+    providers: [
+        ActiveGridService,
+        ConnectionService,
+        DatasetService,
+        ErrorNotificationService,
+        ExportService,
+        FilterService,
+        ImportService,
+        ParameterService,
+        ThemesService,
+        TranslationService,
+        VisualizationService,
+        ColorSchemeService,
+        {
+            provide: 'config',
+            useFactory: getAppConfig
+        }
+    ],
+    entryComponents: [AppComponent, AddVisualizationComponent, FilterTrayComponent],
+    bootstrap: [AppComponent]
+})
 
-    return AppModule;
+export class AppModule {
+
 }
