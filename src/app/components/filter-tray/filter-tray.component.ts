@@ -9,7 +9,7 @@ import * as neon from 'neon-framework';
 @Component({
     selector: 'app-filter-tray',
     templateUrl: './filter-tray.component.html',
-    styleUrls: ['./filter-tray.component.css']
+    styleUrls: ['./filter-tray.component.scss']
 })
 export class FilterTrayComponent implements OnInit, OnDestroy {
 
