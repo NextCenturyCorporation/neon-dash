@@ -11,7 +11,7 @@
     <md-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <md-card align="left">
             <md-card-content>
-                <label style="display: inline;">
+                <label style="display: inline;" *ngIf="getButtonText()">
                     <md-icon class="error-icon">error</md-icon>
                     {{ getButtonText() }}
                 </label>

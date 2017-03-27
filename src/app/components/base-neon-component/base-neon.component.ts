@@ -373,4 +373,8 @@ export abstract class BaseNeonComponent implements OnInit,
             }, this.messenger);
 
     };
+
+    getButtonText() {
+        return '';
+    }
 }

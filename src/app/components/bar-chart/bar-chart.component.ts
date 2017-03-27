@@ -368,11 +368,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     };
 
     getButtonText() {
-        // TODO Fix this.  It gets called a lot
-        // return !this.isFilterSet() && !this.active.data.length
-        //    ? 'No Data'
-        //    : 'Top ' + this.active.data.length;
-        // console.log('TODO - see getButtonText()')
+        let text = 'No Data';
+        let data = this.chart.data['datasets'];
+        if (!data || !data[0] || !data[0]['data'] ||!data[0]['data'].length){
+          return text;
+        }else{
+          return 'Top '+data[0]['data'].length;
+        }
     };
 
     // Get filters and format for each call in HTML

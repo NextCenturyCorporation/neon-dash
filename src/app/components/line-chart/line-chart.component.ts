@@ -583,14 +583,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         }
     };
 
-    getButtonText() {
-        // TODO Fix this.  It gets called a lot
-        // return !this.isFilterSet() && !this.active.data.length
-        //    ? 'No Data'
-        //    : 'Top ' + this.active.data.length;
-        // console.log('TODO - see getButtonText()')
-    };
-
     getLegendData(): LegendItem[] {
         let legendData: LegendItem[] = [];
         let datasets = this.chart.data.datasets;

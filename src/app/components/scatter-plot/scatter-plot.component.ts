@@ -567,14 +567,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         // this.updateNeonFilter();
     };
 
-    getButtonText() {
-        // TODO Fix this.  It gets called a lot
-        // return !this.isFilterSet() && !this.active.data.length
-        //    ? 'No Data'
-        //    : 'Top ' + this.active.data.length;
-        // console.log('TODO - see getButtonText()')
-    };
-
     // Get filters and format for each call in HTML
     getCloseableFilters() {
         if (this.filters.length > 0) {
