@@ -204,7 +204,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.chart.options['tooltips'] = { callbacks: {} };
         this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
         this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
-
+        this.queryTitle = 'Line Chart';
     };
     subNgOnInit() {
         this.chart.type = 'line';
@@ -492,6 +492,28 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             datasets: datasets
         };
         this.refreshVisualization();
+        let title = '';
+        switch (this.active.aggregation) {
+            case 'count':
+                title = 'Count';
+                break;
+            case 'average':
+                title = 'Average';// + this.active.aggregationField.prettyName;
+                break;
+            case 'sum':
+                title = 'Sum';// + this.active.aggregationField.prettyName;
+                break;
+            case 'min':
+                title = 'Minimum';// + this.active.aggregationField.prettyName;
+                break;
+            case 'max':
+                title = 'Maximum';// + this.active.aggregationField.prettyName;
+                break;
+        }
+        if (this.active.groupField && this.active.groupField.prettyName) {
+            title += ' by ' + this.active.groupField.prettyName;
+        }
+        this.queryTitle = title;
     };
 
     dateToIsoDayHour(date: Date): string {

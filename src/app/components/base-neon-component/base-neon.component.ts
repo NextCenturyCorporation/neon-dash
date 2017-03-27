@@ -238,7 +238,7 @@ export abstract class BaseNeonComponent implements OnInit,
         if (!isValidQuery) {
             return;
         }
-        this.queryTitle = this.createTitle(true);
+        this.queryTitle = this.createTitle(false);
         let query = this.createQuery();
 
         let filtersToIgnore = this.getFiltersToIgnore();

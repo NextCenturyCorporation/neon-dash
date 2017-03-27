@@ -145,9 +145,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             selectionGeometry: null,
             rectangle: null
         };
-
+        this.queryTitle = 'Map';
         this.legendData = [];
-
     };
 
     subNgOnInit() {
@@ -533,6 +532,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             entities.add(entity);
         }
         //console.log(response);
+        this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
     }
 
     refreshVisualization() {

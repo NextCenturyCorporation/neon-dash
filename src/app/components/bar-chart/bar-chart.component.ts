@@ -144,7 +144,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.chart.options['tooltips'] = { callbacks: {} };
         this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
         this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
-
+        this.queryTitle = 'Bar Chart';
     };
 
     subNgOnInit() {
@@ -319,6 +319,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         d.labels = labels;
         this.chart.data = d;
         this.refreshVisualization();
+        let title;
+        switch (this.active.aggregation) {
+            case 'count':
+                title = 'Count';
+                break;
+            case 'average':
+                title = 'Average';// + this.active.aggregationField.prettyName;
+                break;
+            case 'sum':
+                title = 'Sum';// + this.active.aggregationField.prettyName;
+                break;
+        }
+        title += ' by ' + this.active.dataField.prettyName;
+        this.queryTitle = title;
     }
 
     handleChangeAggregation() {
@@ -370,10 +384,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     getButtonText() {
         let text = 'No Data';
         let data = this.chart.data['datasets'];
-        if (!data || !data[0] || !data[0]['data'] ||!data[0]['data'].length){
-          return text;
-        }else{
-          return 'Top '+data[0]['data'].length;
+        if (!data || !data[0] || !data[0]['data'] || !data[0]['data'].length) {
+            return text;
+        } else {
+            return 'Top ' + data[0]['data'].length;
         }
     };
 
