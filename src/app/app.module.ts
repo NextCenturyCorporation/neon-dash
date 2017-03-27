@@ -46,7 +46,7 @@ import { VisualizationContainerComponent } from './components/visualization-cont
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
-import { FilterTrayComponent } from  './components/filter-tray/filter-tray.component';
+import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components/map/map.component';

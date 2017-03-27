@@ -325,10 +325,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 title = 'Count';
                 break;
             case 'average':
-                title = 'Average';// + this.active.aggregationField.prettyName;
+                title = 'Average'; // + this.active.aggregationField.prettyName;
                 break;
             case 'sum':
-                title = 'Sum';// + this.active.aggregationField.prettyName;
+                title = 'Sum'; // + this.active.aggregationField.prettyName;
                 break;
         }
         title += ' by ' + this.active.dataField.prettyName;

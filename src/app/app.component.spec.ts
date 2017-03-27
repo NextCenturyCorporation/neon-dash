@@ -15,8 +15,8 @@
  *
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
-import { DebugElement }    from '@angular/core';
-import { FormsModule }     from '@angular/forms';
+import { DebugElement } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 
 import 'hammerjs';
 

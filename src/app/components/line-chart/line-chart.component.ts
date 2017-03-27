@@ -498,16 +498,16 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 title = 'Count';
                 break;
             case 'average':
-                title = 'Average';// + this.active.aggregationField.prettyName;
+                title = 'Average'; // + this.active.aggregationField.prettyName;
                 break;
             case 'sum':
-                title = 'Sum';// + this.active.aggregationField.prettyName;
+                title = 'Sum'; // + this.active.aggregationField.prettyName;
                 break;
             case 'min':
-                title = 'Minimum';// + this.active.aggregationField.prettyName;
+                title = 'Minimum'; // + this.active.aggregationField.prettyName;
                 break;
             case 'max':
-                title = 'Maximum';// + this.active.aggregationField.prettyName;
+                title = 'Maximum'; // + this.active.aggregationField.prettyName;
                 break;
         }
         if (this.active.groupField && this.active.groupField.prettyName) {
