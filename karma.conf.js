@@ -11,7 +11,7 @@ module.exports = function (config) {
             require('karma-chrome-launcher'),
             require('karma-jasmine-html-reporter'),
             require('karma-phantomjs-launcher'),
-            require('karma-coverage-istanbul-reporter'),
+            require('karma-remap-istanbul'),
             require('karma-junit-reporter'),
             require('@angular/cli/plugins/karma')
         ],
@@ -24,10 +24,6 @@ module.exports = function (config) {
         preprocessors: {
             './src/test.ts': ['@angular/cli']
         },
-        coverageIstanbulReporter: {
-            reports: [ 'html', 'lcovonly', 'cobertura-coverage' ],
-            fixWebpackSourcePaths: true
-        },
         angularCli: {
             config: './angular-cli.json',
             environment: 'dev'
@@ -35,10 +31,18 @@ module.exports = function (config) {
         mime: {
 	       'text/x-typescript': ['ts','tsx']
         },
-        reporters: ['progress', 'coverage-istanbul', 'junit'],
         junitReporter: {
             outputDir: 'reports/tests'
         },
+	remapIstanbulReporter: {
+	    reports: {
+		html: 'reports/coverage',
+		lcovonly: './reports/coverage/coverage.lcov',
+		// Include cobertura reports for Jenkins
+		cobertura: './reports/coverage/cobertura-coverage.xml'
+	    }
+        },
+        reporters: ['progress', 'karma-remap-istanbul', 'junit'],
         port: 9876,
         colors: true,
         logLevel: config.LOG_INFO,
