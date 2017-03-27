@@ -174,11 +174,11 @@ export class DashboardOptionsComponent implements OnInit {
     loadState() {
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if (connection) {
-            let params = {
+            let stateParams = {
                 stateName: this.stateName
             };
             let me = this;
-            connection.loadState(params, function(dashboardState) {
+            connection.loadState(stateParams, function(dashboardState) {
                 if (_.keys(dashboardState).length) {
                     let params: URLSearchParams = new URLSearchParams();
                     dashboardState.dashboardStateId = params.get('dashboard_state_id');
