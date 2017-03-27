@@ -45,7 +45,7 @@
     "no-empty": false,
     "no-empty-interface": true,
     "no-eval": true,
-    "no-inferrable-types": [true, "ignore-params"],
+    "no-inferrable-types": [false, "ignore-params", "ignore-properties"],
     "no-shadowed-variable": true,
     "no-string-literal": false,
     "no-string-throw": true,
@@ -62,7 +62,7 @@
       "check-else",
       "check-whitespace"
     ],
-    "prefer-const": true,
+    "prefer-const": false,
     "quotemark": [
       true,
       "single",
@@ -109,8 +109,8 @@
     "use-pipe-transform-interface": true,
     "component-class-suffix": true,
     "directive-class-suffix": true,
-    "no-access-missing-member": true,
-    "templates-use-public": true,
+    "no-access-missing-member": false,
+    "templates-use-public": false,
     "invoke-injectable": true
   }
 }
