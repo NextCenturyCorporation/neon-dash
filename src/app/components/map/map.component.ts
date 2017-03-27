@@ -1,3 +1,4 @@
+declare var Cesium: any;
 import {
     Component,
     OnInit,
