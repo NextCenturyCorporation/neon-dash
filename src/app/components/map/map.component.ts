@@ -146,9 +146,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             selectionGeometry: null,
             rectangle: null
         };
-
+        this.queryTitle = 'Map';
         this.legendData = [];
-
     };
 
     subNgOnInit() {
@@ -534,6 +533,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             entities.add(entity);
         }
         //console.log(response);
+        this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
     }
 
     refreshVisualization() {
@@ -602,15 +602,6 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
     };
-
-    getButtonText() {
-        // TODO Fix this.  It gets called a lot
-        // return !this.isFilterSet() && !this.active.data.length
-        //    ? 'No Data'
-        //    : 'Top ' + this.active.data.length;
-        // console.log('TODO - see getButtonText()')
-    };
-
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {

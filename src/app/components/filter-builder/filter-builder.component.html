@@ -48,10 +48,11 @@
                     <input mdInput placeholder="Value" [(ngModel)]="where.value" (change)="handleValueChange($event, i)">
                 </md-input-container>
                 <div class="clause-item clause-button-container">
-                    <button md-mini-fab class="clause-button" (click)="addBlankWhereClause()"><md-icon>add</md-icon></button>
-                    <button md-mini-fab class="clause-button" (click)="refreshClause(i)" *ngIf="where.active"><md-icon>refresh</md-icon></button>
-                    <button md-mini-fab class="clause-button" (click)="activateClause(i)" *ngIf="!where.active"><md-icon>check</md-icon></button>
-                    <button md-mini-fab class="clause-button" (click)="removeClause(i)"><md-icon>close</md-icon></button>
+                    <button md-mini-fab class="clause-button" (click)="addBlankWhereClause()" md-tooltip="Add New Clause" tooltip-position="below"><md-icon>add</md-icon></button>
+                    <button md-mini-fab class="clause-button" (click)="refreshClause(i)" *ngIf="where.active" md-tooltip="Refresh Clause" tooltip-position="below"><md-icon>refresh</md-icon></button>
+                    <button md-mini-fab class="clause-button" (click)="activateClause(i)" *ngIf="!where.active" md-tooltip="Activate Clause"
+                        tooltip-position="below"><md-icon>check</md-icon></button>
+                    <button md-mini-fab class="clause-button" (click)="removeClause(i)" md-tooltip="Remove Clause" tooltip-position="below"><md-icon>close</md-icon></button>
                 </div>
             </div>
         </div>

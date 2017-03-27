@@ -101,6 +101,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
             x: 0,
             y: 0,
         };
+        this.queryTitle = 'Raw Data';
     };
 
     subNgOnInit() {
@@ -320,14 +321,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
             header.style = {};
         }
     }
-
-    getButtonText() {
-        // TODO Fix this.  It gets called a lot
-        // return !this.isFilterSet() && !this.active.data.length
-        //    ? 'No Data'
-        //    : 'Top ' + this.active.data.length;
-        // console.log('TODO - see getButtonText()')
-    };
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {

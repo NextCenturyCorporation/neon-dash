@@ -11,7 +11,7 @@
     <md-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <md-card align="left">
             <md-card-content>
-                <label style="display: inline;">
+                <label style="display: inline;" *ngIf="getButtonText()">
                     <md-icon class="error-icon">error</md-icon>
                     {{ getButtonText() }}
                 </label>
@@ -27,17 +27,20 @@
                 </md-select>
                 <p></p>
 
-                <md-select placeholder="Latitude Field" [(ngModel)]="active.latitudeField" required="true" (ngModelChange)="handleChangeLatitudeField()" [disabled]="meta.fields.length == 0">
+                <md-select placeholder="Latitude Field" [(ngModel)]="active.latitudeField" required="true" (ngModelChange)="handleChangeLatitudeField()"
+                    [disabled]="meta.fields.length == 0">
                     <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
                 <p></p>
 
-                <md-select placeholder="Longitude Field" [(ngModel)]="active.longitudeField" required="true" (ngModelChange)="handleChangeLongitudeField()" [disabled]="meta.fields.length == 0">
+                <md-select placeholder="Longitude Field" [(ngModel)]="active.longitudeField" required="true" (ngModelChange)="handleChangeLongitudeField()"
+                    [disabled]="meta.fields.length == 0">
                     <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
                 <p></p>
 
-                <md-select placeholder="Color Field" [(ngModel)]="active.colorField" required="true" (ngModelChange)="handleChangeColorField()" [disabled]="meta.fields.length == 0">
+                <md-select placeholder="Color Field" [(ngModel)]="active.colorField" required="true" (ngModelChange)="handleChangeColorField()"
+                    [disabled]="meta.fields.length == 0">
                     <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
                 <p></p>

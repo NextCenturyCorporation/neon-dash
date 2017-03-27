@@ -544,14 +544,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         }
     };
 
-    getButtonText() {
-        // TODO Fix this.  It gets called a lot
-        // return !this.isFilterSet() && !this.active.data.length
-        //    ? 'No Data'
-        //    : 'Top ' + this.active.data.length;
-        // console.log('TODO - see getButtonText()')
-    };
-
     // Get filters and format for each call in HTML
     getCloseableFilters() {
         // let closeableFilters = this.filters.map((filter) => {

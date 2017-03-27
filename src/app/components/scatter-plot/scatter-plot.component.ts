@@ -206,7 +206,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.scatter.options['tooltips'] = { callbacks: {} };
         this.scatter.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
         this.scatter.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
-
+        this.queryTitle = 'Scatter Plot';
     };
     subNgOnInit() {
         // do nothing
@@ -532,6 +532,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.active.yAxisIsNumeric = yAxisIsNumeric;
         this.chartModule['chart'] = new Chart(ctx, this.scatter);
         this.refreshVisualization();
+
+        this.queryTitle = 'Scatter Plot: ' + this.active.xField.prettyName + ' vs ' + this.active.yField.prettyName;
     };
 
     removeDuplicatesAndSort(arr) {
@@ -565,14 +567,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
-    };
-
-    getButtonText() {
-        // TODO Fix this.  It gets called a lot
-        // return !this.isFilterSet() && !this.active.data.length
-        //    ? 'No Data'
-        //    : 'Top ' + this.active.data.length;
-        // console.log('TODO - see getButtonText()')
     };
 
     // Get filters and format for each call in HTML

@@ -180,9 +180,9 @@ export class DashboardOptionsComponent implements OnInit {
             let me = this;
             connection.loadState(stateParams, function(dashboardState) {
                 if (_.keys(dashboardState).length) {
-                    let params: URLSearchParams = new URLSearchParams();
-                    dashboardState.dashboardStateId = params.get('dashboard_state_id');
-                    dashboardState.filterStateId = params.get('filter_state_id');
+                    let searchParams: URLSearchParams = new URLSearchParams();
+                    dashboardState.dashboardStateId = searchParams.get('dashboard_state_id');
+                    dashboardState.filterStateId = searchParams.get('filter_state_id');
 
                     me.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
                 } else {

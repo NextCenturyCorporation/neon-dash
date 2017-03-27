@@ -62,6 +62,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             filterable: true,
             data: []
         };
+        this.queryTitle = 'Text Cloud';
     };
 
     subNgOnInit() {
@@ -153,6 +154,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             return item;
         });
         this.refreshVisualization();
+        this.queryTitle = 'Text Cloud by ' + this.active.dataField.prettyName;
     }
 
     handleFiltersChangedEvent() {

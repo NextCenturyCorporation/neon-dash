@@ -11,7 +11,7 @@
     <md-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <md-card align="left">
             <md-card-content>
-                <label style="display: inline;">
+                <label style="display: inline;" *ngIf="getButtonText()">
                     <md-icon class="error-icon">error</md-icon>
                     {{ getButtonText() }}
                 </label>
@@ -27,17 +27,20 @@
                 </md-select>
                 <p></p>
 
-                <md-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true" (ngModelChange)="handleChangeDateField()" [disabled]="meta.fields.length == 0">
+                <md-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true" (ngModelChange)="handleChangeDateField()"
+                    [disabled]="meta.fields.length == 0">
                     <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
                 <p></p>
 
-                <md-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true" (ngModelChange)="handleChangeGroupField()" [disabled]="meta.fields.length == 0">
+                <md-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true" (ngModelChange)="handleChangeGroupField()"
+                    [disabled]="meta.fields.length == 0">
                     <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
                 <p></p>
 
-                <md-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true" (ngModelChange)="handleChangeAggregation()" [disabled]="meta.fields.length == 0">
+                <md-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true" (ngModelChange)="handleChangeAggregation()"
+                    [disabled]="meta.fields.length == 0">
                     <md-option value="count">Count</md-option>
                     <md-option value="sum">Sum</md-option>
                     <md-option value="average">Average</md-option>
@@ -46,7 +49,8 @@
                 </md-select>
                 <p></p>
 
-                <md-select *ngIf="!active.aggregationFieldHidden" placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField" required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
+                <md-select *ngIf="!active.aggregationFieldHidden" placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField"
+                    required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
                     <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
                 <p></p>
