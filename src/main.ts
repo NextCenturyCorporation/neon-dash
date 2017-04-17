@@ -64,7 +64,7 @@ function handleConfigYamlError(error) {
 }
 
 function loadConfigYaml() {
-   return http.get('config/config.yaml')
+   return http.get('app/config/config.yaml')
        .map(response => yaml.load(response.text()))
        .toPromise();
 }
