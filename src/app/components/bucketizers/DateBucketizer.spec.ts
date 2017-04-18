@@ -16,16 +16,21 @@ import {DateBucketizer} from './DateBucketizer';
  */
 
 describe('dateBucketizer', function() {
-    let bucketizer;
+    let bucketizer: DateBucketizer;
 
     beforeEach(function() {
         bucketizer = new DateBucketizer();
     });
 
+    it('constants are correct', function () {
+       expect(DateBucketizer.DAY).toBe('day');
+       expect(DateBucketizer.HOUR).toBe('hour');
+    });
+
     it('initial values are correct', function() {
         expect(bucketizer.getStartDate()).toBe(undefined);
         expect(bucketizer.getEndDate()).toBe(undefined);
-        expect(bucketizer.getGranularity()).toBe(bucketizer.DAY);
+        expect(bucketizer.getGranularity()).toBe(DateBucketizer.DAY);
         expect(bucketizer.getMillisMultiplier()).toBe(1000 * 60 * 60 * 24);
     });
 
@@ -39,8 +44,8 @@ describe('dateBucketizer', function() {
     });
 
     it('switch granularities', function() {
-        bucketizer.setGranularity(bucketizer.HOUR);
-        expect(bucketizer.getGranularity()).toBe(bucketizer.HOUR);
+        bucketizer.setGranularity(DateBucketizer.HOUR);
+        expect(bucketizer.getGranularity()).toBe(DateBucketizer.HOUR);
         expect(bucketizer.getMillisMultiplier()).toBe(1000 * 60 * 60);
     });
 
@@ -71,7 +76,7 @@ describe('dateBucketizer', function() {
 
     it('zero out is idempotent (daily)', function() {
         let originalDay = new Date(1980, 1, 2, 3, 4, 5);
-        bucketizer.setGranularity(bucketizer.DAY);
+        bucketizer.setGranularity(DateBucketizer.DAY);
         let zeroDay = bucketizer.zeroOutDate(originalDay);
         let doubleZeroDay = bucketizer.zeroOutDate(zeroDay);
         expect(doubleZeroDay.toUTCString()).toBe(zeroDay.toUTCString());
@@ -79,7 +84,7 @@ describe('dateBucketizer', function() {
 
     it('zero out is idempotent (hourly)', function() {
         let originalDay = new Date(1980, 1, 2, 3, 4, 5);
-        bucketizer.setGranularity(bucketizer.HOUR);
+        bucketizer.setGranularity(DateBucketizer.HOUR);
         let zeroDay = bucketizer.zeroOutDate(originalDay);
         let doubleZeroDay = bucketizer.zeroOutDate(zeroDay);
         expect(doubleZeroDay.toUTCString()).toBe(zeroDay.toUTCString());
@@ -122,14 +127,14 @@ describe('dateBucketizer', function() {
     it('hourly bucket index of start date is 0', function() {
         let startDate = new Date(Date.UTC(1980, 1, 2, 3, 4, 5));
         bucketizer.setStartDate(startDate);
-        bucketizer.setGranularity(bucketizer.HOUR);
+        bucketizer.setGranularity(DateBucketizer.HOUR);
         expect(bucketizer.getBucketIndex(startDate)).toBe(0);
     });
 
     it('hourly bucket index of start date plus one hour', function() {
         let startDate = new Date(Date.UTC(1980, 1, 2, 3, 4, 5));
         bucketizer.setStartDate(startDate);
-        bucketizer.setGranularity(bucketizer.HOUR);
+        bucketizer.setGranularity(DateBucketizer.HOUR);
         // Create a date that is at the start of the next date
         let nextHour = new Date(Date.UTC(
             startDate.getUTCFullYear(),
@@ -144,7 +149,7 @@ describe('dateBucketizer', function() {
     it('daily bucket index of start date plus one day', function() {
         let startDate = new Date(Date.UTC(1980, 1, 2, 3, 4, 5));
         bucketizer.setStartDate(startDate);
-        bucketizer.setGranularity(bucketizer.HOUR);
+        bucketizer.setGranularity(DateBucketizer.HOUR);
         // Create a date that is at the start of the next date
         let nextDay = new Date(Date.UTC(
             startDate.getUTCFullYear(),
@@ -159,7 +164,7 @@ describe('dateBucketizer', function() {
     it('getDateForBucket() returns a zeroed out date that matches that bucket (daily)', function() {
         let startDate = new Date(Date.UTC(1980, 1, 2, 3, 4, 5));
         let dateIndex = 1;
-        bucketizer.setGranularity(bucketizer.DAY);
+        bucketizer.setGranularity(DateBucketizer.DAY);
         bucketizer.setStartDate(startDate);
         let nextDate = bucketizer.getDateForBucket(dateIndex);
         // The representative date should be a zeroed out day
@@ -172,7 +177,7 @@ describe('dateBucketizer', function() {
     it('getDateForBucket() returns a zeroed out date that matches that bucket (hourly)', function() {
         let startDate = new Date(Date.UTC(1980, 1, 2, 3, 4, 5));
         let dateIndex = 1;
-        bucketizer.setGranularity(bucketizer.HOUR);
+        bucketizer.setGranularity(DateBucketizer.HOUR);
         bucketizer.setStartDate(startDate);
         let nextDate = bucketizer.getDateForBucket(dateIndex);
         // The representative date should be a zeroed out day

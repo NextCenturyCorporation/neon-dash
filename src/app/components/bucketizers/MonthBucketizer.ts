@@ -1,4 +1,5 @@
 'use strict';
+import {Bucketizer} from './Bucketizer';
 /*
  * Copyright 2015-2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,26 +16,11 @@
  *
  */
 
-export class MonthBucketizer {
-    public GRANULARITY = 'month';
+export class MonthBucketizer extends Bucketizer {
+    public static readonly GRANULARITY = 'month';
 
-    private startDate: Date;
-    private endDate: Date;
-
-    setStartDate(newStartDate: Date): void {
-        this.startDate = newStartDate;
-    }
-
-    getStartDate(): Date {
-        return this.startDate;
-    }
-
-    setEndDate(newEndDate: Date): void {
-        this.endDate = newEndDate;
-    }
-
-    getEndDate(): Date {
-        return this.endDate;
+    constructor() {
+        super(MonthBucketizer.GRANULARITY);
     }
 
     /**
@@ -73,10 +59,6 @@ export class MonthBucketizer {
         let dateForBucket = this.zeroOutDate(this.startDate);
         dateForBucket.setUTCMonth(newMonth);
         return dateForBucket;
-    }
-
-    getGranularity(): string {
-        return this.GRANULARITY;
     }
 
     /**

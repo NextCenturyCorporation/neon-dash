@@ -1,4 +1,5 @@
 'use strict';
+import {Bucketizer} from './Bucketizer';
 /*
  * Copyright 2015 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,57 +16,30 @@
  *
  */
 
-export class DateBucketizer {
-
-    public DAY: string = 'day';
-    public HOUR: string = 'hour';
+export class DateBucketizer extends Bucketizer {
+    public static readonly DAY: string = 'day';
+    public static readonly HOUR: string = 'hour';
     // Cache the number of milliseconds in an hour for processing.
     public MILLIS_IN_HOUR: number = 1000 * 60 * 60;
     public MILLIS_IN_DAY: number = this.MILLIS_IN_HOUR * 24;
 
-    private startDate: Date;
-    private endDate: Date;
-    private granularity: string;
     private millisMultiplier: number;
 
     constructor() {
-        // TODO without top 3 lines, we get *** is not used errors
-        this.startDate = undefined;
-        this.endDate = undefined;
-        this.granularity = this.DAY;
-        this.setGranularity(this.DAY);
-    };
+        super(DateBucketizer.DAY);
+        this.setGranularity(DateBucketizer.DAY);
+    }
 
-    setStartDate = function(date: Date): void {
-        this.startDate = date;
-    };
-
-    getStartDate = function(): Date {
-        return this.startDate;
-    };
-
-    setEndDate = function(date: Date): void {
-        this.endDate = date;
-    };
-
-    getEndDate = function(): Date {
-        return this.endDate;
-    };
-
-    setGranularity = function(newGranularity: string): void {
+    setGranularity(newGranularity: string): void {
         this.granularity = newGranularity;
-        if (newGranularity === this.DAY) {
+        if (newGranularity === DateBucketizer.DAY) {
             this.millisMultiplier = this.MILLIS_IN_DAY;
-        } else if (newGranularity === this.HOUR) {
+        } else if (newGranularity === DateBucketizer.HOUR) {
             this.millisMultiplier = this.MILLIS_IN_HOUR;
         }
-    };
+    }
 
-    getGranularity = function(): string {
-        return this.granularity;
-    };
-
-    getMillisMultiplier = function(): number {
+    getMillisMultiplier(): number {
         return this.millisMultiplier;
     };
 
@@ -75,12 +49,12 @@ export class DateBucketizer {
      * @param date
      * @returns {Date}
      */
-    zeroOutDate = function(date: Date): Date {
+    zeroOutDate(date: Date): Date {
         let zeroed = new Date(date);
         zeroed.setUTCMinutes(0);
         zeroed.setUTCSeconds(0);
         zeroed.setUTCMilliseconds(0);
-        if (this.granularity === this.DAY) {
+        if (this.granularity === DateBucketizer.DAY) {
             zeroed.setUTCHours(0);
         }
         return zeroed;
@@ -157,9 +131,9 @@ export class DateBucketizer {
     };
 
     getDateFormat(): string {
-        if (this.getGranularity() === this.DAY) {
+        if (this.getGranularity() === DateBucketizer.DAY) {
             return 'd MMM yyyy';
         }
         return 'd MMM yyyy HH:mm';
     };
-};
+}
