@@ -58,6 +58,14 @@ export abstract class Bucketizer {
     }
 
     /**
+     * Get the total number of buckets
+     * @returns {number}
+     */
+    getNumBuckets(): number {
+        return this.getBucketIndex(this.endDate);
+    }
+
+    /**
      * Get a copy of the date with the date/time set to the beginning of the bucket
      * @param date
      * @returns {Date}
@@ -77,12 +85,6 @@ export abstract class Bucketizer {
      * @returns {Date}
      */
     abstract getDateForBucket(bucketIndex: number): Date;
-
-    /**
-     * Get the total number of buckets
-     * @returns {number}
-     */
-    abstract getNumBuckets(): number;
 
     /**
      * Get a date that fits in the bucket (Rounded up) for a date
