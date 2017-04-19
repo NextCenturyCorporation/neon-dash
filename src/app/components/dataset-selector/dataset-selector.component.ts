@@ -140,7 +140,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             this.parameterService.loadState(dashboardStateId, filterStateId);
         } else {
             let activeDataset: string = (this.parameterService.findActiveDatasetInUrl() || '').toLowerCase();
-            this.datasets.some(function(dataset, index) {
+            this.datasets.some((dataset, index) => {
                 if ((activeDataset && activeDataset === dataset.name.toLowerCase()) || (!activeDataset && dataset.connectOnLoad)) {
                     this.connectToPreset(index, true);
                     return true;
