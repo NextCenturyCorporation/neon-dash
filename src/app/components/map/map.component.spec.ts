@@ -18,6 +18,7 @@ import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 function webgl_support(): any {
     try {
@@ -54,6 +55,7 @@ describe('Component: Map', () => {
                 MaterialModule,
                 MaterialModule.forRoot(),
                 FormsModule,
+                BrowserAnimationsModule
             ]
         });
         fixture = TestBed.createComponent(MapComponent);

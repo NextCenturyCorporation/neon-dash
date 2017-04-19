@@ -26,6 +26,7 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '@angular/material';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('Component: DatasetSelector', () => {
 
@@ -50,7 +51,8 @@ describe('Component: DatasetSelector', () => {
       imports: [
         FormsModule,
         MaterialModule,
-        MaterialModule.forRoot()
+        MaterialModule.forRoot(),
+        BrowserAnimationsModule
       ]
     });
 

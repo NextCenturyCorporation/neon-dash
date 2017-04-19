@@ -9,7 +9,7 @@ import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
 import { neonMappings } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-//import * as _ from 'lodash';
+import * as _ from 'lodash';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 
 @Component({

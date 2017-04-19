@@ -19,6 +19,7 @@ import { MaterialModule } from '@angular/material';
 import { ChartModule } from 'angular2-chartjs';
 import { FormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -49,7 +50,8 @@ describe('Component: VisualizationContainer', () => {
                 MaterialModule.forRoot(),
                 FormsModule,
                 ChartModule,
-                NgxDatatableModule
+                NgxDatatableModule,
+                BrowserAnimationsModule
             ]
         });
         fixture = TestBed.createComponent(VisualizationContainerComponent);

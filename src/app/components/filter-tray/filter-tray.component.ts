@@ -5,6 +5,7 @@ import { ParameterService } from '../../services/parameter.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import * as neon from 'neon-framework';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'app-filter-tray',

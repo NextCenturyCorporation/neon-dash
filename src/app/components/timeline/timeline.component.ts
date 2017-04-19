@@ -419,12 +419,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         switch (this.active.granularity) {
             case 'hour':
                 bucketizer = new DateBucketizer();
-                bucketizer.setGranularity(bucketizer.HOUR);
+                bucketizer.setGranularity(DateBucketizer.HOUR);
                 dateToLabelFunc = this.dateToIsoDayHour;
                 break;
             case 'day':
                 bucketizer = new DateBucketizer();
-                bucketizer.setGranularity(bucketizer.DAY);
+                bucketizer.setGranularity(DateBucketizer.DAY);
                 dateToLabelFunc = this.dateToIsoDay;
                 break;
             case 'month':

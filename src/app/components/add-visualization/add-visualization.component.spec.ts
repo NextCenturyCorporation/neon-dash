@@ -15,22 +15,22 @@
  *
  */
 import { TestBed, inject } from '@angular/core/testing';
-import { MdDialogRef, MdGridList, MdToolbar, MdToolbarRow } from '@angular/material';
-import { MdGridTile } from '@angular/material/grid-list/grid-tile';
+import { MdDialogRef, MdGridListModule} from '@angular/material';
 import { AddVisualizationComponent } from './add-visualization.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ThemesService } from '../../services/themes.service';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('Component: AddVisualization', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
+            imports: [
+                BrowserAnimationsModule,
+                MdGridListModule
+            ],
             declarations: [
-                AddVisualizationComponent,
-                MdGridList,
-                MdGridTile,
-                MdToolbar,
-                MdToolbarRow
+                AddVisualizationComponent
             ],
             providers: [
                 ActiveGridService,

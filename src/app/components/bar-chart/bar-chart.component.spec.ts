@@ -17,6 +17,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('Component: BarChart', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -40,6 +41,7 @@ describe('Component: BarChart', () => {
                 { provide: 'config', useValue: testConfig }
             ],
             imports: [
+                BrowserAnimationsModule,
                 MaterialModule,
                 MaterialModule.forRoot(),
                 FormsModule,

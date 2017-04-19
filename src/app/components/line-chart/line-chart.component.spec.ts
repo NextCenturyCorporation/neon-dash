@@ -19,6 +19,7 @@ import { ThemesService } from '../../services/themes.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('Component: LineChart', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -47,7 +48,8 @@ describe('Component: LineChart', () => {
         MaterialModule,
         MaterialModule.forRoot(),
         FormsModule,
-        ChartModule
+        ChartModule,
+        BrowserAnimationsModule
       ]
     });
     fixture = TestBed.createComponent(LineChartComponent);

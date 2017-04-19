@@ -16,6 +16,7 @@ import { LegendComponent } from '../legend/legend.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -40,7 +41,8 @@ describe('Component: VisualizationInjector', () => {
                 MaterialModule.forRoot(),
                 FormsModule,
                 ChartModule,
-                NgxDatatableModule
+                NgxDatatableModule,
+                BrowserAnimationsModule
             ]
         });
     });

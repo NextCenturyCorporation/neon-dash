@@ -31,6 +31,7 @@ import { FilterService } from '../../services/filter.service';
 import { MaterialModule } from '@angular/material';
 import { MdSnackBar } from '@angular/material';
 import { NeonGTDConfig } from '../../neon-gtd-config';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('Component: DashboardOptionsComponent', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -46,6 +47,7 @@ describe('Component: DashboardOptionsComponent', () => {
                 FormsModule,
                 MaterialModule,
                 MaterialModule.forRoot(),
+                BrowserAnimationsModule
             ],
             providers: [
                 ConnectionService,

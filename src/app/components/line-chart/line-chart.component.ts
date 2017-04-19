@@ -441,7 +441,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let endDate = response.data[response.data.length - 1].date;
         this.active.dateBucketizer = new DateBucketizer();
         let bucketizer = this.active.dateBucketizer;
-        bucketizer.setGranularity(this.active.granularity === 'hour' ? bucketizer.HOUR : bucketizer.DAY);
+        bucketizer.setGranularity(this.active.granularity === 'hour' ? DateBucketizer.HOUR : DateBucketizer.DAY);
         bucketizer.setStartDate(new Date(startDate));
         bucketizer.setEndDate(new Date(endDate));
         let length = bucketizer.getNumBuckets();

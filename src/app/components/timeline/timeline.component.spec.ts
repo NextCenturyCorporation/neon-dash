@@ -18,6 +18,7 @@ import { ThemesService } from '../../services/themes.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('Component: Timeline', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -45,7 +46,8 @@ describe('Component: Timeline', () => {
         MaterialModule,
         MaterialModule.forRoot(),
         FormsModule,
-        ChartModule
+        ChartModule,
+        BrowserAnimationsModule
       ]
     });
     fixture = TestBed.createComponent(TimelineComponent);

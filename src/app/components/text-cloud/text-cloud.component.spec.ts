@@ -15,6 +15,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('Component: TextCloud', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -41,7 +42,8 @@ describe('Component: TextCloud', () => {
         MaterialModule,
         MaterialModule.forRoot(),
         FormsModule,
-        ChartModule
+        ChartModule,
+        BrowserAnimationsModule
       ]
     });
     fixture = TestBed.createComponent(TextCloudComponent);

@@ -11,6 +11,7 @@ import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 describe('Component: FilterTray', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -30,7 +31,8 @@ describe('Component: FilterTray', () => {
             imports: [
                 MaterialModule,
                 MaterialModule.forRoot(),
-                FormsModule
+                FormsModule,
+                BrowserAnimationsModule
             ]
         });
     });
