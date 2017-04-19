@@ -1,20 +1,5 @@
 {
-    "user_ale": {
-        "loggingUrl": "http://192.168.1.100",
-        "toolName": "Neon Dashboard",
-        "toolVersion": "1.2.0",
-        "elementGroups": [
-            "top",
-            "map_group",
-            "table_group",
-            "chart_group",
-            "query_group",
-            "graph_group"
-        ],
-        "workerUrl": "bower_components/user-ale/js/userale-worker.js",
-        "debug": false,
-        "sendLogs": false
-    },
+
 
     "dashboard": {
         "gridsterColumns": 24,
@@ -146,8 +131,7 @@
                     "sort_by": "time",
                     "count_by": "net"
                 }
-            }
-            ]
+            }]
         }],
         "mapConfig": {
             "myMap1": {
@@ -185,44 +169,100 @@
 
     "layouts": {
         "default": [{
-            "sizeX": 12,
-            "type": "timeline"
-        }, {
-            "sizeX": 12,
-            "type": "map",
-            "bindings": {
-                "config": [
-                {
+                "sizex": 20,
+                "sizey": 6,
+                "type": "filterBuilder",
+                "bindings": {
                     "database": "test",
                     "table": "earthquakes"
                 }
-                ]
-            }
-        }, {
-            "sizeX": 12,
-            "type": "lineChart",
-            "bindings": {
-                "config": [
-                {
+            },
+            {
+                "sizex": 20,
+                "sizey": 6,
+                "type": "scatterPlot",
+                "bindings": {
                     "database": "test",
-                    "table": "earthquakes"
+                    "table": "earthquakes",
+                    "xField": "longitude",
+                    "yField": "latitude",
+                    "limit": 200
                 }
-                ]
+            },
+            {
+                "sizex": 20,
+                "sizey": 6,
+                "type": "dataTable",
+                "bindings": {
+                    "database": "test",
+                    "table": "earthquakes",
+                    "sortField": "time",
+                    "limit": 20
+                }
+            },
+            {
+                "sizex": 18,
+                "sizey": 8,
+                "type": "map",
+                "bindings": {
+                    "database": "test",
+                    "table": "earthquakes",
+                    "latitudeField": "latitude",
+                    "longitudeField": "longitude",
+                    "dateField": "time",
+                    "sizeField": "mag",
+                    "colorField": "magType",
+                    "limit": 1000
+
+                }
+            },
+            {
+                "sizex": 12,
+                "sizey": 4,
+                "type": "barChart",
+                "bindings": {
+                    "database": "test",
+                    "table": "earthquakes",
+                    "dataField": "magType",
+                    "aggregation": "count"
+                }
+            },
+            {
+                "sizex": 12,
+                "sizey": 4,
+                "type": "lineChart",
+                "bindings": {
+                    "database": "test",
+                    "table": "earthquakes",
+                    "dateField": "time",
+                    "groupField": "type",
+                    "aggregation": "count"
+                }
+            },
+            {
+                "sizex": 20,
+                "sizey": 6,
+                "type": "textCloud",
+                "bindings": {
+                    "database": "test",
+                    "table": "earthquakes",
+                    "dataField": "magType"
+                }
+            },
+            {
+                "sizex": 12,
+                "sizey": 4,
+                "type": "timeline",
+                "bindings": {
+                    "database": "test",
+                    "table": "earthquakes",
+                    "dateField": "time"
+                }
             }
-        }, {
-            "type": "aggregationTable"
-        }, {
-            "type": "barChart"
-        }, {
-            "type": "opsClock"
-        }, {
-            "type": "dataTable"
-        }, {
-            "type": "filterBuilder"
-        }],
+        ],
 
         "example-with-bindings": [{
-            "sizeX": 12,
+            "sizex": 12,
             "type": "timeline",
             "bindings": {
                 "title": "myTitle",
@@ -270,7 +310,7 @@
                     "colorCode": "#39b54a",
                     "popupFields": [
                         "net"
-                        ]
+                    ]
                 }]
             }
         }, {
