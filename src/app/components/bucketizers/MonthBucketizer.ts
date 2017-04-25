@@ -85,7 +85,7 @@ export class MonthBucketizer extends Bucketizer {
      */
     roundDownBucket(date: Date): Date {
         let rounded = this.zeroOutDate(date);
-        if (rounded < this.startDate){
+        if (rounded < this.startDate) {
             rounded = this.zeroOutDate(this.startDate);
         }
         return rounded;
