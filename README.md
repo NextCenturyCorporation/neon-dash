@@ -3,15 +3,20 @@ The Neon Geo Temporal Dashboard (neon-gtd) is a sample analysis dashboard built 
 
 [Neon][5] is a software platform designed to help developers integrate disparate visualization widgets with your data stores. It includes a **Data Access API** that makes it easy to query an underlying database directly from JavaScript or RESTful endpoints. Additionally, the [Neon][5] **Interaction API** provides capabilities for inter-widget communication and shared data filters, allowing multiple visualizations to interact without being explicityly aware of one another.
 
-This project was generated with [angular-cli](https://github.com/angular/angular-cli) version 1.0.0-beta.10.
+This project was generated with [angular-cli][ng-cli] version 1.0.0.
 
 ## Prerequisites
-Building the **neon-gtd** application requires [Node.js 4[node][Node.js].  Once node has been installed, you should install the [Angular Command Line Interface][ng-cli] with the following command: 
+Building the **neon-gtd** application requires [Node.js][Node.js] (Version 6.9.x or higher).  Once node has been installed, you should install the [Angular Command Line Interface][ng-cli] with the following command: 
 
 		npm install -g angular-cli
 
+The recommended package manager for the project is the [Yarn Package Manager][yarn]. npm can also be used.
+
 ## Development server
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+
+Start a [Neon server][neon] running on port 8080. As an alternate to building the server, you can use the [Neon Quickstart Docker Image][neon-quickstart].
+
+Run `npm start` or `yarn start` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
 ## Code scaffolding
 
@@ -44,7 +49,7 @@ To see an example of this project, check out our [demo server](http://demo.neonf
 ## Build and run the example (TBD - Revise following migration to newer angular toolset)
 Running the application requires a functioning Neon deployment.  Links to the Neon deployment instructions and the command line instructions to build **neon-gtd** follow:
 
-1. [Build and Deploy a Neon server][2] or simply drop the [latest neon.war](https://s3.amazonaws.com/neonframework.org/neon/versions/latest/neon.war) in a web application container such as [Tomcat](http://tomcat.apache.org/).
+1. [Build and Deploy a Neon server][2], drop the [latest neon.war][neon-war] in a web application container such as [Tomcat][tomcat], or use the [Neon Quickstart Docker Image][neon-quickstart].
 
 2. Clone the neon-gtd repo
 
@@ -96,8 +101,12 @@ Copyright 2016 Next Century Corporation
 
 [neon]: https://github.com/NextCenturyCorporation/neon
 [neon-gtd]: https://github.com/NextCenturyCorporation/neon-gtd
+[neon-quickstart]: https://hub.docker.com/r/nextcentury/neon-quickstart/
+[neon-war]: https://s3.amazonaws.com/neonframework.org/neon/versions/latest/neon.war
 [ng-cli]: https://github.com/angular/angular-cli
 [Node.js]: https://nodejs.org/en/
+[tomcat]: http://tomcat.apache.org/
+[yarn]: https://yarnpkg.com/
 
 [1]: https://github.com/NextCenturyCorporation/neon/wiki
 [2]: https://github.com/NextCenturyCorporation/neon/wiki/Build-Instructions
