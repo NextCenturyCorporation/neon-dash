@@ -4,7 +4,7 @@ import {
     OnDestroy,
     ViewEncapsulation,
     ChangeDetectionStrategy,
-    Injector,
+    Injector, ElementRef, ViewChild,
     //ViewChild
 } from '@angular/core';
 import {ConnectionService} from '../../services/connection.service';
@@ -19,6 +19,9 @@ import * as neon from 'neon-framework';
 //import * as _ from 'lodash';
 import {DateBucketizer} from '../bucketizers/DateBucketizer';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
+import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
+import {Bucketizer} from '../bucketizers/Bucketizer';
+import {TimelineSelectorChart} from './TimelineSelectorChart';
 //import {ChartModule} from 'angular2-chartjs';
 // import * as Chartjs from 'chart.js';
 //declare var Chart: any;
@@ -33,6 +36,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
     //@ViewChild('filterChart') filterChartModule: ChartModule;
     //@ViewChild('overviewChart') overviewChartModule: ChartModule;
+    @ViewChild('svg') svg: ElementRef;
 
     private filters: {
         key: string,
@@ -56,7 +60,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         filterable: boolean,
         layers: any[],
         data: Object[],
-        dateBucketizer: DateBucketizer,
+        dateBucketizer: Bucketizer,
         granularity: string,
     };
 
@@ -96,6 +100,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     private colorSchemeService: ColorSchemeService;
+
+    private timelineChart: TimelineSelectorChart;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService) {
@@ -201,7 +207,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }*/
 
     subNgOnInit() {
-
+        this.timelineChart = new TimelineSelectorChart(this.svg);
     };
 
     postInit() {
@@ -317,7 +323,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
         let filterClauses = [];
         filterClauses[0] = neon.query.where(fieldName, '>=', this.selection.startDate);
-        let endDatePlusOne = this.selection.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
+        let endDatePlusOne = this.selection.endDate.getTime() + DateBucketizer.MILLIS_IN_DAY;
         let endDatePlusOneDate = new Date(endDatePlusOne);
         filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
         return neon.query.and.apply(neon.query, filterClauses);
@@ -338,9 +344,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     getNeonFilterFields() {
-
-        let fields = [this.active.dateField.columnName];
-        return fields;
+        return [this.active.dateField.columnName];
     }
 
     getVisualizationName() {
@@ -390,8 +394,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     getColorFromScheme(index) {
-        let color = this.colorSchemeService.getColorAsRgb(index);
-        return color;
+        return this.colorSchemeService.getColorAsRgb(index);
     }
 
     getFiltersToIgnore() {
@@ -415,7 +418,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         //this.resetChartjs(this.overviewChartModule, this.overviewChart);
 
         let dateToLabelFunc = null;
-        let bucketizer = null;
+        let bucketizer: Bucketizer = null;
         switch (this.active.granularity) {
             case 'hour':
                 bucketizer = new DateBucketizer();
@@ -428,7 +431,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                 dateToLabelFunc = this.dateToIsoDay;
                 break;
             case 'month':
-                console.error('need month bucketizer');
+                bucketizer = new MonthBucketizer();
+                dateToLabelFunc = this.dateToIsoDay;
                 return;
             case 'year':
                 console.error('need year bucketizer');
@@ -473,8 +477,21 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.refreshVisualization();
     };
 
+    dateToIsoYear(date: Date): string {
+        // 2017
+        return '' + date.getUTCFullYear();
+    }
+
+    dateToIsoMonth(date: Date): string {
+        // 2017-03
+        let tmp: number = date.getUTCMonth() + 1;
+        let month: String = String(tmp);
+        month = (tmp < 10 ? '0' + month : month);
+        return date.getUTCFullYear() + '-' + month;
+    }
+
     dateToIsoDay(date: Date): string {
-        // 2017-03-09
+        // 2017-03
         // TODO is there a better way to get date into ISO format so moment is happy?
         let tmp: number = date.getUTCMonth() + 1;
         let month: String = String(tmp);
