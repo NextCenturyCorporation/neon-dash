@@ -107,7 +107,7 @@ angular.module('neonDemo.controllers').controller('textCloudController', ['$scop
      */
     var updateTextStyle = function() {
         var elements = $scope.element.find('.text');
-        if(elements.length < 3) {
+        if(elements.length < 3 && $scope.active.data.length > 0) {
             $timeout(updateTextStyle, 100);
         } 
         else {
