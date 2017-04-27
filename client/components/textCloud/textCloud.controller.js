@@ -106,9 +106,15 @@ angular.module('neonDemo.controllers').controller('textCloudController', ['$scop
      * @private
      */
     var updateTextStyle = function() {
-        $timeout(function() {
-            $scope.element.find('.text').tagcloud();
-        });
+        var elements = $scope.element.find('.text');
+        if(elements.length < 3) {
+            $timeout(updateTextStyle, 100);
+        } 
+        else {
+            $timeout(function() {
+                elements.tagcloud();
+            }, 100);
+        }
     };
 
     $scope.functions.shouldQueryAfterFilter = function() {
