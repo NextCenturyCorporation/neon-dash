@@ -20,8 +20,8 @@ export class DateBucketizer extends Bucketizer {
     public static readonly DAY: string = 'day';
     public static readonly HOUR: string = 'hour';
     // Cache the number of milliseconds in an hour for processing.
-    public MILLIS_IN_HOUR: number = 1000 * 60 * 60;
-    public MILLIS_IN_DAY: number = this.MILLIS_IN_HOUR * 24;
+    public static readonly MILLIS_IN_HOUR: number = 1000 * 60 * 60;
+    public static readonly MILLIS_IN_DAY: number = DateBucketizer.MILLIS_IN_HOUR * 24;
 
     private millisMultiplier: number;
 
@@ -33,9 +33,9 @@ export class DateBucketizer extends Bucketizer {
     setGranularity(newGranularity: string): void {
         this.granularity = newGranularity;
         if (newGranularity === DateBucketizer.DAY) {
-            this.millisMultiplier = this.MILLIS_IN_DAY;
+            this.millisMultiplier = DateBucketizer.MILLIS_IN_DAY;
         } else if (newGranularity === DateBucketizer.HOUR) {
-            this.millisMultiplier = this.MILLIS_IN_HOUR;
+            this.millisMultiplier = DateBucketizer.MILLIS_IN_HOUR;
         }
     }
 
