@@ -50,6 +50,7 @@
   "devDependencies": {
     "@angular/cli": "^1.0.0",
     "@angular/compiler-cli": "^4.0.2",
+    "@types/d3": "0.0.33",
     "@types/jasmine": "2.2.30",
     "@types/jquery": "1.10.31",
     "@types/js-yaml": "3.5.27",

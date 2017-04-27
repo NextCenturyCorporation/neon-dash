@@ -145,6 +145,10 @@
   version "0.0.14"
   resolved "https://registry.yarnpkg.com/@types/chart.js/-/chart.js-0.0.14.tgz#5479ac209e3b493b1b88a574009fb2c1ad3d5d76"
 
+"@types/d3@0.0.33":
+  version "0.0.33"
+  resolved "https://registry.yarnpkg.com/@types/d3/-/d3-0.0.33.tgz#dde05f3444345341411652efd5f9f23b4723d16f"
+
 "@types/hammerjs@2.0.30":
   version "2.0.30"
   resolved "https://registry.yarnpkg.com/@types/hammerjs/-/hammerjs-2.0.30.tgz#440335b41338931992fb9bfa5138166b718a9407"
@@ -4572,7 +4576,7 @@ request-progress@~2.0.1:
   dependencies:
     throttleit "^1.0.0"
 
-request@2, request@^2.72.0, request@^2.78.0, request@^2.79.0, request@~2.79.0:
+request@2, request@2.x, request@^2.72.0, request@^2.78.0, request@^2.79.0, request@~2.79.0:
   version "2.79.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.79.0.tgz#4dfe5bf6be8b8cdc37fcf93e04b65577722710de"
   dependencies:
@@ -4597,7 +4601,7 @@ request@2, request@^2.72.0, request@^2.78.0, request@^2.79.0, request@~2.79.0:
     tunnel-agent "~0.4.1"
     uuid "^3.0.0"
 
-request@2.x, request@^2.81.0:
+request@^2.81.0:
   version "2.81.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.81.0.tgz#c6928946a0e06c5f8d6f8a9333469ffda46298a0"
   dependencies:
