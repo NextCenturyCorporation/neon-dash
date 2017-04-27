@@ -26,7 +26,9 @@
         "themes/neon-green-theme.scss",
         "../node_modules/cesium/Build/Cesium/Widgets/widgets.css"
       ],
-      "scripts": [],
+      "scripts": [
+          "../node_modules/jquery/dist/jquery.min.js"
+      ],
       "environmentSource": "environments/environment.ts",
       "environments": {
         "dev": "environments/environment.ts",
