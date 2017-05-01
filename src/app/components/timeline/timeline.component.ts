@@ -21,7 +21,7 @@ import {DateBucketizer} from '../bucketizers/DateBucketizer';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
 import {Bucketizer} from '../bucketizers/Bucketizer';
-import {TimelineSelectorChart} from './TimelineSelectorChart';
+import {TimelineData, TimelineSelectorChart, TimelineSeries} from './TimelineSelectorChart';
 //import {ChartModule} from 'angular2-chartjs';
 // import * as Chartjs from 'chart.js';
 //declare var Chart: any;
@@ -91,10 +91,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     protected overviewChart: {
-        data: {
-            labels: any[],
-            datasets: any[]
-        },
+        data: TimelineSeries[],
         type: string,
         options: Object
     };
@@ -146,6 +143,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         };
 
         this.onHover = this.onHover.bind(this);
+        this.overviewChart = {
+            data: [],
+            type: 'TimeLine',
+            options: {}
+        };
         //this.overviewChart = this.getDefaultChartOptions();
         //this.filterChart = this.getDefaultChartOptions();
         //this.overviewChart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
@@ -211,7 +213,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     postInit() {
-
+        this.executeQueryChain();
     };
 
     subNgOnDestroy() {
@@ -352,6 +354,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     refreshVisualization() {
+        this.timelineChart.setData(this.overviewChart.data);
+        // TODO - setData(
         //this.filterChartModule['chart'].update();
         //this.overviewChartModule['chart'].update();
     }
@@ -408,15 +412,29 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }*/
 
     onQuerySuccess(response) {
-        let disabled = true;
-        if (disabled) {
-            return;
-        }
+        console.log('Query Response:');
         console.log(response);
-        // need to reset chart when data potentially changes type (or number of datasets)
-        //this.resetChartjs(this.filterChartModule, this.filterChart);
-        //this.resetChartjs(this.overviewChartModule, this.overviewChart);
 
+        let series: TimelineSeries = {
+            color: this.chartDefaults.activeColor,
+            name: 'Data',
+            type: 'bar',
+            options: {},
+            data: []
+        };
+
+        for (let row of response.data) {
+            let data: TimelineData = {
+                date: new Date(row.date),
+                value: row.value
+            };
+
+            series.data.push(data);
+        }
+
+        this.overviewChart.data = [series];
+
+/*
         let dateToLabelFunc = null;
         let bucketizer: Bucketizer = null;
         switch (this.active.granularity) {
@@ -473,6 +491,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             labels: labels,
             datasets: [d]
         };
+*/
 
         this.refreshVisualization();
     };

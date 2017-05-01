@@ -30,6 +30,25 @@ export class TimelineConfig {
     logarithmic: boolean;
 }
 
+/**
+ * Class used for displaying data on the timeline
+ */
+export class TimelineData {
+    public date: Date;
+    public value: number;
+}
+
+/**
+ * A series of data to show on the timeline
+ */
+export class TimelineSeries {
+    public color: string;
+    public data: TimelineData[];
+    public name: string;
+    public type: string;
+    public options: Object;
+}
+
 @Injectable()
 export class TimelineSelectorChart {
     // Create a default data set when we have no records to display.  It defaults to a year from present day.
@@ -45,11 +64,16 @@ export class TimelineSelectorChart {
     private config: TimelineConfig;
     private element: ElementRef;
 
-    private d3element: d3.Selection<any>;
     private brushHandler: Function = undefined;
     private hoverListener = undefined;
-    private data: any[] = this.DEFAULT_DATA;
-    private primarySeries: any;
+    private data: TimelineSeries[] =  [{
+        name: 'Default',
+        data: this.DEFAULT_DATA,
+        type: 'bar',
+        color: 'green',
+        options: {}
+    }];
+    private primarySeries: TimelineSeries = this.data[0];
     private dateFormats = {
         year: '%Y',
         month: '%b %Y',
@@ -60,7 +84,7 @@ export class TimelineSelectorChart {
     private readonly TOOLTIP_ID = 'tooltip';
     private xDomain = [];
     private xAxisFocus: d3.svg.Axis;
-    private svg: d3.Selection<any>;
+    private svg: d3.Selection<TimelineData>;
     private collapsed = true;
 
     // The highlight bars for each date for both the context and focus timelines.
@@ -77,7 +101,7 @@ export class TimelineSelectorChart {
     // The data index over which the user is currently hovering changed on mousemove and mouseout.
     private hoverIndex = -1;
 
-    private brush: d3.svg.Brush<any>;
+    private brush: d3.svg.Brush<TimelineData>;
 
 
     private logarithmic: boolean = false;
@@ -99,7 +123,8 @@ export class TimelineSelectorChart {
             configuration = new TimelineConfig();
         }
 
-        this.d3element = d3.select(this.element.nativeElement);
+        // debugger;
+        this.svg = d3.select(this.element.nativeElement);
 
         this.config.marginFocus = configuration.marginFocus || {
                 top: 0,
@@ -118,10 +143,17 @@ export class TimelineSelectorChart {
         this.redrawChart();
     }
 
+    setData(data: TimelineSeries[]) {
+        if (data.length > 0) {
+            this.data = data;
+            this.primarySeries = data[0];
+        }
+    }
+
     @HostListener('window:resize')
     redrawChart(): void {
         if (this.data) {
-            this.render(this.data);
+            this.render();
             // TODO render extent
         }
     }
@@ -129,19 +161,17 @@ export class TimelineSelectorChart {
     determineWidth(element: ElementRef): number {
         if (this.config.width) {
            return this.config.width;
-        } else if (element.nativeElement.width !== 0) {
-            return element.nativeElement.width;
         }
-        return DEFAULT_WIDTH;
+        let elemWidth = element.nativeElement.getBoundingClientRect().width;
+        return elemWidth > 0 ? elemWidth : DEFAULT_WIDTH;
     }
 
     determineHeight(element: ElementRef): number {
         if (this.config.height) {
             return this.config.height;
-        } else if (element.nativeElement.height !== 0) {
-            return element.nativeElement.height;
         }
-        return DEFAULT_HEIGHT;
+        let elemHeight = element.nativeElement.getBoundingClientRect().height;
+        return elemHeight > 0 ? elemHeight : DEFAULT_HEIGHT;
     }
 
     addBrushHandler(handler?: Function): void {
@@ -151,10 +181,10 @@ export class TimelineSelectorChart {
                 if (this.hoverIndex >= 0 && this.oldExtent[0]) {
                     let extent = this.brush.extent();
                     if (this.datesEqual(this.oldExtent[0], extent[0]) && this.datesEqual(this.oldExtent[1], extent[1])) {
-                        let startDate = this.data[0].data[this.hoverIndex].date;
-                        let endDate = this.data[0].data.length === this.hoverIndex + 1 ? this.xDomain[1] :
+                        let startDate: Date = this.data[0].data[this.hoverIndex].date;
+                        let endDate: Date = this.data[0].data.length === this.hoverIndex + 1 ? this.xDomain[1] :
                             this.data[0].data[this.hoverIndex + 1].date;
-                        this.brush.extent([startDate, endDate]);
+                        this.brush.extent([startDate.getTime(), endDate.getTime()]);
                     }
                 }
                 if (handler) {
@@ -168,7 +198,7 @@ export class TimelineSelectorChart {
         this.brush.clear();
         d3.select(this.element.nativeElement).select('.brush').call(this.brush);
         if (this.data.length && this.data[0].data) {
-            this.render(this.data);
+            this.render();
         }
     }
 
@@ -176,7 +206,7 @@ export class TimelineSelectorChart {
         return a.toUTCString() === b.toUTCString();
     };
 
-    render(values: any[]): void {
+    render(): void {
         let i = 0;
         let MIN_VALUE = this.logarithmic ? 1 : 0;
 
@@ -188,28 +218,30 @@ export class TimelineSelectorChart {
         let svgHeight;
         let heightContext;
 
+        debugger;
+        let fullDataSet = [];
+        if (this.data && this.data.length > 0) {
+            // Get list of all data to calculate min/max and domain
+            for (i = 0; i < this.data.length; i++) {
+                fullDataSet = fullDataSet.concat(this.data[i].data);
+                if (this.data[i].data && !this.approximateBarWidth) {
+                    this.approximateBarWidth = (this.width / this.data[i].data.length);
+                }
+            }
+        } else {
+            return;
+        }
+
         if (this.collapsed) {
             svgHeight = this.determineHeight(this.element);
-            $(this.d3element[0]).css('height', svgHeight);
+            $(this.element.nativeElement[0]).css('height', svgHeight);
             this.heightFocus = Math.max(0, svgHeight - this.config.marginFocus.top - this.config.marginFocus.bottom);
             heightContext = Math.max(0, svgHeight - this.config.marginContext.top - this.config.marginContext.bottom);
         } else {
-            svgHeight = DEFAULT_HEIGHT * values.length;
-            $(this.d3element[0]).css('height', svgHeight);
+            svgHeight = DEFAULT_HEIGHT * this.data.length;
+            $(this.element.nativeElement[0]).css('height', svgHeight);
             this.heightFocus = Math.max(0, DEFAULT_HEIGHT - this.config.marginFocus.top - this.config.marginFocus.bottom);
             heightContext = Math.max(0, DEFAULT_HEIGHT - this.config.marginContext.top - this.config.marginContext.bottom);
-        }
-
-        let fullDataSet = [];
-        if (values && values.length > 0) {
-            this.data = values;
-            // Get list of all data to calculate min/max and domain
-            for (i = 0; i < values.length; i++) {
-                fullDataSet = fullDataSet.concat(values[i].data);
-                if (values[i].data && !this.approximateBarWidth) {
-                    this.approximateBarWidth = (this.width / values[i].data.length);
-                }
-            }
         }
 
         // Setup the axes and their scales.
@@ -276,8 +308,7 @@ export class TimelineSelectorChart {
         d3.select(this.element.nativeElement).html('');
 
         // Append our chart graphics
-        this.svg = d3.select(this.element.nativeElement)
-            .attr('class', 'timeline-selector-chart')
+        this.svg = d3.select(this.element.nativeElement).attr('class', 'timeline-selector-chart')
             .append('svg')
             .attr('height', svgHeight + this.config.marginFocus.left + this.config.marginFocus.right)
             .attr('width', this.width + this.config.marginFocus.left + this.config.marginFocus.right);
@@ -525,21 +556,21 @@ export class TimelineSelectorChart {
             createSeries(this.primarySeries);
         }
         // Render all series
-        for (i = 0; i < values.length; i++) {
-            if (!values[i].data) {
+        for (i = 0; i < this.data.length; i++) {
+            if (!this.data[i].data) {
                 // No data, just stop now
                 return;
-            } else if (this.primarySeries && values[i].name === this.primarySeries.name) {
+            } else if (this.primarySeries && this.data[i].name === this.primarySeries.name) {
                 continue;
-            } else if (values[i].data.length) {
-                createSeries(values[i]);
+            } else if (this.data[i].data.length) {
+                createSeries(this.data[i]);
             }
         }
 
         let gBrush = context.append('g')
             .attr('class', 'brush')
             .on('mousemove', () => {
-                let series = _.find(values, {
+                let series = _.find(this.data, {
                     name: this.primarySeries.name
                 });
                 let index = this.findHoverIndexInData(this, series, this.xContext);

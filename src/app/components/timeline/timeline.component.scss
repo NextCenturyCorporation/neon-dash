@@ -115,3 +115,144 @@
         background-color: mat-color($primary);
     }
 }
+
+.no-data {
+    color: #777777 /* @main-text-color */;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.invalid-record-count:hover {
+    color: goldenrod;
+    cursor: pointer;
+
+    .count {
+        color: goldenrod;
+        cursor: pointer;
+    }
+}
+
+.animation-controls {
+    margin: 0px 10px;
+}
+
+.brush {
+    .extent {
+        fill-opacity: 0;
+        shape-rendering: crispEdges;
+    }
+
+    .mask{
+        fill: #F1F1F1 /* @main-background */;
+        fill-opacity: 0.65;
+    }
+
+    .resize {
+        path {
+            fill: #FFFFFF /* @light-chart-axis-color */;
+            stroke: #777777 /* @chart-text-color */;
+            stroke-opacity: 0.5;
+        }
+    }
+
+    .resize-divider{
+        fill: #777777 /* @chart-text-color */;
+        fill-opacity: 0.3;
+    }
+
+    rect.background {
+        cursor: pointer !important;
+    }
+}
+
+.timeline-selector-chart {
+    margin: 0 -15px 0;
+    display:block;
+    min-height: 120px;
+
+    h3 {
+        margin-top: 0px;
+    }
+
+    svg {
+        font-size: 10px;
+        width: 100%;
+        display: block;
+        margin: auto;
+    }
+
+    .area {
+        fill: #39B54A /* @accent-bright */;
+        stroke: #39B54A /* @accent-bright */;
+        stroke-width: 1px;
+        clip-path: url(#clip);
+    }
+
+    .axis {
+        path {
+            display: none;
+        }
+
+        line {
+            fill: none;
+            stroke: #777777 /* @chart-axis-color */;
+            shape-rendering: crispEdges;
+        }
+    }
+
+    .bar {
+        fill: #39B54A /* @accent-bright */;
+        stroke: #39B54A /* @accent-bright */;
+        stroke-width: 1px;
+    }
+
+    .mini-axis{
+        fill: none;
+        shape-rendering: crispEdges;
+        stroke: rgba(0, 0, 0, 0.2) /* @shadow */;
+        stroke-width : 1px;
+    }
+
+    .series-title {
+        text-shadow: 1px 1px 0 #FFFFFF /* @text-shadow-color */,
+    1px 0px 0 #FFFFFF /* @text-shadow-color */,
+    1px -1px 0 #FFFFFF /* @text-shadow-color */,
+    -1px 1px 0 #FFFFFF /* @text-shadow-color */,
+    -1px 0px 0 #FFFFFF /* @text-shadow-color */,
+    -1px -1px 0 #FFFFFF /* @text-shadow-color */,
+    0px 2px 0 #FFFFFF /* @text-shadow-color */,
+    0px -2px 0 #FFFFFF /* @text-shadow-color */ /* @visualization-label-shadow */;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    .tick {
+        text{
+            fill: #777777 /* @chart-text-color */;
+        }
+    }
+
+    .y.axis {
+        text {
+            text-shadow: 1px 1px 0 #FFFFFF /* @text-shadow-color */,
+    1px 0px 0 #FFFFFF /* @text-shadow-color */,
+    1px -1px 0 #FFFFFF /* @text-shadow-color */,
+    -1px 1px 0 #FFFFFF /* @text-shadow-color */,
+    -1px 0px 0 #FFFFFF /* @text-shadow-color */,
+    -1px -1px 0 #FFFFFF /* @text-shadow-color */,
+    0px 2px 0 #FFFFFF /* @text-shadow-color */,
+    0px -2px 0 #FFFFFF /* @text-shadow-color */ /* @visualization-label-shadow */;
+            font-weight: bold;
+        }
+
+        path {
+            display: none;
+        }
+
+        .tick {
+            line{
+                display: none;
+            }
+        }
+    }
+}
