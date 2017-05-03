@@ -107,9 +107,9 @@ export class TimelineSelectorChart {
     private logarithmic: boolean = false;
     private width = DEFAULT_WIDTH;
     private approximateBarWidth: number;
-    private xFocus: any;
+    private xFocus: d3.time.Scale<Date, any>;
     private yFocus: any;
-    private xContext: any;
+    private xContext: d3.time.Scale<Date, any>;
     private yContext: any;
     private heightFocus: number;
 
@@ -145,6 +145,7 @@ export class TimelineSelectorChart {
 
     setData(data: TimelineSeries[]) {
         if (data.length > 0) {
+            console.log('Setting data');
             this.data = data;
             this.primarySeries = data[0];
         }
@@ -207,6 +208,10 @@ export class TimelineSelectorChart {
     };
 
     render(): void {
+        console.log('Rendering timeline');
+        console.log('data:');
+        console.log(this.data);
+
         let i = 0;
         let MIN_VALUE = this.logarithmic ? 1 : 0;
 
@@ -218,7 +223,6 @@ export class TimelineSelectorChart {
         let svgHeight;
         let heightContext;
 
-        debugger;
         let fullDataSet = [];
         if (this.data && this.data.length > 0) {
             // Get list of all data to calculate min/max and domain
@@ -307,6 +311,9 @@ export class TimelineSelectorChart {
         // Clear the old contents by replacing innerhtml.
         d3.select(this.element.nativeElement).html('');
 
+        // let xCenterOffset = (this.width + this.config.marginFocus.left + this.config.marginFocus.right) / 2;
+        let xCenterOffset = 0;
+
         // Append our chart graphics
         this.svg = d3.select(this.element.nativeElement).attr('class', 'timeline-selector-chart')
             .append('svg')
@@ -325,7 +332,7 @@ export class TimelineSelectorChart {
 
         context.append('g')
             .attr('class', 'x axis')
-            .attr('transform', 'translate(0,' + heightContext + ')')
+            .attr('transform', 'translate(-' + xCenterOffset + ',' + heightContext + ')')
             .call(xAxisContext);
 
         context.selectAll('.major text')
@@ -338,7 +345,7 @@ export class TimelineSelectorChart {
         let seriesPos = 0;
         let charts = [];
 
-        let createSeries = (series) => {
+        let createSeries = (series: TimelineSeries) => {
             let xOffset = this.approximateBarWidth / 2;
             if (series.type === 'bar') {
                 xOffset = 0;
@@ -355,7 +362,7 @@ export class TimelineSelectorChart {
 
             focus.append('g')
                 .attr('class', 'x axis')
-                .attr('transform', 'translate(0,' + this.heightFocus + ')')
+                .attr('transform', 'translate(-' + xCenterOffset + ',' + this.heightFocus + ')')
                 .call(this.xAxisFocus);
 
             focus.selectAll('.major text')
@@ -497,7 +504,7 @@ export class TimelineSelectorChart {
                         // If a line graph was used and there are anomalies, put a circle on the
                         // anomalous points
                         let anomalies = series.data.filter(function(it) {
-                            return it.anomaly === true;
+                            return false; // it.anomaly === true;
                         });
 
                         contextContainer.selectAll('dot')
@@ -651,6 +658,7 @@ export class TimelineSelectorChart {
     }
 
     drawFocusChart(series: any): any {
+        // debugger;
         let MIN_VALUE = this.logarithmic ? 1 : 0;
 
         this.svg.select('.focus-' + series.name).select('.x.axis').call(this.xAxisFocus);
@@ -845,7 +853,7 @@ export class TimelineSelectorChart {
 
         if (this.brush.extent() && this.brush.extent().length >= 2 &&
             !_.isUndefined(this.brush.extent()[0]) && !_.isUndefined(this.brush.extent()[1])) {
-            this.xFocus.domain(this.brush.extent());
+            this.xFocus.domain(this.brush.extent() as any);
         } else {
             this.xFocus.domain(this.xContext.domain());
         }

@@ -169,52 +169,53 @@
     margin: 0 -15px 0;
     display:block;
     min-height: 120px;
+}
 
-    h3 {
-        margin-top: 0px;
+h3 {
+    margin-top: 0px;
+}
+
+svg {
+    font-size: 10px;
+    width: 100%;
+    display: block;
+    margin: auto;
+}
+
+.area {
+    fill: #39B54A /* @accent-bright */;
+    stroke: #39B54A /* @accent-bright */;
+    stroke-width: 1px;
+    clip-path: url(#clip);
+}
+
+.axis {
+    path {
+        display: none;
     }
 
-    svg {
-        font-size: 10px;
-        width: 100%;
-        display: block;
-        margin: auto;
-    }
-
-    .area {
-        fill: #39B54A /* @accent-bright */;
-        stroke: #39B54A /* @accent-bright */;
-        stroke-width: 1px;
-        clip-path: url(#clip);
-    }
-
-    .axis {
-        path {
-            display: none;
-        }
-
-        line {
-            fill: none;
-            stroke: #777777 /* @chart-axis-color */;
-            shape-rendering: crispEdges;
-        }
-    }
-
-    .bar {
-        fill: #39B54A /* @accent-bright */;
-        stroke: #39B54A /* @accent-bright */;
-        stroke-width: 1px;
-    }
-
-    .mini-axis{
+    line {
         fill: none;
+        stroke: #777777 /* @chart-axis-color */;
         shape-rendering: crispEdges;
-        stroke: rgba(0, 0, 0, 0.2) /* @shadow */;
-        stroke-width : 1px;
     }
+}
 
-    .series-title {
-        text-shadow: 1px 1px 0 #FFFFFF /* @text-shadow-color */,
+.bar {
+    fill: #39B54A /* @accent-bright */;
+    stroke: #39B54A /* @accent-bright */;
+    stroke-width: 1px;
+}
+
+.mini-axis{
+    fill: none;
+    shape-rendering: crispEdges;
+    stroke: rgba(0, 0, 0, 0.2) /* @shadow */;
+    stroke-width : 1px;
+}
+
+.series-title {
+    text-shadow: 1px 1px 0 #FFFFFF /* @text-shadow-color */,
     1px 0px 0 #FFFFFF /* @text-shadow-color */,
     1px -1px 0 #FFFFFF /* @text-shadow-color */,
     -1px 1px 0 #FFFFFF /* @text-shadow-color */,
@@ -222,37 +223,36 @@
     -1px -1px 0 #FFFFFF /* @text-shadow-color */,
     0px 2px 0 #FFFFFF /* @text-shadow-color */,
     0px -2px 0 #FFFFFF /* @text-shadow-color */ /* @visualization-label-shadow */;
+    font-weight: bold;
+    font-size: 13px;
+}
+
+.tick {
+    text{
+        fill: #777777 /* @chart-text-color */;
+    }
+}
+
+.y.axis {
+    text {
+        text-shadow: 1px 1px 0 #FFFFFF /* @text-shadow-color */,
+        1px 0px 0 #FFFFFF /* @text-shadow-color */,
+        1px -1px 0 #FFFFFF /* @text-shadow-color */,
+        -1px 1px 0 #FFFFFF /* @text-shadow-color */,
+        -1px 0px 0 #FFFFFF /* @text-shadow-color */,
+        -1px -1px 0 #FFFFFF /* @text-shadow-color */,
+        0px 2px 0 #FFFFFF /* @text-shadow-color */,
+        0px -2px 0 #FFFFFF /* @text-shadow-color */ /* @visualization-label-shadow */;
         font-weight: bold;
-        font-size: 13px;
+    }
+
+    path {
+        display: none;
     }
 
     .tick {
-        text{
-            fill: #777777 /* @chart-text-color */;
-        }
-    }
-
-    .y.axis {
-        text {
-            text-shadow: 1px 1px 0 #FFFFFF /* @text-shadow-color */,
-    1px 0px 0 #FFFFFF /* @text-shadow-color */,
-    1px -1px 0 #FFFFFF /* @text-shadow-color */,
-    -1px 1px 0 #FFFFFF /* @text-shadow-color */,
-    -1px 0px 0 #FFFFFF /* @text-shadow-color */,
-    -1px -1px 0 #FFFFFF /* @text-shadow-color */,
-    0px 2px 0 #FFFFFF /* @text-shadow-color */,
-    0px -2px 0 #FFFFFF /* @text-shadow-color */ /* @visualization-label-shadow */;
-            font-weight: bold;
-        }
-
-        path {
+        line{
             display: none;
-        }
-
-        .tick {
-            line{
-                display: none;
-            }
         }
     }
 }

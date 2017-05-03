@@ -30,7 +30,7 @@ import {TimelineData, TimelineSelectorChart, TimelineSeries} from './TimelineSel
     selector: 'app-timeline',
     templateUrl: './timeline.component.html',
     styleUrls: ['./timeline.component.scss'],
-    encapsulation: ViewEncapsulation.Emulated, changeDetection: ChangeDetectionStrategy.Default
+    encapsulation: ViewEncapsulation.None, changeDetection: ChangeDetectionStrategy.Default
 })
 export class TimelineComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
@@ -433,6 +433,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         }
 
         this.overviewChart.data = [series];
+        this.timelineChart.setData(this.overviewChart.data);
+        this.timelineChart.redrawChart();
 
 /*
         let dateToLabelFunc = null;
