@@ -225,7 +225,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     onUpdateFields() {
-        this.active.dateField = this.findFieldObject('dateField', neonMappings.TAGS);
+        this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
     };
 
     addLocalFilter(key, startDate, endDate) {
