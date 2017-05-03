@@ -215,7 +215,8 @@ export class TimelineSelectorChart {
         let i = 0;
         let MIN_VALUE = this.logarithmic ? 1 : 0;
 
-        this.width = this.determineWidth(this.element) - this.config.marginFocus.left - this.config.marginFocus.right;
+        this.width = this.determineWidth(this.element) -
+            (this.config.marginFocus.left + this.config.marginFocus.right);
         // Depending on the granularity, the bars are not all the same width (months are different
         // lengths). But this is accurate enough to place tick marks and make other calculations.
         this.approximateBarWidth = 0;
@@ -375,17 +376,22 @@ export class TimelineSelectorChart {
                 .attr('class', series.name)
                 .attr('transform', 'translate(' + xOffset + ',' +
                     ((this.heightFocus + (this.config.marginFocus.top * 2) + this.config.marginFocus.bottom) * seriesPos) + ')')
-                .on('mousemove', (d) => {
-                    let index = this.findHoverIndexInData(this, series, this.xFocus);
+                .on('mousemove', (datum) => {
+                    console.log('Mousemove event');
+                    console.log(datum);
+                    let index = this.findHoverIndexInData(d3.event, datum);
+                    console.log('Got index ' + index);
                     if (index >= 0 && index < series.data.length) {
                         let contextIndex = this.contextDateToIndex[series.data[index].date.toUTCString()];
                         this.onHover(series.data[index], contextIndex);
                     }
                 })
                 .on('mouseover', function() {
+                    console.log('Mouseover');
                     this.onHoverStart();
                 })
                 .on('mouseout', function() {
+                    console.log('Mousend');
                     this.onHoverEnd();
                 });
 
@@ -576,19 +582,24 @@ export class TimelineSelectorChart {
 
         let gBrush = context.append('g')
             .attr('class', 'brush')
-            .on('mousemove', () => {
+            .on('mousemove', (datum) => {
+                console.log('Mousemove event');
+                console.log(datum);
                 let series = _.find(this.data, {
                     name: this.primarySeries.name
                 });
-                let index = this.findHoverIndexInData(this, series, this.xContext);
+                let index = this.findHoverIndexInData(d3.event, datum);
+                console.log('Got index '+index);
                 if (index >= 0 && index < series.data.length) {
                     this.onHover(series.data[index], index);
                 }
             })
             .on('mouseover', () => {
+                console.log('Mouseover');
                 this.onHoverStart();
             })
             .on('mouseout', () => {
+                console.log('Mouseend');
                 this.onHoverEnd();
             });
 
@@ -955,13 +966,13 @@ export class TimelineSelectorChart {
      * @method findHoverIndexInData
      * @return {Number}
      */
-    findHoverIndexInData(mouseEvent, value, xRange): number {
+    findHoverIndexInData(mouseEvent: d3.BaseEvent, value: TimelineData): number {
         let mouseLocation = d3.mouse(mouseEvent);
-        let graph_x = xRange.invert(mouseLocation[0]);
+        let graph_x = this.xContext.invert(mouseLocation[0]);
         let bisect = d3.bisector((d: any) => {
             return d.date;
         }).right;
-        return value ? bisect(value.data, graph_x) - 1 : -1;
+        return value ? bisect(value.date, graph_x) - 1 : -1;
     }
 
     /**
@@ -1088,35 +1099,35 @@ export class TimelineSelectorChart {
         }
         let date = d3.time.format.utc(dateFormat)(item.date);
 
-        // Create the contents of the tooltip (#tooltip-container is reused among the various
+        // Create the contents of the tooltip (#tl-tooltip-container is reused among the various
         // visualizations)
         let html = '<div><strong>Date:</strong> ' + _.escape(date) + '</div>' +
             '<div><strong>Count:</strong> ' + count + '</div>';
-        $('#tooltip-container').html(html);
-        $('#tooltip-container').show();
+        $('#tl-tooltip-container').html(html);
+        $('#tl-tooltip-container').show();
 
-        this.positionTooltip(d3.select('#tooltip-container'), mouseEvent);
+        this.positionTooltip(d3.select('#tl-tooltip-container'), mouseEvent);
     }
 
     positionTooltip(tooltip, mouseEvent): void {
         let attributeLeft = mouseEvent.pageX + 15;
-        let tooltipWidth = $('#tooltip-container').outerWidth(true);
-        let tooltipHeight = $('#tooltip-container').outerHeight(true);
+        let tooltipWidth = $('#tl-tooltip-container').outerWidth(true);
+        let tooltipHeight = $('#tl-tooltip-container').outerHeight(true);
 
         if ((attributeLeft + tooltipWidth) > $('body').width()) {
-            $('#tooltip-container').removeClass('east');
-            $('#tooltip-container').addClass('west');
+            $('#tl-tooltip-container').removeClass('east');
+            $('#tl-tooltip-container').addClass('west');
             tooltip.style('top', (mouseEvent.pageY - (tooltipHeight / 2)) + 'px')
                 .style('left', (attributeLeft - tooltipWidth - 30) + 'px');
         } else {
-            $('#tooltip-container').removeClass('west');
-            $('#tooltip-container').addClass('east');
+            $('#tl-tooltip-container').removeClass('west');
+            $('#tl-tooltip-container').addClass('east');
             tooltip.style('top', (mouseEvent.pageY - (tooltipHeight / 2)) + 'px')
                 .style('left', attributeLeft + 'px');
         }
     }
 
     hideTooltip(): void {
-        $('#tooltip-container').hide();
+        $('#tl-tooltip-container').hide();
     }
 }
