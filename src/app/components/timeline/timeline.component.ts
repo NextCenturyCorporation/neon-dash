@@ -544,6 +544,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeGranularity() {
+        this.timelineChart.setGranularity(this.active.granularity);
         this.logChangeAndStartQueryChain();
     }
 

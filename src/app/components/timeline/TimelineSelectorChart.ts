@@ -151,6 +151,10 @@ export class TimelineSelectorChart {
         }
     }
 
+    setGranularity(granularity: string) {
+        this.config.granularity = granularity;
+    }
+
     @HostListener('window:resize')
     redrawChart(): void {
         if (this.data) {
@@ -393,6 +397,16 @@ export class TimelineSelectorChart {
                 .on('mouseout', function() {
                     console.log('Mousend');
                     this.onHoverEnd();
+                })
+                .on('mousedown', (datum) => {
+                    console.log('Mousemove event');
+                    console.log(datum);
+                    let index = this.findHoverIndexInData(d3.event, datum);
+                    console.log('Got index ' + index);
+                    if (index >= 0 && index < series.data.length) {
+                        let contextIndex = this.contextDateToIndex[series.data[index].date.toUTCString()];
+                        this.onHover(series.data[index], contextIndex);
+                    }
                 });
 
             let axis = this.drawFocusChart(series);
