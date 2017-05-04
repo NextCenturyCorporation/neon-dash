@@ -140,9 +140,9 @@
             <chart class="chart" #overviewChart [type]="overviewChart.type" [data]="overviewChart.data" [options]="overviewChart.options">
             </chart>
         </div>-->
+        <div id="tl-tooltip-container"></div>
+        <div #svg class="timeline-selector-chart"></div>
     </div>
-    <div id="tl-tooltip-container"></div>
-    <div #svg class="timeline-selector-chart"></div>
     <!--<div class="text-cloud" md-fill layout="col">
         <a (click)="addFilter(item.key, item.keyTranslated)" class="text" *ngFor="let item of active.data" [rel]="item.count"
             [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
