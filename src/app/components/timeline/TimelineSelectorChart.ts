@@ -215,6 +215,7 @@ export class TimelineSelectorChart {
         console.log('Rendering timeline');
         console.log('data:');
         console.log(this.data);
+        let me = this;
 
         let i = 0;
         let MIN_VALUE = this.logarithmic ? 1 : 0;
@@ -258,7 +259,9 @@ export class TimelineSelectorChart {
         this.xContext = d3.time.scale.utc().range([0, this.width]);
 
         // Save the brush as an instance variable to allow interaction on it by client code.
-        this.brush = d3.svg.brush().x(this.xContext).on('brush', this.updateMask);
+        this.brush = d3.svg.brush().x(this.xContext).on('brush', () => {
+            this.updateMask();
+        });
 
         if (this.brushHandler) {
             this.brush.on('brushstart', function() {
@@ -380,14 +383,14 @@ export class TimelineSelectorChart {
                 .attr('class', series.name)
                 .attr('transform', 'translate(' + xOffset + ',' +
                     ((this.heightFocus + (this.config.marginFocus.top * 2) + this.config.marginFocus.bottom) * seriesPos) + ')')
-                .on('mousemove', (datum) => {
+                .on('mousemove', function() {
                     console.log('Mousemove event');
-                    console.log(datum);
-                    let index = this.findHoverIndexInData(d3.event, datum);
+                    console.log(this);
+                    let index = this.findHoverIndexInData(this, series);
                     console.log('Got index ' + index);
                     if (index >= 0 && index < series.data.length) {
-                        let contextIndex = this.contextDateToIndex[series.data[index].date.toUTCString()];
-                        this.onHover(series.data[index], contextIndex);
+                        let contextIndex = me.contextDateToIndex[series.data[index].date.toUTCString()];
+                        me.onHover(series.data[index], contextIndex);
                     }
                 })
                 .on('mouseover', function() {
@@ -398,14 +401,12 @@ export class TimelineSelectorChart {
                     console.log('Mousend');
                     this.onHoverEnd();
                 })
-                .on('mousedown', (datum) => {
-                    console.log('Mousemove event');
-                    console.log(datum);
-                    let index = this.findHoverIndexInData(d3.event, datum);
-                    console.log('Got index ' + index);
+                .on('mousedown', function() {
+                    // Note that 'this' refers to the SVG, and 'me' is the class instance
+                    let index = me.findHoverIndexInData(this, series);
                     if (index >= 0 && index < series.data.length) {
-                        let contextIndex = this.contextDateToIndex[series.data[index].date.toUTCString()];
-                        this.onHover(series.data[index], contextIndex);
+                        let contextIndex = me.contextDateToIndex[series.data[index].date.toUTCString()];
+                        me.onHover(series.data[index], contextIndex);
                     }
                 });
 
@@ -596,24 +597,20 @@ export class TimelineSelectorChart {
 
         let gBrush = context.append('g')
             .attr('class', 'brush')
-            .on('mousemove', (datum) => {
-                console.log('Mousemove event');
-                console.log(datum);
-                let series = _.find(this.data, {
-                    name: this.primarySeries.name
+            .on('mousemove', function() {
+                // Note that 'this' refers to the SVG, and 'me' is the class instance
+                let series = _.find(me.data, {
+                    name: me.primarySeries.name
                 });
-                let index = this.findHoverIndexInData(d3.event, datum);
-                console.log('Got index '+index);
+                let index = me.findHoverIndexInData(this, series);
                 if (index >= 0 && index < series.data.length) {
-                    this.onHover(series.data[index], index);
+                    me.onHover(series.data[index], index);
                 }
             })
             .on('mouseover', () => {
-                console.log('Mouseover');
                 this.onHoverStart();
             })
             .on('mouseout', () => {
-                console.log('Mouseend');
                 this.onHoverEnd();
             });
 
@@ -942,7 +939,7 @@ export class TimelineSelectorChart {
         }
 
         // Update mask
-        let brushElement = $(this);
+        let brushElement = $(this.element.nativeElement);
         let xPos = brushElement.find('.extent').attr('x');
         let extentWidth = brushElement.find('.extent').attr('width');
         let width = parseInt(brushElement.find('.mask-west').attr('width').replace('px', ''), 10);
@@ -975,18 +972,17 @@ export class TimelineSelectorChart {
     /**
      * Returns the hover index in the given data using the given mouse event and xRange function (xContext or xFocus).
      * @param {Object} mouseEvent
-     * @param {Object} value
-     * @param {Function} xRange
+     * @param {TimelineSeries} series
      * @method findHoverIndexInData
      * @return {Number}
      */
-    findHoverIndexInData(mouseEvent: d3.BaseEvent, value: TimelineData): number {
+    findHoverIndexInData(mouseEvent: any, series: TimelineSeries): number {
         let mouseLocation = d3.mouse(mouseEvent);
         let graph_x = this.xContext.invert(mouseLocation[0]);
         let bisect = d3.bisector((d: any) => {
             return d.date;
         }).right;
-        return value ? bisect(value.date, graph_x) - 1 : -1;
+        return series ? bisect(series.data, graph_x) - 1 : -1;
     }
 
     /**
