@@ -4,7 +4,7 @@ import {
     OnDestroy,
     ViewEncapsulation,
     ChangeDetectionStrategy,
-    Injector, ElementRef, ViewChild,
+    Injector, ElementRef, ViewChild, HostListener,
     //ViewChild
 } from '@angular/core';
 import {ConnectionService} from '../../services/connection.service';
@@ -497,6 +497,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
         this.refreshVisualization();
     };
+
+    @HostListener('window:resize')
+    onResize() {
+        this.timelineChart.redrawChart();
+    }
 
     dateToIsoYear(date: Date): string {
         // 2017
