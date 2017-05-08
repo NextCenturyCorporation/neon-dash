@@ -1,3 +1,4 @@
+/// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import {
     Component,
     OnInit,
@@ -5,7 +6,6 @@ import {
     ViewEncapsulation,
     ChangeDetectionStrategy,
     Injector, ElementRef, ViewChild, HostListener,
-    //ViewChild
 } from '@angular/core';
 import {ConnectionService} from '../../services/connection.service';
 import {DatasetService} from '../../services/dataset.service';
@@ -16,15 +16,14 @@ import {ColorSchemeService} from '../../services/color-scheme.service';
 import {FieldMetaData } from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-//import * as _ from 'lodash';
 import {DateBucketizer} from '../bucketizers/DateBucketizer';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
 import {Bucketizer} from '../bucketizers/Bucketizer';
-import {TimelineData, TimelineSelectorChart, TimelineSeries} from './TimelineSelectorChart';
-//import {ChartModule} from 'angular2-chartjs';
-// import * as Chartjs from 'chart.js';
-//declare var Chart: any;
+import {TimelineSelectorChart, TimelineSeries} from './TimelineSelectorChart';
+import {YearBucketizer} from '../bucketizers/YearBucketizer';
+
+declare let d3;
 
 @Component({
     selector: 'app-timeline',
@@ -60,7 +59,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         filterable: boolean,
         layers: any[],
         data: Object[],
-        dateBucketizer: Bucketizer,
+        bucketizer: Bucketizer,
         granularity: string,
     };
 
@@ -121,7 +120,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             filterable: true,
             layers: [],
             data: [],
-            dateBucketizer: null,
+            bucketizer: new DateBucketizer(),
             granularity: 'day'
         };
 
@@ -195,7 +194,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                         'July', 'August', 'September', 'October', 'November', 'December'
                     ];
                     let index = tooltips[0].index;
-                    let date = this.active.dateBucketizer.getDateForBucket(index);
+                    let date = this.active.bucketizer.getDateForBucket(index);
                     let month = monthNames[date.getUTCMonth()];
                     let title = date.getUTCDate() + ' ' + month + ' ' + date.getUTCFullYear();
                     return title;
@@ -310,8 +309,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         }
         if (isMouseUp) {
             //The button was clicked, handle the selection.
-            this.selection.startDate = this.active.dateBucketizer.getDateForBucket(this.selection.startIndex);
-            this.selection.endDate = this.active.dateBucketizer.getDateForBucket(this.selection.endIndex);
+            this.selection.startDate = this.active.bucketizer.getDateForBucket(this.selection.startIndex);
+            this.selection.endDate = this.active.bucketizer.getDateForBucket(this.selection.endIndex);
             let key = this.active.dateField.columnName;
             this.addLocalFilter(key, this.selection.startDate, this.selection.endDate);
             this.addNeonFilter(true);
@@ -420,16 +419,62 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             name: 'Data',
             type: 'bar',
             options: {},
-            data: []
+            data: [],
+            startDate: null,
+            endDate: null
         };
 
-        for (let row of response.data) {
-            let data: TimelineData = {
-                date: new Date(row.date),
-                value: row.value
-            };
+        // Convert all the dates into Date objects
+        response.data.map((d) => {
+            d.date = new Date(d.date);
+        });
 
-            series.data.push(data);
+        // Sort everything
+        response.data.sort((a, b) => {
+            if (a.date.getTime() > b.date.getTime()) {
+                return 1;
+            } else if (a.date.getTime() < b.date.getTime()) {
+                return -1;
+            }
+            return 0;
+        });
+
+        // Start date will be the first entry, and the end date will be the last
+        series.startDate = response.data[0].date;
+        let lastDate = response.data[response.data.length - 1].date;
+        series.endDate = d3.time[this.active.granularity]
+            .utc.offset(lastDate, 1);
+
+        // If we have a bucketizer, use it
+        if (this.active.bucketizer) {
+            this.active.bucketizer.setStartDate(series.startDate);
+            this.active.bucketizer.setEndDate(series.endDate);
+
+            let numBuckets = this.active.bucketizer.getNumBuckets();
+            for (let i = 0; i < numBuckets; i++) {
+                let bucketDate = this.active.bucketizer.getDateForBucket(i);
+                series.data[i] = {
+                    date: bucketDate,
+                    value: 0
+                };
+            }
+
+            for (let row of response.data) {
+                let curDate = new Date(row.date);
+                let bucketIndex = this.active.bucketizer.getBucketIndex(curDate);
+
+                if (series.data[bucketIndex]) {
+                    series.data[bucketIndex].value += row.value;
+                }
+            }
+        } else {
+            // No bucketizer, just add the data
+            for (let row of response.data) {
+                series.data.push({
+                    date: new Date(row.date),
+                    value: row.value
+                });
+            }
         }
 
         this.overviewChart.data = [series];
@@ -459,7 +504,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                 return;
         }
         dateToLabelFunc = dateToLabelFunc.bind(this);
-        this.active.dateBucketizer = bucketizer;
+        this.active.bucketizer = bucketizer;
 
         let startDate = response.data[0].date;
         let endDate = response.data[response.data.length - 1].date;
@@ -549,6 +594,19 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeGranularity() {
+        switch (this.active.granularity.toLowerCase()) {
+            case 'day':
+                this.active.bucketizer = new DateBucketizer();
+                break;
+            case 'month':
+                this.active.bucketizer = new MonthBucketizer();
+                break;
+            case 'year':
+                this.active.bucketizer = new YearBucketizer();
+                break;
+            default:
+                this.active.bucketizer = null;
+        }
         this.timelineChart.setGranularity(this.active.granularity);
         this.logChangeAndStartQueryChain();
     }

@@ -1,6 +1,6 @@
 /// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import * as _ from 'lodash';
-import {ElementRef, HostListener, Injectable} from '@angular/core';
+import {ElementRef} from '@angular/core';
 
 declare let d3;
 
@@ -47,6 +47,8 @@ export class TimelineSeries {
     public name: string;
     public type: string;
     public options: Object;
+    public startDate: Date;
+    public endDate: Date;
 }
 
 export class TimelineSelectorChart {
@@ -70,7 +72,9 @@ export class TimelineSelectorChart {
         data: this.DEFAULT_DATA,
         type: 'bar',
         color: 'green',
-        options: {}
+        options: {},
+        startDate: this.DEFAULT_DATA[0].date,
+        endDate: this.DEFAULT_DATA[1].date
     }];
     private primarySeries: TimelineSeries = this.data[0];
     private dateFormats = {
