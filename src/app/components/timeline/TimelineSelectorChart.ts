@@ -969,7 +969,8 @@ export class TimelineSelectorChart {
     findHoverIndexInData(series: TimelineSeries): number {
         // To get the actual svg, you have to use [0][0]
         let mouseLocation = d3.mouse(this.svg[0][0]);
-        let graph_x = this.xContext.invert(mouseLocation[0]);
+        // Subtract the margin, or elsethe cursor location may not match the highlighted bar
+        let graph_x = this.xContext.invert(mouseLocation[0] - DEFAULT_MARGIN);
         let bisect = d3.bisector((d) => {
             return d.date;
         }).right;
