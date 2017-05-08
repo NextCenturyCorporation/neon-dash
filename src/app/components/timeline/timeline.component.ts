@@ -81,10 +81,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     protected filterChart: {
-        data: {
-            labels: any[],
-            datasets: any[]
-        },
+        data: TimelineSeries[],
         type: string,
         options: Object
     };

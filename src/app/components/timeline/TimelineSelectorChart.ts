@@ -670,8 +670,7 @@ export class TimelineSelectorChart {
         }
     }
 
-    drawFocusChart(series: any): any {
-        // debugger;
+    drawFocusChart(series: TimelineSeries): any {
         let MIN_VALUE = this.logarithmic ? 1 : 0;
 
         this.svg.select('.focus-' + series.name).select('.x.axis').call(this.xAxisFocus);
@@ -969,7 +968,7 @@ export class TimelineSelectorChart {
     findHoverIndexInData(series: TimelineSeries): number {
         // To get the actual svg, you have to use [0][0]
         let mouseLocation = d3.mouse(this.svg[0][0]);
-        // Subtract the margin, or elsethe cursor location may not match the highlighted bar
+        // Subtract the margin, or else the cursor location may not match the highlighted bar
         let graph_x = this.xContext.invert(mouseLocation[0] - DEFAULT_MARGIN);
         let bisect = d3.bisector((d) => {
             return d.date;
@@ -983,10 +982,10 @@ export class TimelineSelectorChart {
      * @param {Number} contextIndex
      * @method onHover
      */
-    onHover(datum, contextIndex): void {
+    onHover(datum: TimelineData, contextIndex): void {
         this.hoverIndex = contextIndex;
         this.selectIndexedDates(contextIndex, contextIndex + 1);
-        //showTooltip(datum, d3.event);
+        this.showTooltip(datum, d3.event);
 
         if (this.hoverListener) {
             let date = datum.date;
@@ -1092,7 +1091,7 @@ export class TimelineSelectorChart {
         });
     }
 
-    showTooltip(item, mouseEvent): void {
+    showTooltip(item: TimelineData, mouseEvent): void {
         let count = d3.format('0,000.00')(item.value);
         // Only show the part of the date that makes sense for the selected granularity
         let dateFormat = this.dateFormats[this.config.granularity];
@@ -1116,15 +1115,17 @@ export class TimelineSelectorChart {
         let tooltipWidth = $('#tl-tooltip-container').outerWidth(true);
         let tooltipHeight = $('#tl-tooltip-container').outerHeight(true);
 
+        let top = mouseEvent.pageY - this.determineHeight(this.element) + (tooltipHeight / 2);
+
         if ((attributeLeft + tooltipWidth) > $('body').width()) {
             $('#tl-tooltip-container').removeClass('east');
             $('#tl-tooltip-container').addClass('west');
-            tooltip.style('top', (mouseEvent.pageY - (tooltipHeight / 2)) + 'px')
+            tooltip.style('top', (top + 'px'))
                 .style('left', (attributeLeft - tooltipWidth - 30) + 'px');
         } else {
             $('#tl-tooltip-container').removeClass('west');
             $('#tl-tooltip-container').addClass('east');
-            tooltip.style('top', (mouseEvent.pageY - (tooltipHeight / 2)) + 'px')
+            tooltip.style('top', (top + 'px'))
                 .style('left', attributeLeft + 'px');
         }
     }
