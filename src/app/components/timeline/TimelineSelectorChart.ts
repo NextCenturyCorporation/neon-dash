@@ -8,6 +8,8 @@ const DEFAULT_MARGIN = 15;
 const DEFAULT_HEIGHT = 150;
 const DEFAULT_WIDTH = 1000;
 
+const TOOLTIP_ID = '#tl-tooltip-container';
+
 /**
  * Configuration options for the timeline
  */
@@ -66,7 +68,7 @@ export class TimelineSelectorChart {
     private element: ElementRef;
 
     private brushHandler: Function = undefined;
-    private hoverListener = undefined;
+    // private hoverListener = undefined;
     private data: TimelineSeries[] =  [{
         name: 'Default',
         data: this.DEFAULT_DATA,
@@ -84,7 +86,6 @@ export class TimelineSelectorChart {
         hour: '%d %b %Y %H:%M'
     };
 
-    private readonly TOOLTIP_ID = 'tooltip';
     private xDomain = [];
     private xAxisFocus: d3.svg.Axis;
     private svg: d3.Selection<TimelineData>;
@@ -105,7 +106,6 @@ export class TimelineSelectorChart {
     private hoverIndex = -1;
 
     private brush: d3.svg.Brush<TimelineData>;
-
 
     private logarithmic: boolean = false;
     private width = DEFAULT_WIDTH;
@@ -387,11 +387,11 @@ export class TimelineSelectorChart {
                     }
                 })
                 .on('mouseover', () => {
-                    console.log('Mouseover');
+                    //console.log('Mouseover');
                     this.onHoverStart();
                 })
                 .on('mouseout', () => {
-                    console.log('Mousend');
+                    //console.log('Mousend');
                     this.onHoverEnd();
                 })
                 .on('mousedown', () => {
@@ -462,9 +462,7 @@ export class TimelineSelectorChart {
                         .attr('height', (d) => {
                             let height = isNaN(yContext(d.value) -
                                 yContext(MIN_VALUE)) ? MIN_VALUE : yContext(d.value) - yContext(MIN_VALUE);
-                            let offset = height / height || 0;
-                            let calculatedHeight = Math.abs(height) + (offset * barheight);
-                            return calculatedHeight;
+                            return Math.abs(height) + barheight;
                         });
                 } else {
                     // If type is line, render a line plot
@@ -581,7 +579,7 @@ export class TimelineSelectorChart {
                 // No data, just stop now
                 return;
             } else if (this.primarySeries && this.data[i].name === this.primarySeries.name) {
-                continue;
+                // Just skip it
             } else if (this.data[i].data.length) {
                 createSeries(this.data[i]);
             }
@@ -750,10 +748,9 @@ export class TimelineSelectorChart {
                     return yFocus(Math.max(MIN_VALUE, d.value));
                 })
                 .attr('height', (d: any) => {
-                    let height = isNaN(yFocus(d.value) - yFocus(MIN_VALUE)) ? MIN_VALUE : yFocus(d.value) - yFocus(MIN_VALUE);
-                    let offset = height / height || 0;
-                    let calculatedHeight = Math.abs(height) + (offset * barheight);
-                    return calculatedHeight;
+                    let height = isNaN(yFocus(d.value) - yFocus(MIN_VALUE)) ? MIN_VALUE :
+                        yFocus(d.value) - yFocus(MIN_VALUE);
+                    return Math.abs(height) + (barheight);
                 });
         } else {
             let chartType;
@@ -987,7 +984,7 @@ export class TimelineSelectorChart {
         this.selectIndexedDates(contextIndex, contextIndex + 1);
         this.showTooltip(datum, d3.event);
 
-        if (this.hoverListener) {
+        // if (this.hoverListener) {
             let date = datum.date;
             let start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
             let end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, date.getHours());
@@ -1010,8 +1007,9 @@ export class TimelineSelectorChart {
                 end = new Date(date.getFullYear() + 2, 0, 0, date.getHours());
             }
 
-            this.hoverListener(start, end);
-        }
+            this.selectDate(start, end);
+            //this.hoverListener(start, end);
+        // }
     }
 
     /**
@@ -1031,9 +1029,10 @@ export class TimelineSelectorChart {
         this.deselectDate();
         this.hideTooltip();
 
-        if (this.hoverListener) {
-            this.hoverListener();
-        }
+        // if (this.hoverListener) {
+        //     this.hoverListener();
+        // }
+        this.deselectDate();
     }
 
     selectIndexedDates(startIndex, endIndex) {
@@ -1043,12 +1042,12 @@ export class TimelineSelectorChart {
         });
 
         for (let i = startIndex; i < endIndex; ++i) {
-            this.showHighlight(primaryData.data[i].date, primaryData.data[i].value,
+            this.showHighlight(primaryData.data[i],
                 this.contextHighlights[i], this.xContext, this.yContext);
 
             let focusIndex = this.focusDateToIndex[primaryData.data[i].date.toUTCString()];
             if (focusIndex >= 0) {
-                this.showHighlight(primaryData.data[i].date, primaryData.data[i].value,
+                this.showHighlight(primaryData.data[i],
                     this.focusHighlights[focusIndex], this.xFocus, this.yFocus);
             }
         }
@@ -1062,22 +1061,64 @@ export class TimelineSelectorChart {
         this.clearHighlights();
     }
 
+    selectDate(startDate: Date, endDate: Date): void {
+        if (!this.data || !this.data.length || !this.data[0].data || !this.data[0].data.length) {
+            return;
+        }
+
+        let dataLength = this.data[0].data.length;
+        let startIndex = -1;
+        let endIndex = -1;
+
+        this.data[0].data.forEach((datum, index) => {
+            if (datum.date <= startDate || this.datesEqual(datum.date, startDate)) {
+                startIndex = index;
+            }
+            if (datum.date <= endDate || this.datesEqual(datum.date, endDate)) {
+                endIndex = index;
+            }
+        });
+
+        let dataStartDate = this.data[0].data[0].date;
+        let dataEndDate = this.data[0].data[dataLength - 1].date;
+
+        // Add a month/year to the end month/year for month/year granularity so it includes the whole
+        // end month/year and not just the first day of the end month/year.
+        if (this.config.granularity === 'month') {
+            dataEndDate = new Date(dataEndDate.getFullYear(), dataEndDate.getMonth() + 1,
+                dataEndDate.getDate(), dataEndDate.getHours());
+        }
+        if (this.config.granularity === 'year') {
+            dataEndDate = new Date(dataEndDate.getFullYear() + 1, dataEndDate.getMonth(),
+                dataEndDate.getDate(), dataEndDate.getHours());
+        }
+
+        // If the start or end date is outside the date range of the data, set it to the of the start
+        // (inclusive) or end (exclusive) index of the data.
+        startIndex = startDate <= dataStartDate ? 0 : startIndex;
+        endIndex = endDate > dataEndDate ? dataLength : endIndex;
+
+        if (startIndex < 0 || endIndex < 0 || endDate < dataStartDate || startDate > dataEndDate) {
+            this.deselectDate();
+            return;
+        }
+
+        // If the start and end dates are the same, add one to the end index because it is exclusive.
+        endIndex = startIndex === endIndex ? endIndex + 1 : endIndex;
+        this.selectIndexedDates(startIndex, endIndex);
+    }
+
     /**
      * Shows the given highlight at the given date with the given value using the given
      * xRange and yRange functions (xContext/yContext or xFocus/yFocus).
-     * @param {Date} date
-     * @param {Object} highlight
-     * @param {Function} xRange
-     * @param {Fucntion} yRange
-     * @method showHighlight
      */
-    showHighlight(date, value, highlight, xRange, yRange) {
+    showHighlight(d: TimelineData, highlight, xRange, yRange) {
         // TODO Create x, width, y, and height functions to combine the calculations for both the highlight bar and the other bars.
-        let x = xRange(date);
+        let x = xRange(d.date);
         let MIN_VALUE = this.logarithmic ? 1 : 0;
-        let width = xRange(d3.time[this.config.granularity].utc.offset(date, 1)) - x;
-        let y = yRange(Math.max(MIN_VALUE, value));
-        let height = Math.abs(yRange(value) - yRange(MIN_VALUE));
+        let width = xRange(d3.time[this.config.granularity].utc.offset(d.date, 1)) - x;
+        let y = yRange(Math.max(MIN_VALUE, d.value));
+        let height = Math.abs(yRange(d.value) - yRange(MIN_VALUE));
         highlight.attr('x', x - 1).attr('width', width + 2).attr('y', y - 1)
             .attr('height', ((isNaN(height) ? MIN_VALUE : height) + 2)).style('visibility', 'visible');
     }
@@ -1104,33 +1145,34 @@ export class TimelineSelectorChart {
         // visualizations)
         let html = '<div><strong>Date:</strong> ' + _.escape(date) + '</div>' +
             '<div><strong>Count:</strong> ' + count + '</div>';
-        $('#tl-tooltip-container').html(html);
-        $('#tl-tooltip-container').show();
+        $(TOOLTIP_ID).html(html);
+        $(TOOLTIP_ID).show();
 
-        this.positionTooltip(d3.select('#tl-tooltip-container'), mouseEvent);
+        this.positionTooltip(d3.select(TOOLTIP_ID), mouseEvent);
     }
 
     positionTooltip(tooltip, mouseEvent): void {
+        let tooltipElement = $(TOOLTIP_ID);
         let attributeLeft = mouseEvent.pageX + 15;
-        let tooltipWidth = $('#tl-tooltip-container').outerWidth(true);
-        let tooltipHeight = $('#tl-tooltip-container').outerHeight(true);
+        let tooltipWidth = tooltipElement.outerWidth(true);
+        let tooltipHeight = tooltipElement.outerHeight(true);
 
         let top = mouseEvent.pageY - this.determineHeight(this.element) + (tooltipHeight / 2);
 
-        if ((attributeLeft + tooltipWidth) > $('body').width()) {
-            $('#tl-tooltip-container').removeClass('east');
-            $('#tl-tooltip-container').addClass('west');
+        if ((attributeLeft + tooltipWidth) > this.determineWidth(this.element)) {
+            tooltipElement.removeClass('east');
+            tooltipElement.addClass('west');
             tooltip.style('top', (top + 'px'))
                 .style('left', (attributeLeft - tooltipWidth - 30) + 'px');
         } else {
-            $('#tl-tooltip-container').removeClass('west');
-            $('#tl-tooltip-container').addClass('east');
+            tooltipElement.removeClass('west');
+            tooltipElement.addClass('east');
             tooltip.style('top', (top + 'px'))
                 .style('left', attributeLeft + 'px');
         }
     }
 
     hideTooltip(): void {
-        $('#tl-tooltip-container').hide();
+        $(TOOLTIP_ID).hide();
     }
 }

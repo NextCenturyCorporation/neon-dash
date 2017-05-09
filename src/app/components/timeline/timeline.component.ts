@@ -225,11 +225,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     addLocalFilter(key, startDate, endDate) {
-        this.filters[0] = {
+        this.filters.push({
             key: key,
             startDate: startDate,
             endDate: endDate
-        };
+        });
     };
 
     /**
@@ -239,8 +239,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         let dsMeta = chart.controller.getDatasetMeta(0);
         if (dsMeta.data.length > index) {
             let pointMeta = dsMeta.data[index];
-            let x = pointMeta.getCenterPoint().x;
-            return x;
+            return pointMeta.getCenterPoint().x;
         }
         return -1;
     }
@@ -351,7 +350,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     refreshVisualization() {
         this.timelineChart.setData(this.overviewChart.data);
-        // TODO - setData(
         //this.filterChartModule['chart'].update();
         //this.overviewChartModule['chart'].update();
     }
@@ -401,19 +399,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         return null;
     }
 
-    /*resetChartjs(chartModule: ChartModule, chart): void {
-        let ctx = chartModule['chart'].chart.ctx;
-        chartModule['chart'].destroy();
-        chartModule['chart'] = new Chart(ctx, chart);
-    }*/
-
     onQuerySuccess(response) {
-        console.log('Query Response:');
-        console.log(response);
-
         let series: TimelineSeries = {
             color: this.chartDefaults.activeColor,
-            name: 'Data',
+            name: 'Total',
             type: 'bar',
             options: {},
             data: [],
@@ -426,16 +415,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             d.date = new Date(d.date);
         });
 
-        // Sort everything
-        response.data.sort((a, b) => {
-            if (a.date.getTime() > b.date.getTime()) {
-                return 1;
-            } else if (a.date.getTime() < b.date.getTime()) {
-                return -1;
-            }
-            return 0;
-        });
-
+        // The query includes a sort, so it *should* be sorted.
         // Start date will be the first entry, and the end date will be the last
         series.startDate = response.data[0].date;
         let lastDate = response.data[response.data.length - 1].date;
@@ -468,7 +448,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             // No bucketizer, just add the data
             for (let row of response.data) {
                 series.data.push({
-                    date: new Date(row.date),
+                    date: row.date,
                     value: row.value
                 });
             }
@@ -477,65 +457,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.overviewChart.data = [series];
         this.timelineChart.setData(this.overviewChart.data);
         this.timelineChart.redrawChart();
-
-/*
-        let dateToLabelFunc = null;
-        let bucketizer: Bucketizer = null;
-        switch (this.active.granularity) {
-            case 'hour':
-                bucketizer = new DateBucketizer();
-                bucketizer.setGranularity(DateBucketizer.HOUR);
-                dateToLabelFunc = this.dateToIsoDayHour;
-                break;
-            case 'day':
-                bucketizer = new DateBucketizer();
-                bucketizer.setGranularity(DateBucketizer.DAY);
-                dateToLabelFunc = this.dateToIsoDay;
-                break;
-            case 'month':
-                bucketizer = new MonthBucketizer();
-                dateToLabelFunc = this.dateToIsoDay;
-                return;
-            case 'year':
-                console.error('need year bucketizer');
-                return;
-        }
-        dateToLabelFunc = dateToLabelFunc.bind(this);
-        this.active.bucketizer = bucketizer;
-
-        let startDate = response.data[0].date;
-        let endDate = response.data[response.data.length - 1].date;
-        bucketizer.setStartDate(new Date(startDate));
-        bucketizer.setEndDate(new Date(endDate));
-        let length = bucketizer.getNumBuckets();
-        let myData: number[] = new Array(length).fill(0);
-        for (let row of response.data) {
-            let idx = bucketizer.getBucketIndex(new Date(row.date));
-            myData[idx] = row.value;
-        }
-
-        let labels = new Array(length);
-        for (let i = 0; i < length; i++) {
-            let date = bucketizer.getDateForBucket(i);
-            let dateString = dateToLabelFunc(date);
-            labels[i] = dateString;
-        }
-
-        //for (let i = 0; i < dataset.data.length; i++) {
-        //    dataset.backgroundColor[i] = this.chartDefaults.activeColor;
-        //}
-
-        let d = {
-            label: 'datasetName',
-            data: myData,
-            backgroundColor: this.chartDefaults.activeColor
-        };
-
-        this.overviewChart.data = {
-            labels: labels,
-            datasets: [d]
-        };
-*/
 
         this.refreshVisualization();
     };
@@ -658,10 +579,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     getFilterTitle(value: string) {
         return this.active.dateField.columnName + ' = ' + value;
-    };
-
-    getFilterCloseText(value: string) {
-        return value;
     };
 
     getRemoveFilterTooltip(value: string) {
