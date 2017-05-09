@@ -101,6 +101,7 @@ export class TimelineSelectorChart {
 
     // The old extent of the brush saved on brushstart.
     private oldExtent = [];
+    private extent = [];
 
     // The data index over which the user is currently hovering changed on mousemove and mouseout.
     private hoverIndex = -1;
@@ -160,7 +161,7 @@ export class TimelineSelectorChart {
     redrawChart(): void {
         if (this.data) {
             this.render();
-            // TODO render extent
+            this.renderExtent();
         }
     }
 
@@ -210,7 +211,16 @@ export class TimelineSelectorChart {
 
     datesEqual(a, b): boolean {
         return a.toUTCString() === b.toUTCString();
-    };
+    }
+
+    renderExtent(): void {
+        if (this.extent.length !== 2) {
+            return;
+        }
+        let brushElement = this.svg.select('.brush');
+        brushElement.call(this.brush.extent(this.extent as any));
+        this.updateMask();
+    }
 
     render(): void {
         let i = 0;
@@ -923,6 +933,7 @@ export class TimelineSelectorChart {
                     this.svg.select('.brush').call(this.brush.extent(extent1));
                 }
             }
+            this.extent = extent1;
         }
 
         // Update mask
