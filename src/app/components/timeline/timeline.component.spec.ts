@@ -20,6 +20,8 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
+let d3 = require('../../../assets/d3.min.js');
+
 describe('Component: Timeline', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
   let component: TimelineComponent;
