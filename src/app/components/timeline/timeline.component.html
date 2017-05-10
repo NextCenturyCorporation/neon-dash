@@ -125,7 +125,7 @@
     <div class="body-container">
         <div class="text-container">
             <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
-                <span class="filter-label" [title]="getFilterTitle(value)">{{ getFilterCloseText(value) }}</span>
+                <span class="filter-label" [title]="getFilterTitle(value)">{{ value }}</span>
                 <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveFilterTooltip(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value, true)">
             <md-icon class="mat-18">close</md-icon>
         </button>

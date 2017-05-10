@@ -1,6 +1,7 @@
 /// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import * as _ from 'lodash';
 import {ElementRef} from '@angular/core';
+import {TimelineComponent} from './timeline.component';
 
 declare let d3;
 
@@ -117,7 +118,10 @@ export class TimelineSelectorChart {
     private yContext: any;
     private heightFocus: number;
 
-    constructor(element: ElementRef, configuration?: TimelineConfig) {
+    private tlComponent: TimelineComponent;
+
+    constructor(tlComponent: TimelineComponent, element: ElementRef, configuration?: TimelineConfig) {
+        this.tlComponent = tlComponent;
         this.element = element;
         if (configuration) {
             this.config = configuration;
@@ -964,6 +968,9 @@ export class TimelineSelectorChart {
             brushElement.find('.mask-east').attr('x', parseFloat(xPos) + parseFloat(extentWidth));
         }
 
+        _.debounce(() => {
+            this.tlComponent.onTimelineSelection(this.extent[0], this.extent[1]);
+        }, 1000)();
         this.updateFocusChart();
     }
 
@@ -1117,6 +1124,9 @@ export class TimelineSelectorChart {
         // If the start and end dates are the same, add one to the end index because it is exclusive.
         endIndex = startIndex === endIndex ? endIndex + 1 : endIndex;
         this.selectIndexedDates(startIndex, endIndex);
+
+        // Notify the component
+        this.tlComponent.onTimelineHover(startDate, endDate);
     }
 
     /**

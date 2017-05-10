@@ -39,8 +39,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     private filters: {
         key: string,
-        startDate: string,
-        endDate: string
+        startDate: Date,
+        endDate: Date
     }[];
 
     private optionsFromConfig: {
@@ -205,7 +205,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }*/
 
     subNgOnInit() {
-        this.timelineChart = new TimelineSelectorChart(this.svg);
+        this.timelineChart = new TimelineSelectorChart(this, this.svg);
     };
 
     postInit() {
@@ -315,6 +315,24 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.stopEventPropagation(event);
         //console.log(event);
         //console.log(items);*/
+    }
+
+    onTimelineSelection(startDate: Date, endDate: Date): void {
+        this.selection.startDate = startDate;
+        this.selection.endDate = endDate;
+
+        let filter = {
+            key: this.active.dateField.columnName,
+            startDate: startDate,
+            endDate: endDate
+        };
+
+        this.filters.push(filter);
+        this.addNeonFilter(false, filter);
+    }
+
+    onTimelineHover(startDate: Date, endDate: Date): void {
+        // Does anything need to be done here?
     }
 
     createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
