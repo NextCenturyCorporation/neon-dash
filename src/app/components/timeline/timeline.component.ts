@@ -32,9 +32,7 @@ declare let d3;
     encapsulation: ViewEncapsulation.None, changeDetection: ChangeDetectionStrategy.Default
 })
 export class TimelineComponent extends BaseNeonComponent implements OnInit,
-    OnDestroy {
-    //@ViewChild('filterChart') filterChartModule: ChartModule;
-    //@ViewChild('overviewChart') overviewChartModule: ChartModule;
+        OnDestroy {
     @ViewChild('svg') svg: ElementRef;
 
     private filters: {
@@ -138,71 +136,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             inactiveColor: 'rgba(57, 181, 74, 0.3)'
         };
 
-        this.onHover = this.onHover.bind(this);
         this.overviewChart = {
             data: [],
             type: 'TimeLine',
             options: {}
         };
-        //this.overviewChart = this.getDefaultChartOptions();
-        //this.filterChart = this.getDefaultChartOptions();
-        //this.overviewChart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
-        //this.overviewChart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
-
-    };
-
-    /*getDefaultChartOptions(): any {
-        let chart = {
-            type: 'bar',
-            data: {
-                labels: [],
-                datasets: [
-                    {
-                        label: 'dataset',
-                        data: []
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
-                onClick: null,
-                hover: {
-                    mode: 'index',
-                    intersect: false,
-                    onHover: this.onHover
-
-                },
-                legend: Chart.defaults.global.legend,
-                tooltips: Chart.defaults.global.tooltips,
-                scales: {
-                    xAxes: [{
-                        type: 'category',
-                        position: 'bottom'
-                    }]
-                }
-            }
-        };
-        chart.options['legend'].display = false;
-
-                let tooltipTitleFunc = (tooltips) => {
-                    let monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                        'July', 'August', 'September', 'October', 'November', 'December'
-                    ];
-                    let index = tooltips[0].index;
-                    let date = this.active.bucketizer.getDateForBucket(index);
-                    let month = monthNames[date.getUTCMonth()];
-                    let title = date.getUTCDate() + ' ' + month + ' ' + date.getUTCFullYear();
-                    return title;
-                };
-                let tooltipDataFunc = (tooltips) => {
-                    let label = 'FIXME' + ': ' + tooltips.yLabel;
-                    return label;
-                };
-
-        return chart;
-    }*/
+    }
 
     subNgOnInit() {
         this.timelineChart = new TimelineSelectorChart(this, this.svg);
@@ -231,91 +170,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             endDate: endDate
         });
     };
-
-    /**
-    * returns -1 if cannot be found
-    */
-    getPointXLocationByIndex(chart, index): number {
-        let dsMeta = chart.controller.getDatasetMeta(0);
-        if (dsMeta.data.length > index) {
-            let pointMeta = dsMeta.data[index];
-            return pointMeta.getCenterPoint().x;
-        }
-        return -1;
-    }
-
-    onHover(/*event, items*/) {
-        /*if (items.length === 0) {
-            return;
-        }
-        let isMouseUp = false;
-        if (!this.selection.mouseDown && event.buttons > 0) {
-            // mouse down event
-            this.selection.mouseDown = true;
-            this.selection.startX = items[0].getCenterPoint().x;
-            this.selection.startIndex = items[0]._index;
-        }
-
-        if (this.selection.mouseDown && event.buttons === 0) {
-            // mouse up event
-            this.selection.mouseDown = false;
-            this.selection.endIndex = items[0]._index;
-            isMouseUp = true;
-        }
-        if (items && items.length > 0 && this.selection.mouseDown) {
-            // drag event near items
-            let chartArea = items[0]._chart.controller.chartArea;
-            let chartBottom = chartArea.bottom;
-            let chartTop = chartArea.top;
-            let startIndex: number = this.selection.startIndex;
-            let endIndex: number = items[0]._index;
-            //let endX = items[0].getCenterPoint().x;
-            //let startX = this.selection.startX
-            let endX: number = -1;
-            let startX: number = -1;
-            if (startIndex > endIndex) {
-                let temp = startIndex;
-                startIndex = endIndex;
-                endIndex = temp;
-            }
-            // at this point, start Index is <= end index
-            if (startIndex === 0) {
-                //first element, so don't go off the chart
-                startX = this.getPointXLocationByIndex(items[0]._chart, startIndex);
-            } else {
-                let a = this.getPointXLocationByIndex(items[0]._chart, startIndex - 1);
-                let b = this.getPointXLocationByIndex(items[0]._chart, startIndex);
-                startX = (b - a) / 2 + a;
-            }
-
-            if (endIndex >= this.chart.data.labels.length - 1) {
-                //last element, so don't go off the chart
-                endX = this.getPointXLocationByIndex(items[0]._chart, endIndex);
-            } else {
-                let a = this.getPointXLocationByIndex(items[0]._chart, endIndex);
-                let b = this.getPointXLocationByIndex(items[0]._chart, endIndex + 1);
-                endX = (b - a) / 2 + a;
-            }
-            this.selection.width = Math.abs(startX - endX);
-            this.selection.x = Math.min(startX, endX);
-            this.selection.height = chartBottom - chartTop;
-            this.selection.y = chartTop;
-
-            //this.selection.visibleOverlay=!this.selection.visibleOverlay;
-        }
-        if (isMouseUp) {
-            //The button was clicked, handle the selection.
-            this.selection.startDate = this.active.bucketizer.getDateForBucket(this.selection.startIndex);
-            this.selection.endDate = this.active.bucketizer.getDateForBucket(this.selection.endIndex);
-            let key = this.active.dateField.columnName;
-            this.addLocalFilter(key, this.selection.startDate, this.selection.endDate);
-            this.addNeonFilter(true);
-        }
-
-        this.stopEventPropagation(event);
-        //console.log(event);
-        //console.log(items);*/
-    }
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
         this.selection.startDate = startDate;
@@ -482,51 +336,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     @HostListener('window:resize')
     onResize() {
         this.timelineChart.redrawChart();
-    }
-
-    dateToIsoYear(date: Date): string {
-        // 2017
-        return '' + date.getUTCFullYear();
-    }
-
-    dateToIsoMonth(date: Date): string {
-        // 2017-03
-        let tmp: number = date.getUTCMonth() + 1;
-        let month: String = String(tmp);
-        month = (tmp < 10 ? '0' + month : month);
-        return date.getUTCFullYear() + '-' + month;
-    }
-
-    dateToIsoDay(date: Date): string {
-        // 2017-03
-        // TODO is there a better way to get date into ISO format so moment is happy?
-        let tmp: number = date.getUTCMonth() + 1;
-        let month: String = String(tmp);
-        month = (tmp < 10 ? '0' + month : month);
-
-        tmp = date.getUTCDate();
-        let day: String = String(date.getUTCDate());
-        day = (tmp < 10 ? '0' + day : day);
-        return date.getUTCFullYear() + '-' + month + '-' + day;
-    }
-
-    dateToIsoDayHour(date: Date): string {
-        // 2017-03-09T15:21:01Z
-        let ret: string = this.dateToIsoDay(date);
-
-        let tmp: number = date.getUTCHours();
-        let hours: String = String(tmp);
-        hours = (tmp < 10 ? '0' + hours : hours);
-
-        tmp = date.getUTCMinutes();
-        let mins: String = String(tmp);
-        mins = (tmp < 10 ? '0' + mins : mins);
-
-        tmp = date.getUTCSeconds();
-        let secs: String = String(tmp);
-        secs = (tmp < 10 ? '0' + secs : secs);
-        ret += 'T' + hours + ':' + mins + ':' + secs + 'Z';
-        return ret;
     }
 
     handleChangeGranularity() {
