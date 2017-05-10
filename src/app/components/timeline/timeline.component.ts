@@ -20,7 +20,7 @@ import {DateBucketizer} from '../bucketizers/DateBucketizer';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
 import {Bucketizer} from '../bucketizers/Bucketizer';
-import {TimelineSelectorChart, TimelineSeries} from './TimelineSelectorChart';
+import {TimelineSelectorChart, TimelineSeries, TimelineData} from './TimelineSelectorChart';
 import {YearBucketizer} from '../bucketizers/YearBucketizer';
 
 declare let d3;
@@ -55,8 +55,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         dateField: FieldMetaData,
         andFilters: boolean,
         filterable: boolean,
-        layers: any[],
-        data: Object[],
         bucketizer: Bucketizer,
         granularity: string,
     };
@@ -79,7 +77,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     protected filterChart: {
-        data: TimelineSeries[],
         type: string,
         options: Object
     };
@@ -93,6 +90,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     private colorSchemeService: ColorSchemeService;
 
     private timelineChart: TimelineSelectorChart;
+    private timelineData: TimelineData;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService) {
@@ -113,8 +111,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             dateField: new FieldMetaData(),
             andFilters: true,
             filterable: true,
-            layers: [],
-            data: [],
             bucketizer: new DateBucketizer(),
             granularity: 'day'
         };
@@ -141,10 +137,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             type: 'TimeLine',
             options: {}
         };
+        this.timelineData = new TimelineData();
     }
 
     subNgOnInit() {
-        this.timelineChart = new TimelineSelectorChart(this, this.svg);
+        this.timelineChart = new TimelineSelectorChart(this, this.svg, this.timelineData);
     };
 
     postInit() {
@@ -221,9 +218,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     refreshVisualization() {
-        this.timelineChart.setData(this.overviewChart.data);
-        //this.filterChartModule['chart'].update();
-        //this.overviewChartModule['chart'].update();
+        this.timelineChart.redrawChart();
     }
 
     isValidQuery() {
@@ -326,9 +321,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             }
         }
 
-        this.overviewChart.data = [series];
-        this.timelineChart.setData(this.overviewChart.data);
-        this.timelineChart.redrawChart();
+        // Make sure to update both the data and primary series
+        this.timelineData.data = [series];
+        this.timelineData.primarySeries = series;
 
         this.refreshVisualization();
     };
@@ -352,7 +347,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             default:
                 this.active.bucketizer = null;
         }
-        this.timelineChart.setGranularity(this.active.granularity);
+        this.timelineData.granularity = this.active.granularity;
         this.logChangeAndStartQueryChain();
     }
 
@@ -370,7 +365,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                 this.addLocalFilter(key, value, key);
             }
         } else {
-            this.filters = [];
+            this.removeFilter();
         }
         this.executeQueryChain();
     };
@@ -414,5 +409,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     removeFilter(/*value: string*/) {
         this.filters = [];
+        this.timelineChart.clearBrush();
     }
 }
