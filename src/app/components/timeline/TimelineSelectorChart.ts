@@ -79,7 +79,6 @@ export class TimelineSelectorChart {
     private xDomain: Date[] = [];
     private xAxisFocus: d3.svg.Axis;
     private svg: d3.Selection<TimelineItem>;
-    private collapsed = false;
 
     // The highlight bars for each date for both the context and focus timelines.
     private focusHighlights = [];
@@ -100,7 +99,7 @@ export class TimelineSelectorChart {
     private width = DEFAULT_WIDTH;
     private approximateBarWidth: number;
     private xFocus: d3.time.Scale<Date, any>;
-    private yFocus: any;
+    private yFocus: d3.time.Scale<Date, any>;
     private xContext: d3.time.Scale<Date, any>;
     private yContext: any;
     private heightFocus: number;
@@ -111,13 +110,11 @@ export class TimelineSelectorChart {
         this.tlComponent = tlComponent;
         this.element = element;
         this.data = data;
-
-        // debugger;
         this.svg = d3.select(this.element.nativeElement);
 
         this.marginFocus = {
                 top: 0,
-                bottom: (this.collapsed ? this.determineHeight() : DEFAULT_HEIGHT)
+                bottom: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT)
             };
         this.marginContext = {
                 top: DEFAULT_MARGIN,
@@ -128,9 +125,41 @@ export class TimelineSelectorChart {
     }
 
     redrawChart(): void {
+        // Make the focus chart visible
+        this.toggleFocus(this.data.extent.length > 0);
+
         if (this.data.data) {
             this.render();
             this.renderExtent();
+        }
+    }
+
+    /**
+     * Shows/Hides the focus graph
+     * @param {boolean} showFocus Set to true to show the focus graph. False otherwise.
+     */
+    toggleFocus(showFocus: boolean): void {
+        if (showFocus) {
+            // Set the updated margins
+            this.marginFocus = {
+                top: DEFAULT_MARGIN,
+                bottom: 99
+            };
+
+            this.marginContext = {
+                top: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT) - 65,
+                bottom: 0
+            };
+        } else {
+            this.marginFocus = {
+                top: 0,
+                bottom: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT)
+            };
+
+            this.marginContext = {
+                top: DEFAULT_MARGIN,
+                bottom: 0
+            };
         }
     }
 
@@ -212,7 +241,7 @@ export class TimelineSelectorChart {
             return;
         }
 
-        if (this.collapsed) {
+        if (this.data.collapsed) {
             svgHeight = this.determineHeight();
             $(this.element.nativeElement[0]).css('height', svgHeight);
             this.heightFocus = Math.max(0, svgHeight - this.marginFocus.top - this.marginFocus.bottom);
@@ -263,7 +292,13 @@ export class TimelineSelectorChart {
         }));
 
         this.xDomain = [xMin || new Date(), xMax || new Date()];
-        this.xFocus.domain(this.xDomain);
+        let xFocusDomain = [];
+        if (this.data.extent.length === 2) {
+            xFocusDomain = [this.data.extent[0], this.data.extent[1]];
+        } else {
+            xFocusDomain = this.xDomain;
+        }
+        this.xFocus.domain(xFocusDomain);
         this.xContext.domain(this.xDomain);
 
         this.xAxisFocus = d3.svg.axis().scale(this.xFocus).orient('bottom');
@@ -331,6 +366,7 @@ export class TimelineSelectorChart {
 
             let focus = this.svg.append('g')
                 .attr('class', 'focus-' + series.name)
+                .attr('width', this.width - (2 * DEFAULT_MARGIN))
                 .attr('transform', 'translate(' + DEFAULT_MARGIN + ',' + this.marginFocus.top + ')');
 
             // Prevents the x-axis from being shown
@@ -354,7 +390,7 @@ export class TimelineSelectorChart {
                 .attr('transform', 'translate(' + xOffset + ',' +
                     ((this.heightFocus + (this.marginFocus.top * 2) + this.marginFocus.bottom) * seriesPos) + ')')
                 .on('mousemove', () => {
-                    let index = this.findHoverIndexInData(series);
+                    let index = this.findHoverIndexInData(series, this.xFocus);
                     if (index >= 0 && index < series.data.length) {
                         let contextIndex = this.contextDateToIndex[series.data[index].date.toUTCString()];
                         this.onHover(series.data[index], contextIndex);
@@ -369,7 +405,7 @@ export class TimelineSelectorChart {
                     this.onHoverEnd();
                 })
                 .on('mousedown', () => {
-                    let index = this.findHoverIndexInData(series);
+                    let index = this.findHoverIndexInData(series, this.xFocus);
                     if (index >= 0 && index < series.data.length) {
                         let contextIndex = this.contextDateToIndex[series.data[index].date.toUTCString()];
                         this.onHover(series.data[index], contextIndex);
@@ -396,12 +432,8 @@ export class TimelineSelectorChart {
                     .attr('transform', 'translate(' + xOffset + ',' +
                         ((heightContext + this.marginContext.top + this.marginContext.bottom) * seriesPos) + ')');
 
-                let style = 'stroke:' + series.color + ';';
+                let style = 'stroke:' + series.color + '; fill:' + series.color + ';';;
                 let chartTypeContext;
-
-                // For now, all anomalies are shown as red, but this could be changed to be a
-                // configurable parameter that is passed in with the series, like series.color.
-                let anomalyColor = 'red';
 
                 // If type is bar AND the data isn't too long, render a bar plot
                 if (series.type === 'bar' && series.data.length < this.width) {
@@ -412,9 +444,6 @@ export class TimelineSelectorChart {
                         barheight++;
                     }
 
-                    let anomalyStyle = style + 'fill: ' + anomalyColor + '; stroke: ' + anomalyColor + ';';
-                    style += 'fill:' + series.color + ';';
-
                     contextContainer.selectAll('.bar')
                         .data(series.data)
                         .enter().append('rect')
@@ -422,7 +451,7 @@ export class TimelineSelectorChart {
                             return 'bar ' + d.date;
                         })
                         .attr('style', (d) => {
-                            return d.anomaly ? anomalyStyle : style;
+                            return style;
                         })
                         .attr('x', (d) => {
                             return this.xContext(d.date);
@@ -480,25 +509,6 @@ export class TimelineSelectorChart {
                                 if (series.data.length === 1) {
                                     return this.width / 2;
                                 }
-                                return this.xContext(d.date);
-                            })
-                            .attr('cy', (d: any) => {
-                                return yContext(d.value);
-                            });
-                    } else {
-                        // If a line graph was used and there are anomalies, put a circle on the
-                        // anomalous points
-                        let anomalies = series.data.filter(function(it) {
-                            return false; // it.anomaly === true;
-                        });
-
-                        contextContainer.selectAll('dot')
-                            .data(anomalies)
-                            .enter().append('circle')
-                            .attr('class', 'dot')
-                            .attr('style', 'fill:' + anomalyColor + ';')
-                            .attr('r', 3)
-                            .attr('cx', (d: any) => {
                                 return this.xContext(d.date);
                             })
                             .attr('cy', (d: any) => {
@@ -565,7 +575,7 @@ export class TimelineSelectorChart {
                 let series = _.find(this.data.data, {
                     name: this.data.primarySeries.name
                 });
-                let index = this.findHoverIndexInData(series);
+                let index = this.findHoverIndexInData(series, this.xContext);
                 if (index >= 0 && index < series.data.length) {
                     this.onHover(series.data[index], index);
                 }
@@ -657,7 +667,7 @@ export class TimelineSelectorChart {
         }
 
         // Get only the data in the brushed area
-        let dataShown = _.filter(series.data, (obj: any) => {
+        let dataShown = _.filter(series.data, (obj: TimelineItem) => {
             if (this.data.granularity !== 'hour') {
                 return (this.xFocus.domain()[0] <= obj.date && obj.date < this.xFocus.domain()[1]);
             }
@@ -684,10 +694,6 @@ export class TimelineSelectorChart {
 
         let style = 'stroke:' + series.color + ';';
 
-        // For now, all anomalies are shown as red, but this could be changed to be a
-        // configurable parameter that is passed in with the series, like series.color.
-        let anomalyColor = 'red';
-
         focus.selectAll('rect.bar').remove();
         focus.selectAll('path.' + series.type).remove();
 
@@ -699,29 +705,27 @@ export class TimelineSelectorChart {
                 style = 'stroke:#f1f1f1;';
                 barheight++;
             }
-
-            let anomalyStyle = style + 'fill: ' + anomalyColor + '; stroke: ' + anomalyColor + ';';
             style += 'fill:' + series.color + ';';
 
             focus.selectAll('rect.bar')
                 .data(dataShown)
                 .enter().append('rect')
-                .attr('class', (d: any) => {
+                .attr('class', (d) => {
                     return 'bar ' + d.date;
                 })
                 .attr('style', (d: any) => {
-                    return d.anomaly ? anomalyStyle : style;
+                    return style;
                 })
-                .attr('x', (d: any) => {
+                .attr('x', (d) => {
                     return this.xFocus(d.date);
                 })
-                .attr('width', (d: any) => {
+                .attr('width', (d) => {
                     return this.xFocus(d3.time[this.data.granularity].utc.offset(d.date, 1)) - this.xFocus(d.date);
                 })
-                .attr('y', (d: any) => {
+                .attr('y', (d) => {
                     return yFocus(Math.max(MIN_VALUE, d.value));
                 })
-                .attr('height', (d: any) => {
+                .attr('height', (d) => {
                     let height = isNaN(yFocus(d.value) - yFocus(MIN_VALUE)) ? MIN_VALUE :
                         yFocus(d.value) - yFocus(MIN_VALUE);
                     return Math.abs(height) + (barheight);
@@ -779,27 +783,6 @@ export class TimelineSelectorChart {
                     .attr('r', 3)
                     .attr('cx', func)
                     .attr('cy', (d: any) => {
-                        return yFocus(d.value);
-                    });
-            } else {
-                // If a line graph was used and there are anomalies, put a circle on the
-                // anomalous points
-                let anomalies = dataShown.filter(function(it: any) {
-                    return it.anomaly === true;
-                });
-
-                focus.selectAll('circle.dot').remove();
-
-                focus.selectAll('circle.dot')
-                    .data(anomalies)
-                    .enter().append('circle')
-                    .attr('class', 'dot')
-                    .attr('style', 'fill:' + anomalyColor + ';')
-                    .attr('r', 3)
-                    .attr('cx', (d) => {
-                        return this.xFocus(d.date);
-                    })
-                    .attr('cy', (d) => {
                         return yFocus(d.value);
                     });
             }
@@ -898,6 +881,14 @@ export class TimelineSelectorChart {
                 }
             }
             this.data.extent = extent1;
+
+            if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'mouseup') {
+                _.debounce(() => {
+                    // Update the chart
+                    this.redrawChart();
+                    this.tlComponent.onTimelineSelection(this.data.extent[0], this.data.extent[1]);
+                }, 1000)();
+            }
         }
 
         // Update mask
@@ -927,24 +918,16 @@ export class TimelineSelectorChart {
             brushElement.find('.mask-west').attr('x', parseFloat(xPos) - width);
             brushElement.find('.mask-east').attr('x', parseFloat(xPos) + parseFloat(extentWidth));
         }
-
-        _.debounce(() => {
-            this.tlComponent.onTimelineSelection(this.data.extent[0], this.data.extent[1]);
-            this.updateFocusChart();
-        }, 1000)();
     }
 
     /**
      * Returns the hover index in the given data using the given mouse event and xRange function (xContext or xFocus).
-     * @param {TimelineSeries} series
-     * @method findHoverIndexInData
-     * @return {Number}
      */
-    findHoverIndexInData(series: TimelineSeries): number {
+    findHoverIndexInData(series: TimelineSeries, domain: d3.time.Scale<Date, any>): number {
         // To get the actual svg, you have to use [0][0]
         let mouseLocation = d3.mouse(this.svg[0][0]);
         // Subtract the margin, or else the cursor location may not match the highlighted bar
-        let graph_x = this.xContext.invert(mouseLocation[0] - DEFAULT_MARGIN);
+        let graph_x = domain.invert(mouseLocation[0] - DEFAULT_MARGIN);
         let bisect = d3.bisector((d) => {
             return d.date;
         }).right;

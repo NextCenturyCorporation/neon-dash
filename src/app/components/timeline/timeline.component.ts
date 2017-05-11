@@ -16,6 +16,7 @@ import {ColorSchemeService} from '../../services/color-scheme.service';
 import {FieldMetaData } from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
+import * as _ from 'lodash';
 import {DateBucketizer} from '../bucketizers/DateBucketizer';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
@@ -76,17 +77,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         endDate: Date
     };
 
-    protected filterChart: {
-        type: string,
-        options: Object
-    };
-
-    protected overviewChart: {
-        data: TimelineSeries[],
-        type: string,
-        options: Object
-    };
-
     private colorSchemeService: ColorSchemeService;
 
     private timelineChart: TimelineSelectorChart;
@@ -132,11 +122,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             inactiveColor: 'rgba(57, 181, 74, 0.3)'
         };
 
-        this.overviewChart = {
-            data: [],
-            type: 'TimeLine',
-            options: {}
-        };
         this.timelineData = new TimelineData();
     }
 
@@ -169,6 +154,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
+        console.log('Timeine selection event');
+
         this.selection.startDate = startDate;
         this.selection.endDate = endDate;
 
@@ -330,7 +317,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     @HostListener('window:resize')
     onResize() {
-        this.timelineChart.redrawChart();
+        _.debounce(() => {
+            this.timelineChart.redrawChart();
+        }, 500)();
     }
 
     handleChangeGranularity() {
