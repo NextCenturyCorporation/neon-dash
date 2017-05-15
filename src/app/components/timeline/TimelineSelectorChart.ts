@@ -310,14 +310,22 @@ export class TimelineSelectorChart {
         // We don't want to have more ticks than buckets (e.g., monthly buckets with daily ticks
         // look funny)
         let minimumTickRange = d3.time[this.data.granularity].utc.range;
+        // Get number of ticks for the focus chart
         if (this.xFocus.ticks(minimumTickRange).length < maximumNumberOfTicks) {
             // There's enough room to do one tick per bucket
             this.xAxisFocus.ticks(minimumTickRange);
-            xAxisContext.ticks(minimumTickRange);
         } else {
             // One tick per bucket at this granularity is too many; let D3 figure out tick spacing.
             // Note that D3 may give us a few more ticks than we specify if it feels like it.
             this.xAxisFocus.ticks(maximumNumberOfTicks);
+        }
+        // Number of ticks for main chart
+        if (this.xContext.ticks(minimumTickRange).length < maximumNumberOfTicks) {
+            // There's enough room to do one tick per bucket
+            xAxisContext.ticks(minimumTickRange);
+        } else {
+            // One tick per bucket at this granularity is too many; let D3 figure out tick spacing.
+            // Note that D3 may give us a few more ticks than we specify if it feels like it.
             xAxisContext.ticks(maximumNumberOfTicks);
         }
 
