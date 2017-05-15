@@ -47,78 +47,6 @@
                         Hour
                     </md-button-toggle>
                 </md-button-toggle-group>
-                <!--
-                <table cellspacing="0">
-                    <tr>
-                        <td>
-                            <input mdInput  placeholder="Text Limit" [(ngModel)]="active.limit" required="true"></input>
-                        </td>
-                        <td>
-                            <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <md-icon class="mat-24">refresh</md-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-                <p></p>-->
-
-                <!--<table cellspacing="0">
-                    <tr>
-                        <td>
-                            <input mdInput  placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
-                        </td>
-                        <td>
-                            <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <md-icon class="mat-24">refresh</md-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-                <p></p>-->
-
-                <!--<md-toolbar class="mat-primary">
-                    <span>Show Records With</span>
-                </md-toolbar>
-                <md-button-toggle-group name="filters" [(ngModel)]="active.andFilters" (change)="handleChangeAndFilters()">
-                    <md-button-toggle [value]="true">All Filters</md-button-toggle>
-                    <md-button-toggle [value]="false">Any Filters</md-button-toggle>
-                </md-button-toggle-group>
-                <p></p>
-                -->
-
-                <!--
-                <md-toolbar class="mat-primary">
-                    <span>Unshared Filter</span>
-                </md-toolbar>
-                <md-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField" required="false" [disabled]="meta.fields.length === 0" (ngModelChange)="handleChangeUnsharedFilterField()">
-                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
-                </md-select>
-                <p></p>
-                <table cellspacing="0">
-                    <tr>
-                        <td>
-                            <input mdInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue" [disabled]="!(meta.unsharedFilterField.columnName)"></input>
-                        </td>
-                        <td>
-                            <button md-icon-button md-tooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()" [disabled]="(meta.unsharedFilterField.columnName == undefined || meta.unsharedFilterValue == '')">
-                                <md-icon class="mat-16">clear</md-icon>
-                            </button>
-                        </td>
-                        <td>
-                            <button md-icon-button md-tooltip="Set Unshared Filter" tooltip-position="below" (click)="handleChangeUnsharedFilterValue()">
-                                <md-icon class="mat-16">refresh</md-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-                <p></p>
-              -->
-
-                <!--
-                <button md-raised-button color="primary" class="export" (click)="requestExport()">
-                    Export to File
-                </button>
-              -->
             </md-card-content>
         </md-card>
     </md-sidenav>
@@ -126,29 +54,15 @@
         <div class="text-container">
             <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
                 <span class="filter-label" [title]="getFilterTitle(value)">{{ value }}</span>
-                <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveFilterTooltip(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value, true)">
-            <md-icon class="mat-18">close</md-icon>
-        </button>
+                <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveFilterTooltip(value)"
+                        tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value, true)">
+                    <md-icon class="mat-18">close</md-icon>
+                </button>
             </div>
         </div>
-        <!--<div class="chart-container top-chart-container" (click)="stopEventPropagation($event)">
-            <chart class="chart" #filterChart [type]="filterChart.type" [data]="filterChart.data" [options]="filterChart.options">
-            </chart>
-        </div>
-        <div class="chart-container bottom-chart-container" (click)="stopEventPropagation($event)">
-            <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
-            <chart class="chart" #overviewChart [type]="overviewChart.type" [data]="overviewChart.data" [options]="overviewChart.options">
-            </chart>
-        </div>-->
+        <!-- Tooltip div -->
         <div id="tl-tooltip-container"></div>
+        <!-- Timeline chart div -->
         <div #svg class="timeline-selector-chart"></div>
     </div>
-    <!--<div class="text-cloud" md-fill layout="col">
-        <a (click)="addFilter(item.key, item.keyTranslated)" class="text" *ngFor="let item of active.data" [rel]="item.count"
-            [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
-                <div>
-                    {{ item.key }}
-                </div>
-            </a>
-    </div>-->
 </md-sidenav-container>
