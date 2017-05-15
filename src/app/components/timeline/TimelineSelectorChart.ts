@@ -420,12 +420,32 @@ export class TimelineSelectorChart {
                     }
                 });
 
-            let axis = this.drawFocusChart(series);
-            let y = axis.y;
-            let yAxis = axis.yAxis;
+            // Calculate the max height based on the whole series
+            let yFocus = this.data.logarithmic ? d3.scale.log().clamp(true).range([this.heightFocus, 0]) :
+                d3.scale.linear().range([this.heightFocus, 0]);
+
+            // Use lowest value or 0 for Y-axis domain, whichever is less (e.g. if negative)
+            let minY = d3.min(series.data.map((d: any) => {
+                return d.value;
+            }));
+            minY = this.data.logarithmic ? 1 : (minY < 0 ? minY : 0);
+
+            // Use highest value for Y-axis domain, or 0 if there is no data
+            let maxY = d3.max(series.data.map((d: any) => {
+                return d.value;
+            }));
+            maxY = maxY ? maxY : MIN_VALUE;
+
+            yFocus.domain([minY, maxY]);
+
+            let yAxis = d3.svg.axis().scale(yFocus).orient('right').ticks(2);
+
+            // Draw the focus chart
+            this.drawFocusChart(series);
+
             let yContext = this.data.logarithmic ?
                 d3.scale.log().clamp(true).range([heightContext, 0]) : d3.scale.linear().range([heightContext, 0]);
-            yContext.domain(y.domain());
+            yContext.domain(yFocus.domain());
 
             if (this.data.primarySeries.name === series.name) {
                 this.yContext = yContext;
@@ -440,7 +460,7 @@ export class TimelineSelectorChart {
                     .attr('transform', 'translate(' + xOffset + ',' +
                         ((heightContext + this.marginContext.top + this.marginContext.bottom) * seriesPos) + ')');
 
-                let style = 'stroke:' + series.color + '; fill:' + series.color + ';';;
+                let style = 'stroke:' + series.color + '; fill:' + series.color + ';';
                 let chartTypeContext;
 
                 // If type is bar AND the data isn't too long, render a bar plot
@@ -547,8 +567,8 @@ export class TimelineSelectorChart {
                     class: 'mini-axis',
                     x1: 0,
                     x2: this.width - (xOffset * 2),
-                    y1: y(MIN_VALUE),
-                    y2: y(MIN_VALUE)
+                    y1: yFocus(MIN_VALUE),
+                    y2: yFocus(MIN_VALUE)
                 });
 
             charts.push({
