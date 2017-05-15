@@ -257,6 +257,11 @@ svg {
     }
 }
 
+.highlight {
+    background-color: #DAA520 /* @callout */;
+    fill: #DAA520 /* @callout */;
+}
+
 #tl-tooltip-container {
     display: none;
     position: absolute;

@@ -887,7 +887,7 @@ export class TimelineSelectorChart {
                     // Update the chart
                     this.redrawChart();
                     this.tlComponent.onTimelineSelection(this.data.extent[0], this.data.extent[1]);
-                }, 1000)();
+                }, 500)();
             }
         }
 
