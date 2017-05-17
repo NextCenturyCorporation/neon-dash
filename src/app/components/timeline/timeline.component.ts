@@ -226,6 +226,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         let groupBys: any[] = [];
         switch (this.active.granularity) {
             //Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
+            case 'minute':
+                groupBys.push(new neon.query.GroupByFunctionClause('minute', dateField, 'minute'));
+            /* falls through */
             case 'hour':
                 groupBys.push(new neon.query.GroupByFunctionClause('hour', dateField, 'hour'));
             /* falls through */

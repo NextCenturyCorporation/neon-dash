@@ -400,7 +400,7 @@ export class TimelineSelectorChart {
                 .on('mousemove', () => {
                     let index = this.findHoverIndexInData(series, this.xFocus);
                     if (index >= 0 && index < series.data.length) {
-                        let contextIndex = this.contextDateToIndex[series.data[index].date.toUTCString()];
+                        let contextIndex = this.focusDateToIndex[series.data[index].date.toUTCString()];
                         this.onHover(series.data[index], contextIndex);
                     }
                 })
@@ -415,7 +415,7 @@ export class TimelineSelectorChart {
                 .on('mousedown', () => {
                     let index = this.findHoverIndexInData(series, this.xFocus);
                     if (index >= 0 && index < series.data.length) {
-                        let contextIndex = this.contextDateToIndex[series.data[index].date.toUTCString()];
+                        let contextIndex = this.focusDateToIndex[series.data[index].date.toUTCString()];
                         this.onHover(series.data[index], contextIndex);
                     }
                 });
@@ -696,9 +696,6 @@ export class TimelineSelectorChart {
 
         // Get only the data in the brushed area
         let dataShown = _.filter(series.data, (obj: TimelineItem) => {
-            if (this.data.granularity !== 'hour') {
-                return (this.xFocus.domain()[0] <= obj.date && obj.date < this.xFocus.domain()[1]);
-            }
             return (this.xFocus.domain()[0] <= obj.date && obj.date < this.xFocus.domain()[1]);
         });
 
@@ -977,6 +974,11 @@ export class TimelineSelectorChart {
             let date = datum.date;
             let start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
             let end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, date.getHours());
+
+            if (this.data.granularity === 'minute') {
+                start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes());
+                end = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() + 1);
+            }
 
             if (this.data.granularity === 'hour') {
                 start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
