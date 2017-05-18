@@ -169,10 +169,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.addNeonFilter(false, filter);
     }
 
-    onTimelineHover(startDate: Date, endDate: Date): void {
-        // Does anything need to be done here?
-    }
-
     createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
         let filterClauses = [];
         filterClauses[0] = neon.query.where(fieldName, '>=', this.selection.startDate);

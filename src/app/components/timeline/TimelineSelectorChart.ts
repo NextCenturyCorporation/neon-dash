@@ -967,40 +967,18 @@ export class TimelineSelectorChart {
      */
     onHover(datum: TimelineItem, contextIndex): void {
         this.hoverIndex = contextIndex;
-        this.selectIndexedDates(contextIndex, contextIndex + 1);
         this.showTooltip(datum, d3.event);
+        this.clearHighlights();
 
-        // if (this.hoverListener) {
-            let date = datum.date;
-            let start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
-            let end = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1, date.getHours());
+        // Show highlights
+        this.showHighlight(datum,
+            this.contextHighlights[0], this.xContext, this.yContext);
 
-            if (this.data.granularity === 'minute') {
-                start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes());
-                end = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes() + 1);
-            }
-
-            if (this.data.granularity === 'hour') {
-                start = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
-                end = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours() + 1);
-            }
-            // The years/months/hours start at index 0 and days start at index 1 but due to the timezone
-            // we want the last day of the previous month which is index 0.
-            // Add an additional 1 to the dates for month/year granularity because they will start
-            // in the previous month/year due to the timezone.
-            // Include hours to ensure the new start/end dates are in the same timezone as the original date.
-            if (this.data.granularity === 'month') {
-                start = new Date(date.getFullYear(), date.getMonth() + 1, 0, date.getHours());
-                end = new Date(date.getFullYear(), date.getMonth() + 2, 0, date.getHours());
-            }
-            if (this.data.granularity === 'year') {
-                start = new Date(date.getFullYear() + 1, 0, 0, date.getHours());
-                end = new Date(date.getFullYear() + 2, 0, 0, date.getHours());
-            }
-
-            this.selectDate(start, end);
-            //this.hoverListener(start, end);
-        // }
+        // Make sure that the data is in the focus chart before showing
+        if (this.focusDateToIndex[datum.date.toUTCString()] >= 0) {
+            this.showHighlight(datum,
+                this.focusHighlights[0], this.xFocus, this.yFocus);
+        }
     }
 
     /**
@@ -1017,13 +995,8 @@ export class TimelineSelectorChart {
      */
     onHoverEnd(): void {
         this.hoverIndex = -1;
-        this.deselectDate();
+        this.clearHighlights();
         this.hideTooltip();
-
-        // if (this.hoverListener) {
-        //     this.hoverListener();
-        // }
-        this.deselectDate();
     }
 
     selectIndexedDates(startIndex, endIndex) {
@@ -1042,64 +1015,6 @@ export class TimelineSelectorChart {
                     this.focusHighlights[focusIndex], this.xFocus, this.yFocus);
             }
         }
-    }
-
-    /**
-     * Deselects the date by removing the highlighting in the chart.
-     * @method deselectDate
-     */
-    deselectDate() {
-        this.clearHighlights();
-    }
-
-    selectDate(startDate: Date, endDate: Date): void {
-        if (!this.data.data || !this.data.data.length || !this.data.data[0].data || !this.data.data[0].data.length) {
-            return;
-        }
-
-        let dataLength = this.data.data[0].data.length;
-        let startIndex = -1;
-        let endIndex = -1;
-
-        this.data.data[0].data.forEach((datum, index) => {
-            if (datum.date <= startDate || this.datesEqual(datum.date, startDate)) {
-                startIndex = index;
-            }
-            if (datum.date <= endDate || this.datesEqual(datum.date, endDate)) {
-                endIndex = index;
-            }
-        });
-
-        let dataStartDate = this.data.data[0].data[0].date;
-        let dataEndDate = this.data.data[0].data[dataLength - 1].date;
-
-        // Add a month/year to the end month/year for month/year granularity so it includes the whole
-        // end month/year and not just the first day of the end month/year.
-        if (this.data.granularity === 'month') {
-            dataEndDate = new Date(dataEndDate.getFullYear(), dataEndDate.getMonth() + 1,
-                dataEndDate.getDate(), dataEndDate.getHours());
-        }
-        if (this.data.granularity === 'year') {
-            dataEndDate = new Date(dataEndDate.getFullYear() + 1, dataEndDate.getMonth(),
-                dataEndDate.getDate(), dataEndDate.getHours());
-        }
-
-        // If the start or end date is outside the date range of the data, set it to the of the start
-        // (inclusive) or end (exclusive) index of the data.
-        startIndex = startDate <= dataStartDate ? 0 : startIndex;
-        endIndex = endDate > dataEndDate ? dataLength : endIndex;
-
-        if (startIndex < 0 || endIndex < 0 || endDate < dataStartDate || startDate > dataEndDate) {
-            this.deselectDate();
-            return;
-        }
-
-        // If the start and end dates are the same, add one to the end index because it is exclusive.
-        endIndex = startIndex === endIndex ? endIndex + 1 : endIndex;
-        this.selectIndexedDates(startIndex, endIndex);
-
-        // Notify the component
-        this.tlComponent.onTimelineHover(startDate, endDate);
     }
 
     /**
