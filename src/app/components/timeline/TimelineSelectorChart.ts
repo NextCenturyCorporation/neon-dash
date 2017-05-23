@@ -35,6 +35,7 @@ export class TimelineItem {
 export class TimelineSeries {
     public color: string = 'green';
     public data: TimelineItem[] = DEFAULT_DATA;
+    public focusData: TimelineItem[] = [];
     public name: string = 'Default';
     public type: string= 'bar';
     public options: Object = {};
@@ -684,9 +685,7 @@ export class TimelineSelectorChart {
         }
 
         // Get only the data in the brushed area
-        let dataShown = _.filter(series.data, (obj: TimelineItem) => {
-            return (this.xFocus.domain()[0] <= obj.date && obj.date < this.xFocus.domain()[1]);
-        });
+        let dataShown = series.focusData;
 
         // Use lowest value or 0 for Y-axis domain, whichever is less (e.g. if negative)
         let minY = d3.min(dataShown.map((d: any) => {

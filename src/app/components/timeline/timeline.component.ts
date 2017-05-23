@@ -39,7 +39,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     private filters: {
         key: string,
         startDate: Date,
-        endDate: Date
+        endDate: Date,
+        local: boolean
     }[];
 
     private optionsFromConfig: {
@@ -48,14 +49,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         table: string,
         dateField: string,
         granularity: string,
-        unsharedFilterField: Object,
-        unsharedFilterValue: string
     };
 
     private active: {
         dateField: FieldMetaData,
-        andFilters: boolean,
-        filterable: boolean,
         bucketizer: Bucketizer,
         granularity: string,
     };
@@ -65,16 +62,13 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         inactiveColor: string
     };
 
-    private selection: {
-        mouseDown: boolean
-        startX: number,
-        width: number,
-        x: number,
-        visibleOverlay: boolean,
-        startIndex: number,
-        endIndex: number,
-        startDate: Date,
-        endDate: Date
+    // Cache the data from the last query
+    private queryData: {
+        data: {
+            value: number,
+            date: Date
+        }[],
+        granularity: string
     };
 
     private colorSchemeService: ColorSchemeService;
@@ -91,30 +85,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             table: this.injector.get('table', null),
             dateField: this.injector.get('dateField', null),
             granularity: this.injector.get('granularity', 'day'),
-            unsharedFilterField: {},
-            unsharedFilterValue: ''
         };
         this.colorSchemeService = colorSchemeSrv;
         this.filters = [];
 
         this.active = {
             dateField: new FieldMetaData(),
-            andFilters: true,
-            filterable: true,
             bucketizer: new DateBucketizer(),
             granularity: 'day'
-        };
-
-        this.selection = {
-            mouseDown: false,
-            width: 20,
-            x: 20,
-            startX: 0,
-            visibleOverlay: false,
-            startIndex: -1,
-            endIndex: -1,
-            startDate: null,
-            endDate: null
         };
 
         this.chartDefaults = {
@@ -145,48 +123,60 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
     };
 
-    addLocalFilter(key, startDate, endDate) {
+    addLocalFilter(key: string, startDate: Date, endDate: Date, local?: boolean) {
         this.filters.push({
             key: key,
             startDate: startDate,
-            endDate: endDate
+            endDate: endDate,
+            local: local
         });
     };
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
         console.log('Timeine selection event');
 
-        this.selection.startDate = startDate;
-        this.selection.endDate = endDate;
+        // this.selection.startDate = startDate;
+        // this.selection.endDate = endDate;
 
         let filter = {
             key: this.active.dateField.columnName,
             startDate: startDate,
-            endDate: endDate
+            endDate: endDate,
+            local: true
         };
 
         this.filters.push(filter);
         this.addNeonFilter(false, filter);
+
+        // Update the charts
+        this.filterAndRefreshData();
     }
 
     createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
-        let filterClauses = [];
-        filterClauses[0] = neon.query.where(fieldName, '>=', this.selection.startDate);
-        let endDatePlusOne = this.selection.endDate.getTime() + DateBucketizer.MILLIS_IN_DAY;
-        let endDatePlusOneDate = new Date(endDatePlusOne);
-        filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
-        return neon.query.and.apply(neon.query, filterClauses);
+        for (let filter of this.filters) {
+            // Only apply filters that aren't local
+            if (!filter.local) {
+                let filterClauses = [];
+                filterClauses[0] = neon.query.where(fieldName, '>=', filter.startDate);
+                let endDatePlusOne = filter.endDate.getTime() + DateBucketizer.MILLIS_IN_DAY;
+                let endDatePlusOneDate = new Date(endDatePlusOne);
+                filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
+                return neon.query.and.apply(neon.query, filterClauses);
+            }
+        }
+        return null;
     };
 
-    getFilterText() {
+    getFilterText(filter) {
+        console.log(filter);
         // I.E. TIMELINE - EARTHQUAKES: 8 AUG 2015 TO 20 DEC 2015
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let field = this.active.dateField.columnName;
         let text = database + ' - ' + table + ' - ' + field + ' = ';
-        let date = this.selection.startDate;
+        let date = filter.startDate;
         text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
-        date = this.selection.endDate;
+        date = filter.endDate;
         text += ' to ';
         text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
         return text;
@@ -253,30 +243,52 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response) {
+        // Convert all the dates into Date objects
+        response.data.map((d) => {
+            d.date = new Date(d.date);
+        });
+
+        this.queryData = {
+            data: response.data,
+            granularity: this.active.granularity
+        };
+
+        this.filterAndRefreshData();
+    }
+
+    /**
+     * Filter the raw data and re-draw the chart
+     */
+    filterAndRefreshData() {
         let series: TimelineSeries = {
             color: this.chartDefaults.activeColor,
             name: 'Total',
             type: 'bar',
             options: {},
             data: [],
+            focusData: [],
             startDate: null,
             endDate: null
         };
 
-        // Convert all the dates into Date objects
-        response.data.map((d) => {
-            d.date = new Date(d.date);
-        });
-
         // The query includes a sort, so it *should* be sorted.
         // Start date will be the first entry, and the end date will be the last
-        series.startDate = response.data[0].date;
-        let lastDate = response.data[response.data.length - 1].date;
+        series.startDate = this.queryData.data[0].date;
+        let lastDate = this.queryData.data[this.queryData.data.length - 1].date;
         series.endDate = d3.time[this.active.granularity]
             .utc.offset(lastDate, 1);
 
+        let filter = null;
+        for (let curFilter of this.filters) {
+            if (curFilter.local) {
+                filter = curFilter;
+                break;
+            }
+        }
+
         // If we have a bucketizer, use it
         if (this.active.bucketizer) {
+            console.log('Using bucketizer');
             this.active.bucketizer.setStartDate(series.startDate);
             this.active.bucketizer.setEndDate(series.endDate);
 
@@ -289,17 +301,38 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                 };
             }
 
-            for (let row of response.data) {
-                let curDate = new Date(row.date);
-                let bucketIndex = this.active.bucketizer.getBucketIndex(curDate);
+            for (let row of this.queryData.data) {
+                // Check if this should be in the focus data
+                // Focus data is not bucketized
+                if (filter) {
+                    if (filter.startDate <= row.date && filter.endDate >= row.date) {
+                        series.focusData.push({
+                            date: row.date,
+                            value: row.value
+                        });
+                    }
+                }
+
+                let bucketIndex = this.active.bucketizer.getBucketIndex(row.date);
 
                 if (series.data[bucketIndex]) {
                     series.data[bucketIndex].value += row.value;
                 }
             }
         } else {
+            console.log('No bucketizer');
             // No bucketizer, just add the data
-            for (let row of response.data) {
+            for (let row of this.queryData.data) {
+                // Check if this should be in the focus data
+                if (filter) {
+                    if (filter.startDate <= row.date && filter.endDate >= row.date) {
+                        series.focusData.push({
+                            date: row.date,
+                            value: row.value
+                        });
+                    }
+                }
+
                 series.data.push({
                     date: row.date,
                     value: row.value
@@ -312,7 +345,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.timelineData.primarySeries = series;
 
         this.refreshVisualization();
-    };
+    }
 
     @HostListener('window:resize')
     onResize() {
@@ -323,6 +356,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeGranularity() {
         switch (this.active.granularity.toLowerCase()) {
+            case 'minute':
+                this.active.bucketizer = new DateBucketizer();
+                this.active.bucketizer.setGranularity(DateBucketizer.HOUR);
+                break;
             case 'day':
                 this.active.bucketizer = new DateBucketizer();
                 break;
@@ -348,9 +385,15 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         let neonFilters = this.filterService.getFilters(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
             for (let filter of neonFilters) {
-                let key = filter.filter.whereClause.lhs;
-                let value = filter.filter.whereClause.rhs;
-                this.addLocalFilter(key, value, key);
+                // The data we want is in the whereClause's subclauses
+                let whereClause = filter.filter.whereClause;
+                if (whereClause && whereClause.whereClauses.length === 2) {
+                    let key = whereClause.whereClauses[0].lhs;
+                    let startDate = whereClause.whereClauses[0].rhs;
+                    let endDate = whereClause.whereClauses[1].rhs;
+                    this.addLocalFilter(key, startDate, endDate);
+                }
+
             }
         } else {
             this.removeFilter();
