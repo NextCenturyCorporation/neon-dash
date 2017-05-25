@@ -53,7 +53,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     private active: {
         dateField: FieldMetaData,
-        bucketizer: Bucketizer,
         granularity: string,
     };
 
@@ -91,7 +90,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
         this.active = {
             dateField: new FieldMetaData(),
-            bucketizer: new DateBucketizer(),
             granularity: 'day'
         };
 
@@ -101,6 +99,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         };
 
         this.timelineData = new TimelineData();
+        this.timelineData.bucketizer = new DateBucketizer();
     }
 
     subNgOnInit() {
@@ -287,14 +286,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         }
 
         // If we have a bucketizer, use it
-        if (this.active.bucketizer) {
+        if (this.timelineData.bucketizer) {
             console.log('Using bucketizer');
-            this.active.bucketizer.setStartDate(series.startDate);
-            this.active.bucketizer.setEndDate(series.endDate);
+            this.timelineData.bucketizer.setStartDate(series.startDate);
+            this.timelineData.bucketizer.setEndDate(series.endDate);
 
-            let numBuckets = this.active.bucketizer.getNumBuckets();
+            let numBuckets = this.timelineData.bucketizer.getNumBuckets();
             for (let i = 0; i < numBuckets; i++) {
-                let bucketDate = this.active.bucketizer.getDateForBucket(i);
+                let bucketDate = this.timelineData.bucketizer.getDateForBucket(i);
                 series.data[i] = {
                     date: bucketDate,
                     value: 0
@@ -303,17 +302,17 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
             for (let row of this.queryData.data) {
                 // Check if this should be in the focus data
-                // Focus data is not bucketized
+                // Focus data is not bucketized, just zeroed
                 if (filter) {
                     if (filter.startDate <= row.date && filter.endDate >= row.date) {
                         series.focusData.push({
-                            date: row.date,
+                            date: this.zeroDate(row.date),
                             value: row.value
                         });
                     }
                 }
 
-                let bucketIndex = this.active.bucketizer.getBucketIndex(row.date);
+                let bucketIndex = this.timelineData.bucketizer.getBucketIndex(row.date);
 
                 if (series.data[bucketIndex]) {
                     series.data[bucketIndex].value += row.value;
@@ -354,23 +353,37 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         }, 500)();
     }
 
+    /**
+     * Zero out a date, if needed
+     */
+    zeroDate(date: Date) {
+        if (this.timelineData.bucketizer && this.timelineData.granularity !== 'minute') {
+            return this.timelineData.bucketizer.zeroOutDate(date);
+        }
+        return date;
+    }
+
     handleChangeGranularity() {
+        this.timelineData.focusGranularityDifferent = false;
         switch (this.active.granularity.toLowerCase()) {
             case 'minute':
-                this.active.bucketizer = new DateBucketizer();
-                this.active.bucketizer.setGranularity(DateBucketizer.HOUR);
+                this.timelineData.focusGranularityDifferent = true;
+                /* falls through */
+            case 'hour':
+                this.timelineData.bucketizer = new DateBucketizer();
+                this.timelineData.bucketizer.setGranularity(DateBucketizer.HOUR);
                 break;
             case 'day':
-                this.active.bucketizer = new DateBucketizer();
+                this.timelineData.bucketizer = new DateBucketizer();
                 break;
             case 'month':
-                this.active.bucketizer = new MonthBucketizer();
+                this.timelineData.bucketizer = new MonthBucketizer();
                 break;
             case 'year':
-                this.active.bucketizer = new YearBucketizer();
+                this.timelineData.bucketizer = new YearBucketizer();
                 break;
             default:
-                this.active.bucketizer = null;
+                this.timelineData.bucketizer = null;
         }
         this.timelineData.granularity = this.active.granularity;
         this.logChangeAndStartQueryChain();

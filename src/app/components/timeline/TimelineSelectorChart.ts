@@ -2,6 +2,7 @@
 import * as _ from 'lodash';
 import {ElementRef} from '@angular/core';
 import {TimelineComponent} from './timeline.component';
+import {Bucketizer} from '../bucketizers/Bucketizer';
 
 declare let d3;
 
@@ -51,8 +52,10 @@ export class TimelineData {
     public primarySeries: TimelineSeries;
     public collapsed: boolean = false;
     public logarithmic: boolean = false;
+    public bucketizer: Bucketizer = null;
     public extent: Date[] = [];
     public granularity: string = 'day';
+    public focusGranularityDifferent: boolean = false;
 }
 
 export class TimelineSelectorChart {
@@ -83,11 +86,8 @@ export class TimelineSelectorChart {
 
     // The highlight bars for each date for both the context and focus timelines.
     private focusHighlight;
+    private focusMultiHighlight;
     private contextHighlight;
-
-    // The mapping of date to data index used in hover/highlighting behavior for both the context and focus timelines.
-    private focusDateToIndex = {};
-    private contextDateToIndex = {};
 
     // The old extent of the brush saved on brushstart.
     private oldExtent = [];
@@ -399,10 +399,9 @@ export class TimelineSelectorChart {
                 .attr('transform', 'translate(' + xOffset + ',' +
                     ((this.heightFocus + (this.marginFocus.top * 2) + this.marginFocus.bottom) * seriesPos) + ')')
                 .on('mousemove', () => {
-                    let index = this.findHoverIndexInData(series, this.xFocus);
-                    if (index >= 0 && index < series.data.length) {
-                        let contextIndex = this.focusDateToIndex[series.data[index].date.toUTCString()];
-                        this.onHover(series.data[index], contextIndex);
+                    let index = this.findHoverIndexInData(series.focusData, this.xFocus);
+                    if (index >= 0 && index < series.focusData.length) {
+                        this.onFocusHover(series.focusData[index]);
                     }
                 })
                 .on('mouseout', () => {
@@ -410,10 +409,9 @@ export class TimelineSelectorChart {
                     this.onHoverEnd();
                 })
                 .on('mousedown', () => {
-                    let index = this.findHoverIndexInData(series, this.xFocus);
-                    if (index >= 0 && index < series.data.length) {
-                        let contextIndex = this.focusDateToIndex[series.data[index].date.toUTCString()];
-                        this.onHover(series.data[index], contextIndex);
+                    let index = this.findHoverIndexInData(series.focusData, this.xFocus);
+                    if (index >= 0 && index < series.focusData.length) {
+                        this.onFocusHover(series.focusData[index]);
                     }
                 });
 
@@ -542,11 +540,6 @@ export class TimelineSelectorChart {
                     }
                 }
 
-                this.contextDateToIndex = {};
-                series.data.forEach((datum: any, index: number) => {
-                    this.contextDateToIndex[datum.date.toUTCString()] = index;
-                });
-
                 // Append the highlight bars after the other bars so it is drawn on top.
                 this.contextHighlight = contextContainer.append('rect')
                     .attr('class', 'highlight')
@@ -593,12 +586,9 @@ export class TimelineSelectorChart {
         let gBrush = context.append('g')
             .attr('class', 'brush')
             .on('mousemove', () => {
-                let series = _.find(this.data.data, {
-                    name: this.data.primarySeries.name
-                });
-                let index = this.findHoverIndexInData(series, this.xContext);
-                if (index >= 0 && index < series.data.length) {
-                    this.onHover(series.data[index], index);
+                let index = this.findHoverIndexInData(this.data.primarySeries.data, this.xContext);
+                if (index >= 0 && index < this.data.primarySeries.data.length) {
+                    this.onHover(this.data.primarySeries.data[index]);
                 }
             })
             .on('mouseout', () => {
@@ -684,17 +674,14 @@ export class TimelineSelectorChart {
             this.yFocus = yFocus;
         }
 
-        // Get only the data in the brushed area
-        let dataShown = series.focusData;
-
         // Use lowest value or 0 for Y-axis domain, whichever is less (e.g. if negative)
-        let minY = d3.min(dataShown.map((d: any) => {
+        let minY = d3.min(series.focusData.map((d: any) => {
             return d.value;
         }));
         minY = this.data.logarithmic ? 1 : (minY < 0 ? minY : 0);
 
         // Use highest value for Y-axis domain, or 0 if there is no data
-        let maxY = d3.max(dataShown.map((d: any) => {
+        let maxY = d3.max(series.focusData.map((d: any) => {
             return d.value;
         }));
         maxY = maxY ? maxY : MIN_VALUE;
@@ -711,17 +698,17 @@ export class TimelineSelectorChart {
         focus.selectAll('path.' + series.type).remove();
 
         // If type is bar AND the data isn't too long, render a bar plot
-        if (series.type === 'bar' && dataShown.length < this.width) {
+        if (series.type === 'bar' && series.focusData.length < this.width) {
             let barheight = 0;
 
-            if (dataShown.length < 60) {
+            if (series.focusData.length < 60) {
                 style = 'stroke:#f1f1f1;';
                 barheight++;
             }
             style += 'fill:' + series.color + ';';
 
             focus.selectAll('rect.bar')
-                .data(dataShown)
+                .data(series.focusData)
                 .enter().append('rect')
                 .attr('class', (d) => {
                     return 'bar ' + d.date;
@@ -771,16 +758,16 @@ export class TimelineSelectorChart {
             }
 
             focus.append('path')
-                .datum(dataShown)
+                .datum(series.focusData)
                 .attr('class', series.type)
                 .attr('d', chartType)
                 .attr('style', style);
 
-            if (dataShown.length < 80) {
+            if (series.focusData.length < 80) {
                 let func = (d) => {
                     return this.xFocus(d.date);
                 };
-                if (dataShown.length === 1) {
+                if (series.focusData.length === 1) {
                     func = () => {
                         return this.width / 2;
                     };
@@ -789,7 +776,7 @@ export class TimelineSelectorChart {
                 focus.selectAll('circle.dot').remove();
 
                 focus.selectAll('circle.dot')
-                    .data(dataShown)
+                    .data(series.focusData)
                     .enter().append('circle')
                     .attr('class', 'dot')
                     .attr('style', 'fill:' + series.color + ';')
@@ -801,15 +788,17 @@ export class TimelineSelectorChart {
             }
         }
 
-        this.focusDateToIndex = {};
-        dataShown.forEach((datum: any, index) => {
-            this.focusDateToIndex[datum.date.toUTCString()] = index;
-        });
-
         if (this.data.primarySeries.name === series.name) {
             // Append the highlight bars after the other bars so it is drawn on top.
             this.focusHighlight = focus.append('rect')
                 .attr('class', 'highlight')
+                .attr('x', 0).attr('width', 0)
+                .attr('y', -1).attr('height', this.heightFocus + 2)
+                .style('visibility', 'hidden');
+
+            // Multi-highlight bar
+            this.focusMultiHighlight = focus.append('rect')
+                .attr('class', 'multi-highlight')
                 .attr('x', 0).attr('width', 0)
                 .attr('y', -1).attr('height', this.heightFocus + 2)
                 .style('visibility', 'hidden');
@@ -932,7 +921,7 @@ export class TimelineSelectorChart {
     /**
      * Returns the hover index in the given data using the given mouse event and xRange function (xContext or xFocus).
      */
-    findHoverIndexInData(series: TimelineSeries, domain: d3.time.Scale<Date, any>): number {
+    findHoverIndexInData(data: TimelineItem[], domain: d3.time.Scale<Date, any>): number {
         // To get the actual svg, you have to use [0][0]
         let mouseLocation = d3.mouse(this.svg[0][0]);
         // Subtract the margin, or else the cursor location may not match the highlighted bar
@@ -940,17 +929,13 @@ export class TimelineSelectorChart {
         let bisect = d3.bisector((d) => {
             return d.date;
         }).right;
-        return series ? bisect(series.data, graph_x) - 1 : -1;
+        return data ? bisect(data, graph_x) - 1 : -1;
     }
 
     /**
      * Performs behavior for hovering over the given datum at the given context timeline index.
-     * @param {Object} datum
-     * @param {Number} contextIndex
-     * @method onHover
      */
-    onHover(datum: TimelineItem, contextIndex): void {
-        this.hoverIndex = contextIndex;
+    onHover(datum: TimelineItem): void {
         this.showTooltip(datum, d3.event);
         this.clearHighlights();
 
@@ -958,11 +943,43 @@ export class TimelineSelectorChart {
         this.showHighlight(datum,
             this.contextHighlight, this.xContext, this.yContext);
 
-        // Make sure that the data is in the focus chart before showing
-        if (this.focusDateToIndex[datum.date.toUTCString()] >= 0) {
-            this.showHighlight(datum,
-                this.focusHighlight, this.xFocus, this.yFocus);
+        // Check if there is focus data, and if the selection is within range
+        let focusData = this.data.primarySeries.focusData;
+        if (focusData.length > 0 && focusData[0].date <= datum.date &&
+                datum.date <= focusData[focusData.length - 1].date) {
+            if (this.data.focusGranularityDifferent) {
+                let bucketIndex = this.data.bucketizer.getBucketIndex(datum.date);
+                let startDate = this.data.primarySeries.data[bucketIndex].date;
+                let endDate = this.data.primarySeries.data[bucketIndex + 1].date;
+                this.showFocusMultiHighlight(startDate, endDate);
+            } else {
+                // Just draw it
+                this.showHighlight(datum,
+                    this.focusHighlight, this.xFocus, this.yFocus);
+            }
         }
+    }
+
+    /**
+     * Hovering over focus means that we may need to get the bucket that the hovered data came from,
+     * and highlight that in the main chart in case the focus has a different time interval
+     * @param datum
+     */
+    onFocusHover(datum: TimelineItem): void {
+        let bucketData = datum;
+        if (this.data.focusGranularityDifferent && this.data.bucketizer) {
+            let index = this.data.bucketizer.getBucketIndex(datum.date);
+            bucketData = this.data.primarySeries.data[index];
+        }
+
+        this.showTooltip(datum, d3.event);
+        this.clearHighlights();
+
+        this.showHighlight(bucketData,
+            this.contextHighlight, this.xContext, this.yContext);
+
+         this.showHighlight(datum,
+             this.focusHighlight, this.xFocus, this.yFocus);
     }
 
     /**
@@ -970,9 +987,23 @@ export class TimelineSelectorChart {
      * @method onHoverEnd
      */
     onHoverEnd(): void {
-        this.hoverIndex = -1;
         this.clearHighlights();
         this.hideTooltip();
+    }
+
+    /**
+     * Shows the given highlight at the given date with the given value using the given
+     * xRange and yRange functions (xContext/yContext or xFocus/yFocus).
+     */
+    showFocusMultiHighlight(startDate: Date, endDate: Date) {
+        // TODO Create x, width, y, and height functions to combine the calculations for both the highlight bar and the other bars.
+        let x = this.xFocus(startDate);
+        let MIN_VALUE = this.data.logarithmic ? 1 : 0;
+        let width = this.xFocus(endDate) - x;
+        let y = this.yFocus(Math.max(MIN_VALUE, 9999) as any);
+        let height = Math.abs(this.yFocus(9999 as any) - this.yFocus(MIN_VALUE as any));
+        this.focusMultiHighlight.attr('x', x - 1).attr('width', width + 2).attr('y', y - 1)
+            .attr('height', ((isNaN(height) ? MIN_VALUE : height) + 2)).style('visibility', 'visible');
     }
 
     /**
@@ -992,6 +1023,7 @@ export class TimelineSelectorChart {
 
     clearHighlights(): void {
         this.focusHighlight.style('visibility', 'hidden');
+        this.focusMultiHighlight.style('visibility', 'hidden');
         this.contextHighlight.style('visibility', 'hidden');
     }
 
