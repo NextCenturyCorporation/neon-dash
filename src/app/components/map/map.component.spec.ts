@@ -3,8 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { MaterialModule } from '@angular/material';
-
 import {} from 'jasmine';
 
 import { MapComponent } from './map.component';
@@ -19,6 +17,7 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {AppMaterialModule} from '../../app.material.module';
 
 function webgl_support(): any {
     try {
@@ -52,8 +51,7 @@ describe('Component: Map', () => {
                 { provide: 'config', useValue: testConfig }
             ],
             imports: [
-                MaterialModule,
-                MaterialModule.forRoot(),
+                AppMaterialModule,
                 FormsModule,
                 BrowserAnimationsModule
             ]

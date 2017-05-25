@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { MaterialModule } from '@angular/material';
 import { ChartModule } from 'angular2-chartjs';
 
 import {} from 'jasmine';
@@ -19,6 +18,7 @@ import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {AppMaterialModule} from '../../app.material.module';
 
 let d3 = require('../../../assets/d3.min.js');
 
@@ -45,8 +45,7 @@ describe('Component: Timeline', () => {
         { provide: 'config', useValue: testConfig }
       ],
       imports: [
-        MaterialModule,
-        MaterialModule.forRoot(),
+        AppMaterialModule,
         FormsModule,
         ChartModule,
         BrowserAnimationsModule

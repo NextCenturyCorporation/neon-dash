@@ -20,6 +20,7 @@ import { AddVisualizationComponent } from './add-visualization.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ThemesService } from '../../services/themes.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {AppMaterialModule} from '../../app.material.module';
 
 describe('Component: AddVisualization', () => {
 
@@ -27,7 +28,8 @@ describe('Component: AddVisualization', () => {
         TestBed.configureTestingModule({
             imports: [
                 BrowserAnimationsModule,
-                MdGridListModule
+                MdGridListModule,
+                AppMaterialModule
             ],
             declarations: [
                 AddVisualizationComponent

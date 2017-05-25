@@ -2,7 +2,6 @@
 
 import { TestBed, inject } from '@angular/core/testing';
 import { MdDialogRef } from '@angular/material';
-import { MaterialModule } from '@angular/material';
 import { FormsModule } from '@angular/forms';
 
 import { FilterTrayComponent } from './filter-tray.component';
@@ -12,6 +11,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {AppMaterialModule} from '../../app.material.module';
 
 describe('Component: FilterTray', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -29,8 +29,7 @@ describe('Component: FilterTray', () => {
                 { provide: 'config', useValue: testConfig }
             ],
             imports: [
-                MaterialModule,
-                MaterialModule.forRoot(),
+                AppMaterialModule,
                 FormsModule,
                 BrowserAnimationsModule
             ]

@@ -3,7 +3,6 @@ import {  ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { MaterialModule } from '@angular/material';
 import { ChartModule } from 'angular2-chartjs';
 
 import {} from 'jasmine';
@@ -18,6 +17,7 @@ import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {AppMaterialModule} from '../../app.material.module';
 
 describe('Component: BarChart', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -42,8 +42,7 @@ describe('Component: BarChart', () => {
             ],
             imports: [
                 BrowserAnimationsModule,
-                MaterialModule,
-                MaterialModule.forRoot(),
+                AppMaterialModule,
                 FormsModule,
                 ChartModule
             ]

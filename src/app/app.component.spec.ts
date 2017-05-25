@@ -52,9 +52,10 @@ import { ColorSchemeService } from './services/color-scheme.service';
 
 import { NgGridModule } from 'angular2-grid';
 
-import { MaterialModule } from '@angular/material';
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import {AppMaterialModule} from './app.material.module';
+import {HttpModule} from '@angular/http';
 
 describe('App: NeonGtd', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -83,11 +84,11 @@ describe('App: NeonGtd', () => {
             ],
             imports: [
                 FormsModule,
-                MaterialModule,
-                MaterialModule.forRoot(),
+                AppMaterialModule,
                 NgGridModule,
                 ChartModule,
                 NgxDatatableModule,
+                HttpModule,
             ],
             providers: [
                 { provide: 'config', useValue: testConfig },

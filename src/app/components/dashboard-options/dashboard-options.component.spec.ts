@@ -28,10 +28,10 @@ import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
 import { FilterService } from '../../services/filter.service';
 
-import { MaterialModule } from '@angular/material';
 import { MdSnackBar } from '@angular/material';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {AppMaterialModule} from '../../app.material.module';
 
 describe('Component: DashboardOptionsComponent', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -45,8 +45,7 @@ describe('Component: DashboardOptionsComponent', () => {
             ],
             imports: [
                 FormsModule,
-                MaterialModule,
-                MaterialModule.forRoot(),
+                AppMaterialModule,
                 BrowserAnimationsModule
             ],
             providers: [

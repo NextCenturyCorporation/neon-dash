@@ -25,8 +25,8 @@ import { FilterService } from '../../services/filter.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 
 import { FormsModule } from '@angular/forms';
-import { MaterialModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {AppMaterialModule} from '../../app.material.module';
 
 describe('Component: DatasetSelector', () => {
 
@@ -50,8 +50,7 @@ describe('Component: DatasetSelector', () => {
       ],
       imports: [
         FormsModule,
-        MaterialModule,
-        MaterialModule.forRoot(),
+        AppMaterialModule,
         BrowserAnimationsModule
       ]
     });

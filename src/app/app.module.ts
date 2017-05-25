@@ -20,8 +20,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
-import { MaterialModule } from '@angular/material';
-
 import 'hammerjs';
 
 import { NgGridModule } from 'angular2-grid';
@@ -58,6 +56,7 @@ import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.com
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import {AppMaterialModule} from './app.material.module';
 
 export function getAppConfig() {
     return window['appConfig'];
@@ -88,11 +87,11 @@ export function getAppConfig() {
         CommonModule,
         FormsModule,
         HttpModule,
-        MaterialModule.forRoot(),
         NgGridModule,
         ChartModule,
         NgxDatatableModule,
         BrowserAnimationsModule,
+        AppMaterialModule
     ],
     providers: [
         ActiveGridService,

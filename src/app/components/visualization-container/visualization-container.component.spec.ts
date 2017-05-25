@@ -15,11 +15,11 @@ import { LegendComponent } from '../legend/legend.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import { MaterialModule } from '@angular/material';
 import { ChartModule } from 'angular2-chartjs';
 import { FormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {AppMaterialModule} from '../../app.material.module';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -46,8 +46,7 @@ describe('Component: VisualizationContainer', () => {
                 { provide: 'config', useValue: testConfig }
             ],
             imports: [
-                MaterialModule,
-                MaterialModule.forRoot(),
+                AppMaterialModule,
                 FormsModule,
                 ChartModule,
                 NgxDatatableModule,

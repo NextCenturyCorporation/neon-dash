@@ -2,7 +2,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { ComponentFactoryResolver } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { MaterialModule } from '@angular/material';
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
@@ -17,6 +16,7 @@ import { DataTableComponent } from '../data-table/data-table.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {AppMaterialModule} from '../../app.material.module';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -37,8 +37,7 @@ describe('Component: VisualizationInjector', () => {
             ],
             providers: [ComponentFactoryResolver],
             imports: [
-                MaterialModule,
-                MaterialModule.forRoot(),
+                AppMaterialModule,
                 FormsModule,
                 ChartModule,
                 NgxDatatableModule,
