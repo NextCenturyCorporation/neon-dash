@@ -948,9 +948,9 @@ export class TimelineSelectorChart {
         if (focusData.length > 0 && focusData[0].date <= datum.date &&
                 datum.date <= focusData[focusData.length - 1].date) {
             if (this.data.focusGranularityDifferent) {
-                let bucketIndex = this.data.bucketizer.getBucketIndex(datum.date);
-                let startDate = this.data.primarySeries.data[bucketIndex].date;
-                let endDate = this.data.primarySeries.data[bucketIndex + 1].date;
+                let startDate = this.data.bucketizer.roundDownBucket(datum.date);
+                let endDate = d3.time[this.data.bucketizer.getGranularity()]
+                    .utc.offset(startDate, 1);
                 this.showFocusMultiHighlight(startDate, endDate);
             } else {
                 // Just draw it
