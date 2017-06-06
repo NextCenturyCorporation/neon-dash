@@ -132,11 +132,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
-        console.log('Timeine selection event');
-
-        // this.selection.startDate = startDate;
-        // this.selection.endDate = endDate;
-
         let filter = {
             key: this.active.dateField.columnName,
             startDate: startDate,
@@ -167,7 +162,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     getFilterText(filter) {
-        console.log(filter);
         // I.E. TIMELINE - EARTHQUAKES: 8 AUG 2015 TO 20 DEC 2015
         let database = this.meta.database.name;
         let table = this.meta.table.name;
@@ -287,7 +281,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
         // If we have a bucketizer, use it
         if (this.timelineData.bucketizer) {
-            console.log('Using bucketizer');
             this.timelineData.bucketizer.setStartDate(series.startDate);
             this.timelineData.bucketizer.setEndDate(series.endDate);
 
@@ -319,7 +312,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         } else {
-            console.log('No bucketizer');
             // No bucketizer, just add the data
             for (let row of this.queryData.data) {
                 // Check if this should be in the focus data

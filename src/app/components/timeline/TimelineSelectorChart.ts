@@ -175,7 +175,7 @@ export class TimelineSelectorChart {
     }
 
     addBrushHandler(handler?: Function): void {
-        this.brush.on('brushend', (d, i) => {
+        this.brush.on('brushend', () => {
             if (this.brush) {
                 // If the user clicks on a date inside the brush without moving the brush, change the brush to contain only that date.
                 if (this.hoverIndex >= 0 && this.oldExtent[0]) {
@@ -405,7 +405,6 @@ export class TimelineSelectorChart {
                     }
                 })
                 .on('mouseout', () => {
-                    //console.log('Mousend');
                     this.onHoverEnd();
                 })
                 .on('mousedown', () => {
@@ -473,7 +472,7 @@ export class TimelineSelectorChart {
                         .attr('class', (d) => {
                             return 'bar ' + d.date;
                         })
-                        .attr('style', (d) => {
+                        .attr('style', () => {
                             return style;
                         })
                         .attr('x', (d) => {
@@ -713,7 +712,7 @@ export class TimelineSelectorChart {
                 .attr('class', (d) => {
                     return 'bar ' + d.date;
                 })
-                .attr('style', (d: any) => {
+                .attr('style', () => {
                     return style;
                 })
                 .attr('x', (d) => {
@@ -809,45 +808,6 @@ export class TimelineSelectorChart {
             yAxis: yAxis
         };
     }
-
-    updateFocusChart() {
-        if (this.data.data.length && !this.data.data[0].data) {
-            return;
-        }
-
-        if (this.brush.extent() && this.brush.extent().length >= 2 &&
-            !_.isUndefined(this.brush.extent()[0]) && !_.isUndefined(this.brush.extent()[1])) {
-            this.xFocus.domain(this.brush.extent() as any);
-        } else {
-            this.xFocus.domain(this.xContext.domain());
-        }
-
-        this.xDomain = [this.xFocus.domain()[0], this.xFocus.domain()[1]];
-
-        for (let i = 0; i < this.data.data.length; i++) {
-            let series = this.data.data[i];
-
-            let axis = this.drawFocusChart(series);
-            let y = axis.y;
-
-            let xOffset = this.approximateBarWidth / 2;
-            if (series.type === 'bar') {
-                xOffset = 0;
-            }
-
-            this.svg.selectAll('g.' + series.name + ' .mini-axis')
-                .attr({
-                    x1: 0,
-                    x2: this.width - (xOffset * 2),
-                    y1: y(this.data.logarithmic ? 1 : 0),
-                    y2: y(this.data.logarithmic ? 1 : 0)
-                });
-
-            this.svg.selectAll('.focus-' + series.name + ' g.y.axis.series-y')
-                .call(axis.yAxis);
-        }
-    }
-
 
     updateMask(): void {
         // Snap brush
