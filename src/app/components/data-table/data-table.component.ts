@@ -46,7 +46,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         unsharedFilterField: Object,
         unsharedFilterValue: string
     };
-    private active: {
+    public active: {
         sortField: FieldMetaData,
         andFilters: boolean,
         limit: number,

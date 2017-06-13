@@ -29,7 +29,7 @@ export class LegendComponent implements OnInit,
     OnDestroy {
     @Input() data: LegendItem[];
     @ViewChild('menu') menu: any;
-    private menuIcon: string;
+    public menuIcon: string;
 
     constructor() {
         //private connectionService: ConnectionService, private datasetService: DatasetService, private filterService: FilterService,

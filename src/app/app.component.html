@@ -42,7 +42,7 @@
         </a>
     </md-toolbar>
     <div class="neon-gtd-content" md-fill layout="col">
-        <div [ngGrid]="gridConfig" #grid [style.height]="gridHeight">
+        <div [ngGrid]="gridConfig" #grid >
             <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridConfig" name="item.id" id="item.id">
                 <app-visualization-container [visualization]="gridItems[i]"></app-visualization-container>
                 <ng-content></ng-content>

@@ -12,10 +12,10 @@ import { neonVisualizations } from '../../neon-namespaces';
 })
 export class AddVisualizationComponent implements OnInit {
 
-    private visualizations: any[];
-    private selectedIndex: number = -1;
+    public visualizations: any[];
+    public selectedIndex: number = -1;
 
-    constructor(private activeGridService: ActiveGridService, private themesService: ThemesService,
+    constructor(private activeGridService: ActiveGridService, public themesService: ThemesService,
         public dialogRef: MdDialogRef<AddVisualizationComponent>) {
         this.themesService = themesService;
     }

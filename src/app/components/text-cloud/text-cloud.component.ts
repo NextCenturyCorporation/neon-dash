@@ -28,17 +28,17 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         database: string,
         table: string,
         dataField: string,
-        unsharedFilterField: Object,
+        unsharedFilterField: any,
         unsharedFilterValue: string
     };
-    private active: {
+    public active: {
         dataField: FieldMetaData,
         andFilters: boolean,
         limit: number,
         textColor: string,
         allowsTranslations: boolean,
         filterable: boolean,
-        data: Object[]
+        data: any[]
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -183,11 +183,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.executeQueryChain();
     };
 
-    getDataLayers(): Object[] {
+    getDataLayers(): any[] {
         return [this.active];
     };
 
-    getFilterFields(): Object[] {
+    getFilterFields(): any[] {
         return [this.active.dataField];
     };
 
@@ -341,4 +341,14 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         }
         this.filters = newFilters;
     }
+
+    // These methods must be present for AoT compile
+    requestExport() {}
+
+    handleChangeUnsharedFilterField() {}
+
+    handleChangeUnsharedFilterValue() {}
+
+    handleRemoveUnsharedFilter() {}
+
 }

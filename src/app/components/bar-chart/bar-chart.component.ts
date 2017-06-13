@@ -44,10 +44,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         dataField: string,
         aggregation: string,
         aggregationField: string,
-        unsharedFilterField: Object,
+        unsharedFilterField: any,
         unsharedFilterValue: string
     };
-    private active: {
+    public active: {
         dataField: FieldMetaData,
         aggregationField: FieldMetaData,
         aggregationFieldHidden: boolean,
@@ -55,17 +55,17 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         limit: number,
         filterable: boolean,
         layers: any[],
-        data: Object[],
+        data: any[],
         aggregation: string
     };
 
-    protected chart: {
+    public chart: {
         data: {
             labels: any[],
             datasets: any[]
         },
         type: string,
-        options: Object
+        options: any
     };
 
     private chartDefaults: {

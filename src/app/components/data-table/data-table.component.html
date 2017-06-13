@@ -128,7 +128,7 @@
         </div>
         <div class="chart-container">
             <ngx-datatable #table class="material table" [rows]="active.data" [columns]="active.activeHeaders" [headerHeight]="30" [footerHeight]="0"
-                [rowHeight]="25" [scrollbarH]="true" [scrollbarV]="true" [reorderable]="false" [columnMode]="flex">
+                [rowHeight]="25" [scrollbarH]="true" [scrollbarV]="true" [reorderable]="false" [columnMode]="'flex'">
                 <!--<ngx-datatable-column *ngFor="let c of active.headers" name="{{c.name}}" prop="{{c.prop}}">
                     <template let-column="column" ngx-datatable-header-template>
                             <span >{{column.name}} <md-icon>keyboard_arrow_down</md-icon></span>

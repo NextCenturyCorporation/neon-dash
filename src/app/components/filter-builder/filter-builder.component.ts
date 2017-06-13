@@ -33,7 +33,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         table: string,
     };
 
-    private active: {
+    public active: {
         operators: OperatorMetaData[],
         andor: string,
         whereClauses: WhereClauseMetaData[],

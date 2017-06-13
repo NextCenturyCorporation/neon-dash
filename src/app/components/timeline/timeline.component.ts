@@ -51,7 +51,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         granularity: string,
     };
 
-    private active: {
+    public active: {
         dateField: FieldMetaData,
         granularity: string,
     };

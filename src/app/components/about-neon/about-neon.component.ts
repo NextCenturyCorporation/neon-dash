@@ -30,8 +30,8 @@ export class AboutNeonComponent implements OnInit {
 
     static NEON_GTD_VERSION_FILE: string = './app/config/version.json';
 
-    private serverVersionString: string = 'Unavailable...';
-    private neonGTDVersionString: string = 'Unavailable...';
+    public serverVersionString: string = 'Unavailable...';
+    public neonGTDVersionString: string = 'Unavailable...';
     private serverInfoLoaded: boolean = false;
     private neonGTDVersionLoaded: boolean = false;
 

@@ -66,7 +66,7 @@ export interface CustomDatabase {
 export class DatasetSelectorComponent implements OnInit, OnDestroy {
     public static HIDE_INFO_POPOVER: string = 'sr-only';
 
-    private datasets: Dataset[] = [];
+    public datasets: Dataset[] = [];
     private datasetName: string = '';
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';

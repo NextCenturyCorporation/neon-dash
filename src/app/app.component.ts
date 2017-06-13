@@ -41,15 +41,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild(NgGrid) grid: NgGrid;
 
     // Used to determine which pane is show in the right sidenav
-    private showAbout: boolean = true;
-    private showAddVisualizationButton: boolean = false;
-    private showFilterTrayButton: boolean = false;
+    public showAbout: boolean = true;
+    public showAddVisualizationButton: boolean = false;
+    public showFilterTrayButton: boolean = false;
 
-    private gridItems: NeonGridItem[] = [];
+    public gridItems: NeonGridItem[] = [];
 
-    private datasets: Dataset[] = [];
+    public datasets: Dataset[] = [];
 
-    private gridConfig: NgGridConfig = {
+    public gridConfig: NgGridConfig = {
         'resizable': true,
         'margins': [0, 0, 10, 10],
         'min_cols': 1,
@@ -72,7 +72,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     private filterTrayDialogRef: MdDialogRef<FilterTrayComponent>;
 
 
-    constructor(private datasetService: DatasetService, private themesService: ThemesService,
+    constructor(public datasetService: DatasetService, public themesService: ThemesService,
         private activeGridService: ActiveGridService, public dialog: MdDialog, public viewContainerRef: ViewContainerRef) {
         // TODO: Default to false and set to true only after a dataset has been selected.
         this.showAddVisualizationButton = true;

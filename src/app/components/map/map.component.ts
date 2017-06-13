@@ -53,7 +53,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         unsharedFilterField: Object,
         unsharedFilterValue: string
     };
-    private active: {
+    public active: {
         latitudeField: FieldMetaData,
         longitudeField: FieldMetaData,
         sizeField: FieldMetaData,
@@ -66,7 +66,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         data: Object[]
     };
 
-    private selection: {
+    public selection: {
         selectionDown: boolean,
         startY: number,
         startX: number,
@@ -80,12 +80,12 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         width: number,
         x: number,
         y: number,
-        //showSelection: boolean
+        showSelection: boolean,
         selectionGeometry: any,
         rectangle: any
     };
 
-    private legendData: LegendItem[];
+    public legendData: LegendItem[];
 
     private colorSchemeService: ColorSchemeService;
 
@@ -143,6 +143,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             width: 0,
             x: 0,
             y: 0,
+            showSelection: false,
             selectionGeometry: null,
             rectangle: null
         };

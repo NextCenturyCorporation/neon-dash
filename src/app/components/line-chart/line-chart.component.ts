@@ -51,7 +51,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         unsharedFilterField: Object,
         unsharedFilterValue: string
     };
-    private active: {
+    public active: {
         dateField: FieldMetaData,
         aggregationField: FieldMetaData,
         aggregationFieldHidden: boolean,
@@ -71,7 +71,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         inactiveColor: string
     };
 
-    private selection: {
+    public selection: {
         mouseDown: boolean
         startX: number,
         height: number,
@@ -85,7 +85,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         endDate: Date
     };
 
-    protected chart: {
+    public chart: {
         data: {
             labels: any[],
             datasets: any[]

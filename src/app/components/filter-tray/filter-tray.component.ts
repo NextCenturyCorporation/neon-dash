@@ -15,12 +15,12 @@ import * as _ from 'lodash';
 export class FilterTrayComponent implements OnInit, OnDestroy {
 
     private messenger: neon.eventing.Messenger;
-    private filters: {
+    public filters: {
         raw: any[],
         formatted: any[]
     };
 
-    constructor(private filterService: FilterService, private themesService: ThemesService,
+    constructor(private filterService: FilterService, public themesService: ThemesService,
         public dialogRef: MdDialogRef<FilterTrayComponent>) {
         this.messenger = new neon.eventing.Messenger();
         this.themesService = themesService;

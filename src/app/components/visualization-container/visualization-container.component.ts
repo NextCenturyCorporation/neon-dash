@@ -10,8 +10,8 @@ import { NeonGridItem } from '../../neon-grid-item';
 })
 export class VisualizationContainerComponent implements OnInit {
 
-    private expanded: boolean;
-    private showToolbar: boolean;
+    public expanded: boolean;
+    public showToolbar: boolean;
 
     @Input() visualization: NeonGridItem;
 

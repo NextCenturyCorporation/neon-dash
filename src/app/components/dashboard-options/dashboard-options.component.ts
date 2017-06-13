@@ -34,7 +34,7 @@ import * as neon from 'neon-framework';
   styleUrls: ['./dashboard-options.component.scss']
 })
 export class DashboardOptionsComponent implements OnInit {
-    private formData: any = {
+    public formData: any = {
         exportFormat: 0,
         currentTheme: 'neon-green-theme',
         newStateName: '',
@@ -46,14 +46,14 @@ export class DashboardOptionsComponent implements OnInit {
     private filterStateId: string = '';
     private isLoading: boolean = false;
     private messenger: neon.eventing.Messenger;
-    private stateNames: string[] = [];
+    public stateNames: string[] = [];
     private stateName: string = '';
     private stateNameError: boolean = false;
 
     constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
-        private errorNotificationService: ErrorNotificationService, private exportService: ExportService,
+        private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
         private mdSnackBar: MdSnackBar, private parameterService: ParameterService,
-        private themesService: ThemesService, private viewContainerRef: ViewContainerRef) { }
+        public themesService: ThemesService, private viewContainerRef: ViewContainerRef) { }
 
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
