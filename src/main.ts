@@ -13,7 +13,7 @@ import {
     XHRBackend,
     XSRFStrategy
 } from '@angular/http';
-import { environment } from './app/environments/environment';
+import { environment } from './environments/environment';
 import { AppModule } from './app/app.module';
 import * as yaml from 'js-yaml';
 import * as neon from 'neon-framework';
@@ -31,6 +31,10 @@ const HTTP_PROVIDERS = [
     XHRBackend,
     {provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy()},
 ];
+
+if (environment.production) {
+    enableProdMode();
+}
 
 // Since angular isn't bootstrapped, the platform browser isn't setup properly for cookies.
 // Since we're not using them, mock the cookie provider
@@ -72,10 +76,6 @@ function loadConfigYaml() {
 function bootstrapWithData(config) {
   window['appConfig'] = config;
   return platformBrowserDynamic().bootstrapModule(AppModule);
-}
-
-if (environment.production) {
-    enableProdMode();
 }
 
 neon.ready(function() {
