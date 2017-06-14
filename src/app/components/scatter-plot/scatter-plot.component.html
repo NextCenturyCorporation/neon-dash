@@ -27,13 +27,13 @@
                 </md-select>
                 <p></p>
 
-                <md-select placeholder="X Adix Field" [(ngModel)]="active.xField" required="true" (ngModelChange)="handleChangeXField()"
+                <md-select placeholder="X Axis Field" [(ngModel)]="active.xField" required="true" (ngModelChange)="handleChangeXField()"
                     [disabled]="meta.fields.length == 0">
                     <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
                 <p></p>
 
-                <md-select placeholder="Y Adix Field" [(ngModel)]="active.yField" required="true" (ngModelChange)="handleChangeYField()"
+                <md-select placeholder="Y Axis Field" [(ngModel)]="active.yField" required="true" (ngModelChange)="handleChangeYField()"
                     [disabled]="meta.fields.length == 0">
                     <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
                 </md-select>
