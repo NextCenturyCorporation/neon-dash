@@ -21,7 +21,8 @@ import {DateBucketizer} from '../bucketizers/DateBucketizer';
 import {LegendItem} from '../legend/legend.component';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {ChartModule} from 'angular2-chartjs';
-import * as moment from 'moment';
+import * as momentOrig from 'moment';
+import * as moment from 'moment-timezone';
 declare var Chart: any;
 
 @Component({
@@ -119,7 +120,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             aggregationFieldHidden: true,
             groupField: new FieldMetaData(),
             andFilters: true,
-            limit: 1000,
+            limit: 10000,
             filterable: true,
             layers: [],
             data: [],
@@ -185,6 +186,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
         let tooltipTitleFunc = (tooltips) => {
             let index = tooltips[0].index;
+            let dsIndex = tooltips[0].datasetIndex;
             // Chart.js uses moment to format the date axis, so use moment for the tooltips as well
             let date = moment(this.active.dateBucketizer.getDateForBucket(index));
             // 'll' is the locale-specific format for displaying month, day, and year in an
@@ -194,7 +196,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 // locale-specific format that shows time
                 format = 'lll';
             }
-            let title = date.format(format);
+            let title = this.chart.data.datasets[dsIndex].label + ' - ' +date.tz("GMT").format(format);
             return title;
         };
         let tooltipDataFunc = (tooltips) => {
@@ -398,6 +400,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         }
         groupBys.push(groupField);
         query = query.groupBy(groupBys);
+        //query = query.sortBy('value', neon.query['DESCENDING']);
+        //we assume sorted by date later to get min and max date!
         query = query.sortBy('date', neon.query['ASCENDING']);
         query = query.where(whereClause);
         query = query.limit(this.active.limit);
@@ -431,6 +435,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.chartModule['chart'].destroy();
         this.chartModule['chart'] = new Chart(ctx, this.chart);
         //this.chartModule['chart'].reset();
+        let tmpLimit = 15;
         if (response.data.length === 0) {
             return;
         }
@@ -447,6 +452,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let length = bucketizer.getNumBuckets();
         let fillValue = (this.active.aggregation === 'count' ? 0 : null);
         let numDatasets = 0;
+        let totals = {}
         for (let row of response.data) {
             if (row[dataSetField]) {
                 let dataSet = row[dataSetField];
@@ -454,13 +460,19 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 let ds = myData[dataSet];
                 if (!ds) {
                     myData[dataSet] = new Array(length).fill(fillValue);
+                    totals[dataSet] = 0;
                     numDatasets++;
                 }
                 myData[dataSet][idx] = row.value;
+                totals[dataSet] += row.value;
+                //if (numDatasets > tmpLimit){
+                //  break;
+                //}
             }
         }
         let datasets = []; // TODO type to chartjs
         let datasetIndex = 0;
+
         for (let datasetName in myData) {
             if (myData.hasOwnProperty(datasetName)) {
                 let d = {
@@ -469,11 +481,18 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                     borderColor: this.getColorFromScheme(datasetIndex),
                     pointBorderColor: this.getColorFromScheme(datasetIndex),
                     backgroundColor: 'rgba(0,0,0,0)',
-                    pointBackgroundColor: 'rgba(0,0,0,0)'
+                    pointBackgroundColor: 'rgba(0,0,0,0)',
+                    total: totals[datasetName]
                 };
                 datasets.push(d);
                 datasetIndex++;
             }
+        }
+        datasets = datasets.sort((a, b) => {
+            return b.total - a.total;
+        });
+        if (datasets.length > tmpLimit){
+            datasets = datasets.slice(0, tmpLimit);
         }
         let labels = new Array(length);
         for (let i = 0; i < length; i++) {
