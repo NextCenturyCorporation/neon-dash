@@ -201,7 +201,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = neon.query.where(this.active.sortField.columnName, '!=', null);
         //let dataField = this.active.dataField.columnName;
-        return query.where(whereClause).sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
+        return query.where(whereClause).sortBy(this.active.sortField.columnName, neon.query['DESCENDING']).limit(this.active.limit);
     };
 
     getFiltersToIgnore() {
