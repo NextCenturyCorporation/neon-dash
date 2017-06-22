@@ -79,7 +79,7 @@ function bootstrapWithData(config) {
 }
 
 neon.ready(function() {
-  neon.setNeonServerUrl('http://localhost:4200/neon');
+  neon.setNeonServerUrl('/neon');
   loadConfigYaml().then(config => bootstrapWithData(config))
     .catch(handleConfigYamlError);
 });
