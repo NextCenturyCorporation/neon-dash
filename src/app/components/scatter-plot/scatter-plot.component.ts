@@ -160,6 +160,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 maintainAspectRatio: false,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
                 onClick: this.onClick.bind(this),
+                animation: {
+                  duration: 0, // general animation time
+                },
                 hover: {
                     mode: 'point',
                     intersect: false,
@@ -182,7 +185,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.scatter.options['legend'] = {};
         this.scatter.options['legend'].display = false;
         let tooltipTitleFunc = (tooltips) => {
-            console.log(tooltips.length);
+            //console.log(tooltips.length);
             let title = this.active.pointLabels[tooltips[0].index];
             return title;
         };
@@ -531,6 +534,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.active.xAxisIsNumeric = xAxisIsNumeric;
         this.active.yAxisIsNumeric = yAxisIsNumeric;
         this.chartModule['chart'] = new Chart(ctx, this.scatter);
+
         this.refreshVisualization();
 
         this.queryTitle = 'Scatter Plot: ' + this.active.xField.prettyName + ' vs ' + this.active.yField.prettyName;

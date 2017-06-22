@@ -121,6 +121,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 maintainAspectRatio: false,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
                 onClick: this.onClick,
+                animation: {
+                  duration: 0, // general animation time
+                },
                 hover: {
                     mode: 'point',
                     onHover: null

@@ -483,6 +483,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         return color;
     }
 
+    isNumeric(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+
     onQuerySuccess(response) {
         // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
         // TODO break this function into smaller bits so it is more understandable.
@@ -521,17 +525,21 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             } else {
                 color = Cesium.Color.Blue;
             }
-            let entity = {
-                position: Cesium.Cartesian3.fromDegrees(point[lngField], point[latField]),
-                point: {
-                    show: true, // default
-                    color: color, // default: WHITE
-                    pixelSize: 4, // default: 1
-                    outlineColor: color, // default: BLACK
-                    outlineWidth: 0 // default: 0
-                }
-            };
-            entities.add(entity);
+            let lngCoord = point[lngField];
+            let latCoord = point[latField];
+            if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
+                let entity = {
+                    position: Cesium.Cartesian3.fromDegrees(lngCoord, latCoord),
+                    point: {
+                        show: true, // default
+                        color: color, // default: WHITE
+                        pixelSize: 4, // default: 1
+                        outlineColor: color, // default: BLACK
+                        outlineWidth: 0 // default: 0
+                    }
+                };
+                entities.add(entity);
+            }
         }
         //console.log(response);
         this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';

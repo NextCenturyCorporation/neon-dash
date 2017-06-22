@@ -92,7 +92,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             datasets: any[]
         },
         type: string,
-        options: Object
+        options: Object,
     };
 
     private colorSchemeService: ColorSchemeService;
@@ -165,6 +165,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 maintainAspectRatio: false,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
                 onClick: null,
+                animation: {
+                  duration: 0, // general animation time
+                },
                 hover: {
                     mode: 'index',
                     intersect: false,
@@ -196,7 +199,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 // locale-specific format that shows time
                 format = 'lll';
             }
-            let title = this.chart.data.datasets[dsIndex].label + ' - ' +date.tz("GMT").format(format);
+            let title = this.chart.data.datasets[dsIndex].label + ' - ' + date.tz('GMT').format(format);
             return title;
         };
         let tooltipDataFunc = (tooltips) => {
@@ -452,7 +455,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let length = bucketizer.getNumBuckets();
         let fillValue = (this.active.aggregation === 'count' ? 0 : null);
         let numDatasets = 0;
-        let totals = {}
+        let totals = {};
         for (let row of response.data) {
             if (row[dataSetField]) {
                 let dataSet = row[dataSetField];
@@ -491,7 +494,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         datasets = datasets.sort((a, b) => {
             return b.total - a.total;
         });
-        if (datasets.length > tmpLimit){
+        if (datasets.length > tmpLimit) {
             datasets = datasets.slice(0, tmpLimit);
         }
         let labels = new Array(length);
