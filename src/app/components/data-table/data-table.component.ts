@@ -226,7 +226,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
     }
 
     objectToString(base) {
-        return 'Object';
+        return '';
     }
 
     toCellString(base, type) {
