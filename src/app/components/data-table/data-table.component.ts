@@ -208,8 +208,61 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         return null;
     }
 
+    arrayToString(arr) {
+        let modArr = arr
+        .filter(function(el) {
+            return el; // && !(typeof el === 'object');
+        })
+            .map(function (base) {
+                if ((typeof base === 'object')) {
+                    return this.objectToString(base);
+                } else if (Array.isArray(base)) {
+                    return this.arrayToString(base);
+                } else {
+                    return base;
+                }
+        });
+        return '[' + modArr + ']';
+    }
+
+    objectToString(base) {
+        return 'Object';
+    }
+
+    toCellString(base, type) {
+        if (base === null) {
+            return '';
+        } else if (Array.isArray(base)) {
+            return this.arrayToString(base);
+        } else if (typeof base === 'object') {
+            return this.objectToString(base);
+        } else {
+            return base;
+        }
+    }
+
+    deepFind (obj, pathStr) {
+        for (let i = 0, path = pathStr.split('.'), len = path.length; i < len; i++) {
+            obj = obj[path[i]];
+            if (!obj) {
+                return undefined;
+            }
+        };
+        return obj;
+    }
+
     onQuerySuccess(response): void {
-        this.active.data = response.data;
+        //this.active.data = response.data.map(this.normalizeObject.bind(this));
+        let data = response.data.map(function (d) {
+            let row = {};
+            for (let field of this.meta.fields)  {
+                if (field.type) {
+                    row[field.columnName] = this.toCellString(this.deepFind(d, field.columnName), field.type);
+                }
+            }
+            return row;
+        }.bind(this));
+        this.active.data = data;
         this.refreshVisualization();
     }
 

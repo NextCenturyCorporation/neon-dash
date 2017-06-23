@@ -694,6 +694,7 @@ export class DatasetService {
         let databaseIndex = index ? index : 0;
         let database = dataset.databases[databaseIndex];
         let me = this;
+        let pendingTypesRequests = 0;
         connection.getTableNamesAndFieldNames(database.name, function(tableNamesAndFieldNames) {
             Object.keys(tableNamesAndFieldNames).forEach(function(tableName: string) {
                 let table = _.find(database.tables, function(item: TableMetaData) {
@@ -705,7 +706,6 @@ export class DatasetService {
                     table.fields.forEach(function(field: FieldMetaData) {
                         hasField[field.columnName] = true;
                     });
-
                     tableNamesAndFieldNames[tableName].forEach(function(fieldName: string) {
                         if (!hasField[fieldName]) {
                             let newField: FieldMetaData = {
@@ -716,14 +716,28 @@ export class DatasetService {
                             table.fields.push(newField);
                         }
                     });
+                    pendingTypesRequests++;
+                    connection.getFieldTypes (database.name, table.name, function(types) {
+                        //console.log(types);
+                        for (let f of table.fields) {
+                            if (types && types[f.columnName]) {
+                                f.type = types[f.columnName];
+                            }
+                        }
+                        pendingTypesRequests--;
+                        if (dataset.hasUpdatedFields && pendingTypesRequests === 0) {
+                            callback(dataset);
+                        }
+                    });
                 }
             });
-
             if (++databaseIndex < dataset.databases.length) {
                 me.updateDatabases(dataset, connection, callback, databaseIndex);
             } else if (callback) {
                 dataset.hasUpdatedFields = true;
-                callback(dataset);
+                if (pendingTypesRequests === 0) {
+                    callback(dataset);
+                }
             }
         });
     }
