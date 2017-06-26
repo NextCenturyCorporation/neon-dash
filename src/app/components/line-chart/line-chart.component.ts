@@ -18,6 +18,8 @@ import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 //import * as _ from 'lodash';
 import {DateBucketizer} from '../bucketizers/DateBucketizer';
+import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
+import {YearBucketizer} from '../bucketizers/YearBucketizer';
 import {LegendItem} from '../legend/legend.component';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {ChartModule} from 'angular2-chartjs';
@@ -63,7 +65,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         layers: any[],
         data: Object[],
         aggregation: string,
-        dateBucketizer: DateBucketizer,
+        dateBucketizer: any,
         granularity: string
     };
 
@@ -195,9 +197,19 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             // 'll' is the locale-specific format for displaying month, day, and year in an
             // abbreviated format. See "Localized formats" in http://momentjs.com/docs/#/displaying/format/
             let format = 'll';
-            if (this.active.granularity === 'hour') {
-                // locale-specific format that shows time
-                format = 'lll';
+            switch (this.active.granularity) {
+                case 'hour':
+                    format = 'lll';
+                    break;
+                case 'day':
+                    format = 'll';
+                    break;
+                case 'month':
+                    format = 'MMM YYYY';
+                    break;
+                case 'year':
+                    format = 'YYYY';
+                    break;
             }
             let title = this.chart.data.datasets[dsIndex].label + ' - ' + date.tz('GMT').format(format);
             return title;
@@ -395,12 +407,26 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let groupField = this.active.groupField.columnName;
         query = query.aggregate(neon.query['MIN'], dateField, 'date');
         let groupBys: any[] = [];
-        groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
-        groupBys.push(new neon.query.GroupByFunctionClause('month', dateField, 'month'));
-        groupBys.push(new neon.query.GroupByFunctionClause('dayOfMonth', dateField, 'day'));
-        if (this.active.granularity === 'hour') {
-            groupBys.push(new neon.query.GroupByFunctionClause('hour', dateField, 'hour'));
+        switch (this.active.granularity) {
+            case 'hour':
+                groupBys.push(new neon.query.GroupByFunctionClause('hour', dateField, 'hour'));
+                /* falls through */
+            case 'day':
+                groupBys.push(new neon.query.GroupByFunctionClause('dayOfMonth', dateField, 'day'));
+                /* falls through */
+            case 'month':
+                groupBys.push(new neon.query.GroupByFunctionClause('month', dateField, 'month'));
+                /* falls through */
+            case 'year':
+                groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
+                /* falls through */
         }
+        //groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
+        //groupBys.push(new neon.query.GroupByFunctionClause('month', dateField, 'month'));
+        //groupBys.push(new neon.query.GroupByFunctionClause('dayOfMonth', dateField, 'day'));
+        //if (this.active.granularity === 'hour') {
+        //    groupBys.push(new neon.query.GroupByFunctionClause('hour', dateField, 'hour'));
+        //}
         groupBys.push(groupField);
         query = query.groupBy(groupBys);
         //query = query.sortBy('value', neon.query['DESCENDING']);
@@ -435,8 +461,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     onQuerySuccess(response) {
         // need to reset chart when data potentially changes type (or number of datasets)
         let ctx = this.chartModule['chart'].chart.ctx;
-        this.chartModule['chart'].destroy();
-        this.chartModule['chart'] = new Chart(ctx, this.chart);
+        //this.chartModule['chart'].destroy();
+        //this.chartModule['chart'] = new Chart(ctx, this.chart);
         //this.chartModule['chart'].reset();
         let tmpLimit = 15;
         if (response.data.length === 0) {
@@ -447,9 +473,24 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let myData = {};
         let startDate = response.data[0].date;
         let endDate = response.data[response.data.length - 1].date;
-        this.active.dateBucketizer = new DateBucketizer();
+        switch (this.active.granularity) {
+            case 'hour':
+                this.active.dateBucketizer = new DateBucketizer();
+                this.active.dateBucketizer.setGranularity(DateBucketizer.HOUR);
+                break;
+            case 'day':
+                this.active.dateBucketizer = new DateBucketizer();
+                this.active.dateBucketizer.setGranularity(DateBucketizer.DAY);
+                break;
+            case 'month':
+                this.active.dateBucketizer = new MonthBucketizer();
+                break;
+            case 'year':
+                this.active.dateBucketizer = new YearBucketizer();
+                break;
+        }
+        //this.active.dateBucketizer = new DateBucketizer();
         let bucketizer = this.active.dateBucketizer;
-        bucketizer.setGranularity(this.active.granularity === 'hour' ? DateBucketizer.HOUR : DateBucketizer.DAY);
         bucketizer.setStartDate(new Date(startDate));
         bucketizer.setEndDate(new Date(endDate));
         let length = bucketizer.getNumBuckets();
@@ -501,10 +542,19 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         for (let i = 0; i < length; i++) {
             let date = bucketizer.getDateForBucket(i);
             let dateString = null;
-            if (this.active.granularity === 'hour') {
-                dateString = this.dateToIsoDayHour(date);
-            } else {
-                dateString = this.dateToIsoDay(date);
+            switch (this.active.granularity) {
+                case 'hour':
+                    dateString = this.dateToIsoDayHour(date);
+                    break;
+                case 'day':
+                    dateString = this.dateToIsoDay(date);
+                    break;
+                case 'month':
+                    dateString = this.dateToIsoMonth(date);
+                    break;
+                case 'year':
+                    dateString = this.dateToIsoYear(date);
+                    break;
             }
             labels[i] = dateString;
             //   labels[i] = date.toUTCString();
@@ -568,6 +618,17 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let day: String = String(date.getUTCDate());
         day = (tmp < 10 ? '0' + day : day);
         return date.getUTCFullYear() + '-' + month + '-' + day;
+    }
+
+    dateToIsoMonth(date: Date): string {
+        let tmp: number = date.getUTCMonth() + 1;
+        let month: String = String(tmp);
+        month = (tmp < 10 ? '0' + month : month);
+        return date.getUTCFullYear() + '-' + month;
+    }
+
+    dateToIsoYear(date: Date): string {
+        return '' + date.getUTCFullYear();
     }
 
     handleChangeAggregation() {
