@@ -174,6 +174,16 @@ export class TimelineSelectorChart {
         return elemHeight > 0 ? elemHeight : DEFAULT_HEIGHT;
     }
 
+    determineTop(): number {
+        let elemTop = this.element.nativeElement.getBoundingClientRect().top;
+        return elemTop > 0 ? elemTop : 0;
+    }
+
+    determineLeft(): number {
+        let elemLeft = this.element.nativeElement.getBoundingClientRect().left;
+        return elemLeft > 0 ? elemLeft : 0;
+    }
+
     addBrushHandler(handler?: Function): void {
         this.brush.on('brushend', () => {
             if (this.brush) {
@@ -897,7 +907,7 @@ export class TimelineSelectorChart {
      * Performs behavior for hovering over the given datum at the given context timeline index.
      */
     onHover(datum: TimelineItem): void {
-        this.showTooltip(datum, this.xContext, this.yContext);
+        this.showTooltip(datum, d3.event);
         this.clearHighlights();
 
         // Show highlights
@@ -933,7 +943,7 @@ export class TimelineSelectorChart {
             bucketData = this.data.primarySeries.data[index];
         }
 
-        this.showTooltip(datum, this.xFocus, this.yFocus);
+        this.showTooltip(datum, d3.event);
         this.clearHighlights();
 
         this.showHighlight(bucketData,
@@ -988,7 +998,7 @@ export class TimelineSelectorChart {
         this.contextHighlight.style('visibility', 'hidden');
     }
 
-    showTooltip(item: TimelineItem, xRange, yRange): void {
+    showTooltip(item: TimelineItem, mouseEvent): void {
         let count = d3.format('0,000.00')(item.value);
         // Only show the part of the date that makes sense for the selected granularity
         let dateFormat = this.dateFormats[this.data.granularity];
@@ -1005,36 +1015,27 @@ export class TimelineSelectorChart {
         $(TOOLTIP_ID).show();
 
         // Calculate the tooltip position
-        let xPosition = xRange(item.date);
         let MIN_VALUE = this.data.logarithmic ? 1 : 0;
-        let width = xRange(d3.time[this.data.granularity].utc.offset(item.date, 1)) - xPosition;
-        let yPosition = yRange(Math.max(MIN_VALUE, item.value));
-        let height = Math.abs(yRange(item.value) - yRange(MIN_VALUE));
 
-        // Pad the x position by 10px
-        xPosition = xPosition + width + 10;
-        // Pad y position by 5
-        yPosition = yPosition + height + 5;
-
-        this.positionTooltip(d3.select(TOOLTIP_ID), xPosition, yPosition);
+        this.positionTooltip(d3.select(TOOLTIP_ID), mouseEvent);
     }
 
-    positionTooltip(tooltip, x: number, y: number): void {
+    positionTooltip(tooltip, mouseEvent): void {
         let tooltipElement = $(TOOLTIP_ID);
-        let attributeLeft = x + 15;
         let tooltipWidth = tooltipElement.outerWidth(true);
         let tooltipHeight = tooltipElement.outerHeight(true);
-        y += tooltipHeight / 2;
+        let attributeLeft = mouseEvent.pageX - this.determineLeft() + 10;
+        let attributeTop = mouseEvent.pageY - this.determineTop() + (tooltipHeight / 2) - 15;
 
         if ((attributeLeft + tooltipWidth) > this.determineWidth()) {
             tooltipElement.removeClass('east');
             tooltipElement.addClass('west');
-            tooltip.style('top', (y + 'px'))
+            tooltip.style('top', (attributeTop + 'px'))
                 .style('left', (attributeLeft - tooltipWidth - 30) + 'px');
         } else {
             tooltipElement.removeClass('west');
             tooltipElement.addClass('east');
-            tooltip.style('top', (y + 'px'))
+            tooltip.style('top', (attributeTop + 'px'))
                 .style('left', attributeLeft + 'px');
         }
     }
