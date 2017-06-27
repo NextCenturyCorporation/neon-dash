@@ -207,7 +207,10 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
     }
 
     subNgOnDestroy() {
-        //do nothing
+        if (this.cesiumViewer) {
+            // This must be called to stop Cesium's event loop
+            this.cesiumViewer.destroy();
+        }
     };
 
     getOptionFromConfig(field) {
