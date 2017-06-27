@@ -61,6 +61,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         groupField: FieldMetaData,
         andFilters: boolean,
         limit: number,
+        groupLimit: number,
         filterable: boolean,
         layers: any[],
         data: Object[],
@@ -123,6 +124,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             groupField: new FieldMetaData(),
             andFilters: true,
             limit: 10000,
+            groupLimit: 10,
             filterable: true,
             layers: [],
             data: [],
@@ -464,7 +466,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         //this.chartModule['chart'].destroy();
         //this.chartModule['chart'] = new Chart(ctx, this.chart);
         //this.chartModule['chart'].reset();
-        let tmpLimit = 15;
+        let tmpLimit = this.active.groupLimit;
         if (response.data.length === 0) {
             return;
         }

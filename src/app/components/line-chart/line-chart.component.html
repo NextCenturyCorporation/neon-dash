@@ -69,6 +69,23 @@
                         Hour
                     </md-button-toggle>
                 </md-button-toggle-group>
+                <p></p>
+
+                <table cellspacing="0">
+                    <tr>
+                        <td>
+                            <md-input-container>
+                                <input mdInput placeholder="Group Limit" [(ngModel)]="active.groupLimit" required="true">
+                            </md-input-container>
+                        </td>
+                        <td>
+                            <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                                <md-icon class="mat-24">refresh</md-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <p></p>
                 <!--
                 <table cellspacing="0">
                     <tr>
