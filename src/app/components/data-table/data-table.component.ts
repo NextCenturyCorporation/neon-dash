@@ -6,7 +6,8 @@ import {
     ChangeDetectionStrategy,
     Injector,
     ViewChild,
-    ElementRef
+    ElementRef,
+    ChangeDetectorRef
 } from '@angular/core';
 import {ConnectionService} from '../../services/connection.service';
 import {DatasetService} from '../../services/dataset.service';
@@ -24,7 +25,8 @@ import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
     selector: 'app-data-table',
     templateUrl: './data-table.component.html',
     styleUrls: ['./data-table.component.scss'],
-    encapsulation: ViewEncapsulation.Emulated, changeDetection: ChangeDetectionStrategy.Default
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
@@ -66,11 +68,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         x: number,
         y: number,
     };
-
+    public changeDetection: ChangeDetectorRef;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService);
+        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -130,6 +132,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
 
     recalculateActiveHeaders() {
         this.active.activeHeaders = this.getActiveHeaders();
+        this.active = Object.assign({}, this.active);
+        this.changeDetection.detectChanges();
     }
 
     getActiveHeaders() {
@@ -144,6 +148,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
 
     closeColumnSelector() {
         this.active.showColumnSelector = 'hide';
+        this.active = Object.assign({}, this.active);
+        this.changeDetection.detectChanges();
     }
 
     logAndDisplay(obj) {
@@ -184,6 +190,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
 
     refreshVisualization() {
         this.table.recalculate();
+        this.active = Object.assign({}, this.active);
     }
 
     isValidQuery() {

@@ -5,7 +5,8 @@ import {
     ViewEncapsulation,
     ChangeDetectionStrategy,
     Injector,
-    ViewChild
+    ViewChild,
+    ChangeDetectorRef
 } from '@angular/core';
 import {ConnectionService} from '../../services/connection.service';
 import {DatasetService} from '../../services/dataset.service';
@@ -28,7 +29,8 @@ declare var Chart: any;
     selector: 'app-scatter-plot',
     templateUrl: './scatter-plot.component.html',
     styleUrls: ['./scatter-plot.component.scss'],
-    encapsulation: ViewEncapsulation.Emulated, changeDetection: ChangeDetectionStrategy.Default
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
@@ -90,8 +92,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     private colorSchemeService: ColorSchemeService;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService);
+        exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -314,6 +316,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             //
         }
         this.stopEventPropagation(event);
+        this.changeDetection.detectChanges();
     }
 
     getFilterFromSelectionPositions() {

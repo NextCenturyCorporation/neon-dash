@@ -6,6 +6,7 @@ import {
     ViewEncapsulation,
     ChangeDetectionStrategy,
     Injector, ElementRef, ViewChild, HostListener,
+    ChangeDetectorRef
 } from '@angular/core';
 import {ConnectionService} from '../../services/connection.service';
 import {DatasetService} from '../../services/dataset.service';
@@ -30,7 +31,8 @@ declare let d3;
     selector: 'app-timeline',
     templateUrl: './timeline.component.html',
     styleUrls: ['./timeline.component.scss'],
-    encapsulation: ViewEncapsulation.None, changeDetection: ChangeDetectionStrategy.Default
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent extends BaseNeonComponent implements OnInit,
         OnDestroy {
@@ -76,8 +78,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     private timelineData: TimelineData;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService);
+        exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),

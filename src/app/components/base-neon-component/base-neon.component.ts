@@ -1,7 +1,8 @@
 import {
     OnInit,
     OnDestroy,
-    Injector
+    Injector,
+    ChangeDetectorRef
 } from '@angular/core';
 import {ConnectionService} from '../../services/connection.service';
 import {DatasetService} from '../../services/dataset.service';
@@ -41,7 +42,8 @@ export abstract class BaseNeonComponent implements OnInit,
         protected filterService: FilterService,
         private exportService: ExportService,
         protected injector: Injector,
-        public themesService: ThemesService) {
+        public themesService: ThemesService,
+        public changeDetection: ChangeDetectorRef) {
         //These assignments just eliminated unused warnings that occur even though the arguments are
         //automatically assigned to instance variables.
         this.exportService = this.exportService;
@@ -49,6 +51,7 @@ export abstract class BaseNeonComponent implements OnInit,
         this.connectionService = this.connectionService;
         this.injector = this.injector;
         this.themesService = themesService;
+        this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
 
         this.meta = {
@@ -161,6 +164,7 @@ export abstract class BaseNeonComponent implements OnInit,
         this.meta.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
 
         this.onUpdateFields();
+        //this.changeDetection.detectChanges();
     };
 
     abstract onUpdateFields();
@@ -206,6 +210,7 @@ export abstract class BaseNeonComponent implements OnInit,
             () => {
                 console.log('filter failed to set');
             });
+        this.changeDetection.detectChanges();
     };
 
     createTitle(resetQueryTitle?: boolean): string {
@@ -256,6 +261,11 @@ export abstract class BaseNeonComponent implements OnInit,
     abstract onQuerySuccess(response): void;
     abstract refreshVisualization(): void;
 
+    baseOnQuerySuccess(response) {
+        this.onQuerySuccess(response);
+        this.changeDetection.detectChanges();
+    }
+
     executeQuery(query: neon.query.Query) {
         let me = this;
         let database = this.meta.database.name;
@@ -285,7 +295,7 @@ export abstract class BaseNeonComponent implements OnInit,
             me.outstandingDataQuery[database][table] = undefined;
         });
 
-        this.outstandingDataQuery[database][table].done(this.onQuerySuccess.bind(this));
+        this.outstandingDataQuery[database][table].done(this.baseOnQuerySuccess.bind(this));
 
         this.outstandingDataQuery[database][table].fail(function(response) {
             console.error(response);
@@ -369,11 +379,12 @@ export abstract class BaseNeonComponent implements OnInit,
                     }
                 }
                 //console.log('remove filter' + value);
+                this.changeDetection.detectChanges();
             },
             () => {
                 console.error('error removing filter');
             }, this.messenger);
-
+        this.changeDetection.detectChanges();
     };
 
     getButtonText() {

@@ -5,7 +5,8 @@ import {
     ViewEncapsulation,
     ChangeDetectionStrategy,
     Injector,
-    ViewChild
+    ViewChild,
+    ChangeDetectorRef
 } from '@angular/core';
 import {ConnectionService} from '../../services/connection.service';
 import {DatasetService} from '../../services/dataset.service';
@@ -31,7 +32,8 @@ declare var Chart: any;
     selector: 'app-line-chart',
     templateUrl: './line-chart.component.html',
     styleUrls: ['./line-chart.component.scss'],
-    encapsulation: ViewEncapsulation.Emulated, changeDetection: ChangeDetectionStrategy.Default
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LineChartComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
@@ -97,12 +99,11 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         type: string,
         options: Object,
     };
-
     private colorSchemeService: ColorSchemeService;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService);
+        exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -225,6 +226,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
         this.queryTitle = 'Line Chart';
     };
+
     subNgOnInit() {
         this.chart.type = 'line';
     };
@@ -248,6 +250,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.active.aggregationField = this.findFieldObject('aggregationField', neonMappings.TAGS);
         this.active.dateField = this.findFieldObject('dateField', neonMappings.TAGS);
         this.active.groupField = this.findFieldObject('groupField', neonMappings.TAGS);
+        this.active = Object.assign({}, this.active);
     };
 
     createFilter(key, startDate, endDate) {
@@ -280,11 +283,13 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             return;
         }
         let isMouseUp = false;
+        let redraw = false;
         if (!this.selection.mouseDown && event.buttons > 0) {
             // mouse down event
             this.selection.mouseDown = true;
             this.selection.startX = items[0].getCenterPoint().x;
             this.selection.startIndex = items[0]._index;
+            redraw = true;
         }
 
         if (this.selection.mouseDown && event.buttons === 0) {
@@ -292,6 +297,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             this.selection.mouseDown = false;
             this.selection.endIndex = items[0]._index;
             isMouseUp = true;
+            redraw = true;
         }
         if (items && items.length > 0 && this.selection.mouseDown) {
             // drag event near items
@@ -331,7 +337,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             this.selection.x = Math.min(startX, endX);
             this.selection.height = chartBottom - chartTop;
             this.selection.y = chartTop;
-
+            redraw = true;
             //this.selection.visibleOverlay=!this.selection.visibleOverlay;
         }
         if (isMouseUp) {
@@ -342,9 +348,13 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             let f = this.createFilter(key, this.selection.startDate, this.selection.endDate);
             this.addLocalFilter(f);
             this.addNeonFilter(true, f);
+            redraw = true;
         }
 
         this.stopEventPropagation(event);
+        if (redraw) {
+            this.changeDetection.detectChanges();
+        }
         //console.log(event);
         //console.log(items);
     }
@@ -565,6 +575,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             labels: labels,
             datasets: datasets
         };
+
         this.refreshVisualization();
         let title = '';
         switch (this.active.aggregation) {

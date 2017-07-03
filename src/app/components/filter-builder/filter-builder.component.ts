@@ -5,6 +5,7 @@ import {
     ViewEncapsulation,
     ChangeDetectionStrategy,
     Injector,
+    ChangeDetectorRef
 } from '@angular/core';
 import {ConnectionService} from '../../services/connection.service';
 import {DatasetService} from '../../services/dataset.service';
@@ -22,7 +23,8 @@ import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
     selector: 'app-filter-builder',
     templateUrl: './filter-builder.component.html',
     styleUrls: ['./filter-builder.component.scss'],
-    encapsulation: ViewEncapsulation.Emulated, changeDetection: ChangeDetectionStrategy.Default
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
@@ -41,8 +43,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService);
+        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),

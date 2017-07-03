@@ -254,7 +254,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                 sizex: item.sizex,
                 sizey: item.sizey,
                 dragHandle: '.drag-handle',
-                borderSize: 3,
+                borderSize: 5,
             };
             item.id = uuid.v4();
             this.activeGridService.addItem(item);
@@ -283,7 +283,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             let layout: { [key: string]: any } = {
                 id: id,
                 bindings: {},
-                bordersize: 3,
+                bordersize: 5,
                 dragHandle: 'drag-handle',
                 gridConfig: {
                     row: visualization.row,

@@ -8,7 +8,8 @@ import {
     ChangeDetectionStrategy,
     Injector,
     ViewChild,
-    ElementRef
+    ElementRef,
+    ChangeDetectorRef
 } from '@angular/core';
 import {ConnectionService} from '../../services/connection.service';
 import {DatasetService} from '../../services/dataset.service';
@@ -28,7 +29,8 @@ import 'cesium/Build/Cesium/Cesium.js';
     selector: 'app-map',
     templateUrl: './map.component.html',
     styleUrls: ['./map.component.scss'],
-    encapsulation: ViewEncapsulation.Emulated, changeDetection: ChangeDetectionStrategy.Default
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapComponent extends BaseNeonComponent implements OnInit,
     OnDestroy, AfterViewInit {
@@ -93,8 +95,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('cesiumContainer') cesiumContainer: ElementRef;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService);
+        exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
         (<any>window).CESIUM_BASE_URL = '/assets/Cesium';
         this.colorSchemeService = colorSchemeSrv;
         this.FIELD_ID = '_id';

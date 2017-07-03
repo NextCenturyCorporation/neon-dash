@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectionStrategy, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, Injector } from '@angular/core';
 import { TextCloud, TextCloudOptions, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -17,7 +17,7 @@ import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
     templateUrl: './text-cloud.component.html',
     styleUrls: ['./text-cloud.component.scss'],
     encapsulation: ViewEncapsulation.Emulated,
-    changeDetection: ChangeDetectionStrategy.Default
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     private textCloud: TextCloud;
@@ -42,8 +42,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService);
+        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -87,12 +87,27 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.textCloud = new TextCloud(options);
     };
 
+    updateObject(prev, field, value) {
+        let obj = Object.assign({}, prev);
+        obj[field] = value;
+        return obj;
+    }
+
+    updateArray(arr, add) {
+        let newArr = arr.slice();
+        newArr.push(add);
+        return newArr;
+    }
+
     onUpdateFields() {
-        this.active.dataField = this.findFieldObject('dataField', neonMappings.TAGS);
+        let dataField = this.findFieldObject('dataField', neonMappings.TAGS);
+        this.active = this.updateObject(this.active, 'dataField', dataField);
+        this.meta = Object.assign({}, this.meta); //trigger action
     };
 
     addLocalFilter(filter) {
-        this.filters.push(filter);
+        //this.filters.push(filter);
+        this.filters = this.updateArray(this.filters, filter);
     };
 
     createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
@@ -111,6 +126,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     getNeonFilterFields(): string[] {
         return [this.active.dataField.columnName];
     }
+
     getVisualizationName(): string {
         return 'Bar Chart';
     }
@@ -148,11 +164,12 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     onQuerySuccess(response): void {
         let data = response.data;
         let cloudData = data || [];
-        this.active.data = cloudData.map((item) => {
+        let activeData = cloudData.map((item) => {
             item.key = item[this.active.dataField.columnName];
             item.keyTranslated = item.key;
             return item;
         });
+        this.active = this.updateObject(this.active, 'data', activeData);
         this.refreshVisualization();
         this.queryTitle = 'Text Cloud by ' + this.active.dataField.prettyName;
     }
@@ -282,7 +299,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     createTextCloud() {
-        this.active.data = this.textCloud.createTextCloud(this.active.data);
+         let data = this.textCloud.createTextCloud(this.active.data);
+         this.active = this.updateObject(this.active, 'data', data);
+         //this.active.data = data;
     };
 
     handleChangeDataField() {
