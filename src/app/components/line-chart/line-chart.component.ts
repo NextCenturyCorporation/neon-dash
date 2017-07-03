@@ -102,7 +102,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     private colorSchemeService: ColorSchemeService;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef) {
+        exportService: ExportService, injector: Injector, themesService: ThemesService,
+        colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef) {
         super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),

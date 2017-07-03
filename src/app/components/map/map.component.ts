@@ -95,7 +95,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('cesiumContainer') cesiumContainer: ElementRef;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef) {
+        exportService: ExportService, injector: Injector, themesService: ThemesService,
+        colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef) {
         super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
         (<any>window).CESIUM_BASE_URL = '/assets/Cesium';
         this.colorSchemeService = colorSchemeSrv;
