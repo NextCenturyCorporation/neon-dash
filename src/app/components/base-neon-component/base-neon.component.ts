@@ -298,13 +298,13 @@ export abstract class BaseNeonComponent implements OnInit,
         this.outstandingDataQuery[database][table].done(this.baseOnQuerySuccess.bind(this));
 
         this.outstandingDataQuery[database][table].fail(function(response) {
-            if ( response.statusText === 'abort'){
+            if ( response.statusText === 'abort') {
                 //query was aborted so we don't care.  We assume we aborted it on purpose.
-            }
-            else if (response.status === 0) {
-                console.error("Query failed: " + response);
+            } else
+            if (response.status === 0) {
+                console.error('Query failed: ' + response);
             } else {
-                console.error("Query failed: " + response);
+                console.error('Query failed: ' + response);
             }
         });
     };
