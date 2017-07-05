@@ -190,7 +190,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                     value: value,
                     prettyKey: key
                 };
-                if (this.filterIsUnique(filter)) {
+                if (this.filterIsUnique(f)) {
                     this.addLocalFilter(f);
                 }
             }
