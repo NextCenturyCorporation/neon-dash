@@ -66,6 +66,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         inactiveColor: string
     };
 
+    private mouseEventValid: boolean;
+
     public selection: {
         mouseDown: boolean
         startX: number,
@@ -107,7 +109,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         };
         this.colorSchemeService = colorSchemeSrv;
         this.filters = [];
-
+        this.mouseEventValid = false;
         this.active = {
             xField: new FieldMetaData(),
             yField: new FieldMetaData(),
@@ -162,7 +164,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 responsive: true,
                 maintainAspectRatio: false,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
-                onClick: this.onClick.bind(this),
+                //onClick: this.onClick.bind(this),
+                //onTouchStart: this.touchStart.bind(this),
                 animation: {
                   duration: 0, // general animation time
                 },
@@ -262,10 +265,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return -1;
     }
 
-    onClick(/*event*/) {
-
-    }
-
     forcePosInsideChart(pos, min, max) {
         if (pos < min) {
             pos = min;
@@ -275,14 +274,55 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return pos;
     }
 
+    /*onClick(event) {
+        console.log(event);
+    }*/
+
+    mouseLeave(event) {
+        //console.log('leave');
+        //console.log(event);
+        this.mouseEventValid = false;
+        this.selection.mouseDown = false;
+        this.stopEventPropagation(event);
+        this.changeDetection.detectChanges();
+    }
+
+    mouseDown(event) {
+        //console.log('down');
+        //console.log(event);
+        if (event.buttons > 0) {
+            this.mouseEventValid = true;
+        }
+    }
+
+    mouseUp(event) {
+        //console.log('up');
+        //console.log(event);
+        if (this.selection.mouseDown && event.buttons === 0) {
+            // mouse up event
+            this.selection.mouseDown = false;
+            if (this.mouseEventValid) {
+                let filter = this.getFilterFromSelectionPositions();
+                this.addLocalFilter(filter);
+                this.addNeonFilter(true, filter);
+            }
+        }
+        this.stopEventPropagation(event);
+        this.changeDetection.detectChanges();
+        if (event.buttons === 0) {
+            this.mouseEventValid = false;
+        }
+    }
+
     onHover(event) {
         let chart = this.chartModule['chart'];
         let chartArea = chart.chartArea;
         let chartXPos = event.offsetX;
         let chartYPos = event.offsetY;
         let isMouseUp = false;
-        if (!this.selection.mouseDown && event.buttons > 0) {
+        if (!this.selection.mouseDown && event.buttons > 0 && this.mouseEventValid) {
             // mouse down event
+            console.log(event);
             this.selection.mouseDown = true;
             this.selection.startX = this.forcePosInsideChart(chartXPos, chartArea.left, chartArea.right);
             this.selection.startY = this.forcePosInsideChart(chartYPos, chartArea.top, chartArea.bottom);
@@ -290,7 +330,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
         //console.log(chartXPos);
 
-        if (this.selection.mouseDown) {
+        if (this.selection.mouseDown && this.mouseEventValid) {
             // drag event near items
             //console.log(chartXPos);
             this.selection.endX = this.forcePosInsideChart(chartXPos, chartArea.left, chartArea.right);
@@ -302,19 +342,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             this.selection.height = Math.abs(this.selection.startY - this.selection.endY);
             //console.log("x: " + this.selection.startX + " " + this.selection.endX);
             //console.log(this.selection.x + " " + this.selection.width);
-        }
-        if (this.selection.mouseDown && event.buttons === 0) {
-            // mouse up event
-            this.selection.mouseDown = false;
-            isMouseUp = true;
-            let filter = this.getFilterFromSelectionPositions();
-            this.addLocalFilter(filter);
-            this.addNeonFilter(true, filter);
-        }
-        if (isMouseUp) {
-            //The button was clicked, handle the selection.
-            //let f = this.createFilter(key, this.selection.startDate, this.selection.endDate);
-            //
         }
         this.stopEventPropagation(event);
         this.changeDetection.detectChanges();

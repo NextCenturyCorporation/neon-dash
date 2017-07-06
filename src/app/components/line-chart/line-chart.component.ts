@@ -100,6 +100,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         options: Object,
     };
     private colorSchemeService: ColorSchemeService;
+    private mouseEventValid: boolean;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -153,7 +154,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             activeColor: 'rgba(57, 181, 74, 0.9)',
             inactiveColor: 'rgba(57, 181, 74, 0.3)'
         };
-
+        this.mouseEventValid = false;
         this.onHover = this.onHover.bind(this);
         this.chart = {
             type: null,
@@ -279,13 +280,34 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         return -1;
     }
 
+    mouseLeave(event) {
+        //console.log('leave');
+        //console.log(event);
+        this.mouseEventValid = false;
+        this.selection.mouseDown = false;
+        this.stopEventPropagation(event);
+        this.changeDetection.detectChanges();
+    }
+
+    mouseDown(event) {
+        //console.log('down');
+        //console.log(event);
+        if (event.buttons > 0) {
+            this.mouseEventValid = true;
+        }
+    }
+
+    mouseUp(/*event*/) {
+
+    }
+
     onHover(event, items) {
         if (items.length === 0) {
             return;
         }
         let isMouseUp = false;
         let redraw = false;
-        if (!this.selection.mouseDown && event.buttons > 0) {
+        if (!this.selection.mouseDown && event.buttons > 0 && this.mouseEventValid) {
             // mouse down event
             this.selection.mouseDown = true;
             this.selection.startX = items[0].getCenterPoint().x;
@@ -293,14 +315,14 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             redraw = true;
         }
 
-        if (this.selection.mouseDown && event.buttons === 0) {
+        if (this.selection.mouseDown && event.buttons === 0 && this.mouseEventValid) {
             // mouse up event
             this.selection.mouseDown = false;
             this.selection.endIndex = items[0]._index;
             isMouseUp = true;
             redraw = true;
         }
-        if (items && items.length > 0 && this.selection.mouseDown) {
+        if (items && items.length > 0 && this.selection.mouseDown && this.mouseEventValid) {
             // drag event near items
             let chartArea = items[0]._chart.controller.chartArea;
             let chartBottom = chartArea.bottom;
