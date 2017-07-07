@@ -103,6 +103,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
         this.timelineData = new TimelineData();
         this.timelineData.bucketizer = new DateBucketizer();
+        this.enableRedrawAfterResize(true);
     }
 
     subNgOnInit() {

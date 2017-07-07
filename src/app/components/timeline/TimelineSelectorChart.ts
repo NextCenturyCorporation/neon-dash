@@ -231,7 +231,7 @@ export class TimelineSelectorChart {
         let i = 0;
         let MIN_VALUE = this.data.logarithmic ? 1 : 0;
 
-        this.width = this.determineWidth() - DEFAULT_MARGIN;
+        this.width = this.determineWidth() - 2 * DEFAULT_MARGIN;
         // Depending on the granularity, the bars are not all the same width (months are different
         // lengths). But this is accurate enough to place tick marks and make other calculations.
         this.approximateBarWidth = 0;

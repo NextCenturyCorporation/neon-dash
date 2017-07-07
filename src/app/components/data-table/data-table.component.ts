@@ -104,6 +104,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
             y: 0,
         };
         this.queryTitle = 'Raw Data';
+        this.enableRedrawAfterResize(true);
     };
 
     subNgOnInit() {

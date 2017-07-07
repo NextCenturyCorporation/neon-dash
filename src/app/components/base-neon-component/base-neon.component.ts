@@ -26,6 +26,8 @@ export abstract class BaseNeonComponent implements OnInit,
 
     protected initializing: boolean;
 
+    private redrawAfterResize: boolean = false;
+
     public meta: {
         databases: DatabaseMetaData[],
         database: DatabaseMetaData,
@@ -85,6 +87,19 @@ export abstract class BaseNeonComponent implements OnInit,
     abstract subNgOnInit();
     abstract subNgOnDestroy();
     abstract getOptionFromConfig(option: string);
+
+    protected enableRedrawAfterResize(enable: boolean) {
+        this.redrawAfterResize = enable;
+    };
+
+    onResizeStop() {
+        if (this.redrawAfterResize) {
+            // This event fires as soon as the user releases the mouse, but NgGrid animates the resize,
+            // so the current width and height are not the new width and height.  NgGrid uses a 0.25
+            // second transition so wait until that has finished before redrawing.
+            setTimeout(() => { this.refreshVisualization(); }, 300);
+        }
+    }
 
     ngOnDestroy() {
         this.messenger.unsubscribeAll();

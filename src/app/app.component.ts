@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { AfterViewInit, Component, OnInit, OnDestroy, ViewChild, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, Component, OnInit, OnDestroy, QueryList, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
@@ -23,6 +23,7 @@ import { DatasetService } from './services/dataset.service';
 import { ThemesService } from './services/themes.service';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { NeonGridItem } from './neon-grid-item';
+import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 
@@ -39,6 +40,7 @@ import { MdDialog, MdDialogConfig, MdDialogRef } from '@angular/material';
 export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild(DashboardOptionsComponent) dashboardOptionsComponent: DashboardOptionsComponent;
     @ViewChild(NgGrid) grid: NgGrid;
+    @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
 
     // Used to determine which pane is show in the right sidenav
     public showAbout: boolean = true;
@@ -107,6 +109,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.filterTrayDialogRef.afterClosed().subscribe(() => {
             this.filterTrayDialogRef = null;
         });
+    }
+
+    onResizeStop(i, event) {
+        this.visualizations.toArray()[i].onResizeStop();
     }
 
     ngAfterViewInit() {
