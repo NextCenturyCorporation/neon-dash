@@ -192,6 +192,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
     refreshVisualization() {
         this.table.recalculate();
         this.active = Object.assign({}, this.active);
+        this.changeDetection.detectChanges();
     }
 
     isValidQuery() {
