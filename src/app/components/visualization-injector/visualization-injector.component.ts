@@ -76,4 +76,10 @@ export class VisualizationInjectorComponent {
         }
     }
 
+    onResizeStop() {
+        if (this.currentComponent) {
+            this.currentComponent.instance.onResizeStop();
+        }
+    }
+
 }

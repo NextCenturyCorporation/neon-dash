@@ -104,6 +104,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
             y: 0,
         };
         this.queryTitle = 'Raw Data';
+        this.enableRedrawAfterResize(true);
     };
 
     subNgOnInit() {
@@ -194,6 +195,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
     refreshVisualization() {
         this.table.recalculate();
         this.active = Object.assign({}, this.active);
+        this.changeDetection.detectChanges();
     }
 
     isValidQuery() {

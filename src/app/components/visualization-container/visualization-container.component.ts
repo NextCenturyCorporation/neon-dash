@@ -1,7 +1,8 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { NeonGridItem } from '../../neon-grid-item';
+import { VisualizationInjectorComponent } from '../visualization-injector/visualization-injector.component';
 
 @Component({
   selector: 'app-visualization-container',
@@ -9,6 +10,7 @@ import { NeonGridItem } from '../../neon-grid-item';
   styleUrls: ['visualization-container.component.scss']
 })
 export class VisualizationContainerComponent implements OnInit {
+    @ViewChild(VisualizationInjectorComponent) injector: VisualizationInjectorComponent;
 
     public expanded: boolean;
     public showToolbar: boolean;
@@ -43,5 +45,9 @@ export class VisualizationContainerComponent implements OnInit {
 
     moveToBottom() {
         this.activeGridService.moveItemToBottom(this.visualization);
+    }
+
+    onResizeStop() {
+        this.injector.onResizeStop();
     }
 }
