@@ -65,6 +65,9 @@
         </md-card>
     </md-sidenav>
     <div class="body-container">
+        <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+            <md-spinner ></md-spinner>
+        </div>
         <div class="text-container">
             <div>
                 <!--<app-legend [data]="getLegendData()"></app-legend>-->

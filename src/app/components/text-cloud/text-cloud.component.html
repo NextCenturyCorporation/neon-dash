@@ -92,7 +92,9 @@
             </md-card-content>
         </md-card>
     </md-sidenav>
-
+    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+        <md-spinner ></md-spinner>
+    </div>
     <div class="filter-reset" *ngFor="let value of getFilterData()">
         <span class="filter-label" [title]="createFilterDesc(value)">{{ createFilterText(value) }}</span>
         <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveDesc(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value, true, false)">

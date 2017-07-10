@@ -182,3 +182,26 @@
     width: 64px;
     height: 64px;
 }
+
+.loading-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0,0,0,.1);
+    z-index: 100;
+}
+
+.not-loading-overlay {
+    position: absolute;
+    display: none;
+}
+
+.data-area {
+    position: relative;
+    top: 64px;
+    bottom: 0;
+    width: 100%;
+}

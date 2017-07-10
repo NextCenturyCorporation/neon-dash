@@ -124,8 +124,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
 
     onUpdateFields() {
         this.active.sortField = this.findFieldObject('sortField', neonMappings.TAGS);
+        let initialHeaderLimit = 25;
+        let numHeaders = 0;
         for (let f of this.meta.fields) {
-            this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: true, style: {} });
+            this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: numHeaders < initialHeaderLimit, style: {} });
+            numHeaders++;
         }
         this.recalculateActiveHeaders();
     };

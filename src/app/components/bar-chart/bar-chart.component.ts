@@ -161,7 +161,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     };
 
     subNgOnDestroy() {
-        //Do nothing
+        this.chartModule['chart'].destroy();
     };
 
     getOptionFromConfig(field) {

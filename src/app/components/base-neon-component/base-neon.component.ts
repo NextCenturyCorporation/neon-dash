@@ -36,6 +36,8 @@ export abstract class BaseNeonComponent implements OnInit,
         fields: FieldMetaData[]
     };
 
+    public isLoading: boolean;
+
     constructor(
         private connectionService: ConnectionService,
         private datasetService: DatasetService,
@@ -53,7 +55,7 @@ export abstract class BaseNeonComponent implements OnInit,
         this.themesService = themesService;
         this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
-
+        this.isLoading = false;
         this.meta = {
             databases: [],
             database: new DatabaseMetaData(),
@@ -245,6 +247,8 @@ export abstract class BaseNeonComponent implements OnInit,
         if (!isValidQuery) {
             return;
         }
+        this.isLoading = true;
+        this.changeDetection.detectChanges();
         this.queryTitle = this.createTitle(false);
         let query = this.createQuery();
 
@@ -263,6 +267,7 @@ export abstract class BaseNeonComponent implements OnInit,
 
     baseOnQuerySuccess(response) {
         this.onQuerySuccess(response);
+        this.isLoading = false;
         this.changeDetection.detectChanges();
     }
 
@@ -300,11 +305,14 @@ export abstract class BaseNeonComponent implements OnInit,
         this.outstandingDataQuery[database][table].fail(function(response) {
             if ( response.statusText === 'abort') {
                 //query was aborted so we don't care.  We assume we aborted it on purpose.
-            } else
-            if (response.status === 0) {
-                console.error('Query failed: ' + response);
             } else {
-                console.error('Query failed: ' + response);
+                this.isLoading = false;
+                if (response.status === 0) {
+                    console.error('Query failed: ' + response);
+                } else {
+                    console.error('Query failed: ' + response);
+                }
+                this.changeDetection.detectChanges();
             }
         });
     };

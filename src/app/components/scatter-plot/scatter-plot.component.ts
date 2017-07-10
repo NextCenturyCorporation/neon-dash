@@ -91,6 +91,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         options: Object
     };
 
+    public firstChart: boolean;
     private colorSchemeService: ColorSchemeService;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -140,7 +141,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             activeColor: 'rgba(57, 181, 74, 0.9)',
             inactiveColor: 'rgba(57, 181, 74, 0.3)'
         };
-
+        this.firstChart = true;
         this.onHover = this.onHover.bind(this);
         let dataColor = 'rgba(0, 0, 255, 0.2)';
         this.scatter = {
@@ -226,7 +227,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     };
 
     subNgOnDestroy() {
-
+        this.chartModule['chart'].destroy();
     };
 
     getOptionFromConfig(field) {
@@ -466,10 +467,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     onQuerySuccess(response) {
         //TODO much of this method could be optimized, but we'll worry about that later
         // need to reset chart when data potentially changes type (or number of datasets)
-        let ctx = this.chartModule['chart'].chart.ctx;
-        this.chartModule['chart'].destroy();
-
-
+        //let ctx = this.chartModule['chart'].chart.ctx;
+        //this.chartModule['chart'].destroy();
         let xField = this.active.xField.columnName;
         let yField = this.active.yField.columnName;
 
@@ -499,10 +498,23 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             this.active.pointLabels.push(label);
         }
 
+        let rebuildChart = (xAxisIsNumeric && !this.active.xAxisIsNumeric) ||
+          (yAxisIsNumeric && !this.active.yAxisIsNumeric) ||
+          (!xAxisIsNumeric && this.active.xAxisIsNumeric) ||
+          (!yAxisIsNumeric && this.active.yAxisIsNumeric) || this.firstChart;
+
+        let ctx;
+        if (rebuildChart) {
+              ctx = this.chartModule['chart'].chart.ctx;
+              this.chartModule['chart'].destroy();
+        }
+
         if (xAxisIsNumeric) {
-            this.scatter.options['scales'].xAxes[0] = { position: 'bottom' };
-            this.scatter.options['scales'].xAxes[0].type = 'linear';
-            this.scatter.data.xLabels = [];
+            if (rebuildChart) {
+                this.scatter.options['scales'].xAxes[0] = { position: 'bottom' };
+                this.scatter.options['scales'].xAxes[0].type = 'linear';
+                this.scatter.data.xLabels = [];
+            }
         } else {
             let xLabels = this.removeDuplicatesAndSort(xAxisLabels);
             this.scatter.data.xLabels = xLabels;
@@ -510,18 +522,20 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 let val = p.x;
                 p.x = xLabels.indexOf(val);
             }
-            let xAxis = { ticks: null, position: 'bottom' };
-            let tickCallback = (value) => {
-                let t = this.scatter.data.xLabels[value];
-                if (t !== undefined) {
-                    return t;
-                }
-                return '';
-            };
-            xAxis.ticks = {};
-            xAxis.ticks.callback = tickCallback.bind(this);
-            this.scatter.options['scales'].xAxes[0] = xAxis;
-            this.scatter.options['scales'].xAxes[0].type = 'linear';
+            if (rebuildChart) {
+                let xAxis = { ticks: null, position: 'bottom' };
+                let tickCallback = (value) => {
+                    let t = this.scatter.data.xLabels[value];
+                    if (t !== undefined) {
+                        return t;
+                    }
+                    return '';
+                };
+                xAxis.ticks = {};
+                xAxis.ticks.callback = tickCallback.bind(this);
+                this.scatter.options['scales'].xAxes[0] = xAxis;
+                this.scatter.options['scales'].xAxes[0].type = 'linear';
+            }
 
             //this.scatter.options['scales'].xAxes[0].ticks = {
             //    min: 0,
@@ -529,8 +543,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             //}
         }
         if (yAxisIsNumeric) {
+          if (rebuildChart) {
             this.scatter.options['scales'].yAxes[0].type = 'linear';
             this.scatter.data.yLabels = [];
+          }
         } else {
             let yLabels = this.removeDuplicatesAndSort(yAxisLabels);
             this.scatter.options['scales'].yAxes[0].type = 'linear';
@@ -539,18 +555,20 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 let val = p.y;
                 p.y = yLabels.indexOf(val);
             }
-            let yAxis = { ticks: null };
-            let tickCallback = (value) => {
-                let t = this.scatter.data.yLabels[value];
-                if (t !== undefined) {
-                    return t;
-                }
-                return '';
-            };
-            yAxis.ticks = {};
-            yAxis.ticks.callback = tickCallback.bind(this);
-            this.scatter.options['scales'].yAxes[0] = yAxis;
-            this.scatter.options['scales'].yAxes[0].type = 'linear';
+            if (rebuildChart) {
+                let yAxis = { ticks: null };
+                let tickCallback = (value) => {
+                    let t = this.scatter.data.yLabels[value];
+                    if (t !== undefined) {
+                        return t;
+                    }
+                    return '';
+                };
+                yAxis.ticks = {};
+                yAxis.ticks.callback = tickCallback.bind(this);
+                this.scatter.options['scales'].yAxes[0] = yAxis;
+                this.scatter.options['scales'].yAxes[0].type = 'linear';
+            }
         }
         this.scatter.data['labels'] = this.scatter.data.xLabels;
 
@@ -564,10 +582,11 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         //};
         this.active.xAxisIsNumeric = xAxisIsNumeric;
         this.active.yAxisIsNumeric = yAxisIsNumeric;
-        this.chartModule['chart'] = new Chart(ctx, this.scatter);
-
+        if (rebuildChart) {
+            this.chartModule['chart'] = new Chart(ctx, this.scatter);
+            this.firstChart = false;
+        }
         this.refreshVisualization();
-
         this.queryTitle = 'Scatter Plot: ' + this.active.xField.prettyName + ' vs ' + this.active.yField.prettyName;
     };
 

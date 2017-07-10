@@ -66,7 +66,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         groupLimit: number,
         filterable: boolean,
         layers: any[],
-        data: Object[],
         aggregation: string,
         dateBucketizer: any,
         granularity: string
@@ -130,7 +129,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             groupLimit: 10,
             filterable: true,
             layers: [],
-            data: [],
             aggregation: 'count',
             dateBucketizer: null,
             granularity: 'day'
@@ -238,7 +236,12 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     };
 
     subNgOnDestroy() {
-
+        this.chartModule['chart'].destroy();
+        this.chart.data = {
+            labels: [],
+            datasets: []
+        };
+        this.chart.options = {};
     };
 
     getOptionFromConfig(field) {
