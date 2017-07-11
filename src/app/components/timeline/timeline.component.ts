@@ -127,12 +127,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     addLocalFilter(key: string, startDate: Date, endDate: Date, local?: boolean) {
-        this.filters.push({
+        this.filters[0] = {
             key: key,
             startDate: startDate,
             endDate: endDate,
             local: local
-        });
+        };
     };
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
@@ -143,7 +143,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             local: true
         };
 
-        this.filters.push(filter);
+        this.filters[0] = filter;
         this.addNeonFilter(false, filter);
 
         // Update the charts
@@ -153,14 +153,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
         for (let filter of this.filters) {
             // Only apply filters that aren't local
-            if (!filter.local) {
-                let filterClauses = [];
-                filterClauses[0] = neon.query.where(fieldName, '>=', filter.startDate);
-                let endDatePlusOne = filter.endDate.getTime() + DateBucketizer.MILLIS_IN_DAY;
-                let endDatePlusOneDate = new Date(endDatePlusOne);
-                filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
-                return neon.query.and.apply(neon.query, filterClauses);
-            }
+            let filterClauses = [];
+            filterClauses[0] = neon.query.where(fieldName, '>=', filter.startDate);
+            let endDatePlusOne = filter.endDate.getTime() + DateBucketizer.MILLIS_IN_DAY;
+            let endDatePlusOneDate = new Date(endDatePlusOne);
+            filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
+            return neon.query.and.apply(neon.query, filterClauses);
         }
         return null;
     };
@@ -236,7 +234,21 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     getFiltersToIgnore() {
-        return null;
+        let database = this.meta.database.name;
+        let table = this.meta.table.name;
+        let fields = [this.active.dateField.columnName];
+        let ignoredFilterIds = [];
+        let neonFilters = this.filterService.getFilters(database, table, fields);
+        if (neonFilters && neonFilters.length > 0) {
+            for (let filter of neonFilters) {
+                // The data we want is in the whereClause's subclauses
+                let whereClause = filter.filter.whereClause;
+                if (whereClause && whereClause.whereClauses.length === 2) {
+                    ignoredFilterIds.push(filter.id);
+                }
+            }
+        }
+        return (ignoredFilterIds.length > 0 ? ignoredFilterIds : null);
     }
 
     onQuerySuccess(response) {
@@ -276,11 +288,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             .utc.offset(lastDate, 1);
 
         let filter = null;
-        for (let curFilter of this.filters) {
-            if (curFilter.local) {
-                filter = curFilter;
-                break;
-            }
+        if (this.filters.length > 0) {
+            filter = this.filters[0];
         }
 
         // If we have a bucketizer, use it
@@ -333,6 +342,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                     value: row.value
                 });
             }
+        }
+
+        if (series.focusData && series.focusData.length > 0) {
+            this.timelineData.extent = [series.focusData[0].date, series.focusData[series.focusData.length - 1].date];
         }
 
         // Make sure to update both the data and primary series
