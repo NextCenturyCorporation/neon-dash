@@ -50,7 +50,7 @@ export class TimelineSeries {
 export class TimelineData {
     public data: TimelineSeries[] = [];
     public primarySeries: TimelineSeries;
-    public collapsed: boolean = false;
+    public collapsed: boolean = true;
     public logarithmic: boolean = false;
     public bucketizer: Bucketizer = null;
     public extent: Date[] = [];
@@ -170,8 +170,8 @@ export class TimelineSelectorChart {
     }
 
     determineHeight(): number {
-        let elemHeight = this.element.nativeElement.getBoundingClientRect().height;
-        return elemHeight > 0 ? elemHeight : DEFAULT_HEIGHT;
+        let elemHeight = this.element.nativeElement.getBoundingClientRect().height - 45;
+        return elemHeight > 0 ? elemHeight : DEFAULT_HEIGHT - 45;
     }
 
     determineTop(): number {
@@ -1025,7 +1025,7 @@ export class TimelineSelectorChart {
         let tooltipWidth = tooltipElement.outerWidth(true);
         let tooltipHeight = tooltipElement.outerHeight(true);
         let attributeLeft = mouseEvent.pageX - this.determineLeft() + 10;
-        let attributeTop = mouseEvent.pageY - this.determineTop() + (tooltipHeight / 2) - 15;
+        let attributeTop = mouseEvent.pageY - this.determineTop() + (tooltipHeight / 2) - 15 - 45;
 
         if ((attributeLeft + tooltipWidth) > this.determineWidth()) {
             tooltipElement.removeClass('east');
