@@ -660,6 +660,7 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
     };
 
     $scope.functions.onUpdateFields = function() {
+        // console.log(JSON.stringify(neonMappings.DATE));
         $scope.active.dateField = $scope.functions.findFieldObject("dateField", neonMappings.DATE);
     };
 
@@ -804,7 +805,15 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
     	var inputData = data || [[], []]; // Valid records, invalid records
     	
         var invalidData = inputData[1];
-        
+        // if (data) {
+        // console.log("++++++++++++++++++++++++++++++");
+        // console.log(JSON.stringify(data));
+        // console.log(JSON.stringify(inputData));
+        // console.log(inputData[0]);
+        // console.log(inputData[1]);
+        // console.trace("Here I am!")
+        // }
+
         $scope.active.numberInvalid = invalidData.length ? invalidData[0].invalidCount : 0;
         
         var validData = $scope.active.showInvalidDatesFilter ? [] : inputData[0];
@@ -856,6 +865,8 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
     };
 
     var queryForMinDate = function(callback) {
+        // console.log("1111111");
+        // console.log(JSON.stringify(callback));
         if($scope.bindings.overrideStartDate) {
             $scope.referenceStartDate = new Date($scope.bindings.overrideStartDate);
             queryForMaxDate(callback);
@@ -868,7 +879,8 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
                     return query;
                 },
                 executeQuery: function(connection, query) {
-                    return connection.executeQuery(query);
+                    something = connection.executeQuery(query);
+                    return something;
                 },
                 updateData: function(data) {
                     if(data) {
@@ -895,6 +907,8 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
                     return connection.executeQuery(query);
                 },
                 updateData: function(data) {
+                    // console.log("222222222");
+                    // console.log(JSON.stringify(data));
                     if(data) {
                         var dates = data.length ? getDates(data[0]) : [];
                         $scope.referenceEndDate = dates.length ? dates[dates.length - 1] : new Date();
@@ -914,6 +928,9 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
      * @private
      */
     var getDates = function(dataItem) {
+        // console.log(JSON.stringify(dataItem));
+        // console.log(JSON.stringify([$scope.active.dateField.columnName]));
+        // console.log("***************************");
         return neon.helpers.getNestedValues(dataItem, [$scope.active.dateField.columnName]).filter(function(value) {
             return value[$scope.active.dateField.columnName];
         }).map(function(value) {
@@ -951,6 +968,7 @@ angular.module('neonDemo.controllers').controller('timelineController', ['$scope
             // Fill our data into the appropriate interval buckets.
             var resultDate;
             for(i = 0; i < rawLength; i++) {
+                // if
                 resultDate = new Date(Date.UTC(data[i].year, (data[i].month || 1) - 1, data[i].day || 1, data[i].hour || 0));
                 var bucketIndex = $scope.bucketizer.getBucketIndex(resultDate);
                 if(queryData[bucketIndex]) {

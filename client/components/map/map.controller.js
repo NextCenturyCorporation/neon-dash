@@ -33,9 +33,11 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.NODE_AND_ARROW_LAYER = coreMap.Map.NODE_LAYER;
     $scope.ROUTE_LAYER = coreMap.Map.ROUTE_LAYER;
     $scope.GRID_LAYER = coreMap.Map.GRID_LAYER;
-    $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, $scope.NODE_AND_ARROW_LAYER, $scope.GRID_LAYER];
-    $scope.DEFAULT_LIMIT = 1000;
-    $scope.DEFAULT_NEW_LAYER_TYPE = $scope.MAP_LAYER_TYPES[0];
+    $scope.BUCKET_LAYER = coreMap.Map.BUCKET_LAYER;
+    $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, 
+                              $scope.NODE_AND_ARROW_LAYER, $scope.GRID_LAYER, $scope.BUCKET_LAYER];
+    $scope.DEFAULT_LIMIT = 1001;
+    $scope.DEFAULT_NEW_LAYER_TYPE = $scope.MAP_LAYER_TYPES[5];//xkcd change this back to 0
 
     $scope.cacheMap = false;
     $scope.active.legend = {
@@ -272,12 +274,17 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         return data;
     };
 
-    // Returns the map's grid layer. If strict is true, only looks for grid layers if the map is (or is about to be) zoomed out far enough for the grid to be visible.
+    // Returns the map's grid layer. If strict is true, only looks for grid layers if the map is (or is about to be) 
+    // zoomed out far enough for the grid to be visible.
     var getGridLayer = function(strict) {
-        if(strict === true && $scope.currentGraticuleInterval <= $scope.map.minVisibleForGrid && $scope.map.getGraticuleInterval() <= $scope.map.minVisibleForGrid) {
+        if(strict === true 
+            && $scope.currentGraticuleInterval <= $scope.map.minVisibleForGrid 
+            && $scope.map.getGraticuleInterval() <= $scope.map.minVisibleForGrid) {
             return undefined;
         }
-        var gridLayer = _.find($scope.active.layers, function(layer) { return layer.type === $scope.GRID_LAYER; });
+        var gridLayer = _.find($scope.active.layers, function(layer) {
+                                return layer.type === $scope.GRID_LAYER || layer.type === $scope.BUCKET_LAYER; 
+                            });
         if(strict === true && gridLayer !== undefined && !gridLayer.show) {
             return undefined;
         }
@@ -417,8 +424,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     $scope.functions.addToNewLayer = function(layer, config) {
-        layer.type = config.type || $scope.POINT_LAYER;
+        layer.type = config.type || $scope.DEFAULT_NEW_LAYER_TYPE;
         layer.limit = config.limit || $scope.DEFAULT_LIMIT;
+        layer.numPoints = layer.limit;
         layer.colorCode = config.colorCode;
         layer.lineColorCode = config.lineColorCode;
         layer.nodeColorCode = config.nodeColorCode;
@@ -544,19 +552,26 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.functions.updateData = function(data, layers) {
         var pointData = [];
         var gridData = [];
-        if(data && data.length && data[0].data instanceof Array && Object.keys(data[0]).length === 1) { // If the data we're given fits the grid+points query format of: [{data: [stuff]}, {data: [stuff]}]
-            pointData = (data && data.length) ? (data[0].data !== undefined ? data[0].data : data[0]) : [];
-            gridData = (data && data.length > 1) ? data[1].data : [];
+        if(data) {
+            if (data.length && data[0].data instanceof Array && Object.keys(data[0]).length === 1) { // If the data we're given fits the points+grid query format of: [{data: [stuff]}, {data: [stuff]}]
+                pointData = (data && data.length) ? (data[0].data !== undefined ? data[0].data : data[0]) : [];
+                gridData = (data && data.length > 1) ? data[1].data : [];
+            }
+            else {
+                pointData = data;
+            }
         }
-        else if(data) {
-            pointData = data;
-        }
+
         var dataForBounds = gridData.length > 0 ? gridData : (pointData.length > 0 ? pointData : []); // Calculate our bounds from the grid layer's query if it exists, and otherwise from the normal query.
         var dataBounds = computeDataBounds(dataForBounds);
         var newBounds = new OpenLayers.Bounds(dataBounds.left, dataBounds.bottom, dataBounds.right, dataBounds.top)
             .transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
         var mapExtent = $scope.map.map.getExtent();
+        // console.log(JSON.stringify(mapExtent));
+        // console.log(JSON.stringify(newBounds));
+        // console.log(JSON.stringify(dataBounds));
         if(Math.abs(newBounds.left - newBounds.right) < Math.abs(mapExtent.left - mapExtent.right)) {
+            // console.log("******************************");
             $scope.dataBounds = dataBounds;
             zoomToDataBounds();
         }
@@ -567,6 +582,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 var colorMappings = undefined;
                 if(layer.type === $scope.GRID_LAYER && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid && gridData.length > 0) {
                     colorMappings = transformToGridPoints(layer, gridData);
+                }
+                else if(layer.type === $scope.BUCKET_LAYER && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid && gridData.length > 0) {
+                    colorMappings = transformToBucketPoints(layer, gridData);
                 }
                 else {
                     colorMappings = layer.olLayer.setData(pointData, layer.limit);
@@ -710,6 +728,10 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         return bounds;
     };
 
+    $scope.testFoo = function() {
+        console.log("Reloading from database not yet implemented; just refresh the page. Maybe.");
+    }
+
     /**
      * Creates the external links for the given data and source with the given latitude and longitude fields.
      * @param {Array} data
@@ -731,7 +753,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         });
     };
 
-    $scope.functions.addToQuery = function(query, unsharedFilterWhereClause, layers) {
+    $scope.functions.addToQuery = function(query, unsharedFilterWhereClause, layers) {//*
         var queryFields = {};
         var limit;
 
@@ -767,7 +789,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 });
             }
 
-            if(layer.type === $scope.GRID_LAYER && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
+            // if((layer.type === $scope.GRID_LAYER || layer.type === $scope.BUCKET_LAYER)
+            if((layer.type === $scope.GRID_LAYER)
+                 && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
                 var interval = $scope.map.getGraticuleInterval();
                 var bottom = getNearestMultiple(interval, $scope.dataBounds.bottom, 'lower');
                 var top = getNearestMultiple(interval, $scope.dataBounds.top, 'higher');
@@ -791,6 +815,48 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                         prettyName: layer.colorField.prettyName
                     });
                 }
+            }
+
+            if(layer.type === $scope.BUCKET_LAYER && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
+
+                var interval = $scope.map.getGraticuleInterval();
+                console.log(interval);
+                var bottom = getNearestMultiple(interval, $scope.dataBounds.bottom, 'lower');
+                var top = getNearestMultiple(interval, $scope.dataBounds.top, 'higher');
+                var left = getNearestMultiple(interval, $scope.dataBounds.left, 'lower');
+                var right = getNearestMultiple(interval, $scope.dataBounds.right, 'higher');
+                var intList = $scope.map.graticuleIntervalList;
+                // console.log(JSON.stringify(intList));
+                //what is "dataBounds"? does it actually look for the nearest points to each given lat and lon?
+                var params = {
+                    latField: layer.latitudeField.columnName,
+                    lonField: layer.longitudeField.columnName,
+                    aggregationField: (layer.colorField) ? layer.colorField.prettyName : "",
+                    // minLat: bottom,
+                    // maxLat: top,
+                    // minLon: left,
+                    // maxLon: right,
+                    // numTilesVertical: (top - bottom) / interval,
+                    // numTilesHorizontal: (right - left) / interval,
+                    intervals: intList,
+                    i: interval
+                    // zoomLevel: 0,
+                    // ntrvl: interval
+                };
+                // console.log("*******\n" + interval + "\n*--*\n" + $scope.map + "\n");
+                // console.log("*__*\n" + JSON.stringify($scope.map.zoom) + "\n\n");
+                query.transform(new neon.query.Transform('com.ncc.neon.query.transform.BucketingTransformer').params(params));
+                
+
+
+
+                //*
+                // if(layer.colorField) {
+                //     layerFields.push({
+                //         columnName: layer.colorField.columnName,
+                //         prettyName: layer.colorField.prettyName
+                //     });
+                // }
             }
 
             addFields(layerFields);
@@ -973,6 +1039,25 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         }
     };
 
+    // function handleMouseMovement(d, i) {  // Add interactivity
+
+    //         // Use D3 to select element, change color and size
+    //         // d3.select(this).attr({
+    //         //   fill: "orange",
+    //         //   r: radius * 2
+    //         // });
+
+    //         // Specify where to put label of text
+    //         svg.append("text").attr({
+    //            id: "t" + d.x + "-" + d.y + "-" + i,  // Create an id for text so we can select it later for removing on mouseout
+    //             x: function() { return xScale(d.x) - 30; },
+    //             y: function() { return yScale(d.y) - 15; }
+    //         })
+    //         .text(function() {
+    //           return [d.x, d.y];  // Value of the text
+    //         });
+    //       }
+
     /**
      * Creates or removes points on map layer (named "Selected Point") for the given data
      * @param {Object} message
@@ -1134,6 +1219,17 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             if(layer.show) {
                 $scope.map.graticuleControl.activate();
             }
+        }  else if(layer.type === $scope.BUCKET_LAYER) {
+            options.styleMap = new OpenLayers.StyleMap({
+                'default': {
+                    pointRadius: $scope.gridLayerPointRadius
+                }
+            });
+            olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
+            layer.limit = 10000000;
+            if(layer.show) {
+                $scope.map.graticuleControl.activate();
+            }
         } else if(layer.type === $scope.ROUTE_LAYER) {
             options.route = true;
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
@@ -1159,6 +1255,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     var transformToGridPoints = function(layer, data) {
+        //TODO here is where the grid makes the boxes and points
         var newPointsList = [];
         if(data) {
             if(layer.show) {
@@ -1177,7 +1274,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                         var newPoint = {
                             type_of_feature_point: 'grid_point',
                             count: mostToLeast[x].count,
-                            pointRadius: $scope.gridLayerPointRadius,
+                            pointRadius: $scope.gridLayerPointRadius * Math.log( 1 + mostToLeast[x].count),
                         };
                         if(layer.colorField) {
                             newPoint.typeName = layer.colorField.prettyName || layer.colorField.columnName; // We need these to properly
@@ -1195,8 +1292,71 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         return layer.olLayer.setData(newPointsList || [], layer.limit);
     };
 
+    var transformToBucketPoints = function(layer, data) {
+        //TODO here is where the grid makes the boxes and points
+        var newPointsList = [];
+        if(data) {
+            if(layer.show) {
+                $scope.map.graticuleControl.activate();
+            }
+            // console.log("\n\n****************");
+            // console.log(JSON.stringify(data));
+
+
+            //This appears to iterate through the items inside each bucket. 
+            //Let's see what happens if I remove it.
+            // mergeMultipleValues(data, layer);
+
+            var max = 0;
+            data.forEach(function(bucket) {
+                var temp = bucket.data[0].count;
+                if (temp > max) {
+                    max = temp;
+                }
+            });
+            var sqrRtMax = Math.sqrt(max);
+            data.forEach(function(bucket) {
+                if(bucket.data.length > 0) {
+                    var totalPoints = 0
+                    // var boxHeight = bucket.top - bucket.bottom;
+                    // var mostToLeast = bucket.data.sort(function(a, b) { return b.count - a.count; });
+                    // var numPoints = Math.min(mostToLeast.length, $scope.maxNumGridPoints);
+                    
+                    // for(var x = 0; x < numPoints; x++) {
+                    // See grid code above for differences; buckets only have a count and a centroid, they don't
+                    // actually contain any data like the grid squares do.
+
+                    // var row = Math.floor(x / 10) + 1;
+                    // var column = (x % 10) + 1;
+                    var newPoint = {
+                        type_of_feature_point: 'grid_point',
+                        count: bucket.data[0].count,
+                        //So point are never smaller than $scope.gridLayerPointRadius pixels across, and are always
+                        // sized in proportion to the largest point on the map.
+                        pointRadius: $scope.gridLayerPointRadius * (1 + Math.log( 1 + bucket.data[0].count/sqrRtMax)),
+                    };
+                    if(layer.colorField) {
+                        newPoint.typeName = layer.colorField.prettyName || layer.colorField.columnName; // We need these to properly
+                        newPoint.typeValue = bucket[layer.colorField.columnName];               // create popups on point click.
+                        newPoint[layer.colorField.columnName] = newPoint.typeValue; // We need this so that coloring of points will work.
+                    }
+                    // newPoint[layer.latitudeField.columnName] = bucket.top - boxHeight * (0.1 * row) - 0.1*newPoint.pointRadius;
+                    // newPoint[layer.longitudeField.columnName] = bucket.left + boxHeight * (0.1 * column) + 0.1*newPoint.pointRadius;
+                    newPoint[layer.latitudeField.columnName] = bucket.data[0].centroid[1];
+                    newPoint[layer.longitudeField.columnName] = bucket.data[0].centroid[0];
+                    
+                    newPointsList.push(newPoint);
+                    // }
+                }
+            });
+        }
+        return layer.olLayer.setData(newPointsList || [], layer.limit);
+    };
+
     var mergeMultipleValues = function(data, layer) { // DOES THIS WORK? I DON'T KNOW. TODO
         data.forEach(function(bucket) {
+            // console.log(JSON.stringify(bucket.data));
+            // console.log(JSON.stringify(bucket.data[0]));
             if(bucket.data.length < 1 || !(bucket.data[0][layer.colorField.columnName] instanceof Array)) {
                 return;
             }
@@ -1301,9 +1461,11 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         };
 
         queries.forEach(function(queryData) {
-            if(queryData.query.transforms && queryData.query.transforms[0].transformName === 'com.ncc.neon.query.transform.GeoGridTransformer') {
-                return; // Ignore grid queries.
+            if(queryData.query.transforms && (queryData.query.transforms[0].transformName === 'com.ncc.neon.query.transform.GeoGridTransformer')
+                                                || queryData.query.transforms[0].transformName === 'com.ncc.neon.query.transform.BucketingTransformer') {
+                return; // Ignore grid and bucketing queries.
             }
+            // console.log("*********" + queryData.query.transforms[0].transformName);
             var tempObject = {
                 query: queryData.query,
                 name: "map_" + queryData.layer.database.name + "_" + queryData.layer.table.name + "-" + exportId,
@@ -1359,4 +1521,6 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         bindings.bounds = $scope.bindings.bounds;
         return bindings;
     };
+
+
 }]);

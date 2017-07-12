@@ -50,8 +50,9 @@ var coreMap = coreMap || {};
 coreMap.Map = function(elementId, options) {
     options = options || {};
 
-    this.graticuleIntervalList = [90, 45, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.01, 0.005, 0.002, 0.001];
-    this.minVisibleForGrid = 1; // If the graticule's granularity drops lower than this, we hide it and treat any grid layer as a point layer.
+    this.graticuleIntervalList = [45, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1];
+    // this.graticuleIntervalList = [90, 45, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.01, 0.005, 0.002, 0.001];
+    this.minVisibleForGrid = 0.5; // If the graticule's granularity drops lower than this, we hide it and treat any grid layer as a point layer.
 
     this.elementId = elementId;
     this.selector = $("#" + elementId);
@@ -99,6 +100,7 @@ coreMap.Map.CLUSTER_LAYER = 'cluster';
 coreMap.Map.NODE_LAYER = 'nodes and arrows';
 coreMap.Map.ROUTE_LAYER = 'route';
 coreMap.Map.GRID_LAYER = 'grid';
+coreMap.Map.BUCKET_LAYER = 'buckets';
 
 coreMap.Map.MAP_TILES = {
     light: {
@@ -599,7 +601,7 @@ coreMap.Map.prototype.setupControls = function() {
     this.graticuleControl = new OpenLayers.Control.Graticule( {
         autoActivate: false,
         intervals: this.graticuleIntervalList,
-        targetSize: 300,
+        targetSize: 150,
         labelled: false
     });
 
@@ -785,9 +787,9 @@ OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {
         this.routeService = options.routeService;
         this.handlerOptions = OpenLayers.Util.extend({}, this.defaultHandlerOptions);
         OpenLayers.Control.prototype.initialize.apply(this, arguments);
-        this.handler = new OpenLayers.Handler.Click(this, {
-            click: this.createRoutePointMenu
-        }, this.handlerOptions);
+        // this.handler = new OpenLayers.Handler.Click(this, {
+        //     click: this.createRoutePointMenu //TODO xkcd XKCD FIXME uncomment this when done!!
+        // }, this.handlerOptions);
         this.makeQueryForRouteDataFunction = options.makeQueryForRouteDataFunction;
         this.createMapLayerFunction = options.createMapLayerFunction;
     },
