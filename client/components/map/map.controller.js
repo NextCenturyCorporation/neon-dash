@@ -26,6 +26,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.gridLayerPointRadius = 5;
     $scope.maxNumGridPoints = 4;
     $scope.currentGraticuleInterval;
+
+    $scope.reloadDatabase = true;
     
     $scope.POINT_LAYER = coreMap.Map.POINTS_LAYER;
     $scope.CLUSTER_LAYER = coreMap.Map.CLUSTER_LAYER;
@@ -36,7 +38,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.BUCKET_LAYER = coreMap.Map.BUCKET_LAYER;
     $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, 
                               $scope.NODE_AND_ARROW_LAYER, $scope.GRID_LAYER, $scope.BUCKET_LAYER];
-    $scope.DEFAULT_LIMIT = 1001;
+    $scope.DEFAULT_LIMIT = 1000;
     $scope.DEFAULT_NEW_LAYER_TYPE = $scope.MAP_LAYER_TYPES[5];//xkcd change this back to 0
 
     $scope.cacheMap = false;
@@ -55,11 +57,12 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.functions.createMenuText = function() {
         var text = "";
         $scope.active.layers.forEach(function(layer) {
+            var dataSize = ( layer.olLayer.pointTotal ? layer.olLayer.pointTotal: layer.olLayer.data.length)
             if(!layer.new && layer.show && layer.olLayer.data) {
-                var limit = layer.olLayer.pointLimit <= layer.olLayer.pointTotal;
-                var count = $filter("number")(limit ? layer.olLayer.pointLimit : layer.olLayer.pointTotal);
+                var limit = layer.olLayer.pointLimit <= dataSize;
+                var count = $filter("number")(limit ? layer.olLayer.pointLimit : dataSize);
                 text += (text ? ", " : "") + layer.name + (limit ? " (" + count + " limit)" : "");
-                layer.message = "Showing " + count + " points" + (limit ? " (limited)" : "") + " from " + $filter("number")(layer.olLayer.data.length) + " data records.";
+                layer.message = "Showing " + count + " points" + (limit ? " (limited)" : "") + " from " + $filter("number")(dataSize) + " data records.";
             }
         });
         return text;
@@ -728,8 +731,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         return bounds;
     };
 
-    $scope.testFoo = function() {
-        console.log("Reloading from database not yet implemented; just refresh the page. Maybe.");
+    $scope.markDirty = function() {
+        $scope.reloadDatabase = true;
     }
 
     /**
@@ -758,6 +761,10 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         var limit;
 
         var addFields = function(layerFields) {
+            // So how should I add something to the query?
+            // Should it be done here?
+            // Attempting to do so.
+            // change console.log so it doesn't print out "[object object]"
             layerFields.forEach(function(field) {
                 if($scope.functions.isFieldValid(field)) {
                     queryFields[field.columnName] = true;
@@ -766,6 +773,11 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         };
 
         layers.forEach(function(layer) {
+
+            // Use the highest limit for the data query from all layers for the given database/table.
+            // Only the first X elements will be used for each layer based on the limit of the layer.
+            limit = limit ? Math.max(limit, layer.limit) : layer.limit;
+
             var layerFields = [
                 layer.latitudeField,
                 layer.longitudeField,
@@ -788,6 +800,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                     layerFields.push(fieldName);
                 });
             }
+
+            query.useInMemory = false;
 
             // if((layer.type === $scope.GRID_LAYER || layer.type === $scope.BUCKET_LAYER)
             if((layer.type === $scope.GRID_LAYER)
@@ -817,60 +831,58 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 }
             }
 
-            if(layer.type === $scope.BUCKET_LAYER && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
+            if(layer.type === $scope.BUCKET_LAYER) {
+                if ($scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
 
-                var interval = $scope.map.getGraticuleInterval();
-                console.log(interval);
-                var bottom = getNearestMultiple(interval, $scope.dataBounds.bottom, 'lower');
-                var top = getNearestMultiple(interval, $scope.dataBounds.top, 'higher');
-                var left = getNearestMultiple(interval, $scope.dataBounds.left, 'lower');
-                var right = getNearestMultiple(interval, $scope.dataBounds.right, 'higher');
-                var intList = $scope.map.graticuleIntervalList;
-                // console.log(JSON.stringify(intList));
-                //what is "dataBounds"? does it actually look for the nearest points to each given lat and lon?
-                var params = {
-                    latField: layer.latitudeField.columnName,
-                    lonField: layer.longitudeField.columnName,
-                    aggregationField: (layer.colorField) ? layer.colorField.prettyName : "",
-                    // minLat: bottom,
-                    // maxLat: top,
-                    // minLon: left,
-                    // maxLon: right,
-                    // numTilesVertical: (top - bottom) / interval,
-                    // numTilesHorizontal: (right - left) / interval,
-                    intervals: intList,
-                    i: interval
-                    // zoomLevel: 0,
-                    // ntrvl: interval
-                };
-                // console.log("*******\n" + interval + "\n*--*\n" + $scope.map + "\n");
-                // console.log("*__*\n" + JSON.stringify($scope.map.zoom) + "\n\n");
-                query.transform(new neon.query.Transform('com.ncc.neon.query.transform.BucketingTransformer').params(params));
-                
+                    var interval = $scope.map.getGraticuleInterval();
+                    console.log(interval);
+                    var bottom = getNearestMultiple(interval, $scope.dataBounds.bottom, 'lower');
+                    var top = getNearestMultiple(interval, $scope.dataBounds.top, 'higher');
+                    var left = getNearestMultiple(interval, $scope.dataBounds.left, 'lower');
+                    var right = getNearestMultiple(interval, $scope.dataBounds.right, 'higher');
+                    var intList = $scope.map.graticuleIntervalList;
 
+                    //what is "dataBounds"? does it actually look for the nearest points to each given lat and lon?
+                    var params = {
+                        latField: layer.latitudeField.columnName,
+                        lonField: layer.longitudeField.columnName,
+                        aggregationField: (layer.colorField) ? layer.colorField.prettyName : "",
+                        intervals: intList,
+                        i: interval
+                    };
 
+                    //Does this call the transform's method? I don't think so
+                    query.transform(new neon.query.Transform('com.ncc.neon.query.transform.BucketingTransformer').params(params));
+                    query.useInMemory = ! $scope.reloadDatabase;
+                    
+                    //after querying the DB once and building the buckets from the results, immediately set the program 
+                    // to read directly from the .
+                    //You could add a second button that locks the buckets to not use memory, if you wanted;
+                    // just make a toggle button call a function that calls markDirty and sets a lock
+                    $scope.reloadDatabase = false;
 
-                //*
-                // if(layer.colorField) {
-                //     layerFields.push({
-                //         columnName: layer.colorField.columnName,
-                //         prettyName: layer.colorField.prettyName
-                //     });
-                // }
+                    limit = 10000000;
+                }
+                else { // if it's a bucket_layer but youve zoomed in enough that it turns into a points layer, don't use 
+                       //  the bucket layer's limit (bucket layer tries to query all points)
+                    limit = layer.limit || $scope.DEFAULT_LIMIT;
+                }
             }
 
             addFields(layerFields);
 
-            // Use the highest limit for the data query from all layers for the given database/table.
-            // Only the first X elements will be used for each layer based on the limit of the layer.
-            limit = limit ? Math.max(limit, layer.limit) : layer.limit;
         });
+
+        // console.log(JSON.stringify(query));
+
+        console.log("********* " + query.useInMemory + "\n");
 
         query.limit(limit || $scope.DEFAULT_LIMIT).withFields(Object.keys(queryFields));
         return query;
     };
     
     $scope.functions.executeQuery = function(connection, query) {
+        console.log("+++++++++ " + query.useInMemory + "\n");
         if(query instanceof neon.query.Query) {
             return connection.executeQuery(query);
         }
@@ -1226,7 +1238,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 }
             });
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
-            layer.limit = 10000000;
+            // layer.limit = 10000000;
             if(layer.show) {
                 $scope.map.graticuleControl.activate();
             }
@@ -1308,12 +1320,15 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             // mergeMultipleValues(data, layer);
 
             var max = 0;
+            var sum = 0;
             data.forEach(function(bucket) {
                 var temp = bucket.data[0].count;
+                sum += temp;
                 if (temp > max) {
                     max = temp;
                 }
             });
+            layer.olLayer.pointTotal = sum;
             var sqrRtMax = Math.sqrt(max);
             data.forEach(function(bucket) {
                 if(bucket.data.length > 0) {
@@ -1350,7 +1365,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 }
             });
         }
-        return layer.olLayer.setData(newPointsList || [], layer.limit);
+        // since it's the bucket grid, get all the data, not just the layer.limit
+        return layer.olLayer.setData(newPointsList || [], 10000000);
+        // return layer.olLayer.setData(newPointsList || [], layer.limit);
     };
 
     var mergeMultipleValues = function(data, layer) { // DOES THIS WORK? I DON'T KNOW. TODO
@@ -1465,7 +1482,6 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                                                 || queryData.query.transforms[0].transformName === 'com.ncc.neon.query.transform.BucketingTransformer') {
                 return; // Ignore grid and bucketing queries.
             }
-            // console.log("*********" + queryData.query.transforms[0].transformName);
             var tempObject = {
                 query: queryData.query,
                 name: "map_" + queryData.layer.database.name + "_" + queryData.layer.table.name + "-" + exportId,

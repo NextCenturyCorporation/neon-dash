@@ -50,8 +50,8 @@ var coreMap = coreMap || {};
 coreMap.Map = function(elementId, options) {
     options = options || {};
 
-    this.graticuleIntervalList = [45, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1];
-    // this.graticuleIntervalList = [90, 45, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.01, 0.005, 0.002, 0.001];
+    // this.graticuleIntervalList = [45, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05];
+    this.graticuleIntervalList = [90, 45, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.01, 0.005, 0.002, 0.001];
     this.minVisibleForGrid = 0.5; // If the graticule's granularity drops lower than this, we hide it and treat any grid layer as a point layer.
 
     this.elementId = elementId;
@@ -601,7 +601,7 @@ coreMap.Map.prototype.setupControls = function() {
     this.graticuleControl = new OpenLayers.Control.Graticule( {
         autoActivate: false,
         intervals: this.graticuleIntervalList,
-        targetSize: 150,
+        targetSize: 100,
         labelled: false
     });
 
@@ -646,6 +646,10 @@ coreMap.Map.prototype.getGraticuleInterval = function() {
         if (distSq <= testSq) {
             break;
         }
+        // var distSq = (p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y);
+        // if (distSq <= testSq) {
+        //     break;
+        // }
     }
     return llInterval;
 }
