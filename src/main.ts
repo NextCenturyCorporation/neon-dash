@@ -32,6 +32,18 @@ const HTTP_PROVIDERS = [
     {provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy()},
 ];
 
+const EMPTY_CONFIG = {
+  'dashboard': {},
+  'help': {},
+  'datasets': [],
+  'layouts': {
+      'default': []
+  },
+  'customFilters': {}
+};
+
+let neonConfigErrors = [];
+
 if (environment.production) {
     enableProdMode();
 }
@@ -49,9 +61,16 @@ let injector = ReflectiveInjector.resolveAndCreate([HTTP_PROVIDERS, {
 let http = injector.get(Http);
 
 function handleConfigJsonError(error) {
-    console.log(error);
-    console.log('missing json file.');
-    document.write('Your Neon-GTD installation may be missing a configuration file.  Please notify your administrator.');
+    if (isErrorNotFound(error, 'json')) {
+        console.log(error);
+        console.log('missing json file.');
+    } else {
+        console.log(error);
+        showError('Error reading config.json: ' + error.message);
+        //document.write('Error in json file.  See browser console for more details');
+    }
+    showError('Cannot find valid config.yaml or config.json.');
+    bootstrapWithData(EMPTY_CONFIG);
 }
 
 function loadConfigJson() {
@@ -60,9 +79,19 @@ function loadConfigJson() {
         .toPromise();
 }
 
+function isErrorNotFound(error, fileType) {
+    //TODO could add other server errors
+    return error.status === 404;
+}
+
 function handleConfigYamlError(error) {
-    console.log(error);
-    console.log('missing yaml file. trying json config.');
+    if (isErrorNotFound(error, 'yaml')) {
+        console.log(error);
+        console.log('missing yaml file. trying json config.');
+    } else {
+        console.log(error);
+        showError('Error reading config.yaml: ' + error.message);
+    }
     return loadConfigJson().then(config => bootstrapWithData(config))
         .catch(handleConfigJsonError);
 }
@@ -73,9 +102,39 @@ function loadConfigYaml() {
        .toPromise();
 }
 
+function validateConfig(config) {
+    if (config) {
+        /*if (!config.datasets) {
+            showError('Config is missing \'datasets\' property');
+            console.log('Config is missing \'datasets\' property');
+            console.log(config);
+            config.datasets = [];
+        }*/
+        return config;
+    } else {
+        showError('Config from config.yaml or config.json is empty');
+        console.log('Config appears to be empty');
+        console.log(config);
+        return EMPTY_CONFIG;
+    }
+}
+
 function bootstrapWithData(config) {
+  config = validateConfig(config);
+  let errors = neonConfigErrors;
+  neonConfigErrors = null;
+  if (errors && errors.length > 0) {
+      config.errors = errors;
+  }
   window['appConfig'] = config;
   return platformBrowserDynamic().bootstrapModule(AppModule);
+}
+
+function showError(error) {
+    if (!neonConfigErrors) {
+        neonConfigErrors = [];
+    }
+    neonConfigErrors.push(error);
 }
 
 neon.ready(function() {
@@ -83,4 +142,3 @@ neon.ready(function() {
   loadConfigYaml().then(config => bootstrapWithData(config))
     .catch(handleConfigYamlError);
 });
-

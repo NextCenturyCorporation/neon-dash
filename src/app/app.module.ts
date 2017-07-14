@@ -54,6 +54,7 @@ import { LegendComponent } from './components/legend/legend.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
+import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import {AppMaterialModule} from './app.material.module';
@@ -80,7 +81,8 @@ export function getAppConfig() {
         TimelineComponent,
         DataTableComponent,
         ScatterPlotComponent,
-        FilterBuilderComponent
+        FilterBuilderComponent,
+        SnackBarComponent
     ],
     imports: [
         BrowserModule,
@@ -111,7 +113,7 @@ export function getAppConfig() {
             useFactory: getAppConfig
         }
     ],
-    entryComponents: [AppComponent, AddVisualizationComponent, FilterTrayComponent],
+    entryComponents: [AppComponent, AddVisualizationComponent, FilterTrayComponent, SnackBarComponent],
     bootstrap: [AppComponent]
 })
 

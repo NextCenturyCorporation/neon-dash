@@ -98,7 +98,7 @@ export class DatasetService {
     };
 
     constructor(@Inject('config') private config: NeonGTDConfig) {
-        this.datasets = config.datasets;
+        this.datasets = (config.datasets ? config.datasets : []);
         this.messenger = new neon.eventing.Messenger();
         this.datasets.forEach(function(dataset) {
             DatasetService.validateDatabases(dataset);

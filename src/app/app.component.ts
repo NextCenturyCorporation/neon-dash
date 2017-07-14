@@ -13,11 +13,13 @@
  * limitations under the License.
  *
  */
-import { AfterViewInit, Component, OnInit, OnDestroy, QueryList, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnInit, OnDestroy, QueryList, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
 
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
 
+import { NeonGTDConfig } from './neon-gtd-config';
+import { MdSnackBar, MdToolbar } from '@angular/material';
 import { ActiveGridService } from './services/active-grid.service';
 import { DatasetService } from './services/dataset.service';
 import { ThemesService } from './services/themes.service';
@@ -26,6 +28,7 @@ import { NeonGridItem } from './neon-grid-item';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
+import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 
 import { MdDialog, MdDialogConfig, MdDialogRef } from '@angular/material';
 
@@ -75,12 +78,23 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
 
     constructor(public datasetService: DatasetService, public themesService: ThemesService,
-        private activeGridService: ActiveGridService, public dialog: MdDialog, public viewContainerRef: ViewContainerRef) {
+        private activeGridService: ActiveGridService, public dialog: MdDialog,
+        public viewContainerRef: ViewContainerRef, @Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MdSnackBar) {
         // TODO: Default to false and set to true only after a dataset has been selected.
         this.showAddVisualizationButton = true;
         this.showFilterTrayButton = true;
         this.datasets = this.datasetService.getDatasets();
         this.themesService = themesService;
+        this.neonConfig = neonConfig;
+        this.snackBar = snackBar;
+
+        if (neonConfig.errors && neonConfig.errors.length > 0) {
+            let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
+                viewContainerRef: this.viewContainerRef
+            });
+            snackBarRef.instance.snackBarRef = snackBarRef;
+            snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
+        }
     }
 
     gridItemsToString(): string {
