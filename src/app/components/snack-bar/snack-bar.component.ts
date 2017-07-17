@@ -29,7 +29,7 @@ export class SnackBarComponent {
         this.messages.push(msgObj);
     }
 
-    private close(index) {
+    public close(index) {
         if (index < 0 || !this.messages || index >= this.messages.length) {
             //TODO ERROR in the error reporting!
             return;
@@ -40,7 +40,7 @@ export class SnackBarComponent {
         }
     }
 
-    private closeAll() {
+    public closeAll() {
         if (this.snackBarRef && this.snackBarRef.dismiss) {
             this.snackBarRef.afterDismissed().subscribe(() => {
               this.messages = [];
