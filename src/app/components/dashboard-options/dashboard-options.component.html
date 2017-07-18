@@ -22,6 +22,14 @@
             </div>
             <p></p>
 
+            <div md-margin>
+              <md-toolbar class="mat-primary">
+                  <span>Property Service Configuration</span>
+              </md-toolbar>
+              <button md-raised-button class="btn-open-config-edit mat-primary" title="Open configuration editor." (click)="openEditConfigDialog()"> Edit configuration</button>
+              <button md-raised-button class="mat-warn" title="Removes any configuration saved in the Property Service.  Configuration will be loaded from yaml or json files."> Delete configuration</button>
+            </div>
+
             <md-toolbar class="mat-primary">
                 <span>Dashboard States</span>
             </md-toolbar>

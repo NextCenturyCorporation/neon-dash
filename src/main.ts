@@ -96,6 +96,32 @@ function handleConfigYamlError(error) {
         .catch(handleConfigJsonError);
 }
 
+function loadConfigFromPropertyService() {
+    return http.get('neon/services/propertyservice/config')
+        .map((response) => {
+            let val = response.json().value;
+            if (!val) {
+              throw new Error('No config');
+            }
+            return JSON.parse(val);
+          })
+        .toPromise();
+}
+
+function handleConfigPropertyServiceError(error) {
+    if (error.message === 'No config') {
+        //Do nothing, this is the expected response
+    } else if (isErrorNotFound(error, 'Property Service')) {
+        console.log(error);
+        console.log('missing config from Property Service. Trying yaml config.');
+    } else {
+        console.log(error);
+        showError('Error reading Property Service config: ' + error.message);
+    }
+    return loadConfigYaml().then(config => bootstrapWithData(config))
+        .catch(handleConfigYamlError);
+}
+
 function loadConfigYaml() {
    return http.get('app/config/config.yaml')
        .map(response => yaml.load(response.text()))
@@ -139,6 +165,6 @@ function showError(error) {
 
 neon.ready(function() {
   neon.setNeonServerUrl('/neon');
-  loadConfigYaml().then(config => bootstrapWithData(config))
-    .catch(handleConfigYamlError);
+  loadConfigFromPropertyService().then(config => bootstrapWithData(config))
+    .catch(handleConfigPropertyServiceError);
 });

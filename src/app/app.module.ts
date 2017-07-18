@@ -32,6 +32,7 @@ import { ExportService } from './services/export.service';
 import { FilterService } from './services/filter.service';
 import { ImportService } from './services/import.service';
 import { ParameterService } from './services/parameter.service';
+import { PropertyService } from './services/property.service';
 import { ThemesService } from './services/themes.service';
 import { TranslationService } from './services/translation.service';
 import { VisualizationService } from './services/visualization.service';
@@ -55,8 +56,10 @@ import { DataTableComponent } from './components/data-table/data-table.component
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
+import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { JSONEditorModule } from 'ng2-jsoneditor';
 import {AppMaterialModule} from './app.material.module';
 
 export function getAppConfig() {
@@ -82,7 +85,8 @@ export function getAppConfig() {
         DataTableComponent,
         ScatterPlotComponent,
         FilterBuilderComponent,
-        SnackBarComponent
+        SnackBarComponent,
+        ConfigEditorComponent
     ],
     imports: [
         BrowserModule,
@@ -93,7 +97,8 @@ export function getAppConfig() {
         ChartModule,
         NgxDatatableModule,
         BrowserAnimationsModule,
-        AppMaterialModule
+        AppMaterialModule,
+        JSONEditorModule
     ],
     providers: [
         ActiveGridService,
@@ -104,6 +109,7 @@ export function getAppConfig() {
         FilterService,
         ImportService,
         ParameterService,
+        PropertyService,
         ThemesService,
         TranslationService,
         VisualizationService,
@@ -113,7 +119,7 @@ export function getAppConfig() {
             useFactory: getAppConfig
         }
     ],
-    entryComponents: [AppComponent, AddVisualizationComponent, FilterTrayComponent, SnackBarComponent],
+    entryComponents: [AppComponent, AddVisualizationComponent, FilterTrayComponent, SnackBarComponent, ConfigEditorComponent],
     bootstrap: [AppComponent]
 })
 

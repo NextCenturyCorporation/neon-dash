@@ -17,6 +17,7 @@ import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
 import { MdSnackBar, MdSnackBarConfig } from '@angular/material';
+import { MdDialog, MdDialogRef } from '@angular/material';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -24,6 +25,8 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { ExportService } from '../../services/export.service';
 import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
+
+import { ConfigEditorComponent } from '../config-editor/config-editor.component';
 
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
@@ -53,7 +56,7 @@ export class DashboardOptionsComponent implements OnInit {
     constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
         private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
         private mdSnackBar: MdSnackBar, private parameterService: ParameterService,
-        public themesService: ThemesService, private viewContainerRef: ViewContainerRef) { }
+        public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MdDialog) { }
 
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
@@ -123,6 +126,21 @@ export class DashboardOptionsComponent implements OnInit {
 
         connection.executeExport(data, this.exportSuccess.bind(this), this.exportFail.bind(this), this.exportService.getFileFormat());
     }
+
+    openEditConfigDialog() {
+        let dConfig  = {
+            height: '80%',
+            width: '80%',
+            hasBackdrop: true,
+            disableClose: true
+        };
+        let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
+        //dialogRef.instance.configEditorRef
+        //dialogRef.afterClosed().subscribe(result => {
+        //  this.selectedOption = result;
+        //});
+      }
+
 
     /*
      * Saves the current state to the given name.
