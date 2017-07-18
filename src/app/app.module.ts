@@ -59,7 +59,7 @@ import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { JSONEditorModule } from 'ng2-jsoneditor';
+//import { JSONEditorModule } from 'ng2-jsoneditor';
 import {AppMaterialModule} from './app.material.module';
 
 export function getAppConfig() {
@@ -98,7 +98,7 @@ export function getAppConfig() {
         NgxDatatableModule,
         BrowserAnimationsModule,
         AppMaterialModule,
-        JSONEditorModule
+//        JSONEditorModule
     ],
     providers: [
         ActiveGridService,

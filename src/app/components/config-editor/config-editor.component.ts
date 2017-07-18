@@ -1,10 +1,12 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation,
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation, ElementRef,
   ChangeDetectionStrategy, ChangeDetectorRef, Injector, Inject, ViewChild } from '@angular/core';
 
 import { MdSnackBar, MdDialog } from '@angular/material';
 import { NeonGTDConfig } from './../../neon-gtd-config';
 import { PropertyService } from '../../services/property.service';
-import { JsonEditorComponent, JsonEditorOptions } from 'ng2-jsoneditor';
+import * as JSONEditor from 'jsoneditor';
+declare var editor: any;
+//import { JsonEditorComponent, JsonEditorOptions } from 'ng2-jsoneditor';
 import * as _ from 'lodash';
 
 @Component({
@@ -12,15 +14,16 @@ import * as _ from 'lodash';
   templateUrl: 'config-editor.component.html',
   styleUrls: ['config-editor.component.scss'],
 })
-export class ConfigEditorComponent {
-    @ViewChild('JsonEditorComponent') editor: JsonEditorComponent;
+export class ConfigEditorComponent implements AfterViewInit, OnInit {
+    @ViewChild('JsonEditorComponent') editorRef: ElementRef;
     public CONFIG_PROP_NAME: string = 'config';
     public configEditorRef: any;
     public currentConfig: NeonGTDConfig;
     public editorData: NeonGTDConfig;
-    public editorOptions: JsonEditorOptions;
+    public editorOptions: any;
     public DEFAULT_SNACK_BAR_DURATION: number = 3000;
     public modes: any[];
+    public editor: any;
 
     constructor(@Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MdSnackBar,
         private propertyService: PropertyService) {
@@ -29,8 +32,8 @@ export class ConfigEditorComponent {
         if (this.currentConfig.errors) {
             delete this.currentConfig.errors;
         }
-        this.editorOptions = new JsonEditorOptions();
-        this.reset();
+        this.editorOptions = this.getJsonEditorOptions();
+        this.editorData = _.cloneDeep(this.currentConfig);
         this.modes = [
           {
               value: 'tree',
@@ -56,6 +59,14 @@ export class ConfigEditorComponent {
         //'tree' (default), 'view', 'form', 'code', 'text
     }
 
+    ngOnInit(): void {
+
+    }
+
+    ngAfterViewInit() {
+        this.editor = new JSONEditor(this.editorRef.nativeElement, this.editorOptions, this.editorData);
+    }
+
     public close() {
         this.configEditorRef.closeAll();
     }
@@ -66,7 +77,7 @@ export class ConfigEditorComponent {
     }
 
     public save() {
-        let text = this.editor.getText();
+        let text = JSON.stringify(this.editor.get());
         this.propertyService.setProperty(this.CONFIG_PROP_NAME, text,
         (response) => {
             this.snackBar.open('Configuration updated successfully.  Refresh to reflect changes.',
@@ -98,5 +109,17 @@ export class ConfigEditorComponent {
         //this.prettyText = JSON.stringify(this.currentConfig, null, 2);
         //this.text = JSON.stringify(this.currentConfig);
         this.editorData = _.cloneDeep(this.currentConfig);
+        this.editor.set(this.editorData);
+    }
+
+    public getJsonEditorOptions() {
+       return {
+          escapeUnicode: false,
+          sortObjectKeys: false,
+          history: true,
+          mode: 'tree',
+          search: true,
+          indentation: 2,
+       };
     }
 }

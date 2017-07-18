@@ -1,7 +1,7 @@
 <div class="messages">
   <div class="messages-header">Configuration Editor</div>
   <div class="message-body">
-    <json-editor #JsonEditorComponent [options]="editorOptions" [data]="editorData"></json-editor >
+    <div #JsonEditorComponent ></div>
   </div>
   <div class="messages-footer">
     <md-select placeholder="View Mode" [ngModel]="editorOptions.mode" (change)="changeMode($event)">
