@@ -1,0 +1,21 @@
+<div class="messages">
+  <div class="messages-header">Configuration Editor</div>
+  <div class="message-body">
+    <json-editor #JsonEditorComponent [options]="editorOptions" [data]="editorData"></json-editor >
+  </div>
+  <div class="messages-footer">
+    <md-select placeholder="View Mode" [ngModel]="editorOptions.mode" (change)="changeMode($event)">
+      <md-option *ngFor="let mode of modes" [value]="mode.value" >
+        {{ mode.viewValue }}
+      </md-option>
+    </md-select>
+    <button class="save-btn mat-accent" (click)="save()" md-raised-button aria-label="Save"
+      title="Saves configuration to Property Service.  Refresh is required to see changes.">Save</button>
+    <button class="delete-btn mat-accent" (click)="delete()" md-raised-button aria-label="Delete"
+      title="Removes any configuration saved in the Property Service.  Configuration will be loaded from yaml or json files.">Delete</button>
+    <button class="reset-btn mat-accent" (click)="reset()" md-raised-button aria-label="Reset"
+      title="Reset changes to actively loaded configuation.">Reset</button>
+    <button class="close-btn mat-accent" md-dialog-close="close" md-raised-button aria-label="Close"
+      title="Close configuration editor and discard changes.">Close</button>
+  </div>
+</div>

@@ -1,0 +1,64 @@
+@import '~@angular/material/_theming';
+@import 'src/themes/neon-green-theme.scss';
+
+.messages {
+    //color: mat-color($accent);
+    overflow-y: auto;
+    padding: 7px;
+    height: 98%;
+}
+.message-body {
+    //flex-shrink: 1;
+    //flex-grow: 10;
+    display: flex;
+    position: absolute;
+    json-editor {
+        height: 100%;
+        width: 100%;
+    }
+    top: 60px;
+    bottom: 70px;
+    left: 20px;
+    right: 20px;
+}
+
+.messages-header {
+    display: flex;
+    justify-content: center;
+    font-size: 1.5em;
+    font-weight: bold;
+    position: absolute;
+    height: 30px;
+    top: 20px;
+    left: 15px;
+    right: 15px;
+}
+
+.messages-footer {
+    position: absolute;
+    bottom: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: baseline;
+    height: 40px;
+    button {
+        margin: 5px 10px 5px 10px;
+    }
+
+    md-select {
+        margin: 5px 10px 5px 10px;
+    }
+    bottom: 15px;
+    left: 15px;
+    right: 15px;
+}
+
+.close-button {
+  width: 20px;
+  height: 20px;
+}
+
+.close-icon {
+  font-size: 14px;
+}
