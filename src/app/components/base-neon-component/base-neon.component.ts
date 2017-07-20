@@ -38,7 +38,10 @@ export abstract class BaseNeonComponent implements OnInit,
         fields: FieldMetaData[]
     };
 
+    public exportId: number;
+
     public isLoading: boolean;
+    public isExportable: boolean;
 
     constructor(
         private connectionService: ConnectionService,
@@ -67,6 +70,8 @@ export abstract class BaseNeonComponent implements OnInit,
             unsharedFilterValue: '',
             fields: []
         };
+        this.isExportable = true;
+        this.doExport = this.doExport.bind(this);
     };
 
     ngOnInit() {
@@ -81,6 +86,7 @@ export abstract class BaseNeonComponent implements OnInit,
         this.initData();
 
         this.subNgOnInit();
+        this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
         this.postInit();
     };
@@ -89,6 +95,54 @@ export abstract class BaseNeonComponent implements OnInit,
     abstract subNgOnInit();
     abstract subNgOnDestroy();
     abstract getOptionFromConfig(option: string);
+
+    getExportFields() {
+        console.log("EXPORT FIELDS NOT IMPLEMENTED IN " + this.getVisualizationName());
+        return [];
+    }
+
+    export() {
+        //TODO this function needs to be changed  to abstract once we get through all the visualizations.
+
+        let query = this.createQuery();
+        if (query) {
+            //console.log('EXPORT NOT IMPLEMENTED IN '+ this.getVisualizationName());
+            let exportName = this.queryTitle;
+            if (exportName) {
+                //replaceAll
+                exportName = exportName.split(":").join(" ");
+            }
+            var finalObject = {
+                name: "Query_Results_Table",
+                data: [{
+                    query: query,
+                    name: exportName + '-' + this.exportId,
+                    fields: [],
+                    ignoreFilters: query.ignoreFilters,
+                    selectionOnly: query.selectionOnly,
+                    ignoredFilterIds: [],//query.ignoredFilterIds,
+                    type: "query"
+                }]
+            };
+            let fields = this.getExportFields();
+            for(let field of fields) {
+                finalObject.data[0].fields.push({
+                    query: field['columnName'],
+                    pretty: field['prettyName'] || field['columnName']
+                });
+            }
+
+            return finalObject;
+        } else {
+            console.log('SKIPPING EXPORT FOR '+ this.getVisualizationName());
+            return null;
+        }
+
+    }
+
+    doExport() {
+        return this.export();
+    };
 
     protected enableRedrawAfterResize(enable: boolean) {
         this.redrawAfterResize = enable;
@@ -105,6 +159,7 @@ export abstract class BaseNeonComponent implements OnInit,
 
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
+        this.exportService.unregister(this.exportId);
         /* $scope.element.off('resize', resize);
         $scope.element.find('.headers-container').off('resize', resizeDisplay);
         $scope.element.find('.options-menu-button').off('resize', resizeTitle);

@@ -67,6 +67,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         this.active.operators.push({ value: 'contains', prettyName: 'contains' });
         this.active.operators.push({ value: 'not contains', prettyName: 'not contains' });
         this.queryTitle = 'Filter Builder';
+        this.isExportable = false;
     };
 
     subNgOnInit() {

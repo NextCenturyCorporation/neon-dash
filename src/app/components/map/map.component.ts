@@ -249,6 +249,22 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         return r;
     }
 
+    getExportFields() {
+        let usedFields = [this.active.latitudeField,
+            this.active.longitudeField,
+            this.active.colorField,
+            this.active.sizeField,
+            this.active.dateField];
+        return usedFields
+          .filter((header) => header && header.columnName)
+          .map((header) => {
+              return {
+                  columnName: header.columnName,
+                  prettyName: header.prettyName
+              };
+          });
+    }
+
     drawSelection() {
         if (!this.selection.selectionGeometry) {
             let geo = this.cesiumViewer.entities.add({

@@ -150,6 +150,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         return active;
     };
 
+    getExportFields() {
+        return this.active.headers
+          .filter((header) => header.active)
+          .map((header) => {
+              return {
+                  columnName: header.prop,
+                  prettyName: header.name
+              };
+          });
+    }
+
     closeColumnSelector() {
         this.active.showColumnSelector = 'hide';
         this.active = Object.assign({}, this.active);

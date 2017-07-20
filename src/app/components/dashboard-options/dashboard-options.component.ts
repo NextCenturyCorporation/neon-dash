@@ -82,6 +82,7 @@ export class DashboardOptionsComponent implements OnInit {
     exportSuccess(queryResults) {
         let config = new MdSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
+        config.duration = 10000;
         console.log('shoop');
         this.mdSnackBar.open('Export In Progress...', 'OK', config);
         window.location.assign('/neon/services/exportservice/generateZip/' + queryResults.data);

@@ -84,7 +84,7 @@ export class ExportService {
      * Unregisters a function with the given ID from this  Should be called by visualization widgets upon being destroyed.
      * @param uuid {String} The unique ID of the function being unregistered.
      */
-    unregister(uuid: string): void {
+    unregister(uuid: number): void {
         let x: number = this.widgets.length - 1;
         for (x; x >= 0; x--) {
             if ((this.widgets[x]).id === uuid) {
