@@ -496,11 +496,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         return null;
     }
 
-    getExportFields() {
-        console.log("EXPORT FIELDS NOT IMPLEMENTED IN " + this.getVisualizationName());
-        return [];
-    }
-
     onQuerySuccess(response) {
         // need to reset chart when data potentially changes type (or number of datasets)
         let ctx = this.chartModule['chart'].chart.ctx;

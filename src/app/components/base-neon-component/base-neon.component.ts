@@ -97,7 +97,7 @@ export abstract class BaseNeonComponent implements OnInit,
     abstract getOptionFromConfig(option: string);
 
     getExportFields() {
-        console.log("EXPORT FIELDS NOT IMPLEMENTED IN " + this.getVisualizationName());
+        //console.log('EXPORT FIELDS NOT IMPLEMENTED IN ' + this.getVisualizationName());
         return [];
     }
 
@@ -110,22 +110,22 @@ export abstract class BaseNeonComponent implements OnInit,
             let exportName = this.queryTitle;
             if (exportName) {
                 //replaceAll
-                exportName = exportName.split(":").join(" ");
+                exportName = exportName.split(':').join(' ');
             }
-            var finalObject = {
-                name: "Query_Results_Table",
+            let finalObject = {
+                name: 'Query_Results_Table',
                 data: [{
                     query: query,
                     name: exportName + '-' + this.exportId,
                     fields: [],
                     ignoreFilters: query.ignoreFilters,
                     selectionOnly: query.selectionOnly,
-                    ignoredFilterIds: [],//query.ignoredFilterIds,
-                    type: "query"
+                    ignoredFilterIds: [], //query.ignoredFilterIds,
+                    type: 'query'
                 }]
             };
             let fields = this.getExportFields();
-            for(let field of fields) {
+            for (let field of fields) {
                 finalObject.data[0].fields.push({
                     query: field['columnName'],
                     pretty: field['prettyName'] || field['columnName']
@@ -134,7 +134,7 @@ export abstract class BaseNeonComponent implements OnInit,
 
             return finalObject;
         } else {
-            console.log('SKIPPING EXPORT FOR '+ this.getVisualizationName());
+            console.log('SKIPPING EXPORT FOR ' + this.getVisualizationName());
             return null;
         }
 
