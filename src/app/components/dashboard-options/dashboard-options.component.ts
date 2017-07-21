@@ -52,6 +52,7 @@ export class DashboardOptionsComponent implements OnInit {
     public stateNames: string[] = [];
     private stateName: string = '';
     private stateNameError: boolean = false;
+    private exportTarget: string = 'all';
 
     constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
         private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
@@ -69,63 +70,6 @@ export class DashboardOptionsComponent implements OnInit {
         if (themeId) {
             this.themesService.setCurrentTheme(themeId);
         }
-    }
-
-    setExportFormat(value: number) {
-        this.exportService.setFileFormat(value);
-    }
-
-    toggleExportFormat(event: Event) {
-        event.preventDefault();
-    }
-
-    exportSuccess(queryResults) {
-        let config = new MdSnackBarConfig();
-        config.viewContainerRef = this.viewContainerRef;
-        config.duration = 10000;
-        console.log('shoop');
-        this.mdSnackBar.open('Export In Progress...', 'OK', config);
-        window.location.assign('/neon/services/exportservice/generateZip/' + queryResults.data);
-    };
-
-    exportFail(response) {
-        let config = new MdSnackBarConfig();
-        config.viewContainerRef = this.viewContainerRef;
-        if (response.responseJSON) {
-            this.mdSnackBar.open('Error: ' + response.responseJSON.error, 'Close', config);
-        } else {
-            this.mdSnackBar.open('Error: The export service failed to respond properly.', 'Close', config);
-        }
-    };
-
-    exportAll() {
-        let connection: neon.query.Connection = this.connectionService.getActiveConnection();
-        let config = new MdSnackBarConfig();
-        config.viewContainerRef = this.viewContainerRef;
-        let data = {
-            // TODO Change this hardcoded value to something like a user ID.
-            name: 'All_Widgets',
-            data: []
-        };
-
-        if (!connection) {
-            this.mdSnackBar.open('Please select a dataset before exporting.', 'OK', config);
-            return;
-        }
-
-        this.exportService.getWidgets().forEach(function(widget) {
-            let widgetObject = widget.callback();
-            for (let x = 0; x < widgetObject.data.length; x++) {
-                data.data.push(widgetObject.data[x]);
-            }
-        });
-
-        if (this.exportService.getWidgets().length === 0) {
-            this.mdSnackBar.open('There are no visualizations to export.', 'OK', config);
-            return;
-        }
-
-        connection.executeExport(data, this.exportSuccess.bind(this), this.exportFail.bind(this), this.exportService.getFileFormat());
     }
 
     openEditConfigDialog() {

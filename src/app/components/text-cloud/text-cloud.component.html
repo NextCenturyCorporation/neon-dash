@@ -86,9 +86,7 @@
                 </table>
                 <p></p>
 
-                <button md-raised-button color="primary" class="export" (click)="requestExport()">
-                    Export to File
-                </button>
+                <app-export-control [exportId]="exportId"></app-export-control>
             </md-card-content>
         </md-card>
     </md-sidenav>

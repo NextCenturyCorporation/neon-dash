@@ -4,12 +4,13 @@
             <md-toolbar class="mat-primary">
                 <span>Export Format</span>
             </md-toolbar>
-            <div class='radio-container' layout="row" md-margin>
+            <!--<div class='radio-container' layout="row" md-margin>
                 <md-radio-group [(ngModel)]="formData.exportFormat" name="exportFormatGroup" (change)="setExportFormat(formData.exportFormat)">
                     <md-radio-button *ngFor="let format of exportService.getFileFormats()" [value]="format.value">{{ (format.name) ? format.name.toUpperCase() : 'Invalid Type'}}</md-radio-button>
                 </md-radio-group>
                 <button md-raised-button (click)="exportAll()"> Export All Visualizations </button>
-            </div>
+            </div>-->
+            <app-export-control [exportTarget]="exportTarget"></app-export-control>
             <p></p>
 
             <md-toolbar class="mat-primary">

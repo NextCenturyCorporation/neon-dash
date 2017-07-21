@@ -1,0 +1,6 @@
+<div class='radio-container' layout="row" md-margin>
+    <md-radio-group *ngIf="!hideFormats" [(ngModel)]="exportFormat" (change)="setExportFormat(exportFormat)">
+        <md-radio-button *ngFor="let format of exportService.getFileFormats()" [value]="format.value">{{ (format.name) ? format.name.toUpperCase() : 'Invalid Type'}}</md-radio-button>
+    </md-radio-group>
+    <button md-raised-button (click)="handleExportClick()">{{buttonText}}</button>
+</div>

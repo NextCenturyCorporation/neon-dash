@@ -95,11 +95,7 @@ export abstract class BaseNeonComponent implements OnInit,
     abstract subNgOnInit();
     abstract subNgOnDestroy();
     abstract getOptionFromConfig(option: string);
-
-    getExportFields() {
-        //console.log('EXPORT FIELDS NOT IMPLEMENTED IN ' + this.getVisualizationName());
-        return [];
-    }
+    abstract getExportFields();
 
     export() {
         //TODO this function needs to be changed  to abstract once we get through all the visualizations.

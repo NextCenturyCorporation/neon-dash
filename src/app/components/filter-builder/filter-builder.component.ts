@@ -82,6 +82,11 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         //Do nothing
     };
 
+    getExportFields() {
+        //Do nothing.  Doesn't export nor does this visualization register to export
+        //therefore, this function can be ignored.
+    }
+
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
     };

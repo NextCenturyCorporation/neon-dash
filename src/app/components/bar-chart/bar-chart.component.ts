@@ -164,6 +164,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.chartModule['chart'].destroy();
     };
 
+    getExportFields() {
+        let valuePrettyName = this.active.aggregation +
+            (this.active.aggregationFieldHidden ? '' : '-' + this.active.aggregationField.prettyName);
+        valuePrettyName = valuePrettyName.charAt(0).toUpperCase() + valuePrettyName.slice(1);
+        let fields = [{
+            columnName: this.active.dataField.columnName,
+            prettyName: this.active.dataField.prettyName
+        }, {
+            columnName: 'value',
+            prettyName: valuePrettyName
+        }];
+        return fields;
+    }
+
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
     };
