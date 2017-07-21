@@ -32,6 +32,7 @@ import { LineChartComponent } from './components/line-chart/line-chart.component
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { MapComponent } from './components//map/map.component';
 import { LegendComponent } from './components/legend/legend.component';
+import { ExportControlComponent } from './components/export-control/export-control.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
@@ -77,6 +78,7 @@ describe('App: NeonGtd', () => {
                 LineChartComponent,
                 TimelineComponent,
                 LegendComponent,
+                ExportControlComponent,
                 MapComponent,
                 DataTableComponent,
                 ScatterPlotComponent,

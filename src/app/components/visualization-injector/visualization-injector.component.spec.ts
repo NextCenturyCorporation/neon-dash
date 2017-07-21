@@ -12,6 +12,7 @@ import { LineChartComponent } from '../line-chart/line-chart.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { MapComponent } from '../map/map.component';
 import { LegendComponent } from '../legend/legend.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
@@ -33,7 +34,7 @@ describe('Component: VisualizationInjector', () => {
                 DataTableComponent,
                 ScatterPlotComponent,
                 FilterBuilderComponent,
-
+                ExportControlComponent
             ],
             providers: [ComponentFactoryResolver],
             imports: [
