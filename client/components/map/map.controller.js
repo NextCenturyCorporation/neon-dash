@@ -57,8 +57,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.functions.createMenuText = function() {
         var text = "";
         $scope.active.layers.forEach(function(layer) {
-            var dataSize = ( layer.olLayer.pointTotal ? layer.olLayer.pointTotal: layer.olLayer.data.length)
             if(!layer.new && layer.show && layer.olLayer.data) {
+                var dataSize = ( layer.olLayer.pointTotal ? layer.olLayer.pointTotal: layer.olLayer.data.length)
                 var limit = layer.olLayer.pointLimit <= dataSize;
                 var count = $filter("number")(limit ? layer.olLayer.pointLimit : dataSize);
                 text += (text ? ", " : "") + layer.name + (limit ? " (" + count + " limit)" : "");
@@ -134,7 +134,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 layer.type = layerType;
                 layer.name = layerName;
                 createMapLayer(layer);
-            },
+            }
         });
         $scope.map.linksPopupService = $scope.functions.getLinksPopupService();
         $scope.setDefaultView();
@@ -556,30 +556,37 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         var pointData = [];
         var gridData = [];
         if(data) {
-            if (data.length && data[0].data instanceof Array && Object.keys(data[0]).length === 1) { // If the data we're given fits the points+grid query format of: [{data: [stuff]}, {data: [stuff]}]
-                pointData = (data && data.length) ? (data[0].data !== undefined ? data[0].data : data[0]) : [];
-                gridData = (data && data.length > 1) ? data[1].data : [];
+            //The map transforms in neon will either give {data: [stuff]} or [{data: [stuff]}, {data: [stuff]}]
+            // If the data we're given fits the points+grid query format of: [{data: [stuff]}, {data: [stuff]}]
+            if (data.length > 1
+                && data[0].data instanceof Array
+                && data[1].data instanceof Array
+                && Object.keys(data[0]).length === 1) {
+
+                pointData = (data.length) ? (data[0].data !== undefined ? data[0].data : data[0]) : [];
+                gridData = (data.length > 1) ? data[1].data : [];
             }
             else {
                 pointData = data;
             }
         }
+        console.log("updateData length: ", gridData.length, pointData.length);
 
         var dataForBounds = gridData.length > 0 ? gridData : (pointData.length > 0 ? pointData : []); // Calculate our bounds from the grid layer's query if it exists, and otherwise from the normal query.
         var dataBounds = computeDataBounds(dataForBounds);
         var newBounds = new OpenLayers.Bounds(dataBounds.left, dataBounds.bottom, dataBounds.right, dataBounds.top)
             .transform(coreMap.Map.SOURCE_PROJECTION, coreMap.Map.DESTINATION_PROJECTION);
         var mapExtent = $scope.map.map.getExtent();
-        // console.log(JSON.stringify(mapExtent));
-        // console.log(JSON.stringify(newBounds));
-        // console.log(JSON.stringify(dataBounds));
+
         if(Math.abs(newBounds.left - newBounds.right) < Math.abs(mapExtent.left - mapExtent.right)) {
-            // console.log("******************************");
             $scope.dataBounds = dataBounds;
-            zoomToDataBounds();
+            // zoomToDataBounds();  //I don't know what purpose this served, but its removal doesn't seem to 
+                                    //have broken anything, and it for some reason would always be called at the third
+                                    //zoom level, kicking the user back out to max zoom.
         }
 
         (layers || $scope.active.layers).forEach(function(layer) {
+
             if(layer.olLayer) {
                 layer.error = undefined;
                 var colorMappings = undefined;
@@ -731,8 +738,11 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         return bounds;
     };
 
-    $scope.markDirty = function() {
+    $scope.reloadFromDB = function() {
         $scope.reloadDatabase = true;
+        $scope.functions.updateLayer(getGridLayer());
+        $scope.setDefaultView();
+        $scope.functions.updateLayer(getGridLayer());
     }
 
     /**
@@ -761,10 +771,6 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         var limit;
 
         var addFields = function(layerFields) {
-            // So how should I add something to the query?
-            // Should it be done here?
-            // Attempting to do so.
-            // change console.log so it doesn't print out "[object object]"
             layerFields.forEach(function(field) {
                 if($scope.functions.isFieldValid(field)) {
                     queryFields[field.columnName] = true;
@@ -832,10 +838,11 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             }
 
             if(layer.type === $scope.BUCKET_LAYER) {
+                console.log($scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid, $scope.map.getGraticuleInterval(), $scope.map.minVisibleForGrid);
                 if ($scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
 
                     var interval = $scope.map.getGraticuleInterval();
-                    console.log(interval);
+                    // console.log(interval);
                     var bottom = getNearestMultiple(interval, $scope.dataBounds.bottom, 'lower');
                     var top = getNearestMultiple(interval, $scope.dataBounds.top, 'higher');
                     var left = getNearestMultiple(interval, $scope.dataBounds.left, 'lower');
@@ -873,16 +880,11 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
 
         });
 
-        // console.log(JSON.stringify(query));
-
-        console.log("********* " + query.useInMemory + "\n");
-
         query.limit(limit || $scope.DEFAULT_LIMIT).withFields(Object.keys(queryFields));
         return query;
     };
     
     $scope.functions.executeQuery = function(connection, query) {
-        console.log("+++++++++ " + query.useInMemory + "\n");
         if(query instanceof neon.query.Query) {
             return connection.executeQuery(query);
         }
@@ -1305,75 +1307,65 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     var transformToBucketPoints = function(layer, data) {
-        //TODO here is where the grid makes the boxes and points
         var newPointsList = [];
         if(data) {
             if(layer.show) {
                 $scope.map.graticuleControl.activate();
             }
-            // console.log("\n\n****************");
-            // console.log(JSON.stringify(data));
-
 
             //This appears to iterate through the items inside each bucket. 
-            //Let's see what happens if I remove it.
+            //Since each bucket has only one item here, we don't need it.
             // mergeMultipleValues(data, layer);
 
             var max = 0;
             var sum = 0;
             data.forEach(function(bucket) {
                 var temp = bucket.data[0].count;
+                // console.log("\t" + temp);
                 sum += temp;
                 if (temp > max) {
                     max = temp;
                 }
             });
-            layer.olLayer.pointTotal = sum;
+            console.log(data.length);
+
             var sqrRtMax = Math.sqrt(max);
             data.forEach(function(bucket) {
                 if(bucket.data.length > 0) {
                     var totalPoints = 0
-                    // var boxHeight = bucket.top - bucket.bottom;
-                    // var mostToLeast = bucket.data.sort(function(a, b) { return b.count - a.count; });
-                    // var numPoints = Math.min(mostToLeast.length, $scope.maxNumGridPoints);
-                    
-                    // for(var x = 0; x < numPoints; x++) {
-                    // See grid code above for differences; buckets only have a count and a centroid, they don't
-                    // actually contain any data like the grid squares do.
 
-                    // var row = Math.floor(x / 10) + 1;
-                    // var column = (x % 10) + 1;
                     var newPoint = {
                         type_of_feature_point: 'grid_point',
                         count: bucket.data[0].count,
-                        //So point are never smaller than $scope.gridLayerPointRadius pixels across, and are always
+                        //So that points are never smaller than $scope.gridLayerPointRadius pixels across, and are always
                         // sized in proportion to the largest point on the map.
-                        pointRadius: $scope.gridLayerPointRadius * (1 + Math.log( 1 + bucket.data[0].count/sqrRtMax)),
+                        latField: layer.latitudeField.columnName,
+                        lonField: layer.longitudeField.columnName,
+                        pointRadius: $scope.gridLayerPointRadius * (1 + Math.log( 1 + bucket.data[0].count/sqrRtMax))
                     };
                     if(layer.colorField) {
                         newPoint.typeName = layer.colorField.prettyName || layer.colorField.columnName; // We need these to properly
                         newPoint.typeValue = bucket[layer.colorField.columnName];               // create popups on point click.
                         newPoint[layer.colorField.columnName] = newPoint.typeValue; // We need this so that coloring of points will work.
                     }
-                    // newPoint[layer.latitudeField.columnName] = bucket.top - boxHeight * (0.1 * row) - 0.1*newPoint.pointRadius;
-                    // newPoint[layer.longitudeField.columnName] = bucket.left + boxHeight * (0.1 * column) + 0.1*newPoint.pointRadius;
                     newPoint[layer.latitudeField.columnName] = bucket.data[0].centroid[1];
                     newPoint[layer.longitudeField.columnName] = bucket.data[0].centroid[0];
                     
                     newPointsList.push(newPoint);
-                    // }
                 }
             });
         }
         // since it's the bucket grid, get all the data, not just the layer.limit
-        return layer.olLayer.setData(newPointsList || [], 10000000);
+        var results = layer.olLayer.setData(newPointsList || [], 10000000);
+        //Because BUCKET_LAYER doesn't have its own definition of setData, and uses some default I can't find; TODO
+        layer.olLayer.pointTotal = sum;
+
+        return results;
         // return layer.olLayer.setData(newPointsList || [], layer.limit);
     };
 
     var mergeMultipleValues = function(data, layer) { // DOES THIS WORK? I DON'T KNOW. TODO
         data.forEach(function(bucket) {
-            // console.log(JSON.stringify(bucket.data));
-            // console.log(JSON.stringify(bucket.data[0]));
             if(bucket.data.length < 1 || !(bucket.data[0][layer.colorField.columnName] instanceof Array)) {
                 return;
             }

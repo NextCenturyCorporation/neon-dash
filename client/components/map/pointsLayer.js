@@ -372,6 +372,7 @@ coreMap.Map.Layer.PointsLayer.prototype.areValuesInDataElement = function(elemen
 };
 
 coreMap.Map.Layer.PointsLayer.prototype.setData = function(data, limit) {
+    console.log("in pointsLayer setData", data.length);
     this.data = data;
     if(this.gradient) {
         this.updateGradient();

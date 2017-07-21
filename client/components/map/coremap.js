@@ -50,9 +50,33 @@ var coreMap = coreMap || {};
 coreMap.Map = function(elementId, options) {
     options = options || {};
 
-    // this.graticuleIntervalList = [45, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05];
+    // this.graticuleIntervalList = [65, 43, 20, 13, 7, 4, 3, 1, 0.5, 0.2, 0.1, 0.05];
     this.graticuleIntervalList = [90, 45, 30, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.01, 0.005, 0.002, 0.001];
-    this.minVisibleForGrid = 0.5; // If the graticule's granularity drops lower than this, we hide it and treat any grid layer as a point layer.
+    
+    var sanitizedIntervals = [];
+    var prevInterval = 0;
+    for (var i = 0; i < this.graticuleIntervalList.length; i++) {
+        if (this.graticuleIntervalList[i] < 0.05 || this.graticuleIntervalList[i] > 90) {
+            continue;
+        }
+
+        var curInterval = this.graticuleIntervalList[i];
+        
+        // if curInterval doesn't divide evenly into 90, by casting the right side to an integer via '|0' 
+        if ((90.0/curInterval) !== ((90.0/curInterval)|0)) {
+            //set curInterval to the next-highest value which evenly divides into 90
+            curInterval = 90.0/((90./curInterval)|0);
+        }
+        
+        if (curInterval !== prevInterval) {
+            sanitizedIntervals.push(curInterval);
+            prevInterval = curInterval;
+        }
+    }
+    this.graticuleIntervalList = sanitizedIntervals;
+    
+    // If the graticule's granularity drops lower than this, we hide it and treat any grid layer as a point layer.
+    this.minVisibleForGrid = 0.5; 
 
     this.elementId = elementId;
     this.selector = $("#" + elementId);
@@ -477,7 +501,9 @@ coreMap.Map.prototype.createSelectControl = function(layer) {
         var idMapping = feature.layer.idMapping || "_id";
         if(feature.attributes.type_of_feature_point == 'grid_point') {
             var obj = {
-                count: feature.attributes.count
+                count: feature.attributes.count,
+                latitude: feature.attributes[feature.attributes["latField"]],
+                longitude: feature.attributes[feature.attributes["lonField"]]
             };
             if(feature.attributes.typeName) { // If you don't define a color field, don't do this.
                 var pieces = feature.attributes.typeName.split('.');
@@ -642,14 +668,17 @@ coreMap.Map.prototype.getGraticuleInterval = function() {
         var p2 = mapCenterLL.offset({x: delta, y: delta});
         OpenLayers.Projection.transform(p1, llProj, mapProj); // convert them back to map projection
         OpenLayers.Projection.transform(p2, llProj, mapProj);
-        var distSq = (p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y);
+
+        //This won't work, although it would be better; this only determines the interval via which the grid/buckets
+        //are created; It doesn't change the way the grid ines actualy show up. I think.
+        // var distSq = Math.abs(p1.y-p2.y);
+        // if (distSq <= targSqrSize) {
+        //     break;
+        // }
+        var distSq = (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y);
         if (distSq <= testSq) {
             break;
         }
-        // var distSq = (p1.x-p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y);
-        // if (distSq <= testSq) {
-        //     break;
-        // }
     }
     return llInterval;
 }
