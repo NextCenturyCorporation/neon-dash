@@ -318,7 +318,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             $scope.map.featurePopup = null;
         }
 
-        // For convencience in analysing the user logs through user-ale,
+        // For convenience in analysing the user logs through user-ale,
         // move (move start, move, move end) and zoom (zoom end) events are renamed
         // here to match preferred testing nomenclature.
         type = type.replace("move", "pan");
@@ -808,7 +808,6 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
 
             query.useInMemory = false;
 
-            // if((layer.type === $scope.GRID_LAYER || layer.type === $scope.BUCKET_LAYER)
             if((layer.type === $scope.GRID_LAYER)
                  && $scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
                 var interval = $scope.map.getGraticuleInterval();
@@ -840,13 +839,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 if ($scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
 
                     var interval = $scope.map.getGraticuleInterval();
-                    var bottom = getNearestMultiple(interval, $scope.dataBounds.bottom, 'lower');
-                    var top = getNearestMultiple(interval, $scope.dataBounds.top, 'higher');
-                    var left = getNearestMultiple(interval, $scope.dataBounds.left, 'lower');
-                    var right = getNearestMultiple(interval, $scope.dataBounds.right, 'higher');
                     var intList = $scope.map.graticuleIntervalList;
 
-                    //what is "dataBounds"? does it actually look for the nearest points to each given lat and lon?
                     var params = {
                         latField: layer.latitudeField.columnName,
                         lonField: layer.longitudeField.columnName,
@@ -860,8 +854,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                     query.useInMemory = ! $scope.reloadDatabase;
                     
                     //after querying the DB once and building the buckets from the results, immediately set the program 
-                    // to read directly from the .
-                    //You could add a second button that locks the buckets to not use memory, if you wanted;
+                    // to read directly from neon's bucketing system.
+                    //You could add a second button that locks the buckets to not use in-memory bucket sys., if you wanted;
                     // just make a toggle button call a function that calls markDirty and sets a lock
                     $scope.reloadDatabase = false;
 
@@ -1050,25 +1044,6 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         }
     };
 
-    // function handleMouseMovement(d, i) {  // Add interactivity
-
-    //         // Use D3 to select element, change color and size
-    //         // d3.select(this).attr({
-    //         //   fill: "orange",
-    //         //   r: radius * 2
-    //         // });
-
-    //         // Specify where to put label of text
-    //         svg.append("text").attr({
-    //            id: "t" + d.x + "-" + d.y + "-" + i,  // Create an id for text so we can select it later for removing on mouseout
-    //             x: function() { return xScale(d.x) - 30; },
-    //             y: function() { return yScale(d.y) - 15; }
-    //         })
-    //         .text(function() {
-    //           return [d.x, d.y];  // Value of the text
-    //         });
-    //       }
-
     /**
      * Creates or removes points on map layer (named "Selected Point") for the given data
      * @param {Object} message
@@ -1237,7 +1212,6 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 }
             });
             olLayer = new coreMap.Map.Layer.PointsLayer(layer.name, options);
-            // layer.limit = 10000000;
             if(layer.show) {
                 $scope.map.graticuleControl.activate();
             }
@@ -1266,7 +1240,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     };
 
     var transformToGridPoints = function(layer, data) {
-        //TODO here is where the grid makes the boxes and points
+        // here is where the grid makes the boxes and points
         var newPointsList = [];
         if(data) {
             if(layer.show) {
@@ -1310,10 +1284,6 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 $scope.map.graticuleControl.activate();
             }
 
-            //This appears to iterate through the items inside each bucket. 
-            //Since each bucket has only one item here, we don't need it.
-            // mergeMultipleValues(data, layer);
-
             var max = 0;
             var sum = 0;
             data.forEach(function(bucket) {
@@ -1352,7 +1322,8 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
         }
         // since it's the bucket grid, get all the data, not just the layer.limit
         var results = layer.olLayer.setData(newPointsList || [], 10000000);
-        //Because BUCKET_LAYER doesn't have its own definition of setData, and uses some default I can't find; TODO
+        //Because BUCKET_LAYER doesn't have its own definition of setData, and uses some default I can't find, I need
+        //to set the pointTotal here. Other layers do it within their own setData function.
         layer.olLayer.pointTotal = sum;
 
         return results;
