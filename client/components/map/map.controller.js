@@ -570,7 +570,6 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
                 pointData = data;
             }
         }
-        console.log("updateData length: ", gridData.length, pointData.length);
 
         var dataForBounds = gridData.length > 0 ? gridData : (pointData.length > 0 ? pointData : []); // Calculate our bounds from the grid layer's query if it exists, and otherwise from the normal query.
         var dataBounds = computeDataBounds(dataForBounds);
@@ -838,11 +837,9 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             }
 
             if(layer.type === $scope.BUCKET_LAYER) {
-                console.log($scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid, $scope.map.getGraticuleInterval(), $scope.map.minVisibleForGrid);
                 if ($scope.map.getGraticuleInterval() > $scope.map.minVisibleForGrid) {
 
                     var interval = $scope.map.getGraticuleInterval();
-                    // console.log(interval);
                     var bottom = getNearestMultiple(interval, $scope.dataBounds.bottom, 'lower');
                     var top = getNearestMultiple(interval, $scope.dataBounds.top, 'higher');
                     var left = getNearestMultiple(interval, $scope.dataBounds.left, 'lower');
@@ -1321,13 +1318,11 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
             var sum = 0;
             data.forEach(function(bucket) {
                 var temp = bucket.data[0].count;
-                // console.log("\t" + temp);
                 sum += temp;
                 if (temp > max) {
                     max = temp;
                 }
             });
-            console.log(data.length);
 
             var sqrRtMax = Math.sqrt(max);
             data.forEach(function(bucket) {
