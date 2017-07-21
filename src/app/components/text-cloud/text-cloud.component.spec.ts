@@ -6,6 +6,7 @@ import { Injector } from '@angular/core';
 import { ChartModule } from 'angular2-chartjs';
 
 import { TextCloudComponent } from './text-cloud.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -25,7 +26,8 @@ describe('Component: TextCloud', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [
-        TextCloudComponent
+        TextCloudComponent,
+        ExportControlComponent
       ],
       providers: [
         ConnectionService,

@@ -8,6 +8,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import {} from 'jasmine';
 
 import { DataTableComponent } from './data-table.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -27,7 +28,8 @@ describe('Component: DataTable', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
-                DataTableComponent
+                DataTableComponent,
+                ExportControlComponent
             ],
             providers: [
                 ConnectionService,

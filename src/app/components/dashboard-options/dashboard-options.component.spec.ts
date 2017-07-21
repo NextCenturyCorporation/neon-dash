@@ -20,6 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { ViewContainerRef } from '@angular/core';
 
 import { DashboardOptionsComponent } from './dashboard-options.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -41,7 +42,8 @@ describe('Component: DashboardOptionsComponent', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
-                DashboardOptionsComponent
+                DashboardOptionsComponent,
+                ExportControlComponent
             ],
             imports: [
                 FormsModule,
