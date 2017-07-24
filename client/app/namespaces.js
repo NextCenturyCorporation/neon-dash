@@ -416,6 +416,10 @@ var neonVisualizations = [{   // jshint ignore:line
     type: "filterBuilder",
     icon: "CreateFilter64"
 }, {
+    name: "Histogram",
+    type: "histogram",
+    icon: "Timeline64"
+}, {
     name: "Line Chart",
     type: "lineChart",
     icon: "LineChart64"
@@ -440,6 +444,10 @@ var neonVisualizations = [{   // jshint ignore:line
     type: "scatterPlot",
     icon: "ScatterPlot64"
 }, {
+    name: "Stacked Timeline",
+    type: "stackedTimeline",
+    icon: "Timeline64"
+}, {
     name: "Sunburst Chart",
     type: "sunburstChart",
     icon: "Sunburst64"
@@ -450,9 +458,5 @@ var neonVisualizations = [{   // jshint ignore:line
 }, {
     name: "Timeline",
     type: "timeline",
-    icon: "Timeline64"
-}, {
-    name: "Stacked Timeline",
-    type: "stackedTimeline",
     icon: "Timeline64"
 }];
