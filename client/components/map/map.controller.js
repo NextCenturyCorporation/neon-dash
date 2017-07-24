@@ -39,7 +39,7 @@ angular.module('neonDemo.controllers').controller('mapController', ['$scope', '$
     $scope.MAP_LAYER_TYPES = [$scope.POINT_LAYER, $scope.CLUSTER_LAYER, $scope.HEATMAP_LAYER, 
                               $scope.NODE_AND_ARROW_LAYER, $scope.GRID_LAYER, $scope.BUCKET_LAYER];
     $scope.DEFAULT_LIMIT = 1000;
-    $scope.DEFAULT_NEW_LAYER_TYPE = $scope.MAP_LAYER_TYPES[5];//xkcd change this back to 0
+    $scope.DEFAULT_NEW_LAYER_TYPE = $scope.MAP_LAYER_TYPES[0];
 
     $scope.cacheMap = false;
     $scope.active.legend = {

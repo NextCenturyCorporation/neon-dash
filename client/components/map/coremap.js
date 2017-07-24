@@ -500,6 +500,7 @@ coreMap.Map.prototype.createSelectControl = function(layer) {
 
         var idMapping = feature.layer.idMapping || "_id";
         if(feature.attributes.type_of_feature_point == 'grid_point') {
+            //just defines the pop-up
             var obj = {
                 count: feature.attributes.count,
                 latitude: feature.attributes[feature.attributes["latField"]],
@@ -633,7 +634,7 @@ coreMap.Map.prototype.setupControls = function() {
 
     this.selectControl = this.createSelectControl([]);
     this.clickControl = new OpenLayers.Control.Click({
-        markerLayer: this.markerLayer,
+        markerLayer: this.markerLayer, //for the route service
         routeService: this.routeService,
         makeQueryForRouteDataFunction: this.makeQueryForRouteDataFunction,
         createMapLayerFunction: this.createMapLayerFunction,
