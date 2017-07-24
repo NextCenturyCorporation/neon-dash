@@ -52,7 +52,7 @@ export class DashboardOptionsComponent implements OnInit {
     public stateNames: string[] = [];
     private stateName: string = '';
     private stateNameError: boolean = false;
-    private exportTarget: string = 'all';
+    public exportTarget: string = 'all';
 
     constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
         private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
