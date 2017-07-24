@@ -1,0 +1,28 @@
+<div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <md-toolbar color="primary">
+        <span class="mat-36">Add Visualizations</span>
+    </md-toolbar>
+    <div class="add-visualization-grid-container" md-fill>
+        <md-grid-list cols="4" rowHeight="130px" gutterSize="5px">
+            <md-grid-tile *ngFor="let item of visualizations; let i = index;" [class.selected]="item.selected" [colspan]="1" [rowspan]="1"
+                class="add-visualization-tile" md-ripple>
+                <a (click)="onItemSelected(i)" tabindex="0">
+                    <div class="neon-popup-thumbnail center-block text-center">
+                        <div class="center-block">
+                            <div class="center-block icon-container">
+                                <div class="icon-{{item.icon}} neon-sprite"></div>
+                            </div>
+                            <div class="center-contents">
+                                <span class="text-uppercase">{{ item.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </md-grid-tile>
+        </md-grid-list>
+    </div>
+    <md-toolbar>
+        <span class="fill-remaining"></span>
+        <button md-raised-button class="mat-primary" (click)="dialogRef.close('close')"> Close </button>
+    </md-toolbar>
+</div>

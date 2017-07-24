@@ -1,0 +1,58 @@
+@import '~@angular/material/_theming';
+@import 'src/themes/neon-green-theme.scss';
+
+.messages {
+    color: mat-color($accent);
+    max-height: 600px;
+    overflow-y: auto;
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.message-category {
+
+}
+
+.close-button {
+  width: 20px;
+  height: 20px;
+}
+
+.close-icon {
+  font-size: 14px;
+}
+
+.category-list {
+
+}
+
+.category-item {
+
+}
+
+.close-all {
+
+}
+
+.message-body {
+
+}
+
+.category-label {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+}
+
+.messages-header {
+    display: flex;
+    justify-content: center;
+    font-size: 2em;
+    font-weight: bold;
+    padding-bottom: 30px;
+}
+
+.messages-footer {
+    display: flex;
+    flex-direction: row-reverse;
+}

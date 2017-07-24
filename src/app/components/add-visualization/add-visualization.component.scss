@@ -1,0 +1,81 @@
+.add-visualization {
+
+    .add-visualization-button{
+        padding: 0px;
+        display: block;
+
+        a {
+            background: none;
+            border: 0;
+            /*      color: @main-text-color;*/
+            display: block;
+            padding-bottom: 15px;
+            padding-top: 15px;
+
+            &.collapsed:hover,
+            &:focus,
+            &:hover {
+                /*              color: @accent-bright;*/
+                cursor: pointer;
+            }
+        }
+    }
+}
+
+.add-visualization-grid-container {
+    height: 400px;
+    overflow-y: auto;
+    margin: 10px;
+    width: 550px;
+}
+
+.add-visualization-message {
+    display: inline;
+    font-weight: bold;
+    height: 35px;
+    line-height: 15px;
+    margin: 0px;
+    padding: 10px;
+    width: 400px;
+}
+
+.add-visualization-tile {
+    min-height: 130px;
+    min-width: 120px;
+    padding: 0px;
+    display: block;
+    box-sizing: border-box;
+
+    a {
+        background: none;
+        border: 0;
+        display: block;
+        padding-bottom: 15px;
+        padding-top: 15px;
+        outline: 0;
+        width: 100%;
+
+        &.collapsed:hover,
+        &:focus,
+        &:hover {
+            cursor: pointer;
+            color: green;
+        }
+    }
+}
+
+.center-contents {
+    justify-content: center;
+    display: flex;
+}
+
+//.selected {
+.add-visualization-tile:hover {
+    border: 1px solid #39B54A;
+    border-radius: 7px;
+}
+
+.add-visualization-tile:active {
+    border: 1px solid #39B54A;
+    border-radius: 7px;
+}

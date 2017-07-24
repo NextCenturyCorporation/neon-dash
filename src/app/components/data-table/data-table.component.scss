@@ -1,0 +1,178 @@
+/*
+ * Copyright 2016 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+@import '~@angular/material/_theming';
+@import 'src/themes/neon-green-theme.scss';
+
+.visualization-sidenav {
+    height: 100%;
+    cursor: default;
+
+    .header.text {
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .visualization-sidenav-options {
+        min-width: 320px;
+
+        md-input,
+        md-select,
+        table {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .error-icon {
+            vertical-align: middle;
+        }
+    }
+
+    .filter-reset {
+        float: right;
+        padding-left: 5px;
+        margin-left: 5px;
+        line-height: 18px;
+        border-radius: 3px;
+        margin: 2px;
+        background-color: mat-color($accent);
+
+        .filter-label {
+            display: inline-block;
+            max-width: 100px;
+            overflow: hidden;
+            position: relative;
+            text-overflow: ellipsis;
+            top: 4px;
+            white-space: nowrap;
+        }
+    }
+}
+
+.body-container {
+    position: absolute;
+    top: 64px;
+    bottom: 0;
+    width: 100%;
+}
+
+.text-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    height: 0;
+}
+
+.chart-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.table {
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    width: 100%;
+}
+
+.column-selector-header {
+    text-align: center;
+    vertical-align: middle;
+    font-size: 1.4em;
+    border: 1px solid lightgrey;
+}
+
+.column-selector-close {
+    font-size: 12px;
+}
+
+.column-selector {
+    position: relative;
+    height: 100%;
+    width: 300px;
+    bottom: 0;
+    top: 0;
+    overflow-y: hidden;
+    box-shadow: 1px 1px 1px 1px #888888;
+    display: flex;
+    flex-direction: column;
+}
+
+.column-selector-list {
+    position: relative;
+    bottom: 0;
+    overflow-y: scroll;
+    user-select: none;
+}
+
+.dragView {
+    position: fixed;
+}
+
+/deep/ .datatable-row-even {
+    background-color: rgb(240,240,240);
+}
+
+/deep/ .sort-asc {}
+
+/deep/ .sort-desc {}
+
+/deep/ .datatable-header-inner {
+    border-right-width: 1px;
+    border-right-color: grey;
+    border-right-style: solid;
+}
+
+/deep/ .datatable-header-cell {
+    background: linear-gradient(#fff,#d3d3d3);
+    border-bottom: 1px solid grey;
+    text-align: center;
+    border-right-width: 1px;
+    border-right-color: grey;
+    border-right-style: solid;
+}
+
+/deep/ .datatable-header-cell.longpress {
+    background: linear-gradient(#ddd,#b3b3b3);
+    border: 1px dashed grey;
+    z-index: 100;
+}
+
+/deep/ .datatable-body-cell {
+    border-right-width: 1px;
+    border-right-color: darkgrey;
+    border-right-style: dotted;
+    padding: 2px;
+}
+
+/deep/ .icon-up:before {
+    font-family: 'Material Icons';
+    content: "keyboard_arrow_up";
+}
+
+/deep/ .icon-down:before {
+    font-family: 'Material Icons';
+    content: "keyboard_arrow_down";
+}
+
+.neon-green-dark-theme {
+    .filter-reset {
+        background-color: mat-color($primary);
+    }
+}

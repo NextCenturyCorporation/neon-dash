@@ -1,0 +1,22 @@
+<div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <md-toolbar color="primary" class="rounded">
+        <span class="mat-36">{{ filters.formatted.length + ' filter' + ((filters.formatted.length === 1) ? '': 's') }}</span>
+    </md-toolbar>
+    <div md-fill>
+        <md-list *ngFor="let filter of filters.formatted" class="filter-tray-item filter-tray-filter">
+            <md-list-item>
+                <button md-mini-fab md-tooltip="Remove filter" tooltip-position="below" (click)="removeFilter(filter.ids)">
+		            <md-icon class="mat-18">delete forever</md-icon>
+		        </button>
+                <span class="filter-label">{{ filter.name }}</span>
+            </md-list-item>
+        </md-list>
+        <md-list *ngIf="!filters.formatted.length">
+            <md-list-item>No Filters Set</md-list-item>
+        </md-list>
+    </div>
+    <md-toolbar class="rounded">
+        <span class="fill-remaining"></span>
+        <button md-raised-button class="mat-primary" (click)="dialogRef.close('close')"> Close </button>
+    </md-toolbar>
+</div>

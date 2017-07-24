@@ -1,0 +1,165 @@
+<md-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <md-toolbar color="primary" layout-align="space-between center" flex>
+        <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
+        <span class="fill-remaining"></span>
+        <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
+        <button md-icon-button aria-label="Settings" md-tooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+            <md-icon class="mat-24">settings</md-icon>
+        </button>
+    </md-toolbar>
+
+    <md-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+        <md-card align="left">
+            <md-card-content>
+                <label style="display: inline;" *ngIf="getButtonText()">
+                    <md-icon class="error-icon">error</md-icon>
+                    {{ getButtonText() }}
+                </label>
+                <p></p>
+
+                <md-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                    <md-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                    <md-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Latitude Field" [(ngModel)]="active.latitudeField" required="true" (ngModelChange)="handleChangeLatitudeField()"
+                    [disabled]="meta.fields.length == 0">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Longitude Field" [(ngModel)]="active.longitudeField" required="true" (ngModelChange)="handleChangeLongitudeField()"
+                    [disabled]="meta.fields.length == 0">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Color Field" [(ngModel)]="active.colorField" required="true" (ngModelChange)="handleChangeColorField()"
+                    [disabled]="meta.fields.length == 0">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <!--
+                <md-select placeholder="Size Field" [(ngModel)]="active.sizeField" required="true" (ngModelChange)="handleChangeSizeField()" [disabled]="meta.fields.length == 0">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true" (ngModelChange)="handleChangeDateField()" [disabled]="meta.fields.length == 0">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>-->
+
+                <!--<md-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true" (ngModelChange)="handleChangeAggregation()" [disabled]="meta.fields.length == 0">
+                    <md-option value="count">Count</md-option>
+                    <md-option value="sum">Sum</md-option>
+                    <md-option value="average">Average</md-option>
+                    <md-option value="max">Maximum</md-option>
+                    <md-option value="min">Minimum</md-option>
+                </md-select>
+                <p></p>-->
+                <!--
+                <md-select *ngIf="!active.aggregationFieldHidden" placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField" required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>-->
+                <!--
+                <table cellspacing="0">
+                    <tr>
+                        <td>
+                            <input mdInput  placeholder="Text Limit" [(ngModel)]="active.limit" required="true"></input>
+                        </td>
+                        <td>
+                            <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                                <md-icon class="mat-24">refresh</md-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <p></p>-->
+
+                <table cellspacing="0">
+                    <tr>
+                        <td>
+                            <input mdInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                        </td>
+                        <td>
+                            <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                                <md-icon class="mat-24">refresh</md-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <p></p>
+
+                <!--<md-toolbar class="mat-primary">
+                    <span>Show Records With</span>
+                </md-toolbar>
+                <md-button-toggle-group name="filters" [(ngModel)]="active.andFilters" (change)="handleChangeAndFilters()">
+                    <md-button-toggle [value]="true">All Filters</md-button-toggle>
+                    <md-button-toggle [value]="false">Any Filters</md-button-toggle>
+                </md-button-toggle-group>
+                <p></p>
+                -->
+
+                <!--
+                <md-toolbar class="mat-primary">
+                    <span>Unshared Filter</span>
+                </md-toolbar>
+                <md-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField" required="false" [disabled]="meta.fields.length === 0" (ngModelChange)="handleChangeUnsharedFilterField()">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+                <table cellspacing="0">
+                    <tr>
+                        <td>
+                            <input mdInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue" [disabled]="!(meta.unsharedFilterField.columnName)"></input>
+                        </td>
+                        <td>
+                            <button md-icon-button md-tooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()" [disabled]="(meta.unsharedFilterField.columnName == undefined || meta.unsharedFilterValue == '')">
+                                <md-icon class="mat-16">clear</md-icon>
+                            </button>
+                        </td>
+                        <td>
+                            <button md-icon-button md-tooltip="Set Unshared Filter" tooltip-position="below" (click)="handleChangeUnsharedFilterValue()">
+                                <md-icon class="mat-16">refresh</md-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <p></p>
+              -->
+
+                <!--
+                <button md-raised-button color="primary" class="export" (click)="requestExport()">
+                    Export to File
+                </button>
+              -->
+            </md-card-content>
+        </md-card>
+    </md-sidenav>
+    <div class="body-container" (click)="stopEventPropagation($event)">
+        <div class="map-container" (click)="stopEventPropagation($event)">
+
+            <div #cesiumContainer id="cesiumContainer" (click)="stopEventPropagation($event)"></div>
+            <div class="map-selection" *ngIf="selection.showSelection" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
+        </div>
+        <div class=" text-container ">
+            <div>
+                <app-legend [data]="legendData"></app-legend>
+            </div>
+            <div class="filter-reset " *ngFor="let value of getCloseableFilters() ">
+                <span class="filter-label " [title]="getFilterTitle(value) ">{{ getFilterCloseText(value) }}</span>
+                <button md-icon-button aria-label="Close " [md-tooltip]="getRemoveFilterTooltip(value) " tooltip-position="below" (click)="handleRemoveFilter(value)">
+                    <md-icon class="mat-18 ">close</md-icon>
+                  </button>
+            </div>
+        </div>
+    </div>
+</md-sidenav-container>

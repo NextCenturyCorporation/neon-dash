@@ -1,23 +1,42 @@
+# See http://help.github.com/ignore-files/ for more about ignoring files.
+
+# compiled output
+/dist
+/tmp
+
+# dependencies
+/node_modules
+/bower_components
+
+# IDEs and editors
+/.idea
+.project
+.classpath
+*.launch
+.settings/
+.vscode/
+
+# misc
+/.sass-cache
+/connect.lock
+/reports/
+/libpeerconnection.log
+npm-debug.log
+testem.log
+/typings
+
+# e2e
+/e2e/*.js
+/e2e/*.map
+
+#System Files
 .DS_Store
-.idea
-.orig
-.swp
-.tmp
-!.gitkeep
-client/bower_components
-client/app/app.css
-client/app/themes/dark-green.css
-client/app/themes/dark-purple.css
-client/app/themes/light-green.css
-dist/
-config.json
-*.config.json
-config.yaml
-*.config.yaml
-docs/
-logs/*
-node_modules/
-reports/
-target/
-tmp
-version.json
+Thumbs.db
+
+#config files
+src/app/config/config.json
+
+# Yarn lockfile
+# The build must work with npm and yarn, so don't depend on the lockfile
+yarn.lock
+

@@ -1,0 +1,52 @@
+<md-sidenav-container class="neon-gtd-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <md-sidenav #sidenav class="neon-gtd-sidenav" md-fill align="start">
+        <md-toolbar color="primary">
+            <span class="mat-36">Datasets</span>
+        </md-toolbar>
+        <app-dataset-selector (onActiveDatasetChanged)="sidenav.toggle()" >
+        </app-dataset-selector>
+    </md-sidenav>
+    <md-sidenav #sidenavright class="neon-gtd-sidenav-about-neon" md-fill align="end">
+        <md-toolbar color="primary">
+            <span class="mat-36">{{(showAbout) ? 'About...' : 'Options...'}}</span>
+        </md-toolbar>
+        <app-about-neon *ngIf="showAbout"></app-about-neon>
+        <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout"></app-dashboard-options>
+        <button md-button (click)="sidenavright.close()">Close</button>
+    </md-sidenav>
+    <md-toolbar color="primary" layout-align="space-between center" flex>
+        <button md-button [attr.aria-label]="datasetService.getName() || 'Choose Data'" style="margin-right: 10px;" (click)="sidenav.toggle()"
+            md-tooltip="Selects one of the available datasets." tooltip-position="below" class="neon-gtd-text-button">
+            <i class="material-icons md-24" style="vertical-align: sub">menu</i>&nbsp;{{ datasetService.getName() || "Choose Data..." }}
+        </button>
+        <button md-mini-fab aria-label="Add Visualization" md-tooltip="Add a new visualization to the current dashboard." tooltip-position="below"
+            (click)="openAddVisualizationDialog()" *ngIf="showAddVisualizationButton">
+            <md-icon class="mat-24">add</md-icon>
+        </button>
+        <span class="fill-remaining"></span>
+        <button md-icon-button aria-label="Show Filters" md-tooltip="Show Filters" tooltip-position="below" (click)="openFilterTrayDialog()"
+            *ngIf="showFilterTrayButton">
+            <md-icon class="mat-24">notifications</md-icon>
+        </button>
+        <button md-icon-button aria-label="Settings" (click)="toggleDashboardOptions(); sidenavright.toggle();" md-tooltip="Change the settings for the dashboard."
+            tooltip-position="below">
+            <md-icon class="mat-24">settings</md-icon>
+        </button>
+        <button md-icon-button aria-label="About..." class="neon-gtd-text-button" (click)="showAbout = true; sidenavright.toggle()"
+            md-tooltip="Display information about this application." tooltip-position="below">
+            i
+        </button>
+        <a md-icon-button href="https://github.com/NextCenturyCorporation/neon-gtd/wiki/Neon-Dashboard-User-Guide" target="_blank"
+            aria-label="Help" class="neon-gtd-anchor-button" md-tooltip="Open the Users Guide" tooltip-position="below">
+            ?
+        </a>
+    </md-toolbar>
+    <div class="neon-gtd-content" md-fill layout="col">
+        <div [ngGrid]="gridConfig" #grid >
+            <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridConfig" (onResizeStop)="onResizeStop(i, $event)" name="item.id" id="item.id">
+                <app-visualization-container [visualization]="gridItems[i]"></app-visualization-container>
+                <ng-content></ng-content>
+            </div>
+        </div>
+    </div>
+</md-sidenav-container>

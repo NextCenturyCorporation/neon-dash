@@ -1,0 +1,161 @@
+<md-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <md-toolbar color="primary" layout-align="space-between center" flex>
+        <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
+        <span class="fill-remaining"></span>
+        <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
+        <button md-icon-button aria-label="Settings" md-tooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+            <md-icon class="mat-24">settings</md-icon>
+        </button>
+    </md-toolbar>
+
+    <md-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+        <md-card align="left">
+            <md-card-content>
+                <label style="display: inline;" *ngIf="getButtonText()">
+                    <md-icon class="error-icon">error</md-icon>
+                    {{ getButtonText() }}
+                </label>
+                <p></p>
+
+                <md-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                    <md-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                    <md-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Initial Sort Field" [(ngModel)]="active.sortField" required="true" (ngModelChange)="handleChangeSortField()"
+                    [disabled]="meta.fields.length == 0">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <table cellspacing="0">
+                    <tr>
+                        <td>
+                            <md-input-container>
+                                <input mdInput placeholder="Row Limit" [(ngModel)]="active.limit" required="true">
+                            </md-input-container>
+                        </td>
+                        <td>
+                            <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                                <md-icon class="mat-24">refresh</md-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <p></p>
+                Column Selector:
+                <md-button-toggle-group #showColumnSelector="mdButtonToggleGroup" [(ngModel)]="active.showColumnSelector">
+                    <md-button-toggle value="show">
+                        Show
+                    </md-button-toggle>
+                    <md-button-toggle value="hide">
+                        Hide
+                    </md-button-toggle>
+                </md-button-toggle-group>
+                <!--<table cellspacing="0">
+                    <tr>
+                        <td>
+                            <input mdInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                        </td>
+                        <td>
+                            <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                                <md-icon class="mat-24">refresh</md-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <p></p>-->
+
+                <!--<md-toolbar class="mat-primary">
+                    <span>Show Records With</span>
+                </md-toolbar>
+                <md-button-toggle-group name="filters" [(ngModel)]="active.andFilters" (change)="handleChangeAndFilters()">
+                    <md-button-toggle [value]="true">All Filters</md-button-toggle>
+                    <md-button-toggle [value]="false">Any Filters</md-button-toggle>
+                </md-button-toggle-group>
+                <p></p>
+                -->
+
+                <!--
+                <md-toolbar class="mat-primary">
+                    <span>Unshared Filter</span>
+                </md-toolbar>
+                <md-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField" required="false" [disabled]="meta.fields.length === 0" (ngModelChange)="handleChangeUnsharedFilterField()">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+                <table cellspacing="0">
+                    <tr>
+                        <td>
+                            <input mdInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue" [disabled]="!(meta.unsharedFilterField.columnName)">
+                        </td>
+                        <td>
+                            <button md-icon-button md-tooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()" [disabled]="(meta.unsharedFilterField.columnName == undefined || meta.unsharedFilterValue == '')">
+                                <md-icon class="mat-16">clear</md-icon>
+                            </button>
+                        </td>
+                        <td>
+                            <button md-icon-button md-tooltip="Set Unshared Filter" tooltip-position="below" (click)="handleChangeUnsharedFilterValue()">
+                                <md-icon class="mat-16">refresh</md-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <p></p>
+              -->
+
+                <!--
+                <button md-raised-button color="primary" class="export" (click)="requestExport()">
+                    Export to File
+                </button>
+              -->
+            </md-card-content>
+        </md-card>
+    </md-sidenav>
+    <div class="body-container">
+        <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+            <md-spinner ></md-spinner>
+        </div>
+        <div class="text-container">
+            <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
+                <span class="filter-label" [title]="getFilterTitle(value)">{{ getFilterCloseText(value) }}</span>
+                <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveFilterTooltip(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value, false, true)">
+                  <md-icon class="mat-18">close</md-icon>
+                </button>
+            </div>
+        </div>
+        <div class="chart-container">
+            <ngx-datatable #table class="material table" [rows]="active.data" [columns]="active.activeHeaders" [headerHeight]="30" [footerHeight]="0"
+                [rowHeight]="25" [scrollbarH]="true" [scrollbarV]="true" [reorderable]="false">
+                <!--<ngx-datatable-column *ngFor="let c of active.headers" name="{{c.name}}" prop="{{c.prop}}">
+                    <template let-column="column" ngx-datatable-header-template>
+                            <span >{{column.name}} <md-icon>keyboard_arrow_down</md-icon></span>
+                    </template>
+                    <template let-row="row" let-value="value" ngx-datatable-cell-template>
+                            {{value}}
+                    </template>
+                </ngx-datatable-column>-->
+            </ngx-datatable>
+            <div *ngIf="active.showColumnSelector=='show'" class="column-selector">
+                <div class="column-selector-header"><span> Columns </span>
+                    <button md-icon-button class="column-selector-close" aria-label="Close" md-tooltip="Close" tooltip-position="below" (click)="closeColumnSelector()">
+                      <md-icon class="column-selector-close-icon">close</md-icon>
+                  </button>
+                </div>
+
+                <md-list dense class="column-selector-list" (mouseleave)="onMouseLeaveArea(i)" (mousemove)="onMouseMove($event)">
+                    <md-list-item *ngFor="let header of active.headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
+                        (mouseleave)="onMouseLeaveItem(i)" [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
+                        <md-icon (mousedown)="onMouseDown(i)">drag_handle</md-icon>
+                        <md-checkbox [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{header.name}}</md-checkbox>
+                    </md-list-item>
+                </md-list>
+            </div>
+        </div>
+    </div>
+</md-sidenav-container>
