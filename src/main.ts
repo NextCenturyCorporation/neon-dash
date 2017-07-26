@@ -97,7 +97,7 @@ function handleConfigYamlError(error) {
 }
 
 function loadConfigFromPropertyService() {
-    return http.get('neon/services/propertyservice/config')
+    return http.get('../neon/services/propertyservice/config')
         .map((response) => {
             let val = response.json().value;
             if (!val) {
@@ -123,7 +123,7 @@ function handleConfigPropertyServiceError(error) {
 }
 
 function loadConfigYaml() {
-   return http.get('app/config/config.yaml')
+   return http.get('./app/config/config.yaml')
        .map(response => yaml.load(response.text()))
        .toPromise();
 }
@@ -164,7 +164,7 @@ function showError(error) {
 }
 
 neon.ready(function() {
-  neon.setNeonServerUrl('/neon');
+  neon.setNeonServerUrl('../neon');
   loadConfigFromPropertyService().then(config => bootstrapWithData(config))
     .catch(handleConfigPropertyServiceError);
 });

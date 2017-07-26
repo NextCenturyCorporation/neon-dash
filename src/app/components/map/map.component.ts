@@ -180,7 +180,13 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             animation: false, // disable animation widget
             mapMode2D: Cesium.MapMode2D.ROTATE,
             sceneModePicker: false,
-            navigationHelpButton: false
+            navigationHelpButton: false,
+            imageryProvider: new Cesium.UrlTemplateImageryProvider({
+        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    }),
+    terrainProvider: new Cesium.CesiumTerrainProvider({
+       url: '//assets.agi.com/stk-terrain/world'
+    }),
         });
 
         this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
