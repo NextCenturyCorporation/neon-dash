@@ -6,7 +6,7 @@
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
     "prebuild": "rm -f target/lorelei-dev-angular4.war && mkdir -p target",
-    "build": "ng build --prod --base-href /lorelei/",
+    "build": "ng build --env=prod --base-href /lorelei/",
     "postbuild": "cd dist && zip -r lorelei-angular4.war * && cd .. && mv dist/lorelei-angular4.war target/lorelei-angular4.war",
     "prebuild-dev": "rm -f target/lorelei-dev-angular4.war && mkdir -p target",
     "build-dev": "ng build",
