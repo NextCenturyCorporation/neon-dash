@@ -533,6 +533,30 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             }
             let lngCoord = point[lngField];
             let latCoord = point[latField];
+
+
+            //This allows the map to function if the config file is a little off, and so point isn't a flat dict;
+            // like if latFied holds "JSONMapping.status.geolocation.latitude", but the actual latitude value is
+            // saved at point["JSONMapping"]["status"]["geolocation"]["latitude"]
+            let lngFieldParts = lngField.split(".")
+            let latFieldParts = latField.split(".")
+            if ( !lngCoord && lngFieldParts.length > 1) {
+                lngCoord = point[lngFieldParts[0]];
+                lngFieldParts.shift();
+                while (lngFieldParts.length > 0) {
+                    lngCoord = lngCoord[lngFieldParts[0]];
+                    lngFieldParts.shift();
+                }
+            }
+            if ( !latCoord && latFieldParts.length > 1) {
+                latCoord = point[latFieldParts[0]];
+                latFieldParts.shift();
+                while (latFieldParts.length > 0) {
+                    latCoord = latCoord[latFieldParts[0]];
+                    latFieldParts.shift();
+                }
+            }
+            
             if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
                 let entity = {
                     position: Cesium.Cartesian3.fromDegrees(lngCoord, latCoord),
