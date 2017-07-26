@@ -97,7 +97,7 @@ function handleConfigYamlError(error) {
 }
 
 function loadConfigFromPropertyService() {
-    return http.get('neon/services/propertyservice/config')
+    return http.get('http:localhost:8080/neon/services/propertyservice/config')
         .map((response) => {
             let val = response.json().value;
             if (!val) {
@@ -164,7 +164,7 @@ function showError(error) {
 }
 
 neon.ready(function() {
-  neon.setNeonServerUrl('/neon');
+  neon.setNeonServerUrl('http://localhost:8080/neon');
   loadConfigFromPropertyService().then(config => bootstrapWithData(config))
     .catch(handleConfigPropertyServiceError);
 });
