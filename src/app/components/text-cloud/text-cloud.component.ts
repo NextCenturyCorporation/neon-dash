@@ -233,8 +233,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         });
         this.active = this.updateObject(this.active, 'data', activeData);
         this.refreshVisualization();
-        this.queryTitle = 'Text Cloud by ' + this.active.dataField.prettyName;
-        if (useSizeField) {
+        this.queryTitle = this.optionsFromConfig.title || 'Text Cloud by ' + this.active.dataField.prettyName;
+        if (useSizeField && this.queryTitle !== this.optionsFromConfig.title) {
             this.queryTitle += ' and ' + this.active.sizeField.prettyName;
         }
     }
