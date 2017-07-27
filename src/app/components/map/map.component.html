@@ -16,35 +16,36 @@
                     {{ getButtonText() }}
                 </label>
                 <p></p>
+                <a md-mini-fab (click)="addEmptyLayer()"><md-icon>add</md-icon></a>
+                <div *ngFor="let layer of meta.layers; let i = index">
+                    <md-select placeholder="Database" [(ngModel)]="meta.layers[i].database" required="true" (ngModelChange)="handleChangeDatabase(i)" [disabled]="meta.databases.length < 2">
+                        <md-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</md-option>
+                    </md-select>
+                    <p></p>
 
-                <md-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <md-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</md-option>
-                </md-select>
+                    <md-select placeholder="Table" [(ngModel)]="meta.layers[i].table" required="true" (ngModelChange)="handleChangeTable(i)" [disabled]="meta.layers[i].tables.length < 2">
+                        <md-option *ngFor="let table of meta.layers[i].tables" [value]="table">{{ table.prettyName }}</md-option>
+                    </md-select>
+                    <p></p>
+
+                    <md-select placeholder="Latitude Field" [(ngModel)]="active.layers[i].latitudeField" required="true" (ngModelChange)="handleChangeLatitudeField(i)"
+                        [disabled]="meta.layers[i].fields.length == 0">
+                        <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
+                    </md-select>
+                    <p></p>
+
+                    <md-select placeholder="Longitude Field" [(ngModel)]="active.layers[i].longitudeField" required="true" (ngModelChange)="handleChangeLongitudeField(i)"
+                        [disabled]="meta.layers[i].fields.length == 0">
+                        <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
+                    </md-select>
+                    <p></p>
+
+                    <md-select placeholder="Color Field" [(ngModel)]="active.layers[i].colorField" required="true" (ngModelChange)="handleChangeColorField(i)"
+                        [disabled]="meta.layers[i].fields.length == 0">
+                        <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
+                    </md-select>
                 <p></p>
-
-                <md-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <md-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</md-option>
-                </md-select>
-                <p></p>
-
-                <md-select placeholder="Latitude Field" [(ngModel)]="active.latitudeField" required="true" (ngModelChange)="handleChangeLatitudeField()"
-                    [disabled]="meta.fields.length == 0">
-                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
-                </md-select>
-                <p></p>
-
-                <md-select placeholder="Longitude Field" [(ngModel)]="active.longitudeField" required="true" (ngModelChange)="handleChangeLongitudeField()"
-                    [disabled]="meta.fields.length == 0">
-                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
-                </md-select>
-                <p></p>
-
-                <md-select placeholder="Color Field" [(ngModel)]="active.colorField" required="true" (ngModelChange)="handleChangeColorField()"
-                    [disabled]="meta.fields.length == 0">
-                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
-                </md-select>
-                <p></p>
-
+                </div>
                 <table cellspacing="0">
                     <tr>
                         <td>

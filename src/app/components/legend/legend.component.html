@@ -2,10 +2,19 @@
     <button md-button [md-menu-trigger-for]="menu" (onMenuClose)="onMenuClose()" (onMenuOpen)="onMenuOpen()" class="legend-button">
       <span class="legend-text">Legend</span><md-icon size="18" class="legend-text">{{menuIcon}}</md-icon>
     </button>
+
+
     <md-menu #menu="mdMenu" [overlapTrigger]="false">
-        <button md-menu-item *ngFor="let item of data" [disabled]="!item.active">
-          <md-icon size="24" [ngStyle]="{'color': (item.active ? item.activeColor : item.inactiveColor)}">{{getIcon(item.active)}}</md-icon>
-          <span [ngStyle]="{'color': (item.active ? item.activeColor : item.inactiveColor)}" >{{item.prettyName}}</span>
-        </button>
+        <!--<div *ngIf="groups" *ngFor="let group of groups">
+            <label *ngIf="group.hasName">Legend groups is not yet implemented</label>
+
+        </div>-->
+        <div *ngIf="!groups">
+            <button md-menu-item *ngFor="let item of data" [disabled]="!item.active">
+              <md-icon size="24" [ngStyle]="{'color': (item.active ? item.activeColor : item.inactiveColor)}">{{getIcon(item.active)}}</md-icon>
+              <span [ngStyle]="{'color': (item.active ? item.activeColor : item.inactiveColor)}" >{{item.prettyName}}</span>
+            </button>
+        </div>
     </md-menu>
+
 </div>
