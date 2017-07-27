@@ -6,7 +6,7 @@ import {Bucketizer} from '../bucketizers/Bucketizer';
 
 declare let d3;
 
-const DEFAULT_MARGIN = 15;
+const DEFAULT_MARGIN = 35;
 const DEFAULT_HEIGHT = 150;
 const DEFAULT_WIDTH = 1000;
 
@@ -97,10 +97,11 @@ export class TimelineSelectorChart {
 
     private brush: d3.svg.Brush<TimelineItem>;
 
-    private width = DEFAULT_WIDTH;
+    private width = DEFAULT_WIDTH - 2*DEFAULT_MARGIN;
+    private height = DEFAULT_HEIGHT - 2*DEFAULT_MARGIN;
     private approximateBarWidth: number;
     private xFocus: d3.time.Scale<Date, any>;
-    private yFocus: d3.time.Scale<Date, any>;
+    private yFocus: any;
     private xContext: d3.time.Scale<Date, any>;
     private yContext: any;
     private heightFocus: number;
@@ -232,6 +233,7 @@ export class TimelineSelectorChart {
         let MIN_VALUE = this.data.logarithmic ? 1 : 0;
 
         this.width = this.determineWidth() - 2 * DEFAULT_MARGIN;
+        this.height = this.determineHeight() - 2 * DEFAULT_MARGIN;
         // Depending on the granularity, the bars are not all the same width (months are different
         // lengths). But this is accurate enough to place tick marks and make other calculations.
         this.approximateBarWidth = 0;
@@ -267,6 +269,7 @@ export class TimelineSelectorChart {
         // Setup the axes and their scales.
         this.xFocus = d3.time.scale.utc().range([0, this.width]);
         this.xContext = d3.time.scale.utc().range([0, this.width]);
+        // this.yContext = d3.time.scale.utc().range([0, this.height]);
 
         // Save the brush as an instance variable to allow interaction on it by client code.
         this.brush = d3.svg.brush().x(this.xContext).on('brush', () => {
@@ -317,35 +320,38 @@ export class TimelineSelectorChart {
 
         // We don't want the ticks to be too close together, so calculate the most ticks that
         // comfortably fit on the timeline
-        let maximumNumberOfTicks = Math.round(this.width / 100);
+        let maximumNumberOfXTicks = Math.round(this.width / 100);
         // We don't want to have more ticks than buckets (e.g., monthly buckets with daily ticks
         // look funny)
-        let minimumTickRange = d3.time[this.data.granularity].utc.range;
+        let minimumXTickRange = d3.time[this.data.granularity].utc.range;
         // Get number of ticks for the focus chart
-        if (this.xFocus.ticks(minimumTickRange).length < maximumNumberOfTicks) {
+        if (this.xFocus.ticks(minimumXTickRange).length < maximumNumberOfXTicks) {
             // There's enough room to do one tick per bucket
-            this.xAxisFocus.ticks(minimumTickRange);
+            this.xAxisFocus.ticks(minimumXTickRange);
         } else {
             // One tick per bucket at this granularity is too many; let D3 figure out tick spacing.
             // Note that D3 may give us a few more ticks than we specify if it feels like it.
-            this.xAxisFocus.ticks(maximumNumberOfTicks);
+            this.xAxisFocus.ticks(maximumNumberOfXTicks);
         }
         // Number of ticks for main chart
-        if (this.xContext.ticks(minimumTickRange).length < maximumNumberOfTicks) {
+        if (this.xContext.ticks(minimumXTickRange).length < maximumNumberOfXTicks) {
             // There's enough room to do one tick per bucket
-            xAxisContext.ticks(minimumTickRange);
+            xAxisContext.ticks(minimumXTickRange);
         } else {
             // One tick per bucket at this granularity is too many; let D3 figure out tick spacing.
             // Note that D3 may give us a few more ticks than we specify if it feels like it.
-            xAxisContext.ticks(maximumNumberOfTicks);
+            xAxisContext.ticks(maximumNumberOfXTicks);
         }
+
+
 
         // Clear the old contents by replacing innerhtml
         // Make sure that the tooltip container is present
         d3.select(this.element.nativeElement).html('<div id="tl-tooltip-container"></div>');
 
         // let xCenterOffset = (this.width + this.marginFocus.left + this.marginFocus.right) / 2;
-        let xCenterOffset = 0;
+        //This sets the offset
+        let xCenterOffset = this.width/44;// TODO This is a hack.
 
         // Append our chart graphics
         this.svg = d3.select(this.element.nativeElement).attr('class', 'timeline-selector-chart')
@@ -430,6 +436,57 @@ export class TimelineSelectorChart {
                 d3.scale.linear().range([this.heightFocus, 0]);
 
             // Use lowest value or 0 for Y-axis domain, whichever is less (e.g. if negative)
+            let minFocusY = d3.min(series.focusData.map((d: any) => {
+                return d.value;
+            }));
+            minFocusY = this.data.logarithmic ? 1 : (minFocusY < 0 ? minFocusY : 0);
+
+            // Use highest value for Y-axis domain, or 0 if there is no data
+            let maxFocusY = d3.max(series.focusData.map((d: any) => {
+                return d.value;
+            }));
+            maxFocusY = maxFocusY ? maxFocusY : MIN_VALUE;
+
+            yFocus.domain([minFocusY, maxFocusY]);
+
+            //This draws the axis for the focused timeline graph
+            let yAxis = d3.svg.axis().scale(yFocus).orient('left').ticks(2);
+
+
+
+
+            /////******************
+            //all code from here to the next set of 5 back slashes just adds an axis/labels to the main timeline graph
+            //The only change made to the code above this was adding the word "Focus" to the min/max values - git diff doesn't
+            // really understand the change well (since what the code above used to look like is very similar to what the code
+            //below now looks like)
+
+            //To add an axis, all you need (I think) is data and a scale with a set domain field
+            //
+            //What follows is a bare-bones description of how to label your axis.
+            //This does not actually draw the axis line.
+            //
+            //  yScale = d3.scale.linear().range([0, 1]) //(could be any range or something besides linear)
+            //
+            //  yScale.domain([10, 365]); //take my [0,1] scale and stretch it to map it to a [10,365] scale.
+            //
+            //  let yAxis = d3.svg.axis().scale(yDomainBox).orient('left'); //left means stick to the left side
+            //
+            //
+            //  let maximumNumberOfYTicks = 5; //no more than 5 ticks on this axis
+            //
+            //  yAxis.ticks(maximumNumberOfYTicks);
+            //
+            //  context.append('g')
+            //    .attr('class', 'y axis')
+            //    .attr('transform', 'translate(' + xOffset + ',' + yOffset + ')')
+            //    .call(yAxis);
+            //
+            //
+
+
+            
+            // Use lowest value or 0 for Y-axis domain, whichever is less (e.g. if negative)
             let minY = d3.min(series.data.map((d: any) => {
                 return d.value;
             }));
@@ -441,20 +498,36 @@ export class TimelineSelectorChart {
             }));
             maxY = maxY ? maxY : MIN_VALUE;
 
-            yFocus.domain([minY, maxY]);
 
-            let yAxis = d3.svg.axis().scale(yFocus).orient('right').ticks(2);
-
-            // Draw the focus chart
-            this.drawFocusChart(series);
-
+            console.log(heightContext);
             let yContext = this.data.logarithmic ?
                 d3.scale.log().clamp(true).range([heightContext, 0]) : d3.scale.linear().range([heightContext, 0]);
-            yContext.domain(yFocus.domain());
 
             if (this.data.primarySeries.name === series.name) {
                 this.yContext = yContext;
             }
+
+            // yContext.domain(yFocus.domain());
+            yContext.domain([minY, maxY]);
+
+            let yAxisContext = d3.svg.axis().scale(yContext).orient('left');
+
+            // We don't want the ticks to be too close together, so calculate the most ticks that
+            // comfortably fit on the axis
+            let maximumNumberOfYTicks = Math.round(this.height / 200);
+
+            yAxisContext.ticks(maximumNumberOfYTicks);
+
+            context.append('g')
+                .attr('class', 'y axis')
+                .attr('transform', 'translate(-' + 0 + ',' + 0 + ')')
+                .call(yAxisContext);
+
+            /////******************   [end main ('context') timeline yAxis code]
+
+
+            // Draw the focus chart
+            this.drawFocusChart(series);
 
             let contextContainer;
 
