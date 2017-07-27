@@ -790,8 +790,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         this.executeAllQueryChain();
     };
 
-    handleChangeLimit(layerIndex) {
-        this.logChangeAndStartQueryChain(layerIndex);
+    handleChangeLimit() {
+        this.logChangeAndStartAllQueryChain();
     }
 
     handleChangeDateField(layerIndex) {

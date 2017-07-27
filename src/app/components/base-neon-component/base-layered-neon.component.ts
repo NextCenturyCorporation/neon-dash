@@ -276,7 +276,25 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.changeDetection.detectChanges();
     };
 
-    createTitle(layerIndex, resetQueryTitle?: boolean): string {
+    createTitle(resetQueryTitle?: boolean):string {
+        if (resetQueryTitle) {
+            this.queryTitle = '';
+        }
+        if (this.queryTitle) {
+            return this.queryTitle;
+        }
+        let optionTitle = this.getOptionFromConfig('title');
+        if (optionTitle) {
+            return optionTitle;
+        }
+        if (this.meta.layers.length === 1) {
+            return this.createLayerTitle(1, resetQueryTitle);
+        } else {
+            return 'Multiple Layers - ' + this.getVisualizationName();
+        }
+    }
+
+    createLayerTitle(layerIndex, resetQueryTitle?: boolean): string {
         if (resetQueryTitle) {
             this.queryTitle = '';
         }
@@ -316,7 +334,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         }
         this.isLoading++;
         this.changeDetection.detectChanges();
-        this.queryTitle = this.createTitle(false);
+        this.queryTitle = this.createLayerTitle(false);
         let query = this.createQuery(layerIndex);
 
         let filtersToIgnore = this.getFiltersToIgnore();
