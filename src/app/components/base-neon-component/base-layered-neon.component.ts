@@ -276,7 +276,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.changeDetection.detectChanges();
     };
 
-    createTitle(resetQueryTitle?: boolean):string {
+    createTitle(resetQueryTitle?: boolean): string {
         if (resetQueryTitle) {
             this.queryTitle = '';
         }
