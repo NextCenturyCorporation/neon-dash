@@ -49,8 +49,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
             dataField: this.injector.get('dataField', null),
-            unsharedFilterField: {},
-            unsharedFilterValue: ''
+            unsharedFilterField: this.injector.get('unsharedFilterField', null),
+            unsharedFilterValue: this.injector.get('unsharedFilterValue', null)
         };
         this.filters = [];
         this.active = {
