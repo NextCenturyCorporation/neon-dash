@@ -70,7 +70,7 @@
             <div #cesiumContainer id="cesiumContainer" (click)="stopEventPropagation($event)"></div>
             <div class="map-selection" *ngIf="selection.showSelection" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
         </div>
-        <div class=" text-container ">
+        <div class=" legend-container " style="">
             <div>
                 <app-legend [data]="legendData"></app-legend>
             </div>
