@@ -49,7 +49,9 @@
                 <table cellspacing="0">
                     <tr>
                         <td>
-                            <input mdInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                            <md-input-container>
+                                <input mdInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                            </md-input-container>
                         </td>
                         <td>
                             <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
