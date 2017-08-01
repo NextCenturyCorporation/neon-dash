@@ -15,36 +15,45 @@
                     <md-icon class="error-icon">error</md-icon>
                     {{ getButtonText() }}
                 </label>
-                <p></p>
-                <a md-mini-fab (click)="addEmptyLayer()"><md-icon>add</md-icon></a>
+                <p>
+                    <a (click)="addEmptyLayer()">
+                        <a md-mini-fab><md-icon>add</md-icon></a> Add Layer
+                    </a>
+                </p>
                 <div *ngFor="let layer of meta.layers; let i = index">
-                    <md-select placeholder="Database" [(ngModel)]="meta.layers[i].database" required="true" (ngModelChange)="handleChangeDatabase(i)" [disabled]="meta.databases.length < 2">
-                        <md-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</md-option>
-                    </md-select>
-                    <p></p>
+                    <md-toolbar style="cursor: pointer;" (click)="toggleFilter(i)">
+                        <span>Layer {{i}}</span>
+                        <span class="toolbar-spacer"></span>
+                        <md-icon>{{getIconForFilter(i)}}</md-icon>
+                    </md-toolbar>
+                    <div [hidden]="!filterVisible[i]" >
+                        <md-select placeholder="Database" [(ngModel)]="meta.layers[i].database" required="true" (ngModelChange)="handleChangeDatabase(i)" [disabled]="meta.databases.length < 2">
+                            <md-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</md-option>
+                        </md-select>
+                        <br />
 
-                    <md-select placeholder="Table" [(ngModel)]="meta.layers[i].table" required="true" (ngModelChange)="handleChangeTable(i)" [disabled]="meta.layers[i].tables.length < 2">
-                        <md-option *ngFor="let table of meta.layers[i].tables" [value]="table">{{ table.prettyName }}</md-option>
-                    </md-select>
-                    <p></p>
+                        <md-select placeholder="Table" [(ngModel)]="meta.layers[i].table" required="true" (ngModelChange)="handleChangeTable(i)" [disabled]="meta.layers[i].tables.length < 2">
+                            <md-option *ngFor="let table of meta.layers[i].tables" [value]="table">{{ table.prettyName }}</md-option>
+                        </md-select>
+                        <br />
 
-                    <md-select placeholder="Latitude Field" [(ngModel)]="active.layers[i].latitudeField" required="true" (ngModelChange)="handleChangeLatitudeField(i)"
-                        [disabled]="meta.layers[i].fields.length == 0">
-                        <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
-                    </md-select>
-                    <p></p>
+                        <md-select placeholder="Latitude Field" [(ngModel)]="active.layers[i].latitudeField" required="true" (ngModelChange)="handleChangeLatitudeField(i)"
+                            [disabled]="meta.layers[i].fields.length == 0">
+                            <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
+                        </md-select>
+                        <br />
 
-                    <md-select placeholder="Longitude Field" [(ngModel)]="active.layers[i].longitudeField" required="true" (ngModelChange)="handleChangeLongitudeField(i)"
-                        [disabled]="meta.layers[i].fields.length == 0">
-                        <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
-                    </md-select>
-                    <p></p>
+                        <md-select placeholder="Longitude Field" [(ngModel)]="active.layers[i].longitudeField" required="true" (ngModelChange)="handleChangeLongitudeField(i)"
+                            [disabled]="meta.layers[i].fields.length == 0">
+                            <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
+                        </md-select>
+                        <br />
 
-                    <md-select placeholder="Color Field" [(ngModel)]="active.layers[i].colorField" required="true" (ngModelChange)="handleChangeColorField(i)"
-                        [disabled]="meta.layers[i].fields.length == 0">
-                        <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
-                    </md-select>
-                <p></p>
+                        <md-select placeholder="Color Field" [(ngModel)]="active.layers[i].colorField" required="true" (ngModelChange)="handleChangeColorField(i)"
+                            [disabled]="meta.layers[i].fields.length == 0">
+                            <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
+                        </md-select>
+                    </div>
                 </div>
                 <table cellspacing="0">
                     <tr>

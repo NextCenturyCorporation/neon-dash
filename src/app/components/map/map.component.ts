@@ -20,7 +20,6 @@ import {ColorSchemeService} from '../../services/color-scheme.service';
 import {FieldMetaData} from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-//import * as _ from 'lodash';
 import {LegendItem, LegendGroup} from '../legend/legend.component';
 import {BaseLayeredNeonComponent} from '../base-neon-component/base-layered-neon.component';
 import 'cesium/Build/Cesium/Cesium.js';
@@ -95,6 +94,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         rectangle: any,
         isExact: boolean
     };
+
+    public filterVisible: boolean[] = [];
 
     //passed to legend
     public legendData: LegendItem[];
@@ -243,6 +244,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
           sizeField: new FieldMetaData(),
           dateField: new FieldMetaData(),
         });
+        this.filterVisible[this.active.layers.length - 1] = true;
     }
 
     onSelectDown(event) {
@@ -864,6 +866,15 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
         this.removeFilterBox();
     };
+
+    toggleFilter(index: number): void {
+        this.filterVisible[index] = !(this.filterVisible[index]);
+    }
+
+    getIconForFilter(index: number): string {
+        return this.filterVisible[index] ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
+    }
+
 
     /*removeLocalFilterFromLocalAndNeon(value: string) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
