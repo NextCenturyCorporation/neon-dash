@@ -407,7 +407,13 @@
         "title": "Popular Entities",
         "database": "ebola_data",
         "table": "record",
-        "dataField": "situationFrame.entities"
+        "dataField": "situationFrame.entities",
+        "preFilter": true,
+        "filterTarget":  "loreleiJSONMapping.rpiInformationExtraction.enrichedEntities.entity_type",
+        "operator": "!=",
+        "exclude": "LOC",
+        "unsharedFilterField": "loreleiJSONMapping.rpiInformationExtraction.enrichedEntities.entity_type",
+        "unsharedFilterValue": "PER"
         },
         "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
         "row": 8,

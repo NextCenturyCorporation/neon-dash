@@ -35,6 +35,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         database: string,
         table: string,
         dataField: string,
+        preFilter: boolean,
+        filterTarget: string,
+        operator: any,
+        exclude: any,
         unsharedFilterField: any,
         unsharedFilterValue: string,
         sizeField: string,
@@ -70,6 +74,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
             dataField: this.injector.get('dataField', null),
+            preFilter: this.injector.get('preFilter', null),
+            filterTarget: this.injector.get('filterTarget', null),
+            operator: this.injector.get('operator', null),
+            exclude: this.injector.get('exclude', null),
             unsharedFilterField: this.injector.get('unsharedFilterField', null),
             unsharedFilterValue: this.injector.get('unsharedFilterValue', null),
             sizeField: this.injector.get('sizeField', null),
@@ -200,7 +208,15 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        let whereClause;
+        //Checks if there's prefilter and adds it.
+        if(this.optionsFromConfig.preFilter){
+            whereClause = neon.query.where(this.optionsFromConfig.filterTarget,
+                this.optionsFromConfig.operator,
+                this.optionsFromConfig.exclude);
+        }else{
+            whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        }
         let dataField = this.active.dataField.columnName;
 
         // Check for an unshared filter
