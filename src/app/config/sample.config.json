@@ -217,6 +217,33 @@
                 }
             },
             {
+                "sizex": 18,
+                "sizey": 8,
+                "type": "map",
+                "bindings": {
+                    "limit": 1000,
+                    "layers": [
+                        {
+                            "database": "test",
+                            "table": "earthquakes",
+                            "latitudeField": "latitude",
+                            "longitudeField": "longitude",
+                            "dateField": "time",
+                            "sizeField": "mag",
+                            "colorField": "magType"
+                        }, {
+                            "database": "test",
+                            "table": "earthquakes",
+                            "latitudeField": "latitude",
+                            "longitudeField": "longitude",
+                            "colorField": "net",
+                            "sizeField": "mag",
+                            "dateField": "date"
+                        }
+                    ]
+                }
+            },
+            {
                 "sizex": 12,
                 "sizey": 4,
                 "type": "barChart",

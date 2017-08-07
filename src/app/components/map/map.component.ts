@@ -23,6 +23,7 @@ import * as neon from 'neon-framework';
 import {LegendItem, LegendGroup} from '../legend/legend.component';
 import {BaseLayeredNeonComponent} from '../base-neon-component/base-layered-neon.component';
 import 'cesium/Build/Cesium/Cesium.js';
+import * as _ from 'lodash';
 
 export class MapLayer {
     latitudeField: FieldMetaData;
@@ -62,7 +63,16 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         dateField: string,
         limit: number,
         unsharedFilterField: Object,
-        unsharedFilterValue: string
+        unsharedFilterValue: string,
+        layers: {
+            database: string,
+            table: string,
+            latitudeField: string,
+            longitudeField: string,
+            sizeField: string,
+            colorField: string,
+            dateField: string
+        }[]
     };
     public active: {
         layers: MapLayer[]
@@ -126,8 +136,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             dateField: this.injector.get('dateField', null),
             limit: this.injector.get('limit', 1000),
             unsharedFilterField: {},
-            unsharedFilterValue: ''
+            unsharedFilterValue: '',
+            layers: this.injector.get('layers', [])
         };
+
         this.filters = [];
 
         let limit = this.optionsFromConfig.limit;
@@ -174,7 +186,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     postInit() {
-
+        // There is one layer automatically added
+        for (let i = 1; i < this.optionsFromConfig.layers.length; i++) {
+            this.addEmptyLayer();
+        }
     };
 
     ngAfterViewInit() {
@@ -221,8 +236,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         //Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
         this.cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
         this.cesiumViewer.camera.flyHome(0);
-        let replaceMeLayerIndex = 0;
-        this.executeQueryChain(replaceMeLayerIndex);
+
+        // Draw everything
+        this.handleChangeLimit();
     }
 
     subNgOnDestroy() {
@@ -448,12 +464,31 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     onUpdateFields(layerIndex) {
-        this.active.layers[layerIndex].latitudeField = this.findFieldObject(layerIndex, 'latitudeField', neonMappings.TAGS);
-        this.active.layers[layerIndex].longitudeField = this.findFieldObject(layerIndex, 'longitudeField', neonMappings.TAGS);
-        this.active.layers[layerIndex].sizeField = this.findFieldObject(layerIndex, 'sizeField', neonMappings.TAGS);
-        this.active.layers[layerIndex].colorField = this.findFieldObject(layerIndex, 'colorField', neonMappings.TAGS);
-        this.active.layers[layerIndex].dateField = this.findFieldObject(layerIndex, 'dateField', neonMappings.TAGS);
+        let layer = this.active.layers[layerIndex];
+        layer.latitudeField = this.findFieldObject(layerIndex, 'latitudeField', neonMappings.TAGS);
+        layer.longitudeField = this.findFieldObject(layerIndex, 'longitudeField', neonMappings.TAGS);
+        layer.sizeField = this.findFieldObject(layerIndex, 'sizeField', neonMappings.TAGS);
+        layer.colorField = this.findFieldObject(layerIndex, 'colorField', neonMappings.TAGS);
+        layer.dateField = this.findFieldObject(layerIndex, 'dateField', neonMappings.TAGS);
     };
+
+    findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
+        // If there are no layers, default to the original
+        if (this.optionsFromConfig.layers.length === 0 || !bindingKey
+            || !this.optionsFromConfig.layers[layerIndex][bindingKey]) {
+            return super.findFieldObject(layerIndex, bindingKey, mappingKey);
+        }
+
+        let me = this;
+        let find = function(name) {
+            return _.find(me.meta.layers[layerIndex].fields, function(field) {
+                return field['columnName'] === name;
+            });
+        };
+
+        let field = find(this.optionsFromConfig.layers[layerIndex][bindingKey]);
+        return field || this.getBlankField();
+    }
 
     createFilter(fieldsByLayer, name) {
         return {

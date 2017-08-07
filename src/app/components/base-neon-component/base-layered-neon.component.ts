@@ -433,6 +433,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         return field || this.datasetService.createBlankField();
     };
 
+    /**
+     * Get a blank FieldMetaData object
+     */
+    getBlankField(): FieldMetaData {
+        return this.datasetService.createBlankField();
+    }
+
     getMapping(layerIndex, key: string): string {
         return this.datasetService.getMapping(this.meta.layers[layerIndex].database.name, this.meta.layers[layerIndex].table.name, key);
     };
