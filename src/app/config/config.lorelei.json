@@ -414,6 +414,33 @@
         "exclude": "LOC",
         "unsharedFilterField": "loreleiJSONMapping.rpiInformationExtraction.enrichedEntities.entity_type",
         "unsharedFilterValue": "PER"
+
+        },
+        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+        "row": 8,
+        "col": 12
+    },
+    {
+        "name": "Text Cloud",
+        "type": "textCloud",
+        "icon": "TagCloud64",
+        "sizex": 6,
+        "sizey": 6,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 6,
+        "minSizey": 5,
+        "$$hashKey": "object:35",
+        "selected": true,
+        "bindings": {
+        "title": "People",
+        "database": "ebola_data",
+        "table": "record",
+        "dataField": "situationFrame.entities",
+        "preFilter": true,
+        "filterTarget":  "loreleiJSONMapping.rpiInformationExtraction.enrichedEntities.entity_type",
+        "operator": "=",
+        "exclude": "PER"
         },
         "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
         "row": 8,
@@ -462,6 +489,32 @@
         "dataField": "loreleiJSONMapping.status.hashtagEntities.text"
         },
         "id": "516c1aa7-7115-4e75-89c5-e868f5c914d3",
+        "row": 8,
+        "col": 18
+    },
+    {
+        "name": "Text Cloud",
+        "type": "textCloud",
+        "icon": "TagCloud64",
+        "sizex": 6,
+        "sizey": 6,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 6,
+        "minSizey": 5,
+        "$$hashKey": "object:35",
+        "selected": true,
+        "bindings": {
+        "title": "Organization",
+        "database": "ebola_data",
+        "table": "record",
+        "dataField": "situationFrame.entities",
+        "preFilter": true,
+        "filterTarget":  "loreleiJSONMapping.rpiInformationExtraction.enrichedEntities.entity_type",
+        "operator": "=",
+        "exclude": "ORG"
+        },
+        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
         "row": 8,
         "col": 18
     },
