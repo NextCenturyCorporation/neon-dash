@@ -95,6 +95,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     abstract getOptionFromConfig(option: string);
     abstract getExportFields(layerIndex: number);
     abstract subAddEmptyLayer();
+    abstract subRemoveLayer(index: number);
 
     addEmptyLayer() {
         let layer = {
@@ -109,6 +110,18 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.subAddEmptyLayer();
         this.meta.layers.push(layer);
         this.initDatabases(this.meta.layers.length - 1);
+    }
+
+    removeLayer(index: number) {
+        // Stop if trying to remove a layer that doesn't exist
+        if (index >= this.outstandingDataQueriesByLayer.length) {
+            return;
+        }
+
+        this.outstandingDataQueriesByLayer.splice(index, 1);
+        this.meta.layers.splice(index, 1);
+
+        this.subRemoveLayer(index);
     }
 
     exportOneLayer(query, layerIndex) {

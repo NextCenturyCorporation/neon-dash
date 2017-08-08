@@ -190,7 +190,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         for (let i = 1; i < this.optionsFromConfig.layers.length; i++) {
             this.addEmptyLayer();
         }
-    };
+    }
+
+    subRemoveLayer(index: number) {
+        this.active.layers.splice(index, 1);
+
+        // Update the map
+        this.handleChangeLimit();
+    }
 
     ngAfterViewInit() {
         let imagerySources = Cesium.createDefaultImageryProviderViewModels();
