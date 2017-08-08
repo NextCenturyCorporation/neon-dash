@@ -280,7 +280,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         this.selection.height = 0;
         this.selection.isExact = true;
         this.drawSelection();
-
     }
 
     getSelectionRectangle() {
@@ -473,8 +472,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     };
 
     findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
-        // If there are no layers, default to the original
-        if (this.optionsFromConfig.layers.length === 0 || !bindingKey
+        // If there are no layers or the index is past the end of the layers in the config, default to the original
+        if (layerIndex >= this.optionsFromConfig.layers.length || !bindingKey
             || !this.optionsFromConfig.layers[layerIndex][bindingKey]) {
             return super.findFieldObject(layerIndex, bindingKey, mappingKey);
         }
