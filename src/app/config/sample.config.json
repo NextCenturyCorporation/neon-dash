@@ -224,6 +224,7 @@
                     "limit": 1000,
                     "layers": [
                         {
+                            "title": "MagType",
                             "database": "test",
                             "table": "earthquakes",
                             "latitudeField": "latitude",
@@ -232,6 +233,7 @@
                             "sizeField": "mag",
                             "colorField": "magType"
                         }, {
+                            "title": "Net",
                             "database": "test",
                             "table": "earthquakes",
                             "latitudeField": "latitude",
