@@ -22,12 +22,17 @@
                 </p>
                 <div *ngFor="let layer of meta.layers; let i = index">
                     <md-toolbar style="cursor: pointer;" (click)="toggleFilter(i)">
-                        <span>Layer {{i}}</span>
+                        <span>{{active.layers[i].title}}</span>
                         <span class="toolbar-spacer"></span>
                         <md-icon *ngIf="meta.layers.length > 1" (click)="removeLayer(i)">delete</md-icon>
                         <md-icon>{{getIconForFilter(i)}}</md-icon>
                     </md-toolbar>
                     <div [hidden]="!filterVisible[i]" >
+                        <md-input-container>
+                            <input mdInput placeholder="Layer Name" [(ngModel)]="active.layers[i].title" required="true">
+                        </md-input-container>
+                        <br />
+
                         <md-select placeholder="Database" [(ngModel)]="meta.layers[i].database" required="true" (ngModelChange)="handleChangeDatabase(i)" [disabled]="meta.databases.length < 2">
                             <md-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</md-option>
                         </md-select>

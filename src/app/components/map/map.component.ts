@@ -26,6 +26,7 @@ import 'cesium/Build/Cesium/Cesium.js';
 import * as _ from 'lodash';
 
 export class MapLayer {
+    title: string;
     latitudeField: FieldMetaData;
     longitudeField: FieldMetaData;
     sizeField: FieldMetaData;
@@ -65,6 +66,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         unsharedFilterField: Object,
         unsharedFilterValue: string,
         layers: {
+            title: string,
             database: string,
             table: string,
             latitudeField: string,
@@ -261,6 +263,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     subAddEmptyLayer() {
         this.active.layers.push({
+          title: '',
           latitudeField: new FieldMetaData(),
           longitudeField: new FieldMetaData(),
           colorField: new FieldMetaData(),
@@ -476,6 +479,17 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         layer.sizeField = this.findFieldObject(layerIndex, 'sizeField', neonMappings.TAGS);
         layer.colorField = this.findFieldObject(layerIndex, 'colorField', neonMappings.TAGS);
         layer.dateField = this.findFieldObject(layerIndex, 'dateField', neonMappings.TAGS);
+
+        // Get the title from the options, if it exists
+        if (layerIndex >= this.optionsFromConfig.layers.length ||
+                !this.optionsFromConfig.layers[layerIndex] || !this.optionsFromConfig.layers[layerIndex].title) {
+            layer.title = this.optionsFromConfig.title;
+        } else {
+            layer.title = this.optionsFromConfig.layers[layerIndex].title;
+        }
+        if (!layer.title || layer.title === '') {
+            layer.title = 'New Layer';
+        }
     };
 
     findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
