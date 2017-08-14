@@ -22,6 +22,7 @@ import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     private textCloud: TextCloud;
     private filters: any[];
+    public count: number;
 
     private optionsFromConfig: {
         title: string,
@@ -60,7 +61,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             unsharedFilterField: this.injector.get('unsharedFilterField', null),
             unsharedFilterValue: this.injector.get('unsharedFilterValue', null)
         };
-        this.filters = []; 
+        this.filters = [];
         this.active = {
             dataField: new FieldMetaData(),
             andFilters: true,
@@ -70,6 +71,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             filterable: true,
             data: []
         };
+        this.count = this.active.limit;
         this.queryTitle = 'Text Cloud';
     };
 
@@ -162,30 +164,62 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let whereClause;
         //Checks if there's prefilter and adds it.
         if(this.optionsFromConfig.preFilter){
-            whereClause = neon.query.where(this.optionsFromConfig.filterTarget, 
-                this.optionsFromConfig.operator, 
+            whereClause = neon.query.where(this.optionsFromConfig.filterTarget,
+                this.optionsFromConfig.operator,
                 this.optionsFromConfig.exclude);
         }else{
             whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
         }
         let dataField = this.active.dataField.columnName;
-        return query.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
+        return query.where(whereClause).where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
             .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
     };
 
     getFiltersToIgnore() {
         return null;
     }
+///*
+    getCount(){
+        let databaseName = this.meta.database.name;
+        let tableName = this.meta.table.name;
+        let countQuery = new neon.query.Query().selectFrom(databaseName, tableName);
+        let whereClause;
+        //prefilter
+        if(this.optionsFromConfig.preFilter){
+            whereClause = neon.query.where(this.optionsFromConfig.filterTarget,
+                this.optionsFromConfig.operator,
+                this.optionsFromConfig.exclude);
+
+        }else{
+            whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        }
+        let dataField = this.active.dataField.columnName;
+        console.log(this.active.data.length);
+        this.executeQuery(countQuery.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
+        .sortBy('value', neon.query['DESCENDING']));//.limit(this.active.limit));
+    }//*/
 
     onQuerySuccess(response): void {
         let data = response.data;
-        let cloudData = data || [];
-        let activeData = cloudData.map((item) => {
-            item.key = item[this.active.dataField.columnName];
-            item.keyTranslated = item.key;
-            return item;
-        });
-        this.active = this.updateObject(this.active, 'data', activeData);
+        ///*
+        let length = data.length;
+        let count = this.count;
+        if(length -1 < count ){
+        
+            let cloudData = data || [];
+            let activeData = cloudData.map((item) => {
+                item.key = item[this.active.dataField.columnName];
+                item.keyTranslated = item.key;
+                return item;
+            });
+            this.active = this.updateObject(this.active, 'data', activeData);
+            if(length +1 > count){
+                this.getCount();
+                }
+        }
+        if(length > this.active.limit){
+            this.count = length;
+            }
         this.refreshVisualization();
         this.queryTitle = this.optionsFromConfig.title;
     }
@@ -326,6 +360,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     handleChangeLimit() {
         this.active.limit = this.active.limit || 1;
+        
         this.logChangeAndStartQueryChain(); // ('limit', this.active.limit, 'button');
     };
 
@@ -335,7 +370,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     getButtonText() {
-        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length;
+        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length +'. Total: '+this.count;
     };
 
     getFilterData() {
