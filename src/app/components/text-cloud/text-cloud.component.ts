@@ -29,6 +29,7 @@ import {VisualizationService} from '../../services/visualization.service';
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     private textCloud: TextCloud;
     private filters: any[];
+    public count: number;
 
     private optionsFromConfig: {
         title: string,
@@ -98,6 +99,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             filterable: true,
             data: []
         };
+        this.count = this.active.limit;
         this.queryTitle = 'Text Cloud';
     };
 
@@ -240,22 +242,54 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     getFiltersToIgnore() {
         return null;
     }
+///*
+    getCount(){
+        let databaseName = this.meta.database.name;
+        let tableName = this.meta.table.name;
+        let countQuery = new neon.query.Query().selectFrom(databaseName, tableName);
+        let whereClause;
+        //prefilter
+        if(this.optionsFromConfig.preFilter){
+            whereClause = neon.query.where(this.optionsFromConfig.filterTarget,
+                this.optionsFromConfig.operator,
+                this.optionsFromConfig.exclude);
+
+        }else{
+            whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        }
+        let dataField = this.active.dataField.columnName;
+        console.log(this.active.data.length);
+        this.executeQuery(countQuery.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
+        .sortBy('value', neon.query['DESCENDING']));//.limit(this.active.limit));
+    }//*/
 
     onQuerySuccess(response): void {
         let data = response.data;
-        let cloudData = data || [];
-        let useSizeField: boolean = this.active.sizeField.columnName !== '';
+        ///*
+        let length = data.length;
+        let count = this.count;
+        if(length -1 < count ){
+            let cloudData = data || [];
+            let useSizeField: boolean = this.active.sizeField.columnName !== '';
 
-        let activeData = cloudData.map((item) => {
-            item.key = item[this.active.dataField.columnName];
-            item.keyTranslated = item.key;
-            // If we have a size field, asign the value to the value field
-            if (useSizeField) {
-                item.value = item[this.active.sizeField.columnName];
+            let activeData = cloudData.map((item) => {
+                item.key = item[this.active.dataField.columnName];
+                item.keyTranslated = item.key;
+                // If we have a size field, asign the value to the value field
+                if (useSizeField) {
+                    item.value = item[this.active.sizeField.columnName];
+                }
+                return item;
+            });
+            this.active = this.updateObject(this.active, 'data', activeData);
+
+            if (length +1 > count) {
+                this.getCount();
             }
-            return item;
-        });
-        this.active = this.updateObject(this.active, 'data', activeData);
+        }
+        if (length > this.active.limit) {
+            this.count = length;
+        }
         this.refreshVisualization();
         this.queryTitle = this.optionsFromConfig.title || 'Text Cloud by ' + this.active.dataField.prettyName;
         if (useSizeField && this.queryTitle !== this.optionsFromConfig.title) {
@@ -342,7 +376,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getButtonText() {
-        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length;
+        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length +'. Total: '+this.count;
     };
 
     getFilterData() {
