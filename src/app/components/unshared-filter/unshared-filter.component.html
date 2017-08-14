@@ -1,0 +1,30 @@
+<md-toolbar class="mat-primary">
+    <span>Local Filter</span>
+</md-toolbar>
+<md-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField" required="false" [disabled]="meta.fields.length === 0"
+           (ngModelChange)="handleChangeUnsharedFilterField()">
+    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+</md-select>
+<p></p>
+<table cellspacing="0">
+    <tr>
+        <td>
+            <md-input-container>
+                <input mdInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue"
+                       [disabled]="!(meta.unsharedFilterField.columnName)">
+            </md-input-container>
+
+        </td>
+        <td>
+            <button md-icon-button md-tooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()"
+                    [disabled]="(meta.unsharedFilterField.columnName == undefined || meta.unsharedFilterValue == '')">
+                <md-icon class="mat-16">clear</md-icon>
+            </button>
+        </td>
+        <td>
+            <button md-icon-button md-tooltip="Set Unshared Filter" tooltip-position="below" (click)="handleChangeUnsharedFilterValue()">
+                <md-icon class="mat-16">refresh</md-icon>
+            </button>
+        </td>
+    </tr>
+</table>

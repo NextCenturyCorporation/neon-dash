@@ -36,7 +36,9 @@
                 <table cellspacing="0">
                     <tr>
                         <td>
-                            <input mdInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                            <md-input-container>
+                                <input mdInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                            </md-input-container>
                         </td>
                         <td>
                             <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
@@ -56,35 +58,8 @@
                 </md-button-toggle-group>
                 <p></p>
 
-                <md-toolbar class="mat-primary">
-                    <span>Unshared Filter</span>
-                </md-toolbar>
-                <md-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField" required="false" [disabled]="meta.fields.length === 0"
-                    (ngModelChange)="handleChangeUnsharedFilterField()">
-                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
-                </md-select>
-                <p></p>
-                <table cellspacing="0">
-                    <tr>
-                        <td>
-                            <input mdInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue"
-                                [disabled]="!(meta.unsharedFilterField.columnName)">
-
-                        </td>
-                        <td>
-                            <button md-icon-button md-tooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()"
-                                [disabled]="(meta.unsharedFilterField.columnName == undefined || meta.unsharedFilterValue == '')">
-                                <md-icon class="mat-16">clear</md-icon>
-                            </button>
-                        </td>
-                        <td>
-                            <button md-icon-button md-tooltip="Set Unshared Filter" tooltip-position="below" (click)="handleChangeUnsharedFilterValue()">
-                                <md-icon class="mat-16">refresh</md-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-                <p></p>
+                <!-- TODO: Local filter component here -->
+                <app-unshared-filter [(meta)]="meta"></app-unshared-filter>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
             </md-card-content>
