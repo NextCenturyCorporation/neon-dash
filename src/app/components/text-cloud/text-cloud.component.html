@@ -58,8 +58,9 @@
                 </md-button-toggle-group>
                 <p></p>
 
-                <!-- TODO: Local filter component here -->
-                <app-unshared-filter [(meta)]="meta"></app-unshared-filter>
+                <app-unshared-filter [(meta)]="meta"
+                    (unsharedFilterChanged)="unsharedFilterChanged()"
+                    (unsharedFilterRemoved)="unsharedFilterRemoved()"></app-unshared-filter>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
             </md-card-content>

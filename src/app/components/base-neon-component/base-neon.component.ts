@@ -438,6 +438,17 @@ export abstract class BaseNeonComponent implements OnInit,
 
     abstract removeFilter(value: string): void;
 
+    /**
+     * Check that the local filter column name and value are not null/empty
+     * @return {boolean}
+     */
+    hasUnsharedFilter(): boolean {
+        return this.meta.unsharedFilterField &&
+            this.meta.unsharedFilterField.columnName !== '' &&
+            this.meta.unsharedFilterValue &&
+            this.meta.unsharedFilterValue.trim() !== '';
+    }
+
     removeLocalFilterFromLocalAndNeon(value: string, isRequery, isRefresh) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
         let me = this;

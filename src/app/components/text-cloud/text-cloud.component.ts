@@ -164,6 +164,12 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
         let dataField = this.active.dataField.columnName;
+
+        // Check for an unshared filter
+        if (this.hasUnsharedFilter()) {
+            whereClause = neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue);
+        }
+
         return query.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
             .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
     };
@@ -234,8 +240,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             });
         }
     };
-
-
 
     createFilterTrayText() {
         return (_.map(this.filters, (this.active.allowsTranslations ? 'translated' : 'value'))).join(', ');
@@ -375,10 +379,14 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     // These methods must be present for AoT compile
     requestExport() {}
 
-    handleChangeUnsharedFilterField() {}
+    unsharedFilterChanged() {
+        // Update the data
+        this.executeQueryChain();
+    }
 
-    handleChangeUnsharedFilterValue() {}
-
-    handleRemoveUnsharedFilter() {}
+    unsharedFilterRemoved() {
+        // Update the data
+        this.executeQueryChain();
+    }
 
 }
