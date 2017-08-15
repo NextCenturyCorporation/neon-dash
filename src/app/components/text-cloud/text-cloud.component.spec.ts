@@ -17,6 +17,7 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 
 describe('Component: TextCloud', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -27,7 +28,8 @@ describe('Component: TextCloud', () => {
     TestBed.configureTestingModule({
       declarations: [
         TextCloudComponent,
-        ExportControlComponent
+        ExportControlComponent,
+        UnsharedFilterComponent
       ],
       providers: [
         ConnectionService,
