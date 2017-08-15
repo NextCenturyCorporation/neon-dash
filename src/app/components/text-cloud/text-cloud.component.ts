@@ -178,7 +178,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     getFiltersToIgnore() {
         return null;
     }
-///*
     getCount(){
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
@@ -196,12 +195,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let dataField = this.active.dataField.columnName;
         console.log(this.active.data.length);
         this.executeQuery(countQuery.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
-        .sortBy('value', neon.query['DESCENDING']));//.limit(this.active.limit));
-    }//*/
+        .sortBy('value', neon.query['DESCENDING']));
+    }
 
     onQuerySuccess(response): void {
         let data = response.data;
-        ///*
         let length = data.length;
         let count = this.count;
         if(length -1 < count ){
@@ -370,7 +368,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     getButtonText() {
-        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length +'. Total: '+this.count;
+        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length +' Total: '+this.count;
     };
 
     getFilterData() {
