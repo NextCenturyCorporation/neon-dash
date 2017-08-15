@@ -57,6 +57,7 @@ import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import {AppMaterialModule} from './app.material.module';
 import {HttpModule} from '@angular/http';
+import {UnsharedFilterComponent} from './components/unshared-filter/unshared-filter.component';
 
 describe('App: NeonGtd', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -83,6 +84,7 @@ describe('App: NeonGtd', () => {
                 DataTableComponent,
                 ScatterPlotComponent,
                 FilterBuilderComponent,
+                UnsharedFilterComponent
             ],
             imports: [
                 FormsModule,

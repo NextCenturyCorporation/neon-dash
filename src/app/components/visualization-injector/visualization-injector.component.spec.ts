@@ -18,6 +18,7 @@ import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -34,7 +35,8 @@ describe('Component: VisualizationInjector', () => {
                 DataTableComponent,
                 ScatterPlotComponent,
                 FilterBuilderComponent,
-                ExportControlComponent
+                ExportControlComponent,
+                UnsharedFilterComponent
             ],
             providers: [ComponentFactoryResolver],
             imports: [

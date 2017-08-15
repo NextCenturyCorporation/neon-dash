@@ -21,6 +21,7 @@ import { FormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -41,7 +42,8 @@ describe('Component: VisualizationContainer', () => {
                 DataTableComponent,
                 ScatterPlotComponent,
                 FilterBuilderComponent,
-                ExportControlComponent
+                ExportControlComponent,
+                UnsharedFilterComponent
             ],
             providers: [
                 ActiveGridService,
