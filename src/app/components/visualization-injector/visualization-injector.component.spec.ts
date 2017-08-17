@@ -12,11 +12,13 @@ import { LineChartComponent } from '../line-chart/line-chart.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { MapComponent } from '../map/map.component';
 import { LegendComponent } from '../legend/legend.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -33,7 +35,8 @@ describe('Component: VisualizationInjector', () => {
                 DataTableComponent,
                 ScatterPlotComponent,
                 FilterBuilderComponent,
-
+                ExportControlComponent,
+                UnsharedFilterComponent
             ],
             providers: [ComponentFactoryResolver],
             imports: [

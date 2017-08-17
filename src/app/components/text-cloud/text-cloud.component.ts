@@ -87,6 +87,17 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         //Do nothing
     };
 
+    getExportFields() {
+        let fields = [{
+            columnName: this.active.dataField.columnName,
+            prettyName: this.active.dataField.prettyName
+        }, {
+            columnName: 'value',
+            prettyName: 'Count'
+        }];
+        return fields;
+    }
+
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
     };
@@ -162,16 +173,20 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause;
-        //Checks if there's prefilter and adds it.
-        if(this.optionsFromConfig.preFilter){
+        // Checks for an unshared filter in the config file.
+        if(this.optionsFromConfig.preFilter) {
             whereClause = neon.query.where(this.optionsFromConfig.filterTarget,
                 this.optionsFromConfig.operator,
                 this.optionsFromConfig.exclude);
-        }else{
+        }
+        else if(this.hasUnsharedFilter()) {
+            whereClause = neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue);
+        }
+        else {
             whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
         }
         let dataField = this.active.dataField.columnName;
-        return query.where(whereClause).where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
+        return query.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
             .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
     };
 
@@ -219,7 +234,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             this.count = length;
             }
         this.refreshVisualization();
-        this.queryTitle = this.optionsFromConfig.title;
+        this.queryTitle = this.optionsFromConfig.title || 'Text Cloud by ' + this.active.dataField.prettyName;
     }
 
     handleFiltersChangedEvent() {
@@ -271,8 +286,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             });
         }
     };
-
-
 
     createFilterTrayText() {
         return (_.map(this.filters, (this.active.allowsTranslations ? 'translated' : 'value'))).join(', ');
@@ -358,7 +371,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     handleChangeLimit() {
         this.active.limit = this.active.limit || 1;
-        
         this.logChangeAndStartQueryChain(); // ('limit', this.active.limit, 'button');
     };
 
@@ -368,7 +380,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     getButtonText() {
-        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length +' Total: '+this.count;
+        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length +' of '+this.count;
     };
 
     getFilterData() {
@@ -413,10 +425,14 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     // These methods must be present for AoT compile
     requestExport() {}
 
-    handleChangeUnsharedFilterField() {}
+    unsharedFilterChanged() {
+        // Update the data
+        this.executeQueryChain();
+    }
 
-    handleChangeUnsharedFilterValue() {}
-
-    handleRemoveUnsharedFilter() {}
+    unsharedFilterRemoved() {
+        // Update the data
+        this.executeQueryChain();
+    }
 
 }

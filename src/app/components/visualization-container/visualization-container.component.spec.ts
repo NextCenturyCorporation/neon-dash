@@ -12,6 +12,7 @@ import { DataTableComponent } from '../data-table/data-table.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { LegendComponent } from '../legend/legend.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
@@ -20,6 +21,7 @@ import { FormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -40,6 +42,8 @@ describe('Component: VisualizationContainer', () => {
                 DataTableComponent,
                 ScatterPlotComponent,
                 FilterBuilderComponent,
+                ExportControlComponent,
+                UnsharedFilterComponent
             ],
             providers: [
                 ActiveGridService,

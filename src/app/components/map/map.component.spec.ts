@@ -7,6 +7,7 @@ import {} from 'jasmine';
 
 import { MapComponent } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -36,7 +37,8 @@ describe('Component: Map', () => {
         TestBed.configureTestingModule({
             declarations: [
                 MapComponent,
-                LegendComponent
+                LegendComponent,
+                ExportControlComponent
             ],
             providers: [
                 ConnectionService,

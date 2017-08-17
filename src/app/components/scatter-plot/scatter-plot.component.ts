@@ -253,6 +253,20 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.filters[0] = f;
     };
 
+    getExportFields() {
+        let usedFields = [this.active.xField,
+            this.active.yField,
+            this.active.labelField];
+        return usedFields
+          .filter((header) => header && header.columnName)
+          .map((header) => {
+              return {
+                  columnName: header.columnName,
+                  prettyName: header.prettyName
+              };
+          });
+    }
+
     /**
     * returns -1 if cannot be found
     */

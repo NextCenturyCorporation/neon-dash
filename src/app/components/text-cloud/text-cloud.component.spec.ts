@@ -6,6 +6,7 @@ import { Injector } from '@angular/core';
 import { ChartModule } from 'angular2-chartjs';
 
 import { TextCloudComponent } from './text-cloud.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -16,6 +17,7 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 
 describe('Component: TextCloud', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -25,7 +27,9 @@ describe('Component: TextCloud', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [
-        TextCloudComponent
+        TextCloudComponent,
+        ExportControlComponent,
+        UnsharedFilterComponent
       ],
       providers: [
         ConnectionService,

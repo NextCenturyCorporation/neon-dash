@@ -244,6 +244,46 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.chart.options = {};
     };
 
+    getExportFields() {
+        let valuePrettyName = this.active.aggregation +
+            (this.active.aggregationFieldHidden ? '' : '-' + this.active.aggregationField.prettyName);
+        valuePrettyName = valuePrettyName.charAt(0).toUpperCase() + valuePrettyName.slice(1);
+        let fields = [{
+                columnName: this.active.groupField.columnName,
+                prettyName: this.active.groupField.prettyName
+            }, {
+                columnName: 'value',
+                prettyName: valuePrettyName
+        }];
+        switch (this.active.granularity) {
+            case 'hour':
+                fields.push({
+                    columnName: 'hour',
+                    prettyName: 'Hour'
+                });
+                /* falls through */
+            case 'day':
+                fields.push({
+                    columnName: 'day',
+                    prettyName: 'Day'
+                });
+                /* falls through */
+            case 'month':
+                fields.push({
+                    columnName: 'month',
+                    prettyName: 'Month'
+                });
+                /* falls through */
+            case 'year':
+                fields.push({
+                    columnName: 'year',
+                    prettyName: 'Year'
+                });
+                /* falls through */
+        }
+        return fields;
+    }
+
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
     };

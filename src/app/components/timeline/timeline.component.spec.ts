@@ -8,6 +8,7 @@ import { ChartModule } from 'angular2-chartjs';
 import {} from 'jasmine';
 
 import { TimelineComponent } from './timeline.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -30,7 +31,8 @@ describe('Component: Timeline', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [
-        TimelineComponent
+        TimelineComponent,
+        ExportControlComponent
       ],
       providers: [
         ConnectionService,

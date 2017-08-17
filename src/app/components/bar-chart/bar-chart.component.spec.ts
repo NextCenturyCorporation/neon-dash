@@ -8,6 +8,7 @@ import { ChartModule } from 'angular2-chartjs';
 import {} from 'jasmine';
 
 import { BarChartComponent } from './bar-chart.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -27,7 +28,8 @@ describe('Component: BarChart', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
-                BarChartComponent
+                BarChartComponent,
+                ExportControlComponent,
             ],
             providers: [
                 ConnectionService,

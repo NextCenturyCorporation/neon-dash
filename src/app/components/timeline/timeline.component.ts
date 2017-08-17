@@ -118,6 +118,50 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     };
 
+    getExportFields() {
+        //{
+        //    columnName: 'date',
+        //    prettyName: 'Date'
+        //},
+        let fields = [{
+            columnName: 'value',
+            prettyName: 'Count'
+        }];
+        switch (this.active.granularity) {
+            case 'minute':
+                fields.push({
+                    columnName: 'minute',
+                    prettyName: 'Minute'
+                });
+                /* falls through */
+            case 'hour':
+                fields.push({
+                    columnName: 'hour',
+                    prettyName: 'Hour'
+                });
+                /* falls through */
+            case 'day':
+                fields.push({
+                    columnName: 'day',
+                    prettyName: 'Day'
+                });
+                /* falls through */
+            case 'month':
+                fields.push({
+                    columnName: 'month',
+                    prettyName: 'Month'
+                });
+                /* falls through */
+            case 'year':
+                fields.push({
+                    columnName: 'year',
+                    prettyName: 'Year'
+                });
+                /* falls through */
+        }
+        return fields;
+    }
+
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
     };

@@ -20,10 +20,19 @@ import {ColorSchemeService} from '../../services/color-scheme.service';
 import {FieldMetaData} from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-//import * as _ from 'lodash';
-import {LegendItem} from '../legend/legend.component';
-import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
+import {LegendItem, LegendGroup} from '../legend/legend.component';
+import {BaseLayeredNeonComponent} from '../base-neon-component/base-layered-neon.component';
 import 'cesium/Build/Cesium/Cesium.js';
+import * as _ from 'lodash';
+
+export class MapLayer {
+    title: string;
+    latitudeField: FieldMetaData;
+    longitudeField: FieldMetaData;
+    sizeField: FieldMetaData;
+    colorField: FieldMetaData;
+    dateField: FieldMetaData;
+}
 
 @Component({
     selector: 'app-map',
@@ -32,13 +41,15 @@ import 'cesium/Build/Cesium/Cesium.js';
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapComponent extends BaseNeonComponent implements OnInit,
+export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     OnDestroy, AfterViewInit {
 
     private FIELD_ID: string;
     private filters: {
-        latField: string,
-        lonField: string,
+        fieldsByLayer: {
+            latField: string,
+            lonField: string
+        },
         filterName: string
     }[];
 
@@ -53,19 +64,27 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         dateField: string,
         limit: number,
         unsharedFilterField: Object,
-        unsharedFilterValue: string
+        unsharedFilterValue: string,
+        layers: {
+            title: string,
+            database: string,
+            table: string,
+            latitudeField: string,
+            longitudeField: string,
+            sizeField: string,
+            colorField: string,
+            dateField: string
+        }[]
     };
     public active: {
-        latitudeField: FieldMetaData,
-        longitudeField: FieldMetaData,
-        sizeField: FieldMetaData,
-        colorField: FieldMetaData,
-        dateField: FieldMetaData,
+        layers: MapLayer[]
         andFilters: boolean,
         limit: number,
         filterable: boolean,
-        layers: any[],
-        data: Object[]
+        data: number[][],
+        colorMap: {},
+        unusedColors: string[],
+        nextColorIndex: number
     };
 
     public selection: {
@@ -84,10 +103,17 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         y: number,
         showSelection: boolean,
         selectionGeometry: any,
-        rectangle: any
+        rectangle: any,
+        isExact: boolean
     };
 
+    public filterVisible: boolean[] = [];
+
+    //passed to legend
     public legendData: LegendItem[];
+
+    //stores legend information unique to each layer
+    public legendMaps: any[];
 
     private colorSchemeService: ColorSchemeService;
 
@@ -112,24 +138,24 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             dateField: this.injector.get('dateField', null),
             limit: this.injector.get('limit', 1000),
             unsharedFilterField: {},
-            unsharedFilterValue: ''
+            unsharedFilterValue: '',
+            layers: this.injector.get('layers', [])
         };
+
         this.filters = [];
 
         let limit = this.optionsFromConfig.limit;
         limit = (limit ? limit : 1000);
 
         this.active = {
-            latitudeField: new FieldMetaData(),
-            longitudeField: new FieldMetaData(),
-            colorField: new FieldMetaData(),
-            sizeField: new FieldMetaData(),
-            dateField: new FieldMetaData(),
+            layers: [],
             andFilters: true,
             limit: limit,
             filterable: true,
-            layers: [],
             data: [],
+            nextColorIndex: 0,
+            colorMap: {},
+            unusedColors: []
         };
 
         this.selection = {
@@ -148,10 +174,13 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             y: 0,
             showSelection: false,
             selectionGeometry: null,
-            rectangle: null
+            rectangle: null,
+            isExact: true
         };
         this.queryTitle = 'Map';
         this.legendData = [];
+        this.legendMaps = [];
+        //this.addEmptyLayer();
     };
 
     subNgOnInit() {
@@ -159,8 +188,18 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
     }
 
     postInit() {
+        // There is one layer automatically added
+        for (let i = 1; i < this.optionsFromConfig.layers.length; i++) {
+            this.addEmptyLayer();
+        }
+    }
 
-    };
+    subRemoveLayer(index: number) {
+        this.active.layers.splice(index, 1);
+
+        // Update the map
+        this.handleChangeLimit();
+    }
 
     ngAfterViewInit() {
         let imagerySources = Cesium.createDefaultImageryProviderViewModels();
@@ -212,7 +251,9 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         //Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
         this.cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
         this.cesiumViewer.camera.flyHome(0);
-        this.executeQueryChain();
+
+        // Draw everything
+        this.handleChangeLimit();
     }
 
     subNgOnDestroy() {
@@ -225,6 +266,18 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
     };
+
+    subAddEmptyLayer() {
+        this.active.layers.push({
+          title: '',
+          latitudeField: new FieldMetaData(),
+          longitudeField: new FieldMetaData(),
+          colorField: new FieldMetaData(),
+          sizeField: new FieldMetaData(),
+          dateField: new FieldMetaData(),
+        });
+        this.filterVisible[this.active.layers.length - 1] = true;
+    }
 
     onSelectDown(event) {
         this.selection.selectionDown = true;
@@ -241,9 +294,8 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         this.selection.y = event.position.y;
         this.selection.width = 0;
         this.selection.height = 0;
-
+        this.selection.isExact = true;
         this.drawSelection();
-
     }
 
     getSelectionRectangle() {
@@ -255,20 +307,41 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         return r;
     }
 
+    getExportFields(layerIndex) {
+        let usedFields = [this.active.layers[layerIndex].latitudeField,
+            this.active.layers[layerIndex].longitudeField,
+            this.active.layers[layerIndex].colorField,
+            this.active.layers[layerIndex].sizeField,
+            this.active.layers[layerIndex].dateField];
+        return usedFields
+          .filter((header) => header && header.columnName)
+          .map((header) => {
+              return {
+                  columnName: header.columnName,
+                  prettyName: header.prettyName
+              };
+          });
+    }
+
     drawSelection() {
-        if (!this.selection.selectionGeometry) {
-            let geo = this.cesiumViewer.entities.add({
-                name: 'SelectionRectangle',
-                rectangle: {
-                    coordinates: new Cesium.CallbackProperty(this.getSelectionRectangle.bind(this), false),
-                    material: Cesium.Color.GREEN.withAlpha(0.0),
-                    height: 0,
-                    outline: true,
-                    outlineColor: Cesium.Color.GREEN
-                }
-            });
-            this.selection.selectionGeometry = geo;
+        let entities = this.cesiumViewer.entities;
+        if (this.selection.selectionGeometry) {
+            entities.removeById(this.selection.selectionGeometry.id);
         }
+        //if (!this.selection.selectionGeometry) {
+        let color = (this.selection.isExact ? Cesium.Color.GREEN : Cesium.Color.RED.withAlpha(.3));
+        let geo = entities.add({
+            name: 'SelectionRectangle',
+            rectangle: {
+                coordinates: new Cesium.CallbackProperty(this.getSelectionRectangle.bind(this), false),
+                material: Cesium.Color.GREEN.withAlpha(0.0),
+                height: 0,
+                outline: true,
+                outlineColor: color
+            }
+        });
+        this.selection.selectionGeometry = geo;
+        //}
     }
 
     onSelectUp(event) {
@@ -278,10 +351,24 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
             let rect = this.getSelectionRectangle();
             let validFilter = (rect.east !== rect.west) && (rect.north !== rect.south);
             if (validFilter) {
-                let f = this.createFilter(
-                    this.active.latitudeField.columnName, this.active.longitudeField.columnName, this.getFilterText());
-                this.addLocalFilter(f);
-                this.addNeonFilter(true, f);
+                let fieldsByLayer = this.active.layers.map( (l) => {
+                    return {
+                        latitudeName: l.latitudeField.columnName,
+                        longitudeName: l.longitudeField.columnName
+                    };
+                });
+                let localLayerName = this.getFilterTextByFields(fieldsByLayer);
+                let localFilters = this.createFilter(fieldsByLayer, localLayerName);
+                this.addLocalFilter(localFilters);
+                for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
+                    let fields = localFilters.fieldsByLayer[i];
+                    let f = {
+                        latField: fields.latitudeName,
+                        lonField: fields.longitudeName,
+                        filterName: this.getFilterTextForLayer(i)
+                    };
+                    this.addNeonFilter(i, true, f);
+                }
 
                 let zoomRect = rect;
                 let vDiff = zoomRect.north - zoomRect.south;
@@ -295,7 +382,7 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
                     destination: zoomRect,
                     duration: .5
                 });
-
+                this.selection.isExact = true;
                 this.drawSelection();
             } else {
                 this.removeFilterBox();
@@ -391,18 +478,47 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         return null;
     }
 
-    onUpdateFields() {
-        this.active.latitudeField = this.findFieldObject('latitudeField', neonMappings.TAGS);
-        this.active.longitudeField = this.findFieldObject('longitudeField', neonMappings.TAGS);
-        this.active.sizeField = this.findFieldObject('sizeField', neonMappings.TAGS);
-        this.active.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
-        this.active.dateField = this.findFieldObject('dateField', neonMappings.TAGS);
+    onUpdateFields(layerIndex) {
+        let layer = this.active.layers[layerIndex];
+        layer.latitudeField = this.findFieldObject(layerIndex, 'latitudeField', neonMappings.TAGS);
+        layer.longitudeField = this.findFieldObject(layerIndex, 'longitudeField', neonMappings.TAGS);
+        layer.sizeField = this.findFieldObject(layerIndex, 'sizeField', neonMappings.TAGS);
+        layer.colorField = this.findFieldObject(layerIndex, 'colorField', neonMappings.TAGS);
+        layer.dateField = this.findFieldObject(layerIndex, 'dateField', neonMappings.TAGS);
+
+        // Get the title from the options, if it exists
+        if (layerIndex >= this.optionsFromConfig.layers.length ||
+                !this.optionsFromConfig.layers[layerIndex] || !this.optionsFromConfig.layers[layerIndex].title) {
+            layer.title = this.optionsFromConfig.title;
+        } else {
+            layer.title = this.optionsFromConfig.layers[layerIndex].title;
+        }
+        if (!layer.title || layer.title === '') {
+            layer.title = 'New Layer';
+        }
     };
 
-    createFilter(latField, lonField, name) {
+    findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
+        // If there are no layers or the index is past the end of the layers in the config, default to the original
+        if (layerIndex >= this.optionsFromConfig.layers.length || !bindingKey
+            || !this.optionsFromConfig.layers[layerIndex][bindingKey]) {
+            return super.findFieldObject(layerIndex, bindingKey, mappingKey);
+        }
+
+        let me = this;
+        let find = function(name) {
+            return _.find(me.meta.layers[layerIndex].fields, function(field) {
+                return field['columnName'] === name;
+            });
+        };
+
+        let field = find(this.optionsFromConfig.layers[layerIndex][bindingKey]);
+        return field || this.getBlankField();
+    }
+
+    createFilter(fieldsByLayer, name) {
         return {
-            latField: latField,
-            lonField: lonField,
+            fieldsByLayer: fieldsByLayer,
             filterName: name
         };
     };
@@ -430,17 +546,33 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         return neon.query.and.apply(neon.query, filterClauses);
     };
 
-    getFilterText() {
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let latField = this.active.latitudeField.columnName;
-        let lonField = this.active.longitudeField.columnName;
-        let text = database + ' - ' + table + ' - ' + latField + ', ' + lonField;
+    getFilterTextByFields(fieldsByLayer: any[]) {
+        if (fieldsByLayer.length === 1) {
+            return this.getFilterTextForLayer(0);
+        } else {
+            return 'Map Filter - multiple layers';
+        }
+    }
+
+    getFilterText(filter) {
+        if (filter && filter.filterName) {
+            return filter.filterName;
+        } else {
+            return 'Map Filter';
+        }
+    }
+
+    getFilterTextForLayer(layerIndex: number) {
+        let database = this.meta.layers[layerIndex].database.name;
+        let table = this.meta.layers[layerIndex].table.name;
+        let latField = this.active.layers[layerIndex].latitudeField.columnName;
+        let lonField = this.active.layers[layerIndex].longitudeField.columnName;
+        let text = database + ' - ' + table + ' - ' + latField + ', ' + lonField + ' - ' + layerIndex;
         return text;
     }
 
-    getNeonFilterFields() {
-        let fields = [this.active.latitudeField.columnName, this.active.longitudeField.columnName];
+    getNeonFilterFields(layerIndex) {
+        let fields = [this.active.layers[layerIndex].latitudeField.columnName, this.active.layers[layerIndex].longitudeField.columnName];
         return fields;
     }
 
@@ -452,27 +584,27 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         return null;
     }
 
-    isValidQuery() {
+    isValidQuery(layerIndex) {
         let valid = true;
-        valid = (this.meta.database && this.meta.database.name && valid);
-        valid = (this.meta.table && this.meta.table.name && valid);
-        valid = (this.active.longitudeField && this.active.longitudeField.columnName && valid);
-        valid = (this.active.latitudeField && this.active.latitudeField.columnName && valid);
+        valid = (this.meta.layers[layerIndex].database && this.meta.layers[layerIndex].database.name && valid);
+        valid = (this.meta.layers[layerIndex].table && this.meta.layers[layerIndex].table.name && valid);
+        valid = (this.active.layers[layerIndex].longitudeField && this.active.layers[layerIndex].longitudeField.columnName && valid);
+        valid = (this.active.layers[layerIndex].latitudeField && this.active.layers[layerIndex].latitudeField.columnName && valid);
         return valid;
     }
 
-    createQuery(): neon.query.Query {
-        let databaseName = this.meta.database.name;
-        let tableName = this.meta.table.name;
+    createQuery(layerIndex): neon.query.Query {
+        let databaseName = this.meta.layers[layerIndex].database.name;
+        let tableName = this.meta.layers[layerIndex].table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClauses = [];
-        let latitudeField = this.active.latitudeField.columnName;
-        let longitudeField = this.active.longitudeField.columnName;
+        let latitudeField = this.active.layers[layerIndex].latitudeField.columnName;
+        let longitudeField = this.active.layers[layerIndex].longitudeField.columnName;
         whereClauses.push(neon.query.where(latitudeField, '!=', null));
         whereClauses.push(neon.query.where(longitudeField, '!=', null));
-        let colorField = this.active.colorField.columnName;
-        let sizeField = this.active.sizeField.columnName;
-        let dateField = this.active.dateField.columnName;
+        let colorField = this.active.layers[layerIndex].colorField.columnName;
+        let sizeField = this.active.layers[layerIndex].sizeField.columnName;
+        let dateField = this.active.layers[layerIndex].dateField.columnName;
         let fields = [this.FIELD_ID, latitudeField, longitudeField];
         if (colorField) {
             fields.push(colorField);
@@ -499,40 +631,49 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
 
-    onQuerySuccess(response) {
+    onQuerySuccess(layerIndex, response) {
         // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
         // TODO break this function into smaller bits so it is more understandable.
-        let lngField = this.active.longitudeField.columnName;
-        let latField = this.active.latitudeField.columnName;
-        let colorField = this.active.colorField.columnName;
+        let lngField = this.active.layers[layerIndex].longitudeField.columnName;
+        let latField = this.active.layers[layerIndex].latitudeField.columnName;
+        let colorField = this.active.layers[layerIndex].colorField.columnName;
         let entities = this.cesiumViewer.entities;
-        entities.removeAll();
-        if (this.selection.selectionGeometry) {
-            entities.add(this.selection.selectionGeometry);
+        entities.suspendEvents();
+        //entities.getOrCreateEntities(layerIndex);
+        if (this.active.data[layerIndex]) {
+            for (let id of this.active.data[layerIndex]) {
+                entities.removeById(id);
+            }
         }
-        let legendMap = {};
-        this.legendData = [];
-        let legendIndex = 0;
+        //keeps track of the ids for entities we put into cesium so we can change/remove single layers
+        //without needing to remove and readd all layers
+        let newDataIds = [];
+        let localColorMap = {};
+        this.legendMaps[layerIndex] = localColorMap;
+        this.recalculateColorMap();
+
+        //entities.removeAll();
+        //if (this.selection.selectionGeometry) {
+        //    entities.add(this.selection.selectionGeometry);
+        //}
+
+        //let legendIndex = 0;
         let data = response.data;
         for (let point of data) {
             let color;
             if (colorField && point[colorField]) {
                 let colorKey = point[colorField];
-                if (legendMap[colorKey]) {
-                    color = legendMap[colorKey];
+                if (localColorMap[colorKey]) {
+                    color = localColorMap[colorKey];
+                } else if (this.active.colorMap[colorKey]) {
+                    color = this.active.colorMap[colorKey];
+                    localColorMap[colorKey] = color;
                 } else {
-                    let colorString = this.getColorFromScheme(legendIndex);
-                    let legendItem: LegendItem = {
-                        prettyName: colorKey,
-                        accessName: colorKey,
-                        activeColor: colorString,
-                        inactiveColor: 'rgb(128,128,128)',
-                        active: true
-                    };
-                    this.legendData.push(legendItem);
+                    let colorString = this.getNextAvailableColorString();
+                    let legendItem: LegendItem = this.getLegendItem(colorKey, colorString);
                     color = Cesium.Color.fromCssColorString(colorString);
-                    legendIndex++;
-                    legendMap[colorKey] = color;
+                    localColorMap[colorKey] = color;
+                    this.active.colorMap[colorKey] = color;
                 }
             } else {
                 color = Cesium.Color.Blue;
@@ -573,77 +714,194 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
                         outlineWidth: 0 // default: 0
                     }
                 };
-                entities.add(entity);
+                let en = entities.add(entity);
+                newDataIds.push(en.id);
             }
         }
+        this.active.data[layerIndex] = newDataIds;
+        this.legendMaps[layerIndex] = localColorMap;
+        this.calculateLegendData();
+        entities.resumeEvents();
         //console.log(response);
-        this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
+        //this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
+    }
+
+    calculateLegendData() {
+        this.recalculateColorMap();
+        let data: LegendItem[] = [];
+        for (let key in this.active.colorMap) {
+            if (this.active.colorMap.hasOwnProperty(key)) {
+                let color = this.active.colorMap[key];
+                let colorString = color.toCssColorString();
+                let li = this.getLegendItem(key, colorString);
+                data.push(li);
+            }
+        }
+        this.legendData = data;
+    }
+
+    getNextAvailableColorString() {
+        if (this.active.unusedColors.length > 0) {
+            let color = this.active.unusedColors[0];
+            this.active.unusedColors.splice(0, 1);
+            return color;
+        } else {
+            let index = this.active.nextColorIndex;
+            let color = this.getColorFromScheme(index);
+            this.active.nextColorIndex++;
+            return color;
+        }
+    }
+
+    getLegendItem(colorKey, colorString) {
+        let legendItem: LegendItem = {
+            prettyName: colorKey,
+            accessName: colorKey,
+            activeColor: colorString,
+            inactiveColor: 'rgb(128,128,128)',
+            active: true
+        };
+        return legendItem;
+    }
+
+    recalculateColorMap() {
+        for (let key in this.active.colorMap) {
+            if (this.active.colorMap.hasOwnProperty(key)) {
+                let exists = false;
+                for (let legendMap of this.legendMaps) {
+                    for (let usedColorKey in legendMap) {
+                        if (usedColorKey === key) {
+                            exists = true;
+                            break;
+                        }
+                    }
+                    if (exists) {
+                        break;
+                    }
+                }
+                if (!exists) {
+                    let color = this.active.colorMap[key];
+                    this.active.unusedColors.push(color.toCssColorString());
+                    delete this.active.colorMap[key];
+                }
+            }
+        }
+
     }
 
     refreshVisualization() {
         //Cesium doesn't need to be refreshed manually
     }
 
+    doesLayerStillHaveFilter(i): boolean {
+        let database = this.meta.layers[i].database.name;
+        let table = this.meta.layers[i].table.name;
+        let fields = this.getNeonFilterFields(i);
+        let neonFilters = this.filterService.getFilters(database, table, fields);
+        return neonFilters && neonFilters.length > 0;
+    }
+
+    getClausesFromFilterWithIdenticalArguments(filters, args: string[]) {
+        if (filters && filters.length > 0) {
+            for (let filter of filters) {
+                let clauses;
+                if (filter.filter.whereClause.type === 'and') {
+                    clauses = filter.filter.whereClause.whereClauses;
+                } else if (args.length === 1) {
+                    //if it is not an 'and' and only has 1 where class.
+                    //This shouldn't be used in map, but may be used more generically.
+                    clauses = [filter.filter.whereClause];
+                }
+                let continu = clauses && clauses.length > 0;
+                for (let where of clauses) {
+                    if (args.indexOf(where.lhs) === -1) {
+                        continu = false;
+                        break;
+                    }
+                }
+                if (continu) {
+                    return clauses;
+                }
+            }
+        }
+        return null;
+    }
+
+    hasLayerFilterChanged(i): boolean {
+        let filterChanged = true;
+        let database = this.meta.layers[i].database.name;
+        let table = this.meta.layers[i].table.name;
+        let fields = this.getNeonFilterFields(i);
+        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let clauses = this.getClausesFromFilterWithIdenticalArguments(neonFilters, [
+            this.active.layers[i].latitudeField.columnName,
+            this.active.layers[i].longitudeField.columnName
+        ]);
+        if (clauses) {
+            console.log(clauses);
+            let values = [this.selection.endLat, this.selection.endLon, this.selection.startLat, this.selection.startLon];
+            //FIX THE NEXT LINE!!!!
+            let emptyIfUnchanged = clauses.filter(cl => (values.indexOf(cl.rhs) === -1 ));
+            return emptyIfUnchanged.length > 0;
+        }
+        return true;
+    }
+
     handleFiltersChangedEvent() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = this.getNeonFilterFields();
-        let neonFilters = this.filterService.getFilters(database, table, fields);
-        if (neonFilters && neonFilters.length > 0) {
-            for (let filter of neonFilters) {
-                //console.log(filter);
-                let filterName = filter.filter.filterName;
-                if (filter.filter.whereClause.type === 'and') {
-                    let applicable = true;
-                    for (let where of filter.filter.whereClause.whereClauses) {
-                        if (where.lhs === this.active.latitudeField.columnName || where.lhs === this.active.longitudeField.columnName) {
-
-                        } else {
-                            applicable = false;
-                            break;
-                        }
-                    }
-                    if (applicable) {
-                        let f = this.createFilter(this.active.latitudeField.columnName, this.active.longitudeField.columnName, filterName);
-                        this.addLocalFilter(f);
-                    }
-                }
-            }
-        } else {
+        //TODO needs to be reworked now that we have layers.
+        //I'm not sure what it even should do from a user perspective.
+        let allLayersHaveFilters:  boolean = true;
+        let oneOrMoreLayersHaveFilters: boolean = false;
+        let oneOrMoreFiltersHaveChanged: boolean = false;
+        for (let i = 0; i < this.meta.layers.length; i++) {
+            let layerHasFilter: boolean = this.doesLayerStillHaveFilter(i);
+            oneOrMoreLayersHaveFilters = oneOrMoreLayersHaveFilters ||  layerHasFilter;
+            allLayersHaveFilters = allLayersHaveFilters && layerHasFilter;
+            let filterHasChanged = this.hasLayerFilterChanged(i);
+            oneOrMoreFiltersHaveChanged = oneOrMoreFiltersHaveChanged || filterHasChanged;
+        }
+        console.log('oneOrMoreLayersHaveFilters: ' + oneOrMoreLayersHaveFilters);
+        console.log('allLayersHaveFilters: ' + allLayersHaveFilters);
+        console.log('oneOrMoreFiltersHaveChanged: ' + oneOrMoreFiltersHaveChanged);
+        if (!oneOrMoreLayersHaveFilters) {
+            //aka no layers have filters
             this.filters = [];
             this.removeFilterBox();
+        } else if (oneOrMoreFiltersHaveChanged) {
+            this.selection.isExact = false;
+            this.drawSelection();
         }
-        this.executeQueryChain();
+        this.executeAllQueryChain();
     };
 
     handleChangeLimit() {
-        this.logChangeAndStartQueryChain();
+        this.logChangeAndStartAllQueryChain();
     }
 
-    handleChangeDateField() {
-        this.logChangeAndStartQueryChain();
+    handleChangeDateField(layerIndex) {
+        this.logChangeAndStartQueryChain(layerIndex);
     };
 
-    handleChangeSizeField() {
-        this.logChangeAndStartQueryChain();
+    handleChangeSizeField(layerIndex) {
+        this.logChangeAndStartQueryChain(layerIndex);
     };
 
-    handleChangeColorField() {
-        this.logChangeAndStartQueryChain();
+    handleChangeColorField(layerIndex) {
+        this.logChangeAndStartQueryChain(layerIndex);
     };
 
-    handleChangeLatitudeField() {
-        this.logChangeAndStartQueryChain();
+    handleChangeLatitudeField(layerIndex) {
+        this.logChangeAndStartQueryChain(layerIndex);
     };
 
-    handleChangeLongitudeField() {
-        this.logChangeAndStartQueryChain();
+    handleChangeLongitudeField(layerIndex) {
+        this.logChangeAndStartQueryChain(layerIndex);
     };
 
     handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+        this.logChangeAndStartAllQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
     };
 
@@ -662,15 +920,24 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
     };
 
     getFilterTitle(): string {
-        return 'Map Filter';
+        let title = 'Map Filter';
+        if (!this.selection.isExact) {
+            title += ' *Filter has been altered outside of Map visualization and selection rectange may not accurately represent filter.';
+        }
+        return title;
     };
 
     getFilterCloseText(value: string) {
-        return value;
+        let v = value;
+        if (!this.selection.isExact) {
+            v += '*';
+        }
+        return v;
     };
 
     getRemoveFilterTooltip() {
-        return 'Delete ' + this.getFilterTitle();
+        let tooltip = 'Delete ' + this.getFilterTitle();
+        return tooltip;
     };
 
     removeFilter(/*value*/): void {
@@ -678,9 +945,20 @@ export class MapComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleRemoveFilter(value): void {
-        this.removeLocalFilterFromLocalAndNeon(value, true, false);
+        for (let i = 0; i < this.meta.layers.length; i++) {
+            this.removeLocalFilterFromLocalAndNeon(i, value, true, false);
+        }
         this.removeFilterBox();
     };
+
+    toggleFilter(index: number): void {
+        this.filterVisible[index] = !(this.filterVisible[index]);
+    }
+
+    getIconForFilter(index: number): string {
+        return this.filterVisible[index] ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
+    }
+
 
     /*removeLocalFilterFromLocalAndNeon(value: string) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both

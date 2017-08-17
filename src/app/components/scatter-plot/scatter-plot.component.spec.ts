@@ -9,6 +9,7 @@ import {} from 'jasmine';
 
 import { ScatterPlotComponent } from './scatter-plot.component';
 import { LegendComponent } from '../legend/legend.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -30,7 +31,8 @@ describe('Component: ScatterPlot', () => {
     TestBed.configureTestingModule({
       declarations: [
         ScatterPlotComponent,
-        LegendComponent
+        LegendComponent,
+        ExportControlComponent
       ],
       providers: [
         ConnectionService,
