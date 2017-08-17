@@ -208,7 +208,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
         }
         let dataField = this.active.dataField.columnName;
-        console.log(this.active.data.length);
         this.executeQuery(countQuery.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
         .sortBy('value', neon.query['DESCENDING']));
     }

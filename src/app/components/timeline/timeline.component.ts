@@ -56,6 +56,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     public active: {
         dateField: FieldMetaData,
         granularity: string,
+        ylabel: string,
     };
 
     private chartDefaults: {
@@ -93,7 +94,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
         this.active = {
             dateField: new FieldMetaData(),
-            granularity: 'day'
+            granularity: 'day',
+            ylabel: 'Count'
         };
 
         this.chartDefaults = {
