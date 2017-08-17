@@ -20,6 +20,7 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 
 let d3 = require('../../../assets/d3.min.js');
 
@@ -32,7 +33,8 @@ describe('Component: Timeline', () => {
     TestBed.configureTestingModule({
       declarations: [
         TimelineComponent,
-        ExportControlComponent
+        ExportControlComponent,
+        UnsharedFilterComponent
       ],
       providers: [
         ConnectionService,
