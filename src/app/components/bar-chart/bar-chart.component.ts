@@ -273,9 +273,17 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        let whereClause: any = neon.query.where(this.active.dataField.columnName, '!=', null);
         let yAxisField = this.active.aggregationField.columnName;
         let dataField = this.active.dataField.columnName;
+
+        if (this.hasUnsharedFilter()) {
+            // Add the unshared filter
+            whereClause = neon.query.and(whereClause,
+                neon.query.where(this.meta.unsharedFilterField.columnName, '=',
+                    this.meta.unsharedFilterValue));
+        }
+
         switch (this.active.aggregation) {
             case 'count':
                 return query.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
@@ -399,6 +407,16 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
     };
+
+    unsharedFilterChanged() {
+        // Update the data
+        this.executeQueryChain();
+    }
+
+    unsharedFilterRemoved() {
+        // Update the data
+        this.executeQueryChain();
+    }
 
     getButtonText() {
         let text = 'No Data';

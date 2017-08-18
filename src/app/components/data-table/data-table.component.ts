@@ -222,7 +222,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause = neon.query.where(this.active.sortField.columnName, '!=', null);
+        let whereClause: any = neon.query.where(this.active.sortField.columnName, '!=', null);
+
+        // Add unshared filter if needed
+        if (this.hasUnsharedFilter()) {
+            whereClause = neon.query.and(whereClause, neon.query.where(this.meta.unsharedFilterField.columnName, '=',
+                this.meta.unsharedFilterValue));
+        }
+
         //let dataField = this.active.dataField.columnName;
         return query.where(whereClause).sortBy(this.active.sortField.columnName, neon.query['DESCENDING']).limit(this.active.limit);
     };
@@ -417,6 +424,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
     getRemoveFilterTooltip(value: string) {
         return 'Delete Filter ' + this.getFilterTitle(value);
     };
+
+    unsharedFilterChanged() {
+        // Update the data
+        this.executeQueryChain();
+    }
+
+    unsharedFilterRemoved() {
+        // Update the data
+        this.executeQueryChain();
+    }
 
     removeFilter(/*value: string*/) {
         this.filters = [];

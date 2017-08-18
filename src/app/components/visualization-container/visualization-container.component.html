@@ -5,8 +5,8 @@
             <div class="fill-remaining drag-handle" [ngClass]="{'above-icons': showToolbar, 'activation-toolbar': !showToolbar}" (mouseenter)="showToolbar=true;">
                 <!--  <span class="" style="padding-top: 21px; position: absolute;"></span>-->
             </div>
-            <div class="visualization-toolbar" layout-align="space-between center" flex flex-direction="column" *ngIf="showToolbar">
-                <div class="icon-container">
+            <div class="visualization-toolbar" layout-align="space-between center" flex flex-direction="column">
+                <div class="icon-container" *ngIf="showToolbar">
                     <button md-icon-button aria-label="Move to top" class="neon-gtd-text-button" md-tooltip="Move to Top" tooltip-position="below"
                         (click)="moveToTop()">
                       <md-icon class="mat-18">arrow_upward</md-icon>

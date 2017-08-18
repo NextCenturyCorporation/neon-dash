@@ -272,6 +272,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         query = query.groupBy(groupBys);
         query = query.sortBy('date', neon.query['ASCENDING']);
         query = query.where(whereClause);
+        // Add the unshared filter field, if it exists
+        if (this.hasUnsharedFilter()) {
+           query.where(neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+        }
         return query.aggregate(neon.query['COUNT'], '*', 'value');
     };
 
@@ -507,6 +511,16 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     getRemoveFilterTooltip(value: string) {
         return 'Delete Filter ' + this.getFilterTitle(value);
     };
+
+    unsharedFilterChanged() {
+        // Update the data
+        this.executeQueryChain();
+    }
+
+    unsharedFilterRemoved() {
+        // Update the data
+        this.executeQueryChain();
+    }
 
     removeFilter(/*value: string*/) {
         this.filters = [];

@@ -19,6 +19,7 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 
 describe('Component: DataTable', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -29,7 +30,8 @@ describe('Component: DataTable', () => {
         TestBed.configureTestingModule({
             declarations: [
                 DataTableComponent,
-                ExportControlComponent
+                ExportControlComponent,
+                UnsharedFilterComponent
             ],
             providers: [
                 ConnectionService,

@@ -19,6 +19,7 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 
 describe('Component: BarChart', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -30,6 +31,7 @@ describe('Component: BarChart', () => {
             declarations: [
                 BarChartComponent,
                 ExportControlComponent,
+                UnsharedFilterComponent
             ],
             providers: [
                 ConnectionService,
