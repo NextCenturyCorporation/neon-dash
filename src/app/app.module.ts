@@ -47,6 +47,7 @@ import { DashboardOptionsComponent } from './components/dashboard-options/dashbo
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
+import { ExportControlComponent } from './components/export-control/export-control.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { LegendComponent } from './components/legend/legend.component';
@@ -56,6 +57,7 @@ import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.com
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
+import {UnsharedFilterComponent} from './components/unshared-filter/unshared-filter.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
 import { ChartModule } from 'angular2-chartjs';
@@ -78,6 +80,7 @@ export function getAppConfig() {
         DatasetSelectorComponent,
         DataTableComponent,
         DocumentViewerComponent,
+        ExportControlComponent,
         FilterBuilderComponent,
         FilterTrayComponent,
         LegendComponent,
@@ -87,6 +90,7 @@ export function getAppConfig() {
         SnackBarComponent,
         TextCloudComponent,
         TimelineComponent,
+        UnsharedFilterComponent,
         VisualizationContainerComponent,
         VisualizationInjectorComponent
     ],

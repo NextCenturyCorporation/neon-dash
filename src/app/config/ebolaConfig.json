@@ -14,7 +14,7 @@
         "showImport": false,
         "showExport": true,
         "translationKeys": {
-            "google": "API_KEY"
+            "google": "API_KEy"
         }
     },
 
@@ -61,15 +61,15 @@
     },
 
     "datasets": [{
-        "name": "Earthquakes",
-        "datastore": "mongo",
+        "name": "ebola_data",
+        "datastore": "elasticsearch",
         "hostname": "localhost",
         "databases": [{
-            "name": "test",
-            "prettyName": "Test",
+            "name": "ebola_data",
+            "prettyName": "ebola_data",
             "tables": [{
-                "name": "earthquakes",
-                "prettyName": "Earthquakes",
+                "name": "record",
+                "prettyName": "record",
                 "fields": [{
                     "columnName": "_id",
                     "prettyName": "Database ID"
@@ -151,8 +151,8 @@
         },
         "options": {
             "colorMaps": {
-                "test": {
-                    "earthquakes": {
+                "record": {
+                    "ebola_data": {
                         "myField": {
                             "fieldA": "",
                             "fieldB": ""
@@ -173,8 +173,8 @@
                 "sizey": 6,
                 "type": "filterBuilder",
                 "bindings": {
-                    "database": "test",
-                    "table": "earthquakes"
+                    "database": "record",
+                    "table": "ebola_data"
                 }
             },
             {
@@ -182,8 +182,8 @@
                 "sizey": 6,
                 "type": "scatterPlot",
                 "bindings": {
-                    "database": "test",
-                    "table": "earthquakes",
+                    "database": "record",
+                    "table": "ebola_data",
                     "xField": "longitude",
                     "yField": "latitude",
                     "limit": 200
@@ -194,8 +194,8 @@
                 "sizey": 6,
                 "type": "dataTable",
                 "bindings": {
-                    "database": "test",
-                    "table": "earthquakes",
+                    "database": "record",
+                    "table": "ebola_data",
                     "sortField": "time",
                     "limit": 20
                 }
@@ -205,8 +205,8 @@
                 "sizey": 8,
                 "type": "map",
                 "bindings": {
-                    "database": "test",
-                    "table": "earthquakes",
+                    "database": "record",
+                    "table": "ebola_data",
                     "latitudeField": "latitude",
                     "longitudeField": "longitude",
                     "dateField": "time",
@@ -217,41 +217,12 @@
                 }
             },
             {
-                "sizex": 18,
-                "sizey": 8,
-                "type": "map",
-                "bindings": {
-                    "limit": 1000,
-                    "layers": [
-                        {
-                            "title": "MagType",
-                            "database": "test",
-                            "table": "earthquakes",
-                            "latitudeField": "latitude",
-                            "longitudeField": "longitude",
-                            "dateField": "time",
-                            "sizeField": "mag",
-                            "colorField": "magType"
-                        }, {
-                            "title": "Net",
-                            "database": "test",
-                            "table": "earthquakes",
-                            "latitudeField": "latitude",
-                            "longitudeField": "longitude",
-                            "colorField": "net",
-                            "sizeField": "mag",
-                            "dateField": "date"
-                        }
-                    ]
-                }
-            },
-            {
                 "sizex": 12,
                 "sizey": 4,
                 "type": "barChart",
                 "bindings": {
-                    "database": "test",
-                    "table": "earthquakes",
+                    "database": "record",
+                    "table": "ebola_data",
                     "dataField": "magType",
                     "aggregation": "count"
                 }
@@ -261,8 +232,8 @@
                 "sizey": 4,
                 "type": "lineChart",
                 "bindings": {
-                    "database": "test",
-                    "table": "earthquakes",
+                    "database": "ebola_data",
+                    "table": "record",
                     "dateField": "time",
                     "groupField": "type",
                     "aggregation": "count"
@@ -273,9 +244,9 @@
                 "sizey": 6,
                 "type": "textCloud",
                 "bindings": {
-                    "database": "test",
-                    "table": "earthquakes",
-                    "dataField": "magType"
+                    "database": "record",
+                    "table": "ebola_data",
+                    "dataField": "situationFrame.entities"
                 }
             },
             {
@@ -283,8 +254,8 @@
                 "sizey": 4,
                 "type": "timeline",
                 "bindings": {
-                    "database": "test",
-                    "table": "earthquakes",
+                    "database": "record",
+                    "table": "ebola_data",
                     "dateField": "time"
                 }
             }
@@ -295,22 +266,22 @@
             "type": "timeline",
             "bindings": {
                 "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
+                "database": "record",
+                "table": "ebola_data",
                 "dateField": "time",
                 "granularity": "month",
                 "overrideStartDate": "1/1/2013",
                 "overrideEndDate": "1388534399000"
             }
         }, {
-            "sizeX": 12,
+            "sizex": 12,
             "type": "map",
             "bindings": {
                 "title": "myTitle",
                 "config": [{
                     "name": "myLayer",
-                    "database": "test",
-                    "table": "earthquakes",
+                    "database": "record",
+                    "table": "ebola_data",
                     "type": "points",
                     "limit": 5000,
                     "latitudeField": "latitude",
@@ -320,16 +291,16 @@
                     "colorField": "type"
                 }, {
                     "name": "myLayer",
-                    "database": "test",
-                    "table": "earthquakes",
+                    "database": "record",
+                    "table": "ebola_data",
                     "type": "heatmap",
                     "limit": 5000,
                     "latitudeField": "latitude",
                     "longitudeField": "longitude"
                 }, {
                     "name": "myLayer",
-                    "database": "test",
-                    "table": "earthquakes",
+                    "database": "record",
+                    "table": "ebola_data",
                     "type": "cluster",
                     "limit": 5000,
                     "latitudeField": "latitude",
@@ -343,21 +314,21 @@
                 }]
             }
         }, {
-            "sizeX": 12,
+            "sizex": 12,
             "type": "lineChart",
             "bindings": {
                 "title": "myTitle",
                 "granularity": "day",
                 "config": [{
                     "name": "myLayer",
-                    "database": "test",
-                    "table": "earthquakes",
+                    "database": "record",
+                    "table": "ebola_data",
                     "dateField": "time",
                     "aggregationType": "count"
                 }, {
                     "name": "myLayer",
-                    "database": "test",
-                    "table": "earthquakes",
+                    "database": "record",
+                    "table": "ebola_data",
                     "dateField": "time",
                     "aggregationType": "average",
                     "aggregationField": "mag",
@@ -365,99 +336,99 @@
                 }]
             }
         }, {
-            "sizeX": 12,
+            "sizex": 12,
             "type": "dataTable",
             "bindings": {
                 "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
+                "database": "record",
+                "table": "ebola_data",
                 "idField": "_id",
                 "sortDirection": 1,
                 "limit": 500
             }
         }, {
-            "sizeX": 6,
+            "sizex": 6,
             "type": "aggregationTable",
             "bindings": {
                 "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
+                "database": "record",
+                "table": "ebola_data",
                 "groupField": "net",
                 "aggregationType": "max",
                 "aggregationField": "mag",
                 "limit": 100
             }
         }, {
-            "sizeX": 6,
+            "sizex": 6,
             "type": "barChart",
             "bindings": {
                 "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
+                "database": "record",
+                "table": "ebola_data",
                 "groupField": "net",
                 "aggregationType": "average",
                 "aggregationField": "mag",
                 "limit": 50
             }
         }, {
-            "sizeX": 6,
+            "sizex": 6,
             "type": "newsFeed",
             "bindings": {
                 "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
+                "database": "record",
+                "table": "ebola_data",
                 "primaryTitleField": "type",
                 "secondaryTitleField": "net",
                 "dateField": "time",
                 "contentField": "mag"
             }
         }, {
-            "sizeX": 6,
+            "sizex": 6,
             "type": "opsClock",
             "bindings": {
                 "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
+                "database": "record",
+                "table": "ebola_data",
                 "dateField": "time"
             }
         }, {
-            "sizeX": 6,
+            "sizex": 6,
             "type": "scatterPlot",
             "bindings": {
                 "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
+                "database": "record",
+                "table": "ebola_data",
                 "type": "scatter",
                 "xAxisField": "depth",
                 "yAxisField": "mag",
                 "limit": "time"
             }
         }, {
-            "sizeX": 6,
+            "sizex": 6,
             "type": "sunburstChart",
             "bindings": {
                 "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
+                "database": "record",
+                "table": "ebola_data",
                 "groupFields": "type1,type2,type3",
                 "valueField": "type",
                 "arcValue": "count"
             }
         }, {
-            "sizeX": 6,
+            "sizex": 6,
             "type": "textCloud",
             "bindings": {
                 "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
+                "database": "record",
+                "table": "ebola_data",
                 "dataField": "net"
             }
         }]
     },
 
     "customFilters": {
-        "test": {
-            "earthquakes": [{
+        "record": {
+            "ebola_data": [{
                 "label": "Types",
                 "items": [{
                     "label": "Earthquake",

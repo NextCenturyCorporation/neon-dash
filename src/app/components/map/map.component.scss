@@ -90,14 +90,13 @@
     bottom: 0;
 }
 
-.text-container {
+.legend-container {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     position: absolute;
     top: 5px;
     left: 5px;
-    right: 120px;
 }
 
 .map-selection {
@@ -120,4 +119,8 @@
     .filter-reset {
         background-color: mat-color($primary);
     }
+}
+
+.toolbar-spacer {
+    flex: 1 1 auto;
 }

@@ -4,6 +4,7 @@ import { ActiveGridService } from '../../services/active-grid.service';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { LegendComponent } from '../legend/legend.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
@@ -21,6 +22,7 @@ import { FormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -33,6 +35,7 @@ describe('Component: VisualizationContainer', () => {
                 BarChartComponent,
                 DataTableComponent,
                 DocumentViewerComponent,
+                ExportControlComponent,
                 FilterBuilderComponent,
                 LegendComponent,
                 LineChartComponent,
@@ -40,8 +43,9 @@ describe('Component: VisualizationContainer', () => {
                 ScatterPlotComponent,
                 TextCloudComponent,
                 TimelineComponent,
+                UnsharedFilterComponent,
                 VisualizationContainerComponent,
-                VisualizationInjectorComponent,
+                VisualizationInjectorComponent
             ],
             providers: [
                 ActiveGridService,

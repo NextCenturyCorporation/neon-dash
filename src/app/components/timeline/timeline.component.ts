@@ -55,6 +55,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     public active: {
         dateField: FieldMetaData,
         granularity: string,
+        ylabel: string,
     };
 
     private chartDefaults: {
@@ -92,7 +93,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
         this.active = {
             dateField: new FieldMetaData(),
-            granularity: 'day'
+            granularity: 'day',
+            ylabel: 'Count'
         };
 
         this.chartDefaults = {
@@ -116,6 +118,50 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     subNgOnDestroy() {
 
     };
+
+    getExportFields() {
+        //{
+        //    columnName: 'date',
+        //    prettyName: 'Date'
+        //},
+        let fields = [{
+            columnName: 'value',
+            prettyName: 'Count'
+        }];
+        switch (this.active.granularity) {
+            case 'minute':
+                fields.push({
+                    columnName: 'minute',
+                    prettyName: 'Minute'
+                });
+                /* falls through */
+            case 'hour':
+                fields.push({
+                    columnName: 'hour',
+                    prettyName: 'Hour'
+                });
+                /* falls through */
+            case 'day':
+                fields.push({
+                    columnName: 'day',
+                    prettyName: 'Day'
+                });
+                /* falls through */
+            case 'month':
+                fields.push({
+                    columnName: 'month',
+                    prettyName: 'Month'
+                });
+                /* falls through */
+            case 'year':
+                fields.push({
+                    columnName: 'year',
+                    prettyName: 'Year'
+                });
+                /* falls through */
+        }
+        return fields;
+    }
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
@@ -225,6 +271,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         query = query.groupBy(groupBys);
         query = query.sortBy('date', neon.query['ASCENDING']);
         query = query.where(whereClause);
+        // Add the unshared filter field, if it exists
+        if (this.hasUnsharedFilter()) {
+           query.where(neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+        }
         return query.aggregate(neon.query['COUNT'], '*', 'value');
     };
 
@@ -460,6 +510,16 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     getRemoveFilterTooltip(value: string) {
         return 'Delete Filter ' + this.getFilterTitle(value);
     };
+
+    unsharedFilterChanged() {
+        // Update the data
+        this.executeQueryChain();
+    }
+
+    unsharedFilterRemoved() {
+        // Update the data
+        this.executeQueryChain();
+    }
 
     removeFilter(/*value: string*/) {
         this.filters = [];

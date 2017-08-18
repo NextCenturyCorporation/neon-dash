@@ -50,6 +50,14 @@
                         Minute
                     </md-button-toggle>
                 </md-button-toggle-group>
+                <p></p>
+
+                <app-unshared-filter [(meta)]="meta"
+                                     (unsharedFilterChanged)="unsharedFilterChanged()"
+                                     (unsharedFilterRemoved)="unsharedFilterRemoved()"></app-unshared-filter>
+                <p></p>
+
+                <app-export-control [exportId]="exportId"></app-export-control>
             </md-card-content>
         </md-card>
     </md-sidenav>
@@ -67,6 +75,11 @@
             </div>
         </div>
         <!-- Timeline chart div -->
-        <div #svg class="timeline-selector-chart"></div>
+        <div #svg class="timeline-selector-chart">	
+        </div>
+        <div class ="xlabel"> {{active.granularity}} 
+        </div>
+        <div class ="ylabel">{{active.ylabel}}
+        </div>
     </div>
 </md-sidenav-container>

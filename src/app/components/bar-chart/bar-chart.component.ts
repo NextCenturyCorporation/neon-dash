@@ -164,6 +164,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.chartModule['chart'].destroy();
     };
 
+    getExportFields() {
+        let valuePrettyName = this.active.aggregation +
+            (this.active.aggregationFieldHidden ? '' : '-' + this.active.aggregationField.prettyName);
+        valuePrettyName = valuePrettyName.charAt(0).toUpperCase() + valuePrettyName.slice(1);
+        let fields = [{
+            columnName: this.active.dataField.columnName,
+            prettyName: this.active.dataField.prettyName
+        }, {
+            columnName: 'value',
+            prettyName: valuePrettyName
+        }];
+        return fields;
+    }
+
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
     };
@@ -259,9 +273,17 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        let whereClause: any = neon.query.where(this.active.dataField.columnName, '!=', null);
         let yAxisField = this.active.aggregationField.columnName;
         let dataField = this.active.dataField.columnName;
+
+        if (this.hasUnsharedFilter()) {
+            // Add the unshared filter
+            whereClause = neon.query.and(whereClause,
+                neon.query.where(this.meta.unsharedFilterField.columnName, '=',
+                    this.meta.unsharedFilterValue));
+        }
+
         switch (this.active.aggregation) {
             case 'count':
                 return query.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
@@ -385,6 +407,16 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
     };
+
+    unsharedFilterChanged() {
+        // Update the data
+        this.executeQueryChain();
+    }
+
+    unsharedFilterRemoved() {
+        // Update the data
+        this.executeQueryChain();
+    }
 
     getButtonText() {
         let text = 'No Data';

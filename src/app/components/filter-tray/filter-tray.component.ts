@@ -28,9 +28,11 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
             raw: [],
             formatted: []
         };
+
     }
 
     ngOnInit() {
+        this.onEventChanged = this.onEventChanged.bind(this);
         this.filters = {
             raw: [],
             formatted: []

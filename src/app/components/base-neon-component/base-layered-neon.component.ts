@@ -17,12 +17,12 @@ import * as _ from 'lodash';
 
 
 
-export abstract class BaseNeonComponent implements OnInit,
+export abstract class BaseLayeredNeonComponent implements OnInit,
     OnDestroy {
 
     protected queryTitle: string;
     protected messenger: neon.eventing.Messenger;
-    protected outstandingDataQuery: any;
+    protected outstandingDataQueriesByLayer: any[];
 
     protected initializing: boolean;
 
@@ -30,17 +30,19 @@ export abstract class BaseNeonComponent implements OnInit,
 
     public meta: {
         databases: DatabaseMetaData[],
-        database: DatabaseMetaData,
-        tables: TableMetaData[],
-        table: TableMetaData,
-        unsharedFilterField: any,
-        unsharedFilterValue: string,
-        fields: FieldMetaData[]
+        layers: {
+            database: DatabaseMetaData,
+            tables: TableMetaData[],
+            table: TableMetaData,
+            fields: FieldMetaData[]
+            unsharedFilterField: any,
+            unsharedFilterValue: string,
+        }[],
     };
 
     public exportId: number;
 
-    public isLoading: boolean;
+    public isLoading: number;
     public isExportable: boolean;
 
     constructor(
@@ -60,15 +62,10 @@ export abstract class BaseNeonComponent implements OnInit,
         this.themesService = themesService;
         this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
-        this.isLoading = false;
+        this.isLoading = 0;
         this.meta = {
             databases: [],
-            database: new DatabaseMetaData(),
-            tables: [],
-            table: new TableMetaData(),
-            unsharedFilterField: {},
-            unsharedFilterValue: '',
-            fields: []
+            layers: [],
         };
         this.isExportable = true;
         this.doExport = this.doExport.bind(this);
@@ -76,14 +73,15 @@ export abstract class BaseNeonComponent implements OnInit,
 
     ngOnInit() {
         this.initializing = true;
+        this.outstandingDataQueriesByLayer = [];
+        //for (let database of this.datasetService.getDatabases()) {
+        //this.outstandingDataQueriesByLayer[0] = {};
+        //}
+        this.initData();
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
 
-        this.outstandingDataQuery = {};
-        for (let database of this.datasetService.getDatabases()) {
-            this.outstandingDataQuery[database.name] = {};
-        }
-        this.initData();
+
 
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
@@ -95,46 +93,78 @@ export abstract class BaseNeonComponent implements OnInit,
     abstract subNgOnInit();
     abstract subNgOnDestroy();
     abstract getOptionFromConfig(option: string);
-    abstract getExportFields();
+    abstract getExportFields(layerIndex: number);
+    abstract subAddEmptyLayer();
+    abstract subRemoveLayer(index: number);
+
+    addEmptyLayer() {
+        let layer = {
+            database: new DatabaseMetaData(),
+            tables: [],
+            table: new TableMetaData(),
+            unsharedFilterField: {},
+            unsharedFilterValue: '',
+            fields: []
+        };
+        this.outstandingDataQueriesByLayer.push({});
+        this.subAddEmptyLayer();
+        this.meta.layers.push(layer);
+        this.initDatabases(this.meta.layers.length - 1);
+    }
+
+    removeLayer(index: number) {
+        // Stop if trying to remove a layer that doesn't exist
+        if (index >= this.outstandingDataQueriesByLayer.length) {
+            return;
+        }
+
+        this.outstandingDataQueriesByLayer.splice(index, 1);
+        this.meta.layers.splice(index, 1);
+
+        this.subRemoveLayer(index);
+    }
+
+    exportOneLayer(query, layerIndex) {
+        //console.log('EXPORT NOT IMPLEMENTED IN '+ this.getVisualizationName());
+        let exportName = this.queryTitle;
+        if (exportName) {
+            //replaceAll
+            exportName = exportName.split(':').join(' ');
+        }
+        let finalObject = {
+            name: 'Query_Results_Table',
+            data: [{
+                query: query,
+                name: exportName + '-' + this.exportId,
+                fields: [],
+                ignoreFilters: query.ignoreFilters,
+                selectionOnly: query.selectionOnly,
+                ignoredFilterIds: [], //query.ignoredFilterIds,
+                type: 'query'
+            }]
+        };
+        let fields = this.getExportFields(layerIndex);
+        for (let field of fields) {
+            finalObject.data[0].fields.push({
+                query: field['columnName'],
+                pretty: field['prettyName'] || field['columnName']
+            });
+        }
+
+        return finalObject;
+    };
 
     export() {
         //TODO this function needs to be changed  to abstract once we get through all the visualizations.
-
-        let query = this.createQuery();
-        if (query) {
-            //console.log('EXPORT NOT IMPLEMENTED IN '+ this.getVisualizationName());
-            let exportName = this.queryTitle;
-            if (exportName) {
-                //replaceAll
-                exportName = exportName.split(':').join(' ');
-            }
-            let finalObject = {
-                name: 'Query_Results_Table',
-                data: [{
-                    query: query,
-                    name: exportName + '-' + this.exportId,
-                    fields: [],
-                    ignoreFilters: query.ignoreFilters,
-                    selectionOnly: query.selectionOnly,
-                    ignoredFilterIds: [], //query.ignoredFilterIds,
-                    type: 'query'
-                }]
-            };
-            let fields = this.getExportFields();
-            for (let field of fields) {
-                finalObject.data[0].fields.push({
-                    query: field['columnName'],
-                    pretty: field['prettyName'] || field['columnName']
-                });
-            }
-
-            return finalObject;
+        let queries = this.createAllQueries();
+        let mapFunction = this.exportOneLayer.bind(this);
+        if (queries) {
+            return queries.map(mapFunction).filter(fo => fo);
         } else {
             console.log('SKIPPING EXPORT FOR ' + this.getVisualizationName());
             return null;
         }
-
-    }
+    };
 
     doExport() {
         return this.export();
@@ -156,86 +186,64 @@ export abstract class BaseNeonComponent implements OnInit,
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
-        /* $scope.element.off('resize', resize);
-        $scope.element.find('.headers-container').off('resize', resizeDisplay);
-        $scope.element.find('.options-menu-button').off('resize', resizeTitle);
-        $scope.messenger.unsubscribeAll();
-
-        if($scope.functions.isFilterSet()) {
-            $scope.functions.removeNeonFilter({
-                fromSystem: true
-            });
-        }
-
-        exportService.unregister($scope.exportId);
-        linksPopupService.deleteLinks($scope.visualizationId);
-        $scope.getDataLayers().forEach(function(layer) {
-            linksPopupService.deleteLinks(createLayerLinksSource(layer));
-        });
-        themeService.unregisterListener($scope.visualizationId);
-        visualizationService.unregister($scope.stateId);
-
-        resizeListeners.forEach(function(element) {
-            $scope.element.find(element).off('resize', resize);
-        }); */
         this.subNgOnDestroy();
     };
 
     initData() {
-        this.initDatabases();
+        this.addEmptyLayer();
     };
 
-    initDatabases() {
+    initDatabases(layerIndex) {
         this.meta.databases = this.datasetService.getDatabases();
-        this.meta.database = this.meta.databases[0];
+        this.meta.layers[layerIndex].database = this.meta.databases[0];
 
         if (this.meta.databases.length > 0) {
             if (this.getOptionFromConfig('database')) {
                 for (let database of this.meta.databases) {
                     if (this.getOptionFromConfig('database') === database.name) {
-                        this.meta.database = database;
+                        this.meta.layers[layerIndex].database = database;
                         break;
                     }
                 }
             }
 
-            this.initTables();
+            this.initTables(layerIndex);
         }
     };
 
-    initTables() {
-        this.meta.tables = this.datasetService.getTables(this.meta.database['name']);
-        this.meta.table = this.meta.tables[0];
+    initTables(layerIndex) {
+        this.meta.layers[layerIndex].tables = this.datasetService.getTables(this.meta.layers[layerIndex].database['name']);
+        this.meta.layers[layerIndex].table = this.meta.layers[layerIndex].tables[0];
 
-        if (this.meta.tables.length > 0) {
+        if (this.meta.layers[layerIndex].tables.length > 0) {
             if (this.getOptionFromConfig('table')) {
-                for (let table of this.meta.tables) {
+                for (let table of this.meta.layers[layerIndex].tables) {
                     if (this.getOptionFromConfig('table') === table.name) {
-                        this.meta.table = table;
+                        this.meta.layers[layerIndex].table = table;
                         break;
                     }
                 }
             }
-            this.initFields();
+            this.initFields(layerIndex);
         }
     };
 
-    initFields() {
+    initFields(layerIndex) {
         // Sort the fields that are displayed in the dropdowns in the options menus
         // alphabetically.
         let fields = this.datasetService
-            .getSortedFields(this.meta.database['name'], this.meta.table['name']);
-        this.meta.fields = fields.filter(function(f) {
+            .getSortedFields(this.meta.layers[layerIndex].database['name'], this.meta.layers[layerIndex].table['name']);
+        this.meta.layers[layerIndex].fields = fields.filter(function(f) {
             return (f && f.type);
         });
-        this.meta.unsharedFilterField = this.findFieldObject('unsharedFilterField');
-        this.meta.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
+        this.meta.layers[layerIndex].unsharedFilterField = this.findFieldObject(layerIndex, 'unsharedFilterField');
+        this.meta.layers[layerIndex].unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
 
-        this.onUpdateFields();
+        this.onUpdateFields(layerIndex);
         //this.changeDetection.detectChanges();
     };
 
-    abstract onUpdateFields();
+    abstract onUpdateFields(layerIndex);
 
     stopEventPropagation(event) {
         if (event.stopPropagation) {
@@ -247,7 +255,7 @@ export abstract class BaseNeonComponent implements OnInit,
 
     abstract getFilterText(filter): string;
     abstract createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: any);
-    abstract getNeonFilterFields(): string[];
+    abstract getNeonFilterFields(layerIndex: number): string[];
     abstract getVisualizationName(): string;
     /**
     * Must return null for no filters.  Returning an empty array causes the
@@ -255,17 +263,17 @@ export abstract class BaseNeonComponent implements OnInit,
     */
     abstract getFiltersToIgnore(): string[];
 
-    addNeonFilter(executeQueryChainOnSuccess, filter) {
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields: string[] = this.getNeonFilterFields();
+    addNeonFilter(layerIndex, executeQueryChainOnSuccess, filter) {
+        let database = this.meta.layers[layerIndex].database.name;
+        let table = this.meta.layers[layerIndex].table.name;
+        let fields: string[] = this.getNeonFilterFields(layerIndex);
         let text = this.getFilterText(filter);
         let visName = this.getVisualizationName();
 
         let onSuccess = () => {
             //console.log('filter set successfully');
             if (executeQueryChainOnSuccess) {
-                this.executeQueryChain();
+                this.executeQueryChain(layerIndex);
             }
         };
         this.filterService.addFilter(this.messenger, database, table, fields,
@@ -292,12 +300,30 @@ export abstract class BaseNeonComponent implements OnInit,
         if (optionTitle) {
             return optionTitle;
         }
-        let title = this.meta.unsharedFilterValue
-            ? this.meta.unsharedFilterValue + ' '
+        if (this.meta.layers.length === 1) {
+            return this.createLayerTitle(1, resetQueryTitle);
+        } else {
+            return 'Multiple Layers - ' + this.getVisualizationName();
+        }
+    }
+
+    createLayerTitle(layerIndex, resetQueryTitle?: boolean): string {
+        if (resetQueryTitle) {
+            this.queryTitle = '';
+        }
+        if (this.queryTitle) {
+            return this.queryTitle;
+        }
+        let optionTitle = this.getOptionFromConfig('title');
+        if (optionTitle) {
+            return optionTitle;
+        }
+        let title = this.meta.layers[layerIndex].unsharedFilterValue
+            ? this.meta.layers[layerIndex].unsharedFilterValue + ' '
             : '';
         if (_.keys(this.meta).length) {
-            return title + (this.meta.table && this.meta.table.name
-                ? this.meta.table.prettyName
+            return title + (this.meta.layers[layerIndex].table && this.meta.layers[layerIndex].table.name
+                ? this.meta.layers[layerIndex].table.prettyName
                 : '');
         }
         return title;
@@ -308,71 +334,85 @@ export abstract class BaseNeonComponent implements OnInit,
     This could be startup, user action to change field, relevant filter change
     from another visualization
      */
-    executeQueryChain() {
-        let isValidQuery = this.isValidQuery();
+    executeAllQueryChain() {
+        for (let i = 0; i < this.meta.layers.length; i++) {
+            this.executeQueryChain(i);
+        }
+    }
+
+    executeQueryChain(layerIndex) {
+        let isValidQuery = this.isValidQuery(layerIndex);
         if (!isValidQuery) {
             return;
         }
-        this.isLoading = true;
+        this.isLoading++;
         this.changeDetection.detectChanges();
-        this.queryTitle = this.createTitle(false);
-        let query = this.createQuery();
+        this.queryTitle = this.createLayerTitle(false);
+        let query = this.createQuery(layerIndex);
 
         let filtersToIgnore = this.getFiltersToIgnore();
         if (filtersToIgnore && filtersToIgnore.length > 0) {
             query.ignoreFilters(filtersToIgnore);
         }
 
-        this.executeQuery(query);
+        this.executeQuery(layerIndex, query);
     }
 
-    abstract isValidQuery(): void;
-    abstract createQuery(): neon.query.Query;
-    abstract onQuerySuccess(response): void;
+    createAllQueries() {
+        let queries = [];
+        for (let i = 0; i < this.meta.layers.length; i++) {
+            queries.push(this.createQuery(i));
+        }
+        return queries;
+    }
+
+    abstract isValidQuery(layerIndex: number): void;
+    abstract createQuery(layerIndex: number): neon.query.Query;
+    abstract onQuerySuccess(layerIndex, response): void;
     abstract refreshVisualization(): void;
 
-    baseOnQuerySuccess(response) {
-        this.onQuerySuccess(response);
-        this.isLoading = false;
+    baseOnQuerySuccess(layerIndex, response) {
+        this.onQuerySuccess(layerIndex, response);
+        this.isLoading--;
         this.changeDetection.detectChanges();
     }
 
-    executeQuery(query: neon.query.Query) {
+    executeQuery(layerIndex, query: neon.query.Query) {
         let me = this;
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
+        let database = this.meta.layers[layerIndex].database.name;
+        let table = this.meta.layers[layerIndex].table.name;
         let connection = this.connectionService.getActiveConnection();
 
         if (!connection) {
             return;
         }
         // Cancel any previous data query currently running.
-        if (this.outstandingDataQuery[database] && this.outstandingDataQuery[database][table]) {
-            this.outstandingDataQuery[database][table].abort();
+        if (this.outstandingDataQueriesByLayer[layerIndex] && this.outstandingDataQueriesByLayer[layerIndex][table]) {
+            this.outstandingDataQueriesByLayer[layerIndex][table].abort();
         }
 
         // Execute the data query, calling the function defined in 'done' or 'fail' as
         // needed.
-        this.outstandingDataQuery[database][table] = connection.executeQuery(query, null);
+        this.outstandingDataQueriesByLayer[layerIndex][table] = connection.executeQuery(query, null);
 
         // Visualizations that do not execute data queries will not return a query
         // object.
-        if (!this.outstandingDataQuery[database][table]) {
+        if (!this.outstandingDataQueriesByLayer[layerIndex][table]) {
             // TODO do something
             console.log('execute query did not return an object');
         }
 
-        this.outstandingDataQuery[database][table].always(function() {
-            me.outstandingDataQuery[database][table] = undefined;
+        this.outstandingDataQueriesByLayer[layerIndex][table].always(function() {
+            me.outstandingDataQueriesByLayer[layerIndex][table] = undefined;
         });
 
-        this.outstandingDataQuery[database][table].done(this.baseOnQuerySuccess.bind(this));
+        this.outstandingDataQueriesByLayer[layerIndex][table].done(this.baseOnQuerySuccess.bind(this, layerIndex));
 
-        this.outstandingDataQuery[database][table].fail(function(response) {
+        this.outstandingDataQueriesByLayer[layerIndex][table].fail(function(response) {
             if ( response.statusText === 'abort') {
                 //query was aborted so we don't care.  We assume we aborted it on purpose.
             } else {
-                this.isLoading = false;
+                this.isLoading--;
                 if (response.status === 0) {
                     console.error('Query failed: ' + response);
                 } else {
@@ -386,10 +426,10 @@ export abstract class BaseNeonComponent implements OnInit,
     /**
     * Get field object from the key into the config options
     */
-    findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
+    findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
         let me = this;
         let find = function(name) {
-            return _.find(me.meta.fields, function(field) {
+            return _.find(me.meta.layers[layerIndex].fields, function(field) {
                 return field['columnName'] === name;
             });
         };
@@ -400,14 +440,21 @@ export abstract class BaseNeonComponent implements OnInit,
         }
 
         if (!field && mappingKey) {
-            field = find(this.getMapping(mappingKey));
+            field = find(this.getMapping(layerIndex, mappingKey));
         }
 
         return field || this.datasetService.createBlankField();
     };
 
-    getMapping(key: string): string {
-        return this.datasetService.getMapping(this.meta.database.name, this.meta.table.name, key);
+    /**
+     * Get a blank FieldMetaData object
+     */
+    getBlankField(): FieldMetaData {
+        return this.datasetService.createBlankField();
+    }
+
+    getMapping(layerIndex, key: string): string {
+        return this.datasetService.getMapping(this.meta.layers[layerIndex].database.name, this.meta.layers[layerIndex].table.name, key);
     };
 
     abstract handleFiltersChangedEvent(): void;
@@ -419,47 +466,42 @@ export abstract class BaseNeonComponent implements OnInit,
 
     getExportData() { };
 
-    handleChangeDatabase() {
-        this.initTables();
-        this.logChangeAndStartQueryChain(); // ('database', this.active.database.name);
+    handleChangeDatabase(layerIndex) {
+        this.initTables(layerIndex);
+        this.logChangeAndStartQueryChain(layerIndex); // ('database', this.active.database.name);
     };
 
-    handleChangeTable() {
-        this.initFields();
-        this.logChangeAndStartQueryChain(); // ('table', this.active.table.name);
+    handleChangeTable(layerIndex) {
+        this.initFields(layerIndex);
+        this.logChangeAndStartQueryChain(layerIndex); // ('table', this.active.table.name);
     };
 
-    logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
+    logChangeAndStartAllQueryChain() {
+        if (!this.initializing) {
+            this.executeAllQueryChain();
+        }
+    }
+
+    logChangeAndStartQueryChain(layerIndex: number) { // (option: string, value: any, type?: string) {
         // this.logChange(option, value, type);
         if (!this.initializing) {
-            this.executeQueryChain();
+            this.executeQueryChain(layerIndex);
         }
     };
 
     abstract removeFilter(value: string): void;
 
-    /**
-     * Check that the local filter column name and value are not null/empty
-     * @return {boolean}
-     */
-    hasUnsharedFilter(): boolean {
-        return this.meta.unsharedFilterField &&
-            this.meta.unsharedFilterField.columnName !== '' &&
-            this.meta.unsharedFilterValue &&
-            this.meta.unsharedFilterValue.trim() !== '';
-    }
-
-    removeLocalFilterFromLocalAndNeon(value: string, isRequery, isRefresh) {
+    removeLocalFilterFromLocalAndNeon(layerIndex: number, value: string, isRequery, isRefresh) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
         let me = this;
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = this.getNeonFilterFields();
+        let database = this.meta.layers[layerIndex].database.name;
+        let table = this.meta.layers[layerIndex].table.name;
+        let fields = this.getNeonFilterFields(layerIndex);
         this.filterService.removeFilter(database, table, fields,
             () => {
                 me.removeFilter(value);
                 if (isRequery) {
-                    this.executeQueryChain();
+                    this.executeQueryChain(layerIndex);
                 } else {
                     if (isRefresh) {
                         this.refreshVisualization();

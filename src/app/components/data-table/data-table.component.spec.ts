@@ -8,6 +8,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import {} from 'jasmine';
 
 import { DataTableComponent } from './data-table.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -18,6 +19,7 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 
 describe('Component: DataTable', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -27,7 +29,9 @@ describe('Component: DataTable', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
-                DataTableComponent
+                DataTableComponent,
+                ExportControlComponent,
+                UnsharedFilterComponent
             ],
             providers: [
                 ConnectionService,

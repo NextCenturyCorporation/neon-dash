@@ -28,6 +28,7 @@ import {
 export class LegendComponent implements OnInit,
     OnDestroy {
     @Input() data: LegendItem[];
+    @Input() groups: LegendGroup[];
     @ViewChild('menu') menu: any;
     public menuIcon: string;
 
@@ -59,6 +60,12 @@ export class LegendComponent implements OnInit,
     onMenuClose() {
         this.menuIcon = 'keyboard_arrow_down';
     }
+}
+
+export class LegendGroup {
+    name: string;
+    data: LegendItem[];
+    hasName?: boolean;
 }
 
 export class LegendItem {

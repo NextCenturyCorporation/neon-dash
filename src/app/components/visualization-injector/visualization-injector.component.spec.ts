@@ -8,6 +8,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { LegendComponent } from '../legend/legend.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
@@ -15,6 +16,7 @@ import { MapComponent } from '../map/map.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 import { VisualizationInjectorComponent } from './visualization-injector.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
@@ -27,6 +29,7 @@ describe('Component: VisualizationInjector', () => {
                 BarChartComponent,
                 DataTableComponent,
                 DocumentViewerComponent,
+                ExportControlComponent,
                 FilterBuilderComponent,
                 LegendComponent,
                 LineChartComponent,
@@ -34,7 +37,8 @@ describe('Component: VisualizationInjector', () => {
                 ScatterPlotComponent,
                 TextCloudComponent,
                 TimelineComponent,
-                VisualizationInjectorComponent,
+                UnsharedFilterComponent,
+                VisualizationInjectorComponent
 
             ],
             providers: [ComponentFactoryResolver],

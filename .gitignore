@@ -24,6 +24,8 @@
 npm-debug.log
 testem.log
 /typings
+.directory
+.Rhistory
 
 # e2e
 /e2e/*.js
@@ -36,7 +38,8 @@ Thumbs.db
 #config files
 src/app/config/config.json
 
-# Yarn lockfile
-# The build must work with npm and yarn, so don't depend on the lockfile
+# Lockfiles
+# The build should depend on the package.json, so don't depend on the lockfiles
 yarn.lock
+package-lock.json
 

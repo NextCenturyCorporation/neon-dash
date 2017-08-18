@@ -30,12 +30,17 @@ import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     private textCloud: TextCloud;
     private filters: any[];
+    public count: number;
 
     private optionsFromConfig: {
         title: string,
         database: string,
         table: string,
         dataField: string,
+        preFilter: boolean,
+        filterTarget: string,
+        operator: any,
+        exclude: any,
         unsharedFilterField: any,
         unsharedFilterValue: string
     };
@@ -57,6 +62,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
             dataField: this.injector.get('dataField', null),
+            preFilter: this.injector.get('preFilter', null),
+            filterTarget: this.injector.get('filterTarget', null),
+            operator: this.injector.get('operator', null),
+            exclude: this.injector.get('exclude', null),
             unsharedFilterField: this.injector.get('unsharedFilterField', null),
             unsharedFilterValue: this.injector.get('unsharedFilterValue', null)
         };
@@ -70,6 +79,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             filterable: true,
             data: []
         };
+        this.count = this.active.limit;
         this.queryTitle = 'Text Cloud';
     };
 
@@ -84,6 +94,17 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     subNgOnDestroy() {
         //Do nothing
     };
+
+    getExportFields() {
+        let fields = [{
+            columnName: this.active.dataField.columnName,
+            prettyName: this.active.dataField.prettyName
+        }, {
+            columnName: 'value',
+            prettyName: 'Count'
+        }];
+        return fields;
+    }
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
@@ -159,7 +180,19 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        let whereClause;
+        // Checks for an unshared filter in the config file.
+        if(this.optionsFromConfig.preFilter) {
+            whereClause = neon.query.where(this.optionsFromConfig.filterTarget,
+                this.optionsFromConfig.operator,
+                this.optionsFromConfig.exclude);
+        }
+        else if(this.hasUnsharedFilter()) {
+            whereClause = neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue);
+        }
+        else {
+            whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        }
         let dataField = this.active.dataField.columnName;
         return query.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
             .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
@@ -168,18 +201,47 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     getFiltersToIgnore() {
         return null;
     }
+    getCount(){
+        let databaseName = this.meta.database.name;
+        let tableName = this.meta.table.name;
+        let countQuery = new neon.query.Query().selectFrom(databaseName, tableName);
+        let whereClause;
+        //prefilter
+        if(this.optionsFromConfig.preFilter){
+            whereClause = neon.query.where(this.optionsFromConfig.filterTarget,
+                this.optionsFromConfig.operator,
+                this.optionsFromConfig.exclude);
+
+        }else{
+            whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        }
+        let dataField = this.active.dataField.columnName;
+        this.executeQuery(countQuery.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
+        .sortBy('value', neon.query['DESCENDING']));
+    }
 
     onQuerySuccess(response): void {
         let data = response.data;
-        let cloudData = data || [];
-        let activeData = cloudData.map((item) => {
-            item.key = item[this.active.dataField.columnName];
-            item.keyTranslated = item.key;
-            return item;
-        });
-        this.active = this.updateObject(this.active, 'data', activeData);
+        let length = data.length;
+        let count = this.count;
+        if(length -1 < count ){
+        
+            let cloudData = data || [];
+            let activeData = cloudData.map((item) => {
+                item.key = item[this.active.dataField.columnName];
+                item.keyTranslated = item.key;
+                return item;
+            });
+            this.active = this.updateObject(this.active, 'data', activeData);
+            if(length +1 > count){
+                this.getCount();
+                }
+        }
+        if(length > this.active.limit){
+            this.count = length;
+            }
         this.refreshVisualization();
-        this.queryTitle = this.optionsFromConfig.title;
+        this.queryTitle = this.optionsFromConfig.title || 'Text Cloud by ' + this.active.dataField.prettyName;
     }
 
     handleFiltersChangedEvent() {
@@ -231,8 +293,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             });
         }
     };
-
-
 
     createFilterTrayText() {
         return (_.map(this.filters, (this.active.allowsTranslations ? 'translated' : 'value'))).join(', ');
@@ -327,7 +387,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     getButtonText() {
-        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length;
+        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length +' of '+this.count;
     };
 
     getFilterData() {
@@ -372,10 +432,14 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     // These methods must be present for AoT compile
     requestExport() {}
 
-    handleChangeUnsharedFilterField() {}
+    unsharedFilterChanged() {
+        // Update the data
+        this.executeQueryChain();
+    }
 
-    handleChangeUnsharedFilterValue() {}
-
-    handleRemoveUnsharedFilter() {}
+    unsharedFilterRemoved() {
+        // Update the data
+        this.executeQueryChain();
+    }
 
 }
