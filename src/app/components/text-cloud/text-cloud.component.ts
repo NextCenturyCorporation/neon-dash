@@ -1,4 +1,12 @@
-import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, Injector } from '@angular/core';
+import {
+    Component,
+    OnInit,
+    OnDestroy,
+    ViewEncapsulation,
+    ChangeDetectionStrategy,
+    Injector,
+    ChangeDetectorRef
+} from '@angular/core';
 import { TextCloud, TextCloudOptions, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';

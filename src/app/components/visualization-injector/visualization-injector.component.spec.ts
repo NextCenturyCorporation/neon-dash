@@ -5,16 +5,17 @@ import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
-import { VisualizationInjectorComponent } from './visualization-injector.component';
-import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
-import { LineChartComponent } from '../line-chart/line-chart.component';
-import { TimelineComponent } from '../timeline/timeline.component';
-import { MapComponent } from '../map/map.component';
-import { LegendComponent } from '../legend/legend.component';
 import { DataTableComponent } from '../data-table/data-table.component';
-import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
+import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
+import { LegendComponent } from '../legend/legend.component';
+import { LineChartComponent } from '../line-chart/line-chart.component';
+import { MapComponent } from '../map/map.component';
+import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
+import { TextCloudComponent } from '../text-cloud/text-cloud.component';
+import { TimelineComponent } from '../timeline/timeline.component';
+import { VisualizationInjectorComponent } from './visualization-injector.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
 
@@ -23,16 +24,17 @@ describe('Component: VisualizationInjector', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
-                VisualizationInjectorComponent,
-                TextCloudComponent,
                 BarChartComponent,
-                LineChartComponent,
-                LegendComponent,
-                MapComponent,
-                TimelineComponent,
                 DataTableComponent,
-                ScatterPlotComponent,
+                DocumentViewerComponent,
                 FilterBuilderComponent,
+                LegendComponent,
+                LineChartComponent,
+                MapComponent,
+                ScatterPlotComponent,
+                TextCloudComponent,
+                TimelineComponent,
+                VisualizationInjectorComponent,
 
             ],
             providers: [ComponentFactoryResolver],

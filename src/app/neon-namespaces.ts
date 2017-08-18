@@ -398,11 +398,11 @@ export const neonVisualizations: any[] = [
         type: 'dataTable',
         icon: 'ViewData64'
     },
-    //{
-    //    name: 'Document Viewer',
-    //    type: 'documentViewer',
-    //    icon: 'DocumentViewer64'
-    //},
+    {
+        name: 'Document Viewer',
+        type: 'documentViewer',
+        icon: 'DocumentViewer64'
+    },
     {
         minPixelX: 480,
         name: 'Filter Builder',
