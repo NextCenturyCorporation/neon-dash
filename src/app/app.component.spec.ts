@@ -22,20 +22,23 @@ import 'hammerjs';
 
 import { AppComponent } from './app.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
-import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
-import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
-import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
-import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
-import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
+import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
+import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
+import { DataTableComponent } from './components/data-table/data-table.component';
+import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
+import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
+import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
-import { TimelineComponent } from './components/timeline/timeline.component';
 import { MapComponent } from './components//map/map.component';
 import { LegendComponent } from './components/legend/legend.component';
 import { ExportControlComponent } from './components/export-control/export-control.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
-import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
+import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
+import { TimelineComponent } from './components/timeline/timeline.component';
+import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
+import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
 
 import { NeonGTDConfig } from './neon-gtd-config';
 
@@ -71,21 +74,22 @@ describe('App: NeonGtd', () => {
             declarations: [
                 AppComponent,
                 AboutNeonComponent,
+                BarChartComponent,
                 DashboardOptionsComponent,
                 DatasetSelectorComponent,
-                VisualizationContainerComponent,
-                VisualizationInjectorComponent,
-                TextCloudComponent,
-                BarChartComponent,
-                LineChartComponent,
-                TimelineComponent,
+                DataTableComponent,
+                DocumentViewerComponent,
+                FilterBuilderComponent,
                 LegendComponent,
                 ExportControlComponent,
+                LineChartComponent,
                 MapComponent,
-                DataTableComponent,
                 ScatterPlotComponent,
-                FilterBuilderComponent,
                 UnsharedFilterComponent
+                TextCloudComponent,
+                TimelineComponent,
+                VisualizationContainerComponent,
+                VisualizationInjectorComponent
             ],
             imports: [
                 FormsModule,
