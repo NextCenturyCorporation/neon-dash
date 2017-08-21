@@ -7,6 +7,7 @@ import { FilterBuilderComponent } from '../filter-builder/filter-builder.compone
 import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
+import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { NeonGridItem } from '../../neon-grid-item';
@@ -14,8 +15,8 @@ import {VisualizationService} from '../../services/visualization.service';
 
 @Component({
     selector: 'app-visualization-injector',
-    entryComponents: [BarChartComponent, DataTableComponent, DocumentViewerComponent, FilterBuilderComponent,
-    LineChartComponent, MapComponent, ScatterPlotComponent, TextCloudComponent, TimelineComponent],
+    entryComponents: [BarChartComponent, DataTableComponent, DocumentViewerComponent, FilterBuilderComponent, LineChartComponent,
+    MapComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent, TimelineComponent],
     template: `<div #dynamicComponentContainer></div>`,
 })
 export class VisualizationInjectorComponent {
@@ -80,6 +81,7 @@ export class VisualizationInjectorComponent {
             case 'timeline': return TimelineComponent;
             case 'scatterPlot': return ScatterPlotComponent;
             case 'filterBuilder': return FilterBuilderComponent;
+            case 'stackedTimeline': return StackedTimelineComponent;
 
 
             default: return null;

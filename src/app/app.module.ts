@@ -54,6 +54,7 @@ import { LineChartComponent } from './components/line-chart/line-chart.component
 import { MapComponent } from './components/map/map.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
+import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
@@ -87,9 +88,11 @@ export function getAppConfig() {
         ScatterPlotComponent,
         SnackBarComponent,
         ConfigEditorComponent,
-        ExportControlComponent
+        ExportControlComponent,
+        StackedTimelineComponent,
         TextCloudComponent,
         TimelineComponent,
+        UnsharedFilterComponent,
         VisualizationContainerComponent,
         VisualizationInjectorComponent
     ],
