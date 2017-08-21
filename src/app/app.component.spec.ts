@@ -33,6 +33,7 @@ import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components//map/map.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
+import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component;'
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
@@ -82,6 +83,7 @@ describe('App: NeonGtd', () => {
                 LineChartComponent,
                 MapComponent,
                 ScatterPlotComponent,
+                StackedTimelineComponent,
                 TextCloudComponent,
                 TimelineComponent,
                 VisualizationContainerComponent,

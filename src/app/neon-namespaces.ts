@@ -443,6 +443,11 @@ export const neonVisualizations: any[] = [
         type: 'scatterPlot',
         icon: 'ScatterPlot64'
     },
+    {
+        name: 'Stacked Timeline',
+        type: 'stackedTimeline',
+        icon: 'Timeline64'
+    },
     //{
     //    name: 'Sunburst Chart',
     //    type: 'sunburstChart',

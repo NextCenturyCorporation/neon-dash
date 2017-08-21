@@ -65,15 +65,14 @@ export class VisualizationInjectorComponent {
         switch (type) {
             case 'barChart': return BarChartComponent;
             case 'dataTable': return DataTableComponent;
-            case 'documentViewer': return DocumentViewerComponent; 
-            case 'textCloud': return TextCloudComponent;
+            case 'documentViewer': return DocumentViewerComponent;
+            case 'filterBuilder': return FilterBuilderComponent; 
             case 'lineChart': return LineChartComponent;
             case 'map': return MapComponent;
-            case 'timeline': return TimelineComponent;
             case 'scatterPlot': return ScatterPlotComponent;
-            case 'filterBuilder': return FilterBuilderComponent;
             case 'stackedTimeline': return StackedTimelineComponent;
-
+            case 'textCloud': return TextCloudComponent;
+            case 'timeline': return TimelineComponent;
 
             default: return null;
         }
