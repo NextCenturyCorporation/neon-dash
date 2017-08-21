@@ -16,6 +16,7 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
+import { UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 import { VisualizationInjectorComponent } from './visualization-injector.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
