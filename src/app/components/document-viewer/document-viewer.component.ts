@@ -164,6 +164,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     getExportData() {
 
     }
+  
+    getExportFields(){
+      
+    }
 
     removeFilter(value) {
 

@@ -315,6 +315,28 @@
         "col": 0
     },
     {
+        "name": "StackedTimeline",
+        "type": "StackedTimeline",
+        "icon": "Timeline64",
+        "sizex": 11,
+        "sizey": 5,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 6,
+        "minSizey": 5,
+        "selected": true,
+        "bindings": {
+        "title": "Issue Type Volume over Time",
+        "database": "ebola_data",
+        "table": "record",
+        "dateField": "loreleiJSONMapping.status.createdAt",
+        "granularity": "day",
+        "groupField": "loreleiJSONMapping.type"
+        },
+        "row": 1,
+        "col": 0
+    },
+    {
         "name": "Posting Locations & Routing Map",
         "type": "map",
         "icon": "Map64",
