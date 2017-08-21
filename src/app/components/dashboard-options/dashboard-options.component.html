@@ -38,7 +38,7 @@
                 <input mdInput placeholder="New State Name" maxlength="100" name="stateToSave" dividerColor="accent" [(ngModel)]="formData.stateToSave">
             </md-input-container>
 
-            <button md-raised-button class="mat-accent"> Save State </button>
+            <button md-raised-button class="mat-accent" (click)="saveState()"> Save State </button>
 
             <span [md-menu-trigger-for]="loadMenu" class="fake-dropdown-span">
                 <md-input-container>

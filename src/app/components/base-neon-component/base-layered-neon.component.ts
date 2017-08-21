@@ -13,6 +13,7 @@ import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
 //import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import {VisualizationService} from '../../services/visualization.service';
 
 
 
@@ -52,13 +53,15 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         private exportService: ExportService,
         protected injector: Injector,
         public themesService: ThemesService,
-        public changeDetection: ChangeDetectorRef) {
+        public changeDetection: ChangeDetectorRef,
+        protected visualizationService: VisualizationService) {
         //These assignments just eliminated unused warnings that occur even though the arguments are
         //automatically assigned to instance variables.
         this.exportService = this.exportService;
         this.filterService = this.filterService;
         this.connectionService = this.connectionService;
         this.injector = this.injector;
+        this.visualizationService = this.visualizationService;
         this.themesService = themesService;
         this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();

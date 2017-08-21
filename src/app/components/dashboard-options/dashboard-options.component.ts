@@ -30,6 +30,7 @@ import { ConfigEditorComponent } from '../config-editor/config-editor.component'
 
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
+import {VisualizationService} from '../../services/visualization.service';
 
 @Component({
   selector: 'app-dashboard-options',
@@ -57,7 +58,8 @@ export class DashboardOptionsComponent implements OnInit {
     constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
         private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
         private mdSnackBar: MdSnackBar, private parameterService: ParameterService,
-        public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MdDialog) { }
+        public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MdDialog,
+        private visualizationService: VisualizationService) { }
 
     ngOnInit() {
         this.formData.exportFormat = this.exportService.getFileFormats()[0].value;
@@ -92,14 +94,14 @@ export class DashboardOptionsComponent implements OnInit {
      * @param {String} name
      * @method saveState
      */
-    saveState(name) {
+    saveState() {
         // TODO: Enable once the visualization service has been migrated
         let stateParams: any = {
             // dashboard: this.visualizations
         };
 
-        if (name) {
-            stateParams.stateName = name;
+        if (this.formData.newStateName) {
+            stateParams.stateName = this.formData.newStateName;
         }
 
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
@@ -128,7 +130,7 @@ export class DashboardOptionsComponent implements OnInit {
      * Validates a state's name by checking that the name doesn't exist already for another saved state.
      */
     validateName() {
-        this.stateNameError = (!this.stateNames.length || this.stateNames.indexOf(this.stateName) === -1 ? false : true);
+        this.stateNameError = (!this.stateNames.length || this.stateNames.indexOf(this.stateName) === -1);
     };
 
     /*

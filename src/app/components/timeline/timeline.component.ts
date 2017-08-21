@@ -24,6 +24,7 @@ import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
 import {Bucketizer} from '../bucketizers/Bucketizer';
 import {TimelineSelectorChart, TimelineSeries, TimelineData} from './TimelineSelectorChart';
 import {YearBucketizer} from '../bucketizers/YearBucketizer';
+import {VisualizationService} from '../../services/visualization.service';
 
 declare let d3;
 
@@ -79,8 +80,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
-        colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
+        colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),

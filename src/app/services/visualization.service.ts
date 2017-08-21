@@ -19,7 +19,7 @@ import * as _ from 'lodash';
 
 export interface VisualizationAdapter {
     id: string;
-    callback: ( any ) => void;
+    callback: ( any ) => any;
 }
 
 /**
@@ -30,7 +30,7 @@ export interface VisualizationAdapter {
  */
 @Injectable()
 export class VisualizationService {
-    private widgets;
+    private widgets: VisualizationAdapter[];
 
     constructor() {
         this.widgets = [];
@@ -42,7 +42,7 @@ export class VisualizationService {
      * @param {String} visualizationId The unique id for the visualization.
      * @param {Function} bundleFunction The function to register.
      */
-    register(visualizationId: string, bundleFunction: ( any ) => void) {
+    register(visualizationId: string, bundleFunction: ( any ) => any) {
         this.widgets.push({
             id: visualizationId,
             callback: bundleFunction
