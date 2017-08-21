@@ -175,42 +175,6 @@
     }
     },
     {
-    "name": "LDC Uyghur",
-    "connectOnLoad": true,
-    "layout": "uyghur-layout",
-    "datastore": "elasticsearch",
-    "hostname": "localhost",
-    "databases": [
-        {
-        "name": "ldc_uyghur",
-        "prettyName": "LDC Uyghur",
-        "tables": [
-            {
-            "name": "ui_output",
-            "prettyName": "UI Output",
-            "mappings": {
-                "date": "createdAt"
-            }
-            }
-        ]
-        }
-    ],
-    "options": {
-        "checkForCoordinateValidation": "null_values",
-        "colorMaps": {
-        "ldc_uyghur": {
-            "ui_output": {
-            "entities.entity_type": {
-                "LOC": "#98DF8A",
-                "ORG": "#FF9896",
-                "PER": "#AEC7E8"
-            }
-            }
-        }
-        }
-    }
-    },
-    {
     "name": "Ground Truth",
     "connectOnLoad": false,
     "layout": "groundtruth-layout",
@@ -348,6 +312,28 @@
         },
         "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
         "row": 0,
+        "col": 0
+    },
+    {
+        "name": "StackedTimeline",
+        "type": "StackedTimeline",
+        "icon": "Timeline64",
+        "sizex": 11,
+        "sizey": 5,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 6,
+        "minSizey": 5,
+        "selected": true,
+        "bindings": {
+        "title": "Issue Type Volume over Time",
+        "database": "ebola_data",
+        "table": "record",
+        "dateField": "loreleiJSONMapping.status.createdAt",
+        "granularity": "day",
+        "groupField": "loreleiJSONMapping.type"
+        },
+        "row": 1,
         "col": 0
     },
     {
@@ -686,68 +672,6 @@
         "id": "b6590b1e-4374-459e-864a-d3453590660c",
         "row": 13,
         "col": 12
-    }
-    ],
-    "uyghur-layout": [
-    {
-            "name": "Document Viewer",
-            "type": "documentViewer",
-            "icon": "DocumentViewer64",
-            "sizex": 6,
-            "sizey": 6,
-            "minPixelx": 320,
-            "minPixely": 240,
-            "$hashKey": "object:37",
-            "selected": true,
-            "bindings": {
-                "title": "Document Viewer Test",
-                "database": "ldc_uyghur",
-                "table": "ui_output",
-                "dataField": "translatedText",
-                "idField": "id",
-                "metadataFields": [
-                    [
-                        {
-                            "name": "Date",
-                            "field": "createdAt"
-                        },
-                        {
-                            "name": "Topic",
-                            "field": "type"
-                        }
-                    ],
-                    [
-                        {
-                            "name": "People",
-                            "field": "entities",
-                            "arrayFilter": {
-                                "filterOn": "entityType",
-                                "filterType": "=",
-                                "filterFor": [
-                                    "PER",
-                                    "ORG"
-                                ],
-                                "show": "transliteration"
-                            }
-                        }
-                    ],
-                    [
-                        {
-                            "name": "Locations",
-                            "field": "entities",
-                            "arrayFilter": {
-                                "filterOn": "entityType",
-                                "filterType": "=",
-                                "filterFor": [
-                                    "LOC"
-                                ],
-                                "show": "transliteration"
-                            }
-                        }
-                    ]
-                ],
-                "limit": 50
-            }
     }
     ],
     "groundtruth-layout": [
