@@ -1,0 +1,85 @@
+<md-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <md-toolbar color="primary" layout-align="space-between center" flex>
+        <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
+        <span class="fill-remaining"></span>
+        <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
+        <button md-icon-button aria-label="Settings" md-tooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+            <md-icon class="mat-24">settings</md-icon>
+        </button>
+    </md-toolbar>
+
+    <md-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+        <md-card align="left">
+            <md-card-content>
+                <label style="display: inline;" *ngIf="getButtonText()">
+                    <md-icon class="error-icon">error</md-icon>
+                    {{ getButtonText() }}
+                </label>
+                <p></p>
+
+                <md-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                    <md-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                    <md-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true" (ngModelChange)="handleChangeDateField()"
+                    [disabled]="meta.fields.length == 0">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
+                <md-button-toggle-group #hourGranularity="mdButtonToggleGroup" [(ngModel)]="active.granularity" (ngModelChange)="handleChangeGranularity()">
+                    <md-button-toggle value="year">
+                        Year
+                    </md-button-toggle>
+                    <md-button-toggle value="month">
+                        Month
+                    </md-button-toggle>
+                    <md-button-toggle value="day">
+                        Day
+                    </md-button-toggle>
+                    <md-button-toggle value="hour">
+                        Hour
+                    </md-button-toggle>
+                    <md-button-toggle value="minute">
+                        Minute
+                    </md-button-toggle>
+                </md-button-toggle-group>
+                <p></p>
+
+                <app-unshared-filter [(meta)]="meta"
+                                     (unsharedFilterChanged)="unsharedFilterChanged()"
+                                     (unsharedFilterRemoved)="unsharedFilterRemoved()"></app-unshared-filter>
+                <p></p>
+
+                <app-export-control [exportId]="exportId"></app-export-control>
+            </md-card-content>
+        </md-card>
+    </md-sidenav>
+    <div class="body-container">
+        <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+            <md-spinner ></md-spinner>
+        </div>
+        <div class="text-container">
+            <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
+                <span class="filter-label" [title]="getFilterTitle(value)">{{ value }}</span>
+                <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveFilterTooltip(value)"
+                        tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value, true)">
+                    <md-icon class="mat-18">close</md-icon>
+                </button>
+            </div>
+        </div>
+        <!-- Timeline chart div -->
+        <div #svg class="timeline-selector-chart">	
+        </div>
+        <div class ="xlabel"> {{active.granularity}} 
+        </div>
+        <div class ="ylabel">{{active.ylabel}}
+        </div>
+    </div>
+</md-sidenav-container>
