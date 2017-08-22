@@ -38,7 +38,7 @@
                 <input mdInput placeholder="New State Name" maxlength="100" name="stateToSave" dividerColor="accent" [(ngModel)]="formData.stateToSave">
             </md-input-container>
 
-            <button md-raised-button class="mat-accent" (click)="saveState()"> Save State </button>
+            <button md-raised-button class="mat-accent" (click)="saveState(formData.stateToSave)"> Save State </button>
 
             <span [md-menu-trigger-for]="loadMenu" class="fake-dropdown-span">
                 <md-input-container>
@@ -52,7 +52,7 @@
                     <button md-menu-item *ngFor="let name of stateNames" (click)="setStateToLoad(name)"> {{ name }} </button>
                 </md-menu>
             </span>
-            <button md-raised-button class="mat-primary"> Load State </button>
+            <button md-raised-button (click)="loadState(formData.stateToLoad)" class="mat-primary"> Load State </button>
 
             <span [md-menu-trigger-for]="deleteMenu" class="fake-dropdown-span">
                 <md-input-container>
@@ -67,7 +67,7 @@
                 </md-menu>
             </span>
 
-            <button md-raised-button class="mat-warn"> Delete State</button>
+            <button md-raised-button (click)="deleteState(formData.stateToDelete)" class="mat-warn"> Delete State</button>
 
         </form>
     </md-card-content>

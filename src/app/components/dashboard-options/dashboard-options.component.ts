@@ -16,8 +16,8 @@
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
-import { MdSnackBar, MdSnackBarConfig } from '@angular/material';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { MdSnackBar } from '@angular/material';
+import { MdDialog } from '@angular/material';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -51,8 +51,6 @@ export class DashboardOptionsComponent implements OnInit {
     private isLoading: boolean = false;
     private messenger: neon.eventing.Messenger;
     public stateNames: string[] = [];
-    private stateName: string = '';
-    private stateNameError: boolean = false;
     public exportTarget: string = 'all';
 
     constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
@@ -94,20 +92,33 @@ export class DashboardOptionsComponent implements OnInit {
      * @param {String} name
      * @method saveState
      */
-    saveState() {
+    saveState(name: string) {
+        if (!this.validateName(name)) {
+            console.log('Name already exists');
+            return;
+        }
         // TODO: Enable once the visualization service has been migrated
         let stateParams: any = {
-            // dashboard: this.visualizations
+            dashboard: []
         };
 
-        if (this.formData.newStateName) {
-            stateParams.stateName = this.formData.newStateName;
+        if (name) {
+            stateParams.stateName = name;
         }
 
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if (connection) {
             this.datasetService.setLineCharts([{}]);
             this.datasetService.setMapLayers([{}]);
+
+            // Get each visualization's bindings and save them to our dashboard state parameter
+            this.visualizationService.getWidgets().forEach((widget) => {
+                let bindings = widget.getBindings();
+                stateParams.dashboard.push({
+                    id: widget.id,
+                    bindings: _.cloneDeep(bindings)
+                });
+            });
 
             // Get each visualization's bindings and save them to our dashboard state parameter
             // this.visualizationService.getWidgets().forEach(function(widget) {
@@ -122,38 +133,48 @@ export class DashboardOptionsComponent implements OnInit {
 
             stateParams.dataset = this.datasetService.getDataset();
 
-            connection.saveState(stateParams, this.handleSaveStateSuccess, this.handleStateFailure);
+            connection.saveState(stateParams, (response) => {
+                this.handleSaveStateSuccess(response);
+            }, (response) => {
+                this.handleStateFailure(response);
+            });
         }
     };
 
     /*
      * Validates a state's name by checking that the name doesn't exist already for another saved state.
      */
-    validateName() {
-        this.stateNameError = (!this.stateNames.length || this.stateNames.indexOf(this.stateName) === -1);
+    validateName(name: string): boolean {
+        return (!this.stateNames.length || this.stateNames.indexOf(name) === -1);
     };
 
     /*
      * Loads the states for the name choosen and updates the dashboard and url parameters.
      */
-    loadState() {
+    loadState(name: string) {
+        if (this.validateName(name)) {
+            console.log('State doesnt exist?');
+            return;
+        }
+        console.log('Loading ' + name);
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if (connection) {
             let stateParams = {
-                stateName: this.stateName
+                stateName: name
             };
-            let me = this;
-            connection.loadState(stateParams, function(dashboardState) {
+            connection.loadState(stateParams, (dashboardState) => {
                 if (_.keys(dashboardState).length) {
                     let searchParams: URLSearchParams = new URLSearchParams();
                     dashboardState.dashboardStateId = searchParams.get('dashboard_state_id');
                     dashboardState.filterStateId = searchParams.get('filter_state_id');
 
-                    me.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
+                    this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
                 } else {
-                    me.errorNotificationService.showErrorMessage(null, 'State ' + this.stateName + ' not found.');
+                    this.errorNotificationService.showErrorMessage(null, 'State ' + name + ' not found.');
                 }
-            }, this.handleStateFailure);
+            }, (response) => {
+                this.handleStateFailure(response);
+            });
         }
     };
 
@@ -161,10 +182,15 @@ export class DashboardOptionsComponent implements OnInit {
      * Deletes the state for the name choosen.
      * @method deleteState
      */
-    deleteState() {
+    deleteState(name: string) {
+        if (this.validateName(name)) {
+            console.log('State doesnt exist?');
+            return;
+        }
+        console.log('Deleting ' + name);
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if (connection) {
-            connection.deleteState(this.stateName, function(stateIds) {
+            connection.deleteState(this.formData.stateToDelete, (stateIds) => {
                 let params: URLSearchParams = new URLSearchParams();
                 let dashboardStateId: string = params.get('dashboard_state_id');
                 let filterStateId: string = params.get('filter_state_id');
@@ -177,7 +203,10 @@ export class DashboardOptionsComponent implements OnInit {
                 if (filterStateId && stateIds.filterStateId && filterStateId === stateIds.filterStateId)  {
                     params.delete('filter_state_id');
                 }
-            }, this.handleStateFailure);
+                this.loadStateNames();
+            }, (response) => {
+                this.handleStateFailure(response);
+            });
         }
     };
 
@@ -198,6 +227,7 @@ export class DashboardOptionsComponent implements OnInit {
         // TODO: Enable after replacing old $location calls with appropriate router calls.
         // $location.search("dashboard_state_id", response.dashboardStateId);
         // $location.search("filter_state_id", response.filterStateId);
+        this.loadStateNames();
     };
 
     /*
@@ -214,23 +244,21 @@ export class DashboardOptionsComponent implements OnInit {
      * @private
      */
     loadStateNames() {
-        this.stateName = '';
-        this.stateNameError = false;
-
+        this.formData.stateToDelete = '';
+        this.formData.stateToLoad = '';
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if (!connection) {
             connection = this.connectionService.createActiveConnection();
         }
 
-        let me = this;
         this.isLoading = true;
-        connection.getAllStateNames(function(stateNames) {
-            me.isLoading = false;
-            me.stateNames = stateNames;
-        }, function(response) {
-            me.isLoading = false;
-            me.stateNames = [];
-            me.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
+        connection.getAllStateNames((stateNames) => {
+            this.stateNames = stateNames;
+            this.isLoading = false;
+        }, (response) => {
+            this.isLoading = false;
+            this.stateNames = [];
+            this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
         });
     };
 
