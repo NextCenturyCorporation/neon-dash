@@ -285,6 +285,10 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         return fields;
     }
 
+    subGetBindings(bindings: any) {
+        // TODO
+    }
+
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
     };

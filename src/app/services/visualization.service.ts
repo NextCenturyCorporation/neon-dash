@@ -17,9 +17,13 @@ import { Injectable } from '@angular/core';
 
 import * as _ from 'lodash';
 
+/**
+ * Basic information about a visualization
+ */
 export interface VisualizationAdapter {
     id: string;
-    callback: ( any ) => any;
+    // Function to get the bindings for a visualization
+    getBindings: () => any;
 }
 
 /**
@@ -42,10 +46,10 @@ export class VisualizationService {
      * @param {String} visualizationId The unique id for the visualization.
      * @param {Function} bundleFunction The function to register.
      */
-    register(visualizationId: string, bundleFunction: ( any ) => any) {
+    register(visualizationId: string, bundleFunction: () => any) {
         this.widgets.push({
             id: visualizationId,
-            callback: bundleFunction
+            getBindings: bundleFunction
         });
     };
 
@@ -63,7 +67,7 @@ export class VisualizationService {
     /**
      * Returns a list of all objects currently registered to this service, so the functions they have references to can
      * be used for bulk operations.
-     * @return {Array} The list of objects subsrcibed to this service.
+     * @return {Array} The list of objects subscribed to this service.
      */
     getWidgets(): VisualizationAdapter[] {
         return this.widgets;

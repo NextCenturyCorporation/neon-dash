@@ -235,6 +235,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return this.optionsFromConfig[field];
     };
 
+    subGetBindings(bindings: any) {
+        // TODO
+    }
+
     onUpdateFields() {
 
         this.active.xField = this.findFieldObject('xField', neonMappings.TAGS);

@@ -203,6 +203,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         this.handleChangeLimit();
     }
 
+    subGetBindings(bindings: any) {
+        // TODO
+    }
+
     ngAfterViewInit() {
         let imagerySources = Cesium.createDefaultImageryProviderViewModels();
         // In order to get a minimal viable product in the short time span we have, we decided to disable the following Cesium features:

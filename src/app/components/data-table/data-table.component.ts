@@ -125,6 +125,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         return this.optionsFromConfig[field];
     };
 
+    subGetBindings(bindings: any) {
+        // TODO
+    }
+
     onUpdateFields() {
         this.active.sortField = this.findFieldObject('sortField', neonMappings.TAGS);
         let initialHeaderLimit = 25;

@@ -79,6 +79,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         //Do nothing
     };
 
+    subGetBindings(bindings: any) {
+        // TODO
+    }
+
     getExportFields() {
         let fields = [{
             columnName: this.active.dataField.columnName,

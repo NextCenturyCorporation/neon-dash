@@ -97,6 +97,10 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         //TODO pull in filters from previous filter builder??  maybe?
     };
 
+    subGetBindings(bindings: any) {
+        // TODO
+    }
+
     addBlankWhereClause() {
         let field = (this.meta.fields.length >= 0 ? this.meta.fields[0] : null);
         let clause: WhereClauseMetaData = {

@@ -119,6 +119,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     };
 
+    subGetBindings(bindings: any) {
+        // TODO
+    }
+
     getExportFields() {
         //{
         //    columnName: 'date',
