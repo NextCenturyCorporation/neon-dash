@@ -336,7 +336,7 @@
         "minPixelx": 320,
         "minPixely": 240,
         "minSizex": 6,
-        "minSizey": 5,
+        "minSizey": 6,
         "$$hashKey": "object:36",
         "selected": true,
         "bindings": {
@@ -348,6 +348,29 @@
         },
         "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
         "row": 0,
+        "col": 0
+    },
+    {
+        "name": "StackedTimeline",
+        "type": "stackedTimeline",
+        "icon": "Timeline64",
+        "sizex": 11,
+        "sizey": 5,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 6,
+        "minSizey": 6,
+        "$$hashKey": "object:38",
+        "selected": true,
+        "bindings": {
+        "title": "Issue Type Volume over Time",
+        "database": "ebola_data",
+        "table": "record",
+        "dateField": "loreleiJSONMapping.status.createdAt",
+        "granularity": "day",
+        "groupField": "loreleiJSONMapping.type"
+        },
+        "row": 1,
         "col": 0
     },
     {

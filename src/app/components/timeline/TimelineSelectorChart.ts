@@ -499,7 +499,6 @@ export class TimelineSelectorChart {
             maxY = maxY ? maxY : MIN_VALUE;
 
 
-            console.log(heightContext);
             let yContext = this.data.logarithmic ?
                 d3.scale.log().clamp(true).range([heightContext, 0]) : d3.scale.linear().range([heightContext, 0]);
 

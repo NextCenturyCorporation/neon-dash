@@ -55,6 +55,7 @@ export class TimelineData {
     public bucketizer: Bucketizer = null;
     public extent: Date[] = [];
     public granularity: string = 'day';
+    public groupField: string = null;
     public focusGranularityDifferent: boolean = false;
 }
 
@@ -354,7 +355,8 @@ export class StackedTimelineSelectorChart {
         let xCenterOffset = this.width/44;// TODO This is a hack.
 
         // Append our chart graphics
-        this.svg = d3.select(this.element.nativeElement).attr('class', 'timeline-selector-chart')
+        this.svg = d3.select(this.element.nativeElement)
+            .attr('class', 'timeline-selector-chart')
             .append('svg')
             .attr('height', svgHeight + (2 * DEFAULT_MARGIN))
             .attr('width', this.width + (2 * DEFAULT_MARGIN));
