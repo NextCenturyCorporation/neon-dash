@@ -17,6 +17,7 @@ import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import { ThemesService } from '../../services/themes.service';
+import { VisualizationService } from '../../services/visualization.service';
 
 @Component({
     selector: "app-document-viewer",
@@ -44,8 +45,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
+        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -73,6 +74,17 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     subNgOnDestroy() {
 
+    }
+
+    subGetBindings(bindings) {
+        // TODO
+    }
+
+    getExportFields() {
+        let fields = [{
+            columnName: this.active.dataField.columnName,
+            prettyName: this.active.dataField.prettyName
+        }]
     }
 
     getOptionFromConfig(field) {
@@ -159,14 +171,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     handleFiltersChangedEvent() {
 
-    }
-
-    getExportData() {
-
-    }
-  
-    getExportFields(){
-      
     }
 
     removeFilter(value) {
