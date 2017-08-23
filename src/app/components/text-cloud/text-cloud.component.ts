@@ -19,6 +19,7 @@ import { neonMappings } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
+import {VisualizationService} from '../../services/visualization.service';
 
 @Component({
     selector: 'app-text-cloud',
@@ -55,8 +56,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
+        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
+                visualizationService: VisualizationService) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -94,6 +96,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     subNgOnDestroy() {
         //Do nothing
     };
+
+    subGetBindings(bindings: any) {
+        // TODO
+    }
 
     getExportFields() {
         let fields = [{

@@ -19,6 +19,7 @@ import { ColorSchemeService } from '../../services/color-scheme.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {VisualizationService} from '../../services/visualization.service';
 
 function webgl_support(): any {
     try {
@@ -47,6 +48,7 @@ describe('Component: Map', () => {
                 ExportService,
                 TranslationService,
                 ErrorNotificationService,
+                VisualizationService,
                 ThemesService,
                 Injector,
                 ColorSchemeService,

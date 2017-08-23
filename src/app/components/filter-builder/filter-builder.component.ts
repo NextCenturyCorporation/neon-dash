@@ -17,6 +17,7 @@ import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
 import * as neon from 'neon-framework';
 //import * as _ from 'lodash';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
+import {VisualizationService} from '../../services/visualization.service';
 
 
 @Component({
@@ -43,8 +44,9 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
+        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
+                visualizationService: VisualizationService) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -94,6 +96,10 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     onUpdateFields() {
         //TODO pull in filters from previous filter builder??  maybe?
     };
+
+    subGetBindings(bindings: any) {
+        // TODO
+    }
 
     addBlankWhereClause() {
         let field = (this.meta.fields.length >= 0 ? this.meta.fields[0] : null);

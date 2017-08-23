@@ -13,6 +13,8 @@ import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
 //import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import {VisualizationService} from '../../services/visualization.service';
+import * as uuid from 'node-uuid';
 
 
 
@@ -20,6 +22,7 @@ import * as _ from 'lodash';
 export abstract class BaseLayeredNeonComponent implements OnInit,
     OnDestroy {
 
+    protected stateId: string;
     protected queryTitle: string;
     protected messenger: neon.eventing.Messenger;
     protected outstandingDataQueriesByLayer: any[];
@@ -52,13 +55,15 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         private exportService: ExportService,
         protected injector: Injector,
         public themesService: ThemesService,
-        public changeDetection: ChangeDetectorRef) {
+        public changeDetection: ChangeDetectorRef,
+        protected visualizationService: VisualizationService) {
         //These assignments just eliminated unused warnings that occur even though the arguments are
         //automatically assigned to instance variables.
         this.exportService = this.exportService;
         this.filterService = this.filterService;
         this.connectionService = this.connectionService;
         this.injector = this.injector;
+        this.visualizationService = this.visualizationService;
         this.themesService = themesService;
         this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
@@ -69,6 +74,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         };
         this.isExportable = true;
         this.doExport = this.doExport.bind(this);
+        this.getBindings = this.getBindings.bind(this);
+        this.stateId = uuid.v4();
     };
 
     ngOnInit() {
@@ -96,6 +103,28 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     abstract getExportFields(layerIndex: number);
     abstract subAddEmptyLayer();
     abstract subRemoveLayer(index: number);
+
+    /**
+     * Add any fields needed to restore the state to the bindings parameter
+     * @param bindings
+     */
+    abstract subGetBindings(bindings: any);
+
+    /**
+     * Function to get any bindings needed to re-create the visualization
+     * @return {any}
+     */
+    getBindings(): any {
+        let bindings = {
+            title: this.createTitle()
+        };
+        // TODO - What to add here?
+
+        // Get the bindings from the subclass
+        this.subGetBindings(bindings);
+
+        return bindings;
+    }
 
     addEmptyLayer() {
         let layer = {

@@ -1,3 +1,5 @@
+import {VisualizationService} from '../../services/visualization.service';
+
 declare var Cesium: any;
 import {
     Component,
@@ -122,8 +124,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
-        colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
+        colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
         (<any>window).CESIUM_BASE_URL = '/assets/Cesium';
         this.colorSchemeService = colorSchemeSrv;
         this.FIELD_ID = '_id';
@@ -199,6 +201,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
         // Update the map
         this.handleChangeLimit();
+    }
+
+    subGetBindings(bindings: any) {
+        // TODO
     }
 
     ngAfterViewInit() {

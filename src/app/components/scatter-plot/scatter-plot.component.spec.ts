@@ -21,6 +21,7 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {VisualizationService} from '../../services/visualization.service';
 
 describe('Component: ScatterPlot', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -41,6 +42,7 @@ describe('Component: ScatterPlot', () => {
         ExportService,
         TranslationService,
         ErrorNotificationService,
+        VisualizationService,
         ThemesService,
         ColorSchemeService,
         Injector,

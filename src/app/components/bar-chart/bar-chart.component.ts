@@ -19,6 +19,7 @@ import * as neon from 'neon-framework';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 // import {ChartModule} from 'angular2-chartjs';
 import {ChartComponent} from 'angular2-chartjs';
+import {VisualizationService} from '../../services/visualization.service';
 
 declare var Chart: any;
 
@@ -76,8 +77,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref);
+        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
+                visualizationService: VisualizationService) {
+        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -163,6 +165,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     subNgOnDestroy() {
         this.chartModule['chart'].destroy();
     };
+
+    subGetBindings(bindings: any) {
+        // TODO
+    }
 
     getExportFields() {
         let valuePrettyName = this.active.aggregation +

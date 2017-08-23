@@ -608,7 +608,7 @@ export class FilterService {
             let attrs = [];
 
             _.each(relation['fields'], field =>
-                attrs.push(field.related[0])
+                attrs.push((field as any).related[0])
             );
 
             keys = keys.concat(this.getFilters(relation['database'], relation['table'], attrs).map(filter => filter.id));
