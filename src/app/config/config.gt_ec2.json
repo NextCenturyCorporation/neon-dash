@@ -1,44 +1,6 @@
 {
 "datasets": [
-    
-    {
-    "name": "Ground Truth",
-    "connectOnLoad": false,
-    "layout": "groundtruth-layout",
-    "datastore": "elasticsearch",
-    "hostname": "localhost",
-    "databases": [
-        {
-        "name": "ldc_uyghur",
-        "prettyName": "Ground Truth",
-        "tables": [
-            {
-            "name": "ui_output",
-            "prettyName": "UI Output",
-            "mappings": {
-                "date": "createdAt",
-                "latitude": "geolocations.latitude",
-                "longitude": "geolocations.longitude"
-            }
-            }
-        ]
-        }
-    ],
-    "options": {
-        "checkForCoordinateValidation": "null_values",
-        "colorMaps": {
-        "groundtruth": {
-            "ui_output": {
-            "entities.mention_type": {
-                "LOC": "#98DF8A",
-                "ORG": "#FF9896",
-                "PER": "#AEC7E8"
-            }
-            }
-        }
-        }
-    }
-    },
+ 
         {
     "name": "LDC Uyghur Annotations",
     "connectOnLoad": true,
@@ -65,12 +27,14 @@
     "options": {
         "checkForCoordinateValidation": "null_values",
         "colorMaps": {
-        "groundtruth": {
+        "ldc_uyghur": {
             "ui_output": {
-            "entities.mention_type": {
+            "entities.entityType": {
                 "LOC": "#98DF8A",
                 "ORG": "#FF9896",
                 "PER": "#AEC7E8"
+            },
+            "types": {
             }
             }
         }
@@ -84,8 +48,8 @@
             "name": "Document Viewer",
             "type": "documentViewer",
             "icon": "DocumentViewer64",
-            "sizex": 6,
-            "sizey": 6,
+            "sizex": 15,
+            "sizey": 12,
             "minPixelx": 320,
             "minPixely": 240,
             "$hashKey": "object:37",
@@ -104,7 +68,7 @@
                         },
                         {
                             "name": "Topic",
-                            "field": "type"
+                            "field": "topics"
                         }
                     ],
                     [
@@ -143,7 +107,7 @@
         "name": "Event Locations",
         "type": "map",
         "icon": "Map64",
-        "sizex": 6,
+        "sizex": 9,
         "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
@@ -191,7 +155,7 @@
         },
         "id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
         "row": 0,
-        "col": 12
+        "col": 16
     },
     
     
@@ -199,8 +163,8 @@
         "name": "Timeline",
         "type": "timeline",
         "icon": "Timeline64",
-        "sizex": 11,
-        "sizey": 5,
+        "sizex": 9,
+        "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
         "minSizex": 6,
@@ -209,21 +173,21 @@
         "selected": true,
         "bindings": {
         "title": "Message Volume over Time",
-        "database": "groundtruth",
+        "database": "ldc_uyghur",
         "table": "ui_output",
         "dateField": "createdAt",
-        "granularity": "day"
+        "granularity": "month"
         },
         "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-        "row": 0,
-        "col": 0
+        "row": 6,
+        "col": 16
     },
     {
         "name": "Bar Chart",
-        "type": "bar-chart",
+        "type": "barChart",
         "icon": "BarChart64",
-        "sizex": 11,
-        "sizey": 5,
+        "sizex": 6,
+        "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
         "minSizex": 6,
@@ -239,7 +203,7 @@
 		"aggregationField": ""
         },
         "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-        "row": 0,
+        "row": 17,
         "col": 0
     },
    
@@ -248,7 +212,7 @@
         "type": "textCloud",
         "icon": "TagCloud64",
         "sizex": 6,
-        "sizey": 5,
+        "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
         "minSizex": 6,
@@ -259,237 +223,75 @@
         "title": "People",
         "database": "ldc_uyghur",
         "table": "ui_output",
-        "dataField": "entities.originalText",
-        "unsharedFilterField": "entities.entity_type",
-        "unsharedFilterValue": "LOC",
-        "groupField": "loreleiJSONMapping.rpiInformationExtraction.fixed_entities.mention_head"
+        "dataField": "entities.transliteration",
+        "unsharedFilterField": "entities.entityType",
+        "unsharedFilterValue": "PER",
+        "groupField": "entities.transliteration"
         },
         "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-        "row": 8,
-        "col": 12
+        "row": 17,
+        "col": 7
     },
-        {
-        "name": "Text Cloud",
-        "type": "textCloud",
-        "icon": "TagCloud64",
-        "sizex": 6,
-        "sizey": 5,
-        "minPixelx": 320,
-        "minPixely": 240,
-        "minSizex": 6,
-        "minSizey": 5,
-        "$$hashKey": "object:35",
-        "selected": true,
-        "bindings": {
-        "title": "Transliterated Entities",
-        "database": "groundtruth",
-        "table": "ui_output",
-        "dataField": "entities.transliteration"
-        },
-        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-        "row": 8,
-        "col": 12
-    }
-
-
-    
-    ],
-    
-    "groundtruth-layout": [
-    {
-        "name": "Timeline",
-        "type": "timeline",
-        "icon": "Timeline64",
-        "sizex": 11,
-        "sizey": 5,
-        "minPixelx": 320,
-        "minPixely": 240,
-        "minSizex": 6,
-        "minSizey": 5,
-        "$$hashKey": "object:36",
-        "selected": true,
-        "bindings": {
-        "title": "Message Volume over Time",
-        "database": "groundtruth",
-        "table": "ui_output",
-        "dateField": "createdAt",
-        "granularity": "day"
-        },
-        "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-        "row": 0,
-        "col": 0
-    },
-
-    {
-        "name": "Data Table",
-        "type": "dataTable",
-        "icon": "ViewData64",
-        "sizex": 11,
-        "sizey": 5,
-        "minPixelx": 320,
-        "minPixely": 240,
-        "minSizex": 6,
-        "minSizey": 5,
-        "$$hashKey": "object:24",
-        "selected": true,
-        "bindings": {
-        "title": "Raw Ground Truth Data",
-        "database": "groundtruth",
-        "table": "ui_output",
-        "sortDirection": 1,
-        "limit": 100
-        },
-        "id": "6422b24f-540b-4cea-bfd6-82b2533be010",
-        "row": 21,
-        "col": 0
-    },
+   
     {
         "name": "Text Cloud",
         "type": "textCloud",
         "icon": "TagCloud64",
         "sizex": 6,
-        "sizey": 5,
-        "minPixelx": 320,
-        "minPixely": 240,
-        "minSizex": 6,
-        "minSizey": 5,
-        "$$hashKey": "object:35",
-        "selected": true,
-        "bindings": {
-        "title": "Popular Entities",
-        "database": "groundtruth",
-        "table": "ui_output",
-        "dataField": "entities.originalText"
-        },
-        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-        "row": 8,
-        "col": 12
-    },
-        {
-        "name": "Text Cloud",
-        "type": "textCloud",
-        "icon": "TagCloud64",
-        "sizex": 6,
-        "sizey": 5,
-        "minPixelx": 320,
-        "minPixely": 240,
-        "minSizex": 6,
-        "minSizey": 5,
-        "$$hashKey": "object:35",
-        "selected": true,
-        "bindings": {
-        "title": "Transliterated Entities",
-        "database": "groundtruth",
-        "table": "ui_output",
-        "dataField": "entities.transliteration"
-        },
-        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-        "row": 8,
-        "col": 12
-    },
-    {
-        "name": "Newsfeed",
-        "type": "newsFeed",
-        "icon": "News64",
-        "sizex": 12,
-        "sizey": 5,
-        "minPixelx": 320,
-        "minPixely": 240,
-        "minSizex": 6,
-        "minSizey": 5,
-        "$$hashKey": "object:31",
-        "selected": true,
-        "bindings": {
-        "title": "Documents",
-        "database": "groundtruth",
-        "table": "ui_output",
-        "dateField": "createdAt",
-        "contentField": "originalText",
-        "feedType": "NEWS"
-        },
-        "id": "31f13787-13b4-45a6-a8d6-3ecac2f43a04",
-        "row": 5,
-        "col": 0
-    },
-
-    {
-        "minPixelx": 480,
-        "name": "Create Custom Filters",
-        "type": "filterBuilder",
-        "icon": "CreateFilter64",
-        "sizex": 12,
-        "sizey": 5,
-        "minPixely": 240,
-        "minSize": 9,
-        "minSizey": 5,
-        "$$hashKey": "object:26",
-        "selected": true,
-        "id": "10384891-dc1a-4d73-87b9-332e8d03b116",
-        "row": 19,
-        "col": 12
-    },
-    {
-        "name": "Aggregation Table",
-        "type": "aggregationTable",
-        "icon": "Count64",
-        "sizex": 6,
-        "sizey": 5,
-        "minPixelx": 320,
-        "minPixely": 240,
-        "minSizex": 6,
-        "minSizey": 5,
-        "$$hashKey": "object:21",
-        "selected": true,
-        "bindings": {
-        "title": "Situation Type Counts",
-        "database": "groundtruth",
-        "table": "ui_output",
-        "aggregationType": "count",
-        "groupField": "topics",
-        "limit": 100
-        },
-        "id": "e489ed1e-c5b5-4194-849a-6baa70bec15d",
-        "row": 10,
-        "col": 0
-    },
-    {
-        "name": "Line Chart",
-        "type": "lineChart",
-        "icon": "LineChart64",
-        "sizex": 12,
         "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
         "minSizex": 6,
         "minSizey": 5,
-        "$$hashKey": "object:28",
+        "$$hashKey": "object:35",
         "selected": true,
         "bindings": {
-        "title": "Document Volume by Sentiment",
-        "config": [
-            {
-            "database": "groundtruth",
-            "filterable": true,
-            "name": "Documents",
-            "show": true,
-            "table": "ui_output",
-            "aggregationType": "count",
-            "dateField": "createdAt",
-            "aggregationField": "",
-            "groupField": "sentimentString"
-            }
-        ],
-        "granularity": "day"
+        "title": "Organizations",
+        "database": "ldc_uyghur",
+        "table": "ui_output",
+        "dataField": "entities.transliteration",
+        "unsharedFilterField": "entities.entityType",
+        "unsharedFilterValue": "ORG",
+        "groupField": "entities.transliteration"
         },
-        "id": "b6590b1e-4374-459e-864a-d3453590660c",
-        "row": 13,
-        "col": 12
+        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+        "row": 17,
+        "col": 13
+    },
+   
+    {
+        "name": "Text Cloud",
+        "type": "textCloud",
+        "icon": "TagCloud64",
+        "sizex": 6,
+        "sizey": 6,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 6,
+        "minSizey": 5,
+        "$$hashKey": "object:35",
+        "selected": true,
+        "bindings": {
+        "title": "GeoPolitical Entities",
+        "database": "ldc_uyghur",
+        "table": "ui_output",
+        "dataField": "entities.transliteration",
+        "unsharedFilterField": "entities.entityType",
+        "unsharedFilterValue": "GPE",
+        "groupField": "entities.transliteration"
+        },
+        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+        "row": 17,
+        "col": 19
     }
+
+
+    
     ]
 },
 "legends": {
     
-        "groundtruth": {
+        "ldc_uyghur": {
     "ui_output": [
         {
         "label": "Text",
@@ -499,25 +301,25 @@
         },
         "items": [
             {
-            "label": "evacuation",
+            "label": "Evacuation",
             "field": "translatedText",
             "operator": "contains",
-            "value": "evacuation"
+            "value": "evac"
             },
             {
-            "label": "food",
+            "label": "Food",
             "field": "translatedText",
             "operator": "contains",
             "value": "food"
             },
             {
-            "label": "rescue",
+            "label": "Rescue",
             "field": "translatedText",
             "operator": "contains",
             "value": "rescue"
             },
             {
-            "label": "water",
+            "label": "Water",
             "field": "translatedText",
             "operator": "contains",
             "value": "water"
@@ -549,25 +351,25 @@
             "label": "Food",
             "field": "topics",
             "operator": "contains",
-            "value": "Food"
+            "value": "food"
             },
             {
             "label": "Infrastructure",
             "field": "topics",
             "operator": "contains",
-            "value": "Infrastructure"
+            "value": "infra"
             },
             {
             "label": "Medical",
             "field": "topics",
             "operator": "contains",
-            "value": "Medical"
+            "value": "med"
             },
             {
             "label": "Rescue",
             "field": "topics",
             "operator": "contains",
-            "value": "Rescue"
+            "value": "rescue"
             },
             {
             "label": "Sanitation",
@@ -579,25 +381,25 @@
             "label": "Search",
             "field": "topics",
             "operator": "contains",
-            "value": "Search"
+            "value": "search"
             },
             {
             "label": "Shelter",
             "field": "topics",
             "operator": "contains",
-            "value": "Shelter"
+            "value": "shelter"
             },
             {
             "label": "Utilities",
             "field": "topics",
             "operator": "contains",
-            "value": "Utilities"
+            "value": "utils"
             },
             {
             "label": "Water",
             "field": "topics",
             "operator": "contains",
-            "value": "Water"
+            "value": "water"
             }
         ]
         },
@@ -641,22 +443,22 @@
         "items": [
             {
             "label": "Person",
-            "field": "entities.entity_type",
+            "field": "entities.entityType",
             "value": "PER"
             },
             {
             "label": "Organization",
-            "field": "entities.entity_type",
+            "field": "entities.entityType",
             "value": "ORG"
             },
             {
             "label": "Location",
-            "field": "entities.entity_type",
+            "field": "entities.entityType",
             "value": "LOC"
             },
             {
             "label": "Geopolitical Entity",
-            "field": "entities.entity_type",
+            "field": "entities.entityType",
             "value": "GPE"
             }
         ]

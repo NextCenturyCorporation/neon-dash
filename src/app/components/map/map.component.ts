@@ -213,7 +213,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         //  3D Map and Columbus view.
         //  Rotating 2D map
         // These were mostly done to prevent the more complex problem of drawing on a 3D map.
-
+        // Had to add a new default key- as Bing Maps only allows local build access to their maps without a key
+		Cesium.BingMapsApi.defaultKey = 'AqVj08xViDCxPPK2T23kTcfNdq-M6rdFmttIIw7nUxD8KunoX-Qmhcb9zpiFn7f3';
         this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
             sceneMode: Cesium.SceneMode.SCENE2D,
             imageryProviderViewModels: imagerySources,
