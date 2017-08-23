@@ -13,7 +13,8 @@ import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
 //import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-
+import {VisualizationService} from '../../services/visualization.service';
+import * as uuid from 'node-uuid';
 
 
 
@@ -23,6 +24,7 @@ export abstract class BaseNeonComponent implements OnInit,
     protected queryTitle: string;
     protected messenger: neon.eventing.Messenger;
     protected outstandingDataQuery: any;
+    protected stateId: string;
 
     protected initializing: boolean;
 
@@ -50,13 +52,15 @@ export abstract class BaseNeonComponent implements OnInit,
         private exportService: ExportService,
         protected injector: Injector,
         public themesService: ThemesService,
-        public changeDetection: ChangeDetectorRef) {
+        public changeDetection: ChangeDetectorRef,
+        protected visualizationService: VisualizationService) {
         //These assignments just eliminated unused warnings that occur even though the arguments are
         //automatically assigned to instance variables.
         this.exportService = this.exportService;
         this.filterService = this.filterService;
         this.connectionService = this.connectionService;
         this.injector = this.injector;
+        this.visualizationService = this.visualizationService;
         this.themesService = themesService;
         this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
@@ -72,12 +76,16 @@ export abstract class BaseNeonComponent implements OnInit,
         };
         this.isExportable = true;
         this.doExport = this.doExport.bind(this);
+        this.getBindings = this.getBindings.bind(this);
+        // Let the ID be a UUID
+        this.stateId = uuid.v4();
     };
 
     ngOnInit() {
         this.initializing = true;
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
+        this.visualizationService.register(this.stateId, this.getBindings);
 
         this.outstandingDataQuery = {};
         for (let database of this.datasetService.getDatabases()) {
@@ -96,6 +104,28 @@ export abstract class BaseNeonComponent implements OnInit,
     abstract subNgOnDestroy();
     abstract getOptionFromConfig(option: string);
     abstract getExportFields();
+
+    /**
+     * Add any fields needed to restore the state to the bindings parameter
+     * @param bindings
+     */
+    abstract subGetBindings(bindings: any);
+
+    /**
+     * Function to get any bindings needed to re-create the visualization
+     * @return {any}
+     */
+    getBindings(): any {
+        let bindings = {
+            title: this.createTitle()
+        };
+        // TODO - What to add here?
+
+        // Get the bindings from the subclass
+        this.subGetBindings(bindings);
+
+        return bindings;
+    }
 
     export() {
         //TODO this function needs to be changed  to abstract once we get through all the visualizations.
@@ -156,6 +186,7 @@ export abstract class BaseNeonComponent implements OnInit,
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
+        this.visualizationService.unregister(this.stateId);
         /* $scope.element.off('resize', resize);
         $scope.element.find('.headers-container').off('resize', resizeDisplay);
         $scope.element.find('.options-menu-button').off('resize', resizeTitle);

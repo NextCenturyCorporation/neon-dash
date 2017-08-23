@@ -237,7 +237,7 @@ export class TranslationService {
         return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.languages + '?' + params)
             .toPromise()
             .then(response => {
-                _.forEach(response['data'].data.languages, (elem) => {
+                _.forEach(response['data'].data.languages, (elem: any) => {
                     this.apis[this.chosenApi].languages[elem.language] = elem.name;
                 });
                 return this.apis[this.chosenApi].languages;
