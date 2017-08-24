@@ -92,8 +92,6 @@ function handleConfigYamlError(error) {
         console.log(error);
         showError('Error reading config.yaml: ' + error.message);
     }
-    return loadConfigJson().then(config => bootstrapWithData(config))
-        .catch(handleConfigJsonError);
 }
 
 function loadConfigFromPropertyService() {
@@ -118,8 +116,6 @@ function handleConfigPropertyServiceError(error) {
         console.log(error);
         showError('Error reading Property Service config: ' + error.message);
     }
-    return loadConfigYaml().then(config => bootstrapWithData(config))
-        .catch(handleConfigYamlError);
 }
 
 function loadConfigYaml() {
@@ -165,6 +161,13 @@ function showError(error) {
 
 neon.ready(function() {
   neon.setNeonServerUrl('../neon');
-  loadConfigFromPropertyService().then(config => bootstrapWithData(config))
-    .catch(handleConfigPropertyServiceError);
+  let config;
+  config = loadConfigYaml().catch(handleConfigYamlError);
+  if(!config) {
+    config = loadConfigJson().catch(handleConfigJsonError);
+  }
+  if(!config) {
+    config = loadConfigFromPropertyService().catch(handleConfigPropertyServiceError);
+  }
+  bootstrapWithData(config);
 });
