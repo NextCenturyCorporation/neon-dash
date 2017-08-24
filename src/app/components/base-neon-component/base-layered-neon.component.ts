@@ -22,7 +22,7 @@ import * as uuid from 'node-uuid';
 export abstract class BaseLayeredNeonComponent implements OnInit,
     OnDestroy {
 
-    protected stateId: string;
+    public id: string;
     protected queryTitle: string;
     protected messenger: neon.eventing.Messenger;
     protected outstandingDataQueriesByLayer: any[];
@@ -75,7 +75,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.isExportable = true;
         this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
-        this.stateId = uuid.v4();
+        this.id = uuid.v4();
     };
 
     ngOnInit() {
@@ -87,7 +87,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.initData();
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
-
+        this.visualizationService.registerBindings(this.id, this.getBindings);
 
 
         this.subNgOnInit();

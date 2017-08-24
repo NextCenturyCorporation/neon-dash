@@ -19,6 +19,7 @@ import { FilterBuilderComponent } from '../filter-builder/filter-builder.compone
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
 import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
+import {VisualizationService} from '../../services/visualization.service';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -49,8 +50,9 @@ describe('Component: VisualizationInjector', () => {
         });
     });
 
-    it('should create an instance', inject([ComponentFactoryResolver], (resolver: ComponentFactoryResolver) => {
-        let component = new VisualizationInjectorComponent(resolver);
+    it('should create an instance', inject([ComponentFactoryResolver],
+        (resolver: ComponentFactoryResolver) => {
+        let component = new VisualizationInjectorComponent(resolver, new VisualizationService());
         expect(component).toBeTruthy();
     }));
 });

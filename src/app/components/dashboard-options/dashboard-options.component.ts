@@ -98,9 +98,7 @@ export class DashboardOptionsComponent implements OnInit {
             return;
         }
         // TODO: Enable once the visualization service has been migrated
-        let stateParams: any = {
-            dashboard: []
-        };
+        let stateParams: any = {};
 
         if (name) {
             stateParams.stateName = name;
@@ -112,13 +110,7 @@ export class DashboardOptionsComponent implements OnInit {
             this.datasetService.setMapLayers([{}]);
 
             // Get each visualization's bindings and save them to our dashboard state parameter
-            this.visualizationService.getWidgets().forEach((widget) => {
-                let bindings = widget.getBindings();
-                stateParams.dashboard.push({
-                    id: widget.id,
-                    bindings: _.cloneDeep(bindings)
-                });
-            });
+            stateParams.dashboard = this.visualizationService.getWidgets();
 
             // Get each visualization's bindings and save them to our dashboard state parameter
             // this.visualizationService.getWidgets().forEach(function(widget) {
@@ -163,6 +155,8 @@ export class DashboardOptionsComponent implements OnInit {
                 stateName: name
             };
             connection.loadState(stateParams, (dashboardState) => {
+                console.log('Loaded state:');
+                console.log(dashboardState);
                 if (_.keys(dashboardState).length) {
                     let searchParams: URLSearchParams = new URLSearchParams();
                     dashboardState.dashboardStateId = searchParams.get('dashboard_state_id');

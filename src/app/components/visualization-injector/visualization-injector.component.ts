@@ -9,6 +9,7 @@ import { MapComponent } from '../map/map.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { NeonGridItem } from '../../neon-grid-item';
+import {VisualizationService} from '../../services/visualization.service';
 
 @Component({
     selector: 'app-visualization-injector',
@@ -51,14 +52,25 @@ export class VisualizationInjectorComponent {
             // We create the component using the factory and the injector
             let component = factory.create(injector);
 
+            console.log('COMPONENT');
+            console.log(component);
+
             // We insert the component into the dom container
             this.dynamicComponentContainer.insert(component.hostView);
 
             this.currentComponent = component;
+
+            // Try and get the ID of the child component
+            let c: any = component;
+            if (c._component && c._component.id) {
+                let id = c._component.id;
+                console.log('Found ID ' + id);
+                this.visualizationService.registerGridData(id, data);
+            }
         }
     }
 
-    constructor(private resolver: ComponentFactoryResolver) { }
+    constructor(private resolver: ComponentFactoryResolver, private visualizationService: VisualizationService) { }
 
     getComponent(type: string): any {
         switch (type) {

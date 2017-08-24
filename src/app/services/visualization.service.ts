@@ -16,6 +16,7 @@
 import { Injectable } from '@angular/core';
 
 import * as _ from 'lodash';
+import {NeonGridItem} from '../neon-grid-item';
 
 /**
  * Basic information about a visualization
@@ -24,6 +25,7 @@ export interface VisualizationAdapter {
     id: string;
     // Function to get the bindings for a visualization
     getBindings: () => any;
+    gridData: NeonGridItem;
 }
 
 /**
@@ -46,12 +48,44 @@ export class VisualizationService {
      * @param {String} visualizationId The unique id for the visualization.
      * @param {Function} bundleFunction The function to register.
      */
-    register(visualizationId: string, bundleFunction: () => any) {
+    registerBindings(visualizationId: string, bundleFunction: () => any) {
+        let widget = _.find(this.widgets, (item) => {
+            return item.id === visualizationId;
+        });
+
+        // If the widget was found, add the binding function
+        if (widget) {
+            widget.getBindings = bundleFunction;
+        } else {
         this.widgets.push({
             id: visualizationId,
-            getBindings: bundleFunction
+                getBindings: bundleFunction,
+                gridData: null
         });
+        }
     };
+
+    /**
+     * Register the grid data for a visualization
+     * @param {string} visualizationId
+     * @param {NeonGridItem} gridData
+     */
+    registerGridData(visualizationId: string, gridData: NeonGridItem) {
+        let widget = _.find(this.widgets, (item) => {
+            return item.id === visualizationId;
+        });
+
+        // If the widget was found, add the binding function
+        if (widget) {
+            widget.gridData = gridData;
+        } else {
+            this.widgets.push({
+                id: visualizationId,
+                getBindings: null,
+                gridData: gridData
+            });
+        }
+    }
 
     /**
      * Unregisters a function with the given ID from this service. Should be called by visualization widgets upon being destroyed.
@@ -61,7 +95,10 @@ export class VisualizationService {
         let index: number = _.findIndex(this.widgets, {
             id: visualizationId
         });
+
+        if (index >= 0) {
         this.widgets.splice(index, 1);
+        }
     };
 
     /**
@@ -69,7 +106,18 @@ export class VisualizationService {
      * be used for bulk operations.
      * @return {Array} The list of objects subscribed to this service.
      */
-    getWidgets(): VisualizationAdapter[] {
-        return this.widgets;
+    getWidgets(): NeonGridItem[] {
+        let widgetList: NeonGridItem[] = [];
+
+        // Build the list of widgets
+        for (let item of this.widgets) {
+            // Clone everything
+            let gridItem: NeonGridItem = _.cloneDeep(item.gridData);
+            // Re-build the bindings
+            gridItem.bindings = item.getBindings();
+            widgetList.push(gridItem);
+        }
+
+        return widgetList;
     };
 }

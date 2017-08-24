@@ -22,6 +22,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
 import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
+import {VisualizationService} from '../../services/visualization.service';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -47,6 +48,7 @@ describe('Component: VisualizationContainer', () => {
             ],
             providers: [
                 ActiveGridService,
+                VisualizationService,
                 { provide: 'config', useValue: testConfig }
             ],
             imports: [

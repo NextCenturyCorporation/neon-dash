@@ -21,10 +21,10 @@ import * as uuid from 'node-uuid';
 export abstract class BaseNeonComponent implements OnInit,
     OnDestroy {
 
+    public id: string;
     protected queryTitle: string;
     protected messenger: neon.eventing.Messenger;
     protected outstandingDataQuery: any;
-    protected stateId: string;
 
     protected initializing: boolean;
 
@@ -78,14 +78,14 @@ export abstract class BaseNeonComponent implements OnInit,
         this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
         // Let the ID be a UUID
-        this.stateId = uuid.v4();
+        this.id = uuid.v4();
     };
 
     ngOnInit() {
         this.initializing = true;
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
-        this.visualizationService.register(this.stateId, this.getBindings);
+        this.visualizationService.registerBindings(this.id, this.getBindings);
 
         this.outstandingDataQuery = {};
         for (let database of this.datasetService.getDatabases()) {
@@ -186,7 +186,7 @@ export abstract class BaseNeonComponent implements OnInit,
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
-        this.visualizationService.unregister(this.stateId);
+        this.visualizationService.unregister(this.id);
         /* $scope.element.off('resize', resize);
         $scope.element.find('.headers-container').off('resize', resizeDisplay);
         $scope.element.find('.options-menu-button').off('resize', resizeTitle);
