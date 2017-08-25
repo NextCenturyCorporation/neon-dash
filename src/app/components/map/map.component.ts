@@ -126,7 +126,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
-        (<any>window).CESIUM_BASE_URL = '/assets/Cesium';
+        (<any>window).CESIUM_BASE_URL = 'assets/Cesium';
         this.colorSchemeService = colorSchemeSrv;
         this.FIELD_ID = '_id';
         this.optionsFromConfig = {
@@ -208,6 +208,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     ngAfterViewInit() {
+        var version = Cesium.VERSION;
+        console.log('Version is ' + version);
         let imagerySources = Cesium.createDefaultImageryProviderViewModels();
         // In order to get a minimal viable product in the short time span we have, we decided to disable the following Cesium features:
         //  3D Map and Columbus view.
