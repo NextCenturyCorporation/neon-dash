@@ -162,12 +162,11 @@ function showError(error) {
 neon.ready(function() {
   neon.setNeonServerUrl('../neon');
   let config;
-  config = loadConfigYaml().catch(handleConfigYamlError);
-  if(!config) {
-    config = loadConfigJson().catch(handleConfigJsonError);
-  }
-  if(!config) {
-    config = loadConfigFromPropertyService().catch(handleConfigPropertyServiceError);
-  }
-  bootstrapWithData(config);
+  config = loadConfigYaml().then(config => bootstrapWithData(config), function(error) {
+    handleConfigYamlError(error);
+    loadConfigJson().then(config => bootstrapWithData(config), function(error) {
+      handleConfigJsonError(error);
+      loadConfigFromPropertyService().then(config => bootstrapWithData(config), error => handleConfigPropertyServiceError);
+    })
+  });
 });
