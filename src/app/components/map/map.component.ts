@@ -204,7 +204,18 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     subGetBindings(bindings: any) {
-        // TODO
+        // The map layers objects are different, clear out the old stuff;
+        bindings.layers = [];
+        for (let layer of this.active.layers) {
+            bindings.layers.push({
+                title: layer.title,
+                latitudeField: layer.latitudeField.columnName,
+                longitudeField: layer.longitudeField.columnName,
+                sizeField: layer.sizeField.columnName,
+                colorField: layer.colorField.columnName,
+                dateField: layer.dateField.columnName
+            });
+        }
     }
 
     ngAfterViewInit() {
