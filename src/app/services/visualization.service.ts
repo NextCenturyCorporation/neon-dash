@@ -113,6 +113,13 @@ export class VisualizationService {
         for (let item of this.widgets) {
             // Clone everything
             let gridItem: NeonGridItem = _.cloneDeep(item.gridData);
+            // Move the row/col/sizes up to the root
+            let gridConfig = gridItem.gridConfig;
+            gridItem.sizex = gridConfig.sizex;
+            gridItem.sizey = gridConfig.sizey;
+            gridItem.row = gridConfig.row;
+            gridItem.col = gridConfig.col;
+
             // Re-build the bindings
             gridItem.bindings = item.getBindings();
             widgetList.push(gridItem);
