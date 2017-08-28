@@ -209,7 +209,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     ngAfterViewInit() {
         var version = Cesium.VERSION;
-        console.log('Version is ' + version);
+        //console.log('Cesium Version is ' + version);
         let imagerySources = Cesium.createDefaultImageryProviderViewModels();
         // In order to get a minimal viable product in the short time span we have, we decided to disable the following Cesium features:
         //  3D Map and Columbus view.
