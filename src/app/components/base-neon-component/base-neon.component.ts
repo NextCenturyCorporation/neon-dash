@@ -10,12 +10,10 @@ import {FilterService} from '../../services/filter.service';
 import {ExportService} from '../../services/export.service';
 import {ThemesService} from '../../services/themes.service';
 import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
-//import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import {VisualizationService} from '../../services/visualization.service';
 import * as uuid from 'node-uuid';
-
 
 
 export abstract class BaseNeonComponent implements OnInit,
@@ -107,6 +105,7 @@ export abstract class BaseNeonComponent implements OnInit,
 
     /**
      * Add any fields needed to restore the state to the bindings parameter
+     * Note that title, database, table, and unshared filter are all handled by the base class
      * @param bindings
      */
     abstract subGetBindings(bindings: any);
@@ -117,9 +116,12 @@ export abstract class BaseNeonComponent implements OnInit,
      */
     getBindings(): any {
         let bindings = {
-            title: this.createTitle()
+            title: this.createTitle(),
+            database: this.meta.database.name,
+            table: this.meta.table.name,
+            unsharedFilterField: this.meta.unsharedFilterField.columnName,
+            unsharedFilterValue: this.meta.unsharedFilterValue
         };
-        // TODO - What to add here?
 
         // Get the bindings from the subclass
         this.subGetBindings(bindings);

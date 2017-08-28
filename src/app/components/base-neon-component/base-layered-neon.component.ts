@@ -10,7 +10,6 @@ import {FilterService} from '../../services/filter.service';
 import {ExportService} from '../../services/export.service';
 import {ThemesService} from '../../services/themes.service';
 import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
-//import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import {VisualizationService} from '../../services/visualization.service';
@@ -106,6 +105,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
 
     /**
      * Add any fields needed to restore the state to the bindings parameter
+     * Note that the base class handles the title and basic layer metadata
      * @param bindings
      */
     abstract subGetBindings(bindings: any);
@@ -116,9 +116,30 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      */
     getBindings(): any {
         let bindings = {
-            title: this.createTitle()
+            title: this.createTitle(),
+            databases: [],
+            layers: []
         };
-        // TODO - What to add here?
+        for (let database of this.meta.databases) {
+            bindings.databases.push(database.name);
+        }
+        for (let layer of this.meta.layers) {
+            let layerBindings = {
+                database: layer.database.name,
+                tables: [],
+                table: layer.table.name,
+                fields: [],
+                unsharedFilterField: layer.unsharedFilterField.columnName,
+                unsharedFilterValue: layer.unsharedFilterValue,
+            };
+            for (let field of layer.fields) {
+                layerBindings.fields.push(field.columnName);
+            }
+            for (let table of layer.tables) {
+                layerBindings.tables.push(table.name);
+            }
+            bindings.layers.push(layerBindings);
+        }
 
         // Get the bindings from the subclass
         this.subGetBindings(bindings);
@@ -215,6 +236,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
+        this.visualizationService.unregister(this.id);
         this.subNgOnDestroy();
     };
 
