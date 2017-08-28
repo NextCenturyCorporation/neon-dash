@@ -236,11 +236,12 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     };
 
     subGetBindings(bindings: any) {
-        // TODO
+        bindings.xField = this.active.xField.columnName;
+        bindings.yField = this.active.yField.columnName;
+        bindings.labelField = this.active.labelField.columnName;
     }
 
     onUpdateFields() {
-
         this.active.xField = this.findFieldObject('xField', neonMappings.TAGS);
         this.active.yField = this.findFieldObject('yField', neonMappings.TAGS);
         this.active.labelField = this.findFieldObject('labelField', neonMappings.TAGS);

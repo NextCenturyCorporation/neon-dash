@@ -126,7 +126,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
     };
 
     subGetBindings(bindings: any) {
-        // TODO
+        bindings.sortField = this.active.sortField.columnName;
+        bindings.limit = this.active.limit;
     }
 
     onUpdateFields() {
