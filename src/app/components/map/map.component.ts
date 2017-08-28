@@ -126,7 +126,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
-        (<any>window).CESIUM_BASE_URL = '/assets/Cesium';
+        (<any>window).CESIUM_BASE_URL = 'assets/Cesium';
         this.colorSchemeService = colorSchemeSrv;
         this.FIELD_ID = '_id';
         this.optionsFromConfig = {
