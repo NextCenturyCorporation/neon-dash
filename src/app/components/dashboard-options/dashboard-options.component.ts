@@ -158,9 +158,9 @@ export class DashboardOptionsComponent implements OnInit {
                 console.log('Loaded state:');
                 console.log(dashboardState);
                 if (_.keys(dashboardState).length) {
-                    let searchParams: URLSearchParams = new URLSearchParams();
-                    dashboardState.dashboardStateId = searchParams.get('dashboard_state_id');
-                    dashboardState.filterStateId = searchParams.get('filter_state_id');
+                    // let searchParams: URLSearchParams = new URLSearchParams();
+                    // dashboardState.dashboardStateId = searchParams.get('dashboard_state_id');
+                    // dashboardState.filterStateId = searchParams.get('filter_state_id');
 
                     this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
                 } else {
@@ -185,18 +185,18 @@ export class DashboardOptionsComponent implements OnInit {
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if (connection) {
             connection.deleteState(this.formData.stateToDelete, (stateIds) => {
-                let params: URLSearchParams = new URLSearchParams();
-                let dashboardStateId: string = params.get('dashboard_state_id');
-                let filterStateId: string = params.get('filter_state_id');
-                console.log('loaded ' + dashboardStateId + ' ' + filterStateId);
-
-                // Delete the state parameters if either match the IDs deleted
-                if (dashboardStateId && stateIds.dashboardStateId && dashboardStateId === stateIds.dashboardStateId)  {
-                    params.delete('dashboard_state_id');
-                }
-                if (filterStateId && stateIds.filterStateId && filterStateId === stateIds.filterStateId)  {
-                    params.delete('filter_state_id');
-                }
+                // let params: URLSearchParams = new URLSearchParams();
+                // let dashboardStateId: string = params.get('dashboard_state_id');
+                // let filterStateId: string = params.get('filter_state_id');
+                // console.log('loaded ' + dashboardStateId + ' ' + filterStateId);
+                //
+                // // Delete the state parameters if either match the IDs deleted
+                // if (dashboardStateId && stateIds.dashboardStateId && dashboardStateId === stateIds.dashboardStateId)  {
+                //     params.delete('dashboard_state_id');
+                // }
+                // if (filterStateId && stateIds.filterStateId && filterStateId === stateIds.filterStateId)  {
+                //     params.delete('filter_state_id');
+                // }
                 this.loadStateNames();
             }, (response) => {
                 this.handleStateFailure(response);
