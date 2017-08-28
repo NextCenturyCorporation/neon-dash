@@ -52,9 +52,6 @@ export class VisualizationInjectorComponent {
             // We create the component using the factory and the injector
             let component = factory.create(injector);
 
-            console.log('COMPONENT');
-            console.log(component);
-
             // We insert the component into the dom container
             this.dynamicComponentContainer.insert(component.hostView);
 
@@ -64,7 +61,6 @@ export class VisualizationInjectorComponent {
             let c: any = component;
             if (c._component && c._component.id) {
                 let id = c._component.id;
-                console.log('Found ID ' + id);
                 this.visualizationService.registerGridData(id, data);
             }
         }
