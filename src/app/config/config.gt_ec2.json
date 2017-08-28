@@ -40,6 +40,46 @@
         }
         }
     }
+    },
+         {
+    "name": "ELISA Uyghur Annotations",
+    "connectOnLoad": true,
+    "layout": "elisa_uig-layout",
+    "datastore": "elasticsearch",
+    "hostname": "localhost",
+    "databases": [
+        {
+        "name": "elisa_uyghur",
+        "prettyName": "ELISA Uyghur",
+        "tables": [
+            {
+            "name": "ui_output",
+            "prettyName": "UI Output",
+            "mappings": {
+                "date": "createdAt",
+                "latitude": "geolocations.latitude",
+                "longitude": "geolocations.longitude"
+            }
+            }
+        ]
+        }
+    ],
+    "options": {
+        "checkForCoordinateValidation": "null_values",
+        "colorMaps": {
+        "elisa_uyghur": {
+            "ui_output": {
+            "entities.entityType": {
+                "LOC": "#98DF8A",
+                "ORG": "#FF9896",
+                "PER": "#AEC7E8"
+            },
+            "types": {
+            }
+            }
+        }
+        }
+    }
     }
 ],
 "layouts": {
@@ -287,11 +327,430 @@
 
 
     
+    ],
+     "elisa_uig-layout": [
+        {
+            "name": "Document Viewer",
+            "type": "documentViewer",
+            "icon": "DocumentViewer64",
+            "sizex": 15,
+            "sizey": 12,
+            "minPixelx": 320,
+            "minPixely": 240,
+            "$hashKey": "object:37",
+            "selected": true,
+            "bindings": {
+                "title": "Document Viewer Test",
+                "database": "elisa_uyghur",
+                "table": "ui_output",
+                "dataField": "translatedText",
+                "idField": "id",
+                "metadataFields": [
+                    [
+                        {
+                            "name": "Date",
+                            "field": "createdAt"
+                        },
+                        {
+                            "name": "Topic",
+                            "field": "topics"
+                        }
+                    ],
+                    [
+                        {
+                            "name": "People",
+                            "field": "entities",
+                            "arrayFilter": {
+                                "filterOn": "entityType",
+                                "filterType": "=",
+                                "filterFor": [
+                                    "PER",
+                                    "ORG"
+                                ],
+                                "show": "originalText"
+                            }
+                        }
+                    ],
+                    [
+                        {
+                            "name": "Locations",
+                            "field": "entities",
+                            "arrayFilter": {
+                                "filterOn": "entityType",
+                                "filterType": "=",
+                                "filterFor": [
+                                    "LOC"
+                                ],
+                                "show": "originalText"
+                            }
+                        }
+                    ]
+                ],
+                "limit": 50
+            }
+    },{
+        "name": "Event Locations",
+        "type": "map",
+        "icon": "Map64",
+        "sizex": 9,
+        "sizey": 6,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 6,
+        "minSizey": 5,
+        "$$hashKey": "object:29",
+        "selected": true,
+        "bindings": {
+            "title": "Event Locations",
+            "config": [
+                {
+                "database": "elisa_uyghur",
+                "filterable": true,
+                "name": "EVENTS",
+                "show": true,
+                "table": "ui_output",
+                "type": "cluster",
+                "limit": 1000,
+                "latitudeField": "geolocations.latitude",
+                "longitudeField": "geolocations.longitude",
+                "sourceLatitudeField": "",
+                "sourceLongitudeField": "",
+                "targetLatitudeField": "",
+                "targetLongitudeField": "",
+                "colorField": "",
+                "dateField": "createdAt",
+                "sizeField": "",
+                "idField": "",
+                "colorCode": "",
+                "lineColorField": "",
+                "nodeColorField": "",
+                "lineSizeField": "",
+                "nodeSizeField": "",
+                "lineColorCode": "",
+                "nodeColorCode": "",
+                "gradientColorCode1": "",
+                "gradientColorCode2": "",
+                "gradientColorCode3": "",
+                "gradientColorCode4": "",
+                "gradientColorCode5": "",
+                "applyTransientDateFilter": false,
+                "popupFields": []
+                }
+            ]
+        },
+        "id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
+        "row": 0,
+        "col": 16
+    },
+    
+    
+    {
+        "name": "Timeline",
+        "type": "timeline",
+        "icon": "Timeline64",
+        "sizex": 9,
+        "sizey": 6,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 6,
+        "minSizey": 5,
+        "$$hashKey": "object:36",
+        "selected": true,
+        "bindings": {
+        "title": "Message Volume over Time",
+        "database": "elisa_uyghur",
+        "table": "ui_output",
+        "dateField": "createdAt",
+        "granularity": "month"
+        },
+        "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
+        "row": 6,
+        "col": 16
+    },
+    {
+        "name": "Bar Chart",
+        "type": "barChart",
+        "icon": "BarChart64",
+        "sizex": 6,
+        "sizey": 6,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 6,
+        "minSizey": 5,
+        "$$hashKey": "object:30",
+        "selected": true,
+        "bindings": {
+        "title": "Topics",
+        "database": "elisa_uyghur",
+        "table": "ui_output",
+        "dataField": "topics",
+		"aggregation": "count",
+		"aggregationField": ""
+        },
+        "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+        "row": 17,
+        "col": 0
+    },
+   
+    {
+        "name": "Text Cloud",
+        "type": "textCloud",
+        "icon": "TagCloud64",
+        "sizex": 6,
+        "sizey": 6,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 6,
+        "minSizey": 5,
+        "$$hashKey": "object:35",
+        "selected": true,
+        "bindings": {
+        "title": "People",
+        "database": "elisa_uyghur",
+        "table": "ui_output",
+        "dataField": "entities.transliteration",
+        "unsharedFilterField": "entities.entityType",
+        "unsharedFilterValue": "PER",
+        "groupField": "entities.originalText"
+        },
+        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+        "row": 17,
+        "col": 7
+    },
+   
+    {
+        "name": "Text Cloud",
+        "type": "textCloud",
+        "icon": "TagCloud64",
+        "sizex": 6,
+        "sizey": 6,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 6,
+        "minSizey": 5,
+        "$$hashKey": "object:35",
+        "selected": true,
+        "bindings": {
+        "title": "Organizations",
+        "database": "elisa_uyghur",
+        "table": "ui_output",
+        "dataField": "entities.transliteration",
+        "unsharedFilterField": "entities.entityType",
+        "unsharedFilterValue": "ORG",
+        "groupField": "entities.originalText"
+        },
+        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+        "row": 17,
+        "col": 13
+    },
+   
+    {
+        "name": "Text Cloud",
+        "type": "textCloud",
+        "icon": "TagCloud64",
+        "sizex": 6,
+        "sizey": 6,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 6,
+        "minSizey": 5,
+        "$$hashKey": "object:35",
+        "selected": true,
+        "bindings": {
+        "title": "GeoPolitical Entities",
+        "database": "elisa_uyghur",
+        "table": "ui_output",
+        "dataField": "entities.transliteration",
+        "unsharedFilterField": "entities.entityType",
+        "unsharedFilterValue": "GPE",
+        "groupField": "entities.originalText"
+        },
+        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+        "row": 17,
+        "col": 19
+    }
+
+
+    
     ]
 },
 "legends": {
     
         "ldc_uyghur": {
+    "ui_output": [
+        {
+        "label": "Text",
+        "customized": {
+            "field": "translatedText",
+            "operator": "contains"
+        },
+        "items": [
+            {
+            "label": "Evacuation",
+            "field": "translatedText",
+            "operator": "contains",
+            "value": "evac"
+            },
+            {
+            "label": "Food",
+            "field": "translatedText",
+            "operator": "contains",
+            "value": "food"
+            },
+            {
+            "label": "Rescue",
+            "field": "translatedText",
+            "operator": "contains",
+            "value": "rescue"
+            },
+            {
+            "label": "Water",
+            "field": "translatedText",
+            "operator": "contains",
+            "value": "water"
+            }
+        ]
+        },
+        {
+        "label": "Situation Frame Type",
+        "items": [
+            {
+            "label": "Any",
+            "field": "topics",
+            "operator": "!=",
+            "value": "None"
+            },
+            {
+            "label": "Energy",
+            "field": "topics",
+            "operator": "contains",
+            "value": "Energy"
+            },
+            {
+            "label": "Evacuation",
+            "field": "topics",
+            "operator": "contains",
+            "value": "evac"
+            },
+            {
+            "label": "Food",
+            "field": "topics",
+            "operator": "contains",
+            "value": "food"
+            },
+            {
+            "label": "Infrastructure",
+            "field": "topics",
+            "operator": "contains",
+            "value": "infra"
+            },
+            {
+            "label": "Medical",
+            "field": "topics",
+            "operator": "contains",
+            "value": "med"
+            },
+            {
+            "label": "Rescue",
+            "field": "topics",
+            "operator": "contains",
+            "value": "rescue"
+            },
+            {
+            "label": "Sanitation",
+            "field": "topics",
+            "operator": "contains",
+            "value": "Sanitation"
+            },
+            {
+            "label": "Search",
+            "field": "topics",
+            "operator": "contains",
+            "value": "search"
+            },
+            {
+            "label": "Shelter",
+            "field": "topics",
+            "operator": "contains",
+            "value": "shelter"
+            },
+            {
+            "label": "Utilities",
+            "field": "topics",
+            "operator": "contains",
+            "value": "utils"
+            },
+            {
+            "label": "Water",
+            "field": "topics",
+            "operator": "contains",
+            "value": "water"
+            }
+        ]
+        },
+        {
+        "label": "SEC",
+        "items": [
+            {
+            "label": "Activation",
+            "field": "sentimentString",
+            "value": "Activation"
+            },
+            {
+            "label": "N/A",
+            "field": "sentimentString",
+            "value": "N/A"
+            },
+            {
+            "label": "Negative",
+            "field": "sentimentString",
+            "value": "Negative"
+            },
+            {
+            "label": "Negative, Activation",
+            "field": "sentimentString",
+            "value": "Negative, Activation"
+            },
+            {
+            "label": "Positive",
+            "field": "sentimentString",
+            "value": "Positive"
+            },
+            {
+            "label": "Positive, Activation",
+            "field": "sentimentString",
+            "value": "Positive, Activation"
+            }
+        ]
+        },
+        {
+        "label": "Entity Type",
+        "items": [
+            {
+            "label": "Person",
+            "field": "entities.entityType",
+            "value": "PER"
+            },
+            {
+            "label": "Organization",
+            "field": "entities.entityType",
+            "value": "ORG"
+            },
+            {
+            "label": "Location",
+            "field": "entities.entityType",
+            "value": "LOC"
+            },
+            {
+            "label": "Geopolitical Entity",
+            "field": "entities.entityType",
+            "value": "GPE"
+            }
+        ]
+        }
+    ]
+    },
+           "elisa_uyghur": {
     "ui_output": [
         {
         "label": "Text",
