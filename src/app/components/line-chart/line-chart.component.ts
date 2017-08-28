@@ -286,7 +286,10 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     subGetBindings(bindings: any) {
-        // TODO
+        bindings.dateField = this.active.dateField.columnName;
+        bindings.groupField = this.active.groupField.columnName;
+        bindings.aggregation = this.active.aggregation;
+        bindings.aggregationField = this.active.aggregationField.columnName;
     }
 
     getOptionFromConfig(field) {

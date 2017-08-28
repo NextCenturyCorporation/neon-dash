@@ -80,7 +80,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     subGetBindings(bindings: any) {
-        // TODO
+        bindings.dataField = this.active.dataField.columnName;
     }
 
     getExportFields() {

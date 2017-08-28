@@ -94,7 +94,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
         this.active = {
             dateField: new FieldMetaData(),
-            granularity: 'day'
+            granularity: this.optionsFromConfig.granularity
         };
 
         this.chartDefaults = {
@@ -120,7 +120,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     subGetBindings(bindings: any) {
-        // TODO
+        bindings.dateField = this.active.dateField.columnName;
+        bindings.granularity = this.active.granularity;
     }
 
     getExportFields() {

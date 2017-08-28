@@ -167,7 +167,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     };
 
     subGetBindings(bindings: any) {
-        // TODO
+        bindings.dataField = this.active.dataField.columnName;
+        bindings.aggregation = this.active.aggregation;
+        bindings.aggregationField = this.active.aggregationField.columnName;
     }
 
     getExportFields() {
