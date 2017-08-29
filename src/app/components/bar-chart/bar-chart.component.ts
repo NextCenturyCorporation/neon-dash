@@ -49,7 +49,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         aggregationField: string,
         unsharedFilterField: any,
         unsharedFilterValue: string,
-        colors: Object // Colors is a map from value to color in the form "r(0-255), g(0-255), b(0-255)" e.g. { "water": "0, 255, 0", "plague": "255, 0, 0" }
+        colors: any[] // Colors is a list of objects with value (regex) and color fields e.g. { "water|sanitation": "0, 255, 0", "plague|riot": "255, 0, 0" }
     };
     public active: {
         dataField: FieldMetaData,
@@ -90,7 +90,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             aggregationField: this.injector.get('aggregationField', null),
             unsharedFilterField: {},
             unsharedFilterValue: '',
-            colors: this.injector.get('colors', {})
+            colors: this.injector.get('colors', [])
         };
         this.filters = [];
         this.active = {
@@ -265,17 +265,21 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     getColorValue(label, active) {
+        let getMatch = function(colorObject) {
+            return colorObject.value.match(label) != undefined;
+        }
+
         if(active) {
-            let match = this.optionsFromConfig.colors[label];
+            let match = this.optionsFromConfig.colors.find(getMatch);
             if(match) {
-                return 'rgba(' + match + ', 0.9)';
+                return 'rgba(' + match.color + ', 0.9)';
             }
             return this.chartDefaults.activeColor;
         }
         else {
-            let match = this.optionsFromConfig.colors[label];
+            let match = this.optionsFromConfig.colors.find(getMatch);
             if(match) {
-                return 'rgba(' + match + ', 0.3)';
+                return 'rgba(' + match.color + ', 0.3)';
             }
             return this.chartDefaults.activeColor;
         }
