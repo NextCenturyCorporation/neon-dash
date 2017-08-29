@@ -48,7 +48,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         aggregation: string,
         aggregationField: string,
         unsharedFilterField: any,
-        unsharedFilterValue: string
+        unsharedFilterValue: string,
+        colors: Object // Colors is a map from value to color in the form "r(0-255), g(0-255), b(0-255)" e.g. { "water": "0, 255, 0", "plague": "255, 0, 0" }
     };
     public active: {
         dataField: FieldMetaData,
@@ -88,7 +89,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             aggregation: this.injector.get('aggregation', null),
             aggregationField: this.injector.get('aggregationField', null),
             unsharedFilterField: {},
-            unsharedFilterValue: ''
+            unsharedFilterValue: '',
+            colors: this.injector.get('colors', {})
         };
         this.filters = [];
         this.active = {
@@ -249,17 +251,34 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
             for (let i = 0; i < this.chart.data['datasets'][dsIndex].backgroundColor.length; i++) {
                 if (this.chart.data['labels'][i] === activeValue) {
-                    this.chart.data['datasets'][dsIndex].backgroundColor[i] = this.chartDefaults.activeColor;
+                    this.chart.data['datasets'][dsIndex].backgroundColor[i] = this.getColorValue(this.chart.data['labels'][i], true);
                 } else {
-                    this.chart.data['datasets'][dsIndex].backgroundColor[i] = this.chartDefaults.inactiveColor;
+                    this.chart.data['datasets'][dsIndex].backgroundColor[i] = this.getColorValue(this.chart.data['labels'][i], false);
                 }
             }
         } else {
             for (let i = 0; i < this.chart.data['datasets'][dsIndex].backgroundColor.length; i++) {
-                this.chart.data['datasets'][dsIndex].backgroundColor[i] = this.chartDefaults.activeColor;
+                this.chart.data['datasets'][dsIndex].backgroundColor[i] = this.getColorValue(this.chart.data['labels'][i], true);
             }
         }
         this.chartModule['chart'].update();
+    }
+
+    getColorValue(label, active) {
+        if(active) {
+            let match = this.optionsFromConfig.colors[label];
+            if(match) {
+                return 'rgba(' + match + ', 0.9)';
+            }
+            return this.chartDefaults.activeColor;
+        }
+        else {
+            let match = this.optionsFromConfig.colors[label];
+            if(match) {
+                return 'rgba(' + match + ', 0.3)';
+            }
+            return this.chartDefaults.activeColor;
+        }
     }
 
     isValidQuery() {
@@ -344,7 +363,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         };
 
         for (let i = 0; i < dataset.data.length; i++) {
-            dataset.backgroundColor[i] = this.chartDefaults.activeColor;
+            dataset.backgroundColor[i] = this.getColorValue(labels[i], true);
         }
 
         d.datasets = [];
