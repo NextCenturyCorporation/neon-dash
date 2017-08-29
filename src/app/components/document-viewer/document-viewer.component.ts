@@ -5,7 +5,8 @@ import {
     ViewEncapsulation,
     ChangeDetectionStrategy,
     Injector,
-    ChangeDetectorRef
+    ChangeDetectorRef,
+    ViewContainerRef
 } from '@angular/core';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -16,8 +17,11 @@ import { neonMappings } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
+import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
+
+import { MdDialog, MdDialogConfig, MdDialogRef } from '@angular/material';
 
 @Component({
     selector: "app-document-viewer",
@@ -28,12 +32,15 @@ import { VisualizationService } from '../../services/visualization.service';
 })
 export class DocumentViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
 
+    private singleItemRef: MdDialogRef<DocumentViewerSingleItemComponent>;
+
     private optionsFromConfig: {
         title: string,
         database: string,
         table: string,
         dataField: string,
         metadataFields: any[], // Array of arrays, with each internal array representing a row of metadata. Each row contains {name, field} objects.
+        popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
         limit: number
     };
 
@@ -44,8 +51,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         data: any[]
     };
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService, exportService: ExportService, injector: Injector,
+        themesService: ThemesService, public viewContainerRef: ViewContainerRef, ref: ChangeDetectorRef, visualizationService: VisualizationService, public dialog: MdDialog) {
         super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
@@ -53,6 +60,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             table: this.injector.get('table', null),
             dataField: this.injector.get('dataField', null),
             metadataFields: this.injector.get('metadataFields', null),
+            popoutFields: this.injector.get('popoutFields', null),
             limit: this.injector.get('limit', null)
         };
         this.active = {
@@ -188,7 +196,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     formatMetadataEntry(record, metadataEntry) {
         let field = record[metadataEntry.field];
         if(typeof field  === 'string') {
-            return field;
+            return field || 'None';
         }
         else if(field instanceof Array) {
             let matches = [];
@@ -208,7 +216,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             return matches.join(', ');
         }
         else {
-            return '';
+            return 'None';
         }
     }
 
@@ -235,6 +243,25 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             }
             return true;
         }
+    }
+
+    openSingleRecord(item) {
+        let config = new MdDialogConfig();
+        // config.viewContainerRef = this.viewContainerRef;
+        let metadata = this.optionsFromConfig.metadataFields;
+        if(this.optionsFromConfig.popoutFields) {
+            metadata = metadata.concat(this.optionsFromConfig.popoutFields);
+        }
+        config.data = {
+            item: item,
+            textField: this.active.dataField.columnName,
+            metadataFields: metadata
+        };
+
+        this.singleItemRef = this.dialog.open(DocumentViewerSingleItemComponent, config);
+        this.singleItemRef.afterClosed().subscribe(() => {
+            this.singleItemRef = null;
+        });
     }
 }
 

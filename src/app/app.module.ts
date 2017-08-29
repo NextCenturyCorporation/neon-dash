@@ -47,6 +47,7 @@ import { DashboardOptionsComponent } from './components/dashboard-options/dashbo
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
+import { DocumentViewerSingleItemComponent } from './components/document-viewer-single-item/document-viewer-single-item.component';
 import { ExportControlComponent } from './components/export-control/export-control.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
@@ -81,6 +82,7 @@ export function getAppConfig() {
         DatasetSelectorComponent,
         DataTableComponent,
         DocumentViewerComponent,
+        DocumentViewerSingleItemComponent,
         ExportControlComponent,
         FilterBuilderComponent,
         FilterTrayComponent,
@@ -127,7 +129,7 @@ export function getAppConfig() {
             useFactory: getAppConfig
         }
     ],
-    entryComponents: [AppComponent, AddVisualizationComponent, FilterTrayComponent, SnackBarComponent, ConfigEditorComponent],
+    entryComponents: [AppComponent, AddVisualizationComponent, DocumentViewerSingleItemComponent, FilterTrayComponent, SnackBarComponent, ConfigEditorComponent],
     bootstrap: [AppComponent]
 })
 
