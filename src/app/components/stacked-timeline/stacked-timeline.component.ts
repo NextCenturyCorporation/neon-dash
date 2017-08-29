@@ -272,6 +272,13 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                 groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
             /* falls through */
         }
+        
+        if(this.active.groupField != null){
+            groupBys.push({columnName: this.active.groupField.columnName,
+            prettyName: this.active.groupField.prettyName});
+            }
+        
+        
         query = query.groupBy(groupBys);
         query = query.sortBy('date', neon.query['ASCENDING']);
         query = query.where(whereClause);

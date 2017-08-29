@@ -361,7 +361,7 @@ export class StackedTimelineSelectorChart {
 
         // Append our chart graphics
         this.svg = d3.select(this.element.nativeElement)
-            .attr('class', 'timeline-selector-chart')
+            .attr('class', 'stacked-timeline-selector-chart')
             .append('svg')
             .attr('height', svgHeight + (2 * DEFAULT_MARGIN))
             .attr('width', this.width + (2 * DEFAULT_MARGIN));
