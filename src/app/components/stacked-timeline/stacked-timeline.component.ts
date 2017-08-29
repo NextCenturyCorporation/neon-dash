@@ -58,7 +58,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     public active: {
         dateField: FieldMetaData,
         granularity: string,
-        groupField: string,
+        groupField: FieldMetaData,
         ylabel: string,
     };
 
@@ -71,7 +71,8 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     private queryData: {
         data: {
             value: number,
-            date: Date
+            date: Date,
+            groupField: string
         }[],
         granularity: string
     };
@@ -91,7 +92,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             table: this.injector.get('table', null),
             dateField: this.injector.get('dateField', null),
             granularity: this.injector.get('granularity', 'day'),
-            groupField: this.injector.get('groupField', null),
+            groupField: this.injector.get('groupField', null)
         };
         this.colorSchemeService = colorSchemeSrv;
         this.filters = [];
@@ -99,7 +100,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         this.active = {
             dateField: new FieldMetaData(),
             granularity: 'day',
-            groupField: this.optionsFromConfig.groupField,
+            groupField: new FieldMetaData(),
             ylabel: 'Count'
         };
 
@@ -171,6 +172,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     onUpdateFields() {
         this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
+        this.active.groupField = this.findFieldObject('groupField', neonMappings.BAR_GROUPS);
     };
 
     addLocalFilter(key: string, startDate: Date, endDate: Date, local?: boolean) {
@@ -312,7 +314,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             data: response.data,
             granularity: this.active.granularity
         };
-
         this.filterAndRefreshData();
     }
 
@@ -353,7 +354,8 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                 let bucketDate = this.timelineData.bucketizer.getDateForBucket(i);
                 series.data[i] = {
                     date: bucketDate,
-                    value: 0
+                    value: 0,
+                    groupField: this.active.groupField
                 };
             }
 
@@ -364,7 +366,8 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                     if (filter.startDate <= row.date && filter.endDate >= row.date) {
                         series.focusData.push({
                             date: this.zeroDate(row.date),
-                            value: row.value
+                            value: row.value,
+                            groupField: this.active.groupField
                         });
                     }
                 }
@@ -383,14 +386,16 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                     if (filter.startDate <= row.date && filter.endDate >= row.date) {
                         series.focusData.push({
                             date: row.date,
-                            value: row.value
+                            value: row.value,
+                            groupField: this.active.groupField
                         });
                     }
                 }
 
                 series.data.push({
                     date: row.date,
-                    value: row.value
+                    value: row.value,
+                    groupField:this.active.groupField
                 });
             }
         }
@@ -457,6 +462,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = [this.active.dateField.columnName];
+        let groupField = this.active.groupField;
         let neonFilters = this.filterService.getFilters(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
             for (let filter of neonFilters) {
