@@ -1,0 +1,14 @@
+<div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+	<div class="item" layout="column">
+	    <p *ngFor="let row of metadata">
+	        <span class="metadata-item" *ngFor="let metadataElement of row">
+	            <span class="metadata-title">{{metadataElement.name}}: </span><span class="metadata-text">{{formatMetadataEntry(data.item, metadataElement)}}</span>
+	        </span>
+	    </p>
+	    <p>{{text}}</p>
+	</div>
+	<md-toolbar class="rounded">
+	    <span class="fill-remaining"></span>
+	    <button md-raised-button class="mat-primary" (click)="dialogRef.close('close')"> Close </button>
+	</md-toolbar>
+</div>

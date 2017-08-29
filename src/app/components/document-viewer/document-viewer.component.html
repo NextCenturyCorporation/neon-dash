@@ -98,7 +98,7 @@
     <!-- View documents -->
     <md-list class="document-viewer-list-container">
         <div class="document-viewer-list-item" *ngFor="let item of active.data">
-            <div class="md-list-item-text" layout="column">
+            <div class="md-list-item-text" layout="column" (click)="openSingleRecord(item)">
                 <p *ngFor="let row of active.metadataFields">
                     <span class="metadata-item" *ngFor="let metadataElement of row">
                         <span class="metadata-title">{{metadataElement.name}}: </span><span class="metadata-text">{{formatMetadataEntry(item, metadataElement)}}</span>
