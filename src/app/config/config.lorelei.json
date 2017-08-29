@@ -368,7 +368,7 @@
         "table": "record",
         "dateField": "loreleiJSONMapping.status.createdAt",
         "granularity": "day",
-        "groupField": "loreleiJSONMapping.type"
+        "groupField": "loreleiJSONMapping.topics"
         },
         "row": 1,
         "col": 0

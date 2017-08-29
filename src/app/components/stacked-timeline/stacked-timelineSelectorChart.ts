@@ -16,10 +16,12 @@ const TOOLTIP_ID = '#tl-tooltip-container';
 const DEFAULT_DATA = [
     {
         date: new Date(Date.now()),
-        value: 0
+        value: 0,
+        groupField: null
     }, {
         date: new Date(Date.now() + 31536000000),
-        value: 0
+        value: 0,
+        groupField: null
     }];
 
 /**
@@ -28,6 +30,7 @@ const DEFAULT_DATA = [
 export class TimelineItem {
     public date: Date;
     public value: number;
+    public groupField: any;
 }
 
 /**
@@ -106,6 +109,7 @@ export class StackedTimelineSelectorChart {
     private xContext: d3.time.Scale<Date, any>;
     private yContext: any;
     private heightFocus: number;
+    private colorSet: any[];
 
     private tlComponent: StackedTimelineComponent;
 
@@ -125,6 +129,7 @@ export class StackedTimelineSelectorChart {
             };
 
         this.redrawChart();
+        this.colorSet = d3.scale.category20();
     }
 
     redrawChart(): void {
@@ -375,7 +380,52 @@ export class StackedTimelineSelectorChart {
             .attr('class', 'x axis')
             .attr('transform', 'translate(-' + xCenterOffset + ',' + heightContext + ')')
             .call(xAxisContext);
-
+        
+         /* 
+        let x = d3.scale.ordinal()
+            .rangeRoundBands([0, this.width]) 
+            .paddingInner(0.3) 
+        //console.log('x : '+ x); 
+      ///* 
+        ///*
+        let y = d3.scale.linear() 
+            .rangeRoundBands([this.height, 0]); 
+        //console.log('y :'+ y); 
+        //*/
+        //console.log(d3.scale.category20());
+        ///*
+        //let z = d3.scale.category20();//Ordinal(d3.schemeCategory20); 
+        //console.log('The z is '+ z); 
+      //*/ 
+      ///* 
+        
+        let color = d3.scale.category20();
+        /*
+        let stack = d3.layout.stack() 
+        .values(function(d) { return d.values; }) 
+        .x(function(d) { return d.date }) 
+        .y(function(d) { return d.value }) 
+        .offset(d3.stackOffsetNone); 
+        
+        let layers = stack(this.data); 
+         
+        
+        ///* 
+        //*/ 
+        
+        let stack = d3.layout.stack()
+        .values(function(d) { return d.values;})
+        .x(function(d) {return d.date})
+        .y(function(d) { return d.value})
+        
+        let layers = stack(this.data)
+        
+        let layer = this.svg.selectAll(".layer")
+        .data(layers)
+        .enter().append('g')
+        
+        
+        
         context.selectAll('.major text')
             .attr('transform', 'translate(' + (this.approximateBarWidth / 2) + ',0)');
 
@@ -791,8 +841,58 @@ export class StackedTimelineSelectorChart {
                 barheight++;
             }
             style += 'fill:' + series.color + ';';
-
-            focus.selectAll('rect.bar')
+            
+            //Start of stack
+            
+            /*
+            let stack = d3.layout.stack()
+                .values(function(d) { return d.values; })
+                .x(function(d) { return d.date })
+                .y(function(d) { return d.value })
+                .offset(d3.stackOffsetNone);
+            let layers = stack(series.data);
+            let categories = this.svg.selectAll(".bar")
+                .data(layers)
+                .enter().append("g")
+                .attr("class", 'single_bar')
+                .style('fill', function(d, i) { return this.colorSet(i) });
+            categories.selectAll('rect')
+                .data(function(d) { return d.values; })
+                .enter().append('rect')
+                .attr("class", function(d) { return "" + d.date; })
+                .attr('x', function(d) { return this.xContext(d.date); })
+                .attr('y', function(d) { return this.yContext(Math.max(0, d.value) + d.y0); })
+                .attr('width', function(d) { return this.xContext(d3.time[this.granularity].utc.offset(d.date, 1)) - this.xContext(d.date); })
+                .attr("height", function(d) {
+                    var height = this.yContext(d.value) - this.yContext(0);
+                    var offset = height / height || 0;
+                    var calculatedHeight = Math.abs(height) + (offset * barheight);
+                    return calculatedHeight;
+                });
+            
+            *////*
+            let stack = d3.layout.stack()
+                .values(function(d) { return d.values;})
+                .x(function(d) {return d.date})
+                .y(function(d) { return d.value})
+           
+           let layers = stack(this.data)
+           
+           let categories = this.svg.selectAll('.bar')
+                .data(layers)
+                .enter().append('g')
+                .style('fill', function(d, i) {return this.colorSet(i)});
+            
+            //let colorSet = this.colorSet
+            
+            //console.log('Color set: '+colorSet);
+            
+            let layer = this.svg.selectAll(".layer")
+            .data(layers)
+            .enter().append('g')
+            //*/ 
+            ///*
+            categories.selectAll('rect.bar')
                 .data(series.focusData)
                 .enter().append('rect')
                 .attr('class', (d) => {
@@ -814,7 +914,7 @@ export class StackedTimelineSelectorChart {
                     let height = isNaN(yFocus(d.value) - yFocus(MIN_VALUE)) ? MIN_VALUE :
                         yFocus(d.value) - yFocus(MIN_VALUE);
                     return Math.abs(height) + (barheight);
-                });
+                }); //*/
         } else {
             let chartType;
 
