@@ -37,6 +37,13 @@
                 </md-select>
                 <p></p>
 
+                <!-- Date field selector -->
+                <md-select placeholder="Date Field" [(ngModel)]="active.dateField" required="false" (ngModelChange)="handleChangeDateField()"
+                    [disabled]="meta.fields.length == 0">
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
                 <!-- Limit selector -->
                 <table cellspacing="0">
                     <tr>

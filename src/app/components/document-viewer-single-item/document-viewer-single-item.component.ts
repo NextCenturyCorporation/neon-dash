@@ -62,7 +62,7 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
                     }
                 }
             }
-            return matches.join(', ');
+            return matches.join(', ') || 'None';
         }
         else {
             return 'None';

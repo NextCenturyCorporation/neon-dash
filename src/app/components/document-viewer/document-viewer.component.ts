@@ -39,6 +39,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         database: string,
         table: string,
         dataField: string,
+        dateField: string,
         metadataFields: any[], // Array of arrays, with each internal array representing a row of metadata. Each row contains {name, field} objects.
         popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
         limit: number
@@ -46,6 +47,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     public active: {
         dataField: FieldMetaData,
+        dateField: FieldMetaData,
         metadataFields: any[],
         limit: number,
         data: any[]
@@ -59,12 +61,14 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
             dataField: this.injector.get('dataField', null),
+            dateField: this.injector.get('dateField', null),
             metadataFields: this.injector.get('metadataFields', null),
             popoutFields: this.injector.get('popoutFields', null),
             limit: this.injector.get('limit', null)
         };
         this.active = {
             dataField: new FieldMetaData(),
+            dateField: new FieldMetaData(),
             metadataFields: [],
             limit: 50,
             data: []
@@ -92,6 +96,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let fields = [{
             columnName: this.active.dataField.columnName,
             prettyName: this.active.dataField.prettyName
+        },
+        {
+            columnName: this.active.dateField.columnName,
+            prettyName: this.active.dateField.prettyName
         }]
     }
 
@@ -101,6 +109,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     onUpdateFields() {
         this.active.dataField = this.findFieldObject('dataField', neonMappings.NEWSFEED_TEXT);
+        this.active.dateField = this.findFieldObject('dateField', null); // This is deliberately not neonMappings.DATE. If this isn't set in the config, we want to ignore it altogether.
         this.active.metadataFields = this.optionsFromConfig.metadataFields;
     }
 
@@ -129,6 +138,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         valid = (this.meta.database && this.meta.database.name && valid);
         valid = (this.meta.table && this.meta.table.name && valid);
         valid = (this.active.dataField && this.active.dataField.columnName && valid);
+        // We intentionally don't include dateField in the validity check, because we're allowed to leave it null.
         return valid;
     }
 
@@ -140,7 +150,26 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let fields = this.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
             return x.field;
         }).concat(this.active.dataField.columnName);
+        if(this.active.dateField.columnName) {
+            fields = fields.concat(this.active.dateField.columnName);
+            query = query.sortBy(this.active.dateField.columnName, neon.query['DESCENDING']);
+        }
         return query.where(whereClause).withFields(fields).limit(this.active.limit);
+
+    }
+
+    onQuerySuccess(response) {
+        let fields = this.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
+            return x.field;
+        }).concat(this.active.dataField.columnName);
+        let data = response.data.map(function(element) {
+            let elem = {};
+            for(let field of fields) {
+                elem[field] = this.deepFind(element, field);
+            }
+            return elem;
+        }.bind(this));
+        this.active.data = data;
     }
 
     flatten(array) {
@@ -159,20 +188,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         return obj;
     }
 
-    onQuerySuccess(response) {
-        let fields = this.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
-            return x.field;
-        }).concat(this.active.dataField.columnName);
-        let data = response.data.map(function(element) {
-            let elem = {};
-            for(let field of fields) {
-                elem[field] = this.deepFind(element, field);
-            }
-            return elem;
-        }.bind(this));
-        this.active.data = data;
-    }
-
     refreshVisualization() {
         // TODO STUB
     }
@@ -186,6 +201,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     handleChangeDataField() {
+        this.logChangeAndStartQueryChain();
+    }
+
+    handleChangeDateField() {
         this.logChangeAndStartQueryChain();
     }
 
@@ -213,7 +232,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
                     }
                 }
             }
-            return matches.join(', ');
+            return matches.join(', ') || 'None';
         }
         else {
             return 'None';
