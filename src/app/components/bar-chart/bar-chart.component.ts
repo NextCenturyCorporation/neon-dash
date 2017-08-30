@@ -107,6 +107,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         unsharedFilterValue: string,
         colorField: string,
         limit: number;
+        chartType: string // 'bar' or 'horizontalBar'
     };
     public active: {
         dataField: FieldMetaData,
@@ -118,7 +119,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         filterable: boolean,
         layers: any[],
         data: any[],
-        aggregation: string
+        aggregation: string,
+        chartType: string
     };
 
     public chart: {
@@ -151,6 +153,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             limit: this.injector.get('limit', 100),
             unsharedFilterField: {},
             unsharedFilterValue: ''
+            chartType: this.injector.get('chartType', 'bar')
         };
         this.filters = [];
         this.active = {
@@ -163,7 +166,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             filterable: true,
             layers: [],
             data: [],
-            aggregation: 'count'
+            aggregation: 'count',
+            chartType: this.injector.get('chartType', 'bar')
         };
 
         // Make sure the empty field has non-null values
@@ -172,7 +176,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
         this.onClick = this.onClick.bind(this);
         this.chart = {
-            type: 'bar',
+            type: this.active.chartType,
             data: {
                 labels: [],
                 datasets: [new BarDataSet(0, this.defaultActiveColor)]
@@ -183,7 +187,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
                 onClick: this.onClick,
                 animation: {
-                  duration: 0, // general animation time
+                    duration: 0, // general animation time
                 },
                 hover: {
                     mode: 'point',
