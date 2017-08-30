@@ -17,15 +17,16 @@ import { Injectable } from '@angular/core';
 
 import * as _ from 'lodash';
 import {NeonGridItem} from '../neon-grid-item';
+import {BaseNeonComponent} from '../components/base-neon-component/base-neon.component';
+import {BaseLayeredNeonComponent} from '../components/base-neon-component/base-layered-neon.component';
 
 /**
  * Basic information about a visualization
  */
 export interface VisualizationAdapter {
     id: string;
-    // Function to get the bindings for a visualization
-    getBindings: () => any;
     gridData: NeonGridItem;
+    component: BaseNeonComponent | BaseLayeredNeonComponent;
 }
 
 /**
@@ -48,19 +49,19 @@ export class VisualizationService {
      * @param {String} visualizationId The unique id for the visualization.
      * @param {Function} bundleFunction The function to register.
      */
-    registerBindings(visualizationId: string, bundleFunction: () => any) {
+    registerBindings(visualizationId: string, component: BaseNeonComponent | BaseLayeredNeonComponent) {
         let widget = _.find(this.widgets, (item) => {
             return item.id === visualizationId;
         });
 
         // If the widget was found, add the binding function
         if (widget) {
-            widget.getBindings = bundleFunction;
+            widget.component = component;
         } else {
         this.widgets.push({
             id: visualizationId,
-                getBindings: bundleFunction,
-                gridData: null
+            gridData: null,
+            component: component
         });
         }
     };
@@ -81,8 +82,8 @@ export class VisualizationService {
         } else {
             this.widgets.push({
                 id: visualizationId,
-                getBindings: null,
-                gridData: gridData
+                gridData: gridData,
+                component: null
             });
         }
     }
@@ -121,7 +122,7 @@ export class VisualizationService {
             gridItem.col = gridConfig.col;
 
             // Re-build the bindings
-            gridItem.bindings = item.getBindings();
+            gridItem.bindings = item.component.getBindings();
             widgetList.push(gridItem);
         }
 

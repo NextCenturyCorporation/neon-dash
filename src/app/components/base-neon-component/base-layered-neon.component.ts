@@ -86,7 +86,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.initData();
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
-        this.visualizationService.registerBindings(this.id, this.getBindings);
+        this.visualizationService.registerBindings(this.id, this);
 
 
         this.subNgOnInit();

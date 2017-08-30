@@ -83,7 +83,7 @@ export abstract class BaseNeonComponent implements OnInit,
         this.initializing = true;
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
-        this.visualizationService.registerBindings(this.id, this.getBindings);
+        this.visualizationService.registerBindings(this.id, this);
 
         this.outstandingDataQuery = {};
         for (let database of this.datasetService.getDatabases()) {
