@@ -177,12 +177,16 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     addLocalFilter(key: string, startDate: Date, endDate: Date, local?: boolean) {
-        this.filters[0] = {
-            key: key,
-            startDate: startDate,
-            endDate: endDate,
-            local: local
-        };
+        try {
+            this.filters[0] = {
+                key: key,
+                startDate: new Date(startDate),
+                endDate: new Date(endDate),
+                local: local
+            };
+        } catch (e) {
+            // Ignore potential date format errors
+        }
     };
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
