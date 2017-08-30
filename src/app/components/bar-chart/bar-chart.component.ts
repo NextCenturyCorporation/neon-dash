@@ -49,7 +49,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         aggregationField: string,
         unsharedFilterField: any,
         unsharedFilterValue: string,
-        colors: any[] // Colors is a list of objects with value (regex) and color fields e.g. { "water|sanitation": "0, 255, 0", "plague|riot": "255, 0, 0" }
+        colors: any[], // Colors is a list of objects with value (regex) and color fields e.g. { "water|sanitation": "0, 255, 0", "plague|riot": "255, 0, 0" }
+        chartType: string // 'bar' or 'horizontalBar'
     };
     public active: {
         dataField: FieldMetaData,
@@ -60,7 +61,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         filterable: boolean,
         layers: any[],
         data: any[],
-        aggregation: string
+        aggregation: string,
+        chartType: string
     };
 
     public chart: {
@@ -90,7 +92,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             aggregationField: this.injector.get('aggregationField', null),
             unsharedFilterField: {},
             unsharedFilterValue: '',
-            colors: this.injector.get('colors', [])
+            colors: this.injector.get('colors', []),
+            chartType: this.injector.get('chartType', 'bar')
         };
         this.filters = [];
         this.active = {
@@ -102,7 +105,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             filterable: true,
             layers: [],
             data: [],
-            aggregation: 'count'
+            aggregation: 'count',
+            chartType: this.injector.get('chartType', 'bar')
         };
 
         this.chartDefaults = {
@@ -112,7 +116,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
         this.onClick = this.onClick.bind(this);
         this.chart = {
-            type: 'bar',
+            type: this.active.chartType,
             data: {
                 labels: [],
                 datasets: [
@@ -128,7 +132,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
                 onClick: this.onClick,
                 animation: {
-                  duration: 0, // general animation time
+                    duration: 0, // general animation time
                 },
                 hover: {
                     mode: 'point',
