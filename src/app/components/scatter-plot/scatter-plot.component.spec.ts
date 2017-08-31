@@ -22,6 +22,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
 import {VisualizationService} from '../../services/visualization.service';
+import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 
 describe('Component: ScatterPlot', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -33,7 +34,8 @@ describe('Component: ScatterPlot', () => {
       declarations: [
         ScatterPlotComponent,
         LegendComponent,
-        ExportControlComponent
+        ExportControlComponent,
+        UnsharedFilterComponent
       ],
       providers: [
         ConnectionService,
