@@ -197,7 +197,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.queryTitle = 'Text Cloud by ' + this.active.dataField.prettyName;
     }
 
-    handleFiltersChangedEvent() {
+    setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
         let database = this.meta.database.name;
@@ -220,8 +220,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         } else {
             this.filters = [];
         }
-        this.executeQueryChain();
-    };
+    }
 
     getDataLayers(): any[] {
         return [this.active];

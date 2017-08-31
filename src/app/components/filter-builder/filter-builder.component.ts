@@ -313,6 +313,10 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         return null;
     }
 
+    setupFilters() {
+        // Do nothing
+    }
+
     handleFiltersChangedEvent() {
         //Do nothing
     };

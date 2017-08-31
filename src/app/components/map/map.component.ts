@@ -335,6 +335,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     drawSelection() {
+        if (!this.cesiumViewer) {
+            return;
+        }
         let entities = this.cesiumViewer.entities;
         if (this.selection.selectionGeometry) {
             entities.removeById(this.selection.selectionGeometry.id);
@@ -835,7 +838,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         return true;
     }
 
-    handleFiltersChangedEvent() {
+    setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
         //TODO needs to be reworked now that we have layers.
@@ -861,8 +864,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             this.selection.isExact = false;
             this.drawSelection();
         }
-        this.executeAllQueryChain();
-    };
+    }
 
     handleChangeLimit() {
         this.logChangeAndStartAllQueryChain();

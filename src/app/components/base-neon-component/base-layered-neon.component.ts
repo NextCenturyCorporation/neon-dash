@@ -84,6 +84,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         //this.outstandingDataQueriesByLayer[0] = {};
         //}
         this.initData();
+        this.setupFilters();
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
         this.visualizationService.registerBindings(this.id, this);
@@ -508,7 +509,21 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         return this.datasetService.getMapping(this.meta.layers[layerIndex].database.name, this.meta.layers[layerIndex].table.name, key);
     };
 
-    abstract handleFiltersChangedEvent(): void;
+    /**
+     * Called after the filters in the filter service have changed.
+     * Defaults to calling setupFilters() then executeAllQueryChain()
+     */
+    handleFiltersChangedEvent(): void {
+        this.setupFilters();
+        this.executeAllQueryChain();
+    }
+
+    /**
+     * Get and configure filters from the filter service.
+     * DO NOT EXECUTE QUERIES IN THIS METHOD
+     * This method will be called before the visualization has finished init!
+     */
+    abstract setupFilters(): void;
 
     onUpdateDataChannelEvent(event) {
         console.log('update data channel event');

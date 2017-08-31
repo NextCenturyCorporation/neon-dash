@@ -303,7 +303,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         this.refreshVisualization();
     }
 
-    handleFiltersChangedEvent() {
+    setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
         let database = this.meta.database.name;
@@ -319,6 +319,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         } else {
             this.filters = [];
         }
+    }
+
+    handleFiltersChangedEvent() {
+
         this.executeQueryChain();
     };
 

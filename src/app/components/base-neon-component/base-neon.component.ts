@@ -90,6 +90,7 @@ export abstract class BaseNeonComponent implements OnInit,
             this.outstandingDataQuery[database.name] = {};
         }
         this.initData();
+        this.setupFilters();
 
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
@@ -443,7 +444,21 @@ export abstract class BaseNeonComponent implements OnInit,
         return this.datasetService.getMapping(this.meta.database.name, this.meta.table.name, key);
     };
 
-    abstract handleFiltersChangedEvent(): void;
+    /**
+     * Called after the filters in the filter service have changed.
+     * Defaults to calling setupFilters() then executeQueryChain()
+     */
+    handleFiltersChangedEvent(): void {
+        this.setupFilters();
+        this.executeQueryChain();
+    }
+
+    /**
+     * Get and configure filters from the filter service.
+     * DO NOT EXECUTE QUERIES IN THIS METHOD.
+     * This method will be called before the visualization has finished init!
+     */
+    abstract setupFilters(): void;
 
     onUpdateDataChannelEvent(event) {
         console.log('update data channel event');

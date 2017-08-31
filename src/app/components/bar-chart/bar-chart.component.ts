@@ -375,7 +375,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.executeQueryChain();
     }
 
-    handleFiltersChangedEvent() {
+    setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
         let database = this.meta.database.name;
@@ -396,8 +396,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         } else {
             this.filters = [];
         }
-        this.executeQueryChain();
-    };
+    }
 
     handleChangeLimit() {
         this.logChangeAndStartQueryChain();

@@ -618,9 +618,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return arr;
     }
 
-    handleFiltersChangedEvent() {
-        this.executeQueryChain();
-    };
+    setupFilters() {
+        // Do nothing
+    }
 
     handleChangeLimit() {
         this.logChangeAndStartQueryChain();

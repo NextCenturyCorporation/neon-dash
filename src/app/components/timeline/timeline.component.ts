@@ -458,7 +458,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.logChangeAndStartQueryChain();
     }
 
-    handleFiltersChangedEvent() {
+    setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
         let database = this.meta.database.name;
@@ -480,16 +480,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         } else {
             this.removeFilter();
         }
-        this.executeQueryChain();
-    };
+    }
 
     handleChangeDateField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
-
-    handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-        // this.updateNeonFilter();
     };
 
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
@@ -532,6 +526,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     removeFilter(/*value: string*/) {
         this.filters = [];
+        if (this.timelineChart) {
         this.timelineChart.clearBrush();
     }
+}
 }
