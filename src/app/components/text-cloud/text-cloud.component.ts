@@ -4,12 +4,10 @@ import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
-//import { TranslationService } from '../../services/translation.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
 import { neonMappings } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import * as _ from 'lodash';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {VisualizationService} from '../../services/visualization.service';
 
@@ -84,14 +82,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getExportFields() {
-        let fields = [{
+        return [{
             columnName: this.active.dataField.columnName,
             prettyName: this.active.dataField.prettyName
         }, {
             columnName: 'value',
             prettyName: 'Count'
         }];
-        return fields;
     }
 
     getOptionFromConfig(field) {
@@ -222,36 +219,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
-    getDataLayers(): any[] {
-        return [this.active];
-    };
-
-    getFilterFields(): any[] {
-        return [this.active.dataField];
-    };
-
     isFilterSet(): boolean {
         return this.filters.length > 0;
-    };
-
-    updateFilterValues(neonFilter) {
-        this.filters = [];
-        if (this.getNumberOfFilterClauses(neonFilter) === 1) {
-            this.addFilterValue(neonFilter.filter.whereClause.rhs);
-        } else {
-            let me = this;
-            neonFilter.filter.whereClause.whereClauses.forEach(function(whereClause) {
-                me.addFilterValue(whereClause.rhs);
-            });
-        }
-    };
-
-    createFilterTrayText() {
-        return (_.map(this.filters, (this.active.allowsTranslations ? 'translated' : 'value'))).join(', ');
-    };
-
-    getNumberOfFilterClauses(neonFilter: neon.query.Filter): number {
-        return this.filterService.hasSingleClause(neonFilter) ? 1 : this.filterService.getMultipleClausesLength(neonFilter);
     };
 
     onClick(item) {
@@ -278,45 +247,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         }
         return true;
     }
-
-    addFilterValue(value: string, translated?: string) {
-        this.filters.push({
-            translated: translated || value,
-            value: value
-        });
-        // $scope.showLinksPopupButton = !!($scope.functions.createLinks($scope.active.dataField, value).length);
-    };
-
-    addToQuery(query: neon.query.Query, unsharedFilterWhereClause: neon.query.WhereClause): neon.query.Query {
-        let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
-        return query.where(unsharedFilterWhereClause ? neon.query.and(whereClause, unsharedFilterWhereClause) : whereClause)
-            .groupBy(this.active.dataField.columnName).aggregate(neon.query['COUNT'], '*', 'count')
-            .sortBy('count', neon.query['DESCENDING'])
-            .limit(this.active.limit).enableAggregateArraysByElement();
-    };
-
-    updateData(data: any[]) {
-        let cloudData = data || [];
-
-        if (this.isFilterSet() && this.active.andFilters) {
-            cloudData = cloudData.filter((item) => {
-                let index = _.findIndex(this.filters, { value: item[this.active.dataField.columnName] });
-                return index === -1;
-            });
-        }
-
-        this.active.data = cloudData.map((item) => {
-            item.key = item[this.active.dataField.columnName];
-            item.keyTranslated = item.key;
-            return item;
-        });
-
-        if (this.active.allowsTranslations) {
-            // this.performTranslation();
-        }
-
-        this.createTextCloud();
-    };
 
     createTextCloud() {
          let data = this.textCloud.createTextCloud(this.active.data);
