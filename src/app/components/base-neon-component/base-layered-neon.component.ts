@@ -84,7 +84,12 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         //this.outstandingDataQueriesByLayer[0] = {};
         //}
         this.initData();
-        this.setupFilters();
+        try {
+            this.setupFilters();
+        } catch (e) {
+            console.warn('Error while setting up filters duing init, ignoring');
+        }
+
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
         this.visualizationService.registerBindings(this.id, this);

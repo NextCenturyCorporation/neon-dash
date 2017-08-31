@@ -90,7 +90,11 @@ export abstract class BaseNeonComponent implements OnInit,
             this.outstandingDataQuery[database.name] = {};
         }
         this.initData();
-        this.setupFilters();
+        try {
+            this.setupFilters();
+        } catch (e) {
+            console.warn('Error while setting up filters duing init, ignoring');
+        }
 
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
