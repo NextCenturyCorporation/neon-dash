@@ -463,9 +463,15 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             whereClauses.push(neon.query.where(this.active.labelField.columnName, '!=', null));
             groupBys.push(this.active.labelField);
         }
+        // Check for unshared filters
+        if (this.hasUnsharedFilter()) {
+            whereClauses.push(neon.query.where(this.meta.unsharedFilterField.columnName, '=',
+                this.meta.unsharedFilterValue));
+        }
+
         query = query.groupBy(groupBys);
         query = query.sortBy(xField, neon.query['ASCENDING']);
-        neon.query.and.apply(query, whereClauses);
+        query.where(neon.query.and.apply(query, whereClauses));
         query = query.limit(this.active.limit);
         query = query.aggregate(neon.query['COUNT'], '*', 'value');
         return query;
@@ -642,6 +648,14 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
     };
+
+    unsharedFilterChanged() {
+        this.logChangeAndStartQueryChain();
+    }
+
+    unsharedFilterRemoved() {
+        this.logChangeAndStartQueryChain();
+    }
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
