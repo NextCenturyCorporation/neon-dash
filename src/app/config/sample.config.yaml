@@ -35,15 +35,6 @@ help:
   webVideo:
   localVideo:
 
-opencpu:
-  enableOpenCpu: false
-  enableLogging: false
-  useAlerts: false
-  enableAnomalyDetection: true
-  enableStl2: false
-  enableMmpp: false
-  url: http://neon-opencpu/ocpu/library/NeonAngularDemo/R
-
 externalServices:
   jsonConfigFile:
   appImagePath:
@@ -651,9 +642,9 @@ layouts:
         table: earthquakes
         dataField: net
 
-customFilters: 
-  test: 
-    earthquakes: 
+customFilters:
+  test:
+    earthquakes:
       -
         label: Types
         items:
@@ -689,7 +680,7 @@ customFilters:
         label: Networks
         input:
             field: net
-    myTable: 
+    myTable:
       -
         label: My Group
         items:
