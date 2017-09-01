@@ -15,13 +15,11 @@ import {ThemesService} from '../../services/themes.service';
 import {FieldMetaData} from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-//import * as _ from 'lodash';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
-// import {ChartModule} from 'angular2-chartjs';
 import {ChartComponent} from 'angular2-chartjs';
 import {VisualizationService} from '../../services/visualization.service';
 
-declare var Chart: any;
+declare let Chart: any;
 
 @Component({
     selector: 'app-bar-chart',
@@ -141,12 +139,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.chart.options['legend'].display = false;
 
         let tooltipTitleFunc = (tooltips) => {
-            let title = this.active.dataField.prettyName + ': ' + tooltips[0].xLabel;
-            return title;
+            return this.active.dataField.prettyName + ': ' + tooltips[0].xLabel;
         };
         let tooltipDataFunc = (tooltips) => {
-            let data = this.active.aggregation + ': ' + tooltips.yLabel;
-            return data;
+            return this.active.aggregation + ': ' + tooltips.yLabel;
         };
         this.chart.options['tooltips'] = { callbacks: {} };
         this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
@@ -176,14 +172,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let valuePrettyName = this.active.aggregation +
             (this.active.aggregationFieldHidden ? '' : '-' + this.active.aggregationField.prettyName);
         valuePrettyName = valuePrettyName.charAt(0).toUpperCase() + valuePrettyName.slice(1);
-        let fields = [{
+        return [{
             columnName: this.active.dataField.columnName,
             prettyName: this.active.dataField.prettyName
         }, {
             columnName: 'value',
             prettyName: valuePrettyName
         }];
-        return fields;
     }
 
     getOptionFromConfig(field) {
@@ -437,10 +432,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
-        let closeableFilters = this.filters.map((filter) => {
+        return this.filters.map((filter) => {
             return filter.value;
         });
-        return closeableFilters;
     };
 
     getFilterTitle(value: string) {
