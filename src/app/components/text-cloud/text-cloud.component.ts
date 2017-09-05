@@ -29,7 +29,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         dataField: string,
         unsharedFilterField: any,
         unsharedFilterValue: string,
-        sizeField: string
+        sizeField: string,
+        limit: number
     };
     public active: {
         dataField: FieldMetaData,
@@ -53,14 +54,15 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             dataField: this.injector.get('dataField', null),
             unsharedFilterField: this.injector.get('unsharedFilterField', null),
             unsharedFilterValue: this.injector.get('unsharedFilterValue', null),
-            sizeField: this.injector.get('sizeField', null)
+            sizeField: this.injector.get('sizeField', null),
+            limit: this.injector.get('limit', -1)
         };
         this.filters = [];
         this.active = {
             dataField: new FieldMetaData(),
             sizeField: new FieldMetaData(),
             andFilters: true,
-            limit: 40,
+            limit: this.optionsFromConfig.limit > 0 ? this.optionsFromConfig.limit : 40,
             textColor: '#111',
             allowsTranslations: true,
             filterable: true,

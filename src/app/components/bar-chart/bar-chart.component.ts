@@ -46,7 +46,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         aggregation: string,
         aggregationField: string,
         unsharedFilterField: any,
-        unsharedFilterValue: string
+        unsharedFilterValue: string,
+        limit: number;
     };
     public active: {
         dataField: FieldMetaData,
@@ -85,6 +86,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             dataField: this.injector.get('dataField', null),
             aggregation: this.injector.get('aggregation', null),
             aggregationField: this.injector.get('aggregationField', null),
+            limit: this.injector.get('limit', -1),
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
@@ -94,7 +96,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             aggregationField: new FieldMetaData(),
             aggregationFieldHidden: true,
             andFilters: true,
-            limit: 100,
+            limit: this.optionsFromConfig.limit > 0 ? this.optionsFromConfig.limit : 100,
             filterable: true,
             layers: [],
             data: [],
