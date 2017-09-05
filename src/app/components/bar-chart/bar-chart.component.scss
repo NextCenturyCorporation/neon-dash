@@ -65,7 +65,7 @@
 
 .body-container {
     position: absolute;
-    top: 64px;
+    top: 40px;
     bottom: 0;
     width: 100%;
 }
@@ -84,6 +84,9 @@
     width: 100%;
     top: 45px;
     bottom: 0;
+    padding-left: 5px;
+    padding-right: 5px;
+    padding-bottom: 5px;
 }
 
 .chart {
