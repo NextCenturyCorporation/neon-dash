@@ -28,13 +28,17 @@
 		font-weight: bold;
 		text-transform: capitalize;
     }
+   
+   	.text {
+   		font-size: 16px;
+    }
 
     .visualization-sidenav-options {
         min-width: 320px;
 
         md-select, table, md-input {
             width: 100%;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .error-icon {
@@ -46,7 +50,7 @@
         float: right;
         padding-left: 5px;
         margin-left: 5px;
-        line-height: 18px;
+        line-height: 12px;
         border-radius: 3px;
         margin: 2px;
         background-color: mat-color($accent);
