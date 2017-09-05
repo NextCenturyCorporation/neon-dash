@@ -146,13 +146,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
         this.filters = [];
 
-        let limit = this.optionsFromConfig.limit;
-        limit = (limit ? limit : 1000);
-
         this.active = {
             layers: [],
             andFilters: true,
-            limit: limit,
+            limit: this.optionsFromConfig.limit,
             filterable: true,
             data: [],
             nextColorIndex: 0,
@@ -204,6 +201,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     subGetBindings(bindings: any) {
+        bindings.limit = this.active.limit;
         // The map layers objects are different, clear out the old stuff;
         bindings.layers = [];
         for (let layer of this.active.layers) {

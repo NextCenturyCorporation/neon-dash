@@ -47,7 +47,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         yField: string,
         labelField: string,
         unsharedFilterField: Object,
-        unsharedFilterValue: string
+        unsharedFilterValue: string,
+        limit: number
     };
     public active: {
         xField: FieldMetaData,
@@ -106,6 +107,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             xField: this.injector.get('xField', null),
             yField: this.injector.get('yField', null),
             labelField: this.injector.get('labelField', null),
+            limit: this.injector.get('limit', 200),
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
@@ -117,7 +119,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             yField: new FieldMetaData(),
             labelField: new FieldMetaData(),
             andFilters: true,
-            limit: 200,
+            limit: this.optionsFromConfig.limit,
             filterable: true,
             layers: [],
             xAxisIsNumeric: true,
@@ -239,6 +241,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         bindings.xField = this.active.xField.columnName;
         bindings.yField = this.active.yField.columnName;
         bindings.labelField = this.active.labelField.columnName;
+        bindings.limit = this.active.limit;
     }
 
     onUpdateFields() {

@@ -80,7 +80,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
             sortField: this.injector.get('sortField', null),
-            limit: this.injector.get('limit', 15),
+            limit: this.injector.get('limit', 100),
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
@@ -88,7 +88,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         this.active = {
             sortField: new FieldMetaData(),
             andFilters: true,
-            limit: 100,
+            limit: this.optionsFromConfig.limit,
             filterable: true,
             layers: [],
             data: [],

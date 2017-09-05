@@ -55,7 +55,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         aggregation: string,
         aggregationField: string,
         unsharedFilterField: Object,
-        unsharedFilterValue: string
+        unsharedFilterValue: string,
+        limit: number
     };
     public active: {
         dateField: FieldMetaData,
@@ -114,6 +115,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             groupField: this.injector.get('groupField', null),
             aggregation: this.injector.get('aggregation', null),
             aggregationField: this.injector.get('aggregationField', null),
+            limit: this.injector.get('limit', 10000),
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
@@ -126,7 +128,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             aggregationFieldHidden: true,
             groupField: new FieldMetaData(),
             andFilters: true,
-            limit: 10000,
+            limit: this.optionsFromConfig.limit,
             groupLimit: 10,
             filterable: true,
             layers: [],
@@ -290,6 +292,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         bindings.groupField = this.active.groupField.columnName;
         bindings.aggregation = this.active.aggregation;
         bindings.aggregationField = this.active.aggregationField.columnName;
+        bindings.limit = this.active.limit;
     }
 
     getOptionFromConfig(field) {
