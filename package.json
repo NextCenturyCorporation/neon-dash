@@ -42,7 +42,7 @@
     "intl": "^1.2.5",
     "javascript-natural-sort": "0.7.1",
     "jquery": "2.2.4",
-    "js-yaml": "3.6.1",
+    "js-yaml": "3.9.1",
     "jsoneditor": "5.9.2",
     "less": "2.7.1",
     "lodash": "4.15.0",
@@ -52,7 +52,7 @@
     "node-uuid": "1.4.7",
     "reflect-metadata": "0.1.8",
     "requirejs": "2.3.3",
-    "rxjs": "5.0.3",
+    "rxjs": "5.4.3",
     "ts-helpers": "1.1.1",
     "zone.js": "^0.8.5"
   },
@@ -64,7 +64,7 @@
     "@types/hammerjs": "2.0.30",
     "@types/jasmine": "2.2.30",
     "@types/jquery": "~2.0.41",
-    "@types/js-yaml": "3.5.27",
+    "@types/js-yaml": "3.9.1",
     "@types/lodash": "~4.14.62",
     "@types/log4javascript": "0.0.28",
     "@types/node": "~6.0.60",
@@ -86,7 +86,7 @@
     "phantomjs-prebuilt": "^2.1.14",
     "pre-commit": "^1.2.2",
     "protractor": "5.1.0",
-    "tslint": "~4.4.2",
-    "typescript": "~2.3.0"
+    "tslint": "~4.5.0",
+    "typescript": "~2.5.0"
   }
 }
