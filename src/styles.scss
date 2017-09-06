@@ -1,6 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
 @import '~@angular/material/prebuilt-themes/purple-green.css';
+@import '~@angular/material/_theming';
+@import 'src/themes/neon-green-theme.scss';
 /* Rules for sizing the icons. */
 .material-icons.md-8 {
     font-size: 8px;
@@ -210,7 +212,8 @@
 .mat-toolbar{
 	min-height:56px !important;
 	border-style:solid;
-	border-color: #27607E #27607E #4DBEC2;
+	border-color: mat-color($primary) mat-color($primary) #4DBEC2;
+	//background-color: mat-color($header);
 }
 //This is also a hack
 .mat-toolbar-row{

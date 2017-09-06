@@ -165,3 +165,34 @@ $mat-grey4:(
 	)
 );
 
+$mat-white:(
+	50: #FFFFFF,
+	100: #FFFFFF,
+	200: #FFFFFF,
+	300: #FFFFFF,
+	400: #FFFFFF,
+	500: #FFFFFF,
+	600: #FFFFFF,
+	700: #FFFFFF,
+	800: #FFFFFF,
+	900: #FFFFFF,
+	contrast:(
+		0: $black-87-opacity,
+	    50: $black-87-opacity,
+	    100: $black-87-opacity,
+	    200: $black-87-opacity,
+	    300: $black-87-opacity,
+	    400: $black-87-opacity,
+	    500: $black-87-opacity,
+	    600: $white-87-opacity,
+	    700: $white-87-opacity,
+	    800: $white-87-opacity,
+	    900: $white-87-opacity,
+	    1000: $white-87-opacity,
+	    A100: $black-87-opacity,
+	    A200: $black-87-opacity,
+	    A400: $black-87-opacity,
+	    A700: $white-87-opacity,
+	)
+);
+
