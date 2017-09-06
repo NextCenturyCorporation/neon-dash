@@ -1,0 +1,35 @@
+//I put the custom color palette in here instead of in _theming.scss
+//because that is 3 paths deep under dependencies which is in gitignore.
+
+$mat-teal-custom:(
+	50: #E5ECF0,
+	100: #BECFD8,
+	200: #93B0BF,
+	300: #6890A5,
+	400: #477891,
+	500: #27607E,
+	600: #394AAE,
+	700: #3140A5,
+	800: #29379D,
+	900: #1B278D,
+	A100: #C6CBFF,
+	A200: #939DFF,
+	A400: #606EFF,
+	A700: #4757FF,
+	contrast: (
+		50: $black-87-opacity,
+	    100: $black-87-opacity,
+	    200: $black-87-opacity,
+	    300: $black-87-opacity,
+	    400: $black-87-opacity,
+	    500: white,
+	    600: white,
+	    700: white,
+	    800: $white-87-opacity,
+	    900: $white-87-opacity,
+	    A100: $black-87-opacity,
+	    A200: $black-87-opacity,
+	    A400: $black-87-opacity,
+	    A700: $black-87-opacity,
+	)
+);
