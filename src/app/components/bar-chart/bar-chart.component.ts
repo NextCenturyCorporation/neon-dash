@@ -485,7 +485,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 break;
         }
         title += ' by ' + this.active.dataField.prettyName;
-        this.queryTitle = title;
+        this.queryTitle = this.optionsFromConfig.title || title;
     }
 
     handleChangeAggregation() {
