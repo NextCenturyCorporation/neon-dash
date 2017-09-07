@@ -207,17 +207,17 @@
     bottom: 0;
     width: 100%;
 }
-
 //TODO This is a hack
 .mat-toolbar{
 	min-height:56px !important;
 	border-style:solid;
-	border-color: mat-color($primary) mat-color($primary) #4DBEC2;
+	border-color:  mat-color($header) mat-color($header) #4DBEC2; 
 	//background-color: mat-color($header);
+}
+.mat-primary{
+	border-color: mat-color($primary) mat-color($primary) #4DBEC2; 
 }
 //This is also a hack
 .mat-toolbar-row{
 	height: 48px !important;
-	}
-
-	
+}
