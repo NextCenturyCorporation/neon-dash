@@ -76,7 +76,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     postInit() {
-
+        this.executeQueryChain();
     };
 
     subNgOnDestroy() {
