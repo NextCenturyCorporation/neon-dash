@@ -667,7 +667,7 @@
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
-					"title": "Message Volume over Time",
+					"title": "Document Volume over Time",
 					"database": "elisa_uyghur",
 					"table": "ui_output",
 					"dateField": "createdAt",
