@@ -553,7 +553,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         if (!data || !data[0] || !data[0]['data'] || !data[0]['data'].length) {
             return text;
         } else {
-            return 'Top ' + data[0]['data'].length;
+            return 'Total: ' + data[0]['data'].length;
         }
     };
 
