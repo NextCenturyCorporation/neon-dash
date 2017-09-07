@@ -26,10 +26,12 @@
     	font-size: 16px;
 		font-weight: bold;
 		text-transform: capitalize;
+		color: mat-color($header-text);
     }
    
    	.text {
-   		font-size: 16px;
+   		font-size: 14px;
+   		color: mat-color($fade);
     }
 
     .visualization-sidenav-options {
