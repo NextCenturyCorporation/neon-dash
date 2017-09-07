@@ -17,17 +17,16 @@ import {ColorSchemeService} from '../../services/color-scheme.service';
 import {FieldMetaData } from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-//import * as _ from 'lodash';
 import {DateBucketizer} from '../bucketizers/DateBucketizer';
 import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
 import {YearBucketizer} from '../bucketizers/YearBucketizer';
 import {LegendItem} from '../legend/legend.component';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {ChartModule} from 'angular2-chartjs';
-import * as momentOrig from 'moment';
 import * as moment from 'moment-timezone';
 import {VisualizationService} from '../../services/visualization.service';
-declare var Chart: any;
+
+declare let Chart: any;
 
 @Component({
     selector: 'app-line-chart',
@@ -40,11 +39,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
     @ViewChild('myChart') chartModule: ChartModule;
 
-    private filters: {
-        key: string,
-        startDate: string,
-        endDate: string
-    }[];
+
 
     private optionsFromConfig: {
         title: string,
@@ -70,7 +65,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         layers: any[],
         aggregation: string,
         dateBucketizer: any,
-        granularity: string
+        granularity: string,
+        hasFilters: boolean
     };
 
     private chartDefaults: {
@@ -120,7 +116,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             unsharedFilterValue: ''
         };
         this.colorSchemeService = colorSchemeSrv;
-        this.filters = [];
 
         this.active = {
             dateField: new FieldMetaData(),
@@ -134,7 +129,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             layers: [],
             aggregation: 'count',
             dateBucketizer: null,
-            granularity: 'day'
+            granularity: 'day',
+            hasFilters: false
         };
 
         this.selection = {
@@ -217,12 +213,10 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                     format = 'YYYY';
                     break;
             }
-            let title = this.chart.data.datasets[dsIndex].label + ' - ' + date.tz('GMT').format(format);
-            return title;
+            return this.chart.data.datasets[dsIndex].label + ' - ' + date.tz('GMT').format(format);
         };
         let tooltipDataFunc = (tooltips) => {
-            let label = this.active.aggregation + ': ' + tooltips.yLabel;
-            return label;
+            return this.active.aggregation + ': ' + tooltips.yLabel;
         };
         this.chart.options['tooltips'] = { callbacks: {} };
         this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
@@ -236,6 +230,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
     postInit() {
         //Do nothing.  An on change unfortunately kicks off the initial query.
+        this.logChangeAndStartQueryChain();
     };
 
     subNgOnDestroy() {
@@ -317,19 +312,13 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         };
     }
 
-    addLocalFilter(f) {
-        this.filters[0] = f;
-    };
-
     /**
     * returns -1 if cannot be found
     */
     getPointXLocationByIndex(chart, index): number {
         let dsMeta = chart.controller.getDatasetMeta(0);
         if (dsMeta.data.length > index) {
-            let pointMeta = dsMeta.data[index];
-            let x = pointMeta.getCenterPoint().x;
-            return x;
+            return dsMeta.data[index].getCenterPoint().x;
         }
         return -1;
     }
@@ -423,7 +412,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             this.selection.endDate = this.active.dateBucketizer.getDateForBucket(this.selection.endIndex);
             let key = this.active.dateField.columnName;
             let f = this.createFilter(key, this.selection.startDate, this.selection.endDate);
-            this.addLocalFilter(f);
             this.addNeonFilter(true, f);
             redraw = true;
         }
@@ -460,10 +448,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     getNeonFilterFields() {
-
-        let fields = [this.active.dateField.columnName];
-        return fields;
+        return [this.active.dateField.columnName];
     }
+
     getVisualizationName() {
         return 'Line Chart';
     }
@@ -539,8 +526,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     };
 
     getColorFromScheme(index) {
-        let color = this.colorSchemeService.getColorAsRgb(index);
-        return color;
+        return this.colorSchemeService.getColorAsRgb(index);
     }
 
     getFiltersToIgnore() {
@@ -731,22 +717,11 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     setupFilters() {
-        // Get neon filters
-        // See if any neon filters are local filters and set/clear appropriately
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = [this.active.dateField.columnName];
         let neonFilters = this.filterService.getFilters(database, table, fields);
-        if (neonFilters && neonFilters.length > 0) {
-            for (let filter of neonFilters) {
-                let key = filter.filter.whereClause.lhs;
-                let value = filter.filter.whereClause.rhs;
-                let f = this.createFilter(key, value, key);
-                this.addLocalFilter(f);
-            }
-        } else {
-            this.filters = [];
-        }
+        this.active.hasFilters = (neonFilters && neonFilters.length > 0);
     }
 
     handleChangeLimit() {
@@ -781,14 +756,13 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let legendData: LegendItem[] = [];
         let datasets = this.chart.data.datasets;
         for (let i = 0; i < datasets.length; i++) {
-            let item: LegendItem = {
+            legendData[i] = {
                 prettyName: datasets[i].label,
                 accessName: datasets[i].label,
                 activeColor: datasets[i].pointBorderColor,
                 inactiveColor: 'rgba(50,50,50,1)',
                 active: true
             };
-            legendData[i] = item;
         }
         return legendData;
     }
@@ -796,16 +770,12 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
-        // let closeableFilters = this.filters.map((filter) => {
-        //    return filter.key + " Filter";
-        //});
-        //return closeableFilters;
-        if (this.filters.length > 0) {
+        // This only supports data filters
+        if (this.active.hasFilters) {
             return ['Date Filter'];
-        } else {
-            return [];
         }
-    };
+        return [];
+    }
 
     getFilterTitle(value: string) {
         return this.active.dateField.columnName + ' = ' + value;
@@ -820,6 +790,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     };
 
     removeFilter(/*value: string*/) {
-        this.filters = [];
+        this.setupFilters();
     }
 }
