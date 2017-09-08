@@ -8,7 +8,7 @@
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "ldc_uyghur_1",
+					"name": "ldc_uyghur_3",
 					"prettyName": "Ground Truth",
 					"tables": [
 						{
@@ -49,7 +49,7 @@
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "elisa_uyghur",
+					"name": "elisa_uyghur_2",
 					"prettyName": "ELISA Uyghur",
 					"tables": [
 						{
@@ -90,8 +90,49 @@
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "grace_uyghur_2",
+					"name": "grace_uyghur_3",
 					"prettyName": "GRACE Uyghur",
+					"tables": [
+						{
+							"name": "ui_output",
+							"prettyName": "UI Output",
+							"mappings": {
+								"date": "createdAt",
+								"latitude": "geoLocations.lat",
+								"longitude": "geoLocations.lon"
+							}
+						}
+					]
+				}
+			],
+			"options": {
+				"checkForCoordinateValidation": "null_values",
+				"colorMaps": {
+					"grace_uyghur_2": {
+						"ui_output": {
+							"entities.entityType": {
+								"LOC": "#98DF8A",
+								"ORG": "#FF9896",
+								"PER": "#AEC7E8"
+							},
+							"types": {
+								
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			"name": "ARIEL Uyghur Annotations",
+			"connectOnLoad": false,
+			"layout": "ariel_uig-layout",
+			"datastore": "elasticsearch",
+			"hostname": "localhost",
+			"databases": [
+				{
+					"name": "ariel_uyghur_1",
+					"prettyName": "ARIEL Uyghur",
 					"tables": [
 						{
 							"name": "ui_output",
@@ -131,7 +172,7 @@
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "ebola_data_1",
+					"name": "ebola_data_2",
 					"prettyName": "Ebola Data",
 					"tables": [
 						{
@@ -172,7 +213,7 @@
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "nepal_1",
+					"name": "nepal_2",
 					"prettyName": "Nepal Data",
 					"tables": [
 						{
@@ -213,7 +254,7 @@
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "haiti_1",
+					"name": "haiti_2",
 					"prettyName": "Haiti Data",
 					"tables": [
 						{
@@ -263,7 +304,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Topics",
-					"database": "ldc_uyghur_1",
+					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "topics",
 					"aggregation": "count",
@@ -276,7 +317,7 @@
 						},
 						{
 							"value": "regimechange|crimeviolence|terrorism|earthquake",
-							"color": "227, 118, 62"
+							"color": "39, 96, 126"
 						}
 					]
 				},
@@ -300,7 +341,7 @@
 					"title": "Event Locations",
 					"config": [
 						{
-							"database": "ldc_uyghur_1",
+							"database": "ldc_uyghur_3",
 							"filterable": true,
 							"name": "EVENTS",
 							"show": true,
@@ -352,10 +393,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "Document Count over Time",
-					"database": "ldc_uyghur_1",
+					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dateField": "createdAt",
-					"granularity": "year"
+					"granularity": "month"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 7,
@@ -375,14 +416,13 @@
 				"selected": true,
 				"bindings": {
 					"title": "Location",
-					"database": "ldc_uyghur_1",
+					"database": "ldc_uyghur_3",
 					"table": "ui_output",
-					"dataField": "entities.translatedText",
-					"preFilter": true,
+					"dataField": "LOC",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
-					"exclude": "LOC",
-					"groupField": "entities.translatedText"
+					"exclude": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 0,
@@ -402,13 +442,15 @@
 				"selected": true,
 				"bindings": {
 					"title": "People",
-					"database": "ldc_uyghur_1",
+					"database": "ldc_uyghur_3",
 					"table": "ui_output",
-					"dataField": "entities.translatedText",
-					"preFilter": true,
+					"dataField": "PER",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "PER",
+					"unsharedFilterField": "",
+					"unsharedFilterValue": "",
 					"groupField": "entities.translatedText"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
@@ -429,14 +471,13 @@
 				"selected": true,
 				"bindings": {
 					"title": "Organizations",
-					"database": "ldc_uyghur_1",
+					"database": "ldc_uyghur_3",
 					"table": "ui_output",
-					"dataField": "entities.translatedText",
-					"preFilter": true,
+					"dataField": "ORG",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
-					"exclude": "ORG",
-					"groupField": "entities.translatedText"
+					"exclude": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 17,
@@ -456,14 +497,14 @@
 				"selected": true,
 				"bindings": {
 					"title": "GeoPolitical Entities",
-					"database": "ldc_uyghur_1",
+					"database": "ldc_uyghur_3",
 					"table": "ui_output",
-					"dataField": "entities.translatedText",
-					"preFilter": true,
+					"dataField": "GPE",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "GPE",
-					"groupField": "entities.translatedText"
+					"groupField": "entities.originalText"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 12,
@@ -482,7 +523,7 @@
 				"$$hashKey": "object:30",
 				"bindings": {
 					"title": "Sentiment",
-					"database": "ldc_uyghur_1",
+					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "sentimentString",
 					"aggregation": "count",
@@ -490,12 +531,12 @@
 					"chartType": "horizontalBar",
 					"colors": [
 						{
-							"value": "activation|positive",
+							"value": "Activation|Positive|Positive, Activation",
 							"color": "77, 190, 194"
 						},
 						{
-							"value": "negative",
-							"color": "77, 190, 194"
+							"value": "Negative|Negative, Activation",
+							"color": "39, 96, 126"
 						}
 					]
 				},
@@ -515,7 +556,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Document Viewer Test",
-					"database": "ldc_uyghur_1",
+					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "translatedText",
 					"idField": "id",
@@ -533,30 +574,14 @@
 						[
 							{
 								"name": "People",
-								"field": "entities",
-								"arrayFilter": {
-									"filterOn": "entityType",
-									"filterType": "=",
-									"filterFor": [
-										"PER",
-										"ORG"
-									],
-									"show": "translatedText"
-								}
+								"field": "PER"
+								
 							}
 						],
 						[
 							{
 								"name": "Locations",
-								"field": "entities",
-								"arrayFilter": {
-									"filterOn": "entityType",
-									"filterType": "=",
-									"filterFor": [
-										"LOC"
-									],
-									"show": "translatedText"
-								}
+								"field": "LOC"
 							}
 						]
 					],
@@ -579,7 +604,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Topics",
-					"database": "elisa_uyghur",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "topics",
 					"aggregation": "count",
@@ -592,7 +617,7 @@
 						},
 						{
 							"value": "regimechange|crimeviolence|terrorism|earthquake",
-							"color": "227, 118, 62"
+							"color": "39, 96, 126"
 						}
 					]
 				},
@@ -616,325 +641,7 @@
 					"title": "Event Locations",
 					"config": [
 						{
-							"database": "elisa_uyghur",
-							"filterable": true,
-							"name": "EVENTS",
-							"show": true,
-							"table": "ui_output",
-							"type": "cluster",
-							"limit": 1000,
-							"latitudeField": "geoLocations.lat",
-							"longitudeField": "geoLocations.lon",
-							"sourceLatitudeField": "",
-							"sourceLongitudeField": "",
-							"targetLatitudeField": "",
-							"targetLongitudeField": "",
-							"colorField": "",
-							"dateField": "createdAt",
-							"sizeField": "",
-							"idField": "",
-							"colorCode": "",
-							"lineColorField": "",
-							"nodeColorField": "",
-							"lineSizeField": "",
-							"nodeSizeField": "",
-							"lineColorCode": "",
-							"nodeColorCode": "",
-							"gradientColorCode1": "",
-							"gradientColorCode2": "",
-							"gradientColorCode3": "",
-							"gradientColorCode4": "",
-							"gradientColorCode5": "",
-							"applyTransientDateFilter": false,
-							"popupFields": []
-						}
-					]
-				},
-				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 5,
-				"col": 13
-			},
-			{
-				"name": "Timeline",
-				"type": "timeline",
-				"icon": "Timeline64",
-				"sizex": 12,
-				"sizey": 6,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 6,
-				"minSizey": 5,
-				"$$hashKey": "object:36",
-				"selected": true,
-				"bindings": {
-					"title": "Document Volume over Time",
-					"database": "elisa_uyghur",
-					"table": "ui_output",
-					"dateField": "createdAt",
-					"granularity": "month"
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 7,
-				"col": 13
-			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 6,
-				"sizey": 5,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 5,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "Location",
-					"database": "elisa_uyghur",
-					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "LOC",
-					"unsharedFilterField": "",
-					"unsharedFilterValue": ""
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 0,
-				"col": 7
-			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 6,
-				"sizey": 5,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 5,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "People",
-					"database": "elisa_uyghur",
-					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "PER",
-					"unsharedFilterField": "",
-					"unsharedFilterValue": "",
-					"groupField": "entities.originalText"
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 0
-			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 6,
-				"sizey": 5,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 5,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "Organizations",
-					"database": "elisa_uyghur",
-					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "ORG"
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 17,
-				"col": 0
-			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 6,
-				"sizey": 5,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 5,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "GeoPolitical Entities",
-					"database": "elisa_uyghur",
-					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "GPE",
-					"groupField": "entities.originalText"
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 12,
-				"col": 7
-			},
-			{
-				"name": "Bar Chart",
-				"type": "barChart",
-				"icon": "BarChart64",
-				"sizex": 6,
-				"sizey": 5,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 5,
-				"$$hashKey": "object:30",
-				"bindings": {
-					"title": "Sentiment",
-					"database": "elisa_uyghur",
-					"table": "ui_output",
-					"dataField": "sentimentString",
-					"aggregation": "count",
-					"aggregationField": "",
-					"chartType": "horizontalBar",
-					"colors": [
-						{
-							"value": "activation|positive",
-							"color": "77, 190, 194"
-						},
-						{
-							"value": "negative",
-							"color": "77, 190, 194"
-						}
-					]
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 17,
-				"col": 7
-			},
-			{
-				"name": "Document Viewer",
-				"type": "documentViewer",
-				"icon": "DocumentViewer64",
-				"sizex": 24,
-				"sizey": 6,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"$hashKey": "object:37",
-				"selected": true,
-				"bindings": {
-					"title": "Document Viewer Test",
-					"database": "elisa_uyghur",
-					"table": "ui_output",
-					"dataField": "translatedText",
-					"idField": "id",
-					"metadataFields": [
-						[
-							{
-								"name": "Date",
-								"field": "createdAt"
-							},
-							{
-								"name": "Topic",
-								"field": "type"
-							}
-						],
-						[
-							{
-								"name": "People",
-								"field": "entities",
-								"arrayFilter": {
-									"filterOn": "entityType",
-									"filterType": "=",
-									"filterFor": [
-										"PER",
-										"ORG"
-									],
-									"show": "transliteration"
-								}
-							}
-						],
-						[
-							{
-								"name": "Locations",
-								"field": "entities",
-								"arrayFilter": {
-									"filterOn": "entityType",
-									"filterType": "=",
-									"filterFor": [
-										"LOC"
-									],
-									"show": "transliteration"
-								}
-							}
-						]
-					],
-					"limit": 50
-				}
-			}
-		],
-		"grace_uig-layout": [
-			{
-				"name": "Bar Chart",
-				"type": "barChart",
-				"icon": "BarChart64",
-				"sizex": 6,
-				"sizey": 5,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 5,
-				"$$hashKey": "object:30",
-				"selected": true,
-				"bindings": {
-					"title": "Topics",
-					"database": "grace_uyghur_2",
-					"table": "ui_output",
-					"dataField": "topics",
-					"aggregation": "count",
-					"aggregationField": "",
-					"chartType": "horizontalBar",
-					"colors": [
-						{
-							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
-							"color": "77, 190, 194"
-						},
-						{
-							"value": "regimechange|crimeviolence|terrorism|earthquake",
-							"color": "227, 118, 62"
-						}
-					]
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 17,
-				"col": 0
-			},
-			{
-				"name": "Event Locations",
-				"type": "map",
-				"icon": "Map64",
-				"sizex": 12,
-				"sizey": 9,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 7,
-				"minSizey": 7,
-				"$$hashKey": "object:29",
-				"selected": true,
-				"bindings": {
-					"title": "Event Locations",
-					"config": [
-						{
-							"database": "grace_uyghur_2",
+							"database": "elisa_uyghur_2",
 							"filterable": true,
 							"name": "EVENTS",
 							"show": true,
@@ -986,7 +693,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Document Count over Time",
-					"database": "grace_uyghur_2",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dateField": "createdAt",
 					"granularity": "month"
@@ -1009,10 +716,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "Location",
-					"database": "grace_uyghur_2",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "LOC",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "LOC",
@@ -1037,10 +744,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "People",
-					"database": "grace_uyghur_2",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "PER",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "PER",
@@ -1066,10 +773,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "Organizations",
-					"database": "grace_uyghur_2",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "ORG",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "ORG"
@@ -1092,10 +799,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "GeoPolitical Entities",
-					"database": "grace_uyghur_2",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "GPE",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "GPE",
@@ -1118,7 +825,7 @@
 				"$$hashKey": "object:30",
 				"bindings": {
 					"title": "Sentiment",
-					"database": "grace_uyghur_2",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "sentimentString",
 					"aggregation": "count",
@@ -1126,12 +833,12 @@
 					"chartType": "horizontalBar",
 					"colors": [
 						{
-							"value": "activation|positive",
+							"value": "Activation|Positive|Positive, Activation",
 							"color": "77, 190, 194"
 						},
 						{
-							"value": "negative",
-							"color": "77, 190, 194"
+							"value": "Negative|Negative, Activation",
+							"color": "39, 96, 126"
 						}
 					]
 				},
@@ -1151,9 +858,9 @@
 				"selected": true,
 				"bindings": {
 					"title": "Document Viewer Test",
-					"database": "grace_uyghur_2",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
-					"dataField": "originalText",
+					"dataField": "translatedText",
 					"idField": "id",
 					"metadataFields": [
 						[
@@ -1169,30 +876,14 @@
 						[
 							{
 								"name": "People",
-								"field": "entities",
-								"arrayFilter": {
-									"filterOn": "entityType",
-									"filterType": "=",
-									"filterFor": [
-										"PER",
-										"ORG"
-									],
-									"show": "originalText"
-								}
+								"field": "PER"
+						
 							}
 						],
 						[
 							{
 								"name": "Locations",
-								"field": "entities",
-								"arrayFilter": {
-									"filterOn": "entityType",
-									"filterType": "=",
-									"filterFor": [
-										"LOC"
-									],
-									"show": "originalText"
-								}
+								"field": "LOC"
 							}
 						]
 					],
@@ -1200,7 +891,7 @@
 				}
 			}
 		],
-		"ebola-layout": [
+		"grace_uig-layout": [
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
@@ -1215,7 +906,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Topics",
-					"database": "ebola_data_1",
+					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "topics",
 					"aggregation": "count",
@@ -1244,6 +935,608 @@
 				"sizey": 9,
 				"minPixelx": 320,
 				"minPixely": 240,
+				"minSizex": 7,
+				"minSizey": 7,
+				"$$hashKey": "object:29",
+				"selected": true,
+				"bindings": {
+					"title": "Event Locations",
+					"config": [
+						{
+							"database": "grace_uyghur_3",
+							"filterable": true,
+							"name": "EVENTS",
+							"show": true,
+							"table": "ui_output",
+							"type": "cluster",
+							"limit": 1000,
+							"latitudeField": "geoLocations.lat",
+							"longitudeField": "geoLocations.lon",
+							"sourceLatitudeField": "",
+							"sourceLongitudeField": "",
+							"targetLatitudeField": "",
+							"targetLongitudeField": "",
+							"colorField": "",
+							"dateField": "createdAt",
+							"sizeField": "",
+							"idField": "",
+							"colorCode": "",
+							"lineColorField": "",
+							"nodeColorField": "",
+							"lineSizeField": "",
+							"nodeSizeField": "",
+							"lineColorCode": "",
+							"nodeColorCode": "",
+							"gradientColorCode1": "",
+							"gradientColorCode2": "",
+							"gradientColorCode3": "",
+							"gradientColorCode4": "",
+							"gradientColorCode5": "",
+							"applyTransientDateFilter": false,
+							"popupFields": []
+						}
+					]
+				},
+				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
+				"row": 5,
+				"col": 13
+			},
+			{
+				"name": "Timeline",
+				"type": "timeline",
+				"icon": "Timeline64",
+				"sizex": 12,
+				"sizey": 6,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 6,
+				"minSizey": 5,
+				"$$hashKey": "object:36",
+				"selected": true,
+				"bindings": {
+					"title": "Document Count over Time",
+					"database": "grace_uyghur_3",
+					"table": "ui_output",
+					"dateField": "createdAt",
+					"granularity": "month"
+				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
+				"row": 7,
+				"col": 13
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 6,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 5,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Location",
+					"database": "grace_uyghur_3",
+					"table": "ui_output",
+					"dataField": "LOC",
+					"preFilter": false,
+					"filterTarget": "entities.entityType",
+					"operator": "=",
+					"exclude": "LOC",
+					"unsharedFilterField": "",
+					"unsharedFilterValue": ""
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 0,
+				"col": 7
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 6,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 5,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "People",
+					"database": "grace_uyghur_3",
+					"table": "ui_output",
+					"dataField": "PER",
+					"preFilter": false,
+					"filterTarget": "entities.entityType",
+					"operator": "=",
+					"exclude": "PER",
+					"unsharedFilterField": "",
+					"unsharedFilterValue": "",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 6,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 6,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 5,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Organizations",
+					"database": "grace_uyghur_3",
+					"table": "ui_output",
+					"dataField": "ORG",
+					"preFilter": false,
+					"filterTarget": "entities.entityType",
+					"operator": "=",
+					"exclude": "ORG"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 17,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 6,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 5,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "GeoPolitical Entities",
+					"database": "grace_uyghur_3",
+					"table": "ui_output",
+					"dataField": "GPE",
+					"preFilter": false,
+					"filterTarget": "entities.entityType",
+					"operator": "=",
+					"exclude": "GPE",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 12,
+				"col": 7
+			},
+			{
+				"name": "Bar Chart",
+				"type": "barChart",
+				"icon": "BarChart64",
+				"sizex": 6,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 5,
+				"$$hashKey": "object:30",
+				"bindings": {
+					"title": "Sentiment",
+					"database": "grace_uyghur_3",
+					"table": "ui_output",
+					"dataField": "sentimentString",
+					"aggregation": "count",
+					"aggregationField": "",
+					"chartType": "horizontalBar",
+					"colors": [
+						{
+							"value": "Activation|Positive|Positive, Activation",
+							"color": "77, 190, 194"
+						},
+						{
+							"value": "Negative|Negative, Activation",
+							"color": "39, 96, 126"
+						}
+					]
+				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+				"row": 17,
+				"col": 7
+			},
+			{
+				"name": "Document Viewer",
+				"type": "documentViewer",
+				"icon": "DocumentViewer64",
+				"sizex": 24,
+				"sizey": 6,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"$hashKey": "object:37",
+				"selected": true,
+				"bindings": {
+					"title": "Document Viewer Test",
+					"database": "grace_uyghur_3",
+					"table": "ui_output",
+					"dataField": "originalText",
+					"idField": "id",
+					"metadataFields": [
+						[
+							{
+								"name": "Date",
+								"field": "createdAt"
+							},
+							{
+								"name": "Topic",
+								"field": "type"
+							}
+						],
+						[
+							{
+								"name": "People",
+								"field": "PER"
+							}
+						],
+						[
+							{
+								"name": "Locations",
+								"field": "LOC"
+							}
+						]
+					],
+					"limit": 50
+				}
+			}
+		],
+				"ariel_uig-layout": [
+			{
+				"name": "Bar Chart",
+				"type": "barChart",
+				"icon": "BarChart64",
+				"sizex": 6,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 5,
+				"$$hashKey": "object:30",
+				"selected": true,
+				"bindings": {
+					"title": "Topics",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output",
+					"dataField": "topics",
+					"aggregation": "count",
+					"aggregationField": "",
+					"chartType": "horizontalBar",
+					"colors": [
+						{
+							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
+							"color": "77, 190, 194"
+						},
+						{
+							"value": "regimechange|crimeviolence|terrorism|earthquake",
+							"color": "39, 96, 126"
+						}
+					]
+				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+				"row": 17,
+				"col": 0
+			},
+			{
+				"name": "Event Locations",
+				"type": "map",
+				"icon": "Map64",
+				"sizex": 12,
+				"sizey": 9,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 7,
+				"minSizey": 7,
+				"$$hashKey": "object:29",
+				"selected": true,
+				"bindings": {
+					"title": "Event Locations",
+					"config": [
+						{
+							"database": "ariel_uyghur_1",
+							"filterable": true,
+							"name": "EVENTS",
+							"show": true,
+							"table": "ui_output",
+							"type": "cluster",
+							"limit": 1000,
+							"latitudeField": "geoLocations.lat",
+							"longitudeField": "geoLocations.lon",
+							"sourceLatitudeField": "",
+							"sourceLongitudeField": "",
+							"targetLatitudeField": "",
+							"targetLongitudeField": "",
+							"colorField": "",
+							"dateField": "createdAt",
+							"sizeField": "",
+							"idField": "",
+							"colorCode": "",
+							"lineColorField": "",
+							"nodeColorField": "",
+							"lineSizeField": "",
+							"nodeSizeField": "",
+							"lineColorCode": "",
+							"nodeColorCode": "",
+							"gradientColorCode1": "",
+							"gradientColorCode2": "",
+							"gradientColorCode3": "",
+							"gradientColorCode4": "",
+							"gradientColorCode5": "",
+							"applyTransientDateFilter": false,
+							"popupFields": []
+						}
+					]
+				},
+				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
+				"row": 5,
+				"col": 13
+			},
+			{
+				"name": "Timeline",
+				"type": "timeline",
+				"icon": "Timeline64",
+				"sizex": 12,
+				"sizey": 6,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 6,
+				"minSizey": 5,
+				"$$hashKey": "object:36",
+				"selected": true,
+				"bindings": {
+					"title": "Document Count over Time",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output",
+					"dateField": "createdAt",
+					"granularity": "month"
+				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
+				"row": 7,
+				"col": 13
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 6,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 5,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Location",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output",
+					"dataField": "LOC",
+					"preFilter": false,
+					"filterTarget": "entities.entityType",
+					"operator": "=",
+					"exclude": "LOC",
+					"unsharedFilterField": "",
+					"unsharedFilterValue": ""
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 0,
+				"col": 7
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 6,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 5,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "People",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output",
+					"dataField": "PER",
+					"preFilter": false,
+					"filterTarget": "entities.entityType",
+					"operator": "=",
+					"exclude": "PER",
+					"unsharedFilterField": "",
+					"unsharedFilterValue": "",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 6,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 6,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 5,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Organizations",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output",
+					"dataField": "ORG",
+					"preFilter": false,
+					"filterTarget": "entities.entityType",
+					"operator": "=",
+					"exclude": "ORG"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 17,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 6,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 5,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "GeoPolitical Entities",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output",
+					"dataField": "GPE",
+					"preFilter": false,
+					"filterTarget": "entities.entityType",
+					"operator": "=",
+					"exclude": "GPE",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 12,
+				"col": 7
+			},
+			{
+				"name": "Bar Chart",
+				"type": "barChart",
+				"icon": "BarChart64",
+				"sizex": 6,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 5,
+				"$$hashKey": "object:30",
+				"bindings": {
+					"title": "Sentiment",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output",
+					"dataField": "sentimentString",
+					"aggregation": "count",
+					"aggregationField": "",
+					"chartType": "horizontalBar",
+					"colors": [
+						{
+							"value": "Activation|Positive|Positive, Activation",
+							"color": "77, 190, 194"
+						},
+						{
+							"value": "Negative|Negative, Activation",
+							"color": "39, 96, 126"
+						}
+					]
+				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+				"row": 17,
+				"col": 7
+			},
+			{
+				"name": "Document Viewer",
+				"type": "documentViewer",
+				"icon": "DocumentViewer64",
+				"sizex": 24,
+				"sizey": 6,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"$hashKey": "object:37",
+				"selected": true,
+				"bindings": {
+					"title": "Document Viewer Test",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output",
+					"dataField": "originalText",
+					"idField": "id",
+					"metadataFields": [
+						[
+							{
+								"name": "Date",
+								"field": "createdAt"
+							},
+							{
+								"name": "Topic",
+								"field": "type"
+							}
+						],
+						[
+							{
+								"name": "People",
+								"field": "PER"
+							}
+						],
+						[
+							{
+								"name": "Locations",
+								"field": "LOC"
+							}
+						]
+					],
+					"limit": 50
+				}
+			}
+		],
+		"ebola-layout": [
+			{
+				"name": "Bar Chart",
+				"type": "barChart",
+				"icon": "BarChart64",
+				"sizex": 6,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 5,
+				"$$hashKey": "object:30",
+				"selected": true,
+				"bindings": {
+					"title": "Topics",
+					"database": "ebola_data_2",
+					"table": "ui_output",
+					"dataField": "topics",
+					"aggregation": "count",
+					"aggregationField": "",
+					"chartType": "horizontalBar",
+					"colors": [
+						{
+							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
+							"color": "77, 190, 194"
+						},
+						{
+							"value": "regimechange|crimeviolence|terrorism|earthquake",
+							"color": "39, 96, 126"
+						}
+					]
+				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+				"row": 17,
+				"col": 0
+			},
+			{
+				"name": "Event Locations",
+				"type": "map",
+				"icon": "Map64",
+				"sizex": 12,
+				"sizey": 9,
+				"minPixelx": 320,
+				"minPixely": 240,
 				"minSizex": 6,
 				"minSizey": 5,
 				"$$hashKey": "object:29",
@@ -1252,7 +1545,7 @@
 					"title": "Event Locations",
 					"config": [
 						{
-							"database": "ebola_data_1",
+							"database": "ebola_data_2",
 							"filterable": true,
 							"name": "EVENTS",
 							"show": true,
@@ -1286,7 +1579,7 @@
 							"layers": [
 								{
 									"title": "Ebola Point Layer",
-									"database": "ebola_data_1",
+									"database": "ebola_data_2",
 									"table": "ui_output",
 									"latitudeField": "geoLocations.lat",
 									"longitudeField": "geoLocations.lon",
@@ -1315,7 +1608,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Document Count over Time",
-					"database": "ebola_data_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dateField": "createdAt",
 					"granularity": "month"
@@ -1338,10 +1631,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "Location",
-					"database": "ebola_data_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "LOC",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "LOC"
@@ -1364,10 +1657,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "People",
-					"database": "ebola_data_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "PER",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "PER",
@@ -1393,10 +1686,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "Organizations",
-					"database": "ebola_data_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "ORG",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "ORG"
@@ -1419,10 +1712,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "GeoPolitical Entities",
-					"database": "ebola_data_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "GPE",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "GPE",
@@ -1445,7 +1738,7 @@
 				"$$hashKey": "object:30",
 				"bindings": {
 					"title": "Sentiment",
-					"database": "ebola_data_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "sentimentString",
 					"aggregation": "count",
@@ -1453,12 +1746,12 @@
 					"chartType": "horizontalBar",
 					"colors": [
 						{
-							"value": "activation|positive",
+							"value": "Activation|Positive|Positive, Activation",
 							"color": "77, 190, 194"
 						},
 						{
-							"value": "negative",
-							"color": "77, 190, 194"
+							"value": "Negative|Negative, Activation",
+							"color": "39, 96, 126"
 						}
 					]
 				},
@@ -1478,7 +1771,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Document Viewer Test",
-					"database": "ebola_data_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "translatedText",
 					"idField": "id",
@@ -1496,30 +1789,13 @@
 						[
 							{
 								"name": "People",
-								"field": "entities",
-								"arrayFilter": {
-									"filterOn": "entityType",
-									"filterType": "=",
-									"filterFor": [
-										"PER",
-										"ORG"
-									],
-									"show": "transliteration"
-								}
+								"field": "PER"
 							}
 						],
 						[
 							{
 								"name": "Locations",
-								"field": "entities",
-								"arrayFilter": {
-									"filterOn": "entityType",
-									"filterType": "=",
-									"filterFor": [
-										"LOC"
-									],
-									"show": "transliteration"
-								}
+								"field": "LOC"
 							}
 						]
 					],
@@ -1542,7 +1818,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Topics",
-					"database": "nepal_1",
+					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "topics",
 					"aggregation": "count",
@@ -1555,7 +1831,7 @@
 						},
 						{
 							"value": "regimechange|crimeviolence|terrorism|earthquake",
-							"color": "227, 118, 62"
+							"color": "39, 96, 126"
 						}
 					]
 				},
@@ -1579,7 +1855,7 @@
 					"title": "Event Locations",
 					"config": [
 						{
-							"database": "nepal_1",
+							"database": "nepal_2",
 							"filterable": true,
 							"name": "EVENTS",
 							"show": true,
@@ -1631,7 +1907,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Document Count over Time",
-					"database": "nepal_1",
+					"database": "nepal_2",
 					"table": "ui_output",
 					"dateField": "createdAt",
 					"granularity": "month"
@@ -1654,10 +1930,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "Location",
-					"database": "nepal_1",
+					"database": "nepal_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "LOC",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "LOC"
@@ -1680,10 +1956,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "People",
-					"database": "nepal_1",
+					"database": "nepal_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "PER",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "PER",
@@ -1709,10 +1985,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "Organizations",
-					"database": "nepal_1",
+					"database": "nepal_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "ORG",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "ORG"
@@ -1735,10 +2011,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "GeoPolitical Entities",
-					"database": "nepal_1",
+					"database": "nepal_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "GPE",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "GPE",
@@ -1761,7 +2037,7 @@
 				"$$hashKey": "object:30",
 				"bindings": {
 					"title": "Sentiment",
-					"database": "nepal_1",
+					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "sentimentString",
 					"aggregation": "count",
@@ -1769,12 +2045,12 @@
 					"chartType": "horizontalBar",
 					"colors": [
 						{
-							"value": "activation|positive",
+							"value": "Activation|Positive|Positive, Activation",
 							"color": "77, 190, 194"
 						},
 						{
-							"value": "negative",
-							"color": "77, 190, 194"
+							"value": "Negative|Negative, Activation",
+							"color": "39, 96, 126"
 						}
 					]
 				},
@@ -1794,9 +2070,9 @@
 				"selected": true,
 				"bindings": {
 					"title": "Document Viewer Test",
-					"database": "nepal_1",
+					"database": "nepal_2",
 					"table": "ui_output",
-					"dataField": "translatedText",
+					"dataField": "originalText",
 					"idField": "id",
 					"metadataFields": [
 						[
@@ -1812,30 +2088,13 @@
 						[
 							{
 								"name": "People",
-								"field": "entities",
-								"arrayFilter": {
-									"filterOn": "entityType",
-									"filterType": "=",
-									"filterFor": [
-										"PER",
-										"ORG"
-									],
-									"show": "transliteration"
-								}
+								"field": "PER"
 							}
 						],
 						[
 							{
 								"name": "Locations",
-								"field": "entities",
-								"arrayFilter": {
-									"filterOn": "entityType",
-									"filterType": "=",
-									"filterFor": [
-										"LOC"
-									],
-									"show": "transliteration"
-								}
+								"field": "LOC"
 							}
 						]
 					],
@@ -1858,7 +2117,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Topics",
-					"database": "haiti_1",
+					"database": "haiti_2",
 					"table": "ui_output",
 					"dataField": "topics",
 					"aggregation": "count",
@@ -1871,7 +2130,7 @@
 						},
 						{
 							"value": "regimechange|crimeviolence|terrorism|earthquake",
-							"color": "227, 118, 62"
+							"color": "39, 96, 126"
 						}
 					]
 				},
@@ -1895,7 +2154,7 @@
 					"title": "Event Locations",
 					"config": [
 						{
-							"database": "haiti_1",
+							"database": "haiti_2",
 							"filterable": true,
 							"name": "EVENTS",
 							"show": true,
@@ -1947,7 +2206,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Document Count over Time",
-					"database": "haiti_1",
+					"database": "haiti_2",
 					"table": "ui_output",
 					"dateField": "createdAt",
 					"granularity": "month"
@@ -1970,10 +2229,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "Location",
-					"database": "haiti_1",
+					"database": "haiti_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "LOC",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "LOC"
@@ -1996,10 +2255,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "People",
-					"database": "haiti_1",
+					"database": "haiti_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "PER",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "PER",
@@ -2025,10 +2284,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "Organizations",
-					"database": "haiti_1",
+					"database": "haiti_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "ORG",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "ORG"
@@ -2051,10 +2310,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "GeoPolitical Entities",
-					"database": "haiti_1",
+					"database": "haiti_2",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"preFilter": true,
+					"dataField": "GPE",
+					"preFilter": false,
 					"filterTarget": "entities.entityType",
 					"operator": "=",
 					"exclude": "GPE",
@@ -2077,7 +2336,7 @@
 				"$$hashKey": "object:30",
 				"bindings": {
 					"title": "Sentiment",
-					"database": "haiti_1",
+					"database": "haiti_2",
 					"table": "ui_output",
 					"dataField": "sentimentString",
 					"aggregation": "count",
@@ -2085,12 +2344,12 @@
 					"chartType": "horizontalBar",
 					"colors": [
 						{
-							"value": "activation|positive",
+							"value": "Activation|Positive|Positive, Activation",
 							"color": "77, 190, 194"
 						},
 						{
-							"value": "negative",
-							"color": "77, 190, 194"
+							"value": "Negative|Negative, Activation",
+							"color": "39, 96, 126"
 						}
 					]
 				},
@@ -2110,7 +2369,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Document Viewer Test",
-					"database": "haiti_1",
+					"database": "haiti_2",
 					"table": "ui_output",
 					"dataField": "translatedText",
 					"idField": "id",
@@ -2128,30 +2387,13 @@
 						[
 							{
 								"name": "People",
-								"field": "entities",
-								"arrayFilter": {
-									"filterOn": "entityType",
-									"filterType": "=",
-									"filterFor": [
-										"PER",
-										"ORG"
-									],
-									"show": "transliteration"
-								}
+								"field": "PER"
 							}
 						],
 						[
 							{
 								"name": "Locations",
-								"field": "entities",
-								"arrayFilter": {
-									"filterOn": "entityType",
-									"filterType": "=",
-									"filterFor": [
-										"LOC"
-									],
-									"show": "transliteration"
-								}
+								"field": "LOC"
 							}
 						]
 					],
@@ -2708,3 +2950,4 @@
 		}
 	}
 }
+
