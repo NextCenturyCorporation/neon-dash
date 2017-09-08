@@ -381,7 +381,7 @@
         "$$hashKey": "object:36",
         "selected": true,
         "bindings": {
-        "title": "Message Volume over Time",
+        "title": "Document Volume over Time",
         "database": "ebola_data",
         "table": "record",
         "dateField": "loreleiJSONMapping.status.createdAt",
@@ -885,7 +885,8 @@
             "operator": "=",
             "exclude": "LOC",
             "unsharedFilterField": "",
-            "unsharedFilterValue": ""
+            "unsharedFilterValue": "",
+            "groupField": "entities.transliteration"
         },
         "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
         "row": 0,
