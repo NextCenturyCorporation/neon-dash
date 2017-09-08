@@ -208,15 +208,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     ngAfterViewInit() {
-        var version = Cesium.VERSION;
-        //console.log('Cesium Version is ' + version);
         let imagerySources = Cesium.createDefaultImageryProviderViewModels();
         // In order to get a minimal viable product in the short time span we have, we decided to disable the following Cesium features:
         //  3D Map and Columbus view.
         //  Rotating 2D map
         // These were mostly done to prevent the more complex problem of drawing on a 3D map.
-        // Had to add a new default key- as Bing Maps only allows local build access to their maps without a key
-		Cesium.BingMapsApi.defaultKey = 'AqVj08xViDCxPPK2T23kTcfNdq-M6rdFmttIIw7nUxD8KunoX-Qmhcb9zpiFn7f3';
+
         this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
             sceneMode: Cesium.SceneMode.SCENE2D,
             imageryProviderViewModels: imagerySources,
@@ -228,13 +225,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             animation: false, // disable animation widget
             mapMode2D: Cesium.MapMode2D.ROTATE,
             sceneModePicker: false,
-            navigationHelpButton: false,
-            imageryProvider: new Cesium.UrlTemplateImageryProvider({
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    }),
-    terrainProvider: new Cesium.CesiumTerrainProvider({
-       url: '//assets.agi.com/stk-terrain/world'
-    }),
+            navigationHelpButton: false
         });
 
         this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
@@ -672,8 +663,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             //This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
             // like if latFied holds "JSONMapping.status.geolocation.latitude", but the actual latitude value is
             // saved at point["JSONMapping"]["status"]["geolocation"]["latitude"]
-            let lngFieldParts = lngField.split(".")
-            let latFieldParts = latField.split(".")
+            let lngFieldParts = lngField.split('.');
+            let latFieldParts = latField.split('.');
             if ( !lngCoord && lngFieldParts.length > 1) {
                 lngCoord = point[lngFieldParts[0]];
                 lngFieldParts.shift();

@@ -16,7 +16,7 @@ import {VisualizationService} from '../../services/visualization.service';
 @Component({
     selector: 'app-visualization-injector',
     entryComponents: [BarChartComponent, DataTableComponent, DocumentViewerComponent, FilterBuilderComponent, LineChartComponent,
-    MapComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent, TimelineComponent],
+        MapComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent, TimelineComponent],
     template: `<div #dynamicComponentContainer></div>`,
 })
 export class VisualizationInjectorComponent {
@@ -75,7 +75,7 @@ export class VisualizationInjectorComponent {
             case 'barChart': return BarChartComponent;
             case 'dataTable': return DataTableComponent;
             case 'documentViewer': return DocumentViewerComponent;
-            case 'filterBuilder': return FilterBuilderComponent; 
+            case 'filterBuilder': return FilterBuilderComponent;
             case 'lineChart': return LineChartComponent;
             case 'map': return MapComponent;
             case 'scatterPlot': return ScatterPlotComponent;

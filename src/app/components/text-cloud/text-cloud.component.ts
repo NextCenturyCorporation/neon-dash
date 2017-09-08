@@ -211,12 +211,12 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause;
-        //Checks if there's prefilter and adds it.
-        if(this.optionsFromConfig.preFilter){
+        // Checks if there's prefilter and adds it.
+        if (this.optionsFromConfig.preFilter) {
             whereClause = neon.query.where(this.optionsFromConfig.filterTarget,
                 this.optionsFromConfig.operator,
                 this.optionsFromConfig.exclude);
-        }else{
+        } else {
             whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
         }
         let dataField = this.active.dataField.columnName;
@@ -237,23 +237,24 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 .groupBy(dataField).aggregate(neon.query[this.sizeAggregation], sizeColumn, sizeColumn)
                 .sortBy(sizeColumn, neon.query['DESCENDING']).limit(this.active.limit);
         }
-    };
+    }
 
     getFiltersToIgnore() {
         return null;
     }
-    getCount(){
+
+    getCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let countQuery = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause;
         //prefilter
-        if(this.optionsFromConfig.preFilter){
+        if (this.optionsFromConfig.preFilter) {
             whereClause = neon.query.where(this.optionsFromConfig.filterTarget,
                 this.optionsFromConfig.operator,
                 this.optionsFromConfig.exclude);
 
-        }else{
+        } else {
             whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
         }
         let dataField = this.active.dataField.columnName;
@@ -265,7 +266,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let data = response.data;
         let length = data.length;
         let count = this.count;
-        if(length -1 < count ){
+        if (length - 1 < count ) {
+
             let cloudData = data || [];
             let useSizeField: boolean = this.active.sizeField.columnName !== '';
 
@@ -280,7 +282,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             });
             this.active = this.updateObject(this.active, 'data', activeData);
 
-            if (length +1 > count) {
+            if (length + 1 > count) {
                 this.getCount();
             }
         }
@@ -373,7 +375,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getButtonText() {
-        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length +' Total: '+this.count;
+        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length + ' of ' + this.count;
     };
 
     getFilterData() {

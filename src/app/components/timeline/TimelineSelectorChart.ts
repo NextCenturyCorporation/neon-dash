@@ -97,8 +97,8 @@ export class TimelineSelectorChart {
 
     private brush: d3.svg.Brush<TimelineItem>;
 
-    private width = DEFAULT_WIDTH - 2*DEFAULT_MARGIN;
-    private height = DEFAULT_HEIGHT - 2*DEFAULT_MARGIN;
+    private width = DEFAULT_WIDTH - 2 * DEFAULT_MARGIN;
+    private height = DEFAULT_HEIGHT - 2 * DEFAULT_MARGIN;
     private approximateBarWidth: number;
     private xFocus: d3.time.Scale<Date, any>;
     private yFocus: any;
@@ -351,7 +351,7 @@ export class TimelineSelectorChart {
 
         // let xCenterOffset = (this.width + this.marginFocus.left + this.marginFocus.right) / 2;
         //This sets the offset
-        let xCenterOffset = this.width/44;// TODO This is a hack.
+        let xCenterOffset = this.width / 44; // TODO This is a hack.
 
         // Append our chart graphics
         this.svg = d3.select(this.element.nativeElement).attr('class', 'timeline-selector-chart')
@@ -485,7 +485,7 @@ export class TimelineSelectorChart {
             //
 
 
-            
+
             // Use lowest value or 0 for Y-axis domain, whichever is less (e.g. if negative)
             let minY = d3.min(series.data.map((d: any) => {
                 return d.value;

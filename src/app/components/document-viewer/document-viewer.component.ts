@@ -24,8 +24,8 @@ import { VisualizationService } from '../../services/visualization.service';
 import { MdDialog, MdDialogConfig, MdDialogRef } from '@angular/material';
 
 @Component({
-    selector: "app-document-viewer",
-    templateUrl: "./document-viewer.component.html",
+    selector: 'app-document-viewer',
+    templateUrl: './document-viewer.component.html',
     styleUrls: ['./document-viewer.component.scss'],
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -40,7 +40,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         table: string,
         dataField: string,
         dateField: string,
-        metadataFields: any[], // Array of arrays, with each internal array representing a row of metadata. Each row contains {name, field} objects.
+        metadataFields: any[], // Array of arrays. Each internal array is a row of metadata and contains {name, field} objects.
         popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
         limit: number
     };
@@ -53,8 +53,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         data: any[]
     };
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService, exportService: ExportService, injector: Injector,
-        themesService: ThemesService, public viewContainerRef: ViewContainerRef, ref: ChangeDetectorRef, visualizationService: VisualizationService, public dialog: MdDialog) {
+    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
+        exportService: ExportService, injector: Injector, themesService: ThemesService, public viewContainerRef: ViewContainerRef,
+        ref: ChangeDetectorRef, visualizationService: VisualizationService, public dialog: MdDialog) {
         super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
@@ -100,7 +101,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         {
             columnName: this.active.dateField.columnName,
             prettyName: this.active.dateField.prettyName
-        }]
+        }];
     }
 
     getOptionFromConfig(field) {
@@ -109,7 +110,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     onUpdateFields() {
         this.active.dataField = this.findFieldObject('dataField', neonMappings.NEWSFEED_TEXT);
-        this.active.dateField = this.findFieldObject('dateField', null); // This is deliberately not neonMappings.DATE. If this isn't set in the config, we want to ignore it altogether.
+        this.active.dateField = this.findFieldObject('dateField', null); // If not set in the config, ignore it altogether.
         this.active.metadataFields = this.optionsFromConfig.metadataFields;
     }
 
@@ -126,7 +127,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     getVisualizationName() {
-        return "Document Viewer";
+        return 'Document Viewer';
     }
 
     getFiltersToIgnore() {
@@ -150,7 +151,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let fields = this.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
             return x.field;
         }).concat(this.active.dataField.columnName);
-        if(this.active.dateField.columnName) {
+        if (this.active.dateField.columnName) {
             fields = fields.concat(this.active.dateField.columnName);
             query = query.sortBy(this.active.dateField.columnName, neon.query['DESCENDING']);
         }
@@ -164,7 +165,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         }).concat(this.active.dataField.columnName);
         let data = response.data.map(function(element) {
             let elem = {};
-            for(let field of fields) {
+            for (let field of fields) {
                 elem[field] = this.deepFind(element, field);
             }
             return elem;
@@ -214,49 +215,43 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     formatMetadataEntry(record, metadataEntry) {
         let field = record[metadataEntry.field];
-        if(typeof field  === 'string') {
+        if (typeof field  === 'string') {
             return field || 'None';
-        }
-        else if(field instanceof Array) {
+        } else if (field instanceof Array) {
             let matches = [];
-            for(let obj of field) {
-                if(!metadataEntry.arrayFilter) {
+            for (let obj of field) {
+                if (!metadataEntry.arrayFilter) {
                     matches.push(obj);
-                }
-                else if(this.checkIfRecordMatchesFilter(obj, metadataEntry.arrayFilter)) {
-                    if(!metadataEntry.arrayFilter.show || metadataEntry.arrayFilter.show == '*') {
+                } else if (this.checkIfRecordMatchesFilter(obj, metadataEntry.arrayFilter)) {
+                    if (!metadataEntry.arrayFilter.show || metadataEntry.arrayFilter.show === '*') {
                         matches.push(obj);
-                    }
-                    else {
+                    } else {
                         matches.push(obj[metadataEntry.arrayFilter.show]);
                     }
                 }
             }
             return matches.join(', ') || 'None';
-        }
-        else {
+        } else {
             return 'None';
         }
     }
 
     checkIfRecordMatchesFilter(object, filter) {
-        if(!filter) {
+        if (!filter) {
             return true;
-        }
-        else if(filter.filterType == '=') {
-            for(let item of filter.filterFor) {
-                let fieldToFilter = (!filter.filterOn || filter.filterOn == '*') ? object : object[filter.filterOn];
-                if(fieldToFilter == item) {
+        } else if (filter.filterType === '=') {
+            for (let item of filter.filterFor) {
+                let fieldToFilter = (!filter.filterOn || filter.filterOn === '*') ? object : object[filter.filterOn];
+                if (fieldToFilter === item) {
                     return true;
                 }
             }
             return false;
-        }
-        else if(filter.filterType == '!=') {
+        } else if (filter.filterType === '!=') {
             let matches = true;
-            for(let item of filter.filterFor) {
-                let fieldToFilter = (!filter.filterOn || filter.filterOn == '*') ? object : object[filter.filterOn];
-                if(fieldToFilter == item) {
+            for (let item of filter.filterFor) {
+                let fieldToFilter = (!filter.filterOn || filter.filterOn === '*') ? object : object[filter.filterOn];
+                if (fieldToFilter === item) {
                     return false;
                 }
             }
@@ -268,7 +263,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let config = new MdDialogConfig();
         // config.viewContainerRef = this.viewContainerRef;
         let metadata = this.optionsFromConfig.metadataFields;
-        if(this.optionsFromConfig.popoutFields) {
+        if (this.optionsFromConfig.popoutFields) {
             metadata = metadata.concat(this.optionsFromConfig.popoutFields);
         }
         config.data = {
@@ -285,11 +280,11 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 }
 
 /**
- * arrayFilter is used to filter only for certain results from a returned array. It is designed to accommodate both object and string/number arrays.
+ * arrayFilter is used to filter only for certain results from a returned array. It accomodates both object and string/number arrays.
  * {
- *     "filterOn": String, the (non-nested) field of each individual object in the array to filter on. Use "" or "*" to filter on the entire object (as for string/number arrays).
+ *     "filterOn": String, the (non-nested) field of each  object in the array to filter on. "" or "*" to filters on the complete object.
  *     "filterType": String, the type of filter this is. Must be one of "=" or "!="
- *     "filterFor": Array, the values we want to include or exclude. The field specified in filterOn must match one of these values to be included/excluded.
+ *     "filterFor": Array, values to include or exclude. The filterOn field must match one of these values to be included/excluded.
  *     "show": String, the field to show for any included object. Use "" or "*" to show the entire object (as for string/number arrays).
  * }
  */
