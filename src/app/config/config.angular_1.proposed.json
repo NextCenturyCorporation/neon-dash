@@ -1,0 +1,1187 @@
+{
+    "user_ale": {
+        "loggingUrl": "http://192.168.1.100",
+        "toolName": "Neon Dashboard",
+        "toolVersion": "1.2.0",
+        "elementGroups": [
+            "top",
+            "map_group",
+            "table_group",
+            "chart_group",
+            "query_group",
+            "graph_group"
+        ],
+        "workerUrl": "bower_components/user-ale/js/userale-worker.js",
+        "debug": false,
+        "sendLogs": false
+    },
+    "dashboard": {
+        "gridsterColumns": 24,
+        "gridsterMargins": 10,
+        "hideNavbarItems": false,
+        "hideAdvancedOptions": false,
+        "hideAddVisualizationsButton": false,
+        "hideErrorNotifications": true,
+        "hideHeaders": false,
+        "hideCloseButton": false,
+        "showVideoOnLoad": false,
+        "showImport": false,
+        "showExport": true,
+        "translationKeys": {
+            "google": "API_KEY"
+        }
+    },
+    "help": {
+        "guide": "./app/help/Neon-Dashboard-User-Guide.pdf",
+        "webVideo": "",
+        "localVideo": ""
+    },
+    "opencpu": {
+        "enableOpenCpu": false,
+        "enableLogging": false,
+        "useAlerts": false,
+        "enableAnomalyDetection": true,
+        "enableStl2": false,
+        "enableMmpp": false,
+        "url": "http://neon-opencpu/ocpu/library/NeonAngularDemo/R"
+    },
+    "externalServices": {
+        "jsonConfigFile": "",
+        "appImagePath": "",
+        "fileProps": {
+            "url": "url",
+            "name": "name",
+            "image": "image",
+            "services": "services"
+        },
+        "servicesMappings": {
+            "neonMapping1": "serviceName1",
+            "neonMapping2": "serviceName2"
+        },
+        "argsMappings": {
+            "neonMapping1": {
+                "serviceName1": "neonMapping1"
+            },
+            "neonMapping2": {
+                "serviceName2": {
+                    "propertyName1": "neonMapping3",
+                    "propertyName2": "neonMapping4"
+                }
+            }
+        }
+    },
+    "datasets": [
+        {
+            "name": "LDC Uyghur Annotations",
+            "connectOnLoad": false,
+            "layout": "ils-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "ldc_uyghur_3",
+                    "prettyName": "LDC Uyghur",
+                    "tables": [
+                        {
+                            "name": "ui_output",
+                            "prettyName": "UI Output",
+                            "mappings": {
+                                "date": "createdAt",
+                                "latitude": "geoLocations.lat",
+                                "longitude": "geoLocations.lon"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "colorMaps": {
+                    "ldc_uyghur_2": {
+                        "ui_output": {
+                            "entities.entityType": {
+                                "LOC": "#98DF8A",
+                                "ORG": "#FF9896",
+                                "PER": "#AEC7E8"
+                            },
+                            "types": {},
+                            "sentimentString": {
+                                "Positive" : "#4CBDC2",
+                                "Activation" : "#4CBDC2",
+                                "Negative" : "#27607D"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "ELISA Uyghur Annotations",
+            "connectOnLoad": true,
+            "layout": "elisa_uig-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "elisa_uyghur_2",
+                    "prettyName": "ELISA Uyghur",
+                    "tables": [
+                        {
+                            "name": "ui_output",
+                            "prettyName": "UI Output",
+                            "mappings": {
+                                "date": "createdAt",
+                                "latitude": "geoLocations.lat",
+                                "longitude": "geoLocations.lon"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "colorMaps": {
+                    "elisa_uyghur_1": {
+                        "ui_output": {
+                            "entities.entityType": {
+                                "LOC": "#98DF8A",
+                                "ORG": "#FF9896",
+                                "PER": "#AEC7E8"
+                            },
+                            "types": {}
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "GRACE Uyghur Annotations",
+            "connectOnLoad": false,
+            "layout": "grace_uig-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "grace_uyghur_3",
+                    "prettyName": "GRACE Uyghur",
+                    "tables": [
+                        {
+                            "name": "ui_output",
+                            "prettyName": "UI Output",
+                            "mappings": {
+                                "date": "createdAt",
+                                "latitude": "geoLocations.lat",
+                                "longitude": "geoLocations.lon"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "colorMaps": {
+                    "grace_uyghur_3": {
+                        "ui_output": {
+                            "entities.entityType": {
+                                "LOC": "#98DF8A",
+                                "ORG": "#FF9896",
+                                "PER": "#AEC7E8"
+                            },
+                            "types": {}
+                        }
+                    }
+                }
+            }
+        },
+         {
+            "name": "ARIEL Uyghur Annotations",
+            "connectOnLoad": false,
+            "layout": "ariel_uig-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "ariel_uyghur_1",
+                    "prettyName": "ARIEL Uyghur",
+                    "tables": [
+                        {
+                            "name": "ui_output",
+                            "prettyName": "UI Output",
+                            "mappings": {
+                                "date": "createdAt",
+                                "latitude": "geoLocations.lat",
+                                "longitude": "geoLocations.lon"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "colorMaps": {
+                    "grace_uyghur_3": {
+                        "ui_output": {
+                            "entities.entityType": {
+                                "LOC": "#98DF8A",
+                                "ORG": "#FF9896",
+                                "PER": "#AEC7E8"
+                            },
+                            "types": {}
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Ebola Data",
+            "connectOnLoad": false,
+            "layout": "ebola-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "ebola_data_2",
+                    "prettyName": "Ebola Data",
+                    "tables": [
+                        {
+                            "name": "ui_output",
+                            "prettyName": "UI Output",
+                            "mappings": {
+                                "date": "createdAt",
+                                "latitude": "geoLocations.lat",
+                                "longitude": "geoLocations.lon"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "colorMaps": {
+                    "ebola_data_1": {
+                        "ui_output": {
+                            "entities.entityType": {
+                                "LOC": "#98DF8A",
+                                "ORG": "#FF9896",
+                                "PER": "#AEC7E8"
+                            },
+                            "types": {}
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Nepal Data",
+            "connectOnLoad": false,
+            "layout": "nepal-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "nepal_2",
+                    "prettyName": "Nepal Data",
+                    "tables": [
+                        {
+                            "name": "ui_output",
+                            "prettyName": "UI Output",
+                            "mappings": {
+                                "date": "createdAt",
+                                "latitude": "geoLocations.lat",
+                                "longitude": "geoLocations.lon"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "colorMaps": {
+                    "nepal_1": {
+                        "ui_output": {
+                            "entities.entityType": {
+                                "LOC": "#98DF8A",
+                                "ORG": "#FF9896",
+                                "PER": "#AEC7E8"
+                            },
+                            "types": {}
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Haiti Data",
+            "connectOnLoad": false,
+            "layout": "haiti-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "haiti_2",
+                    "prettyName": "Haiti Data",
+                    "tables": [
+                        {
+                            "name": "ui_output",
+                            "prettyName": "UI Output",
+                            "mappings": {
+                                "date": "createdAt",
+                                "latitude": "geoLocations.lat",
+                                "longitude": "geoLocations.lon"
+                            }
+                        }
+                    ]
+                }
+            ],
+            "options": {
+                "checkForCoordinateValidation": "null_values",
+                "colorMaps": {
+                    "haiti_1": {
+                        "ui_output": {
+                            "entities.entityType": {
+                                "LOC": "#98DF8A",
+                                "ORG": "#FF9896",
+                                "PER": "#AEC7E8"
+                            },
+                            "types": {}
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "layouts": {
+        "ils-layout": [
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Topics",
+                    "database": "ldc_uyghur_3",
+                    "table": "ui_output",
+                    "groupField": "topics",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "useVertical": true,
+                    "limit": 50
+                }
+            },
+            {
+                "sizex": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                "bindings": {
+                    "title": "Locations",
+                    "database": "ldc_uyghur_3",
+                    "table": "ui_output",
+                    "dataField": "LOC"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 10,
+                "type": "map",
+                "bindings": {
+                    "title": "Event Locations",
+                    "config": [
+                        {
+                            "name": "EVENTS",
+                            "database": "ldc_uyghur_3",
+                            "table": "ui_output",
+                            "type": "cluster",
+                            "limit": 1000,
+                            "latitudeField": "geoLocations.lat",
+                            "longitudeField": "geoLocations.lon",
+                            "dateField": "createdAt"
+                        }
+                    ]
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "People",
+                    "database": "ldc_uyghur_3",
+                    "table": "ui_output",
+                    "dataField": "PER"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "GeoPolitical Entities",
+                    "database": "ldc_uyghur_3",
+                    "table": "ui_output",
+                    "dataField": "GPE"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "Orgainzations",
+                    "database": "ldc_uyghur_3",
+                    "table": "ui_output",
+                    "dataField": "ORG"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Sentiment",
+                    "database": "ldc_uyghur_3",
+                    "table": "ui_output",
+                    "groupField": "sentimentString",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "limit": 50
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "documentViewer",
+                "bindings": {
+                    "title": "Document Viewer",
+                    "database": "ldc_uyghur_3",
+                    "table": "ui_output",
+                    "documentTextField": "translatedText"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "timeline",
+                "bindings": {
+                    "title": "Document Count over Time",
+                    "database": "ldc_uyghur_3",
+                    "table": "ui_output",
+                    "dateField": "createdAt",
+                    "granularity": "month"
+                }
+            }
+        ],
+        "elisa_uig-layout": [
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Topics",
+                    "database": "elisa_uyghur_2",
+                    "table": "ui_output",
+                    "groupField": "topics",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "useVertical": true,
+                    "limit": 50
+                }
+            },
+            {
+                "sizex": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                "bindings": {
+                    "title": "Locations",
+                    "database": "elisa_uyghur_2",
+                    "table": "ui_output",
+                    "dataField": "LOC"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 10,
+                "type": "map",
+                "bindings": {
+                    "title": "Event Locations",
+                    "config": [
+                        {
+                            "name": "EVENTS",
+                            "database": "elisa_uyghur_2",
+                            "table": "ui_output",
+                            "type": "cluster",
+                            "limit": 1000,
+                            "latitudeField": "geoLocations.lat",
+                            "longitudeField": "geoLocations.lon",
+                            "dateField": "createdAt"
+                        }
+                    ]
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "People",
+                    "database": "elisa_uyghur_2",
+                    "table": "ui_output",
+                    "dataField": "PER"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "GeoPolitical Entities",
+                    "database": "elisa_uyghur_2",
+                    "table": "ui_output",
+                    "dataField": "GPE"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "Organizations",
+                    "database": "elisa_uyghur_2",
+                    "table": "ui_output",
+                    "dataField": "ORG"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Sentiment",
+                    "database": "elisa_uyghur_2",
+                    "table": "ui_output",
+                    "groupField": "sentimentString",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "limit": 50
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "documentViewer",
+                "bindings": {
+                    "title": "Document Viewer",
+                    "database": "elisa_uyghur_2",
+                    "table": "ui_output",
+                    "documentTextField": "translatedText"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "timeline",
+                "bindings": {
+                    "title": "Document Count over Time",
+                    "database": "elisa_uyghur_2",
+                    "table": "ui_output",
+                    "dateField": "createdAt",
+                    "granularity": "year"
+                }
+            }
+        ],
+        "grace_uig-layout": [
+   {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Topics",
+                    "database": "grace_uyghur_3",
+                    "table": "ui_output",
+                    "groupField": "topics",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "useVertical": true,
+                    "limit": 50
+                }
+            },
+            {
+                "sizex": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                "bindings": {
+                    "title": "Locations",
+                    "database": "grace_uyghur_3",
+                    "table": "ui_output",
+                    "dataField": "LOC"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 10,
+                "type": "map",
+                "bindings": {
+                    "title": "Event Locations",
+                    "config": [
+                        {
+                            "name": "EVENTS",
+                            "database": "grace_uyghur_3",
+                            "table": "ui_output",
+                            "type": "cluster",
+                            "limit": 1000,
+                            "latitudeField": "geoLocations.lat",
+                            "longitudeField": "geoLocations.lon",
+                            "dateField": "createdAt"
+                        }
+                    ]
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "People",
+                    "database": "grace_uyghur_3",
+                    "table": "ui_output",
+                    "dataField": "PER"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "GeoPolitical Entities",
+                    "database": "grace_uyghur_3",
+                    "table": "ui_output",
+                    "dataField": "GPE"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "Organizations",
+                    "database": "grace_uyghur_3",
+                    "table": "ui_output",
+                    "dataField": "ORG"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Sentiment",
+                    "database": "grace_uyghur_3",
+                    "table": "ui_output",
+                    "groupField": "sentimentString",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "limit": 50
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "documentViewer",
+                "bindings": {
+                    "title": "Document Viewer",
+                    "database": "grace_uyghur_3",
+                    "table": "ui_output",
+                    "documentTextField": "originalText"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "timeline",
+                "bindings": {
+                    "title": "Document Count over Time",
+                    "database": "grace_uyghur_3",
+                    "table": "ui_output",
+                    "dateField": "createdAt",
+                    "granularity": "month"
+                }
+            }
+        ],
+          "ariel_uig-layout": [
+   {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Topics",
+                    "database": "ariel_uyghur_1",
+                    "table": "ui_output",
+                    "groupField": "topics",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "useVertical": true,
+                    "limit": 50
+                }
+            },
+            {
+                "sizex": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                "bindings": {
+                    "title": "Locations",
+                    "database": "ariel_uyghur_1",
+                    "table": "ui_output",
+                    "dataField": "LOC"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 10,
+                "type": "map",
+                "bindings": {
+                    "title": "Event Locations",
+                    "config": [
+                        {
+                            "name": "EVENTS",
+                            "database": "ariel_uyghur_1",
+                            "table": "ui_output",
+                            "type": "cluster",
+                            "limit": 1000,
+                            "latitudeField": "geoLocations.lat",
+                            "longitudeField": "geoLocations.lon",
+                            "dateField": "createdAt"
+                        }
+                    ]
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "People",
+                    "database": "ariel_uyghur_1",
+                    "table": "ui_output",
+                    "dataField": "PER"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "GeoPolitical Entities",
+                    "database": "ariel_uyghur_1",
+                    "table": "ui_output",
+                    "dataField": "GPE"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "Organizations",
+                    "database": "ariel_uyghur_1",
+                    "table": "ui_output",
+                    "dataField": "ORG"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Sentiment",
+                    "database": "ariel_uyghur_1",
+                    "table": "ui_output",
+                    "groupField": "sentimentString",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "limit": 50
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "documentViewer",
+                "bindings": {
+                    "title": "Document Viewer",
+                    "database": "ariel_uyghur_1",
+                    "table": "ui_output",
+                    "documentTextField": "originalText"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "timeline",
+                "bindings": {
+                    "title": "Document Count over Time",
+                    "database": "ariel_uyghur_1",
+                    "table": "ui_output",
+                    "dateField": "createdAt",
+                    "granularity": "month"
+                }
+            }
+        ],
+        "ebola-layout": [
+    {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Topics",
+                    "database": "ebola_data_2",
+                    "table": "ui_output",
+                    "groupField": "topics",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "useVertical": true,
+                    "limit": 50
+                }
+            },
+            {
+                "sizex": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                "bindings": {
+                    "title": "Locations",
+                    "database": "ebola_data_2",
+                    "table": "ui_output",
+                    "dataField": "LOC"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 10,
+                "type": "map",
+                "bindings": {
+                    "title": "Event Locations",
+                    "config": [
+                        {
+                            "name": "EVENTS",
+                            "database": "ebola_data_2",
+                            "table": "ui_output",
+                            "type": "cluster",
+                            "limit": 1000,
+                            "latitudeField": "geoLocations.lat",
+                            "longitudeField": "geoLocations.lon",
+                            "dateField": "createdAt"
+                        }
+                    ]
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "People",
+                    "database": "ebola_data_2",
+                    "table": "ui_output",
+                    "dataField": "PER"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "GeoPolitical Entities",
+                    "database": "ebola_data_2",
+                    "table": "ui_output",
+                    "dataField": "GPE"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "Organizations",
+                    "database": "ebola_data_2",
+                    "table": "ui_output",
+                    "dataField": "ORG"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Sentiment",
+                    "database": "ebola_data_2",
+                    "table": "ui_output",
+                    "groupField": "sentimentString",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "limit": 50
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "documentViewer",
+                "bindings": {
+                    "title": "Document Viewer",
+                    "database": "ebola_data_2",
+                    "table": "ui_output",
+                    "documentTextField": "originalText"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "timeline",
+                "bindings": {
+                    "title": "Document Count over Time",
+                    "database": "ebola_data_2",
+                    "table": "ui_output",
+                    "dateField": "createdAt",
+                    "granularity": "month"
+                }
+            }
+        ],
+        "nepal-layout": [
+   {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Topics",
+                    "database": "nepal_2",
+                    "table": "ui_output",
+                    "groupField": "topics",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "useVertical": true,
+                    "limit": 50
+                }
+            },
+            {
+                "sizex": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                "bindings": {
+                    "title": "Locations",
+                    "database": "nepal_2",
+                    "table": "ui_output",
+                    "dataField": "LOC"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 10,
+                "type": "map",
+                "bindings": {
+                    "title": "Event Locations",
+                    "config": [
+                        {
+                            "name": "EVENTS",
+                            "database": "nepal_2",
+                            "table": "ui_output",
+                            "type": "cluster",
+                            "limit": 1000,
+                            "latitudeField": "geoLocations.lat",
+                            "longitudeField": "geoLocations.lon",
+                            "dateField": "createdAt"
+                        }
+                    ]
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "People",
+                    "database": "nepal_2",
+                    "table": "ui_output",
+                    "dataField": "PER"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "GeoPolitical Entities",
+                    "database": "nepal_2",
+                    "table": "ui_output",
+                    "dataField": "GPE"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "Organizations",
+                    "database": "nepal_2",
+                    "table": "ui_output",
+                    "dataField": "ORG"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Sentiment",
+                    "database": "nepal_2",
+                    "table": "ui_output",
+                    "groupField": "sentimentString",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "limit": 50
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "documentViewer",
+                "bindings": {
+                    "title": "Document Viewer",
+                    "database": "nepal_2",
+                    "table": "ui_output",
+                    "documentTextField": "originalText"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "timeline",
+                "bindings": {
+                    "title": "Document Count over Time",
+                    "database": "nepal_2",
+                    "table": "ui_output",
+                    "dateField": "createdAt",
+                    "granularity": "month"
+                }
+            }
+        ],
+        "haiti-layout": [
+   {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Topics",
+                    "database": "haiti_2",
+                    "table": "ui_output",
+                    "groupField": "topics",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "useVertical": true,
+                    "limit": 50
+                }
+            },
+            {
+                "sizex": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                "bindings": {
+                    "title": "Locations",
+                    "database": "haiti_2",
+                    "table": "ui_output",
+                    "dataField": "LOC"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 10,
+                "type": "map",
+                "bindings": {
+                    "title": "Event Locations",
+                    "config": [
+                        {
+                            "name": "EVENTS",
+                            "database": "haiti_2",
+                            "table": "ui_output",
+                            "type": "cluster",
+                            "limit": 1000,
+                            "latitudeField": "geoLocations.lat",
+                            "longitudeField": "geoLocations.lon",
+                            "dateField": "createdAt"
+                        }
+                    ]
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "People",
+                    "database": "haiti_2",
+                    "table": "ui_output",
+                    "dataField": "PER"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "GeoPolitical Entities",
+                    "database": "haiti_2",
+                    "table": "ui_output",
+                    "dataField": "GPE"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "textCloud",
+                 "bindings": {
+                    "title": "Organizations",
+                    "database": "haiti_2",
+                    "table": "ui_output",
+                    "dataField": "ORG"
+                }
+            },
+            {
+                "sizeX": 6,
+                "sizeY": 5,
+                "type": "barChart",
+                "bindings": {
+                    "title": "Sentiment",
+                    "database": "haiti_2",
+                    "table": "ui_output",
+                    "groupField": "sentimentString",
+                    "aggregationType": "count",
+                    "aggregationField": "",
+                    "limit": 50
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "documentViewer",
+                "bindings": {
+                    "title": "Document Viewer",
+                    "database": "haiti_2",
+                    "table": "ui_output",
+                    "documentTextField": "originalText"
+                }
+            },
+            {
+                "sizeX": 12,
+                "sizeY": 6,
+                "type": "timeline",
+                "bindings": {
+                    "title": "Document Count over Time",
+                    "database": "haiti_2",
+                    "table": "ui_output",
+                    "dateField": "createdAt",
+                    "granularity": "month"
+                }
+            }
+        ]
+    },
+    "routeService": {
+        "url": "http://localhost:8090/ghREST/",
+        "get": "route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2",
+        "post": "dynamicroute",
+        "disabled": true
+    }
+}
