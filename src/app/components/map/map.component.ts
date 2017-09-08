@@ -634,11 +634,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         return query;
     };
 
-    getColorFromScheme(index) {
-        let color = this.colorSchemeService.getColorAsRgb(index);
-        return color;
-    }
-
     isNumeric(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
@@ -681,7 +676,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     color = this.active.colorMap[colorKey];
                     localColorMap[colorKey] = color;
                 } else {
-                    let colorString = this.getNextAvailableColorString();
+                    let colorString = this.colorSchemeService.getColorFor(colorField, point[colorField]).toRgb();
                     let legendItem: LegendItem = this.getLegendItem(colorKey, colorString);
                     color = Cesium.Color.fromCssColorString(colorString);
                     localColorMap[colorKey] = color;
@@ -727,19 +722,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             }
         }
         this.legendData = data;
-    }
-
-    getNextAvailableColorString() {
-        if (this.active.unusedColors.length > 0) {
-            let color = this.active.unusedColors[0];
-            this.active.unusedColors.splice(0, 1);
-            return color;
-        } else {
-            let index = this.active.nextColorIndex;
-            let color = this.getColorFromScheme(index);
-            this.active.nextColorIndex++;
-            return color;
-        }
     }
 
     getLegendItem(colorKey, colorString) {
