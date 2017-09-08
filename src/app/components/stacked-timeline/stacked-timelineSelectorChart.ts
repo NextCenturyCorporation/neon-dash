@@ -101,8 +101,8 @@ export class StackedTimelineSelectorChart {
 
     private brush: d3.svg.Brush<TimelineItem>;
 
-    private width = DEFAULT_WIDTH - 2*DEFAULT_MARGIN;
-    private height = DEFAULT_HEIGHT - 2*DEFAULT_MARGIN;
+    private width = DEFAULT_WIDTH - 2 * DEFAULT_MARGIN;
+    private height = DEFAULT_HEIGHT - 2 * DEFAULT_MARGIN;
     private approximateBarWidth: number;
     private xFocus: d3.time.Scale<Date, any>;
     private yFocus: any;
@@ -357,7 +357,7 @@ export class StackedTimelineSelectorChart {
 
         // let xCenterOffset = (this.width + this.marginFocus.left + this.marginFocus.right) / 2;
         //This sets the offset
-        let xCenterOffset = this.width/44;// TODO This is a hack.
+        let xCenterOffset = this.width / 44; // TODO This is a hack.
 
         // Append our chart graphics
         this.svg = d3.select(this.element.nativeElement)
@@ -380,52 +380,52 @@ export class StackedTimelineSelectorChart {
             .attr('class', 'x axis')
             .attr('transform', 'translate(-' + xCenterOffset + ',' + heightContext + ')')
             .call(xAxisContext);
-        
-         /* 
+
+         /*
         let x = d3.scale.ordinal()
-            .rangeRoundBands([0, this.width]) 
-            .paddingInner(0.3) 
-        //console.log('x : '+ x); 
-      ///* 
+            .rangeRoundBands([0, this.width])
+            .paddingInner(0.3)
+        //console.log('x : '+ x);
+      ///*
         ///*
-        let y = d3.scale.linear() 
-            .rangeRoundBands([this.height, 0]); 
-        //console.log('y :'+ y); 
+        let y = d3.scale.linear()
+            .rangeRoundBands([this.height, 0]);
+        //console.log('y :'+ y);
         //*/
         //console.log(d3.scale.category20());
         ///*
-        //let z = d3.scale.category20();//Ordinal(d3.schemeCategory20); 
-        //console.log('The z is '+ z); 
-      //*/ 
-      ///* 
-        
+        //let z = d3.scale.category20();//Ordinal(d3.schemeCategory20);
+        //console.log('The z is '+ z);
+      //*/
+      ///*
+
         let color = d3.scale.category20();
         /*
-        let stack = d3.layout.stack() 
-        .values(function(d) { return d.values; }) 
-        .x(function(d) { return d.date }) 
-        .y(function(d) { return d.value }) 
-        .offset(d3.stackOffsetNone); 
-        
-        let layers = stack(this.data); 
-         
-        
-        ///* 
-        //*/ 
-        
         let stack = d3.layout.stack()
-        .values(function(d) { return d.values;})
-        .x(function(d) {return d.date})
-        .y(function(d) { return d.value})
-        
-        let layers = stack(this.data)
-        
-        let layer = this.svg.selectAll(".layer")
-        .data(layers)
-        .enter().append('g')
-        
-        
-        
+        .values(function(d) { return d.values; })
+        .x(function(d) { return d.date })
+        .y(function(d) { return d.value })
+        .offset(d3.stackOffsetNone);
+
+        let layers = stack(this.data);
+
+
+        ///*
+        //*/
+
+        let stack = d3.layout.stack()
+            .values(function(d) { return d.values; })
+            .x(function(d) {return d.date; })
+            .y(function(d) { return d.value; });
+
+        let layers = stack(this.data);
+
+        let layer = this.svg.selectAll('.layer')
+            .data(layers)
+            .enter().append('g');
+
+
+
         context.selectAll('.major text')
             .attr('transform', 'translate(' + (this.approximateBarWidth / 2) + ',0)');
 
@@ -537,7 +537,7 @@ export class StackedTimelineSelectorChart {
             //
 
 
-            
+
             // Use lowest value or 0 for Y-axis domain, whichever is less (e.g. if negative)
             let minY = d3.min(series.data.map((d: any) => {
                 return d.value;
@@ -841,9 +841,9 @@ export class StackedTimelineSelectorChart {
                 barheight++;
             }
             style += 'fill:' + series.color + ';';
-            
+
             //Start of stack
-            
+
             /*
             let stack = d3.layout.stack()
                 .values(function(d) { return d.values; })
@@ -862,35 +862,37 @@ export class StackedTimelineSelectorChart {
                 .attr("class", function(d) { return "" + d.date; })
                 .attr('x', function(d) { return this.xContext(d.date); })
                 .attr('y', function(d) { return this.yContext(Math.max(0, d.value) + d.y0); })
-                .attr('width', function(d) { return this.xContext(d3.time[this.granularity].utc.offset(d.date, 1)) - this.xContext(d.date); })
+                .attr('width', function(d) {
+                    return this.xContext(d3.time[this.granularity].utc.offset(d.date, 1)) - this.xContext(d.date);
+                })
                 .attr("height", function(d) {
                     var height = this.yContext(d.value) - this.yContext(0);
                     var offset = height / height || 0;
                     var calculatedHeight = Math.abs(height) + (offset * barheight);
                     return calculatedHeight;
                 });
-            
+
             *////*
             let stack = d3.layout.stack()
-                .values(function(d) { return d.values;})
-                .x(function(d) {return d.date})
-                .y(function(d) { return d.value})
-           
-           let layers = stack(this.data)
-           
+                .values(function(d) { return d.values; })
+                .x(function(d) {return d.date; })
+                .y(function(d) { return d.value; });
+
+           let layers = stack(this.data);
+
            let categories = this.svg.selectAll('.bar')
                 .data(layers)
                 .enter().append('g')
-                .style('fill', function(d, i) {return this.colorSet(i)});
-            
+                .style('fill', function(d, i) { return this.colorSet(i); });
+
             //let colorSet = this.colorSet
-            
+
             //console.log('Color set: '+colorSet);
-            
-            let layer = this.svg.selectAll(".layer")
-            .data(layers)
-            .enter().append('g')
-            //*/ 
+
+            let layer = this.svg.selectAll('.layer')
+                .data(layers)
+                .enter().append('g');
+            //*/
             ///*
             categories.selectAll('rect.bar')
                 .data(series.focusData)

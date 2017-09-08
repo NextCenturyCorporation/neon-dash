@@ -470,11 +470,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return query;
     };
 
-    getColorFromScheme(index) {
-        let color = this.colorSchemeService.getColorAsRgb(index);
-        return color;
-    }
-
     getFiltersToIgnore() {
         return null;
     }

@@ -17,7 +17,8 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
     public text: any;
     public metadata: any;
 
-    constructor(@Inject(MD_DIALOG_DATA) data: any, public themesService: ThemesService, public dialogRef: MdDialogRef<DocumentViewerSingleItemComponent>) {
+    constructor(@Inject(MD_DIALOG_DATA) data: any, public themesService: ThemesService,
+        public dialogRef: MdDialogRef<DocumentViewerSingleItemComponent>) {
         this.messenger = new neon.eventing.Messenger();
         this.data = data;
         this.text = this.deepFind(data.item, data.textField);
@@ -29,7 +30,7 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
     }
 
     ngOnDestroy() {
-        
+
     }
 
     deepFind(obj, pathStr) {
@@ -44,49 +45,43 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
 
     formatMetadataEntry(record, metadataEntry) {
         let field = record[metadataEntry.field];
-        if(typeof field  === 'string') {
+        if (typeof field  === 'string') {
             return field || 'None';
-        }
-        else if(field instanceof Array) {
+        } else if (field instanceof Array) {
             let matches = [];
-            for(let obj of field) {
-                if(!metadataEntry.arrayFilter) {
+            for (let obj of field) {
+                if (!metadataEntry.arrayFilter) {
                     matches.push(obj);
-                }
-                else if(this.checkIfRecordMatchesFilter(obj, metadataEntry.arrayFilter)) {
-                    if(!metadataEntry.arrayFilter.show || metadataEntry.arrayFilter.show == '*') {
+                } else if (this.checkIfRecordMatchesFilter(obj, metadataEntry.arrayFilter)) {
+                    if (!metadataEntry.arrayFilter.show || metadataEntry.arrayFilter.show === '*') {
                         matches.push(obj);
-                    }
-                    else {
+                    } else {
                         matches.push(obj[metadataEntry.arrayFilter.show]);
                     }
                 }
             }
             return matches.join(', ') || 'None';
-        }
-        else {
+        } else {
             return 'None';
         }
     }
 
     checkIfRecordMatchesFilter(object, filter) {
-        if(!filter) {
+        if (!filter) {
             return true;
-        }
-        else if(filter.filterType == '=') {
-            for(let item of filter.filterFor) {
-                let fieldToFilter = (!filter.filterOn || filter.filterOn == '*') ? object : object[filter.filterOn];
-                if(fieldToFilter == item) {
+        } else if (filter.filterType === '=') {
+            for (let item of filter.filterFor) {
+                let fieldToFilter = (!filter.filterOn || filter.filterOn === '*') ? object : object[filter.filterOn];
+                if (fieldToFilter === item) {
                     return true;
                 }
             }
             return false;
-        }
-        else if(filter.filterType == '!=') {
+        } else if (filter.filterType === '!=') {
             let matches = true;
-            for(let item of filter.filterFor) {
-                let fieldToFilter = (!filter.filterOn || filter.filterOn == '*') ? object : object[filter.filterOn];
-                if(fieldToFilter == item) {
+            for (let item of filter.filterFor) {
+                let fieldToFilter = (!filter.filterOn || filter.filterOn === '*') ? object : object[filter.filterOn];
+                if (fieldToFilter === item) {
                     return false;
                 }
             }

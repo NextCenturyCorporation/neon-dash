@@ -283,10 +283,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return query.aggregate(neon.query['COUNT'], '*', 'value');
     };
 
-    getColorFromScheme(index) {
-        return this.colorSchemeService.getColorAsRgb(index);
-    }
-
     getFiltersToIgnore() {
         let database = this.meta.database.name;
         let table = this.meta.table.name;

@@ -532,9 +532,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
     };
 
-    getColorFromScheme(index) {
-        let color = this.colorSchemeService.getColorAsRgb(index);
-        return color;
+    getColorFromScheme(name): string {
+        return this.colorSchemeService.getColorFor(this.active.groupField.columnName, name).toRgb();
     }
 
     getFiltersToIgnore() {
@@ -605,8 +604,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 let d = {
                     label: datasetName,
                     data: myData[datasetName],
-                    borderColor: this.getColorFromScheme(datasetIndex),
-                    pointBorderColor: this.getColorFromScheme(datasetIndex),
+                    borderColor: this.getColorFromScheme(datasetName),
+                    pointBorderColor: this.getColorFromScheme(datasetName),
                     backgroundColor: 'rgba(0,0,0,0)',
                     pointBackgroundColor: 'rgba(0,0,0,0)',
                     total: totals[datasetName]

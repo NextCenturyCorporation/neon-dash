@@ -146,13 +146,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
         this.filters = [];
 
-        let limit = this.optionsFromConfig.limit;
-        limit = (limit ? limit : 1000);
-
         this.active = {
             layers: [],
             andFilters: true,
-            limit: limit,
+            limit: this.optionsFromConfig.limit,
             filterable: true,
             data: [],
             nextColorIndex: 0,
@@ -204,19 +201,28 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     subGetBindings(bindings: any) {
-        // TODO
+        bindings.limit = this.active.limit;
+        // The map layers objects are different, clear out the old stuff;
+        bindings.layers = [];
+        for (let layer of this.active.layers) {
+            bindings.layers.push({
+                title: layer.title,
+                latitudeField: layer.latitudeField.columnName,
+                longitudeField: layer.longitudeField.columnName,
+                sizeField: layer.sizeField.columnName,
+                colorField: layer.colorField.columnName,
+                dateField: layer.dateField.columnName
+            });
+        }
     }
 
     ngAfterViewInit() {
-        var version = Cesium.VERSION;
-        //console.log('Cesium Version is ' + version);
         let imagerySources = Cesium.createDefaultImageryProviderViewModels();
         // In order to get a minimal viable product in the short time span we have, we decided to disable the following Cesium features:
         //  3D Map and Columbus view.
         //  Rotating 2D map
         // These were mostly done to prevent the more complex problem of drawing on a 3D map.
-        // Had to add a new default key- as Bing Maps only allows local build access to their maps without a key
-		Cesium.BingMapsApi.defaultKey = 'AqVj08xViDCxPPK2T23kTcfNdq-M6rdFmttIIw7nUxD8KunoX-Qmhcb9zpiFn7f3';
+
         this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
             sceneMode: Cesium.SceneMode.SCENE2D,
             imageryProviderViewModels: imagerySources,
@@ -228,13 +234,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             animation: false, // disable animation widget
             mapMode2D: Cesium.MapMode2D.ROTATE,
             sceneModePicker: false,
-            navigationHelpButton: false,
-            imageryProvider: new Cesium.UrlTemplateImageryProvider({
-        url: 'http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    }),
-    terrainProvider: new Cesium.CesiumTerrainProvider({
-       url: '//assets.agi.com/stk-terrain/world'
-    }),
+            navigationHelpButton: false
         });
 
         this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
@@ -333,6 +333,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     drawSelection() {
+        if (!this.cesiumViewer) {
+            return;
+        }
         let entities = this.cesiumViewer.entities;
         if (this.selection.selectionGeometry) {
             entities.removeById(this.selection.selectionGeometry.id);
@@ -631,11 +634,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         return query;
     };
 
-    getColorFromScheme(index) {
-        let color = this.colorSchemeService.getColorAsRgb(index);
-        return color;
-    }
-
     isNumeric(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
@@ -678,7 +676,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     color = this.active.colorMap[colorKey];
                     localColorMap[colorKey] = color;
                 } else {
-                    let colorString = this.getNextAvailableColorString();
+                    let colorString = this.colorSchemeService.getColorFor(colorField, point[colorField]).toRgb();
                     let legendItem: LegendItem = this.getLegendItem(colorKey, colorString);
                     color = Cesium.Color.fromCssColorString(colorString);
                     localColorMap[colorKey] = color;
@@ -689,12 +687,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             }
             let lngCoord = point[lngField];
             let latCoord = point[latField];
-            
+
             //This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
             // like if latFied holds "JSONMapping.status.geolocation.latitude", but the actual latitude value is
             // saved at point["JSONMapping"]["status"]["geolocation"]["latitude"]
-            let lngFieldParts = lngField.split(".")
-            let latFieldParts = latField.split(".")
+            let lngFieldParts = lngField.split('.');
+            let latFieldParts = latField.split('.');
             if ( !lngCoord && lngFieldParts.length > 1) {
                 lngCoord = point[lngFieldParts[0]];
                 lngFieldParts.shift();
@@ -747,19 +745,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             }
         }
         this.legendData = data;
-    }
-
-    getNextAvailableColorString() {
-        if (this.active.unusedColors.length > 0) {
-            let color = this.active.unusedColors[0];
-            this.active.unusedColors.splice(0, 1);
-            return color;
-        } else {
-            let index = this.active.nextColorIndex;
-            let color = this.getColorFromScheme(index);
-            this.active.nextColorIndex++;
-            return color;
-        }
     }
 
     getLegendItem(colorKey, colorString) {

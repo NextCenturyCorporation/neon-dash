@@ -278,7 +278,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             prettyName: this.active.groupField.prettyName});
             }
         //*/
-        
+
         query = query.groupBy(groupBys);
         query = query.sortBy('date', neon.query['ASCENDING']);
         query = query.where(whereClause);
@@ -288,10 +288,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         }
         return query.aggregate(neon.query['COUNT'], '*', 'value');
     };
-
-    getColorFromScheme(index) {
-        return this.colorSchemeService.getColorAsRgb(index);
-    }
 
     getFiltersToIgnore() {
         let database = this.meta.database.name;
@@ -402,7 +398,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                 series.data.push({
                     date: row.date,
                     value: row.value,
-                    groupField:this.active.groupField
+                    groupField: this.active.groupField
                 });
             }
         }
@@ -492,8 +488,8 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     handleChangeDateField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
     };
-  
-    handleChangeGroupField(){
+
+    handleChangeGroupField() {
         this.logChangeAndStartQueryChain();
     };
 
@@ -501,11 +497,11 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
     };
-    
+
     subGetBindings(bindings) {
         // TODO
     }
-  
+
 
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
         // this.logChange(option, value, type);

@@ -15,66 +15,123 @@
  */
 import { Injectable } from '@angular/core';
 
+/**
+ * A set of colors, used to keep track of which values map to which colors
+ */
+class ColorSet {
+    public colorList: Color[];
+    public currentIndex: number = 0;
+    public mappings: Map<string, Color> = new Map<string, Color>();
 
+    getColorForValue(value: string): Color {
+        let color = this.mappings.get(value);
+        if (color == null) {
+            color = this.colorList[this.currentIndex];
+            this.mappings.set(value, color);
+
+            this.currentIndex = (this.currentIndex + 1) % this.colorList.length;
+        }
+        return color;
+    }
+}
+
+/**
+ * Service for getting colors to use for coloring different values in visualizations.
+ * The set name and data value are cached, so that you get the same colors for the same values each time.
+ */
 @Injectable()
 export class ColorSchemeService {
+    private colorMaps: Map<string, ColorSet> = new Map<string, ColorSet>();
 
-    private activeColorScheme: Color[];
-    private activeColorSchemeName: string;
-    private allColorSchemes: {
-        [key: string]: Color[];
-    };
-
-    constructor() {
-        let defaultCs = [
+    // Palette generated with http://tools.medialab.sciences-po.fr/iwanthue/
+    private colorList = [
+        [
             new Color(31, 120, 180), new Color(51, 160, 44), new Color(227, 26, 28),
             new Color(255, 127, 0), new Color(106, 61, 154), new Color(177, 89, 40),
             new Color(166, 206, 227), new Color(178, 223, 138), new Color(251, 154, 153),
             new Color(253, 191, 111), new Color(202, 178, 214), new Color(255, 255, 153),
-        ];
-        let defaultKey = 'default';
-        this.allColorSchemes = {};
-        this.allColorSchemes['default'] = defaultCs;
-        this.allColorSchemes['bright'] = [
+        ],
+        [
             new Color(228, 26, 28), new Color(55, 126, 184), new Color(77, 175, 74),
             new Color(152, 78, 163), new Color(255, 127, 0), new Color(255, 255, 51),
             new Color(166, 86, 40), new Color(247, 129, 191), new Color(153, 153, 153)
-        ];
-        this.allColorSchemes['divergentHotCold'] = [
+        ],
+        [
+            new Color(1, 63, 165),
+            new Color(0, 161, 73),
+            new Color(171, 79, 193),
+            new Color(131, 126, 0),
+            new Color(190, 165, 255),
+            new Color(184, 68, 6),
+            new Color(187, 134, 198),
+            new Color(255, 148, 89),
+            new Color(120, 33, 65),
+            new Color(255, 132, 189),
+            new Color(230, 65, 81),
+            new Color(192, 0, 89)
+        ],
+        [
+            new Color(217, 66, 163),
+            new Color(144, 186, 48),
+            new Color(31, 137, 255),
+            new Color(255, 163, 72),
+            new Color(0, 89, 162),
+            new Color(136, 232, 164),
+            new Color(111, 0, 60),
+            new Color(0, 123, 45),
+            new Color(221, 142, 194),
+            new Color(0, 77, 1),
+            new Color(255, 143, 132),
+            new Color(119, 79, 0)
+        ],
+        [
             new Color(103, 0, 31), new Color(178, 24, 43), new Color(214, 96, 77),
             new Color(244, 165, 130), new Color(253, 219, 199), new Color(247, 247, 247),
             new Color(209, 229, 240), new Color(146, 197, 222), new Color(67, 147, 195),
-            new Color(33, 102, 172), new Color(5, 48, 97)];
-        this.setActiveColorScheme(defaultKey);
-    }
+            new Color(33, 102, 172), new Color(5, 48, 97)
+        ],
+    ];
+    private colorPosition = 0;
 
-    public setActiveColorScheme(key: string): void {
-        if (this.allColorSchemes.hasOwnProperty(key)) {
-            this.activeColorSchemeName = key;
-            this.activeColorScheme = this.allColorSchemes[key];
+    /**
+     * Get the color for a value within a set
+     * @param {string} set
+     * @param {string} value
+     */
+    public getColorFor(set: string, value: string): Color {
+        let colorSet = this.colorMaps.get(set);
+        if (colorSet == null) {
+            colorSet = new ColorSet();
+            colorSet.colorList = this.colorList[this.colorPosition];
+            this.colorMaps.set(set, colorSet);
+
+            this.colorPosition = (this.colorPosition + 1) % this.colorList.length;
         }
-    }
-
-    public getColor(index: number): Color {
-        if (index >= 0) {
-            index = index % this.activeColorScheme.length;
-            let c = this.activeColorScheme[index];
-            return c;
-
-        }
-        return null;
-    };
-
-    public getColorAsRgb(index: number): string {
-        let c = this.getColor(index);
-        return c.toRgb();
+        return colorSet.getColorForValue(value);
     }
 }
 
+/**
+ * General color class.
+ * This class can provide colors in a hex string, RGB formatted, or in RGB percent.
+ */
 export class Color {
     private red: number;
     private green: number;
     private blue: number;
+
+    /**
+     * Create a color object from an array of RGB values.
+     * The array must have 3 elements in it
+     * @param {number[]} rgb
+     * @return {Color}
+     */
+    static fromRgbArray(rgb: number[]): Color {
+        if (rgb == null || rgb.length !== 3) {
+            return null;
+        }
+        return new Color(rgb[0], rgb[1], rgb[2]);
+    }
 
     constructor(r: number, g: number, b: number) {
         this.red = r;
@@ -94,18 +151,30 @@ export class Color {
         return value.toString(16);
     }
 
+    /**
+     * Get the color as a string of RGB percentages
+     * @return {string}
+     */
     toPercentages(): string {
         return '' + this.getBase1(this.red) + ',' +
             this.getBase1(this.green) + ',' +
             this.getBase1(this.blue);
     }
 
+    /**
+     * Get the color as a rgb(0,0,0) string
+     * @return {string}
+     */
     toRgb(): string {
         return 'rgb(' + this.getBase255(this.red) + ',' +
             this.getBase255(this.green) + ',' +
             this.getBase255(this.blue) + ')';
     }
 
+    /**
+     * Get the color as a '#RRGGBB' string
+     * @return {string}
+     */
     toHexString(): string {
         return '#' + this.getHex(this.red) +
             this.getHex(this.green) +

@@ -49,7 +49,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         aggregationField: string,
         unsharedFilterField: any,
         unsharedFilterValue: string,
-        colors: any[], // Colors is a list of objects with value (regex) and color fields e.g. { "water|sanitation": "0, 255, 0", "plague|riot": "255, 0, 0" }
+        colors: any[],
         chartType: string // 'bar' or 'horizontalBar'
     };
     public active: {
@@ -270,19 +270,18 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     getColorValue(label, active) {
         let getMatch = function(colorObject) {
-            return colorObject.value.match(label) != undefined;
-        }
+            return colorObject.value.match(label) !== undefined;
+        };
 
-        if(active) {
+        if (active) {
             let match = this.optionsFromConfig.colors.find(getMatch);
-            if(match) {
+            if (match) {
                 return 'rgba(' + match.color + ', 0.9)';
             }
             return this.chartDefaults.activeColor;
-        }
-        else {
+        } else {
             let match = this.optionsFromConfig.colors.find(getMatch);
-            if(match) {
+            if (match) {
                 return 'rgba(' + match.color + ', 0.3)';
             }
             return this.chartDefaults.activeColor;
