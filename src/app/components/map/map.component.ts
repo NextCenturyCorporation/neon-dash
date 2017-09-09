@@ -79,7 +79,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }[]
     };
     public active: {
-        layers: MapLayer[]
+        layers: MapLayer[],
         andFilters: boolean,
         limit: number,
         filterable: boolean,
@@ -500,8 +500,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
         // If there are no layers or the index is past the end of the layers in the config, default to the original
-        if (layerIndex >= this.optionsFromConfig.layers.length || !bindingKey
-            || !this.optionsFromConfig.layers[layerIndex][bindingKey]) {
+        if (layerIndex >= this.optionsFromConfig.layers.length || !bindingKey || !this.optionsFromConfig.layers[layerIndex][bindingKey]) {
             return super.findFieldObject(layerIndex, bindingKey, mappingKey);
         }
 
@@ -669,7 +668,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 lngCoord = point[lngFieldParts[0]];
                 lngFieldParts.shift();
                 while (lngFieldParts.length > 0) {
-                    lngCoord = lngCoord[lngFieldParts[0]];
+                    if (lngFieldParts.length === 1 && lngCoord instanceof Array) {
+                        lngCoord = lngCoord.map((elem) => {
+                            return elem[lngFieldParts[0]];
+                        });
+                    } else {
+                        lngCoord = lngCoord[lngFieldParts[0]];
+                    }
                     lngFieldParts.shift();
                 }
             }
@@ -677,7 +682,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 latCoord = point[latFieldParts[0]];
                 latFieldParts.shift();
                 while (latFieldParts.length > 0) {
-                    latCoord = latCoord[latFieldParts[0]];
+                    if (latFieldParts.length === 1 && latCoord instanceof Array) {
+                        latCoord = latCoord.map((elem) => {
+                            return elem[latFieldParts[0]];
+                        });
+                    } else {
+                        latCoord = latCoord[latFieldParts[0]];
+                    }
                     latFieldParts.shift();
                 }
             }
@@ -695,6 +706,23 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 };
                 let en = entities.add(entity);
                 newDataIds.push(en.id);
+            } else if (latCoord instanceof Array && lngCoord instanceof Array) {
+                for (let pos = latCoord.length - 1; pos >= 0; pos--) {
+                    if (this.isNumeric(latCoord[pos]) && this.isNumeric(lngCoord[pos])) {
+                        let entity = {
+                            position: Cesium.Cartesian3.fromDegrees(lngCoord, latCoord),
+                            point: {
+                                show: true, // default
+                                color: color, // default: WHITE
+                                pixelSize: 4, // default: 1
+                                outlineColor: color, // default: BLACK
+                                outlineWidth: 0 // default: 0
+                            }
+                        };
+                        let en = entities.add(entity);
+                        newDataIds.push(en.id);
+                    }
+                }
             }
         }
         this.active.data[layerIndex] = newDataIds;

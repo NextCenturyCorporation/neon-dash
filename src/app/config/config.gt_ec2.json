@@ -34,7 +34,7 @@
 								"PER": "#AEC7E8"
 							},
 							"types": {
-								
+
 							}
 						}
 					}
@@ -75,7 +75,7 @@
 								"PER": "#AEC7E8"
 							},
 							"types": {
-								
+
 							}
 						}
 					}
@@ -116,7 +116,7 @@
 								"PER": "#AEC7E8"
 							},
 							"types": {
-								
+
 							}
 						}
 					}
@@ -157,7 +157,7 @@
 								"PER": "#AEC7E8"
 							},
 							"types": {
-								
+
 							}
 						}
 					}
@@ -198,7 +198,7 @@
 								"PER": "#AEC7E8"
 							},
 							"types": {
-								
+
 							}
 						}
 					}
@@ -239,7 +239,7 @@
 								"PER": "#AEC7E8"
 							},
 							"types": {
-								
+
 							}
 						}
 					}
@@ -280,7 +280,7 @@
 								"PER": "#AEC7E8"
 							},
 							"types": {
-								
+
 							}
 						}
 					}
@@ -339,42 +339,49 @@
 				"selected": true,
 				"bindings": {
 					"title": "Event Locations",
-					"config": [
+					"database": "ldc_uyghur_3",
+					"filterable": true,
+					"name": "EVENTS",
+					"show": true,
+					"table": "ui_output",
+					"type": "cluster",
+					"limit": 1000,
+					"latitudeField": "geoLocations.lat",
+					"longitudeField": "geoLocations.lon",
+					"sourceLatitudeField": "",
+					"sourceLongitudeField": "",
+					"targetLatitudeField": "",
+					"targetLongitudeField": "",
+					"colorField": "",
+					"dateField": "createdAt",
+					"sizeField": "",
+					"idField": "",
+					"colorCode": "",
+					"lineColorField": "",
+					"nodeColorField": "",
+					"lineSizeField": "",
+					"nodeSizeField": "",
+					"lineColorCode": "",
+					"nodeColorCode": "",
+					"gradientColorCode1": "",
+					"gradientColorCode2": "",
+					"gradientColorCode3": "",
+					"gradientColorCode4": "",
+					"gradientColorCode5": "",
+					"applyTransientDateFilter": false,
+					"popupFields": [],
+					"layers": [
 						{
+							"title": "LDC Uyghur Point Layer",
 							"database": "ldc_uyghur_3",
-							"filterable": true,
-							"name": "EVENTS",
-							"show": true,
 							"table": "ui_output",
-							"type": "cluster",
-							"limit": 1000,
 							"latitudeField": "geoLocations.lat",
 							"longitudeField": "geoLocations.lon",
-							"sourceLatitudeField": "",
-							"sourceLongitudeField": "",
-							"targetLatitudeField": "",
-							"targetLongitudeField": "",
-							"colorField": "",
 							"dateField": "createdAt",
-							"sizeField": "",
-							"idField": "",
-							"colorCode": "",
-							"lineColorField": "",
-							"nodeColorField": "",
-							"lineSizeField": "",
-							"nodeSizeField": "",
-							"lineColorCode": "",
-							"nodeColorCode": "",
-							"gradientColorCode1": "",
-							"gradientColorCode2": "",
-							"gradientColorCode3": "",
-							"gradientColorCode4": "",
-							"gradientColorCode5": "",
-							"applyTransientDateFilter": false,
-							"popupFields": []
+							"colorField": "topics"
 						}
 					]
-				},
+                },
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 5,
 				"col": 13
@@ -575,7 +582,7 @@
 							{
 								"name": "People",
 								"field": "PER"
-								
+
 							}
 						],
 						[
@@ -639,39 +646,46 @@
 				"selected": true,
 				"bindings": {
 					"title": "Event Locations",
-					"config": [
+					"database": "elisa_uyghur_2",
+					"filterable": true,
+					"name": "EVENTS",
+					"show": true,
+					"table": "ui_output",
+					"type": "cluster",
+					"limit": 1000,
+					"latitudeField": "geoLocations.lat",
+					"longitudeField": "geoLocations.lon",
+					"sourceLatitudeField": "",
+					"sourceLongitudeField": "",
+					"targetLatitudeField": "",
+					"targetLongitudeField": "",
+					"colorField": "",
+					"dateField": "createdAt",
+					"sizeField": "",
+					"idField": "",
+					"colorCode": "",
+					"lineColorField": "",
+					"nodeColorField": "",
+					"lineSizeField": "",
+					"nodeSizeField": "",
+					"lineColorCode": "",
+					"nodeColorCode": "",
+					"gradientColorCode1": "",
+					"gradientColorCode2": "",
+					"gradientColorCode3": "",
+					"gradientColorCode4": "",
+					"gradientColorCode5": "",
+					"applyTransientDateFilter": false,
+					"popupFields": [],
+					"layers": [
 						{
+							"title": "Elisa Point Layer",
 							"database": "elisa_uyghur_2",
-							"filterable": true,
-							"name": "EVENTS",
-							"show": true,
 							"table": "ui_output",
-							"type": "cluster",
-							"limit": 1000,
 							"latitudeField": "geoLocations.lat",
 							"longitudeField": "geoLocations.lon",
-							"sourceLatitudeField": "",
-							"sourceLongitudeField": "",
-							"targetLatitudeField": "",
-							"targetLongitudeField": "",
-							"colorField": "",
 							"dateField": "createdAt",
-							"sizeField": "",
-							"idField": "",
-							"colorCode": "",
-							"lineColorField": "",
-							"nodeColorField": "",
-							"lineSizeField": "",
-							"nodeSizeField": "",
-							"lineColorCode": "",
-							"nodeColorCode": "",
-							"gradientColorCode1": "",
-							"gradientColorCode2": "",
-							"gradientColorCode3": "",
-							"gradientColorCode4": "",
-							"gradientColorCode5": "",
-							"applyTransientDateFilter": false,
-							"popupFields": []
+							"colorField": "topics"
 						}
 					]
 				},
@@ -877,7 +891,7 @@
 							{
 								"name": "People",
 								"field": "PER"
-						
+
 							}
 						],
 						[
@@ -941,42 +955,49 @@
 				"selected": true,
 				"bindings": {
 					"title": "Event Locations",
-					"config": [
+					"database": "grace_uyghur_3",
+					"filterable": true,
+					"name": "EVENTS",
+					"show": true,
+					"table": "ui_output",
+					"type": "cluster",
+					"limit": 1000,
+					"latitudeField": "geoLocations.lat",
+					"longitudeField": "geoLocations.lon",
+					"sourceLatitudeField": "",
+					"sourceLongitudeField": "",
+					"targetLatitudeField": "",
+					"targetLongitudeField": "",
+					"colorField": "",
+					"dateField": "createdAt",
+					"sizeField": "",
+					"idField": "",
+					"colorCode": "",
+					"lineColorField": "",
+					"nodeColorField": "",
+					"lineSizeField": "",
+					"nodeSizeField": "",
+					"lineColorCode": "",
+					"nodeColorCode": "",
+					"gradientColorCode1": "",
+					"gradientColorCode2": "",
+					"gradientColorCode3": "",
+					"gradientColorCode4": "",
+					"gradientColorCode5": "",
+					"applyTransientDateFilter": false,
+					"popupFields": [],
+					"layers": [
 						{
+							"title": "Grace Point Layer",
 							"database": "grace_uyghur_3",
-							"filterable": true,
-							"name": "EVENTS",
-							"show": true,
 							"table": "ui_output",
-							"type": "cluster",
-							"limit": 1000,
 							"latitudeField": "geoLocations.lat",
 							"longitudeField": "geoLocations.lon",
-							"sourceLatitudeField": "",
-							"sourceLongitudeField": "",
-							"targetLatitudeField": "",
-							"targetLongitudeField": "",
-							"colorField": "",
 							"dateField": "createdAt",
-							"sizeField": "",
-							"idField": "",
-							"colorCode": "",
-							"lineColorField": "",
-							"nodeColorField": "",
-							"lineSizeField": "",
-							"nodeSizeField": "",
-							"lineColorCode": "",
-							"nodeColorCode": "",
-							"gradientColorCode1": "",
-							"gradientColorCode2": "",
-							"gradientColorCode3": "",
-							"gradientColorCode4": "",
-							"gradientColorCode5": "",
-							"applyTransientDateFilter": false,
-							"popupFields": []
+							"colorField": "topics"
 						}
 					]
-				},
+                },
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 5,
 				"col": 13
@@ -1242,42 +1263,49 @@
 				"selected": true,
 				"bindings": {
 					"title": "Event Locations",
-					"config": [
+					"database": "ariel_uyghur_1",
+					"filterable": true,
+					"name": "EVENTS",
+					"show": true,
+					"table": "ui_output",
+					"type": "cluster",
+					"limit": 1000,
+					"latitudeField": "geoLocations.lat",
+					"longitudeField": "geoLocations.lon",
+					"sourceLatitudeField": "",
+					"sourceLongitudeField": "",
+					"targetLatitudeField": "",
+					"targetLongitudeField": "",
+					"colorField": "",
+					"dateField": "createdAt",
+					"sizeField": "",
+					"idField": "",
+					"colorCode": "",
+					"lineColorField": "",
+					"nodeColorField": "",
+					"lineSizeField": "",
+					"nodeSizeField": "",
+					"lineColorCode": "",
+					"nodeColorCode": "",
+					"gradientColorCode1": "",
+					"gradientColorCode2": "",
+					"gradientColorCode3": "",
+					"gradientColorCode4": "",
+					"gradientColorCode5": "",
+					"applyTransientDateFilter": false,
+					"popupFields": [],
+					"layers": [
 						{
+							"title": "Ariel Point Layer",
 							"database": "ariel_uyghur_1",
-							"filterable": true,
-							"name": "EVENTS",
-							"show": true,
 							"table": "ui_output",
-							"type": "cluster",
-							"limit": 1000,
 							"latitudeField": "geoLocations.lat",
 							"longitudeField": "geoLocations.lon",
-							"sourceLatitudeField": "",
-							"sourceLongitudeField": "",
-							"targetLatitudeField": "",
-							"targetLongitudeField": "",
-							"colorField": "",
 							"dateField": "createdAt",
-							"sizeField": "",
-							"idField": "",
-							"colorCode": "",
-							"lineColorField": "",
-							"nodeColorField": "",
-							"lineSizeField": "",
-							"nodeSizeField": "",
-							"lineColorCode": "",
-							"nodeColorCode": "",
-							"gradientColorCode1": "",
-							"gradientColorCode2": "",
-							"gradientColorCode3": "",
-							"gradientColorCode4": "",
-							"gradientColorCode5": "",
-							"applyTransientDateFilter": false,
-							"popupFields": []
+							"colorField": "topics"
 						}
 					]
-				},
+                },
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 5,
 				"col": 13
@@ -1543,50 +1571,46 @@
 				"selected": true,
 				"bindings": {
 					"title": "Event Locations",
-					"config": [
+					"database": "ebola_data_2",
+					"filterable": true,
+					"name": "EVENTS",
+					"show": true,
+					"table": "ui_output",
+					"type": "cluster",
+					"limit": 1000,
+					"latitudeField": "geoLocations.lat",
+					"longitudeField": "geoLocations.lon",
+					"sourceLatitudeField": "",
+					"sourceLongitudeField": "",
+					"targetLatitudeField": "",
+					"targetLongitudeField": "",
+					"colorField": "topics",
+					"dateField": "createdAt",
+					"sizeField": "",
+					"idField": "",
+					"colorCode": "",
+					"lineColorField": "",
+					"nodeColorField": "",
+					"lineSizeField": "",
+					"nodeSizeField": "",
+					"lineColorCode": "",
+					"nodeColorCode": "",
+					"gradientColorCode1": "",
+					"gradientColorCode2": "",
+					"gradientColorCode3": "",
+					"gradientColorCode4": "",
+					"gradientColorCode5": "",
+					"applyTransientDateFilter": false,
+					"popupFields": [],
+					"layers": [
 						{
+							"title": "Ebola Point Layer",
 							"database": "ebola_data_2",
-							"filterable": true,
-							"name": "EVENTS",
-							"show": true,
 							"table": "ui_output",
-							"type": "cluster",
-							"limit": 1000,
 							"latitudeField": "geoLocations.lat",
 							"longitudeField": "geoLocations.lon",
-							"sourceLatitudeField": "",
-							"sourceLongitudeField": "",
-							"targetLatitudeField": "",
-							"targetLongitudeField": "",
-							"colorField": "topics",
 							"dateField": "createdAt",
-							"sizeField": "",
-							"idField": "",
-							"colorCode": "",
-							"lineColorField": "",
-							"nodeColorField": "",
-							"lineSizeField": "",
-							"nodeSizeField": "",
-							"lineColorCode": "",
-							"nodeColorCode": "",
-							"gradientColorCode1": "",
-							"gradientColorCode2": "",
-							"gradientColorCode3": "",
-							"gradientColorCode4": "",
-							"gradientColorCode5": "",
-							"applyTransientDateFilter": false,
-							"popupFields": [],
-							"layers": [
-								{
-									"title": "Ebola Point Layer",
-									"database": "ebola_data_2",
-									"table": "ui_output",
-									"latitudeField": "geoLocations.lat",
-									"longitudeField": "geoLocations.lon",
-									"dateField": "createdAt",
-									"colorField": "topics"
-								}
-							]
+							"colorField": "topics"
 						}
 					]
 				},
@@ -1853,42 +1877,48 @@
 				"selected": true,
 				"bindings": {
 					"title": "Event Locations",
-					"config": [
+					"database": "nepal_2",
+					"filterable": true,
+					"name": "EVENTS",
+					"show": true,
+					"table": "ui_output",
+					"type": "cluster",
+					"limit": 1000,
+					"latitudeField": "geoLocations.lat",
+					"longitudeField": "geoLocations.lon",
+					"sourceLatitudeField": "",
+					"sourceLongitudeField": "",
+					"targetLatitudeField": "",
+					"targetLongitudeField": "",
+					"colorField": "",
+					"dateField": "createdAt",
+					"sizeField": "",
+					"idField": "",
+					"colorCode": "",
+					"lineColorField": "",
+					"nodeColorField": "",
+					"lineSizeField": "",
+					"nodeSizeField": "",
+					"lineColorCode": "",
+					"nodeColorCode": "",
+					"gradientColorCode1": "",
+					"gradientColorCode2": "",
+					"gradientColorCode3": "",
+					"gradientColorCode4": "",
+					"gradientColorCode5": "",
+					"applyTransientDateFilter": false,
+					"popupFields": [],
+					"layers": [
 						{
+							"title": "Nepal Point Layer",
 							"database": "nepal_2",
-							"filterable": true,
-							"name": "EVENTS",
-							"show": true,
 							"table": "ui_output",
-							"type": "cluster",
-							"limit": 1000,
 							"latitudeField": "geoLocations.lat",
 							"longitudeField": "geoLocations.lon",
-							"sourceLatitudeField": "",
-							"sourceLongitudeField": "",
-							"targetLatitudeField": "",
-							"targetLongitudeField": "",
-							"colorField": "",
-							"dateField": "createdAt",
-							"sizeField": "",
-							"idField": "",
-							"colorCode": "",
-							"lineColorField": "",
-							"nodeColorField": "",
-							"lineSizeField": "",
-							"nodeSizeField": "",
-							"lineColorCode": "",
-							"nodeColorCode": "",
-							"gradientColorCode1": "",
-							"gradientColorCode2": "",
-							"gradientColorCode3": "",
-							"gradientColorCode4": "",
-							"gradientColorCode5": "",
-							"applyTransientDateFilter": false,
-							"popupFields": []
+							"dateField": "createdAt"
 						}
 					]
-				},
+                },
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 5,
 				"col": 13
@@ -2152,42 +2182,49 @@
 				"selected": true,
 				"bindings": {
 					"title": "Event Locations",
-					"config": [
+					"database": "haiti_2",
+					"filterable": true,
+					"name": "EVENTS",
+					"show": true,
+					"table": "ui_output",
+					"type": "cluster",
+					"limit": 1000,
+					"latitudeField": "geoLocations.lat",
+					"longitudeField": "geoLocations.lon",
+					"sourceLatitudeField": "",
+					"sourceLongitudeField": "",
+					"targetLatitudeField": "",
+					"targetLongitudeField": "",
+					"colorField": "",
+					"dateField": "createdAt",
+					"sizeField": "",
+					"idField": "",
+					"colorCode": "",
+					"lineColorField": "",
+					"nodeColorField": "",
+					"lineSizeField": "",
+					"nodeSizeField": "",
+					"lineColorCode": "",
+					"nodeColorCode": "",
+					"gradientColorCode1": "",
+					"gradientColorCode2": "",
+					"gradientColorCode3": "",
+					"gradientColorCode4": "",
+					"gradientColorCode5": "",
+					"applyTransientDateFilter": false,
+					"popupFields": [],
+					"layers": [
 						{
+							"title": "Haiti Point Layer",
 							"database": "haiti_2",
-							"filterable": true,
-							"name": "EVENTS",
-							"show": true,
 							"table": "ui_output",
-							"type": "cluster",
-							"limit": 1000,
 							"latitudeField": "geoLocations.lat",
 							"longitudeField": "geoLocations.lon",
-							"sourceLatitudeField": "",
-							"sourceLongitudeField": "",
-							"targetLatitudeField": "",
-							"targetLongitudeField": "",
-							"colorField": "",
 							"dateField": "createdAt",
-							"sizeField": "",
-							"idField": "",
-							"colorCode": "",
-							"lineColorField": "",
-							"nodeColorField": "",
-							"lineSizeField": "",
-							"nodeSizeField": "",
-							"lineColorCode": "",
-							"nodeColorCode": "",
-							"gradientColorCode1": "",
-							"gradientColorCode2": "",
-							"gradientColorCode3": "",
-							"gradientColorCode4": "",
-							"gradientColorCode5": "",
-							"applyTransientDateFilter": false,
-							"popupFields": []
+							"colorField": "topics"
 						}
 					]
-				},
+                },
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 5,
 				"col": 13
@@ -2950,4 +2987,3 @@
 		}
 	}
 }
-
