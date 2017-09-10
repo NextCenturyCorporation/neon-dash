@@ -303,7 +303,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Topics",
+					"title": "Docs per Topic",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -326,10 +326,10 @@
 				"col": 0
 			},
 			{
-				"name": "Event Locations",
+				"name": "Docs per Location",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 12,
+				"sizex": 9,
 				"sizey": 9,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -338,7 +338,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Event Locations",
+					"title": "Docs per Location",
 					"database": "ldc_uyghur_3",
 					"filterable": true,
 					"name": "EVENTS",
@@ -369,7 +369,7 @@
 					"gradientColorCode4": "",
 					"gradientColorCode5": "",
 					"applyTransientDateFilter": false,
-					"popupFields": [],
+					"popupFields": ["originalText"],
 					"layers": [
 						{
 							"title": "LDC Uyghur Point Layer",
@@ -399,7 +399,7 @@
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
-					"title": "Document Count over Time",
+					"title": "Docs per Time",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dateField": "createdAt",
@@ -529,7 +529,7 @@
 				"minSizey": 5,
 				"$$hashKey": "object:30",
 				"bindings": {
-					"title": "Sentiment",
+					"title": "Docs per Sentiment",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "sentimentString",
@@ -610,7 +610,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Topics",
+					"title": "Docs per Topic",
 					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -633,7 +633,7 @@
 				"col": 0
 			},
 			{
-				"name": "Event Locations",
+				"name": "Docs per Location",
 				"type": "map",
 				"icon": "Map64",
 				"sizex": 12,
@@ -645,7 +645,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Event Locations",
+					"title": "Docs per Location",
 					"database": "elisa_uyghur_2",
 					"filterable": true,
 					"name": "EVENTS",
@@ -706,7 +706,7 @@
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
-					"title": "Document Count over Time",
+					"title": "Docs per Time",
 					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dateField": "createdAt",
@@ -839,7 +839,7 @@
 				"minSizey": 5,
 				"$$hashKey": "object:30",
 				"bindings": {
-					"title": "Sentiment",
+					"title": "Docs per Sentiment",
 					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "sentimentString",
@@ -920,7 +920,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Topics",
+					"title": "Docs per Topic",
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -943,7 +943,7 @@
 				"col": 0
 			},
 			{
-				"name": "Event Locations",
+				"name": "Docs per Location",
 				"type": "map",
 				"icon": "Map64",
 				"sizex": 12,
@@ -955,7 +955,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Event Locations",
+					"title": "Docs per Location",
 					"database": "grace_uyghur_3",
 					"filterable": true,
 					"name": "EVENTS",
@@ -1016,7 +1016,7 @@
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
-					"title": "Document Count over Time",
+					"title": "Docs per Time",
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dateField": "createdAt",
@@ -1148,7 +1148,7 @@
 				"minSizey": 5,
 				"$$hashKey": "object:30",
 				"bindings": {
-					"title": "Sentiment",
+					"title": "Docs per Sentiment",
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "sentimentString",
@@ -1228,7 +1228,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Topics",
+					"title": "Docs per Topic",
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -1251,7 +1251,7 @@
 				"col": 0
 			},
 			{
-				"name": "Event Locations",
+				"name": "Docs per Location",
 				"type": "map",
 				"icon": "Map64",
 				"sizex": 12,
@@ -1263,7 +1263,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Event Locations",
+					"title": "Docs per Location",
 					"database": "ariel_uyghur_1",
 					"filterable": true,
 					"name": "EVENTS",
@@ -1324,7 +1324,7 @@
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
-					"title": "Document Count over Time",
+					"title": "Docs per Time",
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dateField": "createdAt",
@@ -1456,7 +1456,7 @@
 				"minSizey": 5,
 				"$$hashKey": "object:30",
 				"bindings": {
-					"title": "Sentiment",
+					"title": "Docs per Sentiment",
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "sentimentString",
@@ -1536,7 +1536,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Topics",
+					"title": "Docs per Topic",
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -1559,7 +1559,7 @@
 				"col": 0
 			},
 			{
-				"name": "Event Locations",
+				"name": "Docs per Location",
 				"type": "map",
 				"icon": "Map64",
 				"sizex": 12,
@@ -1571,7 +1571,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Event Locations",
+					"title": "Docs per Location",
 					"database": "ebola_data_2",
 					"filterable": true,
 					"name": "EVENTS",
@@ -1632,7 +1632,7 @@
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
-					"title": "Document Count over Time",
+					"title": "Docs per Time",
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dateField": "createdAt",
@@ -1762,7 +1762,7 @@
 				"minSizey": 5,
 				"$$hashKey": "object:30",
 				"bindings": {
-					"title": "Sentiment",
+					"title": "Docs per Sentiment",
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "sentimentString",
@@ -1842,7 +1842,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Topics",
+					"title": "Docs per Topic",
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -1865,7 +1865,7 @@
 				"col": 0
 			},
 			{
-				"name": "Event Locations",
+				"name": "Docs per Location",
 				"type": "map",
 				"icon": "Map64",
 				"sizex": 12,
@@ -1877,7 +1877,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Event Locations",
+					"title": "Docs per Location",
 					"database": "nepal_2",
 					"filterable": true,
 					"name": "EVENTS",
@@ -1937,7 +1937,7 @@
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
-					"title": "Document Count over Time",
+					"title": "Docs per Time",
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dateField": "createdAt",
@@ -2067,7 +2067,7 @@
 				"minSizey": 5,
 				"$$hashKey": "object:30",
 				"bindings": {
-					"title": "Sentiment",
+					"title": "Docs per Sentiment",
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "sentimentString",
@@ -2147,7 +2147,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Topics",
+					"title": "Docs per Topic",
 					"database": "haiti_2",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -2170,7 +2170,7 @@
 				"col": 0
 			},
 			{
-				"name": "Event Locations",
+				"name": "Docs per Location",
 				"type": "map",
 				"icon": "Map64",
 				"sizex": 12,
@@ -2182,7 +2182,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Event Locations",
+					"title": "Docs per Location",
 					"database": "haiti_2",
 					"filterable": true,
 					"name": "EVENTS",
@@ -2243,7 +2243,7 @@
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
-					"title": "Document Count over Time",
+					"title": "Docs per Time",
 					"database": "haiti_2",
 					"table": "ui_output",
 					"dateField": "createdAt",
@@ -2373,7 +2373,7 @@
 				"minSizey": 5,
 				"$$hashKey": "object:30",
 				"bindings": {
-					"title": "Sentiment",
+					"title": "Docs per Sentiment",
 					"database": "haiti_2",
 					"table": "ui_output",
 					"dataField": "sentimentString",
