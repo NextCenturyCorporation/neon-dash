@@ -57,24 +57,20 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     public active: {
         dateField: FieldMetaData,
-        granularity: string,
-        groupField: FieldMetaData,
-        ylabel: string,
-    };
-
-    private chartDefaults: {
-        activeColor: string,
-        inactiveColor: string
-    };
-
-    // Cache the data from the last query
-    private queryData: {
         data: {
             value: number,
             date: Date,
             groupField: string
         }[],
-        granularity: string
+        granularity: string,
+        groupField: FieldMetaData,
+        ylabel: string,
+        docCount: number
+    };
+
+    private chartDefaults: {
+        activeColor: string,
+        inactiveColor: string
     };
 
     private colorSchemeService: ColorSchemeService;
@@ -99,9 +95,11 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
         this.active = {
             dateField: new FieldMetaData(),
+            data: [],
             granularity: 'day',
             groupField: new FieldMetaData(),
-            ylabel: 'Count'
+            ylabel: 'Count',
+            docCount: 0
         };
 
         this.chartDefaults = {
@@ -289,6 +287,17 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         return query.aggregate(neon.query['COUNT'], '*', 'value');
     };
 
+    getDocCount() {
+        let databaseName = this.meta.database.name;
+        let tableName = this.meta.table.name;
+        let whereClause = neon.query.where(this.active.dateField.columnName, '!=', null);
+        let countQuery = new neon.query.Query()
+            .selectFrom(databaseName, tableName)
+            .where(whereClause)
+            .aggregate(neon.query['COUNT'], '*', '_docCount');
+        this.executeQuery(countQuery);
+    }
+
     getFiltersToIgnore() {
         let database = this.meta.database.name;
         let table = this.meta.table.name;
@@ -308,16 +317,32 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     }
 
     onQuerySuccess(response) {
-        // Convert all the dates into Date objects
-        response.data.map((d) => {
-            d.date = new Date(d.date);
-        });
+        if (response.data.length === 1 && response.data[0]['_docCount']) {
+            this.active.docCount = response.data[0]['_docCount'];
+        } else {
+            // Convert all the dates into Date objects
+            response.data.map((d) => {
+                d.date = new Date(d.date);
+            });
 
-        this.queryData = {
-            data: response.data,
-            granularity: this.active.granularity
-        };
-        this.filterAndRefreshData();
+            this.active.data = response.data;
+            this.filterAndRefreshData();
+            this.getDocCount();
+        }
+    }
+
+    getButtonText() {
+        if (!this.active.data) {
+            return 'No Data';
+        }
+        let shownCount = this.active.data.reduce((sum, element) => {
+            return sum += element.value;
+        }, 0);
+        return !shownCount ?
+            'No Data' :
+            shownCount < this.active.docCount ?
+                'Top ' + shownCount + ' of ' + this.active.docCount :
+                'Total: ' + shownCount;
     }
 
     /**
@@ -337,8 +362,8 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
         // The query includes a sort, so it *should* be sorted.
         // Start date will be the first entry, and the end date will be the last
-        series.startDate = this.queryData.data[0].date;
-        let lastDate = this.queryData.data[this.queryData.data.length - 1].date;
+        series.startDate = this.active.data[0].date;
+        let lastDate = this.active.data[this.active.data.length - 1].date;
         series.endDate = d3.time[this.active.granularity]
             .utc.offset(lastDate, 1);
 
@@ -362,7 +387,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                 };
             }
 
-            for (let row of this.queryData.data) {
+            for (let row of this.active.data) {
                 // Check if this should be in the focus data
                 // Focus data is not bucketized, just zeroed
                 if (filter) {
@@ -383,7 +408,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             }
         } else {
             // No bucketizer, just add the data
-            for (let row of this.queryData.data) {
+            for (let row of this.active.data) {
                 // Check if this should be in the focus data
                 if (filter) {
                     if (filter.startDate <= row.date && filter.endDate >= row.date) {
