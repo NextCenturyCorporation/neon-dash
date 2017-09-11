@@ -39,6 +39,11 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/). 
 Before running the tests make sure you are serving the app via `ng serve`.
 
+## Pre-Commit Hooks
+
+This project is set up to run `ng lint` before all commits. This will add a delay before you are able to make a commit.
+The hook can be skipped by using `git commit -n` - Only use this if the changes are only to non-Typescript files.
+
 ## Further help
 
 To get more help on the `angular-cli` use `ng --help` or go check out the [Angular-CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
@@ -78,10 +83,10 @@ Running the application requires a functioning Neon deployment.  Links to the Ne
 
 *For Others*: The built app requires that the Neon server is accessible as the `/neon` URL on the host. For other deployments, you can deploy the Neon-Dash project on a standard web server such as nginx or Apache, and proxy `/neon` to your Neon server.
 
-5. If running against a stock, localhost Tomcat instance, browse to the [http://localhost:8080/neon-dash/][neon-dash-localhost] to verify its installation.  The [Users Guide][neon-dash-guide] describes its basic use.
+6. If running against a stock, localhost Tomcat instance, browse to the [http://localhost:8080/neon-dash/][neon-dash-localhost] to verify its installation.  The [Users Guide][neon-dash-guide] describes its basic use.
 
 [neon-dash-localhost]: http://localhost:8080/neon-dash/
-[neon-dash-guide]: https://github.com/NextCenturyCorporation/neon-dash/wiki/Neon-GTD-User-Guide
+[neon-dash-guide]: https://github.com/NextCenturyCorporation/neon-dash/wiki/Neon-Dashboard-User-Guide
 
 ## Documentation
 
