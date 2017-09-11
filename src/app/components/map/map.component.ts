@@ -699,7 +699,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     point: {
                         show: true, // default
                         color: color, // default: WHITE
-                        pixelSize: 4, // default: 1
+                        pixelSize: 10, // default: 1
                         outlineColor: color, // default: BLACK
                         outlineWidth: 0 // default: 0
                     }
@@ -714,7 +714,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                             point: {
                                 show: true, // default
                                 color: color, // default: WHITE
-                                pixelSize: 4, // default: 1
+                                pixelSize: 10, // default: 1
                                 outlineColor: color, // default: BLACK
                                 outlineWidth: 0 // default: 0
                             }
