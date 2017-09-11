@@ -212,7 +212,11 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     getButtonText() {
-        return this.active.data.length ? 'Top ' + this.active.data.length + ' of ' + this.active.docCount : 'No Data';
+        return !this.active.data.length ?
+            'No Data' :
+            this.active.data.length < this.active.docCount ?
+                'Top ' + this.active.data.length + ' of ' + this.active.docCount :
+                'Total: ' + this.active.data.length;
     }
 
     handleFiltersChangedEvent() {
