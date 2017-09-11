@@ -562,7 +562,7 @@
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Document Viewer Test",
+					"title": "Document Viewer",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "translatedText",
@@ -874,7 +874,7 @@
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Document Viewer Test",
+					"title": "Document Viewer",
 					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "translatedText",
@@ -1185,7 +1185,7 @@
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Document Viewer Test",
+					"title": "Document Viewer",
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "originalText",
@@ -1495,7 +1495,7 @@
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Document Viewer Test",
+					"title": "Document Viewer",
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "originalText",
@@ -1803,7 +1803,7 @@
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Document Viewer Test",
+					"title": "Document Viewer",
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "translatedText",
@@ -2110,7 +2110,7 @@
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Document Viewer Test",
+					"title": "Document Viewer",
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "originalText",
@@ -2418,7 +2418,7 @@
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Document Viewer Test",
+					"title": "Document Viewer",
 					"database": "haiti_2",
 					"table": "ui_output",
 					"dataField": "translatedText",
