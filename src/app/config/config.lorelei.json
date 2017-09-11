@@ -757,11 +757,11 @@
         "name": "Bar Chart",
         "type": "barChart",
         "icon": "BarChart64",
-        "sizex": 6,
+        "sizex": 5,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
-        "minSizex": 5,
+        "minSizex": 4,
         "minSizey": 5,
         "$$hashKey": "object:30",
         "selected": true,
@@ -789,11 +789,11 @@
         "name": "Event Locations",
         "type": "map",
         "icon": "Map64",
-        "sizex": 12,
+        "sizex": 8,
         "sizey": 9,
         "minPixelx": 320,
         "minPixely": 240,
-        "minSizex": 7,
+        "minSizex": 8,
         "minSizey": 7,
         "$$hashKey": "object:29",
         "selected": true,
@@ -837,13 +837,13 @@
         },
         "id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
         "row": 5,
-        "col": 13
+        "col": 11
     },
     {
         "name": "Timeline",
         "type": "timeline",
         "icon": "Timeline64",
-        "sizex": 12,
+        "sizex": 8,
         "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
@@ -860,18 +860,18 @@
         },
         "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
         "row": 7,
-        "col": 13
+        "col": 11
     },
 
     {
         "name": "Text Cloud",
         "type": "textCloud",
         "icon": "TagCloud64",
-        "sizex": 6,
+        "sizex": 5,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
-        "minSizex": 5,
+        "minSizex": 4,
         "minSizey": 5,
         "$$hashKey": "object:35",
         "selected": true,
@@ -890,17 +890,17 @@
         },
         "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
         "row": 0,
-        "col": 7
+        "col": 6
     },
     {
         "name": "Text Cloud",
         "type": "textCloud",
         "icon": "TagCloud64",
-        "sizex": 6,
+        "sizex": 5,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
-        "minSizex": 5,
+        "minSizex": 4,
         "minSizey": 5,
         "$$hashKey": "object:35",
         "selected": true,
@@ -925,11 +925,11 @@
         "name": "Text Cloud",
         "type": "textCloud",
         "icon": "TagCloud64",
-        "sizex": 6,
+        "sizex": 5,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
-        "minSizex": 5,
+        "minSizex": 4,
         "minSizey": 5,
         "$$hashKey": "object:35",
         "selected": true,
@@ -951,11 +951,11 @@
         "name": "Text Cloud",
         "type": "textCloud",
         "icon": "TagCloud64",
-        "sizex": 6,
+        "sizex": 5,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
-        "minSizex": 5,
+        "minSizex": 4,
         "minSizey": 5,
         "$$hashKey": "object:35",
         "selected": true,
@@ -972,17 +972,17 @@
         },
         "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
         "row": 12,
-        "col": 7
+        "col": 6
     },
     {
         "name": "Bar Chart",
         "type": "barChart",
         "icon": "BarChart64",
-        "sizex": 6,
+        "sizex": 5,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
-        "minSizex": 5,
+        "minSizex": 4,
         "minSizey": 5,
         "$$hashKey": "object:30",
         "bindings": {
@@ -1003,14 +1003,14 @@
         },
         "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
         "row": 17,
-        "col": 7
+        "col": 6
     },
     {
     "name": "Document Viewer",
     "type": "documentViewer",
     "icon": "DocumentViewer64",
-    "sizex": 24,
-    "sizey": 6,
+    "sizex": 6,
+    "sizey": 15,
     "minPixelx": 320,
     "minPixely": 240,
     "$hashKey": "object:37",
@@ -1063,7 +1063,9 @@
             ]
         ],
         "limit": 50
-    }
+    },
+    "row": 0,
+    "col": 19
 }
 
 		],
