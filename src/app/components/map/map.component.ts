@@ -169,7 +169,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             rectangle: null,
             isExact: true
         };
-        this.queryTitle = 'Map';
+        this.queryTitle = this.optionsFromConfig.title || 'Map';
         //this.addEmptyLayer();
     };
 
