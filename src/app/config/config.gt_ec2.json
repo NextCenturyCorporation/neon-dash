@@ -433,7 +433,7 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 0,
-				"col": 7
+				"col": 6
 			},
 			{
 				"name": "Text Cloud",
@@ -951,7 +951,7 @@
 				"type": "map",
 				"icon": "Map64",
 				"sizex": 8,
-				"sizey": 7,
+				"sizey": 9,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 7,
