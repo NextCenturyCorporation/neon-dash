@@ -227,7 +227,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             sceneMode: Cesium.SceneMode.SCENE2D,
             imageryProviderViewModels: imagerySources,
             //set default imagery to eliminate annoying text and using a bing key by default
-            selectedImageryProviderViewModel: imagerySources[9],
+            //WHAT A HACK-JOB!!! TODO: Set this by name rather than pray the order is the same all the time.
+            selectedImageryProviderViewModel: imagerySources[8],
             terrainProviderViewModels: [],
             fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
             timeline: false, //disable timeline widget
