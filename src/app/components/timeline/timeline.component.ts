@@ -87,14 +87,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
             dateField: this.injector.get('dateField', null),
-            granularity: this.injector.get('granularity', 'day'),
+            granularity: this.injector.get('granularity', 'day')
         };
         this.colorSchemeService = colorSchemeSrv;
         this.filters = [];
 
         this.active = {
             dateField: new FieldMetaData(),
-            granularity: 'day',
+            granularity: this.injector.get('granularity', 'day'),
             ylabel: 'Count'
         };
 

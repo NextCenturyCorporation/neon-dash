@@ -391,7 +391,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     getButtonText() {
-        return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length + ' of ' + this.count;
+        return !this.isFilterSet() && !this.active.data.length ?
+            'No Data' :
+            this.active.data.length < this.count ?
+                'Top ' + this.active.data.length + ' of ' + this.count :
+                'Total: ' + this.active.data.length;
     };
 
     getFilterData() {
