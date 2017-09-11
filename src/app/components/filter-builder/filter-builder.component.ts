@@ -87,6 +87,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     getExportFields() {
         //Do nothing.  Doesn't export nor does this visualization register to export
         //therefore, this function can be ignored.
+        return null;
     }
 
     getOptionFromConfig(field) {
@@ -182,7 +183,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             if (cls.hasOwnProperty(key)) {
                 let clauses = cls[key];
                 if (clauses && clauses.length > 0) {
-                    this.addNeonFilter(clauses);
+                    this.addNeonFilter(false, clauses);
                 }
             }
         }
@@ -205,7 +206,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     /*
     * Assumes all clauses passed in have the same database/table combination
     */
-    addNeonFilter(clauses: WhereClauseMetaData[]) {
+    addNeonFilter(executeQueryChainOnsuccess: boolean, clauses: WhereClauseMetaData[]) {
         if (!clauses || clauses.length === 0) {
             return;
         }
