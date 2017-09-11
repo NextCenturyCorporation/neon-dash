@@ -24,8 +24,14 @@
 
     .header.text {
     	font-size: 16px;
-        font-weight: bold;
-        text-transform: capitalize;
+		font-weight: bold;
+		text-transform: capitalize;
+		color: mat-color($header-text);
+    }
+
+   	.text {
+   		font-size: 14px;
+   		color: mat-color($fade);
     }
 
     .visualization-sidenav-options {
@@ -33,7 +39,7 @@
 
         md-select, table, md-input {
             width: 100%;
-            margin-top: 15px;
+            margin-top: 10px;
         }
 
         .error-icon {
@@ -76,4 +82,3 @@
         background-color: mat-color($primary);
     }
 }
-
