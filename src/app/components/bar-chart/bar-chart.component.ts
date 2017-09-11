@@ -157,7 +157,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.chart.options['tooltips'] = { callbacks: {} };
         this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
         this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
-        this.queryTitle = 'Bar Chart';
+        this.queryTitle = this.optionsFromConfig.title || 'Bar Chart';
     };
 
     subNgOnInit() {
@@ -391,7 +391,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 break;
         }
         title += ' by ' + this.active.dataField.prettyName;
-        this.queryTitle = this.optionsFromConfig.title || title;
     }
 
     handleChangeAggregation() {

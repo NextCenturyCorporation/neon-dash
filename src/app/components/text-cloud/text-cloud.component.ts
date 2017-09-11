@@ -82,7 +82,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             data: []
         };
         this.count = this.active.limit;
-        this.queryTitle = 'Text Cloud';
+        this.queryTitle = this.optionsFromConfig.title || 'Text Cloud';
     };
 
     subNgOnInit() {
