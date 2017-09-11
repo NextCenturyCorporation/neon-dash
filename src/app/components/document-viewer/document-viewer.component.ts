@@ -50,7 +50,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         dateField: FieldMetaData,
         metadataFields: any[],
         limit: number,
-        data: any[]
+        data: any[],
+        docCount: number
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -72,7 +73,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             dateField: new FieldMetaData(),
             metadataFields: [],
             limit: 50,
-            data: []
+            data: [],
+            docCount: 0
         };
         this.queryTitle = 'Document Viewer';
     }
@@ -131,7 +133,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     getFiltersToIgnore() {
-        return null; // Don't ignore any filters for now.
+        return null;
     }
 
     isValidQuery() {
@@ -160,23 +162,39 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     onQuerySuccess(response) {
-        let fields = this.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
-            return x.field;
-        }).concat(this.active.dataField.columnName);
-        let data = response.data.map(function(element) {
-            let elem = {};
-            for (let field of fields) {
-                elem[field] = this.deepFind(element, field);
-            }
-            return elem;
-        }.bind(this));
-        this.active.data = data;
+        if (response.data.length === 1 && response.data[0]['_docCount']) {
+            this.active.docCount = response.data[0]['_docCount'];
+        } else {
+            let fields = this.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
+                return x.field;
+            }).concat(this.active.dataField.columnName);
+            let data = response.data.map(function(element) {
+                let elem = {};
+                for (let field of fields) {
+                    elem[field] = this.deepFind(element, field);
+                }
+                return elem;
+            }.bind(this));
+            this.active.data = data;
+            this.getDocCount();
+        }
+    }
+
+    getDocCount() {
+        let databaseName = this.meta.database.name;
+        let tableName = this.meta.table.name;
+        let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        let countQuery = new neon.query.Query()
+            .selectFrom(databaseName, tableName)
+            .where(whereClause)
+            .aggregate(neon.query['COUNT'], '*', '_docCount');
+        this.executeQuery(countQuery);
     }
 
     flatten(array) {
-        return array.reduce(function(sum, element) {
+        return (array || []).reduce(function(sum, element) {
             return sum.concat(Array.isArray(element) ? this.flatten(element) : element);
-        }.bind(this));
+        }.bind(this), []); // "(array || [])" and ", []" prevent against exceptions and return [] when array is null or empty.
     }
 
     deepFind(obj, pathStr) {
@@ -193,8 +211,12 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         // TODO STUB
     }
 
-    handleFiltersChangedEvent() {
+    getButtonText() {
+        return this.active.data.length ? 'Top ' + this.active.data.length + ' of ' + this.active.docCount : 'No Data';
+    }
 
+    handleFiltersChangedEvent() {
+        this.executeQueryChain();
     }
 
     removeFilter(value) {

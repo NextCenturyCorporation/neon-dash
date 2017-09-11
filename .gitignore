@@ -43,3 +43,6 @@ src/app/config/config.json
 yarn.lock
 package-lock.json
 
+# Derby database
+derby.log
+/properties/*
