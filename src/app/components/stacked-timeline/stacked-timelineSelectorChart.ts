@@ -590,7 +590,7 @@ export class StackedTimelineSelectorChart {
                     .attr('transform', 'translate(' + xOffset + ',' +
                         ((heightContext + this.marginContext.top + this.marginContext.bottom) * seriesPos) + ')');
 
-                let style = 'stroke:' + series.color + '; fill:' + series.color + ';';
+                let style = 'stroke:' + series.color + ';';
                 let chartTypeContext;
 
                 // If type is bar AND the data isn't too long, render a bar plot
@@ -601,6 +601,7 @@ export class StackedTimelineSelectorChart {
                         style = 'stroke:#f1f1f1;';
                         barheight++;
                     }
+                    style +=  'fill:' + series.color + ';';
 
                     contextContainer.selectAll('.bar')
                         .data(series.data)
