@@ -97,7 +97,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         };
 
         this.chartDefaults = {
-            activeColor: 'rgba(39, 96, 126, 0.9)',
+            activeColor: 'rgba(77, 190, 194)',
             inactiveColor: 'rgba(57, 181, 74, 0.3)'
         };
 
