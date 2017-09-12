@@ -21,14 +21,14 @@
     height: 100%;
     cursor: default;
     border-radius: 15px;
-    
+
     .header.text {
     	font-size: 16px;
 		font-weight: bold;
 		text-transform: capitalize;
 		color: mat-color($header-text);
     }
-   
+
    	.text {
    		font-size: 14px;
    		color: mat-color($fade);
@@ -78,6 +78,7 @@
 
             &:hover {
                 text-decoration: none;
+                color: #4DBEC2 !important;
             }
         }
     }
