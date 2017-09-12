@@ -63,6 +63,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         longitudeField: string,
         sizeField: string,
         colorField: string,
+        colorMapping: {
+            match: string,
+            label: string,
+            color: string
+        }[],
         dateField: string,
         limit: number,
         unsharedFilterField: Object,
@@ -136,6 +141,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             latitudeField: this.injector.get('latitudeField', null),
             longitudeField: this.injector.get('longitudeField', null),
             colorField: this.injector.get('colorField', null),
+            colorMapping: this.injector.get('colorMapping', []),
             sizeField: this.injector.get('sizeField', null),
             dateField: this.injector.get('dateField', null),
             limit: this.injector.get('limit', 1000),
@@ -227,7 +233,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             sceneMode: Cesium.SceneMode.SCENE2D,
             imageryProviderViewModels: imagerySources,
             //set default imagery to eliminate annoying text and using a bing key by default
-            selectedImageryProviderViewModel: imagerySources[9],
+            //WHAT A HACK-JOB!!! TODO: Set this by name rather than pray the order is the same all the time.
+            selectedImageryProviderViewModel: imagerySources[8],
             terrainProviderViewModels: [],
             fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
             timeline: false, //disable timeline widget
@@ -637,6 +644,17 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
 
+    getConfigColorForKey(key) {
+        if (typeof key !== 'string') {
+            key = String(key);
+        }
+        for (let mapping of this.optionsFromConfig.colorMapping) {
+            if (key.match(mapping.match)) {
+                return mapping.color;
+            }
+        }
+    }
+
     onQuerySuccess(layerIndex, response) {
         // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
         // TODO break this function into smaller bits so it is more understandable.
@@ -669,7 +687,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             let color;
             if (colorField && point[colorField]) {
                 let colorKey = point[colorField];
-                if (localColorMap[colorKey]) {
+                if (this.optionsFromConfig.colorMapping.length > 0) {
+                    let colorString = this.getConfigColorForKey(colorKey);
+                    color = colorString ? Cesium.Color.fromCssColorString(colorString) : Cesium.Color.WHITE;
+                } else if (localColorMap[colorKey]) {
                     color = localColorMap[colorKey];
                 } else if (this.active.colorMap[colorKey]) {
                     color = this.active.colorMap[colorKey];
@@ -682,7 +703,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     this.active.colorMap[colorKey] = color;
                 }
             } else {
-                color = Cesium.Color.Blue;
+                color = Cesium.Color.WHITE;
             }
             let lngCoord = point[lngField];
             let latCoord = point[latField];
@@ -727,8 +748,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     point: {
                         show: true, // default
                         color: color, // default: WHITE
-                        pixelSize: 10, // default: 1
-                        outlineColor: color, // default: BLACK
+                        pixelSize: 14, // default: 1
+                        outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
                         outlineWidth: 0 // default: 0
                     }
                 };
@@ -742,8 +763,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                             point: {
                                 show: true, // default
                                 color: color, // default: WHITE
-                                pixelSize: 10, // default: 1
-                                outlineColor: color, // default: BLACK
+                                pixelSize: 14, // default: 1
+                                outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
                                 outlineWidth: 0 // default: 0
                             }
                         };
@@ -771,6 +792,15 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 let li = this.getLegendItem(key, colorString);
                 data.push(li);
             }
+        }
+        if (data.length < 1) {
+            for (let obj of this.optionsFromConfig.colorMapping) {
+                if (obj.label) {
+                    let li = this.getLegendItem(obj.label, obj.color);
+                    data.push(li);
+                }
+            }
+            data.push(this.getLegendItem('Other', Cesium.Color.WHITE));
         }
         this.legendData = data;
     }
