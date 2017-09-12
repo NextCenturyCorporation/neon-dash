@@ -8,7 +8,7 @@ This project was generated with [angular-cli][ng-cli].
 ## Prerequisites
 Building the **neon-dash** application requires [Node.js][Node.js] (Version 6.9.x or higher).  Once node has been installed, you should install the [Angular Command Line Interface][ng-cli] with the following command: 
 
-		npm install -g angular-cli
+		npm install -g @angular/cli
 
 The recommended package manager for the project is the [Yarn Package Manager][yarn]. npm can also be used.
 
