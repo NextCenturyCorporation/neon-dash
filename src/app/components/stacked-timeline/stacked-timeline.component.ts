@@ -103,7 +103,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         };
 
         this.chartDefaults = {
-            activeColor: 'rgba(57, 74, 181, 0.9)',
+            activeColor: 'rgba(77, 190, 194)',
             inactiveColor: 'rgba(57, 74, 181, 0.3)'
         };
 
