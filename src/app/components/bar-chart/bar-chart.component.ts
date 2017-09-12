@@ -18,8 +18,7 @@ import * as neon from 'neon-framework';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {ChartComponent} from 'angular2-chartjs';
 import {VisualizationService} from '../../services/visualization.service';
-
-declare let Chart: any;
+import * as Chart from 'chart.js';
 
 @Component({
     selector: 'app-bar-chart',

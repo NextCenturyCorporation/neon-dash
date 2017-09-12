@@ -17,14 +17,10 @@ import {ColorSchemeService} from '../../services/color-scheme.service';
 import {FieldMetaData } from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-//import * as _ from 'lodash';
-//import {DateBucketizer} from '../bucketizers/DateBucketizer';
-//import {LegendItem} from '../legend/legend.component';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {ChartModule} from 'angular2-chartjs';
 import {VisualizationService} from '../../services/visualization.service';
-// import * as Chartjs from 'chart.js';
-declare var Chart: any;
+import * as Chart from 'chart.js';
 
 @Component({
     selector: 'app-scatter-plot',

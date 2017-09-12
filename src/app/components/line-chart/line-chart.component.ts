@@ -26,8 +26,6 @@ import {ChartModule} from 'angular2-chartjs';
 import * as moment from 'moment-timezone';
 import {VisualizationService} from '../../services/visualization.service';
 
-declare let Chart: any;
-
 @Component({
     selector: 'app-line-chart',
     templateUrl: './line-chart.component.html',
