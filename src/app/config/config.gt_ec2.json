@@ -589,7 +589,9 @@
 							{
 								"name": "Date",
 								"field": "createdAt"
-							},
+							}
+                        ],
+                        [
 							{
 								"name": "Topic",
 								"field": "topics"
@@ -599,15 +601,24 @@
 							{
 								"name": "People",
 								"field": "PER"
-
 							}
 						],
 						[
 							{
 								"name": "Locations",
 								"field": "LOC"
-							}
-						]
+							},
+                            {
+                                "name": "GeoPolitical Entities",
+                                "field": "GPE"
+                            }
+						],
+                        [
+                            {
+                                "name": "Sentiment",
+                                "field": "sentimentString"
+                            }
+                        ]
 					],
 					"limit": 50
 				},
@@ -918,7 +929,9 @@
 							{
 								"name": "Date",
 								"field": "createdAt"
-							},
+							}
+                        ],
+                        [
 							{
 								"name": "Topic",
 								"field": "topics"
@@ -928,15 +941,24 @@
 							{
 								"name": "People",
 								"field": "PER"
-
 							}
 						],
 						[
 							{
 								"name": "Locations",
 								"field": "LOC"
-							}
-						]
+							},
+                            {
+                                "name": "GeoPolitical Entities",
+                                "field": "GPE"
+                            }
+						],
+                        [
+                            {
+                                "name": "Sentiment",
+                                "field": "sentimentString"
+                            }
+                        ]
 					],
 					"limit": 50
 				},
@@ -1246,7 +1268,9 @@
 							{
 								"name": "Date",
 								"field": "createdAt"
-							},
+							}
+                        ],
+                        [
 							{
 								"name": "Topic",
 								"field": "topics"
@@ -1262,8 +1286,18 @@
 							{
 								"name": "Locations",
 								"field": "LOC"
-							}
-						]
+							},
+                            {
+                                "name": "GeoPolitical Entities",
+                                "field": "GPE"
+                            }
+						],
+                        [
+                            {
+                                "name": "Sentiment",
+                                "field": "sentimentString"
+                            }
+                        ]
 					],
 					"limit": 50
 				},
@@ -1573,7 +1607,9 @@
 							{
 								"name": "Date",
 								"field": "createdAt"
-							},
+							}
+                        ],
+                        [
 							{
 								"name": "Topic",
 								"field": "topics"
@@ -1589,8 +1625,18 @@
 							{
 								"name": "Locations",
 								"field": "LOC"
-							}
-						]
+							},
+                            {
+                                "name": "GeoPolitical Entities",
+                                "field": "GPE"
+                            }
+						],
+                        [
+                            {
+                                "name": "Sentiment",
+                                "field": "sentimentString"
+                            }
+                        ]
 					],
 					"limit": 50
 				},
@@ -1898,7 +1944,9 @@
 							{
 								"name": "Date",
 								"field": "createdAt"
-							},
+							}
+                        ],
+                        [
 							{
 								"name": "Topic",
 								"field": "topics"
@@ -1914,8 +1962,18 @@
 							{
 								"name": "Locations",
 								"field": "LOC"
-							}
-						]
+							},
+                            {
+                                "name": "GeoPolitical Entities",
+                                "field": "GPE"
+                            }
+						],
+                        [
+                            {
+                                "name": "Sentiment",
+                                "field": "sentimentString"
+                            }
+                        ]
 					],
 					"limit": 50
 				},
@@ -2090,11 +2148,11 @@
 				"type": "textCloud",
 				"icon": "TagCloud64",
 				"sizex": 5,
-				"sizey": ,
+				"sizey": "",
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
-				"minSizey": ,
+				"minSizey": "",
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
@@ -2222,7 +2280,9 @@
 							{
 								"name": "Date",
 								"field": "createdAt"
-							},
+							}
+                        ],
+                        [
 							{
 								"name": "Topic",
 								"field": "topics"
@@ -2238,8 +2298,18 @@
 							{
 								"name": "Locations",
 								"field": "LOC"
-							}
-						]
+							},
+                            {
+                                "name": "GeoPolitical Entities",
+                                "field": "GPE"
+                            }
+						],
+                        [
+                            {
+                                "name": "Sentiment",
+                                "field": "sentimentString"
+                            }
+                        ]
 					],
 					"limit": 50
 				},
@@ -2540,14 +2610,16 @@
 					"title": "Document Viewer",
 					"database": "haiti_2",
 					"table": "ui_output",
-					"dataField": "translatedText",
+					"dataField": "originalText",
 					"idField": "id",
 					"metadataFields": [
 						[
 							{
 								"name": "Date",
 								"field": "createdAt"
-							},
+							}
+                        ],
+                        [
 							{
 								"name": "Topic",
 								"field": "topics"
@@ -2563,8 +2635,18 @@
 							{
 								"name": "Locations",
 								"field": "LOC"
-							}
-						]
+							},
+                            {
+                                "name": "GeoPolitical Entities",
+                                "field": "GPE"
+                            }
+						],
+                        [
+                            {
+                                "name": "Sentiment",
+                                "field": "sentimentString"
+                            }
+                        ]
 					],
 					"limit": 50
 				},
