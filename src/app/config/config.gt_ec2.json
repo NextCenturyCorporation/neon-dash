@@ -592,7 +592,7 @@
 							},
 							{
 								"name": "Topic",
-								"field": "type"
+								"field": "topics"
 							}
 						],
 						[
@@ -921,7 +921,7 @@
 							},
 							{
 								"name": "Topic",
-								"field": "type"
+								"field": "topics"
 							}
 						],
 						[
@@ -1249,7 +1249,7 @@
 							},
 							{
 								"name": "Topic",
-								"field": "type"
+								"field": "topics"
 							}
 						],
 						[
@@ -1576,7 +1576,7 @@
 							},
 							{
 								"name": "Topic",
-								"field": "type"
+								"field": "topics"
 							}
 						],
 						[
@@ -1901,7 +1901,7 @@
 							},
 							{
 								"name": "Topic",
-								"field": "type"
+								"field": "topics"
 							}
 						],
 						[
@@ -2225,7 +2225,7 @@
 							},
 							{
 								"name": "Topic",
-								"field": "type"
+								"field": "topics"
 							}
 						],
 						[
@@ -2550,7 +2550,7 @@
 							},
 							{
 								"name": "Topic",
-								"field": "type"
+								"field": "topics"
 							}
 						],
 						[
