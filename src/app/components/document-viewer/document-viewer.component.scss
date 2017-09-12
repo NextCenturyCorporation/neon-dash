@@ -72,6 +72,22 @@
         padding-left: 15px;
         padding-right: 15px;
     }
+
+    .metadata-row {
+        padding: 4px 0px;
+    }
+
+    .metadata-item {
+        padding: 0px 0px 0px 16px;
+    }
+
+    .metadata-item:nth-child(1) {
+        padding: 0px 16px 0px 0px;
+    }
+
+    p.metadata-title {
+        font-weight: bold;
+    }
 }
 
 
