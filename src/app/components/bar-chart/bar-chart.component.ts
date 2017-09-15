@@ -131,6 +131,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     };
 
     private defaultActiveColor = new Color(57, 181, 74);
+    public emptyField = new FieldMetaData();
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
@@ -161,6 +162,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             data: [],
             aggregation: 'count'
         };
+
+        // Make sure the empty field has non-null values
+        this.emptyField.columnName = '';
+        this.emptyField.prettyName = '';
 
         this.onClick = this.onClick.bind(this);
         this.chart = {
@@ -361,7 +366,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         }
 
         query.where(neon.query.and.apply(query, whereClauses));
-
         switch (this.active.aggregation) {
             case 'count':
                 return query.groupBy(groupBy).aggregate(neon.query['COUNT'], '*', 'value')
@@ -506,6 +510,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeAggregationField() {
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+    };
+
+    handleChangeColorField() {
+        this.logChangeAndStartQueryChain(); // ('colorField', this.active.colorField.columnName);
     };
 
     handleChangeAndFilters() {
