@@ -152,6 +152,14 @@ export class Color {
     }
 
     /**
+     * Get the 'inactive' color, aka the RGBA string with an alpha of 0.3
+     * @return {string}
+     */
+    getInactiveRgba(): string {
+        return this.toRgba(0.3);
+    }
+
+    /**
      * Get the color as a string of RGB percentages
      * @return {string}
      */
@@ -169,6 +177,18 @@ export class Color {
         return 'rgb(' + this.getBase255(this.red) + ',' +
             this.getBase255(this.green) + ',' +
             this.getBase255(this.blue) + ')';
+    }
+
+    /**
+     * Get the color as a rgba(0,0,0,a) string
+     * @param a alpha value (0-1)
+     * @return {string}
+     */
+    toRgba(a: number): string {
+        return 'rgba(' + this.getBase255(this.red) + ',' +
+            this.getBase255(this.green) + ',' +
+            this.getBase255(this.blue) + ',' +
+            a + ')';
     }
 
     /**

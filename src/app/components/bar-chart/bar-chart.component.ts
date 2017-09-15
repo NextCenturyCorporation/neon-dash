@@ -18,7 +18,66 @@ import * as neon from 'neon-framework';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {ChartComponent} from 'angular2-chartjs';
 import {VisualizationService} from '../../services/visualization.service';
-import * as Chart from 'chart.js';
+import {Color, ColorSchemeService} from '../../services/color-scheme.service';
+
+/**
+ * Data used to draw the bar chart
+ */
+class BarData {
+    // The X-Axis labels
+    labels: string[] = [];
+    // The data to graph
+    datasets: DataSet[] = [];
+}
+
+/**
+ * One set of bars to draw
+ */
+class DataSet {
+    // The name of the data set
+    label: string;
+    // The data
+    data: number[] = [];
+    // The colors of the bars.
+    backgroundColor: string[] = [];
+    // The color of the data set
+    color: Color;
+
+    constructor(length?: number, color?: Color) {
+        if (length) {
+            for (let i = 0; i < length; i++) {
+                this.data[i] = 0;
+            }
+        }
+        this.color = color;
+    }
+
+    /**
+     * Set all the background colors to the default color of this set
+     */
+    setAllActive() {
+        for (let i = 0; i < this.data.length; i++) {
+            this.backgroundColor[i] = this.color.toRgb();
+        }
+    }
+
+    /**
+     * Set all the background colors to the default color of this set
+     */
+    setAllInactive() {
+        for (let i = 0; i < this.data.length; i++) {
+            this.backgroundColor[i] = this.color.getInactiveRgba();
+        }
+    }
+
+    /**
+     * Set the background color of a single bar to the active color
+     * @param {number} position
+     */
+    setActiveColor(position: number) {
+        this.backgroundColor[position] = this.color.toRgb();
+    }
+}
 
 @Component({
     selector: 'app-bar-chart',
@@ -46,12 +105,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         aggregationField: string,
         unsharedFilterField: any,
         unsharedFilterValue: string,
+        colorField: string,
         limit: number;
     };
     public active: {
         dataField: FieldMetaData,
         aggregationField: FieldMetaData,
         aggregationFieldHidden: boolean,
+        colorField: FieldMetaData,
         andFilters: boolean,
         limit: number,
         filterable: boolean,
@@ -62,21 +123,18 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     public chart: {
         data: {
-            labels: any[],
-            datasets: any[]
+            labels: string[],
+            datasets: DataSet[]
         },
         type: string,
         options: any
     };
 
-    private chartDefaults: {
-        activeColor: string,
-        inactiveColor: string
-    };
+    private defaultActiveColor = new Color(57, 181, 74);
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
-                visualizationService: VisualizationService) {
+                visualizationService: VisualizationService, private colorSchemeService: ColorSchemeService) {
         super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
@@ -85,6 +143,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             dataField: this.injector.get('dataField', null),
             aggregation: this.injector.get('aggregation', null),
             aggregationField: this.injector.get('aggregationField', null),
+            colorField: this.injector.get('colorField', null),
             limit: this.injector.get('limit', 100),
             unsharedFilterField: {},
             unsharedFilterValue: ''
@@ -94,6 +153,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             dataField: new FieldMetaData(),
             aggregationField: new FieldMetaData(),
             aggregationFieldHidden: true,
+            colorField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
             filterable: true,
@@ -102,22 +162,12 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             aggregation: 'count'
         };
 
-        this.chartDefaults = {
-            activeColor: 'rgba(57, 181, 74, 0.9)',
-            inactiveColor: 'rgba(57, 181, 74, 0.3)'
-        };
-
         this.onClick = this.onClick.bind(this);
         this.chart = {
             type: 'bar',
             data: {
                 labels: [],
-                datasets: [
-                    {
-                        label: 'dataset',
-                        data: []
-                    }
-                ]
+                datasets: [new DataSet(0, this.defaultActiveColor)]
             },
             options: {
                 responsive: true,
@@ -132,20 +182,33 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                     onHover: null
 
                 },
-                legend: Chart.defaults.global.legend,
-                tooltips: Chart.defaults.global.tooltips
+                scales: {
+                    xAxes: [{
+                        stacked: true
+                    }],
+                    yAxes: [{
+                        stacked: true
+                    }],
+                },
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                    callbacks: {}
+                }
             }
         };
-        this.chart.options['legend'] = {};
-        this.chart.options['legend'].display = false;
-
-        let tooltipTitleFunc = (tooltips) => {
+        let tooltipTitleFunc = (tooltips, data) => {
             return this.active.dataField.prettyName + ': ' + tooltips[0].xLabel;
         };
-        let tooltipDataFunc = (tooltips) => {
-            return this.active.aggregation + ': ' + tooltips.yLabel;
+        let tooltipDataFunc = (tooltipItem, data) => {
+            let tooltip = data.datasets[tooltipItem.datasetIndex];
+            let value = tooltip.data[tooltipItem.index];
+            // Returning null removes the row from the tooltip
+            return value === 0 ? null : tooltip.label + ': ' + value;
         };
-        this.chart.options['tooltips'] = { callbacks: {} };
         this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
         this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
         this.queryTitle = 'Bar Chart';
@@ -168,6 +231,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         bindings.aggregation = this.active.aggregation;
         bindings.aggregationField = this.active.aggregationField.columnName;
         bindings.limit = this.active.limit;
+        bindings.colorField = this.active.colorField.columnName;
     }
 
     getExportFields() {
@@ -211,6 +275,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         }
         this.active.aggregationField = this.findFieldObject('aggregationField', neonMappings.TAGS);
         this.active.dataField = this.findFieldObject('dataField', neonMappings.TAGS);
+        this.active.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
     };
 
     addLocalFilter(filter) {
@@ -242,20 +307,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     refreshVisualization() {
-        let dsIndex = 0;
+        // If there is a filter, highlight the bar
         if (this.filters[0] && this.filters[0].value) {
             let activeValue = this.filters[0].value;
+            let activeIndex = this.chart.data.labels.indexOf(activeValue);
 
-            for (let i = 0; i < this.chart.data['datasets'][dsIndex].backgroundColor.length; i++) {
-                if (this.chart.data['labels'][i] === activeValue) {
-                    this.chart.data['datasets'][dsIndex].backgroundColor[i] = this.chartDefaults.activeColor;
-                } else {
-                    this.chart.data['datasets'][dsIndex].backgroundColor[i] = this.chartDefaults.inactiveColor;
-                }
+            // Set all but the selected bar inactive
+            for (let dataset of this.chart.data.datasets) {
+                dataset.setAllInactive();
+                dataset.setActiveColor(activeIndex);
             }
         } else {
-            for (let i = 0; i < this.chart.data['datasets'][dsIndex].backgroundColor.length; i++) {
-                this.chart.data['datasets'][dsIndex].backgroundColor[i] = this.chartDefaults.activeColor;
+            // Set all bars active
+            for (let dataset of this.chart.data.datasets) {
+                dataset.setAllActive();
             }
         }
         this.chartModule['chart'].update();
@@ -278,26 +343,34 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause: any = neon.query.where(this.active.dataField.columnName, '!=', null);
+        let whereClauses: neon.query.WherePredicate[] = [];
+        whereClauses.push(neon.query.where(this.active.dataField.columnName, '!=', null));
         let yAxisField = this.active.aggregationField.columnName;
-        let dataField = this.active.dataField.columnName;
+        let groupBy: any[] = [this.active.dataField.columnName];
+
+        if (this.active.colorField.columnName !== '') {
+            whereClauses.push(neon.query.where(this.active.colorField.columnName, '!=', null));
+            groupBy.push(this.active.colorField.columnName);
+        }
 
         if (this.hasUnsharedFilter()) {
             // Add the unshared filter
-            whereClause = neon.query.and(whereClause,
+            whereClauses.push(
                 neon.query.where(this.meta.unsharedFilterField.columnName, '=',
                     this.meta.unsharedFilterValue));
         }
 
+        query.where(neon.query.and.apply(query, whereClauses));
+
         switch (this.active.aggregation) {
             case 'count':
-                return query.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
+                return query.groupBy(groupBy).aggregate(neon.query['COUNT'], '*', 'value')
                     .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
             case 'sum':
-                return query.where(whereClause).groupBy(dataField).aggregate(neon.query['SUM'], yAxisField, 'value')
+                return query.groupBy(groupBy).aggregate(neon.query['SUM'], yAxisField, 'value')
                     .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
             case 'average':
-                return query.where(whereClause).groupBy(dataField).aggregate(neon.query['AVG'], yAxisField, 'value')
+                return query.groupBy(groupBy).aggregate(neon.query['AVG'], yAxisField, 'value')
                     .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
         }
 
@@ -321,35 +394,63 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response): void {
-        // console.log(response);
+        console.log('Query success');
         let colName = this.active.dataField.columnName;
         // let prettyColName = this.active.dataField.prettyName;
-        let d = {
-            datasets: [],
-            labels: []
-        };
-        let labels = [];
-        let values = [];
+        let chartData = new BarData();
+
+        let dataSets = new Map<string, DataSet>();
+
+        let hasGroup = this.active.colorField.columnName !== '';
+
+        /*
+         * We need to build the datasets.
+         * The datasets are just arrays of the data to draw, and the data is indexed
+         * by the labels field.
+         */
         for (let row of response.data) {
-            if (row[colName]) {
-                labels.push(row[colName]);
-                values.push(row.value);
+            let key: string = row[colName];
+            if (!key) {
+                continue;
+            }
+            if (chartData.labels.indexOf(key) === -1) {
+                chartData.labels.push(key);
             }
         }
-        let dataset = {
-            label: this.queryTitle,
-            data: values,
-            backgroundColor: []
-        };
 
-        for (let i = 0; i < dataset.data.length; i++) {
-            dataset.backgroundColor[i] = this.chartDefaults.activeColor;
+        for (let row of response.data) {
+            let key: string = row[colName];
+            if (!key) {
+                continue;
+            }
+            let dataIndex = chartData.labels.indexOf(key);
+
+            // The default group is the query title
+            let group = this.queryTitle;
+            if (hasGroup) {
+                group = row[this.active.colorField.columnName];
+            }
+
+            let dataset = dataSets.get(group);
+            if (dataset == null) {
+                dataset = new DataSet(chartData.labels.length);
+                dataSets.set(group, dataset);
+
+                dataset.label = group;
+                if (hasGroup) {
+                    dataset.color = this.colorSchemeService.getColorFor(this.active.colorField.columnName, group);
+                } else {
+                    dataset.color = this.defaultActiveColor;
+                }
+
+                dataset.backgroundColor[0] = dataset.color.toRgb();
+            }
+
+            dataset.data[dataIndex] = row.value;
         }
 
-        d.datasets = [];
-        d.datasets.push(dataset);
-        d.labels = labels;
-        this.chart.data = d;
+        chartData.datasets = Array.from(dataSets.values());
+        this.chart.data = chartData;
         this.refreshVisualization();
         let title;
         switch (this.active.aggregation) {
