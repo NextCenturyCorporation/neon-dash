@@ -114,6 +114,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         info: '',
         data: false
     };
+    @Input() sidenav: any;
     @Output() onGridItemsChanged: EventEmitter<number> = new EventEmitter<number>();
     @Output() onActiveDatasetChanged: EventEmitter<any> = new EventEmitter<any>();
 
@@ -219,6 +220,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             // Wait to update the layout until after we finish the dataset updates.
             me.finishConnectToPreset(dataset, loadDashboardState);
         });
+        this.sidenav.toggle();
     };
 
     finishConnectToPreset(dataset: Dataset, loadDashboardState: boolean) {
