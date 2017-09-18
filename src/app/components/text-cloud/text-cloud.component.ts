@@ -31,7 +31,6 @@ import {VisualizationService} from '../../services/visualization.service';
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     private textCloud: TextCloud;
     private filters: any[];
-    public count: number;
 
     private optionsFromConfig: {
         title: string,
@@ -52,7 +51,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         textColor: string,
         allowsTranslations: boolean,
         filterable: boolean,
-        data: any[]
+        data: any[],
+        count: number
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -79,9 +79,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             textColor: '#111',
             allowsTranslations: true,
             filterable: true,
-            data: []
+            data: [],
+            count: 0
         };
-        this.count = this.active.limit;
         this.queryTitle = this.optionsFromConfig.title || 'Text Cloud';
     };
 
@@ -205,47 +205,35 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     getFiltersToIgnore() {
         return null;
     }
-    getCount() {
+
+    getDocCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
-        let countQuery = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause;
-        //prefilter
-        if (this.optionsFromConfig.preFilter) {
-            whereClause = neon.query.where(this.optionsFromConfig.filterTarget,
-                this.optionsFromConfig.operator,
-                this.optionsFromConfig.exclude);
-
-        } else {
-            whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
-        }
-        let dataField = this.active.dataField.columnName;
-        this.executeQuery(countQuery.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
-        .sortBy('value', neon.query['DESCENDING']));
+        let whereClause = this.optionsFromConfig.preFilter ?
+            neon.query.where(this.optionsFromConfig.filterTarget, this.optionsFromConfig.operator, this.optionsFromConfig.exclude) :
+            neon.query.where(this.active.dataField.columnName, '!=', 'null');
+        let countQuery = new neon.query.Query()
+            .selectFrom(databaseName, tableName)
+            .where(whereClause)
+            .aggregate(neon.query['COUNT'], '*', '_docCount');
+        this.executeQuery(countQuery);
     }
 
     onQuerySuccess(response): void {
-        let data = response.data;
-        let length = data.length;
-        let count = this.count;
-        if (length - 1 < count ) {
-
-            let cloudData = data || [];
+        if (response.data.length === 1 && response.data[0]['_docCount']) {
+            this.active.count = response.data[0]['_docCount'];
+        } else {
+            let cloudData = response.data || [];
             let activeData = cloudData.map((item) => {
                 item.key = item[this.active.dataField.columnName];
                 item.keyTranslated = item.key;
                 return item;
             });
             this.active = this.updateObject(this.active, 'data', activeData);
-            if (length + 1 > count) {
-                this.getCount();
-                }
+            this.refreshVisualization();
+            this.queryTitle = this.optionsFromConfig.title || 'Text Cloud by ' + this.active.dataField.prettyName;
+            this.getDocCount();
         }
-        if (length > this.active.limit) {
-            this.count = length;
-            }
-        this.refreshVisualization();
-        this.queryTitle = this.optionsFromConfig.title || 'Text Cloud by ' + this.active.dataField.prettyName;
     }
 
     handleFiltersChangedEvent() {
@@ -393,8 +381,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     getButtonText() {
         return !this.isFilterSet() && !this.active.data.length ?
             'No Data' :
-            this.active.data.length < this.count ?
-                'Top ' + this.active.data.length + ' of ' + this.count :
+            this.active.data.length < this.active.count ?
+                'Top ' + this.active.data.length + ' of ' + this.active.count :
                 'Total: ' + this.active.data.length;
     };
 
