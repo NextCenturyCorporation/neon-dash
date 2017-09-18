@@ -30,6 +30,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         unsharedFilterField: any,
         unsharedFilterValue: string,
         sizeField: string,
+        sizeAggregation: string,
         limit: number
     };
     public active: {
@@ -43,6 +44,14 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         data: any[]
     };
     public emptyField: FieldMetaData = new FieldMetaData();
+    public sizeAggregationTypes = [
+        {name: 'Average', value: 'AVG'},
+        {name: 'Maximum', value: 'MAX'},
+        {name: 'Minimum', value: 'MIN'},
+        {name: 'Sum', value: 'SUM'}
+    ];
+    // Average should be the default. It is loaded from the optionsFromConfig
+    public sizeAggregation: string;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
@@ -56,8 +65,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             unsharedFilterField: this.injector.get('unsharedFilterField', null),
             unsharedFilterValue: this.injector.get('unsharedFilterValue', null),
             sizeField: this.injector.get('sizeField', null),
+            sizeAggregation: this.injector.get('sizeAggregation', 'AVG'),
             limit: this.injector.get('limit', 40)
         };
+        this.sizeAggregation = this.optionsFromConfig.sizeAggregation;
         this.emptyField.columnName = '';
         this.emptyField.prettyName = '';
         this.filters = [];
@@ -89,6 +100,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     subGetBindings(bindings: any) {
         bindings.dataField = this.active.dataField.columnName;
         bindings.sizeField = this.active.sizeField.columnName;
+        bindings.sizeAggregation = this.sizeAggregation;
         bindings.limit = this.active.limit;
     }
 
@@ -196,7 +208,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             // Query for data with the size field and sort by it
             let sizeColumn = this.active.sizeField.columnName;
             return query.where(neon.query.and(whereClause, neon.query.where(sizeColumn, '!=', null)))
-                .groupBy(dataField).aggregate(neon.query['AVG'], sizeColumn, sizeColumn)
+                .groupBy(dataField).aggregate(neon.query[this.sizeAggregation], sizeColumn, sizeColumn)
                 .sortBy(sizeColumn, neon.query['DESCENDING']).limit(this.active.limit);
         }
     };

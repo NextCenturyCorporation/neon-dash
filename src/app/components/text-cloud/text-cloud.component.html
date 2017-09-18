@@ -40,6 +40,13 @@
                 </md-select>
                 <p></p>
 
+                <md-select placeholder="Size Aggregation" [(ngModel)]="sizeAggregation"
+                           (ngModelChange)="handleChangeSizeField()" [disabled]="meta.fields.length == 0"
+                            *ngIf="active.sizeField.columnName != ''">
+                    <md-option *ngFor="let aggregation of sizeAggregationTypes" [value]="aggregation.value">{{ aggregation.name }}</md-option>
+                </md-select>
+                <p></p>
+
                 <table cellspacing="0">
                     <tr>
                         <td>
