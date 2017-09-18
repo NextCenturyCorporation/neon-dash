@@ -42,6 +42,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         filterable: boolean,
         data: any[]
     };
+    public emptyField: FieldMetaData = new FieldMetaData();
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
@@ -57,6 +58,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             sizeField: this.injector.get('sizeField', null),
             limit: this.injector.get('limit', 40)
         };
+        this.emptyField.columnName = '';
+        this.emptyField.prettyName = '';
         this.filters = [];
         this.active = {
             dataField: new FieldMetaData(),
@@ -297,6 +300,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
     };
+
+    handleChangeSizeField() {
+        this.logChangeAndStartQueryChain();
+    }
 
     getButtonText() {
         return !this.isFilterSet() && !this.active.data.length ? 'No Data' : 'Top ' + this.active.data.length;
