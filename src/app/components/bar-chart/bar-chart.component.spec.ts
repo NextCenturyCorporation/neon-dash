@@ -22,6 +22,7 @@ import {AppMaterialModule} from '../../app.material.module';
 import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 import {VisualizationService} from '../../services/visualization.service';
 import {ColorSchemeService} from '../../services/color-scheme.service';
+import {LegendComponent} from '../legend/legend.component';
 
 describe('Component: BarChart', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -31,6 +32,7 @@ describe('Component: BarChart', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                LegendComponent,
                 BarChartComponent,
                 ExportControlComponent,
                 UnsharedFilterComponent

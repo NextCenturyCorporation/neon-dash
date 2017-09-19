@@ -130,6 +130,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         options: any
     };
 
+    // Used to change the colors between active/inactive in the legend
+    public selectedLabels: string[] = [];
     private defaultActiveColor = new Color(57, 181, 74);
     public emptyField = new FieldMetaData();
 
@@ -312,6 +314,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     refreshVisualization() {
+        let selectedLabels: string[] = [];
+
         // If there is a filter, highlight the bar
         if (this.filters[0] && this.filters[0].value) {
             let activeValue = this.filters[0].value;
@@ -321,6 +325,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             for (let dataset of this.chart.data.datasets) {
                 dataset.setAllInactive();
                 dataset.setActiveColor(activeIndex);
+
+                if (dataset.data[activeIndex] > 0) {
+                    selectedLabels.push(dataset.label);
+                }
             }
         } else {
             // Set all bars active
@@ -328,6 +336,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 dataset.setAllActive();
             }
         }
+
+        this.selectedLabels = selectedLabels;
         this.chartModule['chart'].update();
     }
 
