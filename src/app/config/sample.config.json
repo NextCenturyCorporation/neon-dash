@@ -1,6 +1,4 @@
 {
-
-
     "dashboard": {
         "gridsterColumns": 24,
         "gridsterMargins": 10,
@@ -22,16 +20,6 @@
         "guide": "./app/help/Neon-Dashboard-User-Guide.pdf",
         "webVideo": "",
         "localVideo": ""
-    },
-
-    "opencpu": {
-        "enableOpenCpu": false,
-        "enableLogging": false,
-        "useAlerts": false,
-        "enableAnomalyDetection": true,
-        "enableStl2": false,
-        "enableMmpp": false,
-        "url": "http://neon-opencpu/ocpu/library/NeonAngularDemo/R"
     },
 
     "externalServices": {
@@ -168,18 +156,20 @@
     }],
 
     "layouts": {
-        "default": [{
+        "default": [
+            {
                 "sizex": 20,
                 "sizey": 6,
-                "type": "filterBuilder",
+                "type": "timeline",
                 "bindings": {
                     "database": "test",
-                    "table": "earthquakes"
+                    "table": "earthquakes",
+                    "dateField": "time"
                 }
             },
             {
                 "sizex": 20,
-                "sizey": 6,
+                "sizey": 8,
                 "type": "scatterPlot",
                 "bindings": {
                     "database": "test",
@@ -191,17 +181,6 @@
             },
             {
                 "sizex": 20,
-                "sizey": 6,
-                "type": "dataTable",
-                "bindings": {
-                    "database": "test",
-                    "table": "earthquakes",
-                    "sortField": "time",
-                    "limit": 20
-                }
-            },
-            {
-                "sizex": 18,
                 "sizey": 8,
                 "type": "map",
                 "bindings": {
@@ -217,7 +196,7 @@
                 }
             },
             {
-                "sizex": 18,
+                "sizex": 20,
                 "sizey": 8,
                 "type": "map",
                 "bindings": {
@@ -246,8 +225,8 @@
                 }
             },
             {
-                "sizex": 12,
-                "sizey": 4,
+                "sizex": 20,
+                "sizey": 6,
                 "type": "barChart",
                 "bindings": {
                     "database": "test",
@@ -257,8 +236,8 @@
                 }
             },
             {
-                "sizex": 12,
-                "sizey": 4,
+                "sizex": 20,
+                "sizey": 6,
                 "type": "lineChart",
                 "bindings": {
                     "database": "test",
@@ -271,6 +250,17 @@
             {
                 "sizex": 20,
                 "sizey": 6,
+                "type": "dataTable",
+                "bindings": {
+                    "database": "test",
+                    "table": "earthquakes",
+                    "sortField": "time",
+                    "limit": 20
+                }
+            },
+            {
+                "sizex": 20,
+                "sizey": 4,
                 "type": "textCloud",
                 "bindings": {
                     "database": "test",
@@ -279,180 +269,15 @@
                 }
             },
             {
-                "sizex": 12,
+                "sizex": 20,
                 "sizey": 4,
-                "type": "timeline",
+                "type": "filterBuilder",
                 "bindings": {
                     "database": "test",
-                    "table": "earthquakes",
-                    "dateField": "time"
+                    "table": "earthquakes"
                 }
             }
-        ],
-
-        "example-with-bindings": [{
-            "sizex": 12,
-            "type": "timeline",
-            "bindings": {
-                "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
-                "dateField": "time",
-                "granularity": "month",
-                "overrideStartDate": "1/1/2013",
-                "overrideEndDate": "1388534399000"
-            }
-        }, {
-            "sizeX": 12,
-            "type": "map",
-            "bindings": {
-                "title": "myTitle",
-                "config": [{
-                    "name": "myLayer",
-                    "database": "test",
-                    "table": "earthquakes",
-                    "type": "points",
-                    "limit": 5000,
-                    "latitudeField": "latitude",
-                    "longitudeMapping": "longitude",
-                    "dateField": "time",
-                    "sizeField": "mag",
-                    "colorField": "type"
-                }, {
-                    "name": "myLayer",
-                    "database": "test",
-                    "table": "earthquakes",
-                    "type": "heatmap",
-                    "limit": 5000,
-                    "latitudeField": "latitude",
-                    "longitudeField": "longitude"
-                }, {
-                    "name": "myLayer",
-                    "database": "test",
-                    "table": "earthquakes",
-                    "type": "cluster",
-                    "limit": 5000,
-                    "latitudeField": "latitude",
-                    "longitudeMapping": "longitude",
-                    "dateField": "time",
-                    "sizeField": "mag",
-                    "colorCode": "#39b54a",
-                    "popupFields": [
-                        "net"
-                    ]
-                }]
-            }
-        }, {
-            "sizeX": 12,
-            "type": "lineChart",
-            "bindings": {
-                "title": "myTitle",
-                "granularity": "day",
-                "config": [{
-                    "name": "myLayer",
-                    "database": "test",
-                    "table": "earthquakes",
-                    "dateField": "time",
-                    "aggregationType": "count"
-                }, {
-                    "name": "myLayer",
-                    "database": "test",
-                    "table": "earthquakes",
-                    "dateField": "time",
-                    "aggregationType": "average",
-                    "aggregationField": "mag",
-                    "groupField": "type"
-                }]
-            }
-        }, {
-            "sizeX": 12,
-            "type": "dataTable",
-            "bindings": {
-                "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
-                "idField": "_id",
-                "sortDirection": 1,
-                "limit": 500
-            }
-        }, {
-            "sizeX": 6,
-            "type": "aggregationTable",
-            "bindings": {
-                "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
-                "groupField": "net",
-                "aggregationType": "max",
-                "aggregationField": "mag",
-                "limit": 100
-            }
-        }, {
-            "sizeX": 6,
-            "type": "barChart",
-            "bindings": {
-                "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
-                "groupField": "net",
-                "aggregationType": "average",
-                "aggregationField": "mag",
-                "limit": 50
-            }
-        }, {
-            "sizeX": 6,
-            "type": "newsFeed",
-            "bindings": {
-                "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
-                "primaryTitleField": "type",
-                "secondaryTitleField": "net",
-                "dateField": "time",
-                "contentField": "mag"
-            }
-        }, {
-            "sizeX": 6,
-            "type": "opsClock",
-            "bindings": {
-                "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
-                "dateField": "time"
-            }
-        }, {
-            "sizeX": 6,
-            "type": "scatterPlot",
-            "bindings": {
-                "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
-                "type": "scatter",
-                "xAxisField": "depth",
-                "yAxisField": "mag",
-                "limit": "time"
-            }
-        }, {
-            "sizeX": 6,
-            "type": "sunburstChart",
-            "bindings": {
-                "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
-                "groupFields": "type1,type2,type3",
-                "valueField": "type",
-                "arcValue": "count"
-            }
-        }, {
-            "sizeX": 6,
-            "type": "textCloud",
-            "bindings": {
-                "title": "myTitle",
-                "database": "test",
-                "table": "earthquakes",
-                "dataField": "net"
-            }
-        }]
+        ]
     },
 
     "customFilters": {

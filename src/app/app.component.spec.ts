@@ -60,6 +60,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import {AppMaterialModule} from './app.material.module';
 import {HttpModule} from '@angular/http';
 import {UnsharedFilterComponent} from './components/unshared-filter/unshared-filter.component';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 describe('App: NeonGtd', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -96,6 +97,7 @@ describe('App: NeonGtd', () => {
                 ChartModule,
                 NgxDatatableModule,
                 HttpModule,
+                BrowserAnimationsModule
             ],
             providers: [
                 { provide: 'config', useValue: testConfig },

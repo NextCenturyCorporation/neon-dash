@@ -36,16 +36,6 @@ export class HelpConfig {
     localVideo: string;
 }
 
-export class OpenCPUConfig {
-    enableOpenCpu: boolean;
-    enableLogging: boolean;
-    useAlerts: boolean;
-    enableAnomalyDetection: boolean;
-    enableStl2: boolean;
-    enableMmpp: boolean;
-    url: string;
-}
-
 export class UserAleConfig {
     enable: boolean;
 }
@@ -72,15 +62,6 @@ export class NeonGTDConfig {
         guide: './app/help/Neon-Dashboard-User-Guide.pdf',
         webVideo: '',
         localVideo: ''
-    };
-    opencpu: OpenCPUConfig = {
-        enableOpenCpu: false,
-        enableLogging: false,
-        useAlerts: false,
-        enableAnomalyDetection: true,
-        enableStl2: false,
-        enableMmpp: false,
-        url: ''
     };
     datasets: Dataset[] = [];
     layouts: { [ key: string ]: any } = {};

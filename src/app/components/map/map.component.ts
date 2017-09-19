@@ -519,7 +519,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
         // If there are no layers or the index is past the end of the layers in the config, default to the original
-        if (layerIndex >= this.optionsFromConfig.layers.length || !bindingKey || !this.optionsFromConfig.layers[layerIndex][bindingKey]) {
+        if (layerIndex >= this.optionsFromConfig.layers.length || !bindingKey
+            || !this.optionsFromConfig.layers[layerIndex][bindingKey]) {
             return super.findFieldObject(layerIndex, bindingKey, mappingKey);
         }
 
@@ -793,15 +794,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 data.push(li);
             }
         }
-        if (data.length < 1) {
-            for (let obj of this.optionsFromConfig.colorMapping) {
-                if (obj.label) {
-                    let li = this.getLegendItem(obj.label, obj.color);
-                    data.push(li);
-                }
-            }
-            data.push(this.getLegendItem('Other', Cesium.Color.WHITE));
-        }
         this.legendData = data;
     }
 
@@ -899,7 +891,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         return true;
     }
 
-    handleFiltersChangedEvent() {
+    setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
         //TODO needs to be reworked now that we have layers.
@@ -925,8 +917,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             this.selection.isExact = false;
             this.drawSelection();
         }
-        this.executeAllQueryChain();
-    };
+    }
 
     handleChangeLimit() {
         this.logChangeAndStartAllQueryChain();

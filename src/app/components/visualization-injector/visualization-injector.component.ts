@@ -11,6 +11,7 @@ import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.c
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { NeonGridItem } from '../../neon-grid-item';
+import {VisualizationService} from '../../services/visualization.service';
 
 @Component({
     selector: 'app-visualization-injector',
@@ -57,10 +58,17 @@ export class VisualizationInjectorComponent {
             this.dynamicComponentContainer.insert(component.hostView);
 
             this.currentComponent = component;
+
+            // Try and get the ID of the child component
+            let c: any = component;
+            if (c._component && c._component.id) {
+                let id = c._component.id;
+                this.visualizationService.registerGridData(id, data);
+            }
         }
     }
 
-    constructor(private resolver: ComponentFactoryResolver) { }
+    constructor(private resolver: ComponentFactoryResolver, private visualizationService: VisualizationService) { }
 
     getComponent(type: string): any {
         switch (type) {

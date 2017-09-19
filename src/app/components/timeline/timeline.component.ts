@@ -35,7 +35,8 @@ declare let d3;
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+export class TimelineComponent extends BaseNeonComponent implements OnInit,
+        OnDestroy {
     @ViewChild('svg') svg: ElementRef;
 
     private filters: {
@@ -119,7 +120,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     };
 
     subGetBindings(bindings: any) {
-        // TODO
+        bindings.dateField = this.active.dateField.columnName;
+        bindings.granularity = this.active.granularity;
     }
 
     getExportFields() {
@@ -175,12 +177,16 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     };
 
     addLocalFilter(key: string, startDate: Date, endDate: Date, local?: boolean) {
-        this.filters[0] = {
-            key: key,
-            startDate: startDate,
-            endDate: endDate,
-            local: local
-        };
+        try {
+            this.filters[0] = {
+                key: key,
+                startDate: new Date(startDate),
+                endDate: new Date(endDate),
+                local: local
+            };
+        } catch (e) {
+            // Ignore potential date format errors
+        }
     };
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
@@ -475,7 +481,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.logChangeAndStartQueryChain();
     }
 
-    handleFiltersChangedEvent() {
+    setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
         let database = this.meta.database.name;
@@ -497,16 +503,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         } else {
             this.removeFilter();
         }
-        this.executeQueryChain();
-    };
+    }
 
     handleChangeDateField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
-
-    handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-        // this.updateNeonFilter();
     };
 
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
@@ -549,6 +549,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     removeFilter(/*value: string*/) {
         this.filters = [];
+        if (this.timelineChart) {
         this.timelineChart.clearBrush();
     }
+}
 }

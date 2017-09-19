@@ -80,7 +80,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
             sortField: this.injector.get('sortField', null),
-            limit: this.injector.get('limit', 15),
+            limit: this.injector.get('limit', 100),
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
@@ -88,7 +88,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         this.active = {
             sortField: new FieldMetaData(),
             andFilters: true,
-            limit: 100,
+            limit: this.optionsFromConfig.limit,
             filterable: true,
             layers: [],
             data: [],
@@ -126,7 +126,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
     };
 
     subGetBindings(bindings: any) {
-        // TODO
+        bindings.sortField = this.active.sortField.columnName;
+        bindings.limit = this.active.limit;
     }
 
     onUpdateFields() {
@@ -302,7 +303,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         this.refreshVisualization();
     }
 
-    handleFiltersChangedEvent() {
+    setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
         let database = this.meta.database.name;
@@ -318,6 +319,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         } else {
             this.filters = [];
         }
+    }
+
+    handleFiltersChangedEvent() {
+
         this.executeQueryChain();
     };
 

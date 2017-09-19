@@ -458,6 +458,10 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         return date;
     }
 
+    setupFilters() {
+        // Do nothing
+    }
+
     handleChangeGranularity() {
         this.timelineData.focusGranularityDifferent = false;
         switch (this.active.granularity.toLowerCase()) {

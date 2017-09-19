@@ -98,9 +98,7 @@ export class DashboardOptionsComponent implements OnInit {
             return;
         }
         // TODO: Enable once the visualization service has been migrated
-        let stateParams: any = {
-            dashboard: []
-        };
+        let stateParams: any = {};
 
         if (name) {
             stateParams.stateName = name;
@@ -112,13 +110,7 @@ export class DashboardOptionsComponent implements OnInit {
             this.datasetService.setMapLayers([{}]);
 
             // Get each visualization's bindings and save them to our dashboard state parameter
-            this.visualizationService.getWidgets().forEach((widget) => {
-                let bindings = widget.getBindings();
-                stateParams.dashboard.push({
-                    id: widget.id,
-                    bindings: _.cloneDeep(bindings)
-                });
-            });
+            stateParams.dashboard = this.visualizationService.getWidgets();
 
             // Get each visualization's bindings and save them to our dashboard state parameter
             // this.visualizationService.getWidgets().forEach(function(widget) {
@@ -163,10 +155,12 @@ export class DashboardOptionsComponent implements OnInit {
                 stateName: name
             };
             connection.loadState(stateParams, (dashboardState) => {
+                console.log('Loaded state:');
+                console.log(dashboardState);
                 if (_.keys(dashboardState).length) {
-                    let searchParams: URLSearchParams = new URLSearchParams();
-                    dashboardState.dashboardStateId = searchParams.get('dashboard_state_id');
-                    dashboardState.filterStateId = searchParams.get('filter_state_id');
+                    // let searchParams: URLSearchParams = new URLSearchParams();
+                    // dashboardState.dashboardStateId = searchParams.get('dashboard_state_id');
+                    // dashboardState.filterStateId = searchParams.get('filter_state_id');
 
                     this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
                 } else {
@@ -191,18 +185,18 @@ export class DashboardOptionsComponent implements OnInit {
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if (connection) {
             connection.deleteState(this.formData.stateToDelete, (stateIds) => {
-                let params: URLSearchParams = new URLSearchParams();
-                let dashboardStateId: string = params.get('dashboard_state_id');
-                let filterStateId: string = params.get('filter_state_id');
-                console.log('loaded ' + dashboardStateId + ' ' + filterStateId);
-
-                // Delete the state parameters if either match the IDs deleted
-                if (dashboardStateId && stateIds.dashboardStateId && dashboardStateId === stateIds.dashboardStateId)  {
-                    params.delete('dashboard_state_id');
-                }
-                if (filterStateId && stateIds.filterStateId && filterStateId === stateIds.filterStateId)  {
-                    params.delete('filter_state_id');
-                }
+                // let params: URLSearchParams = new URLSearchParams();
+                // let dashboardStateId: string = params.get('dashboard_state_id');
+                // let filterStateId: string = params.get('filter_state_id');
+                // console.log('loaded ' + dashboardStateId + ' ' + filterStateId);
+                //
+                // // Delete the state parameters if either match the IDs deleted
+                // if (dashboardStateId && stateIds.dashboardStateId && dashboardStateId === stateIds.dashboardStateId)  {
+                //     params.delete('dashboard_state_id');
+                // }
+                // if (filterStateId && stateIds.filterStateId && filterStateId === stateIds.filterStateId)  {
+                //     params.delete('filter_state_id');
+                // }
                 this.loadStateNames();
             }, (response) => {
                 this.handleStateFailure(response);

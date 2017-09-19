@@ -17,14 +17,10 @@ import {ColorSchemeService} from '../../services/color-scheme.service';
 import {FieldMetaData } from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-//import * as _ from 'lodash';
-//import {DateBucketizer} from '../bucketizers/DateBucketizer';
-//import {LegendItem} from '../legend/legend.component';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {ChartModule} from 'angular2-chartjs';
 import {VisualizationService} from '../../services/visualization.service';
-// import * as Chartjs from 'chart.js';
-declare var Chart: any;
+import * as Chart from 'chart.js';
 
 @Component({
     selector: 'app-scatter-plot',
@@ -47,7 +43,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         yField: string,
         labelField: string,
         unsharedFilterField: Object,
-        unsharedFilterValue: string
+        unsharedFilterValue: string,
+        limit: number
     };
     public active: {
         xField: FieldMetaData,
@@ -106,6 +103,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             xField: this.injector.get('xField', null),
             yField: this.injector.get('yField', null),
             labelField: this.injector.get('labelField', null),
+            limit: this.injector.get('limit', 200),
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
@@ -117,7 +115,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             yField: new FieldMetaData(),
             labelField: new FieldMetaData(),
             andFilters: true,
-            limit: 200,
+            limit: this.optionsFromConfig.limit,
             filterable: true,
             layers: [],
             xAxisIsNumeric: true,
@@ -236,11 +234,13 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     };
 
     subGetBindings(bindings: any) {
-        // TODO
+        bindings.xField = this.active.xField.columnName;
+        bindings.yField = this.active.yField.columnName;
+        bindings.labelField = this.active.labelField.columnName;
+        bindings.limit = this.active.limit;
     }
 
     onUpdateFields() {
-
         this.active.xField = this.findFieldObject('xField', neonMappings.TAGS);
         this.active.yField = this.findFieldObject('yField', neonMappings.TAGS);
         this.active.labelField = this.findFieldObject('labelField', neonMappings.TAGS);
@@ -462,9 +462,15 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             whereClauses.push(neon.query.where(this.active.labelField.columnName, '!=', null));
             groupBys.push(this.active.labelField);
         }
+        // Check for unshared filters
+        if (this.hasUnsharedFilter()) {
+            whereClauses.push(neon.query.where(this.meta.unsharedFilterField.columnName, '=',
+                this.meta.unsharedFilterValue));
+        }
+
         query = query.groupBy(groupBys);
         query = query.sortBy(xField, neon.query['ASCENDING']);
-        neon.query.and.apply(query, whereClauses);
+        query.where(neon.query.and.apply(query, whereClauses));
         query = query.limit(this.active.limit);
         query = query.aggregate(neon.query['COUNT'], '*', 'value');
         return query;
@@ -612,9 +618,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return arr;
     }
 
-    handleFiltersChangedEvent() {
-        this.executeQueryChain();
-    };
+    setupFilters() {
+        // Do nothing
+    }
 
     handleChangeLimit() {
         this.logChangeAndStartQueryChain();
@@ -636,6 +642,14 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
     };
+
+    unsharedFilterChanged() {
+        this.logChangeAndStartQueryChain();
+    }
+
+    unsharedFilterRemoved() {
+        this.logChangeAndStartQueryChain();
+    }
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
