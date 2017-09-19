@@ -18,11 +18,16 @@ import { Injectable } from '@angular/core';
 /**
  * A set of colors, used to keep track of which values map to which colors
  */
-class ColorSet {
+export class ColorSet {
     public colorList: Color[];
-    public currentIndex: number = 0;
-    public mappings: Map<string, Color> = new Map<string, Color>();
+    private currentIndex: number = 0;
+    private mappings: Map<string, Color> = new Map<string, Color>();
 
+    /**
+     * Get the color for a value
+     * @param {string} value
+     * @return {Color}
+     */
     getColorForValue(value: string): Color {
         let color = this.mappings.get(value);
         if (color == null) {
@@ -32,6 +37,22 @@ class ColorSet {
             this.currentIndex = (this.currentIndex + 1) % this.colorList.length;
         }
         return color;
+    }
+
+    /**
+     * Get the map of colors
+     * @return {Map<string, Color>}
+     */
+    getColorMap(): Map<string, Color> {
+        return this.mappings;
+    }
+
+    /**
+     * Get the list of all the keys that have a color in the set
+     * @return {string[]}
+     */
+    getAllKeys(): string[] {
+        return Array.from(this.mappings.keys());
     }
 }
 
@@ -108,6 +129,15 @@ export class ColorSchemeService {
             this.colorPosition = (this.colorPosition + 1) % this.colorList.length;
         }
         return colorSet.getColorForValue(value);
+    }
+
+    /**
+     * Get the color set for a key
+     * @param {string} set
+     * @return {ColorSet}
+     */
+    getColorSet(set: string): ColorSet {
+        return this.colorMaps.get(set);
     }
 }
 

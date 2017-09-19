@@ -1,38 +1,95 @@
 import {
     Component,
     OnInit,
-    OnDestroy,
     ViewEncapsulation,
     ChangeDetectionStrategy,
     ViewChild,
     Input
 } from '@angular/core';
+import {ColorSchemeService, ColorSet} from '../../services/color-scheme.service';
 
-
+/**
+ * Component that will display a legend of colors.
+ *
+ * Provided a list of field names, the legend gets all keys/colors for that set from the
+ * ColorSchemeService, and it draws it.
+ */
 @Component({
     selector: 'app-legend',
     templateUrl: './legend.component.html',
     styleUrls: ['./legend.component.scss'],
     encapsulation: ViewEncapsulation.Emulated, changeDetection: ChangeDetectionStrategy.Default
 })
-export class LegendComponent implements OnInit,
-    OnDestroy {
-    @Input() data: LegendItem[];
-    @Input() groups: LegendGroup[];
+export class LegendComponent implements OnInit {
+    /**
+     * List of fields that should be colored as 'active'.
+     * If this list is non-empty, all values are checked if they should be marked as active
+     * from just this list.
+     */
+    @Input() activeList: string[];
+    /**
+     * List of fields that should be colored as 'inactive'
+     * If the active list is empty, any values in this list will be marked as inactive
+     */
+    @Input() disabledList: string[];
     @ViewChild('menu') menu: any;
-    public menuIcon: string;
 
-    constructor() {
+    public menuIcon: string;
+    public colorSets: ColorSet[] = [];
+    private _FieldNames: string[];
+
+    constructor(private colorSchemeService: ColorSchemeService) {
         //private connectionService: ConnectionService, private datasetService: DatasetService, private filterService: FilterService,
         //private exportService: ExportService, private injector: Injector, private themesService: ThemesService) {
         this.menuIcon = 'keyboard_arrow_down';
     }
 
-    ngOnInit() {
+    @Input() set fieldNames(names: string[]) {
+        this._FieldNames = names;
+        this.loadAllColorSets();
+    }
+    get fieldNames(): string[] {
+        return this._FieldNames;
     }
 
-    ngOnDestroy() {
+    /**
+     * Get all the color sets we need from the ColorSchemeService
+     */
+    private loadAllColorSets() {
+        this.colorSets = [];
+        if (!this.fieldNames) {
+            return;
+        }
+        for (let name of this.fieldNames) {
+            if (name && name !== '') {
+                let colorSet = this.colorSchemeService.getColorSet(name);
+                if (colorSet) {
+                    this.colorSets.push(colorSet);
+                }
+            }
+        }
+    }
 
+    ngOnInit() {
+        this.loadAllColorSets();
+    }
+
+    getColorFor(colorSet: ColorSet, key: string): string {
+        let color = colorSet.getColorForValue(key);
+        return this.isDisabled(key) ? color.getInactiveRgba() : color.toRgb();
+    }
+
+    /**
+     * Check if the value should be marked as disabled
+     * @param {string} key
+     * @return {boolean}
+     */
+    isDisabled(key: string): boolean {
+        // If the enabled list is non-null, check it first
+        if (this.activeList && this.activeList.length > 0) {
+            return this.activeList.indexOf(key) === -1;
+        }
+        return this.disabledList && this.disabledList.indexOf(key) >= 0;
     }
 
     getIcon(active: boolean): string {
@@ -49,25 +106,5 @@ export class LegendComponent implements OnInit,
 
     onMenuClose() {
         this.menuIcon = 'keyboard_arrow_down';
-    }
-}
-
-export class LegendGroup {
-    name: string;
-    data: LegendItem[];
-    hasName?: boolean;
-}
-
-export class LegendItem {
-    prettyName: string;
-    accessName: string;
-    activeColor: string;
-    inactiveColor: string;
-    active: boolean;
-
-    constructor(name: string) {
-        this.prettyName = name;
-        this.accessName = name;
-        this.active = true;
     }
 }
