@@ -442,11 +442,7 @@
 					"title": "Location",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
-					"dataField": "LOC",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "LOC"
+					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 0,
@@ -469,10 +465,6 @@
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "PER",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "PER",
 					"unsharedFilterField": "",
 					"unsharedFilterValue": "",
 					"groupField": "entities.translatedText"
@@ -497,11 +489,7 @@
 					"title": "Organizations",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "ORG"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 17,
@@ -524,10 +512,6 @@
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "GPE",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "GPE",
 					"groupField": "entities.originalText"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
@@ -780,11 +764,7 @@
 					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "LOC",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "LOC",
-					"unsharedFilterField": "",
+                    "unsharedFilterField": "",
 					"unsharedFilterValue": "",
 					"groupField": "entities.originalText"
 				},
@@ -809,11 +789,7 @@
 					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "PER",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "PER",
-					"unsharedFilterField": "",
+                    "unsharedFilterField": "",
 					"unsharedFilterValue": "",
 					"groupField": "entities.originalText"
 				},
@@ -837,11 +813,7 @@
 					"title": "Organizations",
 					"database": "elisa_uyghur_2",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "ORG"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 17,
@@ -864,11 +836,7 @@
 					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "GPE",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "GPE",
-					"groupField": "entities.originalText"
+                    "groupField": "entities.originalText"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 12,
@@ -1120,11 +1088,7 @@
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "LOC",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "LOC",
-					"unsharedFilterField": "",
+                    "unsharedFilterField": "",
 					"unsharedFilterValue": ""
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
@@ -1148,11 +1112,7 @@
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "PER",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "PER",
-					"unsharedFilterField": "",
+                    "unsharedFilterField": "",
 					"unsharedFilterValue": "",
 					"groupField": "entities.originalText"
 				},
@@ -1176,11 +1136,7 @@
 					"title": "Organizations",
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "ORG"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 17,
@@ -1203,11 +1159,7 @@
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "GPE",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "GPE",
-					"groupField": "entities.originalText"
+                    "groupField": "entities.originalText"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 12,
@@ -1459,11 +1411,7 @@
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "LOC",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "LOC",
-					"unsharedFilterField": "",
+                    "unsharedFilterField": "",
 					"unsharedFilterValue": ""
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
@@ -1487,11 +1435,7 @@
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "PER",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "PER",
-					"unsharedFilterField": "",
+                    "unsharedFilterField": "",
 					"unsharedFilterValue": "",
 					"groupField": "entities.originalText"
 				},
@@ -1515,11 +1459,7 @@
 					"title": "Organizations",
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "ORG"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 17,
@@ -1542,11 +1482,7 @@
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "GPE",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "GPE",
-					"groupField": "entities.originalText"
+                    "groupField": "entities.originalText"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 12,
@@ -1797,11 +1733,7 @@
 					"title": "Location",
 					"database": "ebola_data_2",
 					"table": "ui_output",
-					"dataField": "LOC",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "LOC"
+					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 0,
@@ -1824,11 +1756,7 @@
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "PER",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "PER",
-					"unsharedFilterField": "",
+                    "unsharedFilterField": "",
 					"unsharedFilterValue": "",
 					"groupField": "entities.originalText"
 				},
@@ -1852,11 +1780,7 @@
 					"title": "Organizations",
 					"database": "ebola_data_2",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "ORG"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 17,
@@ -1879,11 +1803,7 @@
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "GPE",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "GPE",
-					"groupField": "entities.originalText"
+                    "groupField": "entities.originalText"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 12,
@@ -2133,11 +2053,7 @@
 					"title": "Location",
 					"database": "nepal_2",
 					"table": "ui_output",
-					"dataField": "LOC",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "LOC"
+					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 0,
@@ -2160,11 +2076,7 @@
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "PER",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "PER",
-					"unsharedFilterField": "",
+                    "unsharedFilterField": "",
 					"unsharedFilterValue": "",
 					"groupField": "entities.originalText"
 				},
@@ -2188,11 +2100,7 @@
 					"title": "Organizations",
 					"database": "nepal_2",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "ORG"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 17,
@@ -2215,11 +2123,7 @@
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "GPE",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "GPE",
-					"groupField": "entities.originalText"
+                    "groupField": "entities.originalText"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 12,
@@ -2470,11 +2374,7 @@
 					"title": "Location",
 					"database": "haiti_2",
 					"table": "ui_output",
-					"dataField": "LOC",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "LOC"
+					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 0,
@@ -2497,11 +2397,7 @@
 					"database": "haiti_2",
 					"table": "ui_output",
 					"dataField": "PER",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "PER",
-					"unsharedFilterField": "",
+                    "unsharedFilterField": "",
 					"unsharedFilterValue": "",
 					"groupField": "entities.originalText"
 				},
@@ -2525,11 +2421,7 @@
 					"title": "Organizations",
 					"database": "haiti_2",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "ORG"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 17,
@@ -2552,10 +2444,6 @@
 					"database": "haiti_2",
 					"table": "ui_output",
 					"dataField": "GPE",
-					"preFilter": false,
-					"filterTarget": "entities.entityType",
-					"operator": "=",
-					"exclude": "GPE",
 					"groupField": "entities.originalText"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
