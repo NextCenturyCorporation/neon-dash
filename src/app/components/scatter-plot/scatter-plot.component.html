@@ -45,6 +45,13 @@
                 </md-select>
                 <p></p>
 
+                <md-select placeholder="Color Field" [(ngModel)]="active.colorField"
+                           (ngModelChange)="handleChangeColorField()" [disabled]="meta.fields.length == 0">
+                    <md-option [value]="emptyField">(None)</md-option>
+                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
+                </md-select>
+                <p></p>
+
                 <table cellspacing="0">
                     <tr>
                         <td>
@@ -77,7 +84,7 @@
         </div>
         <div class="text-container">
             <div>
-                <!--<app-legend [data]="getLegendData()"></app-legend>-->
+                <app-legend *ngIf="active.colorField.columnName != ''" [fieldNames]="colorByFields" ></app-legend>
             </div>
             <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
                 <span class="filter-label" [title]="getFilterTitle(value)">{{ getFilterCloseText(value) }}</span>
