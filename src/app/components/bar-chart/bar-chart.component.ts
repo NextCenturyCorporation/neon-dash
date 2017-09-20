@@ -27,13 +27,13 @@ class BarData {
     // The X-Axis labels
     labels: string[] = [];
     // The data to graph
-    datasets: DataSet[] = [];
+    datasets: BarDataSet[] = [];
 }
 
 /**
  * One set of bars to draw
  */
-class DataSet {
+class BarDataSet {
     // The name of the data set
     label: string;
     // The data
@@ -124,7 +124,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     public chart: {
         data: {
             labels: string[],
-            datasets: DataSet[]
+            datasets: BarDataSet[]
         },
         type: string,
         options: any
@@ -175,7 +175,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             type: 'bar',
             data: {
                 labels: [],
-                datasets: [new DataSet(0, this.defaultActiveColor)]
+                datasets: [new BarDataSet(0, this.defaultActiveColor)]
             },
             options: {
                 responsive: true,
@@ -413,7 +413,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         // let prettyColName = this.active.dataField.prettyName;
         let chartData = new BarData();
 
-        let dataSets = new Map<string, DataSet>();
+        let dataSets = new Map<string, BarDataSet>();
 
         let hasGroup = this.active.colorField.columnName !== '';
 
@@ -447,7 +447,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
             let dataset = dataSets.get(group);
             if (dataset == null) {
-                dataset = new DataSet(chartData.labels.length);
+                dataset = new BarDataSet(chartData.labels.length);
                 dataSets.set(group, dataset);
 
                 dataset.label = group;
