@@ -98,8 +98,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         };
 
         this.chartDefaults = {
-            activeColor: 'rgba(77, 190, 194)',
-            inactiveColor: 'rgba(77, 190, 194, 0.3)'
+            activeColor: 'rgba(57, 181, 74)',
+            inactiveColor: 'rgba(57, 181, 74, 0.3)'
         };
 
         this.timelineData = new TimelineData();

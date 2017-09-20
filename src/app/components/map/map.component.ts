@@ -233,8 +233,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             sceneMode: Cesium.SceneMode.SCENE2D,
             imageryProviderViewModels: imagerySources,
             //set default imagery to eliminate annoying text and using a bing key by default
-            //WHAT A HACK-JOB!!! TODO: Set this by name rather than pray the order is the same all the time.
-            selectedImageryProviderViewModel: imagerySources[8],
+            selectedImageryProviderViewModel: imagerySources[9],
             terrainProviderViewModels: [],
             fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
             timeline: false, //disable timeline widget
@@ -749,7 +748,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     point: {
                         show: true, // default
                         color: color, // default: WHITE
-                        pixelSize: 14, // default: 1
+                        pixelSize: 4, // default: 1
                         outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
                         outlineWidth: 0 // default: 0
                     }
@@ -764,7 +763,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                             point: {
                                 show: true, // default
                                 color: color, // default: WHITE
-                                pixelSize: 14, // default: 1
+                                pixelSize: 4, // default: 1
                                 outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
                                 outlineWidth: 0 // default: 0
                             }
