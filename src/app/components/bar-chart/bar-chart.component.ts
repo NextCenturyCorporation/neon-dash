@@ -132,6 +132,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     // Used to change the colors between active/inactive in the legend
     public selectedLabels: string[] = [];
+    public colorFieldNames: string[] = [];
     private defaultActiveColor = new Color(57, 181, 74);
     public emptyField = new FieldMetaData();
 
@@ -408,7 +409,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response): void {
-        console.log('Query success');
         let colName = this.active.dataField.columnName;
         // let prettyColName = this.active.dataField.prettyName;
         let chartData = new BarData();
@@ -461,6 +461,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             }
 
             dataset.data[dataIndex] = row.value;
+            // Set this to force the legend to update
+            this.colorFieldNames = [this.active.colorField.columnName];
         }
 
         chartData.datasets = Array.from(dataSets.values());

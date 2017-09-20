@@ -85,7 +85,7 @@
         <div class="text-container">
             <div align="left">
                 <app-legend *ngIf="active.colorField.columnName != ''" [activeList]="selectedLabels"
-                            [fieldNames]="[active.colorField.columnName]"></app-legend>
+                            [fieldNames]="colorFieldNames"></app-legend>
             </div>
             <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
                 <span class="filter-label" [title]="getFilterTitle(value)">{{ getFilterCloseText(value) }}</span>
