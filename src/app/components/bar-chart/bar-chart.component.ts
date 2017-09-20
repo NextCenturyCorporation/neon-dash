@@ -132,7 +132,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         options: any
     };
 
-    private defaultActiveColor = new Color(77, 190, 194);
+    private defaultActiveColor = new Color(57, 181, 74);
     public emptyField = new FieldMetaData();
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
