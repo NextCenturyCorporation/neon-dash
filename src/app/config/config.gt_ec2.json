@@ -294,8 +294,8 @@
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 8,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -303,7 +303,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Situation",
+					"title": "Topics",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -329,7 +329,7 @@
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 10,
+				"sizex": 8,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -338,7 +338,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Map",
+					"title": "Map",
 					"database": "ldc_uyghur_3",
 					"filterable": true,
 					"name": "EVENTS",
@@ -353,6 +353,23 @@
 					"targetLatitudeField": "",
 					"targetLongitudeField": "",
 					"colorField": "",
+                    "colorMapping": [
+                        {
+                            "match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
+                            "label": "Need",
+                            "color": "rgb(0,255,0)"
+                        },
+                        {
+                            "match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
+                            "label": "Need and Issue",
+                            "color": "rgb(255,255,0)"
+                        },
+                        {
+                            "match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
+                            "label": "Issue",
+                            "color": "rgb(255,0,0)"
+                        }
+                    ],
 					"dateField": "createdAt",
 					"sizeField": "",
 					"idField": "",
@@ -384,14 +401,129 @@
                 },
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 5,
-				"col": 8
+				"col": 11
+			},
+			{
+				"name": "Timeline",
+				"type": "timeline",
+				"icon": "Timeline64",
+				"sizex": 8,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 6,
+				"minSizey": 5,
+				"$$hashKey": "object:36",
+				"selected": true,
+				"bindings": {
+					"title": "Timeline",
+					"database": "ldc_uyghur_3",
+					"table": "ui_output",
+					"dateField": "createdAt",
+					"granularity": "month"
+				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
+				"row": 7,
+				"col": 11
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Location",
+					"database": "ldc_uyghur_3",
+					"table": "ui_output",
+					"dataField": "LOC"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 0,
+				"col": 6
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "People",
+					"database": "ldc_uyghur_3",
+					"table": "ui_output",
+					"dataField": "PER",
+					"unsharedFilterField": "",
+					"unsharedFilterValue": "",
+					"groupField": "entities.translatedText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 6,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Organizations",
+					"database": "ldc_uyghur_3",
+					"table": "ui_output",
+					"dataField": "ORG"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 17,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "GeoPolitical Entities",
+					"database": "ldc_uyghur_3",
+					"table": "ui_output",
+					"dataField": "GPE",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 12,
+				"col": 6
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 7,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -417,21 +549,21 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 9,
-				"col": 0
+				"row": 17,
+				"col": 6
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 7,
-				"sizey": 15,
+				"sizex": 6,
+				"sizey": 12,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Documents",
+					"title": "Document Viewer",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "translatedText",
@@ -474,8 +606,8 @@
 					],
 					"limit": 50
 				},
-                "row": 0,
-                "col": 18
+                "row": 15,
+                "col": 19
 			}
 		],
 		"elisa_uig-layout": [
@@ -483,8 +615,8 @@
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 8,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -492,7 +624,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Situation",
+					"title": "Topics",
 					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -511,14 +643,14 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
+				"row": 17,
 				"col": 0
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 10,
+				"sizex": 8,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -527,7 +659,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Map",
+					"title": "Map",
 					"database": "elisa_uyghur_2",
 					"filterable": true,
 					"name": "EVENTS",
@@ -542,6 +674,23 @@
 					"targetLatitudeField": "",
 					"targetLongitudeField": "",
 					"colorField": "",
+                    "colorMapping": [
+                        {
+                            "match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
+                            "label": "Need",
+                            "color": "rgb(0,255,0)"
+                        },
+                        {
+                            "match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
+                            "label": "Need and Issue",
+                            "color": "rgb(255,255,0)"
+                        },
+                        {
+                            "match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
+                            "label": "Issue",
+                            "color": "rgb(255,0,0)"
+                        }
+                    ],
 					"dateField": "createdAt",
 					"sizeField": "",
 					"idField": "",
@@ -573,14 +722,14 @@
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 5,
-				"col": 8
+				"col": 11
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 10,
-				"sizey": 7,
+				"sizex": 8,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -595,15 +744,110 @@
 					"granularity": "month"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 11,
-				"col": 8
+				"row": 7,
+				"col": 11
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Location",
+					"database": "elisa_uyghur_2",
+					"table": "ui_output",
+					"dataField": "LOC",
+                    "unsharedFilterField": "",
+					"unsharedFilterValue": "",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 0,
+				"col": 6
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "People",
+					"database": "elisa_uyghur_2",
+					"table": "ui_output",
+					"dataField": "PER",
+                    "unsharedFilterField": "",
+					"unsharedFilterValue": "",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 6,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Organizations",
+					"database": "elisa_uyghur_2",
+					"table": "ui_output",
+					"dataField": "ORG"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 17,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "GeoPolitical Entities",
+					"database": "elisa_uyghur_2",
+					"table": "ui_output",
+					"dataField": "GPE",
+                    "groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 12,
+				"col": 6
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 7,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -629,21 +873,21 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 10,
-				"col": 0
+				"row": 17,
+				"col": 6
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 7,
-				"sizey": 15,
+				"sizex": 6,
+				"sizey": 12,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Documentsr",
+					"title": "Document Viewer",
 					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "translatedText",
@@ -686,8 +930,8 @@
 					],
 					"limit": 50
 				},
-				"row": 0,
-                "col": 18
+				"row": 15,
+                "col": 19
 			}
 		],
 		"grace_uig-layout": [
@@ -695,8 +939,8 @@
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 8,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 4,
@@ -704,7 +948,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Situation",
+					"title": "Topics",
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -723,14 +967,14 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
+				"row": 17,
 				"col": 0
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 10,
+				"sizex": 8,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -739,7 +983,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Map",
+					"title": "Map",
 					"database": "grace_uyghur_3",
 					"filterable": true,
 					"name": "EVENTS",
@@ -754,6 +998,23 @@
 					"targetLatitudeField": "",
 					"targetLongitudeField": "",
 					"colorField": "",
+                    "colorMapping": [
+                        {
+                            "match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
+                            "label": "Need",
+                            "color": "rgb(0,255,0)"
+                        },
+                        {
+                            "match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
+                            "label": "Need and Issue",
+                            "color": "rgb(255,255,0)"
+                        },
+                        {
+                            "match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
+                            "label": "Issue",
+                            "color": "rgb(255,0,0)"
+                        }
+                    ],
 					"dateField": "createdAt",
 					"sizeField": "",
 					"idField": "",
@@ -785,14 +1046,14 @@
                 },
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 5,
-				"col": 8
+				"col": 11
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 10,
-				"sizey": 7,
+				"sizex": 8,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -807,15 +1068,109 @@
 					"granularity": "month"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 11,
-				"col": 8
+				"row": 7,
+				"col": 11
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Location",
+					"database": "grace_uyghur_3",
+					"table": "ui_output",
+					"dataField": "LOC",
+                    "unsharedFilterField": "",
+					"unsharedFilterValue": ""
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 0,
+				"col": 6
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "People",
+					"database": "grace_uyghur_3",
+					"table": "ui_output",
+					"dataField": "PER",
+                    "unsharedFilterField": "",
+					"unsharedFilterValue": "",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 6,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Organizations",
+					"database": "grace_uyghur_3",
+					"table": "ui_output",
+					"dataField": "ORG"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 17,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "GeoPolitical Entities",
+					"database": "grace_uyghur_3",
+					"table": "ui_output",
+					"dataField": "GPE",
+                    "groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 12,
+				"col": 6
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 7,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -841,21 +1196,21 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 10,
-				"col": 0
+				"row": 17,
+				"col": 6
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 7,
-				"sizey": 15,
+				"sizex": 6,
+				"sizey": 12,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Documents",
+					"title": "Document Viewer",
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "originalText",
@@ -898,8 +1253,8 @@
 					],
 					"limit": 50
 				},
-				"row": 0,
-                "col": 18
+				"row": 15,
+                "col": 19
 			}
 		],
 				"ariel_uig-layout": [
@@ -907,8 +1262,8 @@
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 8,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -916,7 +1271,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Situation",
+					"title": "Topics",
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -942,7 +1297,7 @@
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 10,
+				"sizex": 8,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -951,7 +1306,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Map",
+					"title": "Map",
 					"database": "ariel_uyghur_1",
 					"filterable": true,
 					"name": "EVENTS",
@@ -966,6 +1321,23 @@
 					"targetLatitudeField": "",
 					"targetLongitudeField": "",
 					"colorField": "",
+                    "colorMapping": [
+                        {
+                            "match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
+                            "label": "Need",
+                            "color": "rgb(0,255,0)"
+                        },
+                        {
+                            "match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
+                            "label": "Need and Issue",
+                            "color": "rgb(255,255,0)"
+                        },
+                        {
+                            "match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
+                            "label": "Issue",
+                            "color": "rgb(255,0,0)"
+                        }
+                    ],
 					"dateField": "createdAt",
 					"sizeField": "",
 					"idField": "",
@@ -997,14 +1369,14 @@
                 },
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 5,
-				"col": 8
+				"col": 11
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 10,
-				"sizey": 7,
+				"sizex": 8,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -1019,15 +1391,109 @@
 					"granularity": "month"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 11,
-				"col": 8
+				"row": 7,
+				"col": 11
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Location",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output",
+					"dataField": "LOC",
+                    "unsharedFilterField": "",
+					"unsharedFilterValue": ""
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 0,
+				"col": 6
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "People",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output",
+					"dataField": "PER",
+                    "unsharedFilterField": "",
+					"unsharedFilterValue": "",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 6,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Organizations",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output",
+					"dataField": "ORG"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 17,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "GeoPolitical Entities",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output",
+					"dataField": "GPE",
+                    "groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 12,
+				"col": 6
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 7,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -1053,21 +1519,21 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 10,
-				"col": 0
+				"row": 17,
+				"col": 6
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 7,
-				"sizey": 15,
+				"sizex": 6,
+				"sizey": 12,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Documents",
+					"title": "Document Viewer",
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "originalText",
@@ -1110,8 +1576,8 @@
 					],
 					"limit": 50
 				},
-				"row": 0,
-                "col": 18
+				"row": 15,
+                "col": 19
 			}
 		],
 		"ebola-layout": [
@@ -1119,8 +1585,8 @@
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 8,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -1128,7 +1594,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Situation",
+					"title": "Topics",
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -1154,7 +1620,7 @@
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 10,
+				"sizex": 8,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1163,7 +1629,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Map",
+					"title": "Map",
 					"database": "ebola_data_2",
 					"filterable": true,
 					"name": "EVENTS",
@@ -1178,6 +1644,23 @@
 					"targetLatitudeField": "",
 					"targetLongitudeField": "",
 					"colorField": "topics",
+                    "colorMapping": [
+                        {
+                            "match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
+                            "label": "Need",
+                            "color": "rgb(0,255,0)"
+                        },
+                        {
+                            "match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
+                            "label": "Need and Issue",
+                            "color": "rgb(255,255,0)"
+                        },
+                        {
+                            "match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
+                            "label": "Issue",
+                            "color": "rgb(255,0,0)"
+                        }
+                    ],
 					"dateField": "createdAt",
 					"sizeField": "",
 					"idField": "",
@@ -1209,14 +1692,14 @@
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 5,
-				"col": 8
+				"col": 11
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 10,
-				"sizey": 7,
+				"sizex": 8,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -1231,15 +1714,107 @@
 					"granularity": "month"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 11,
-				"col": 8
+				"row": 7,
+				"col": 11
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Location",
+					"database": "ebola_data_2",
+					"table": "ui_output",
+					"dataField": "LOC"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 0,
+				"col": 6
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "People",
+					"database": "ebola_data_2",
+					"table": "ui_output",
+					"dataField": "PER",
+                    "unsharedFilterField": "",
+					"unsharedFilterValue": "",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 6,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Organizations",
+					"database": "ebola_data_2",
+					"table": "ui_output",
+					"dataField": "ORG"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 17,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "GeoPolitical Entities",
+					"database": "ebola_data_2",
+					"table": "ui_output",
+					"dataField": "GPE",
+                    "groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 12,
+				"col": 6
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 7,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -1265,21 +1840,21 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 10,
-				"col": 0
+				"row": 17,
+				"col": 6
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 7,
-				"sizey": 15,
+				"sizex": 6,
+				"sizey": 12,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Documents",
+					"title": "Document Viewer",
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "translatedText",
@@ -1322,8 +1897,8 @@
 					],
 					"limit": 50
 				},
-				"row": 0,
-                "col": 18
+				"row": 15,
+                "col": 19
 			}
 		],
 		"nepal-layout": [
@@ -1331,8 +1906,8 @@
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 8,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -1340,7 +1915,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Situation",
+					"title": "Topics",
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -1359,14 +1934,14 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
+				"row": 17,
 				"col": 0
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 10,
+				"sizex": 8,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1375,7 +1950,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Map",
+					"title": "Map",
 					"database": "nepal_2",
 					"filterable": true,
 					"name": "EVENTS",
@@ -1390,6 +1965,23 @@
 					"targetLatitudeField": "",
 					"targetLongitudeField": "",
 					"colorField": "",
+                    "colorMapping": [
+                        {
+                            "match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
+                            "label": "Need",
+                            "color": "rgb(0,255,0)"
+                        },
+                        {
+                            "match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
+                            "label": "Need and Issue",
+                            "color": "rgb(255,255,0)"
+                        },
+                        {
+                            "match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
+                            "label": "Issue",
+                            "color": "rgb(255,0,0)"
+                        }
+                    ],
 					"dateField": "createdAt",
 					"sizeField": "",
 					"idField": "",
@@ -1420,14 +2012,14 @@
                 },
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 5,
-				"col": 8
+				"col": 11
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 10,
-				"sizey": 7,
+				"sizex": 8,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -1442,15 +2034,107 @@
 					"granularity": "month"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 11,
-				"col": 8
+				"row": 7,
+				"col": 11
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Location",
+					"database": "nepal_2",
+					"table": "ui_output",
+					"dataField": "LOC"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 0,
+				"col": 6
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": "4",
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": "4",
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "People",
+					"database": "nepal_2",
+					"table": "ui_output",
+					"dataField": "PER",
+                    "unsharedFilterField": "",
+					"unsharedFilterValue": "",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 6,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Organizations",
+					"database": "nepal_2",
+					"table": "ui_output",
+					"dataField": "ORG"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 17,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "GeoPolitical Entities",
+					"database": "nepal_2",
+					"table": "ui_output",
+					"dataField": "GPE",
+                    "groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 12,
+				"col": 6
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 7,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -1476,21 +2160,21 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 10,
-				"col": 0
+				"row": 17,
+				"col": 6
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
 				"sizex": 6,
-				"sizey": 15,
+				"sizey": 12,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Documents",
+					"title": "Document Viewer",
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "originalText",
@@ -1533,8 +2217,8 @@
 					],
 					"limit": 50
 				},
-				"row": 10,
-                "col": 0
+				"row": 15,
+                "col": 19
 			}
 		],
 		"haiti-layout": [
@@ -1542,8 +2226,8 @@
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 8,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -1551,7 +2235,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Situation",
+					"title": "Topics",
 					"database": "haiti_2",
 					"table": "ui_output",
 					"dataField": "topics",
@@ -1570,14 +2254,14 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
+				"row": 17,
 				"col": 0
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 10,
+				"sizex": 8,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1586,7 +2270,7 @@
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Map",
+					"title": "Map",
 					"database": "haiti_2",
 					"filterable": true,
 					"name": "EVENTS",
@@ -1601,6 +2285,23 @@
 					"targetLatitudeField": "",
 					"targetLongitudeField": "",
 					"colorField": "",
+                    "colorMapping": [
+                        {
+                            "match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
+                            "label": "Need",
+                            "color": "rgb(0,255,0)"
+                        },
+                        {
+                            "match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
+                            "label": "Need and Issue",
+                            "color": "rgb(255,255,0)"
+                        },
+                        {
+                            "match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
+                            "label": "Issue",
+                            "color": "rgb(255,0,0)"
+                        }
+                    ],
 					"dateField": "createdAt",
 					"sizeField": "",
 					"idField": "",
@@ -1632,14 +2333,14 @@
                 },
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 5,
-				"col": 8
+				"col": 11
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 10,
-				"sizey": 7,
+				"sizex": 8,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -1654,15 +2355,107 @@
 					"granularity": "month"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 11,
-				"col": 8
+				"row": 7,
+				"col": 11
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Location",
+					"database": "haiti_2",
+					"table": "ui_output",
+					"dataField": "LOC"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 0,
+				"col": 6
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "People",
+					"database": "haiti_2",
+					"table": "ui_output",
+					"dataField": "PER",
+                    "unsharedFilterField": "",
+					"unsharedFilterValue": "",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 6,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Organizations",
+					"database": "haiti_2",
+					"table": "ui_output",
+					"dataField": "ORG"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 17,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 5,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "GeoPolitical Entities",
+					"database": "haiti_2",
+					"table": "ui_output",
+					"dataField": "GPE",
+					"groupField": "entities.originalText"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 12,
+				"col": 6
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 7,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -1688,15 +2481,15 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 10,
-				"col": 0
+				"row": 17,
+				"col": 6
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 7,
-				"sizey": 15,
+				"sizex": 6,
+				"sizey": 12,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
@@ -1745,8 +2538,8 @@
 					],
 					"limit": 50
 				},
-				"row": 0,
-                "col": 18
+				"row": 15,
+                "col": 19
 			}
 		]
 	},

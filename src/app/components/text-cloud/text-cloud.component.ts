@@ -35,10 +35,12 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         database: string,
         table: string,
         dataField: string,
-        preFilter: boolean,
-        filterTarget: string,
-        operator: any,
-        exclude: any,
+        configFilter: {
+            use: boolean,
+            lhs: string,
+            operator: string,
+            rhs: string
+        },
         unsharedFilterField: any,
         unsharedFilterValue: string,
         sizeField: string,
@@ -75,10 +77,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
             dataField: this.injector.get('dataField', null),
-            preFilter: this.injector.get('preFilter', null),
-            filterTarget: this.injector.get('filterTarget', null),
-            operator: this.injector.get('operator', null),
-            exclude: this.injector.get('exclude', null),
+            configFilter: this.injector.get('configFilter', null),
             unsharedFilterField: this.injector.get('unsharedFilterField', null),
             unsharedFilterValue: this.injector.get('unsharedFilterValue', null),
             sizeField: this.injector.get('sizeField', null),
@@ -211,11 +210,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause;
-        // Checks if there's prefilter and adds it.
-        if (this.optionsFromConfig.preFilter) {
-            whereClause = neon.query.where(this.optionsFromConfig.filterTarget,
-                this.optionsFromConfig.operator,
-                this.optionsFromConfig.exclude);
+        // Checks for an unshared filter in the config file.
+        if (this.optionsFromConfig.configFilter) {
+            whereClause = neon.query.where(this.optionsFromConfig.configFilter.lhs,
+                this.optionsFromConfig.configFilter.operator,
+                this.optionsFromConfig.configFilter.rhs);
+        } else if (this.hasUnsharedFilter()) {
+            whereClause = neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue);
         } else {
             whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
         }
@@ -246,19 +247,22 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     getDocCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
-        let whereClause = this.optionsFromConfig.preFilter ?
-            neon.query.where(this.optionsFromConfig.filterTarget, this.optionsFromConfig.operator, this.optionsFromConfig.exclude) :
+        let whereClause = this.optionsFromConfig.configFilter !== null ?
+            neon.query.where(this.optionsFromConfig.configFilter.lhs,
+                this.optionsFromConfig.configFilter.operator,
+                this.optionsFromConfig.configFilter.rhs) :
             neon.query.where(this.active.dataField.columnName, '!=', 'null');
         let countQuery = new neon.query.Query()
             .selectFrom(databaseName, tableName)
             .where(whereClause)
+            .groupBy(this.active.dataField.columnName)
             .aggregate(neon.query['COUNT'], '*', '_docCount');
         this.executeQuery(countQuery);
     }
 
     onQuerySuccess(response): void {
-        if (response.data.length === 1 && response.data[0]['_docCount']) {
-            this.active.count = response.data[0]['_docCount'];
+        if (response.data[0]['_docCount']) {
+            this.active.count = response.data.length;
         } else {
             let cloudData = response.data || [];
             let useSizeField: boolean = this.active.sizeField.columnName !== '';

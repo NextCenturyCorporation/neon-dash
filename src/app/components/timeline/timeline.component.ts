@@ -98,11 +98,13 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
         this.chartDefaults = {
             activeColor: 'rgba(77, 190, 194)',
-            inactiveColor: 'rgba(57, 181, 74, 0.3)'
+            inactiveColor: 'rgba(77, 190, 194, 0.3)'
         };
 
         this.timelineData = new TimelineData();
-        this.timelineData.bucketizer = new DateBucketizer();
+        this.timelineData.focusGranularityDifferent = this.active.granularity.toLowerCase() === 'minute';
+        this.timelineData.granularity = this.active.granularity;
+        this.timelineData.bucketizer = this.getBucketizer();
         this.enableRedrawAfterResize(true);
     }
 
@@ -455,29 +457,28 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     handleChangeGranularity() {
-        this.timelineData.focusGranularityDifferent = false;
-        switch (this.active.granularity.toLowerCase()) {
-            case 'minute':
-                this.timelineData.focusGranularityDifferent = true;
-                /* falls through */
-            case 'hour':
-                this.timelineData.bucketizer = new DateBucketizer();
-                this.timelineData.bucketizer.setGranularity(DateBucketizer.HOUR);
-                break;
-            case 'day':
-                this.timelineData.bucketizer = new DateBucketizer();
-                break;
-            case 'month':
-                this.timelineData.bucketizer = new MonthBucketizer();
-                break;
-            case 'year':
-                this.timelineData.bucketizer = new YearBucketizer();
-                break;
-            default:
-                this.timelineData.bucketizer = null;
-        }
+        this.timelineData.focusGranularityDifferent = this.active.granularity.toLowerCase() === 'minute';
+        this.timelineData.bucketizer = this.getBucketizer();
         this.timelineData.granularity = this.active.granularity;
         this.logChangeAndStartQueryChain();
+    }
+
+    getBucketizer() {
+        switch (this.active.granularity.toLowerCase()) {
+            case 'minute':
+            case 'hour':
+            let bucketizer = new DateBucketizer();
+                bucketizer.setGranularity(DateBucketizer.HOUR);
+                return bucketizer;
+            case 'day':
+                return new DateBucketizer();
+            case 'month':
+                return new MonthBucketizer();
+            case 'year':
+                return new YearBucketizer();
+            default:
+                return null;
+        }
     }
 
     setupFilters() {
@@ -549,7 +550,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     removeFilter(/*value: string*/) {
         this.filters = [];
         if (this.timelineChart) {
-        this.timelineChart.clearBrush();
+            this.timelineChart.clearBrush();
+        }
     }
-}
 }
