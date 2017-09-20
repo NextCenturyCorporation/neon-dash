@@ -20,6 +20,7 @@ import { UnsharedFilterComponent} from '../unshared-filter/unshared-filter.compo
 import { VisualizationInjectorComponent } from './visualization-injector.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
+import {VisualizationService} from '../../services/visualization.service';
 
 describe('Component: VisualizationInjector', () => {
 

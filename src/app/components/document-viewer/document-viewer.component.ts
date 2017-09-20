@@ -96,7 +96,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     getExportFields() {
-        let fields = [{
+        return [{
             columnName: this.active.dataField.columnName,
             prettyName: this.active.dataField.prettyName
         },
@@ -219,7 +219,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
                 'Total: ' + this.active.data.length;
     }
 
-    handleFiltersChangedEvent() {
+    setupFilters() {
         this.executeQueryChain();
     }
 

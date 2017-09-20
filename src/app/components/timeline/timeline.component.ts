@@ -35,7 +35,8 @@ declare let d3;
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+export class TimelineComponent extends BaseNeonComponent implements OnInit,
+        OnDestroy {
     @ViewChild('svg') svg: ElementRef;
 
     private filters: {
@@ -91,18 +92,20 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.active = {
             dateField: new FieldMetaData(),
             data: [],
-            granularity: this.injector.get('granularity', 'day'),
+            granularity: this.optionsFromConfig.granularity,
             ylabel: 'Count',
             docCount: 0
         };
 
         this.chartDefaults = {
             activeColor: 'rgba(77, 190, 194)',
-            inactiveColor: 'rgba(57, 181, 74, 0.3)'
+            inactiveColor: 'rgba(77, 190, 194, 0.3)'
         };
 
         this.timelineData = new TimelineData();
-        this.timelineData.bucketizer = new DateBucketizer();
+        this.timelineData.focusGranularityDifferent = this.active.granularity.toLowerCase() === 'minute';
+        this.timelineData.granularity = this.active.granularity;
+        this.timelineData.bucketizer = this.getBucketizer();
         this.enableRedrawAfterResize(true);
     }
 
@@ -119,7 +122,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     };
 
     subGetBindings(bindings: any) {
-        // TODO
+        bindings.dateField = this.active.dateField.columnName;
+        bindings.granularity = this.active.granularity;
     }
 
     getExportFields() {
@@ -175,12 +179,16 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     };
 
     addLocalFilter(key: string, startDate: Date, endDate: Date, local?: boolean) {
-        this.filters[0] = {
-            key: key,
-            startDate: startDate,
-            endDate: endDate,
-            local: local
-        };
+        try {
+            this.filters[0] = {
+                key: key,
+                startDate: new Date(startDate),
+                endDate: new Date(endDate),
+                local: local
+            };
+        } catch (e) {
+            // Ignore potential date format errors
+        }
     };
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
@@ -450,32 +458,31 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     handleChangeGranularity() {
-        this.timelineData.focusGranularityDifferent = false;
-        switch (this.active.granularity.toLowerCase()) {
-            case 'minute':
-                this.timelineData.focusGranularityDifferent = true;
-                /* falls through */
-            case 'hour':
-                this.timelineData.bucketizer = new DateBucketizer();
-                this.timelineData.bucketizer.setGranularity(DateBucketizer.HOUR);
-                break;
-            case 'day':
-                this.timelineData.bucketizer = new DateBucketizer();
-                break;
-            case 'month':
-                this.timelineData.bucketizer = new MonthBucketizer();
-                break;
-            case 'year':
-                this.timelineData.bucketizer = new YearBucketizer();
-                break;
-            default:
-                this.timelineData.bucketizer = null;
-        }
+        this.timelineData.focusGranularityDifferent = this.active.granularity.toLowerCase() === 'minute';
+        this.timelineData.bucketizer = this.getBucketizer();
         this.timelineData.granularity = this.active.granularity;
         this.logChangeAndStartQueryChain();
     }
 
-    handleFiltersChangedEvent() {
+    getBucketizer() {
+        switch (this.active.granularity.toLowerCase()) {
+            case 'minute':
+            case 'hour':
+            let bucketizer = new DateBucketizer();
+                bucketizer.setGranularity(DateBucketizer.HOUR);
+                return bucketizer;
+            case 'day':
+                return new DateBucketizer();
+            case 'month':
+                return new MonthBucketizer();
+            case 'year':
+                return new YearBucketizer();
+            default:
+                return null;
+        }
+    }
+
+    setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
         let database = this.meta.database.name;
@@ -497,16 +504,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         } else {
             this.removeFilter();
         }
-        this.executeQueryChain();
-    };
+    }
 
     handleChangeDateField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
-
-    handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-        // this.updateNeonFilter();
     };
 
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
@@ -549,6 +550,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     removeFilter(/*value: string*/) {
         this.filters = [];
-        this.timelineChart.clearBrush();
+        if (this.timelineChart) {
+            this.timelineChart.clearBrush();
+        }
     }
 }

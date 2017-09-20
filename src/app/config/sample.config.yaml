@@ -1,19 +1,3 @@
-user_ale:
-  enable: false
-#  loggingUrl: http://192.168.1.100
-#  toolName: Neon Dashboard
-#  toolVersion: 1.2.0
-#  elementGroups:
-#    - top
-#    - map_group
-#    - table_group
-#    - chart_group
-#    - query_group
-#    - graph_group
-#  workerUrl: bower_components/user-ale/js/userale-worker.js
-#  debug: false
-#  sendLogs: false
-
 dashboard:
   gridsterColumns: 24
   gridsterMargins: 10
@@ -34,15 +18,6 @@ help:
   guide: ./app/help/Neon-Dashboard-User-Guide.pdf
   webVideo:
   localVideo:
-
-opencpu:
-  enableOpenCpu: false
-  enableLogging: false
-  useAlerts: false
-  enableAnomalyDetection: true
-  enableStl2: false
-  enableMmpp: false
-  url: http://neon-opencpu/ocpu/library/NeonAngularDemo/R
 
 externalServices:
   jsonConfigFile:
@@ -159,501 +134,111 @@ datasets:
         color: dark
         protocol: https
 
-  -
-    name: Earthquakes and Contracts
-    datastore: mongo
-    hostname: localhost
-    layout: all-visualizations
-    databases:
-      -
-        name: test
-        prettyName: Test
-        tables:
-          -
-            name: earthquakes
-            prettyName: Earthquakes
-            fields:
-              -
-                columnName: _id
-                prettyName: Database ID
-              -
-                columnName: time
-                prettyName: Time
-              -
-                columnName: latitude
-                prettyName: Latitude
-              -
-                columnName: longitude
-                prettyName: Longitude
-              -
-                columnName: depth
-                prettyName: Depth
-              -
-                columnName: mag
-                prettyName: Magnitude
-              -
-                columnName: magType
-                prettyName: Magnitude Type
-              -
-                columnName: nst
-                prettyName: NST
-              -
-                columnName: gap
-                prettyName: Gap
-              -
-                columnName: dmin
-                prettyName: DMIN
-              -
-                columnName: rms
-                prettyName: RMS
-              -
-                columnName: net
-                prettyName: Net
-              -
-                columnName: id
-                prettyName: ID
-              -
-                columnName: updated
-                prettyName: Updated
-              -
-                columnName: place
-                prettyName: Place
-              -
-                columnName: type
-                prettyName: Type
-            mappings:
-              date: time
-              latitude: latitude
-              longitude: longitude
-              line_category: type
-              bar_x_axis: net
-              y_axis: mag
-              color_by: type
-              size_by: mag
-              sort_by: time
-              count_by: net
-      -
-        name: uscontracts
-        prettyName: US Contracts
-        tables:
-          -
-            name: testcontracts
-            prettyName: Test Contracts
-            fields:
-              -
-                columnName: _id
-                prettyName: Database ID
-              -
-                columnName: base
-                prettyName: Base Funding
-              -
-                columnName: andUsedOptions
-                prettyName: Base and Used Options
-              -
-                columnName: allOptions
-                prettyName: Base and All Options
-              -
-                columnName: agCat
-                prettyName: Agency Category
-              -
-                columnName: ag
-                prettyName: Agency
-              -
-                columnName: fundCat
-                prettyName: Funding Agency Category
-              -
-                columnName: fundAg
-                prettyName: Funding Agency
-              -
-                columnName: signed
-                prettyName: Date Signed
-              -
-                columnName: effective
-                prettyName: Date Effective
-              -
-                columnName: completion
-                prettyName: Completion Date
-              -
-                columnName: ultimate
-                prettyName: Ultimate Date
-              -
-                columnName: desc
-                prettyName: Description
-              -
-                columnName: desc_array
-                prettyName: Array of Description Words
-              -
-                columnName: vendor
-                prettyName: Vendor
-              -
-                columnName: vendorLegalName
-                prettyName: Vendor's Legal Name
-              -
-                columnName: address1
-                prettyName: Address
-              -
-                columnName: address2
-                prettyName: Address 2
-              -
-                columnName: city
-                prettyName: City
-              -
-                columnName: state
-                prettyName: State
-              -
-                columnName: zip
-                prettyName: Zip Code
-              -
-                columnName: country
-                prettyName: Country
-              -
-                columnName: prod2
-                prettyName: Product Type
-              -
-                columnName: prod3
-                prettyName: Product Subtype
-              -
-                columnName: prod4
-                prettyName: Product Category
-              -
-                columnName: prod5
-                prettyName: Product Subcategory
-              -
-                columnName: prod6
-                prettyName: Product Code
-              -
-                columnName: annualRev
-                prettyName: Company Annual Revenue
-            mappings:
-              date: signed
-              count_by: prod2
-
-    mapConfig:
-      myMap1:
-        bounds:
-          left: -180
-          bottom: -90
-          right: 180
-          top: 90
-    linkyConfig:
-      mentions: false
-      hashtags: false
-      urls: true
-      linkTo: twitter
-    options:
-      colorMaps:
-        test:
-          earthquakes:
-            myField:
-              fieldA: #123456
-              fieldB: #654321
-      mapBaseLayer:
-        color: dark
-        protocol: https
-
-    relations:
-      -
-        test:
-          earthquakes: time
-        uscontracts:
-          testcontracts: signed
 layouts:
   default:
     -
-      sizeX: 12
-      type: timeline
-    -
-      sizeX: 12
-      type: map
-      bindings:
-        config:
-          -
-            database: test
-            table: earthquakes
-    -
-      sizeX: 12
-      type: lineChart
-      bindings:
-        config:
-          -
-            database: test
-            table: earthquakes
-    -
-      type: aggregationTable
-    -
-      type: barChart
-    -
-      type: opsClock
-    -
-      type: dataTable
-    -
-      type: filterBuilder
-  all-visualizations:
-    -
-      sizeX: 12
-      type: timeline
-    -
-      sizeX: 12
+      sizex: 20
+      sizey: 6
       type: timeline
       bindings:
-        database: uscontracts
-        table: testcontracts
+          database: test
+          table: earthquakes
+          dateField: time
     -
-      sizeX: 12
-      type: map
-      bindings:
-        config:
-          -
-            name: Earthquake Points
-            database: test
-            table: earthquakes
-            type: points
-            applyTransientDateFilter: false
-          -
-            name: Vendors To Pops
-            database: uscontracts
-            table: testcontracts
-            type: nodes and arrows
-            sourceLatitudeField: vendorLatitude
-            sourceLongitudeField: vendorLongitude
-            targetLatitudeField: popLatitude
-            targetLongitudeField: popLongitude
-            lineSizeField: annualRev
-            applyTransientDateFilter: false
-    -
-      sizeX: 12
-      type: lineChart
-      bindings:
-        config:
-          -
-            database: test
-            table: earthquakes
-    -
-      type: aggregationTable
-    -
-      type: barChart
-    -
-      type: opsClock
-    -
-      type: dataTable
-    -
-      type: filterBuilder
-    -
+      sizex: 20
+      sizey: 8
       type: scatterPlot
       bindings:
-        type: heatmapScatter
-        xAxisField: mag
-        yAxisField: depth
+          database: test
+          table: earthquakes
+          xField: longitude
+          yField: latitude
+          limit: 200
     -
-      type: dataTable
-      bindings:
-        database: uscontracts
-        table: testcontracts
-    -
-      type: newsFeed
-      sizeY: 6
-      bindings:
-        database: uscontracts
-        table: testcontracts
-        dateField: signed
-        primaryTitleField: vendor
-        secondaryTitleField: ag
-        contentField: desc
-    -
-      type: textCloud
-      sizeY: 6
-      bindings:
-        database: uscontracts
-        table: testcontracts
-        dataField: desc_array
-    -
-      type: ganttChart
-      sizeX: 12
-      sizeY: 6
-      bindings:
-        database: uscontracts
-        table: testcontracts
-        rowTitle-field: desc
-        startField: signed
-        endField: completion
-        colorField: state
-    -
-      type: sunburstChart
-      sizeX: 9
-      sizeY: 9
-      bindings:
-        database: uscontracts
-        table: testcontracts
-        groupFields: prod2,prod3,prod4,prod6
-        valueField: base
-    -
-      sizeX: 9
-      sizeY: 9
-      type: networkGraph
-      bindings:
-        database: uscontracts
-        table: testcontracts
-        nodeField: vendor
-        nameField: vendor
-        linkedNodeField: ag
-        linkedNameField: ag
-        dateField: signed
-  example-with-bindings:
-    -
-      sizeX: 12
-      type: timeline
-      bindings:
-        title: myTitle
-        database: test
-        table: earthquakes
-        dateField: time
-        granularity: month
-        overrideStartDate: 1/1/2013
-        overrideEndDate: "1388534399000"
-    -
-      sizeX: 12
+      sizex: 20
+      sizey: 8
       type: map
       bindings:
-        title: myTitle
-        config:
-          -
-            name: myLayer
-            database: test
-            table: earthquakes
-            type: points
-            limit: 5000
-            latitudeField: latitude
-            longitudeMapping: longitude
-            dateField: time
-            sizeField: mag
-            colorField: type
-          -
-            name: myLayer
-            database: test
-            table: earthquakes
-            type: heatmap
-            limit: 5000
-            latitudeField: latitude
-            longitudeField: longitude
-          -
-            name: myLayer
-            database: test
-            table: earthquakes
-            type: cluster
-            limit: 5000
-            latitudeField: latitude
-            longitudeMapping: longitude
-            dateField: time
-            sizeField: mag
-            colorCode: "#39b54a"
-            popupFields:
+          database: test
+          table: earthquakes
+          latitudeField: latitude
+          longitudeField: longitude
+          dateField: time
+          sizeField: mag
+          colorField: magType
+          limit: 1000
+    -
+      sizex: 20
+      sizey: 8
+      type: map
+      bindings:
+          limit: 1000
+          layers:
               -
-                net
+                title: MagType
+                database: test
+                table: earthquakes
+                latitudeField: latitude
+                longitudeField: longitude
+                dateField: time
+                sizeField: mag
+                colorField: magType
+              -
+                title: Net
+                database: test
+                table: earthquakes
+                latitudeField: latitude
+                longitudeField: longitude
+                colorField: net
+                sizeField: mag
+                dateField: date
     -
-      sizeX: 12
-      type: lineChart
-      bindings:
-        title: myTitle
-        granularity: day
-        config:
-          -
-            name: myLayer
-            database: test
-            table: earthquakes
-            dateField: time
-            aggregationType: count
-          -
-            name: myLayer
-            database: test
-            table: earthquakes
-            dateField: time
-            aggregationType: average
-            aggregationField: mag
-            groupField: type
-    -
-      sizeX: 12
-      type: dataTable
-      bindings:
-        title: myTitle
-        database: test
-        table: earthquakes
-        idField: _id
-        sortDirection: 1
-        limit: 500
-    -
-      sizeX: 6
-      type: aggregationTable
-      bindings:
-        title: myTitle
-        database: test
-        table: earthquakes
-        groupField: net
-        aggregationType: max
-        aggregationField: mag
-        limit: 100
-    -
-      sizeX: 6
+      sizex: 20
+      sizey: 6
       type: barChart
       bindings:
-        title: myTitle
-        database: test
-        table: earthquakes
-        groupField: net
-        aggregationType: average
-        aggregationField: mag
-        limit: 50
+          database: test
+          table: earthquakes
+          dataField: magType
+          aggregation: count
     -
-      sizeX: 6
-      type: newsFeed
+      sizex: 20
+      sizey: 6
+      type: lineChart
       bindings:
-        title: myTitle
-        database: test
-        table: earthquakes
-        primaryTitleField: type
-        secondaryTitleField: net
-        dateField: time
-        contentField: mag
+          database: test
+          table: earthquakes
+          dateField: time
+          groupField: type
+          aggregation: count
     -
-      sizeX: 6
-      type: opsClock
+      sizex: 20
+      sizey: 6
+      type: dataTable
       bindings:
-        title: myTitle
-        database: test
-        table: earthquakes
-        dateField: time
+          database: test
+          table: earthquakes
+          sortField: time
+          limit: 20
     -
-      sizeX: 6
-      type: scatterPlot
-      bindings:
-        title: myTitle
-        database: test
-        table: earthquakes
-        type: scatter
-        xAxisField: depth
-        yAxisField: mag
-        limit: time
-    -
-      sizeX: 6
-      type: sunburstChart
-      bindings:
-        title: myTitle
-        database: test
-        table: earthquakes
-        groupFields: type1,type2,type3
-        valueField: type
-        arcValue: count
-    -
-      sizeX: 6
+      sizex: 20
+      sizey: 4
       type: textCloud
       bindings:
-        title: myTitle
-        database: test
-        table: earthquakes
-        dataField: net
+          database: test
+          table: earthquakes
+          dataField: magType
+    -
+      sizex: 20
+      sizey: 4
+      type: filterBuilder
+      bindings:
+          database: test
+          table: earthquakes
 
-customFilters: 
-  test: 
-    earthquakes: 
+customFilters:
+  test:
+    earthquakes:
       -
         label: Types
         items:
@@ -689,7 +274,7 @@ customFilters:
         label: Networks
         input:
             field: net
-    myTable: 
+    myTable:
       -
         label: My Group
         items:

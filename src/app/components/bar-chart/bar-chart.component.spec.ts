@@ -21,6 +21,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
 import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
 import {VisualizationService} from '../../services/visualization.service';
+import {ColorSchemeService} from '../../services/color-scheme.service';
 
 describe('Component: BarChart', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -44,6 +45,7 @@ describe('Component: BarChart', () => {
                 VisualizationService,
                 ThemesService,
                 Injector,
+                ColorSchemeService,
                 { provide: 'config', useValue: testConfig }
             ],
             imports: [

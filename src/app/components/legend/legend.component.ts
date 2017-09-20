@@ -4,19 +4,9 @@ import {
     OnDestroy,
     ViewEncapsulation,
     ChangeDetectionStrategy,
-    //Injector,
     ViewChild,
     Input
 } from '@angular/core';
-//import {ConnectionService} from '../../services/connection.service';
-//import {DatasetService} from '../../services/dataset.service';
-//import {FilterService} from '../../services/filter.service';
-//import {ExportService} from '../../services/export.service';
-//import {ThemesService} from '../../services/themes.service';
-//import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
-//import {neonMappings} from '../../neon-namespaces';
-//import * as neon from 'neon-framework';
-//import * as _ from 'lodash';
 
 
 @Component({
@@ -74,7 +64,6 @@ export class LegendItem {
     activeColor: string;
     inactiveColor: string;
     active: boolean;
-
 
     constructor(name: string) {
         this.prettyName = name;

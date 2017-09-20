@@ -10,19 +10,19 @@ import {FilterService} from '../../services/filter.service';
 import {ExportService} from '../../services/export.service';
 import {ThemesService} from '../../services/themes.service';
 import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
-//import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import {VisualizationService} from '../../services/visualization.service';
 import * as uuid from 'node-uuid';
 
-
-
-
+/**
+ * Base component for all non-layered Neon visualizations.
+ * This manages some of the lifecycle and query logic.
+ */
 export abstract class BaseLayeredNeonComponent implements OnInit,
     OnDestroy {
 
-    protected stateId: string;
+    public id: string;
     protected queryTitle: string;
     protected messenger: neon.eventing.Messenger;
     protected outstandingDataQueriesByLayer: any[];
@@ -31,6 +31,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
 
     private redrawAfterResize: boolean = false;
 
+    /**
+     * Common metadata about the database, and the table and any unshared filter of the layers
+     */
     public meta: {
         databases: DatabaseMetaData[],
         layers: {
@@ -75,9 +78,17 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.isExportable = true;
         this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
-        this.stateId = uuid.v4();
+        this.id = uuid.v4();
     };
 
+    /**
+     * Initializes the visualization.
+     * Basic initialization flow:
+     *  * initDatabase()
+     *  * setupFilters()
+     *  * subNgOnInit()
+     *  * postInit()
+     */
     ngOnInit() {
         this.initializing = true;
         this.outstandingDataQueriesByLayer = [];
@@ -85,9 +96,15 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         //this.outstandingDataQueriesByLayer[0] = {};
         //}
         this.initData();
+        try {
+            this.setupFilters();
+        } catch (e) {
+            console.warn('Error while setting up filters duing init, ignoring');
+        }
+
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
-
+        this.visualizationService.registerBindings(this.id, this);
 
 
         this.subNgOnInit();
@@ -96,16 +113,48 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.postInit();
     };
 
+    /**
+     * Method for anything that needs to be done once the visualization has been initialized
+     */
     abstract postInit();
+
+    /**
+     * Method to do any visualization-specific initialization.
+     */
     abstract subNgOnInit();
+
+    /**
+     * Method to do any visualization-specific logic before it is destroyed
+     */
     abstract subNgOnDestroy();
-    abstract getOptionFromConfig(option: string);
-    abstract getExportFields(layerIndex: number);
+
+    /**
+     * Get an option from the visualization's config
+     * @param option the option
+     * @return {any} the option's value
+     */
+    abstract getOptionFromConfig(option: string): any;
+
+    /**
+     * Get the list of fields to export for the layer index
+     * @return {[]} List of {columnName, prettyName} values of the fields
+     */
+    abstract getExportFields(layerIndex: number): {columnName: string, prettyName: string}[];
+
+    /**
+     * Do any visualization-specific logic after a new empty layer has been added
+     */
     abstract subAddEmptyLayer();
+
+    /**
+     * Do any visualization-specific logic before removing a layer
+     * @param {number} index
+     */
     abstract subRemoveLayer(index: number);
 
     /**
      * Add any fields needed to restore the state to the bindings parameter
+     * Note that the base class handles the title and basic layer metadata
      * @param bindings
      */
     abstract subGetBindings(bindings: any);
@@ -116,9 +165,30 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      */
     getBindings(): any {
         let bindings = {
-            title: this.createTitle()
+            title: this.createTitle(),
+            databases: [],
+            layers: []
         };
-        // TODO - What to add here?
+        for (let database of this.meta.databases) {
+            bindings.databases.push(database.name);
+        }
+        for (let layer of this.meta.layers) {
+            let layerBindings = {
+                database: layer.database.name,
+                tables: [],
+                table: layer.table.name,
+                fields: [],
+                unsharedFilterField: layer.unsharedFilterField.columnName,
+                unsharedFilterValue: layer.unsharedFilterValue,
+            };
+            for (let field of layer.fields) {
+                layerBindings.fields.push(field.columnName);
+            }
+            for (let table of layer.tables) {
+                layerBindings.tables.push(table.name);
+            }
+            bindings.layers.push(layerBindings);
+        }
 
         // Get the bindings from the subclass
         this.subGetBindings(bindings);
@@ -126,6 +196,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         return bindings;
     }
 
+    /**
+     * Add a new empty layer
+     */
     addEmptyLayer() {
         let layer = {
             database: new DatabaseMetaData(),
@@ -141,6 +214,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.initDatabases(this.meta.layers.length - 1);
     }
 
+    /**
+     * Remove a specific layer
+     * @param {number} index
+     */
     removeLayer(index: number) {
         // Stop if trying to remove a layer that doesn't exist
         if (index >= this.outstandingDataQueriesByLayer.length) {
@@ -153,7 +230,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.subRemoveLayer(index);
     }
 
-    exportOneLayer(query, layerIndex) {
+    /**
+     * Export a single layer
+     * @param query
+     * @param layerIndex
+     * @return {}
+     */
+    exportOneLayer(query: neon.query.Query, layerIndex: number) {
         //console.log('EXPORT NOT IMPLEMENTED IN '+ this.getVisualizationName());
         let exportName = this.queryTitle;
         if (exportName) {
@@ -183,6 +266,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         return finalObject;
     };
 
+    /**
+     * Get a query ready to give to the ExportService.
+     */
     export() {
         //TODO this function needs to be changed  to abstract once we get through all the visualizations.
         let queries = this.createAllQueries();
@@ -212,9 +298,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         }
     }
 
+    /**
+     * Clean up everything
+     */
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
+        this.visualizationService.unregister(this.id);
         this.subNgOnDestroy();
     };
 
@@ -222,6 +312,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.addEmptyLayer();
     };
 
+    /**
+     * Initialize the database metadata for a layer
+     * @param layerIndex
+     */
     initDatabases(layerIndex) {
         this.meta.databases = this.datasetService.getDatabases();
         this.meta.layers[layerIndex].database = this.meta.databases[0];
@@ -240,6 +334,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         }
     };
 
+    /**
+     * Initialize the table metadata for a layer
+     * @param layerIndex
+     */
     initTables(layerIndex) {
         this.meta.layers[layerIndex].tables = this.datasetService.getTables(this.meta.layers[layerIndex].database['name']);
         this.meta.layers[layerIndex].table = this.meta.layers[layerIndex].tables[0];
@@ -257,6 +355,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         }
     };
 
+    /**
+     * Initialize the field metadata for a layer
+     * @param layerIndex
+     */
     initFields(layerIndex) {
         // Sort the fields that are displayed in the dropdowns in the options menus
         // alphabetically.
@@ -272,6 +374,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         //this.changeDetection.detectChanges();
     };
 
+    /**
+     * Called when any field metadata changes.
+     * This will be called once before initialization is complete
+     */
     abstract onUpdateFields(layerIndex);
 
     stopEventPropagation(event) {
@@ -282,17 +388,44 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         }
     }
 
-    abstract getFilterText(filter): string;
-    abstract createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: any);
+    /**
+     * Get a text decription of a filter
+     * @param filter
+     */
+    abstract getFilterText(filter: any): string;
+
+    /**
+     * Creates and returns the Neon where clause for a Neon filter on the given database, table, and
+     * fields using the filters set in this visualization.
+     * Called by the Filter Service.
+     * @param databaseAndTableName
+     * @param fieldName
+     */
+    abstract createNeonFilterClauseEquals(databaseAndTableName: {database: string, table: string}, fieldName: any);
+
+    /**
+     * Returns the list of field objects on which filters are set for the layer.
+     */
     abstract getNeonFilterFields(layerIndex: number): string[];
+
+    /**
+     * Get the name of the visualization
+     */
     abstract getVisualizationName(): string;
+
     /**
     * Must return null for no filters.  Returning an empty array causes the
     * query to ignore ALL fitlers.
     */
     abstract getFiltersToIgnore(): string[];
 
-    addNeonFilter(layerIndex, executeQueryChainOnSuccess, filter) {
+    /**
+     * Add a filter and register it with neon.
+     * @param layerIndex
+     * @param {boolean} executeQueryChainOnSuccess
+     * @param filter
+     */
+    addNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, filter: any) {
         let database = this.meta.layers[layerIndex].database.name;
         let table = this.meta.layers[layerIndex].table.name;
         let fields: string[] = this.getNeonFilterFields(layerIndex);
@@ -318,6 +451,11 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.changeDetection.detectChanges();
     };
 
+    /**
+     * Create a title for a query
+     * @param {boolean} resetQueryTitle
+     * @return {string}
+     */
     createTitle(resetQueryTitle?: boolean): string {
         if (resetQueryTitle) {
             this.queryTitle = '';
@@ -336,7 +474,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         }
     }
 
-    createLayerTitle(layerIndex, resetQueryTitle?: boolean): string {
+    /**
+     * Create a title for a layer
+     * @param {number} layerIndex
+     * @param {boolean} resetQueryTitle
+     * @return {string}
+     */
+    createLayerTitle(layerIndex: number, resetQueryTitle?: boolean): string {
         if (resetQueryTitle) {
             this.queryTitle = '';
         }
@@ -369,6 +513,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         }
     }
 
+    /**
+     * Execute the Neon query chain.
+     *
+     * This is expected to get called whenever a query is expected to be run.
+     * This could be startup, user action to change field, relevant filter change
+     * from another visualization
+     */
     executeQueryChain(layerIndex) {
         let isValidQuery = this.isValidQuery(layerIndex);
         if (!isValidQuery) {
@@ -376,7 +527,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         }
         this.isLoading++;
         this.changeDetection.detectChanges();
-        this.queryTitle = this.createLayerTitle(false);
+        this.queryTitle = this.createLayerTitle(layerIndex, false);
         let query = this.createQuery(layerIndex);
 
         let filtersToIgnore = this.getFiltersToIgnore();
@@ -387,7 +538,11 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.executeQuery(layerIndex, query);
     }
 
-    createAllQueries() {
+    /**
+     * Get the list of queries for all layers
+     * @return {Array}
+     */
+    createAllQueries(): neon.query.Query[] {
         let queries = [];
         for (let i = 0; i < this.meta.layers.length; i++) {
             queries.push(this.createQuery(i));
@@ -395,19 +550,47 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         return queries;
     }
 
+    /**
+     * Check if the current query (Including filters) is valid for a layer
+     * @param {number} layerIndex
+     */
     abstract isValidQuery(layerIndex: number): void;
+
+    /**
+     * Create the query needed to get the data for the visualization for a layer
+     * @param {number} layerIndex
+     */
     abstract createQuery(layerIndex: number): neon.query.Query;
-    abstract onQuerySuccess(layerIndex, response): void;
+
+    /**
+     * Called after a successful query for a layer
+     * @param {number} layerIndex
+     * @param response the quersy response
+     */
+    abstract onQuerySuccess(layerIndex: number, response: any): void;
+
+    /**
+     * Update the visualization
+     */
     abstract refreshVisualization(): void;
 
-    baseOnQuerySuccess(layerIndex, response) {
+    /**
+     * Generic query success method
+     * @param layerIndex
+     * @param response
+     */
+    baseOnQuerySuccess(layerIndex: number, response) {
         this.onQuerySuccess(layerIndex, response);
         this.isLoading--;
         this.changeDetection.detectChanges();
     }
 
+    /**
+     * Execute a neon query
+     * @param {number} layerIndex
+     * @param query The query to execute
+     */
     executeQuery(layerIndex, query: neon.query.Query) {
-        let me = this;
         let database = this.meta.layers[layerIndex].database.name;
         let table = this.meta.layers[layerIndex].table.name;
         let connection = this.connectionService.getActiveConnection();
@@ -431,13 +614,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             console.log('execute query did not return an object');
         }
 
-        this.outstandingDataQueriesByLayer[layerIndex][table].always(function() {
-            me.outstandingDataQueriesByLayer[layerIndex][table] = undefined;
+        this.outstandingDataQueriesByLayer[layerIndex][table].always(() => {
+            this.outstandingDataQueriesByLayer[layerIndex][table] = undefined;
         });
 
         this.outstandingDataQueriesByLayer[layerIndex][table].done(this.baseOnQuerySuccess.bind(this, layerIndex));
 
-        this.outstandingDataQueriesByLayer[layerIndex][table].fail(function(response) {
+        this.outstandingDataQueriesByLayer[layerIndex][table].fail((response) => {
             if ( response.statusText === 'abort') {
                 //query was aborted so we don't care.  We assume we aborted it on purpose.
             } else {
@@ -453,12 +636,11 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     };
 
     /**
-    * Get field object from the key into the config options
-    */
+     * Get field object from the key into the config options
+     */
     findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
-        let me = this;
-        let find = function(name) {
-            return _.find(me.meta.layers[layerIndex].fields, function(field) {
+        let find = (name: string) => {
+            return _.find(this.meta.layers[layerIndex].fields, function(field) {
                 return field['columnName'] === name;
             });
         };
@@ -486,31 +668,59 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         return this.datasetService.getMapping(this.meta.layers[layerIndex].database.name, this.meta.layers[layerIndex].table.name, key);
     };
 
-    abstract handleFiltersChangedEvent(): void;
+    /**
+     * Called after the filters in the filter service have changed.
+     * Defaults to calling setupFilters() then executeAllQueryChain()
+     */
+    handleFiltersChangedEvent(): void {
+        this.setupFilters();
+        this.executeAllQueryChain();
+    }
 
+    /**
+     * Get and configure filters from the filter service.
+     * DO NOT EXECUTE QUERIES IN THIS METHOD
+     * This method will be called before the visualization has finished init!
+     */
+    abstract setupFilters(): void;
+
+    /**
+     * Handles updates that come through the data channel
+     * @param event
+     */
     onUpdateDataChannelEvent(event) {
         console.log('update data channel event');
         console.log(event);
     }
 
-    getExportData() { };
-
+    /**
+     * Handles changes in the active database
+     */
     handleChangeDatabase(layerIndex) {
         this.initTables(layerIndex);
         this.logChangeAndStartQueryChain(layerIndex); // ('database', this.active.database.name);
     };
 
+    /**
+     * Handles changes in the active table
+     */
     handleChangeTable(layerIndex) {
         this.initFields(layerIndex);
         this.logChangeAndStartQueryChain(layerIndex); // ('table', this.active.table.name);
     };
 
+    /**
+     * If not initializing, calls executeQueryChain();
+     */
     logChangeAndStartAllQueryChain() {
         if (!this.initializing) {
             this.executeAllQueryChain();
         }
     }
 
+    /**
+     * If not initializing, calls executeQueryChain(index) for a layer
+     */
     logChangeAndStartQueryChain(layerIndex: number) { // (option: string, value: any, type?: string) {
         // this.logChange(option, value, type);
         if (!this.initializing) {
@@ -518,21 +728,31 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         }
     };
 
+    /**
+     * Called when a filter has been removed
+     * @param value the filter name
+     */
     abstract removeFilter(value: string): void;
 
-    removeLocalFilterFromLocalAndNeon(layerIndex: number, value: string, isRequery, isRefresh) {
+    /**
+     * Remove a filter from neon, and optionally requery and/or refresh
+     * @param layerIndex
+     * @param name the filter name
+     * @param shouldRequery
+     * @param shouldRefresh
+     */
+    removeLocalFilterFromLocalAndNeon(layerIndex: number, name: string, shouldRequery, shouldRefresh) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
-        let me = this;
         let database = this.meta.layers[layerIndex].database.name;
         let table = this.meta.layers[layerIndex].table.name;
         let fields = this.getNeonFilterFields(layerIndex);
         this.filterService.removeFilter(database, table, fields,
             () => {
-                me.removeFilter(value);
-                if (isRequery) {
+                this.removeFilter(name);
+                if (shouldRequery) {
                     this.executeQueryChain(layerIndex);
                 } else {
-                    if (isRefresh) {
+                    if (shouldRefresh) {
                         this.refreshVisualization();
                     }
                 }

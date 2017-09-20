@@ -10,26 +10,30 @@ import {FilterService} from '../../services/filter.service';
 import {ExportService} from '../../services/export.service';
 import {ThemesService} from '../../services/themes.service';
 import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
-//import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import {VisualizationService} from '../../services/visualization.service';
 import * as uuid from 'node-uuid';
 
-
-
+/**
+ * Base component for all non-layered Neon visualizations.
+ * This manages some of the lifecycle and query logic.
+ */
 export abstract class BaseNeonComponent implements OnInit,
     OnDestroy {
 
+    public id: string;
     protected queryTitle: string;
     protected messenger: neon.eventing.Messenger;
     protected outstandingDataQuery: any;
-    protected stateId: string;
 
     protected initializing: boolean;
 
     private redrawAfterResize: boolean = false;
 
+    /**
+     * Common metadata about the database, table, and any unshared filters
+     */
     public meta: {
         databases: DatabaseMetaData[],
         database: DatabaseMetaData,
@@ -78,20 +82,33 @@ export abstract class BaseNeonComponent implements OnInit,
         this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
         // Let the ID be a UUID
-        this.stateId = uuid.v4();
+        this.id = uuid.v4();
     };
 
+    /**
+     * Initializes the visualization.
+     * Basic initialization flow:
+     *  * initDatabase()
+     *  * setupFilters()
+     *  * subNgOnInit()
+     *  * postInit()
+     */
     ngOnInit() {
         this.initializing = true;
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
-        this.visualizationService.register(this.stateId, this.getBindings);
+        this.visualizationService.registerBindings(this.id, this);
 
         this.outstandingDataQuery = {};
         for (let database of this.datasetService.getDatabases()) {
             this.outstandingDataQuery[database.name] = {};
         }
-        this.initData();
+        this.initDatabases();
+        try {
+            this.setupFilters();
+        } catch (e) {
+            console.warn('Error while setting up filters duing init, ignoring');
+        }
 
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
@@ -99,14 +116,37 @@ export abstract class BaseNeonComponent implements OnInit,
         this.postInit();
     };
 
+    /**
+     * Method for anything that needs to be done once the visualization has been initialized
+     */
     abstract postInit();
-    abstract subNgOnInit();
-    abstract subNgOnDestroy();
-    abstract getOptionFromConfig(option: string);
-    abstract getExportFields();
 
     /**
-     * Add any fields needed to restore the state to the bindings parameter
+     * Method to do any visualization-specific initialization.
+     */
+    abstract subNgOnInit();
+
+    /**
+     * Method to do any visualization-specific logic before it is destroyed
+     */
+    abstract subNgOnDestroy();
+
+    /**
+     * Get an option from the visualization's config
+     * @param option the option
+     * @return {any} the option's value
+     */
+    abstract getOptionFromConfig(option: string): any;
+
+    /**
+     * Get the list of fields to export
+     * @return {[]} List of {columnName, prettyName} values of the fields
+     */
+    abstract getExportFields(): {columnName: string, prettyName: string}[];
+
+    /**
+     * Add any fields needed to restore the state to the bindings parameter.
+     * Note that title, database, table, and unshared filter are all handled by the base class
      * @param bindings
      */
     abstract subGetBindings(bindings: any);
@@ -117,9 +157,12 @@ export abstract class BaseNeonComponent implements OnInit,
      */
     getBindings(): any {
         let bindings = {
-            title: this.createTitle()
+            title: this.createTitle(),
+            database: this.meta.database.name,
+            table: this.meta.table.name,
+            unsharedFilterField: this.meta.unsharedFilterField.columnName,
+            unsharedFilterValue: this.meta.unsharedFilterValue
         };
-        // TODO - What to add here?
 
         // Get the bindings from the subclass
         this.subGetBindings(bindings);
@@ -127,7 +170,10 @@ export abstract class BaseNeonComponent implements OnInit,
         return bindings;
     }
 
-    export() {
+    /**
+     * Get a query ready to give to the ExportService.
+     */
+    export(): any {
         //TODO this function needs to be changed  to abstract once we get through all the visualizations.
 
         let query = this.createQuery();
@@ -183,10 +229,13 @@ export abstract class BaseNeonComponent implements OnInit,
         }
     }
 
+    /**
+     * Clean up everything
+     */
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
-        this.visualizationService.unregister(this.stateId);
+        this.visualizationService.unregister(this.id);
         /* $scope.element.off('resize', resize);
         $scope.element.find('.headers-container').off('resize', resizeDisplay);
         $scope.element.find('.options-menu-button').off('resize', resizeTitle);
@@ -212,10 +261,9 @@ export abstract class BaseNeonComponent implements OnInit,
         this.subNgOnDestroy();
     };
 
-    initData() {
-        this.initDatabases();
-    };
-
+    /**
+     * Load all the database metadata, then call initTables()
+     */
     initDatabases() {
         this.meta.databases = this.datasetService.getDatabases();
         this.meta.database = this.meta.databases[0];
@@ -234,6 +282,9 @@ export abstract class BaseNeonComponent implements OnInit,
         }
     };
 
+    /**
+     * Load all the table metadata, then call initFields()
+     */
     initTables() {
         this.meta.tables = this.datasetService.getTables(this.meta.database['name']);
         this.meta.table = this.meta.tables[0];
@@ -251,6 +302,9 @@ export abstract class BaseNeonComponent implements OnInit,
         }
     };
 
+    /**
+     * Initialize all the field metadata
+     */
     initFields() {
         // Sort the fields that are displayed in the dropdowns in the options menus
         // alphabetically.
@@ -266,6 +320,10 @@ export abstract class BaseNeonComponent implements OnInit,
         //this.changeDetection.detectChanges();
     };
 
+    /**
+     * Called when any field metadata changes.
+     * This will be called once before initialization is complete
+     */
     abstract onUpdateFields();
 
     stopEventPropagation(event) {
@@ -276,17 +334,43 @@ export abstract class BaseNeonComponent implements OnInit,
         }
     }
 
-    abstract getFilterText(filter): string;
-    abstract createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: any);
+    /**
+     * Get a text decription of a filter
+     * @param filter
+     */
+    abstract getFilterText(filter: any): string;
+
+    /**
+     * Creates and returns the Neon where clause for a Neon filter on the given database, table, and
+     * fields using the filters set in this visualization.
+     * Called by the Filter Service.
+     * @param databaseAndTableName
+     * @param fieldName
+     */
+    abstract createNeonFilterClauseEquals(databaseAndTableName: {database: string, table: string}, fieldName: any);
+
+    /**
+     * Returns the list of field objects on which filters are set.
+     */
     abstract getNeonFilterFields(): string[];
+
+    /**
+     * Get the name of the visualization
+     */
     abstract getVisualizationName(): string;
+
     /**
     * Must return null for no filters.  Returning an empty array causes the
     * query to ignore ALL fitlers.
     */
     abstract getFiltersToIgnore(): string[];
 
-    addNeonFilter(executeQueryChainOnSuccess, filter) {
+    /**
+     * Add a filter and register it with neon.
+     * @param {boolean} executeQueryChainOnSuccess
+     * @param filter
+     */
+    addNeonFilter(executeQueryChainOnSuccess: boolean, filter: any) {
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields: string[] = this.getNeonFilterFields();
@@ -312,6 +396,11 @@ export abstract class BaseNeonComponent implements OnInit,
         this.changeDetection.detectChanges();
     };
 
+    /**
+     * Create a title for a query
+     * @param {boolean} resetQueryTitle
+     * @return {string}
+     */
     createTitle(resetQueryTitle?: boolean): string {
         if (resetQueryTitle) {
             this.queryTitle = '';
@@ -335,9 +424,11 @@ export abstract class BaseNeonComponent implements OnInit,
     };
 
     /**
-    This is expected to get called whenever a query is expected to be run.
-    This could be startup, user action to change field, relevant filter change
-    from another visualization
+     * Execute the Neon query chain.
+     *
+     * This is expected to get called whenever a query is expected to be run.
+     * This could be startup, user action to change field, relevant filter change
+     * from another visualization
      */
     executeQueryChain() {
         let isValidQuery = this.isValidQuery();
@@ -357,17 +448,41 @@ export abstract class BaseNeonComponent implements OnInit,
         this.executeQuery(query);
     }
 
-    abstract isValidQuery(): void;
+    /**
+     * Check if the current query (Including filters) is valid
+     */
+    abstract isValidQuery(): boolean;
+
+    /**
+     * Create the query needed to get the data for the visualization
+     */
     abstract createQuery(): neon.query.Query;
-    abstract onQuerySuccess(response): void;
+
+    /**
+     * Called after a successful query
+     * @param response the quersy response
+     */
+    abstract onQuerySuccess(response: any): void;
+
+    /**
+     * Update the visualization
+     */
     abstract refreshVisualization(): void;
 
+    /**
+     * Generic query success method
+     * @param response
+     */
     baseOnQuerySuccess(response) {
         this.onQuerySuccess(response);
         this.isLoading = false;
         this.changeDetection.detectChanges();
     }
 
+    /**
+     * Execute a neon query
+     * @param query The query to execute
+     */
     executeQuery(query: neon.query.Query) {
         let me = this;
         let database = this.meta.database.name;
@@ -415,8 +530,8 @@ export abstract class BaseNeonComponent implements OnInit,
     };
 
     /**
-    * Get field object from the key into the config options
-    */
+     * Get field object from the key into the config options
+     */
     findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
         let me = this;
         let find = function(name) {
@@ -441,25 +556,50 @@ export abstract class BaseNeonComponent implements OnInit,
         return this.datasetService.getMapping(this.meta.database.name, this.meta.table.name, key);
     };
 
-    abstract handleFiltersChangedEvent(): void;
+    /**
+     * Called after the filters in the filter service have changed.
+     * Defaults to calling setupFilters() then executeQueryChain()
+     */
+    handleFiltersChangedEvent(): void {
+        this.setupFilters();
+        this.executeQueryChain();
+    }
 
+    /**
+     * Get and configure filters from the filter service.
+     * DO NOT EXECUTE QUERIES IN THIS METHOD.
+     * This method will be called before the visualization has finished initialization!
+     */
+    abstract setupFilters(): void;
+
+    /**
+     * Handles updates that come through the data channel
+     * @param event
+     */
     onUpdateDataChannelEvent(event) {
         console.log('update data channel event');
         console.log(event);
     }
 
-    getExportData() { };
-
+    /**
+     * Handles changes in the active database
+     */
     handleChangeDatabase() {
         this.initTables();
         this.logChangeAndStartQueryChain(); // ('database', this.active.database.name);
     };
 
+    /**
+     * Handles changes in the active table
+     */
     handleChangeTable() {
         this.initFields();
         this.logChangeAndStartQueryChain(); // ('table', this.active.table.name);
     };
 
+    /**
+     * If not initializing, calls executeQueryChain();
+     */
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
         // this.logChange(option, value, type);
         if (!this.initializing) {
@@ -467,6 +607,10 @@ export abstract class BaseNeonComponent implements OnInit,
         }
     };
 
+    /**
+     * Called when a filter has been removed
+     * @param value the filter name
+     */
     abstract removeFilter(value: string): void;
 
     /**
@@ -480,19 +624,24 @@ export abstract class BaseNeonComponent implements OnInit,
             this.meta.unsharedFilterValue.trim() !== '';
     }
 
-    removeLocalFilterFromLocalAndNeon(value: string, isRequery, isRefresh) {
+    /**
+     * Remove a filter from neon, and optionally requery and/or refresh
+     * @param name the filter name
+     * @param shouldRequery
+     * @param shouldRefresh
+     */
+    removeLocalFilterFromLocalAndNeon(name: string, shouldRequery: boolean, shouldRefresh: boolean) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
-        let me = this;
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = this.getNeonFilterFields();
         this.filterService.removeFilter(database, table, fields,
             () => {
-                me.removeFilter(value);
-                if (isRequery) {
+                this.removeFilter(name);
+                if (shouldRequery) {
                     this.executeQueryChain();
                 } else {
-                    if (isRefresh) {
+                    if (shouldRefresh) {
                         this.refreshVisualization();
                     }
                 }
