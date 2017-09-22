@@ -406,16 +406,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let colName = this.active.dataField.columnName;
         // let prettyColName = this.active.dataField.prettyName;
         let chartData = new BarData();
-
         let dataSets = new Map<string, DataSet>();
-
         let hasGroup = this.active.colorField.columnName !== '';
-
         /*
          * We need to build the datasets.
          * The datasets are just arrays of the data to draw, and the data is indexed
          * by the labels field.
          */
+        
         for (let row of response.data) {
             let key: string = row[colName];
             if (!key) {
@@ -425,7 +423,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 chartData.labels.push(key);
             }
         }
-
+        
+        chartData.labels.sort();
+        
         for (let row of response.data) {
             let key: string = row[colName];
             if (!key) {
