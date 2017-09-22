@@ -541,7 +541,12 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         if (!data || !data[0] || !data[0]['data'] || !data[0]['data'].length) {
             return text;
         } else {
-            return 'Top ' + data[0]['data'].length;
+            let sum = 0;
+            //There's probably a better way if I knew typerscript better
+            for(let i = 0; i < data[0]['data'].length; i++){
+                sum+= data[0]['data'][i];
+            }
+            return 'Total ' + sum;//data[0]['data'].length;
         }
     };
 
