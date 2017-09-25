@@ -193,10 +193,18 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 },
                 scales: {
                     xAxes: [{
-                        stacked: true
+                        stacked: true,
+                        ticks: {
+                            beginAtZero: true  //scaleBeginAtZero: true
+                        }
                     }],
                     yAxes: [{
-                        stacked: true
+                        stacked: true,
+                        ticks: {
+                            beginAtZero: true  //scaleBeginAtZero: true
+                        }
+                        
+                        
                     }],
                 },
                 legend: {
