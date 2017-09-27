@@ -132,7 +132,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         options: any
     };
 
-    private defaultActiveColor = new Color(57, 181, 74);
+    private defaultActiveColor = new Color(77, 190, 194);
     public emptyField = new FieldMetaData();
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -203,8 +203,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                         ticks: {
                             beginAtZero: true  //scaleBeginAtZero: true
                         }
-                        
-                        
+
+
                     }],
                 },
                 legend: {
@@ -409,6 +409,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         return null;
     }
 
+    // TODO Reimplement the getColor method here, and add "colors" back into optionsFromConfig, possibly renamed.
+
     onQuerySuccess(response): void {
         console.log('Query success');
         let colName = this.active.dataField.columnName;
@@ -549,12 +551,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         if (!data || !data[0] || !data[0]['data'] || !data[0]['data'].length) {
             return text;
         } else {
-            let sum = 0;
-            //There's probably a better way if I knew typerscript better
-            for(let i = 0; i < data[0]['data'].length; i++){
-                sum+= data[0]['data'][i];
-            }
-            return 'Total ' + sum;//data[0]['data'].length;
+            let total = data[0]['data'].reduce((sum, elem) => {
+                sum += elem;
+            }, 0);
+            return 'Total ' + total;
         }
     };
 
