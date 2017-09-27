@@ -748,7 +748,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     point: {
                         show: true, // default
                         color: color, // default: WHITE
-                        pixelSize: 4, // default: 1
+                        pixelSize: 12, // default: 1
                         outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
                         outlineWidth: 0 // default: 0
                     }
@@ -759,11 +759,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
                     if (this.isNumeric(latCoord[pos]) && this.isNumeric(lngCoord[pos])) {
                         let entity = {
-                            position: Cesium.Cartesian3.fromDegrees(lngCoord, latCoord),
+                            position: Cesium.Cartesian3.fromDegrees(lngCoord[pos], latCoord[pos]),
                             point: {
                                 show: true, // default
                                 color: color, // default: WHITE
-                                pixelSize: 4, // default: 1
+                                pixelSize: 12, // default: 1
                                 outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
                                 outlineWidth: 0 // default: 0
                             }
