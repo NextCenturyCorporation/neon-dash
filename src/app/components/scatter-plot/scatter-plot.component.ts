@@ -20,7 +20,6 @@ import * as neon from 'neon-framework';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {ChartModule} from 'angular2-chartjs';
 import {VisualizationService} from '../../services/visualization.service';
-import * as Chart from 'chart.js';
 
 /**
  * Data used to draw the scatter plot
@@ -28,6 +27,7 @@ import * as Chart from 'chart.js';
 class ScatterPlotData {
     xLabels: any[] = [];
     yLabels: any[] = [];
+    labels: any[] = [];
     // The data to graph
     datasets: ScatterDataSet[] = [];
 }
@@ -133,13 +133,12 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         visibleOverlay: boolean,
     };
 
-    protected scatter: {
+    public chart: {
         data: ScatterPlotData,
         type: string,
-        options: Object
+        options: any
     };
 
-    public firstChart: boolean;
     private colorSchemeService: ColorSchemeService;
     public emptyField: FieldMetaData = new FieldMetaData();
 
@@ -193,10 +192,31 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             visibleOverlay: false,
         };
 
-        this.firstChart = true;
         this.onHover = this.onHover.bind(this);
-        this.scatter = {
-            type: 'line',
+
+        let tooltipTitleFunc = (tooltips) => {
+            //console.log(tooltips.length);
+            return this.active.pointLabels[tooltips[0].index];
+        };
+        let tooltipDataFunc = (tooltips) => {
+            let dataPoint = this.chart.data.datasets[tooltips.datasetIndex].data[tooltips.index];
+            let xLabel;
+            let yLabel;
+            if (this.active.xAxisIsNumeric) {
+                xLabel = dataPoint.x;
+            } else {
+                xLabel = this.chart.data.xLabels[dataPoint.x];
+            }
+            if (this.active.yAxisIsNumeric) {
+                yLabel = dataPoint.y;
+            } else {
+                yLabel = this.chart.data.yLabels[dataPoint.y];
+            }
+            return this.active.xField.prettyName + ': ' + xLabel + '  ' + this.active.yField.prettyName + ': ' + yLabel;
+        };
+
+        this.chart = {
+            type: 'scatter',
             data: new ScatterPlotData(),
             options: {
                 responsive: true,
@@ -211,10 +231,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                     mode: 'point',
                     intersect: false,
                     onHover: this.onHover
-
                 },
-                legend: Chart.defaults.global.legend,
-                //tooltips: Chart.defaults.global.tooltips,
+                legend: {
+                    display: false
+                },
                 scales: {
                     xAxes: [{
                         //type: 'linear',
@@ -223,35 +243,16 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                     yAxes: [{
                         //type: 'linear'
                     }]
+                },
+                tooltips: {
+                    callbacks: {
+                        title: tooltipTitleFunc.bind(this),
+                        label: tooltipDataFunc.bind(this)
+                    }
                 }
             }
         };
-        this.scatter.data.datasets.push(new ScatterDataSet(this.defaultColor));
-        this.scatter.options['legend'] = {};
-        this.scatter.options['legend'].display = false;
-        let tooltipTitleFunc = (tooltips) => {
-            //console.log(tooltips.length);
-            return this.active.pointLabels[tooltips[0].index];
-        };
-        let tooltipDataFunc = (tooltips) => {
-            let dataPoint = this.scatter.data.datasets[tooltips.datasetIndex].data[tooltips.index];
-            let xLabel;
-            let yLabel;
-            if (this.active.xAxisIsNumeric) {
-                xLabel = dataPoint.x;
-            } else {
-                xLabel = this.scatter.data.xLabels[dataPoint.x];
-            }
-            if (this.active.yAxisIsNumeric) {
-                yLabel = dataPoint.y;
-            } else {
-                yLabel = this.scatter.data.yLabels[dataPoint.y];
-            }
-            return this.active.xField.prettyName + ': ' + xLabel + '  ' + this.active.yField.prettyName + ': ' + yLabel;
-        };
-        this.scatter.options['tooltips'] = { callbacks: {} };
-        this.scatter.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
-        this.scatter.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
+        this.chart.data.datasets.push(new ScatterDataSet(this.defaultColor));
         this.queryTitle = 'Scatter Plot';
     };
     subNgOnInit() {
@@ -373,11 +374,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     onHover(event) {
-        let chart = this.chartModule['chart'];
-        let chartArea = chart.chartArea;
+        let chartArea = this.chartModule['chart'].chartArea;
         let chartXPos = event.offsetX;
         let chartYPos = event.offsetY;
-        let isMouseUp = false;
         if (!this.selection.mouseDown && event.buttons > 0 && this.mouseEventValid) {
             // mouse down event
             console.log(event);
@@ -419,15 +418,15 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         y2 = temp;
         if (!this.active.xAxisIsNumeric) {
             let i = Math.ceil(x1);
-            x1 = this.scatter.data['xLabels'][i];
+            x1 = this.chart.data['xLabels'][i];
             i = Math.floor(x2);
-            x2 = this.scatter.data['xLabels'][i];
+            x2 = this.chart.data['xLabels'][i];
         }
         if (!this.active.yAxisIsNumeric) {
             let i = Math.ceil(y1);
-            y1 = this.scatter.data['yLabels'][i];
+            y1 = this.chart.data['yLabels'][i];
             i = Math.floor(y2);
-            y2 = this.scatter.data['yLabels'][i];
+            y2 = this.chart.data['yLabels'][i];
         }
         return {
             xMin: x1, xMax: x2, yMin: y1, yMax: y2,
@@ -470,6 +469,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     refreshVisualization() {
+        console.log('UPDATE');
         this.chartModule['chart'].update();
     }
 
@@ -527,9 +527,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     onQuerySuccess(response) {
         //TODO much of this method could be optimized, but we'll worry about that later
-        // need to reset chart when data potentially changes type (or number of datasets)
-        //let ctx = this.chartModule['chart'].chart.ctx;
-        //this.chartModule['chart'].destroy();
         let xField = this.active.xField.columnName;
         let yField = this.active.yField.columnName;
         let colorField = this.active.colorField.columnName;
@@ -586,46 +583,31 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         // Un-map the data sets
         let allDataSets = Array.from(dataSetMap.values());
 
-        let rebuildChart = (xAxisIsNumeric && !this.active.xAxisIsNumeric) ||
-          (yAxisIsNumeric && !this.active.yAxisIsNumeric) ||
-          (!xAxisIsNumeric && this.active.xAxisIsNumeric) ||
-          (!yAxisIsNumeric && this.active.yAxisIsNumeric) || this.firstChart;
-
-        let ctx;
-        if (rebuildChart) {
-              ctx = this.chartModule['chart'].chart.ctx;
-              this.chartModule['chart'].destroy();
-        }
-
         if (xAxisIsNumeric) {
-            if (rebuildChart) {
-                this.scatter.options['scales'].xAxes[0] = { position: 'bottom' };
-                this.scatter.options['scales'].xAxes[0].type = 'linear';
-                this.scatter.data.xLabels = [];
-            }
+            this.chart.options.scales.xAxes[0] = { position: 'bottom' };
+            this.chart.options.scales.xAxes[0].type = 'linear';
+            this.chart.data.xLabels = xAxisLabels;
         } else {
             let xLabels = this.removeDuplicatesAndSort(xAxisLabels);
-            this.scatter.data.xLabels = xLabels;
+            this.chart.data.xLabels = xLabels;
             for (let dataSet of allDataSets) {
                 for (let p of dataSet.data) {
                     let val = p.x;
                     p.x = xLabels.indexOf(val);
                 }
             }
-            if (rebuildChart) {
-                let xAxis = { ticks: null, position: 'bottom' };
-                let tickCallback = (value) => {
-                    let t = this.scatter.data.xLabels[value];
-                    if (t !== undefined) {
-                        return t;
-                    }
-                    return '';
-                };
-                xAxis.ticks = {};
-                xAxis.ticks.callback = tickCallback.bind(this);
-                this.scatter.options['scales'].xAxes[0] = xAxis;
-                this.scatter.options['scales'].xAxes[0].type = 'linear';
-            }
+            let xAxis = { ticks: null, position: 'bottom' };
+            let tickCallback = (value) => {
+                let t = this.chart.data.xLabels[value];
+                if (t !== undefined) {
+                    return t;
+                }
+                return '';
+            };
+            xAxis.ticks = {};
+            xAxis.ticks.callback = tickCallback.bind(this);
+            this.chart.options.scales.xAxes[0] = xAxis;
+            this.chart.options.scales.xAxes[0].type = 'linear';
 
             //this.scatter.options['scales'].xAxes[0].ticks = {
             //    min: 0,
@@ -633,38 +615,34 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             //}
         }
         if (yAxisIsNumeric) {
-          if (rebuildChart) {
-            this.scatter.options['scales'].yAxes[0].type = 'linear';
-            this.scatter.data.yLabels = [];
-          }
+            this.chart.options.scales.yAxes[0].type = 'linear';
+            this.chart.data.yLabels = yAxisLabels;
         } else {
             let yLabels = this.removeDuplicatesAndSort(yAxisLabels);
-            this.scatter.options['scales'].yAxes[0].type = 'linear';
-            this.scatter.data.yLabels = yLabels;
+            this.chart.options.scales.yAxes[0].type = 'linear';
+            this.chart.data.yLabels = yLabels;
             for (let dataSet of allDataSets) {
                 for (let p of dataSet.data) {
                     let val = p.y;
                     p.y = yLabels.indexOf(val);
                 }
             }
-            if (rebuildChart) {
-                let yAxis = { ticks: null };
-                let tickCallback = (value) => {
-                    let t = this.scatter.data.yLabels[value];
-                    if (t !== undefined) {
-                        return t;
-                    }
-                    return '';
-                };
-                yAxis.ticks = {};
-                yAxis.ticks.callback = tickCallback.bind(this);
-                this.scatter.options['scales'].yAxes[0] = yAxis;
-                this.scatter.options['scales'].yAxes[0].type = 'linear';
-            }
+            let yAxis = { ticks: null };
+            let tickCallback = (value) => {
+                let t = this.chart.data.yLabels[value];
+                if (t !== undefined) {
+                    return t;
+                }
+                return '';
+            };
+            yAxis.ticks = {};
+            yAxis.ticks.callback = tickCallback.bind(this);
+            this.chart.options.scales.yAxes[0] = yAxis;
+            this.chart.options.scales.yAxes[0].type = 'linear';
         }
-        this.scatter.data['labels'] = this.scatter.data.xLabels;
+        this.chart.data.labels = this.chart.data.xLabels;
 
-        this.scatter.data.datasets = allDataSets;
+        this.chart.data.datasets = allDataSets;
         //this.scatter.data.labels[0] = xField + ' vs ' + yField;
         //let labels = new Array(length);
 
@@ -674,10 +652,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         //};
         this.active.xAxisIsNumeric = xAxisIsNumeric;
         this.active.yAxisIsNumeric = yAxisIsNumeric;
-        if (rebuildChart) {
-            this.chartModule['chart'] = new Chart(ctx, this.scatter);
-            this.firstChart = false;
-        }
         this.refreshVisualization();
         this.queryTitle = 'Scatter Plot: ' + this.active.xField.prettyName + ' vs ' + this.active.yField.prettyName;
         // Force the legend to update
