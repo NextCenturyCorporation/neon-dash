@@ -120,7 +120,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         layers: any[],
         data: any[],
         aggregation: string,
-        chartType: string
+        chartType: string,
+        maxNum: number
     };
 
     public chart: {
@@ -164,13 +165,15 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             layers: [],
             data: [],
             aggregation: 'count',
-            chartType: this.injector.get('chartType', 'bar')
+            chartType: this.injector.get('chartType', 'bar'),
+            maxNum: 0
         };
 
         // Make sure the empty field has non-null values
         this.emptyField.columnName = '';
         this.emptyField.prettyName = '';
 
+        
         this.onClick = this.onClick.bind(this);
         this.chart = {
             type: this.active.chartType,
@@ -195,10 +198,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                     xAxes: [{
                         stacked: true,
                         ticks: {
-                            beginAtZero: true  //scaleBeginAtZero: true
-                        }
+                            beginAtZero: true,  //scaleBeginAtZero: true
+                        },
                     }],
                     yAxes: [{
+                        
                         stacked: true,
                         ticks: {
                             beginAtZero: true  //scaleBeginAtZero: true
@@ -484,6 +488,36 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         }
         title += ' by ' + this.active.dataField.prettyName;
         this.queryTitle = title;
+        
+        let maxNum = 0 ;
+        
+        let max = response.data.map(function(x) {
+            return Math.max.apply(null, x);
+        });
+        /*
+        for(let i = 0; i < response.data.length; i++){
+            if(response.data[i].value > maxNum){
+                maxNum = response.data[i].value;
+            }
+        }
+        if(maxNum > this.active.maxNum){
+            this.active.maxNum = maxNum;
+            this.chart.options.max = Math.ceil(this.active.maxNum/100)*100;
+        }
+        this.chart.options.max = Math.ceil(this.active.maxNum/100)*100;
+        this.chartModule.scales.max = this.chart.options.max;
+        console.log("Chart Module max "+this.chartModule.scales.max);
+        console.log("chart option :" + this.chart.options.max);
+        /*
+         if(chartData.datasets.Max > this.active.maxNum){
+            this.active.maxNum = chartData.datasets.Max;
+            console.log("Max Num : "+this.active.maxNum);
+            this.chart.options.xAxes.ticks.max = this.active.maxNum;
+            }*/
+        /*
+        console.log(this.chartModule['chart']);
+        this.chartModule['chart'].update();
+        console.log(this.chartModule['chart']);*/
     }
 
     handleChangeAggregation() {
