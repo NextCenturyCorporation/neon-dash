@@ -48,6 +48,7 @@ import { DatasetSelectorComponent } from './components/dataset-selector/dataset-
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { DocumentViewerSingleItemComponent } from './components/document-viewer-single-item/document-viewer-single-item.component';
+import { ExportControlComponent } from './components/export-control/export-control.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { LegendComponent } from './components/legend/legend.component';
@@ -58,13 +59,13 @@ import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
+import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
-import { ExportControlComponent } from './components/export-control/export-control.component';
+//import { JSONEditorModule } from 'ng2-jsoneditor';
 import {AppMaterialModule} from './app.material.module';
-import {UnsharedFilterComponent} from './components/unshared-filter/unshared-filter.component';
 
 export function getAppConfig() {
     return window['appConfig'];
@@ -76,7 +77,7 @@ export function getAppConfig() {
         AboutNeonComponent,
         AddVisualizationComponent,
         BarChartComponent,
-        UnsharedFilterComponent,
+        ConfigEditorComponent,
         DashboardOptionsComponent,
         DatasetSelectorComponent,
         DataTableComponent,
@@ -90,7 +91,6 @@ export function getAppConfig() {
         MapComponent,
         ScatterPlotComponent,
         SnackBarComponent,
-        ConfigEditorComponent,
         StackedTimelineComponent,
         TextCloudComponent,
         TimelineComponent,
@@ -108,6 +108,7 @@ export function getAppConfig() {
         NgxDatatableModule,
         BrowserAnimationsModule,
         AppMaterialModule,
+//        JSONEditorModule
     ],
     providers: [
         ActiveGridService,

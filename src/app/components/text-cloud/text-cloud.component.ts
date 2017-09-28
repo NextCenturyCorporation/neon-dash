@@ -1,12 +1,4 @@
-import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewEncapsulation,
-    ChangeDetectionStrategy,
-    Injector,
-    ChangeDetectorRef
-} from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, Injector } from '@angular/core';
 import { TextCloud, TextCloudOptions, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -222,11 +214,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         }
         let dataField = this.active.dataField.columnName;
 
-        // Check for an unshared filter
-        if (this.hasUnsharedFilter()) {
-            whereClause = neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue);
-        }
-
         if (this.active.sizeField.columnName === '') {
             // Normal aggregation query
             return query.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
@@ -238,7 +225,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 .groupBy(dataField).aggregate(neon.query[this.sizeAggregation], sizeColumn, sizeColumn)
                 .sortBy(sizeColumn, neon.query['DESCENDING']).limit(this.active.limit);
         }
-    }
+    };
 
     getFiltersToIgnore() {
         return null;
@@ -264,8 +251,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (response.data[0]['_docCount']) {
             this.active.count = response.data.length;
         } else {
-            let cloudData = response.data || [];
+            let data = response.data;
+            let cloudData = data || [];
             let useSizeField: boolean = this.active.sizeField.columnName !== '';
+
             let activeData = cloudData.map((item) => {
                 item.key = item[this.active.dataField.columnName];
                 item.keyTranslated = item.key;
@@ -276,7 +265,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 return item;
             });
             this.active = this.updateObject(this.active, 'data', activeData);
-
             this.refreshVisualization();
             this.queryTitle = this.optionsFromConfig.title || 'Text Cloud by ' + this.active.dataField.prettyName;
             if (useSizeField && this.queryTitle !== this.optionsFromConfig.title) {

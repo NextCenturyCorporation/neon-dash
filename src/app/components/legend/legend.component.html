@@ -3,11 +3,16 @@
       <span class="legend-text">Legend</span><md-icon size="18" class="legend-text">{{menuIcon}}</md-icon>
     </button>
 
+
     <md-menu #menu="mdMenu" [overlapTrigger]="false">
-        <div *ngFor="let colorSet of colorSets">
-            <button md-menu-item *ngFor="let key of colorSet.getAllKeys()">
-                <md-icon size="24" [ngStyle]="{'color': getColorFor(colorSet, key)}">{{getIcon(true)}}</md-icon>
-                <span [ngStyle]="{'color': getColorFor(colorSet, key)}" >{{key}}</span>
+        <!--<div *ngIf="groups" *ngFor="let group of groups">
+            <label *ngIf="group.hasName">Legend groups is not yet implemented</label>
+
+        </div>-->
+        <div *ngIf="!groups">
+            <button md-menu-item *ngFor="let item of data" [disabled]="!item.active">
+              <md-icon size="24" [ngStyle]="{'color': (item.active ? item.activeColor : item.inactiveColor)}">{{getIcon(item.active)}}</md-icon>
+              <span [ngStyle]="{'color': (item.active ? item.activeColor : item.inactiveColor)}" >{{item.prettyName}}</span>
             </button>
         </div>
     </md-menu>

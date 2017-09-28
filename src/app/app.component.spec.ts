@@ -27,13 +27,11 @@ import { DashboardOptionsComponent } from './components/dashboard-options/dashbo
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
+import { ExportControlComponent } from './components/export-control/export-control.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components//map/map.component';
-import { LegendComponent } from './components/legend/legend.component';
-import { ExportControlComponent } from './components/export-control/export-control.component';
-import { DataTableComponent } from './components/data-table/data-table.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
@@ -80,13 +78,12 @@ describe('App: NeonGtd', () => {
                 DatasetSelectorComponent,
                 DataTableComponent,
                 DocumentViewerComponent,
+                ExportControlComponent,
                 FilterBuilderComponent,
                 LegendComponent,
-                ExportControlComponent,
                 LineChartComponent,
                 MapComponent,
                 ScatterPlotComponent,
-                UnsharedFilterComponent,
                 StackedTimelineComponent,
                 TextCloudComponent,
                 TimelineComponent,

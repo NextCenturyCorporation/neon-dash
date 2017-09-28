@@ -13,7 +13,7 @@ import {DatasetService} from '../../services/dataset.service';
 import {FilterService} from '../../services/filter.service';
 import {ExportService} from '../../services/export.service';
 import {ThemesService} from '../../services/themes.service';
-import {Color, ColorSchemeService} from '../../services/color-scheme.service';
+import {ColorSchemeService} from '../../services/color-scheme.service';
 import {FieldMetaData } from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
@@ -21,60 +21,6 @@ import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {ChartModule} from 'angular2-chartjs';
 import {VisualizationService} from '../../services/visualization.service';
 import * as Chart from 'chart.js';
-
-/**
- * Data used to draw the scatter plot
- */
-class ScatterPlotData {
-    xLabels: any[] = [];
-    yLabels: any[] = [];
-    // The data to graph
-    datasets: ScatterDataSet[] = [];
-}
-
-/**
- * One set of bars to draw
- */
-class ScatterDataSet {
-    fill: boolean = false;
-    showLine: boolean = false;
-    borderWidth: number = 1;
-
-    // The name of the data set
-    label: string;
-    // The data
-    data: {x: any, y: any}[] = [];
-
-    // The colors of the points
-    backgroundColor: string;
-    borderColor: string;
-
-    // The color of the data set
-    color: Color;
-
-    constructor(color: Color) {
-        this.color = color;
-        this.setActive();
-    }
-
-    /**
-     * Set the background color to the default color of this set
-     */
-    setInactive() {
-        for (let i = 0; i < this.data.length; i++) {
-            this.backgroundColor = this.color.getInactiveRgba();
-            this.borderColor = this.backgroundColor;
-        }
-    }
-
-    /**
-     * Set the background color of the set to the active color
-     */
-    setActive() {
-        this.backgroundColor = this.color.toRgb();
-        this.borderColor = this.backgroundColor;
-    }
-}
 
 @Component({
     selector: 'app-scatter-plot',
@@ -96,7 +42,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         xField: string,
         yField: string,
         labelField: string,
-        colorField: string,
         unsharedFilterField: Object,
         unsharedFilterValue: string,
         limit: number
@@ -105,7 +50,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         xField: FieldMetaData,
         yField: FieldMetaData,
         labelField: FieldMetaData,
-        colorField: FieldMetaData,
         andFilters: boolean,
         limit: number,
         filterable: boolean,
@@ -115,8 +59,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         pointLabels: string[],
     };
 
-    // Alternate color: rgba(57, 181, 74, 0.9)
-    private defaultColor: Color = new Color(51, 153, 255);
+    private chartDefaults: {
+        activeColor: string,
+        inactiveColor: string
+    };
 
     private mouseEventValid: boolean;
 
@@ -134,16 +80,17 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     };
 
     protected scatter: {
-        data: ScatterPlotData,
+        data: {
+            xLabels: any[],
+            yLabels: any[],
+            datasets: any[]
+        },
         type: string,
         options: Object
     };
 
     public firstChart: boolean;
     private colorSchemeService: ColorSchemeService;
-    public emptyField: FieldMetaData = new FieldMetaData();
-
-    public colorByFields: string[] = [];
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -156,13 +103,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             xField: this.injector.get('xField', null),
             yField: this.injector.get('yField', null),
             labelField: this.injector.get('labelField', null),
-            colorField: this.injector.get('colorField', null),
             limit: this.injector.get('limit', 200),
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
-        this.emptyField.columnName = '';
-        this.emptyField.prettyName = '';
         this.colorSchemeService = colorSchemeSrv;
         this.filters = [];
         this.mouseEventValid = false;
@@ -170,7 +114,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             xField: new FieldMetaData(),
             yField: new FieldMetaData(),
             labelField: new FieldMetaData(),
-            colorField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
             filterable: true,
@@ -193,11 +136,30 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             visibleOverlay: false,
         };
 
+        this.chartDefaults = {
+            activeColor: 'rgba(57, 181, 74, 0.9)',
+            inactiveColor: 'rgba(57, 181, 74, 0.3)'
+        };
         this.firstChart = true;
         this.onHover = this.onHover.bind(this);
+        let dataColor = 'rgba(0, 0, 255, 0.2)';
         this.scatter = {
             type: 'line',
-            data: new ScatterPlotData(),
+            data: {
+                xLabels: [],
+                yLabels: [],
+                datasets: [
+                    {
+                        label: 'dataset',
+                        fill: false,
+                        showLine: false,
+                        data: [],
+                        backgroundColor: dataColor,
+                        borderColor: dataColor,
+                        borderWidth: 1
+                    }
+                ]
+            },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -226,12 +188,12 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         };
-        this.scatter.data.datasets.push(new ScatterDataSet(this.defaultColor));
         this.scatter.options['legend'] = {};
         this.scatter.options['legend'].display = false;
         let tooltipTitleFunc = (tooltips) => {
             //console.log(tooltips.length);
-            return this.active.pointLabels[tooltips[0].index];
+            let title = this.active.pointLabels[tooltips[0].index];
+            return title;
         };
         let tooltipDataFunc = (tooltips) => {
             let dataPoint = this.scatter.data.datasets[tooltips.datasetIndex].data[tooltips.index];
@@ -247,7 +209,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             } else {
                 yLabel = this.scatter.data.yLabels[dataPoint.y];
             }
-            return this.active.xField.prettyName + ': ' + xLabel + '  ' + this.active.yField.prettyName + ': ' + yLabel;
+            let label = this.active.xField.prettyName + ': ' + xLabel + '  ' + this.active.yField.prettyName + ': ' + yLabel;
+            return label;
         };
         this.scatter.options['tooltips'] = { callbacks: {} };
         this.scatter.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
@@ -275,14 +238,12 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         bindings.yField = this.active.yField.columnName;
         bindings.labelField = this.active.labelField.columnName;
         bindings.limit = this.active.limit;
-        bindings.colorField = this.active.colorField.columnName;
     }
 
     onUpdateFields() {
         this.active.xField = this.findFieldObject('xField', neonMappings.TAGS);
         this.active.yField = this.findFieldObject('yField', neonMappings.TAGS);
         this.active.labelField = this.findFieldObject('labelField', neonMappings.TAGS);
-        this.active.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
     };
 
     createFilter(key, startDate, endDate) {
@@ -318,7 +279,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         let dsMeta = chart.controller.getDatasetMeta(0);
         if (dsMeta.data.length > index) {
             let pointMeta = dsMeta.data[index];
-            return pointMeta.getCenterPoint().x;
+            let x = pointMeta.getCenterPoint().x;
+            return x;
         }
         return -1;
     }
@@ -463,7 +425,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     getNeonFilterFields() {
-        return [this.active.xField.columnName, this.active.yField.columnName];
+        let fields = [this.active.xField.columnName, this.active.yField.columnName];
+        return fields;
     }
     getVisualizationName() {
         return 'Scatter Plot';
@@ -504,10 +467,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             whereClauses.push(neon.query.where(this.meta.unsharedFilterField.columnName, '=',
                 this.meta.unsharedFilterValue));
         }
-        if (this.active.colorField.columnName !== '') {
-            whereClauses.push(neon.query.where(this.active.colorField.columnName, '!=', null));
-            groupBys.push(this.active.colorField.columnName);
-        }
 
         query = query.groupBy(groupBys);
         query = query.sortBy(xField, neon.query['ASCENDING']);
@@ -532,19 +491,14 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         //this.chartModule['chart'].destroy();
         let xField = this.active.xField.columnName;
         let yField = this.active.yField.columnName;
-        let colorField = this.active.colorField.columnName;
-        let hasColor = (colorField !== '');
 
         let data = response.data;
+        let points = [];
         let xAxisIsNumeric = true;
         let yAxisIsNumeric = true;
         let xAxisLabels = [];
         let yAxisLabels = [];
         this.active.pointLabels = [];
-
-        // Map of colorField value to scatter data
-        let dataSetMap = new Map<string, ScatterDataSet>();
-
         for (let point of data) {
             let x = point[xField];
             let y = point[yField];
@@ -552,39 +506,17 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 'x': x,
                 'y': y
             };
-
-            // The key of the dataset is the value of the color field, or ''
-            let dataSetKey = '';
-            if (hasColor) {
-                dataSetKey = point[colorField];
-            }
-
-            let dataSet = dataSetMap.get(dataSetKey);
-            if (!dataSet) {
-                let color = this.defaultColor;
-                if (hasColor) {
-                    color = this.colorSchemeService.getColorFor(this.active.colorField.columnName, dataSetKey);
-                }
-                dataSet = new ScatterDataSet(color);
-                dataSet.label = dataSetKey;
-                dataSetMap.set(dataSetKey, dataSet);
-            }
-
             xAxisLabels.push(x);
             yAxisLabels.push(y);
             xAxisIsNumeric = xAxisIsNumeric && this.isNumber(x);
             yAxisIsNumeric = yAxisIsNumeric && this.isNumber(y);
-
-            dataSet.data.push(p);
+            points.push(p);
             let label = '';
             if (point.hasOwnProperty(this.active.labelField.columnName)) {
                 label = point[this.active.labelField.columnName];
             }
             this.active.pointLabels.push(label);
         }
-
-        // Un-map the data sets
-        let allDataSets = Array.from(dataSetMap.values());
 
         let rebuildChart = (xAxisIsNumeric && !this.active.xAxisIsNumeric) ||
           (yAxisIsNumeric && !this.active.yAxisIsNumeric) ||
@@ -606,11 +538,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         } else {
             let xLabels = this.removeDuplicatesAndSort(xAxisLabels);
             this.scatter.data.xLabels = xLabels;
-            for (let dataSet of allDataSets) {
-                for (let p of dataSet.data) {
+            for (let p of points) {
                     let val = p.x;
                     p.x = xLabels.indexOf(val);
-                }
             }
             if (rebuildChart) {
                 let xAxis = { ticks: null, position: 'bottom' };
@@ -641,11 +571,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             let yLabels = this.removeDuplicatesAndSort(yAxisLabels);
             this.scatter.options['scales'].yAxes[0].type = 'linear';
             this.scatter.data.yLabels = yLabels;
-            for (let dataSet of allDataSets) {
-                for (let p of dataSet.data) {
+            for (let p of points) {
                     let val = p.y;
                     p.y = yLabels.indexOf(val);
-                }
             }
             if (rebuildChart) {
                 let yAxis = { ticks: null };
@@ -664,7 +592,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         }
         this.scatter.data['labels'] = this.scatter.data.xLabels;
 
-        this.scatter.data.datasets = allDataSets;
+        this.scatter.data.datasets[0].data = points;
         //this.scatter.data.labels[0] = xField + ' vs ' + yField;
         //let labels = new Array(length);
 
@@ -680,8 +608,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         }
         this.refreshVisualization();
         this.queryTitle = 'Scatter Plot: ' + this.active.xField.prettyName + ' vs ' + this.active.yField.prettyName;
-        // Force the legend to update
-        this.colorByFields = [this.active.colorField.columnName];
     };
 
     removeDuplicatesAndSort(arr) {
@@ -709,10 +635,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     };
 
     handleChangeLabelField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
-
-    handleChangeColorField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
     };
 

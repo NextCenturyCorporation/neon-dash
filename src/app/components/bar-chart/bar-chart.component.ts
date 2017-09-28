@@ -27,13 +27,13 @@ class BarData {
     // The X-Axis labels
     labels: string[] = [];
     // The data to graph
-    datasets: BarDataSet[] = [];
+    datasets: DataSet[] = [];
 }
 
 /**
  * One set of bars to draw
  */
-class BarDataSet {
+class DataSet {
     // The name of the data set
     label: string;
     // The data
@@ -106,8 +106,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         unsharedFilterField: any,
         unsharedFilterValue: string,
         colorField: string,
-        limit: number;
-        chartType: string // 'bar' or 'horizontalBar'
+        limit: number,
+        chartType: string // bar or horizontalBar
     };
     public active: {
         dataField: FieldMetaData,
@@ -126,16 +126,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     public chart: {
         data: {
             labels: string[],
-            datasets: BarDataSet[]
+            datasets: DataSet[]
         },
         type: string,
         options: any
     };
 
-    // Used to change the colors between active/inactive in the legend
-    public selectedLabels: string[] = [];
-    public colorFieldNames: string[] = [];
-    private defaultActiveColor = new Color(57, 181, 74);
+    private defaultActiveColor = new Color(77, 190, 194);
     public emptyField = new FieldMetaData();
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -152,7 +149,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             colorField: this.injector.get('colorField', null),
             limit: this.injector.get('limit', 100),
             unsharedFilterField: {},
-            unsharedFilterValue: ''
+            unsharedFilterValue: '',
             chartType: this.injector.get('chartType', 'bar')
         };
         this.filters = [];
@@ -179,7 +176,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             type: this.active.chartType,
             data: {
                 labels: [],
-                datasets: [new BarDataSet(0, this.defaultActiveColor)]
+                datasets: [new DataSet(0, this.defaultActiveColor)]
             },
             options: {
                 responsive: true,
@@ -319,8 +316,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     refreshVisualization() {
-        let selectedLabels: string[] = [];
-
         // If there is a filter, highlight the bar
         if (this.filters[0] && this.filters[0].value) {
             let activeValue = this.filters[0].value;
@@ -330,10 +325,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             for (let dataset of this.chart.data.datasets) {
                 dataset.setAllInactive();
                 dataset.setActiveColor(activeIndex);
-
-                if (dataset.data[activeIndex] > 0) {
-                    selectedLabels.push(dataset.label);
-                }
             }
         } else {
             // Set all bars active
@@ -341,8 +332,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 dataset.setAllActive();
             }
         }
-
-        this.selectedLabels = selectedLabels;
         this.chartModule['chart'].update();
     }
 
@@ -413,11 +402,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response): void {
+        console.log('Query success');
         let colName = this.active.dataField.columnName;
         // let prettyColName = this.active.dataField.prettyName;
         let chartData = new BarData();
-
-        let dataSets = new Map<string, BarDataSet>();
+        let dataSets = new Map<string, DataSet>();
         let hasGroup = this.active.colorField.columnName !== '';
         /*
          * We need to build the datasets.
@@ -452,7 +441,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
             let dataset = dataSets.get(group);
             if (dataset == null) {
-                dataset = new BarDataSet(chartData.labels.length);
+                dataset = new DataSet(chartData.labels.length);
                 dataSets.set(group, dataset);
 
                 dataset.label = group;
@@ -466,8 +455,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             }
 
             dataset.data[dataIndex] = row.value;
-            // Set this to force the legend to update
-            this.colorFieldNames = [this.active.colorField.columnName];
         }
 
         chartData.datasets = Array.from(dataSets.values());
@@ -486,6 +473,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 break;
         }
         title += ' by ' + this.active.dataField.prettyName;
+        this.queryTitle = title;
     }
 
     handleChangeAggregation() {
@@ -553,7 +541,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         if (!data || !data[0] || !data[0]['data'] || !data[0]['data'].length) {
             return text;
         } else {
-            return 'Total: ' + data[0]['data'].length;
+            return 'Top ' + data[0]['data'].length;
         }
     };
 

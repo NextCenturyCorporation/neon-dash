@@ -35,7 +35,8 @@ declare let d3;
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+export class TimelineComponent extends BaseNeonComponent implements OnInit,
+        OnDestroy {
     @ViewChild('svg') svg: ElementRef;
 
     private filters: {

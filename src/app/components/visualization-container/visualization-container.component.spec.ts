@@ -4,10 +4,9 @@ import { ActiveGridService } from '../../services/active-grid.service';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { LegendComponent } from '../legend/legend.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
-import { ActiveGridService } from '../../services/active-grid.service';
 import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -37,18 +36,17 @@ describe('Component: VisualizationContainer', () => {
                 BarChartComponent,
                 DataTableComponent,
                 DocumentViewerComponent,
+                ExportControlComponent,
                 FilterBuilderComponent,
                 LegendComponent,
                 LineChartComponent,
                 MapComponent,
                 ScatterPlotComponent,
-                FilterBuilderComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
                 TextCloudComponent,
                 TimelineComponent,
+                UnsharedFilterComponent,
                 VisualizationContainerComponent,
-                VisualizationInjectorComponent,
+                VisualizationInjectorComponent
             ],
             providers: [
                 ActiveGridService,
