@@ -193,6 +193,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         };
 
         this.onHover = this.onHover.bind(this);
+        this.xAxisTickCallback = this.xAxisTickCallback.bind(this);
+        this.yAxisTickCallback = this.yAxisTickCallback.bind(this);
 
         let tooltipTitleFunc = (tooltips) => {
             //console.log(tooltips.length);
@@ -237,11 +239,17 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 },
                 scales: {
                     xAxes: [{
-                        //type: 'linear',
-                        position: 'bottom'
+                        ticks: {
+                            callback: this.xAxisTickCallback
+                        },
+                        position: 'bottom',
+                        type: 'linear'
                     }],
                     yAxes: [{
-                        //type: 'linear'
+                        ticks: {
+                            callback: this.yAxisTickCallback
+                        },
+                        type: 'linear'
                     }]
                 },
                 tooltips: {
@@ -406,10 +414,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     getFilterFromSelectionPositions() {
         let chart = this.chartModule['chart'];
-        let x1 = chart.scales['x-axis-0'].getValueForPixel(this.selection.startX);
-        let y1 = chart.scales['y-axis-0'].getValueForPixel(this.selection.startY);
-        let x2 = chart.scales['x-axis-0'].getValueForPixel(this.selection.endX);
-        let y2 = chart.scales['y-axis-0'].getValueForPixel(this.selection.endY);
+        let x1 = chart.scales['x-axis-1'].getValueForPixel(this.selection.startX);
+        let y1 = chart.scales['y-axis-1'].getValueForPixel(this.selection.startY);
+        let x2 = chart.scales['x-axis-1'].getValueForPixel(this.selection.endX);
+        let y2 = chart.scales['y-axis-1'].getValueForPixel(this.selection.endY);
         let temp = Math.max(x1, x2);
         x1 = Math.min(x1, x2);
         x2 = temp;
@@ -469,7 +477,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     refreshVisualization() {
-        console.log('UPDATE');
         this.chartModule['chart'].update();
     }
 
@@ -584,8 +591,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         let allDataSets = Array.from(dataSetMap.values());
 
         if (xAxisIsNumeric) {
-            this.chart.options.scales.xAxes[0] = { position: 'bottom' };
-            this.chart.options.scales.xAxes[0].type = 'linear';
             this.chart.data.xLabels = xAxisLabels;
         } else {
             let xLabels = this.removeDuplicatesAndSort(xAxisLabels);
@@ -596,30 +601,12 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                     p.x = xLabels.indexOf(val);
                 }
             }
-            let xAxis = { ticks: null, position: 'bottom' };
-            let tickCallback = (value) => {
-                let t = this.chart.data.xLabels[value];
-                if (t !== undefined) {
-                    return t;
-                }
-                return '';
-            };
-            xAxis.ticks = {};
-            xAxis.ticks.callback = tickCallback.bind(this);
-            this.chart.options.scales.xAxes[0] = xAxis;
-            this.chart.options.scales.xAxes[0].type = 'linear';
-
-            //this.scatter.options['scales'].xAxes[0].ticks = {
-            //    min: 0,
-            //    max: this.scatter.data.xLabels.length - 1
-            //}
         }
+
         if (yAxisIsNumeric) {
-            this.chart.options.scales.yAxes[0].type = 'linear';
             this.chart.data.yLabels = yAxisLabels;
         } else {
             let yLabels = this.removeDuplicatesAndSort(yAxisLabels);
-            this.chart.options.scales.yAxes[0].type = 'linear';
             this.chart.data.yLabels = yLabels;
             for (let dataSet of allDataSets) {
                 for (let p of dataSet.data) {
@@ -627,36 +614,41 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                     p.y = yLabels.indexOf(val);
                 }
             }
-            let yAxis = { ticks: null };
-            let tickCallback = (value) => {
-                let t = this.chart.data.yLabels[value];
-                if (t !== undefined) {
-                    return t;
-                }
-                return '';
-            };
-            yAxis.ticks = {};
-            yAxis.ticks.callback = tickCallback.bind(this);
-            this.chart.options.scales.yAxes[0] = yAxis;
-            this.chart.options.scales.yAxes[0].type = 'linear';
         }
         this.chart.data.labels = this.chart.data.xLabels;
 
         this.chart.data.datasets = allDataSets;
-        //this.scatter.data.labels[0] = xField + ' vs ' + yField;
-        //let labels = new Array(length);
-
-        //this.scatter.data = {
-        //    labels: labels,
-        //    datasets: datasets
-        //};
         this.active.xAxisIsNumeric = xAxisIsNumeric;
         this.active.yAxisIsNumeric = yAxisIsNumeric;
+
         this.refreshVisualization();
         this.queryTitle = 'Scatter Plot: ' + this.active.xField.prettyName + ' vs ' + this.active.yField.prettyName;
         // Force the legend to update
         this.colorByFields = [this.active.colorField.columnName];
     };
+
+
+    xAxisTickCallback(value): string {
+        if (this.active.xAxisIsNumeric) {
+            return value;
+        }
+        let t = this.chart.data.xLabels[value];
+        if (t !== undefined) {
+            return t;
+        }
+        return '';
+    }
+
+    yAxisTickCallback(value): string {
+        if (this.active.yAxisIsNumeric) {
+            return value;
+        }
+        let t = this.chart.data.yLabels[value];
+        if (t !== undefined) {
+            return t;
+        }
+        return '';
+    }
 
     removeDuplicatesAndSort(arr) {
         arr = arr.sort();
