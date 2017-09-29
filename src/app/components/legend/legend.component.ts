@@ -4,7 +4,9 @@ import {
     ViewEncapsulation,
     ChangeDetectionStrategy,
     ViewChild,
-    Input
+    Input,
+    EventEmitter,
+    Output
 } from '@angular/core';
 import {ColorSchemeService, ColorSet} from '../../services/color-scheme.service';
 
@@ -33,6 +35,13 @@ export class LegendComponent implements OnInit {
      */
     @Input() disabledList: string[];
     @ViewChild('menu') menu: any;
+
+    /**
+     * Event triggered when an item in the legend has been selected.
+     * The event includes the value selected, and a boolean if the value is currently selected
+     * @type {EventEmitter<{value: string; currentlyActive: boolean}>}
+     */
+    @Output() itemSelected = new EventEmitter<{value: string, currentlyActive: boolean}>();
 
     public menuIcon: string;
     public colorSets: ColorSet[] = [];
@@ -77,6 +86,19 @@ export class LegendComponent implements OnInit {
     getColorFor(colorSet: ColorSet, key: string): string {
         let color = colorSet.getColorForValue(key);
         return this.isDisabled(key) ? color.getInactiveRgba() : color.toRgb();
+    }
+
+    /**
+     * Handle a selection of a value in the legend
+     * @param $event
+     * @param {string} key
+     */
+    keySelected($event, key: string) {
+        this.itemSelected.emit({
+            value: key,
+            currentlyActive: !this.isDisabled(key)
+        });
+        $event.stopPropagation();
     }
 
     /**
