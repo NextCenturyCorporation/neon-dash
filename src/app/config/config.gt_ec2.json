@@ -344,12 +344,12 @@
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "LOC"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "LOC"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -372,12 +372,12 @@
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "PER"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "PER"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -400,12 +400,12 @@
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "ORG"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "ORG"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -428,12 +428,12 @@
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "GPE"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "GPE"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -648,12 +648,12 @@
 					"database": "elisa_uyghur_200",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "LOC"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "LOC"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -675,16 +675,15 @@
 					"title": "People",
 					"database": "elisa_uyghur_200",
 					"table": "ui_output",
-					"dataField": "PER",
 					"unsharedFilterField": "",
 					"unsharedFilterValue": "",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "PER"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "PER"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -707,12 +706,12 @@
 					"database": "elisa_uyghur_200",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "ORG"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "ORG"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -735,12 +734,12 @@
 					"database": "elisa_uyghur_200",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "GPE"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "GPE"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -963,12 +962,12 @@
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "LOC"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "LOC"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -991,12 +990,12 @@
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "PER"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "PER"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -1019,12 +1018,12 @@
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "ORG"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "ORG"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1047,12 +1046,12 @@
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "GPE"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "GPE"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1289,12 +1288,12 @@
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "LOC"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "LOC"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -1317,12 +1316,12 @@
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "PER"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "PER"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -1345,12 +1344,12 @@
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "ORG"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "ORG"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1373,12 +1372,12 @@
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "GPE"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "GPE"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1615,12 +1614,12 @@
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "LOC"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "LOC"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -1643,16 +1642,16 @@
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "PER"
-                    }
-                    },
-                "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-                "row": 6,
-                "col": 6
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "PER"
+					}
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 6,
+				"col": 6
 			},
 			{
 				"name": "Text Cloud",
@@ -1671,12 +1670,12 @@
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "ORG"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "ORG"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1699,12 +1698,12 @@
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "GPE"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "GPE"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1941,12 +1940,12 @@
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "LOC"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "LOC"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -1969,12 +1968,12 @@
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "PER"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "PER"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -1997,12 +1996,12 @@
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "ORG"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "ORG"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -2025,12 +2024,12 @@
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "GPE"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "GPE"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -2266,12 +2265,12 @@
 					"database": "haiti_4",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "LOC"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "LOC"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -2294,12 +2293,12 @@
 					"database": "haiti_4",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "PER"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "PER"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -2322,12 +2321,12 @@
 					"database": "haiti_4",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "ORG"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "ORG"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -2350,12 +2349,12 @@
 					"database": "haiti_4",
 					"table": "ui_output",
 					"dataField": "entities.originalText",
-                    "configFilter" : {
-                        "use": true,
-                        "lhs": "entities.entityType",
-                        "operator": "=",
-                        "rhs": "GPE"
-                    }
+					"configFilter": {
+						"use": true,
+						"lhs": "entities.entityType",
+						"operator": "=",
+						"rhs": "GPE"
+					}
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
