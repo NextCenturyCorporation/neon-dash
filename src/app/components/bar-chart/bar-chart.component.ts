@@ -488,7 +488,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 title = 'Sum'; // + this.active.aggregationField.prettyName;
                 break;
         }
-        title += ' by ' + this.active.dataField.prettyName;
+        title = this.optionsFromConfig.title || this.queryTitle +' by ' + this.active.dataField.prettyName;
         this.queryTitle = title;
     }
     

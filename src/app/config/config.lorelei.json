@@ -505,16 +505,15 @@
         "selected": true,
         "bindings": {
         "title": "Popular Entities",
-        "database": "ebola_data",
-        "table": "record",
-        "dataField": "situationFrame.entities",
-        "preFilter": false,
-        "filterTarget":  "loreleiJSONMapping.rpiInformationExtraction.enrichedEntities.entity_type",
-        "operator": "!=",
-        "exclude": "LOC",
-        "unsharedFilterField": "loreleiJSONMapping.rpiInformationExtraction.enrichedEntities.entity_type",
-        "unsharedFilterValue": ""
-
+            "database": "ebola_data",
+            "table": "record",
+            "dataField": "situationFrame.entities",
+            "preFilter": false,
+            "filterTarget":  "loreleiJSONMapping.rpiInformationExtraction.enrichedEntities.entity_type",
+            "operator": "!=",
+            "exclude": "LOC",
+            "unsharedFilterField": "loreleiJSONMapping.rpiInformationExtraction.enrichedEntities.entity_type",
+            "unsharedFilterValue": ""
         },
         "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
         "row": 8,
@@ -757,12 +756,12 @@
         "name": "Bar Chart",
         "type": "barChart",
         "icon": "BarChart64",
-        "sizex": 7,
-        "sizey": 8,
+        "sizex": 5,
+        "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
         "minSizex": 4,
-        "minSizey": 5,
+        "minSizey": 4,
         "$$hashKey": "object:30",
         "selected": true,
         "bindings": {
@@ -770,27 +769,171 @@
             "database": "elisa_uyghur",
             "table": "ui_output",
             "dataField": "topics",
-            "aggregation": "count",
+            "aggregation": "",
             "aggregationField": "",
             "chartType": "horizontalBar",
             "colors": [{
                 "value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
-                "color": "0, 255, 0"
+                "color": "77, 190, 194"
             },
             {
                 "value": "regimechange|crimeviolence|terrorism|earthquake",
-                "color": "255, 0, 0"
+                "color": "39, 96, 126"
             }]
         },
         "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-        "row": 17,
+        "row": 0,
         "col": 0
+    },
+    {
+        "name": "Bar Chart",
+        "type": "barChart",
+        "icon": "BarChart64",
+        "sizex": 5,
+        "sizey": 5,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 4,
+        "minSizey": 4,
+        "$$hashKey": "object:30",
+        "bindings": {
+            "title": "Sentiment",
+            "database": "elisa_uyghur",
+            "table": "ui_output",
+            "dataField": "sentimentString",
+            "aggregation": "count",
+            "aggregationField": "",
+            "chartType": "horizontalBar",
+            "colors": [{
+                "value": "activation|positive",
+                "color": "77, 190, 194"
+            },
+            {
+                "value": "negative",
+                "color": "39, 96, 126"
+            }]
+        },
+        "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+        "row": 0,
+        "col": 6
+    },
+    {
+        "name": "Text Cloud",
+        "type": "textCloud",
+        "icon": "TagCloud64",
+        "sizex": 5,
+        "sizey": 5,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 5,
+        "minSizey": 4,
+        "$$hashKey": "object:35",
+        "selected": true,
+        "bindings": {
+            "title": "Location",
+            "database": "elisa_uyghur",
+            "table": "ui_output",
+            "dataField": "entities.originalText",
+            "configFilter" : {
+                "use": true,
+                "lhs": "entities.entityType",
+                "operator": "=",
+                "rhs": "LOC"
+            }
+        },
+        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+        "row": 6,
+        "col": 0
+    },
+    {
+        "name": "Text Cloud",
+        "type": "textCloud",
+        "icon": "TagCloud64",
+        "sizex": 5,
+        "sizey": 5,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 5,
+        "minSizey": 4,
+        "$$hashKey": "object:35",
+        "selected": true,
+        "bindings": {
+            "title": "People",
+            "database": "elisa_uyghur",
+            "table": "ui_output",
+            "dataField": "entities.originalText",
+            "configFilter" : {
+                "use": true,
+                "lhs": "entities.entityType",
+                "operator": "=",
+                "rhs": "PER"
+            }
+        },
+        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+        "row": 6,
+        "col": 6
+    },
+    {
+        "name": "Text Cloud",
+        "type": "textCloud",
+        "icon": "TagCloud64",
+        "sizex": 5,
+        "sizey": 5,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 5,
+        "minSizey": 4,
+        "$$hashKey": "object:35",
+        "selected": true,
+        "bindings": {
+            "title": "Organizations",
+            "database": "elisa_uyghur",
+            "table": "ui_output",
+            "dataField": "entities.originalText",
+            "configFilter" : {
+                "use": true,
+                "lhs": "entities.entityType",
+                "operator": "=",
+                "rhs": "ORG"
+            }
+        },
+        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+        "row": 11,
+        "col": 0
+    },
+    {
+        "name": "Text Cloud",
+        "type": "textCloud",
+        "icon": "TagCloud64",
+        "sizex": 5,
+        "sizey": 5,
+        "minPixelx": 320,
+        "minPixely": 240,
+        "minSizex": 5,
+        "minSizey": 4,
+        "$$hashKey": "object:35",
+        "selected": true,
+        "bindings": {
+            "title": "GeoPolitical Entities",
+            "database": "elisa_uyghur",
+            "table": "ui_output",
+            "dataField": "entities.originalText",
+            "configFilter" : {
+                "use": true,
+                "lhs": "entities.entityType",
+                "operator": "=",
+                "rhs": "GPE"
+            }
+        },
+        "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+        "row": 11,
+        "col": 6
     },
     {
         "name": "Event Locations",
         "type": "map",
         "icon": "Map64",
-        "sizex": 10,
+        "sizex": 8,
         "sizey": 8,
         "minPixelx": 320,
         "minPixely": 240,
@@ -837,14 +980,14 @@
             ]
         },
         "id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-        "row": 5,
-        "col": 8
+        "row": 0,
+        "col": 11
     },
     {
         "name": "Timeline",
         "type": "timeline",
         "icon": "Timeline64",
-        "sizex": 10,
+        "sizex": 8,
         "sizey": 7,
         "minPixelx": 320,
         "minPixely": 240,
@@ -860,46 +1003,14 @@
             "granularity": "month"
         },
         "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-        "row": 11,
-        "col": 8
-    },
-    {
-        "name": "Bar Chart",
-        "type": "barChart",
-        "icon": "BarChart64",
-        "sizex": 7,
-        "sizey": 7,
-        "minPixelx": 320,
-        "minPixely": 240,
-        "minSizex": 4,
-        "minSizey": 5,
-        "$$hashKey": "object:30",
-        "bindings": {
-            "title": "Sentiment",
-            "database": "elisa_uyghur",
-            "table": "ui_output",
-            "dataField": "sentimentString",
-            "aggregation": "count",
-            "aggregationField": "",
-            "chartType": "horizontalBar",
-            "colors": [{
-                "value": "activation|positive",
-                "color": "0, 255, 0"
-            },
-            {
-                "value": "negative",
-                "color": "255, 0, 0"
-            }]
-        },
-        "id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-        "row": 10,
-        "col": 0
+        "row": 9,
+        "col": 11
     },
     {
     "name": "Document Viewer",
     "type": "documentViewer",
     "icon": "DocumentViewer64",
-    "sizex": 7,
+    "sizex": 6,
     "sizey": 15,
     "minPixelx": 320,
     "minPixely": 240,
@@ -955,10 +1066,8 @@
         "limit": 50
     },
     "row": 0,
-    "col": 18
-}
-
-		],
+    "col": 19
+    }],
     "uyghur-layout": [
     {
             "name": "Document Viewer",
