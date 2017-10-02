@@ -1,0 +1,11 @@
+# Normalize line endings to LF for the following file types
+*.json	text
+*.html	text
+*.ts	text
+*.scss	text
+*.js	text
+*.md	text
+*.css	text
+*.svg	text
+*.txt	text
+
