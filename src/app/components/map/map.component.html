@@ -1,76 +1,76 @@
-<md-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <md-toolbar color="primary" layout-align="space-between center" flex>
+<mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar color="primary" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
         <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
-        <button md-icon-button aria-label="Settings" md-tooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <md-icon class="mat-24">settings</md-icon>
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+            <mat-icon class="mat-24">settings</mat-icon>
         </button>
-    </md-toolbar>
+    </mat-toolbar>
 
-    <md-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
-        <md-card align="left">
-            <md-card-content>
+    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+        <mat-card align="left">
+            <mat-card-content>
                 <label style="display: inline;" *ngIf="getButtonText()">
-                    <md-icon class="error-icon">error</md-icon>
+                    <mat-icon class="error-icon">error</mat-icon>
                     {{ getButtonText() }}
                 </label>
                 <p>
                     <a (click)="addEmptyLayer()">
-                        <a md-mini-fab><md-icon>add</md-icon></a> Add Layer
+                        <a mat-mini-fab><mat-icon>add</mat-icon></a> Add Layer
                     </a>
                 </p>
                 <div *ngFor="let layer of meta.layers; let i = index">
-                    <md-toolbar style="cursor: pointer;" (click)="toggleFilter(i)">
+                    <mat-toolbar style="cursor: pointer;" (click)="toggleFilter(i)">
                         <span>{{active.layers[i].title}}</span>
                         <span class="toolbar-spacer"></span>
-                        <md-icon *ngIf="meta.layers.length > 1" (click)="removeLayer(i)">delete</md-icon>
-                        <md-icon>{{getIconForFilter(i)}}</md-icon>
-                    </md-toolbar>
+                        <mat-icon *ngIf="meta.layers.length > 1" (click)="removeLayer(i)">delete</mat-icon>
+                        <mat-icon>{{getIconForFilter(i)}}</mat-icon>
+                    </mat-toolbar>
                     <div [hidden]="!filterVisible[i]" >
-                        <md-input-container>
-                            <input mdInput placeholder="Layer Name" [(ngModel)]="active.layers[i].title" required="true">
-                        </md-input-container>
+                        <mat-form-field>
+                            <input matInput placeholder="Layer Name" [(ngModel)]="active.layers[i].title" required="true">
+                        </mat-form-field>
                         <br />
 
-                        <md-select placeholder="Database" [(ngModel)]="meta.layers[i].database" required="true" (ngModelChange)="handleChangeDatabase(i)" [disabled]="meta.databases.length < 2">
-                            <md-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</md-option>
-                        </md-select>
+                        <mat-select placeholder="Database" [(ngModel)]="meta.layers[i].database" required="true" (ngModelChange)="handleChangeDatabase(i)" [disabled]="meta.databases.length < 2">
+                            <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                        </mat-select>
                         <br />
 
-                        <md-select placeholder="Table" [(ngModel)]="meta.layers[i].table" required="true" (ngModelChange)="handleChangeTable(i)" [disabled]="meta.layers[i].tables.length < 2">
-                            <md-option *ngFor="let table of meta.layers[i].tables" [value]="table">{{ table.prettyName }}</md-option>
-                        </md-select>
+                        <mat-select placeholder="Table" [(ngModel)]="meta.layers[i].table" required="true" (ngModelChange)="handleChangeTable(i)" [disabled]="meta.layers[i].tables.length < 2">
+                            <mat-option *ngFor="let table of meta.layers[i].tables" [value]="table">{{ table.prettyName }}</mat-option>
+                        </mat-select>
                         <br />
 
-                        <md-select placeholder="Latitude Field" [(ngModel)]="active.layers[i].latitudeField" required="true" (ngModelChange)="handleChangeLatitudeField(i)"
+                        <mat-select placeholder="Latitude Field" [(ngModel)]="active.layers[i].latitudeField" required="true" (ngModelChange)="handleChangeLatitudeField(i)"
                             [disabled]="meta.layers[i].fields.length == 0">
-                            <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
-                        </md-select>
+                            <mat-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</mat-option>
+                        </mat-select>
                         <br />
 
-                        <md-select placeholder="Longitude Field" [(ngModel)]="active.layers[i].longitudeField" required="true" (ngModelChange)="handleChangeLongitudeField(i)"
+                        <mat-select placeholder="Longitude Field" [(ngModel)]="active.layers[i].longitudeField" required="true" (ngModelChange)="handleChangeLongitudeField(i)"
                             [disabled]="meta.layers[i].fields.length == 0">
-                            <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
-                        </md-select>
+                            <mat-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</mat-option>
+                        </mat-select>
                         <br />
 
-                        <md-select placeholder="Color Field" [(ngModel)]="active.layers[i].colorField" required="true" (ngModelChange)="handleChangeColorField(i)"
+                        <mat-select placeholder="Color Field" [(ngModel)]="active.layers[i].colorField" required="true" (ngModelChange)="handleChangeColorField(i)"
                             [disabled]="meta.layers[i].fields.length == 0">
-                            <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
-                        </md-select>
+                            <mat-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</mat-option>
+                        </mat-select>
                     </div>
                 </div>
                 <table cellspacing="0">
                     <tr>
                         <td>
-                            <md-input-container>
-                                <input mdInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
-                            </md-input-container>
+                            <mat-form-field>
+                                <input matInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                            </mat-form-field>
                         </td>
                         <td>
-                            <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <md-icon class="mat-24">refresh</md-icon>
+                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                                <mat-icon class="mat-24">refresh</mat-icon>
                             </button>
                         </td>
                     </tr>
@@ -78,9 +78,9 @@
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
-            </md-card-content>
-        </md-card>
-    </md-sidenav>
+            </mat-card-content>
+        </mat-card>
+    </mat-sidenav>
     <div class="body-container" (click)="stopEventPropagation($event)">
         <div class="map-container" (click)="stopEventPropagation($event)">
 
@@ -93,10 +93,10 @@
             </div>
             <div class="filter-reset " *ngFor="let value of getCloseableFilters() ">
                 <span class="filter-label " [title]="getFilterTitle(value) ">{{ getFilterCloseText(value) }}</span>
-                <button md-icon-button aria-label="Close " [md-tooltip]="getRemoveFilterTooltip(value) " tooltip-position="below" (click)="handleRemoveFilter(value)">
-                    <md-icon class="mat-18 ">close</md-icon>
+                <button mat-icon-button aria-label="Close " [matTooltip]="getRemoveFilterTooltip(value) " tooltip-position="below" (click)="handleRemoveFilter(value)">
+                    <mat-icon class="mat-18 ">close</mat-icon>
                   </button>
             </div>
         </div>
     </div>
-</md-sidenav-container>
+</mat-sidenav-container>

@@ -4,8 +4,8 @@
     <div class="message-category" *ngFor="let group of messages; let i = index">
       <div class="category-label">
         <span>{{group.type}}</span>
-        <!--<button class="close-button" md-button (click)="close(i)" aria-label="Close">
-          <md-icon class="close-icon">clear</md-icon>
+        <!--<button class="close-button" mat-button (click)="close(i)" aria-label="Close">
+          <mat-icon class="close-icon">clear</mat-icon>
         </button>-->
       </div>
       <ul class="category-list">
@@ -14,6 +14,6 @@
     </div>
   </div>
   <div class="messages-footer">
-    <button class="close-all mat-accent" md-raised-button (click)="closeAll()" aria-label="Close All">Close All</button>
+    <button class="close-all mat-accent" mat-raised-button (click)="closeAll()" aria-label="Close All">Close All</button>
   </div>
 </div>

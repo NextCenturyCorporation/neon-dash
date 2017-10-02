@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { MdDialogRef } from '@angular/material';
+import { MatDialogRef } from '@angular/material';
 
 import { ParameterService } from '../../services/parameter.service';
 import { FilterService } from '../../services/filter.service';
@@ -21,7 +21,7 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
     };
 
     constructor(private filterService: FilterService, public themesService: ThemesService,
-        public dialogRef: MdDialogRef<FilterTrayComponent>) {
+        public dialogRef: MatDialogRef<FilterTrayComponent>) {
         this.messenger = new neon.eventing.Messenger();
         this.themesService = themesService;
         this.filters = {

@@ -1,21 +1,21 @@
-<md-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <md-toolbar color="primary" layout-align="space-between center" flex>
+<mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar color="primary" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
         <!--<span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>-->
-        <md-button-toggle-group #showColumnSelector="mdButtonToggleGroup" [(ngModel)]="active.andor" (change)="andOrChanged()" class="rounded"
+        <mat-button-toggle-group #showColumnSelector="matButtonToggleGroup" [(ngModel)]="active.andor" (change)="andOrChanged()" class="rounded"
             style="margin-right: 5px;">
-            <md-button-toggle class="rounded-left" value="and">
+            <mat-button-toggle class="rounded-left" value="and">
                 and
-            </md-button-toggle>
-            <md-button-toggle class="rounded-right" value="or">
+            </mat-button-toggle>
+            <mat-button-toggle class="rounded-right" value="or">
                 or
-            </md-button-toggle>
-        </md-button-toggle-group>
-        <button md-icon-button aria-label="Reset" md-tooltip="Reset Filter Builder" tooltip-position="below" (click)="resetFilterBuilder()">
-            <md-icon class="mat-24">replay</md-icon>
+            </mat-button-toggle>
+        </mat-button-toggle-group>
+        <button mat-icon-button aria-label="Reset" matTooltip="Reset Filter Builder" tooltip-position="below" (click)="resetFilterBuilder()">
+            <mat-icon class="mat-24">replay</mat-icon>
         </button>
-    </md-toolbar>
+    </mat-toolbar>
 
     <div class="body-container">
         <div class="main-container">
@@ -28,33 +28,33 @@
                 <span class="clause-item"></span>
             </div>-->
             <div class="where-clause-container" *ngFor="let where of active.whereClauses; let i = index;">
-                <md-select class="clause-item" placeholder="Database" [(ngModel)]="where.database" required="true" (ngModelChange)="handleChangeDatabase(i)"
+                <mat-select class="clause-item" placeholder="Database" [(ngModel)]="where.database" required="true" (ngModelChange)="handleChangeDatabase(i)"
                     [disabled]="meta.databases.length < 2">
-                    <md-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</md-option>
-                </md-select>
-                <md-select class="clause-item" placeholder="Table" [(ngModel)]="where.table" required="true" (ngModelChange)="handleChangeTable(i)"
+                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                </mat-select>
+                <mat-select class="clause-item" placeholder="Table" [(ngModel)]="where.table" required="true" (ngModelChange)="handleChangeTable(i)"
                     [disabled]="meta.tables.length < 2">
-                    <md-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</md-option>
-                </md-select>
-                <md-select class="clause-item" placeholder="Field" [(ngModel)]="where.field" required="true" (ngModelChange)="handleChangeField(i)"
+                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                </mat-select>
+                <mat-select class="clause-item" placeholder="Field" [(ngModel)]="where.field" required="true" (ngModelChange)="handleChangeField(i)"
                     [disabled]="meta.fields.length == 0">
-                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
-                </md-select>
-                <md-select class="clause-item" placeholder="Operator" [(ngModel)]="where.operator" required="true" (ngModelChange)="handleChangeOperator(i)"
+                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                </mat-select>
+                <mat-select class="clause-item" placeholder="Operator" [(ngModel)]="where.operator" required="true" (ngModelChange)="handleChangeOperator(i)"
                     [disabled]="active.operators.length == 0">
-                    <md-option *ngFor="let operator of active.operators" [value]="operator">{{ operator.prettyName }}</md-option>
-                </md-select>
-                <md-input-container class="clause-item">
-                    <input mdInput placeholder="Value" [(ngModel)]="where.value" (change)="handleValueChange($event, i)">
-                </md-input-container>
+                    <mat-option *ngFor="let operator of active.operators" [value]="operator">{{ operator.prettyName }}</mat-option>
+                </mat-select>
+                <mat-form-field class="clause-item">
+                    <input matInput placeholder="Value" [(ngModel)]="where.value" (change)="handleValueChange($event, i)">
+                </mat-form-field>
                 <div class="clause-item clause-button-container">
-                    <button md-mini-fab class="clause-button" (click)="addBlankWhereClause()" md-tooltip="Add New Clause" tooltip-position="below"><md-icon>add</md-icon></button>
-                    <button md-mini-fab class="clause-button" (click)="refreshClause(i)" *ngIf="where.active" md-tooltip="Refresh Clause" tooltip-position="below"><md-icon>refresh</md-icon></button>
-                    <button md-mini-fab class="clause-button" (click)="activateClause(i)" *ngIf="!where.active" md-tooltip="Activate Clause"
-                        tooltip-position="below"><md-icon>check</md-icon></button>
-                    <button md-mini-fab class="clause-button" (click)="removeClause(i)" md-tooltip="Remove Clause" tooltip-position="below"><md-icon>close</md-icon></button>
+                    <button mat-mini-fab class="clause-button" (click)="addBlankWhereClause()" matTooltip="Add New Clause" tooltip-position="below"><mat-icon>add</mat-icon></button>
+                    <button mat-mini-fab class="clause-button" (click)="refreshClause(i)" *ngIf="where.active" matTooltip="Refresh Clause" tooltip-position="below"><mat-icon>refresh</mat-icon></button>
+                    <button mat-mini-fab class="clause-button" (click)="activateClause(i)" *ngIf="!where.active" matTooltip="Activate Clause"
+                        tooltip-position="below"><mat-icon>check</mat-icon></button>
+                    <button mat-mini-fab class="clause-button" (click)="removeClause(i)" matTooltip="Remove Clause" tooltip-position="below"><mat-icon>close</mat-icon></button>
                 </div>
             </div>
         </div>
     </div>
-</md-sidenav-container>
+</mat-sidenav-container>

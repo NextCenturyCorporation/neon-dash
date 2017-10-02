@@ -16,8 +16,8 @@
 import { Component, OnInit, ViewContainerRef, Input} from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
-import { MdSnackBar, MdSnackBarConfig } from '@angular/material';
-import { MdDialog, MdDialogRef } from '@angular/material';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
+import { MatDialog, MatDialogRef } from '@angular/material';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -48,7 +48,7 @@ export class ExportControlComponent implements OnInit {
     constructor(private connectionService: ConnectionService,
         private errorNotificationService: ErrorNotificationService,
         public exportService: ExportService,
-        private mdSnackBar: MdSnackBar,
+        private mdSnackBar: MatSnackBar,
         public themesService: ThemesService,
         private viewContainerRef: ViewContainerRef) {
         this.handleExportClick = this.handleExportClick.bind(this);
@@ -73,7 +73,7 @@ export class ExportControlComponent implements OnInit {
 
 
     exportSuccess(queryResults) {
-        let config = new MdSnackBarConfig();
+        let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         config.duration = 3000;
         console.log('shoop');
@@ -82,7 +82,7 @@ export class ExportControlComponent implements OnInit {
     };
 
     exportFail(response) {
-        let config = new MdSnackBarConfig();
+        let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         if (response.responseJSON) {
             this.mdSnackBar.open('Error: ' + response.responseJSON.error, 'Close', config);
@@ -100,7 +100,7 @@ export class ExportControlComponent implements OnInit {
     export(exportAll: boolean) {
         this.exportService.setFileFormat(this.exportFormat);
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
-        let config = new MdSnackBarConfig();
+        let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         let data = {
             // TODO Change this hardcoded value to something like a user ID.

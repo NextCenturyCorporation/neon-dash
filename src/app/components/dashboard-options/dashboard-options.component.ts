@@ -16,8 +16,8 @@
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
-import { MdSnackBar } from '@angular/material';
-import { MdDialog } from '@angular/material';
+import { MatSnackBar } from '@angular/material';
+import { MatDialog } from '@angular/material';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -55,8 +55,8 @@ export class DashboardOptionsComponent implements OnInit {
 
     constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
         private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
-        private mdSnackBar: MdSnackBar, private parameterService: ParameterService,
-        public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MdDialog,
+        private mdSnackBar: MatSnackBar, private parameterService: ParameterService,
+        public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MatDialog,
         private visualizationService: VisualizationService) { }
 
     ngOnInit() {

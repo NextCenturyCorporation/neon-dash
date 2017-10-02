@@ -1,29 +1,29 @@
-<md-toolbar class="mat-primary">
+<mat-toolbar class="mat-primary">
     <span>Local Filter</span>
-</md-toolbar>
-<md-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField" required="false" [disabled]="meta.fields.length === 0"
+</mat-toolbar>
+<mat-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField" required="false" [disabled]="meta.fields.length === 0"
            (ngModelChange)="handleChangeUnsharedFilterField()">
-    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
-</md-select>
+    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+</mat-select>
 <p></p>
 <table cellspacing="0">
     <tr>
         <td>
-            <md-input-container>
-                <input mdInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue"
+            <mat-form-field>
+                <input matInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue"
                        [disabled]="!(meta.unsharedFilterField.columnName)">
-            </md-input-container>
+            </mat-form-field>
 
         </td>
         <td>
-            <button md-icon-button md-tooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()"
+            <button mat-icon-button matTooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()"
                     [disabled]="(meta.unsharedFilterField.columnName == undefined || meta.unsharedFilterValue == '')">
-                <md-icon class="mat-16">clear</md-icon>
+                <mat-icon class="mat-16">clear</mat-icon>
             </button>
         </td>
         <td>
-            <button md-icon-button md-tooltip="Set Unshared Filter" tooltip-position="below" (click)="handleChangeUnsharedFilterValue()">
-                <md-icon class="mat-16">refresh</md-icon>
+            <button mat-icon-button matTooltip="Set Unshared Filter" tooltip-position="below" (click)="handleChangeUnsharedFilterValue()">
+                <mat-icon class="mat-16">refresh</mat-icon>
             </button>
         </td>
     </tr>

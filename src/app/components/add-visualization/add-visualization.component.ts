@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MdDialogRef } from '@angular/material';
+import { MatDialogRef } from '@angular/material';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ThemesService } from '../../services/themes.service';
@@ -16,7 +16,7 @@ export class AddVisualizationComponent implements OnInit {
     public selectedIndex: number = -1;
 
     constructor(private activeGridService: ActiveGridService, public themesService: ThemesService,
-        public dialogRef: MdDialogRef<AddVisualizationComponent>) {
+        public dialogRef: MatDialogRef<AddVisualizationComponent>) {
         this.themesService = themesService;
     }
 

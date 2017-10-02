@@ -1,98 +1,98 @@
-<md-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <md-toolbar color="primary" layout-align="space-between center" flex>
+<mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar color="primary" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
         <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
-        <button md-icon-button aria-label="Settings" md-tooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <md-icon class="mat-24">settings</md-icon>
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+            <mat-icon class="mat-24">settings</mat-icon>
         </button>
-    </md-toolbar>
+    </mat-toolbar>
 
-    <md-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
-        <md-card align="left">
-            <md-card-content>
+    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+        <mat-card align="left">
+            <mat-card-content>
                 <label style="display: inline;" *ngIf="getButtonText()">
-                    <md-icon class="error-icon">error</md-icon>
+                    <mat-icon class="error-icon">error</mat-icon>
                     {{ getButtonText() }}
                 </label>
                 <p></p>
 
-                <md-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <md-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</md-option>
-                </md-select>
+                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                </mat-select>
                 <p></p>
 
-                <md-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <md-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</md-option>
-                </md-select>
+                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                </mat-select>
                 <p></p>
 
-                <md-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true" (ngModelChange)="handleChangeDateField()"
+                <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true" (ngModelChange)="handleChangeDateField()"
                     [disabled]="meta.fields.length == 0">
-                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
-                </md-select>
+                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                </mat-select>
                 <p></p>
 
-                <md-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true" (ngModelChange)="handleChangeGroupField()"
+                <mat-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true" (ngModelChange)="handleChangeGroupField()"
                     [disabled]="meta.fields.length == 0">
-                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
-                </md-select>
+                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                </mat-select>
                 <p></p>
 
-                <md-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true" (ngModelChange)="handleChangeAggregation()"
+                <mat-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true" (ngModelChange)="handleChangeAggregation()"
                     [disabled]="meta.fields.length == 0">
-                    <md-option value="count">Count</md-option>
-                    <md-option value="sum">Sum</md-option>
-                    <md-option value="average">Average</md-option>
-                    <md-option value="max">Maximum</md-option>
-                    <md-option value="min">Minimum</md-option>
-                </md-select>
+                    <mat-option value="count">Count</mat-option>
+                    <mat-option value="sum">Sum</mat-option>
+                    <mat-option value="average">Average</mat-option>
+                    <mat-option value="max">Maximum</mat-option>
+                    <mat-option value="min">Minimum</mat-option>
+                </mat-select>
                 <p></p>
 
-                <md-select *ngIf="!active.aggregationFieldHidden" placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField"
+                <mat-select *ngIf="!active.aggregationFieldHidden" placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField"
                     required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
-                    <md-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</md-option>
-                </md-select>
+                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                </mat-select>
                 <p></p>
 
-                <md-button-toggle-group #hourGranularity="mdButtonToggleGroup" [(ngModel)]="active.granularity" (ngModelChange)="handleChangeGranularity()">
-                    <!--<md-button-toggle value="year">
+                <mat-button-toggle-group #hourGranularity="matButtonToggleGroup" [(ngModel)]="active.granularity" (ngModelChange)="handleChangeGranularity()">
+                    <!--<mat-button-toggle value="year">
                         Year
-                    </md-button-toggle>
-                    <md-button-toggle value="month">
+                    </mat-button-toggle>
+                    <mat-button-toggle value="month">
                         Month
-                    </md-button-toggle>-->
-                    <md-button-toggle value="day">
+                    </mat-button-toggle>-->
+                    <mat-button-toggle value="day">
                         Day
-                    </md-button-toggle>
-                    <md-button-toggle value="hour">
+                    </mat-button-toggle>
+                    <mat-button-toggle value="hour">
                         Hour
-                    </md-button-toggle>
-                </md-button-toggle-group>
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
                 <p></p>
 
                 <table cellspacing="0">
                     <tr>
                         <td>
-                            <md-input-container>
-                                <input mdInput placeholder="Group Limit" [(ngModel)]="active.groupLimit" required="true">
-                            </md-input-container>
+                            <mat-form-field>
+                                <input matInput placeholder="Group Limit" [(ngModel)]="active.groupLimit" required="true">
+                            </mat-form-field>
                         </td>
                         <td>
-                            <button md-icon-button aria-label="Refresh" md-tooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <md-icon class="mat-24">refresh</md-icon>
+                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                                <mat-icon class="mat-24">refresh</mat-icon>
                             </button>
                         </td>
                     </tr>
                 </table>
                 <p></p>
                 <app-export-control [exportId]="exportId"></app-export-control>
-            </md-card-content>
-        </md-card>
-    </md-sidenav>
+            </mat-card-content>
+        </mat-card>
+    </mat-sidenav>
     <div class="body-container">
         <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
-            <md-spinner ></md-spinner>
+            <mat-spinner ></mat-spinner>
         </div>
         <div class="text-container">
             <div>
@@ -100,8 +100,8 @@
             </div>
             <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
                 <span class="filter-label" [title]="getFilterTitle(value)">{{ getFilterCloseText(value) }}</span>
-                <button md-icon-button aria-label="Close" [md-tooltip]="getRemoveFilterTooltip(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value, true)">
-            <md-icon class="mat-18">close</md-icon>
+                <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveFilterTooltip(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value, true)">
+            <mat-icon class="mat-18">close</mat-icon>
         </button>
             </div>
         </div>
@@ -120,4 +120,4 @@
                 </div>
             </a>
     </div>-->
-</md-sidenav-container>
+</mat-sidenav-container>

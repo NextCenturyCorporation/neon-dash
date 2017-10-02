@@ -19,7 +19,7 @@ import { DashboardOptionsComponent } from './components/dashboard-options/dashbo
 import { Dataset } from './dataset';
 
 import { NeonGTDConfig } from './neon-gtd-config';
-import { MdSnackBar, MdToolbar } from '@angular/material';
+import { MatSnackBar, MatToolbar } from '@angular/material';
 import { ActiveGridService } from './services/active-grid.service';
 import { DatasetService } from './services/dataset.service';
 import { ThemesService } from './services/themes.service';
@@ -30,7 +30,7 @@ import { AddVisualizationComponent } from './components/add-visualization/add-vi
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 
-import { MdDialog, MdDialogConfig, MdDialogRef } from '@angular/material';
+import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 
 @Component({
     selector: 'app-root',
@@ -71,15 +71,15 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     };
 
     /* A reference to the dialog for adding visualizations. */
-    private addVisDialogRef: MdDialogRef<AddVisualizationComponent>;
+    private addVisDialogRef: MatDialogRef<AddVisualizationComponent>;
 
     /* A reference to the dialog for the filter tray. */
-    private filterTrayDialogRef: MdDialogRef<FilterTrayComponent>;
+    private filterTrayDialogRef: MatDialogRef<FilterTrayComponent>;
 
 
     constructor(public datasetService: DatasetService, public themesService: ThemesService,
-        private activeGridService: ActiveGridService, public dialog: MdDialog,
-        public viewContainerRef: ViewContainerRef, @Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MdSnackBar) {
+        private activeGridService: ActiveGridService, public dialog: MatDialog,
+        public viewContainerRef: ViewContainerRef, @Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MatSnackBar) {
         // TODO: Default to false and set to true only after a dataset has been selected.
         this.showAddVisualizationButton = true;
         this.showFilterTrayButton = true;
@@ -106,7 +106,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     openAddVisualizationDialog() {
-        let config = new MdDialogConfig();
+        let config = new MatDialogConfig();
         config.viewContainerRef = this.viewContainerRef;
 
         this.addVisDialogRef = this.dialog.open(AddVisualizationComponent, config);
@@ -116,7 +116,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     openFilterTrayDialog() {
-        let config = new MdDialogConfig();
+        let config = new MatDialogConfig();
         config.viewContainerRef = this.viewContainerRef;
 
         this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);

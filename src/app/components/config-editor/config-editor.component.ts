@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation, ElementRef,
   ChangeDetectionStrategy, ChangeDetectorRef, Injector, Inject, ViewChild } from '@angular/core';
 
-import { MdSnackBar, MdDialog } from '@angular/material';
+import { MatSnackBar, MatDialog } from '@angular/material';
 import { NeonGTDConfig } from './../../neon-gtd-config';
 import { PropertyService } from '../../services/property.service';
 import * as JSONEditor from 'jsoneditor';
@@ -25,7 +25,7 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
     public modes: any[];
     public editor: any;
 
-    constructor(@Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MdSnackBar,
+    constructor(@Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MatSnackBar,
         private propertyService: PropertyService) {
         this.snackBar = snackBar;
         this.currentConfig = neonConfig;

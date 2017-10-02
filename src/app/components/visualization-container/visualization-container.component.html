@@ -7,25 +7,25 @@
             </div>
             <div class="visualization-toolbar" layout-align="space-between center" flex flex-direction="column">
                 <div class="icon-container" *ngIf="showToolbar">
-                    <button md-icon-button aria-label="Move to top" class="neon-gtd-text-button" md-tooltip="Move to Top" tooltip-position="below"
+                    <button mat-icon-button aria-label="Move to top" class="neon-gtd-text-button" matTooltip="Move to Top" tooltip-position="below"
                         (click)="moveToTop()">
-                      <md-icon class="mat-18">arrow_upward</md-icon>
+                      <mat-icon class="mat-18">arrow_upward</mat-icon>
                     </button>
-                    <button md-icon-button aria-label="Move to bottom" class="neon-gtd-text-button" md-tooltip="Move to Bottom" tooltip-position="below"
+                    <button mat-icon-button aria-label="Move to bottom" class="neon-gtd-text-button" matTooltip="Move to Bottom" tooltip-position="below"
                         (click)="moveToBottom()">
-                      <md-icon class="mat-18">arrow_downward</md-icon>
+                      <mat-icon class="mat-18">arrow_downward</mat-icon>
                     </button>
-                    <button md-icon-button aria-label="Menu" class="neon-gtd-text-button" md-tooltip="Expand" tooltip-position="below" (click)="expand()"
+                    <button mat-icon-button aria-label="Menu" class="neon-gtd-text-button" matTooltip="Expand" tooltip-position="below" (click)="expand()"
                         *ngIf="!expanded">
-                      <md-icon class="mat-18">fullscreen</md-icon>
+                      <mat-icon class="mat-18">fullscreen</mat-icon>
                     </button>
-                    <button md-icon-button aria-label="Menu" class="neon-gtd-text-button" md-tooltip="Contract" tooltip-position="below" (click)="contract()"
+                    <button mat-icon-button aria-label="Menu" class="neon-gtd-text-button" matTooltip="Contract" tooltip-position="below" (click)="contract()"
                         *ngIf="expanded">
-                      <md-icon class="mat-18">fullscreen_exit</md-icon>
+                      <mat-icon class="mat-18">fullscreen_exit</mat-icon>
                     </button>
-                    <button md-icon-button aria-label="Close" class="neon-gtd-text-button" (click)="close()" md-tooltip="Close visualization"
+                    <button mat-icon-button aria-label="Close" class="neon-gtd-text-button" (click)="close()" matTooltip="Close visualization"
                         tooltip-position="below">
-                      <md-icon class="mat-18 warn-text">close</md-icon>
+                      <mat-icon class="mat-18 warn-text">close</mat-icon>
                     </button>
                 </div>
             </div>
