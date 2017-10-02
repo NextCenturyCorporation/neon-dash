@@ -112,7 +112,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         dataField: FieldMetaData,
         aggregationField: FieldMetaData,
         aggregationFieldHidden: boolean,
-        colorField: FieldMetaData,
         andFilters: boolean,
         limit: number,
         filterable: boolean,
@@ -134,7 +133,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     public selectedLabels: string[] = [];
     public colorFieldNames: string[] = [];
     private defaultActiveColor = new Color(57, 181, 74);
-    public emptyField = new FieldMetaData();
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
@@ -157,7 +155,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             dataField: new FieldMetaData(),
             aggregationField: new FieldMetaData(),
             aggregationFieldHidden: true,
-            colorField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
             filterable: true,
@@ -165,10 +162,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             data: [],
             aggregation: 'count'
         };
-
-        // Make sure the empty field has non-null values
-        this.emptyField.columnName = '';
-        this.emptyField.prettyName = '';
 
         this.onClick = this.onClick.bind(this);
         this.chart = {
@@ -239,7 +232,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         bindings.aggregation = this.active.aggregation;
         bindings.aggregationField = this.active.aggregationField.columnName;
         bindings.limit = this.active.limit;
-        bindings.colorField = this.active.colorField.columnName;
     }
 
     getExportFields() {
@@ -283,7 +275,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         }
         this.active.aggregationField = this.findFieldObject('aggregationField', neonMappings.TAGS);
         this.active.dataField = this.findFieldObject('dataField', neonMappings.TAGS);
-        this.active.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
+        this.meta.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
     };
 
     addLocalFilter(filter) {
@@ -364,9 +356,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let yAxisField = this.active.aggregationField.columnName;
         let groupBy: any[] = [this.active.dataField.columnName];
 
-        if (this.active.colorField.columnName !== '') {
-            whereClauses.push(neon.query.where(this.active.colorField.columnName, '!=', null));
-            groupBy.push(this.active.colorField.columnName);
+        if (this.hasColorField()) {
+            whereClauses.push(neon.query.where(this.meta.colorField.columnName, '!=', null));
+            groupBy.push(this.meta.colorField.columnName);
         }
 
         if (this.hasUnsharedFilter()) {
@@ -415,7 +407,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
         let dataSets = new Map<string, BarDataSet>();
 
-        let hasGroup = this.active.colorField.columnName !== '';
+        let hasColor = this.hasColorField();
 
         /*
          * We need to build the datasets.
@@ -441,8 +433,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
             // The default group is the query title
             let group = this.queryTitle;
-            if (hasGroup) {
-                group = row[this.active.colorField.columnName];
+            if (hasColor) {
+                group = row[this.meta.colorField.columnName];
             }
 
             let dataset = dataSets.get(group);
@@ -451,8 +443,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 dataSets.set(group, dataset);
 
                 dataset.label = group;
-                if (hasGroup) {
-                    dataset.color = this.colorSchemeService.getColorFor(this.active.colorField.columnName, group);
+                if (hasColor) {
+                    dataset.color = this.colorSchemeService.getColorFor(this.meta.colorField.columnName, group);
                 } else {
                     dataset.color = this.defaultActiveColor;
                 }
@@ -462,7 +454,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
             dataset.data[dataIndex] = row.value;
             // Set this to force the legend to update
-            this.colorFieldNames = [this.active.colorField.columnName];
+            this.colorFieldNames = [this.meta.colorField.columnName];
         }
 
         chartData.datasets = Array.from(dataSets.values());

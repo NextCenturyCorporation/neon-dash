@@ -41,6 +41,7 @@ export abstract class BaseNeonComponent implements OnInit,
         table: TableMetaData,
         unsharedFilterField: any,
         unsharedFilterValue: string,
+        colorField: FieldMetaData,
         fields: FieldMetaData[]
     };
 
@@ -48,6 +49,12 @@ export abstract class BaseNeonComponent implements OnInit,
 
     public isLoading: boolean;
     public isExportable: boolean;
+
+    /**
+     * Just a blank FieldMetaData object.
+     * Meant to be used for a 'clear' option in field dropdowns
+     */
+    public emptyField = new FieldMetaData();
 
     constructor(
         private connectionService: ConnectionService,
@@ -76,6 +83,7 @@ export abstract class BaseNeonComponent implements OnInit,
             table: new TableMetaData(),
             unsharedFilterField: {},
             unsharedFilterValue: '',
+            colorField: new FieldMetaData(),
             fields: []
         };
         this.isExportable = true;
@@ -83,6 +91,10 @@ export abstract class BaseNeonComponent implements OnInit,
         this.getBindings = this.getBindings.bind(this);
         // Let the ID be a UUID
         this.id = uuid.v4();
+
+        // Make sure the empty field has non-null values
+        this.emptyField.columnName = '';
+        this.emptyField.prettyName = '';
     };
 
     /**
@@ -161,7 +173,8 @@ export abstract class BaseNeonComponent implements OnInit,
             database: this.meta.database.name,
             table: this.meta.table.name,
             unsharedFilterField: this.meta.unsharedFilterField.columnName,
-            unsharedFilterValue: this.meta.unsharedFilterValue
+            unsharedFilterValue: this.meta.unsharedFilterValue,
+            colorField: this.meta.colorField.columnName
         };
 
         // Get the bindings from the subclass
@@ -622,6 +635,14 @@ export abstract class BaseNeonComponent implements OnInit,
             this.meta.unsharedFilterField.columnName !== '' &&
             this.meta.unsharedFilterValue &&
             this.meta.unsharedFilterValue.trim() !== '';
+    }
+
+    /**
+     * Returns true of there is a valid color field set fot he visualization
+     * @return {boolean}
+     */
+    hasColorField(): boolean {
+        return this.meta.colorField && this.meta.colorField.columnName !== '';
     }
 
     /**

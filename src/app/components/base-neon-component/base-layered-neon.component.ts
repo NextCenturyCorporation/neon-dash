@@ -43,6 +43,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             fields: FieldMetaData[]
             unsharedFilterField: any,
             unsharedFilterValue: string,
+            colorField: FieldMetaData
         }[],
     };
 
@@ -50,6 +51,12 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
 
     public isLoading: number;
     public isExportable: boolean;
+
+    /**
+     * Just a blank FieldMetaData object.
+     * Meant to be used for a 'clear' option in field dropdowns
+     */
+    public emptyField = new FieldMetaData();
 
     constructor(
         private connectionService: ConnectionService,
@@ -79,6 +86,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
         this.id = uuid.v4();
+
+        // Make sure the empty field has non-null values
+        this.emptyField.columnName = '';
+        this.emptyField.prettyName = '';
     };
 
     /**
@@ -180,6 +191,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
                 fields: [],
                 unsharedFilterField: layer.unsharedFilterField.columnName,
                 unsharedFilterValue: layer.unsharedFilterValue,
+                colorField: layer.colorField.columnName
             };
             for (let field of layer.fields) {
                 layerBindings.fields.push(field.columnName);
@@ -206,7 +218,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             table: new TableMetaData(),
             unsharedFilterField: {},
             unsharedFilterValue: '',
-            fields: []
+            fields: [],
+            colorField: new FieldMetaData()
         };
         this.outstandingDataQueriesByLayer.push({});
         this.subAddEmptyLayer();
@@ -369,6 +382,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         });
         this.meta.layers[layerIndex].unsharedFilterField = this.findFieldObject(layerIndex, 'unsharedFilterField');
         this.meta.layers[layerIndex].unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
+        this.meta.layers[layerIndex].colorField = this.getOptionFromConfig('colorField') || '';
 
         this.onUpdateFields(layerIndex);
         //this.changeDetection.detectChanges();

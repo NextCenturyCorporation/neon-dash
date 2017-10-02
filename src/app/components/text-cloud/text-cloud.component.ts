@@ -43,7 +43,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         filterable: boolean,
         data: any[]
     };
-    public emptyField: FieldMetaData = new FieldMetaData();
     public sizeAggregationTypes = [
         {name: 'Average', value: 'AVG'},
         {name: 'Maximum', value: 'MAX'},
@@ -69,8 +68,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             limit: this.injector.get('limit', 40)
         };
         this.sizeAggregation = this.optionsFromConfig.sizeAggregation;
-        this.emptyField.columnName = '';
-        this.emptyField.prettyName = '';
         this.filters = [];
         this.active = {
             dataField: new FieldMetaData(),

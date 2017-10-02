@@ -47,7 +47,7 @@
                 </mat-select>
                 <p></p>
 
-                <mat-select placeholder="Color Field" [(ngModel)]="active.colorField"
+                <mat-select placeholder="Color Field" [(ngModel)]="meta.colorField"
                            (ngModelChange)="handleChangeColorField()" [disabled]="meta.fields.length == 0">
                     <mat-option [value]="emptyField">(None)</mat-option>
                     <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -84,7 +84,7 @@
         </div>
         <div class="text-container">
             <div align="left">
-                <app-legend *ngIf="active.colorField.columnName != ''" [activeList]="selectedLabels"
+                <app-legend *ngIf="hasColorField()" [activeList]="selectedLabels"
                             [fieldNames]="colorFieldNames"></app-legend>
             </div>
             <div class="filter-reset" *ngFor="let value of getCloseableFilters()">

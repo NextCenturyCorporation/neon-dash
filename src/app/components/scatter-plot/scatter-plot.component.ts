@@ -105,7 +105,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         xField: FieldMetaData,
         yField: FieldMetaData,
         labelField: FieldMetaData,
-        colorField: FieldMetaData,
         andFilters: boolean,
         limit: number,
         filterable: boolean,
@@ -140,7 +139,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     };
 
     private colorSchemeService: ColorSchemeService;
-    public emptyField: FieldMetaData = new FieldMetaData();
 
     public colorByFields: string[] = [];
 
@@ -160,8 +158,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
-        this.emptyField.columnName = '';
-        this.emptyField.prettyName = '';
         this.colorSchemeService = colorSchemeSrv;
         this.filters = [];
         this.mouseEventValid = false;
@@ -169,7 +165,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             xField: new FieldMetaData(),
             yField: new FieldMetaData(),
             labelField: new FieldMetaData(),
-            colorField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
             filterable: true,
@@ -284,14 +279,13 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         bindings.yField = this.active.yField.columnName;
         bindings.labelField = this.active.labelField.columnName;
         bindings.limit = this.active.limit;
-        bindings.colorField = this.active.colorField.columnName;
     }
 
     onUpdateFields() {
         this.active.xField = this.findFieldObject('xField', neonMappings.TAGS);
         this.active.yField = this.findFieldObject('yField', neonMappings.TAGS);
         this.active.labelField = this.findFieldObject('labelField', neonMappings.TAGS);
-        this.active.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
+        this.meta.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
     };
 
     createFilter(key, startDate, endDate) {
@@ -511,9 +505,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             whereClauses.push(neon.query.where(this.meta.unsharedFilterField.columnName, '=',
                 this.meta.unsharedFilterValue));
         }
-        if (this.active.colorField.columnName !== '') {
-            whereClauses.push(neon.query.where(this.active.colorField.columnName, '!=', null));
-            groupBys.push(this.active.colorField.columnName);
+        if (this.hasColorField()) {
+            whereClauses.push(neon.query.where(this.meta.colorField.columnName, '!=', null));
+            groupBys.push(this.meta.colorField.columnName);
         }
 
         query = query.groupBy(groupBys);
@@ -536,8 +530,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         //TODO much of this method could be optimized, but we'll worry about that later
         let xField = this.active.xField.columnName;
         let yField = this.active.yField.columnName;
-        let colorField = this.active.colorField.columnName;
-        let hasColor = (colorField !== '');
+        let colorField = this.meta.colorField.columnName;
+        let hasColor = this.hasColorField();
 
         let data = response.data;
         let xAxisIsNumeric = true;
@@ -567,7 +561,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             if (!dataSet) {
                 let color = this.defaultColor;
                 if (hasColor) {
-                    color = this.colorSchemeService.getColorFor(this.active.colorField.columnName, dataSetKey);
+                    color = this.colorSchemeService.getColorFor(this.meta.colorField.columnName, dataSetKey);
                 }
                 dataSet = new ScatterDataSet(color);
                 dataSet.label = dataSetKey;
@@ -624,7 +618,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.refreshVisualization();
         this.queryTitle = 'Scatter Plot: ' + this.active.xField.prettyName + ' vs ' + this.active.yField.prettyName;
         // Force the legend to update
-        this.colorByFields = [this.active.colorField.columnName];
+        this.colorByFields = [this.meta.colorField.columnName];
     };
 
 
