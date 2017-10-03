@@ -491,8 +491,8 @@
 					}]
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 5,
-				"col": 8
+				"row": 0,
+				"col": 11
 			},
 			{
 				"name": "Timeline",
@@ -2195,8 +2195,7 @@
 					"database": "haiti_4",
 					"table": "ui_output",
 					"dataField": "PER",
-					"groupField": "entities.originalText",
-
+					"groupField": "entities.originalText"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
