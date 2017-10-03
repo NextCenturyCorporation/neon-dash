@@ -343,8 +343,7 @@
 					"title": "Location",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
-					"dataField": "LOC",
-					"groupField": "entities.originalText"
+					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -366,8 +365,7 @@
 					"title": "People",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
-					"dataField": "PER",
-					"groupField": "entities.originalText"
+					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -389,8 +387,7 @@
 					"title": "Organizations",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"groupField": "entities.originalText"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -412,8 +409,7 @@
 					"title": "GeoPolitical Entities",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
-					"dataField": "GPE",
-					"groupField": "entities.originalText"
+					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -563,7 +559,7 @@
 					"limit": 50
 				},
 				"row": 0,
-				"col": 18
+				"col": 19
 			}
 		],
 		"elisa_uig-layout": [{
@@ -679,8 +675,7 @@
 					"table": "ui_output",
 					"unsharedFilterField": "",
 					"unsharedFilterValue": "",
-					"dataField": "PER",
-					"groupField": "entities.originalText"
+					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -702,8 +697,7 @@
 					"title": "Organizations",
 					"database": "elisa_uyghur_200",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"groupField": "entities.originalText"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -725,8 +719,7 @@
 					"title": "GeoPolitical Entities",
 					"database": "elisa_uyghur_200",
 					"table": "ui_output",
-					"dataField": "GPE",
-					"groupField": "entities.originalText"
+					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -948,8 +941,7 @@
 					"title": "Location",
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
-					"dataField": "LOC",
-					"groupField": "entities.originalText"
+					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -971,8 +963,7 @@
 					"title": "People",
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
-					"dataField": "PER",
-					"groupField": "entities.originalText"
+					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -994,8 +985,7 @@
 					"title": "Organizations",
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"groupField": "entities.originalText"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1017,8 +1007,7 @@
 					"title": "GeoPolitical Entities",
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
-					"dataField": "GPE",
-					"groupField": "entities.originalText"
+					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1254,8 +1243,7 @@
 					"title": "Location",
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
-					"dataField": "LOC",
-					"groupField": "entities.originalText"
+					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -1277,8 +1265,7 @@
 					"title": "People",
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
-					"dataField": "PER",
-					"groupField": "entities.originalText"
+					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -1300,8 +1287,7 @@
 					"title": "Organizations",
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"groupField": "entities.originalText"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1323,8 +1309,7 @@
 					"title": "GeoPolitical Entities",
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
-					"dataField": "GPE",
-					"groupField": "entities.originalText"
+					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1560,8 +1545,7 @@
 					"title": "Location",
 					"database": "ebola_data_2",
 					"table": "ui_output",
-					"dataField": "LOC",
-					"groupField": "entities.originalText"
+					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -1583,8 +1567,7 @@
 					"title": "People",
 					"database": "ebola_data_2",
 					"table": "ui_output",
-					"dataField": "PER",
-					"groupField": "entities.originalText"
+					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -1606,8 +1589,7 @@
 					"title": "Organizations",
 					"database": "ebola_data_2",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"groupField": "entities.originalText"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1629,8 +1611,7 @@
 					"title": "GeoPolitical Entities",
 					"database": "ebola_data_2",
 					"table": "ui_output",
-					"dataField": "GPE",
-					"groupField": "entities.originalText"
+					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1866,8 +1847,7 @@
 					"title": "Location",
 					"database": "nepal_2",
 					"table": "ui_output",
-					"dataField": "LOC",
-					"groupField": "entities.originalText"
+					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -1889,8 +1869,7 @@
 					"title": "People",
 					"database": "nepal_2",
 					"table": "ui_output",
-					"dataField": "PER",
-					"groupField": "entities.originalText"
+					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -1912,8 +1891,7 @@
 					"title": "Organizations",
 					"database": "nepal_2",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"groupField": "entities.originalText"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -1935,8 +1913,7 @@
 					"title": "GeoPolitical Entities",
 					"database": "nepal_2",
 					"table": "ui_output",
-					"dataField": "GPE",
-					"groupField": "entities.originalText"
+					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -2171,8 +2148,7 @@
 					"title": "Location",
 					"database": "haiti_4",
 					"table": "ui_output",
-					"dataField": "LOC",
-					"groupField": "entities.originalText"
+					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -2194,8 +2170,7 @@
 					"title": "People",
 					"database": "haiti_4",
 					"table": "ui_output",
-					"dataField": "PER",
-					"groupField": "entities.originalText"
+					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
@@ -2217,8 +2192,7 @@
 					"title": "Organizations",
 					"database": "haiti_4",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"groupField": "entities.originalText"
+					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
@@ -2240,8 +2214,7 @@
 					"title": "GeoPolitical Entities",
 					"database": "haiti_4",
 					"table": "ui_output",
-					"dataField": "GPE",
-					"groupField": "entities.originalText"
+					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 11,
