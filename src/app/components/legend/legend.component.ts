@@ -34,14 +34,14 @@ export class LegendComponent implements OnInit {
      * If the active list is empty, any values in this list will be marked as inactive
      */
     @Input() disabledList: string[];
-    @ViewChild('menu') menu: any;
-
     /**
      * Event triggered when an item in the legend has been selected.
      * The event includes the value selected, and a boolean if the value is currently selected
      * @type {EventEmitter<{value: string; currentlyActive: boolean}>}
      */
     @Output() itemSelected = new EventEmitter<{value: string, currentlyActive: boolean}>();
+
+    @ViewChild('menu') menu: any;
 
     public menuIcon: string;
     public colorSets: ColorSet[] = [];
@@ -114,11 +114,11 @@ export class LegendComponent implements OnInit {
         return this.disabledList && this.disabledList.indexOf(key) >= 0;
     }
 
-    getIcon(active: boolean): string {
-        if (active) {
-            return 'check_box';
-        } else {
+    getIcon(key: string): string {
+        if (this.isDisabled(key)) {
             return 'check_box_outline_blank';
+        } else {
+            return 'check_box';
         }
     }
 
