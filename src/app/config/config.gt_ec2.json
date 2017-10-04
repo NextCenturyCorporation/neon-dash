@@ -2069,7 +2069,7 @@
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
+				"sizex": 10,
 				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2098,39 +2098,6 @@
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 0,
 				"col": 0
-			},
-			{
-				"name": "Bar Chart",
-				"type": "barChart",
-				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 4,
-				"$$hashKey": "object:30",
-				"bindings": {
-					"title": "Sentiment",
-					"database": "haiti_4",
-					"table": "ui_output",
-					"dataField": "sentimentString",
-					"aggregation": "count",
-					"aggregationField": "",
-					"chartType": "horizontalBar",
-					"colors": [{
-							"value": "Activation|Positive|Positive, Activation",
-							"color": "77, 190, 194"
-						},
-						{
-							"value": "Negative|Negative, Activation",
-							"color": "39, 96, 126"
-						}
-					]
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
-				"col": 6
 			},
 			{
 				"name": "Text Cloud",

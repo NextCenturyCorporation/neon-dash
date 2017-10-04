@@ -335,12 +335,12 @@
     "hostname": "localhost",
     "databases": [
         {
-        "name": "haiti",
+        "name": "haiti_2",
         "prettyName": "haiti",
         "tables": [
             {
-            "name": "record",
-            "prettyName": "record",
+            "name": "ui_output",
+            "prettyName": "ui_output",
             "mappings": {
                 "date": "loreleiJSONMapping.status.createdAt",
                 "latitude": "situationFrame.geoLocation.latitude",
@@ -1350,7 +1350,7 @@
         "selected": true,
         "bindings": {
         "title": "Message Volume over Time",
-        "database": "haiti",
+        "database": "haiti_2",
         "table": "record",
         "dateField": "loreleiJSONMapping.status.createdAt",
         "granularity": "day"
@@ -1375,7 +1375,7 @@
         "title": "Posting Locations & Routing Map",
         "config": [
             {
-            "database": "haiti",
+            "database": "haiti_2",
             "filterable": true,
             "name": "TWEETS",
             "show": true,
@@ -1427,7 +1427,7 @@
         "selected": true,
         "bindings": {
         "title": "Raw Haiti Data",
-        "database": "haiti",
+        "database": "haiti_2",
         "table": "record",
         "sortDirection": 1,
         "limit": 100
@@ -1450,7 +1450,7 @@
         "selected": true,
         "bindings": {
         "title": "Popular Entities",
-        "database": "haiti",
+        "database": "haiti_2",
         "table": "record",
         "dataField": "situationFrame.entities"
         },
@@ -1472,7 +1472,7 @@
         "selected": true,
         "bindings": {
         "title": "Social Media Posts",
-        "database": "haiti",
+        "database": "haiti_2",
         "table": "record",
         "dateField": "loreleiJSONMapping.status.createdAt",
         "contentField": "loreleiJSONMapping.status.text",
@@ -1496,7 +1496,7 @@
         "selected": true,
         "bindings": {
         "title": "Popular Hashtags",
-        "database": "haiti",
+        "database": "haiti_2",
         "table": "record",
         "dataField": "loreleiJSONMapping.status.hashtagEntities.text"
         },
@@ -1534,7 +1534,7 @@
         "selected": true,
         "bindings": {
         "title": "Situation Type Counts",
-        "database": "haiti",
+        "database": "haiti_2",
         "table": "record",
         "aggregationType": "count",
         "groupField": "situationFrame.types",
@@ -1558,12 +1558,12 @@
         "selected": true,
         "bindings": {
         "title": "Annotated Documents",
-        "database": "haiti",
+        "database": "haiti_2",
         "table": "record",
         "documentTextField": "loreleiJSONMapping.originalText",
         "documentLimit": 50,
         "annotationsInAnotherTable": false,
-        "annotationDatabase": "haiti",
+        "annotationDatabase": "haiti_2",
         "annotationTable": "record",
         "annotations": [
             {
@@ -1594,7 +1594,7 @@
         "selected": true,
         "bindings": {
         "title": "Haiti Entity Network",
-        "database": "haiti",
+        "database": "haiti_2",
         "table": "record",
         "nodeField": "situationFrame.entities",
         "dateField": "loreleiJSONMapping.status.createdAt",
@@ -1620,7 +1620,7 @@
         "title": "Tweet Volume by Sentiment",
         "config": [
             {
-            "database": "haiti",
+            "database": "haiti_2",
             "filterable": true,
             "name": "TWEETS",
             "show": true,
