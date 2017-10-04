@@ -89,11 +89,14 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             datasets: any[]
         },
         type: string,
-        options: Object,
+        options: any,
     };
     private colorSchemeService: ColorSchemeService;
     private mouseEventValid: boolean;
     public colorByFields: string[] = [];
+    public disabledList: string[] = [];
+
+    private disabledDatasets: Map<string, any> = new Map<string, any>();
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -149,43 +152,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         };
         this.mouseEventValid = false;
         this.onHover = this.onHover.bind(this);
-        this.chart = {
-            type: null,
-            data: {
-                labels: [],
-                datasets: [
-                    {
-                        label: 'dataset',
-                        data: []
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
-                onClick: null,
-                animation: {
-                  duration: 0, // general animation time
-                },
-                hover: {
-                    mode: 'index',
-                    intersect: false,
-                    onHover: this.onHover
-
-                },
-                //legend: Chart.defaults.global.legend,
-                //  tooltips: Chart.defaults.global.tooltips,
-                scales: {
-                    xAxes: [{
-                        type: 'time',
-                        position: 'bottom'
-                    }]
-                }
-            }
-        };
-        this.chart.options['legend'] = {};
-        this.chart.options['legend'].display = false;
 
         let tooltipTitleFunc = (tooltips) => {
             let index = tooltips[0].index;
@@ -211,12 +177,54 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             }
             return this.chart.data.datasets[dsIndex].label + ' - ' + date.tz('GMT').format(format);
         };
+
         let tooltipDataFunc = (tooltips) => {
             return this.active.aggregation + ': ' + tooltips.yLabel;
         };
-        this.chart.options['tooltips'] = { callbacks: {} };
-        this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
-        this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
+
+        this.chart = {
+            type: null,
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'dataset',
+                        data: []
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
+                onClick: null,
+                animation: {
+                  duration: 0, // general animation time
+                },
+                hover: {
+                    mode: 'index',
+                    intersect: false,
+                    onHover: this.onHover
+
+                },
+                legend: {
+                    display: false
+                },
+                scales: {
+                    xAxes: [{
+                        type: 'time',
+                        position: 'bottom'
+                    }]
+                },
+                tooltips: {
+                    callbacks: {
+                        title: tooltipTitleFunc.bind(this),
+                        label: tooltipDataFunc.bind(this)
+                    }
+                }
+            }
+        };
+
         this.queryTitle = 'Line Chart';
     };
 
@@ -299,6 +307,43 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.active.groupField = this.findFieldObject('groupField', neonMappings.TAGS);
         this.active = Object.assign({}, this.active);
     };
+
+    legendItemSelected(data: any): void {
+        console.log('Legend selection');
+        let key = data.value;
+
+        // Chartjs only seem to update if the entire data object was changed
+        // Create a copy of the data object to set at the end
+        let chartData = {
+            labels: this.chart.data.labels,
+            datasets: this.chart.data.datasets
+        };
+
+        if (data.currentlyActive) {
+            let updatedDatasets = [];
+            // Search for the dataset and move it to the disabled map
+            for (let dataset of chartData.datasets) {
+                if (dataset.label === key) {
+                    this.disabledDatasets.set(key, dataset);
+                } else {
+                    updatedDatasets.push(dataset);
+                }
+            }
+            chartData.datasets = updatedDatasets;
+        } else {
+            // Check the disabled map and move it back to the normal data
+            let dataset = this.disabledDatasets.get(key);
+            if (dataset) {
+                chartData.datasets.push(dataset);
+                this.disabledDatasets.delete(key);
+            }
+        }
+
+        // Update the display
+        this.chart.data = chartData;
+        this.refreshVisualization();
+        this.disabledList = Array.from(this.disabledDatasets.keys());
+    }
 
     createFilter(key, startDate, endDate) {
         return {
@@ -530,6 +575,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response) {
+        this.disabledDatasets.clear();
+        this.disabledList = [];
+
         // need to reset chart when data potentially changes type (or number of datasets)
         let ctx = this.chartModule['chart'].chart.ctx;
         //this.chartModule['chart'].destroy();

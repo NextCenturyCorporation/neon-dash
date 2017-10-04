@@ -96,7 +96,9 @@
         </div>
         <div class="text-container">
             <div>
-                <app-legend [fieldNames]="colorByFields"></app-legend>
+                <app-legend (itemSelected)="legendItemSelected($event)"
+                    [fieldNames]="colorByFields"
+                    [disabledList]="disabledList"></app-legend>
             </div>
             <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
                 <span class="filter-label" [title]="getFilterTitle(value)">{{ getFilterCloseText(value) }}</span>
