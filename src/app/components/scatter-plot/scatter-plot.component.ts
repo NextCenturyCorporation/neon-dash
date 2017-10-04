@@ -141,6 +141,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     private colorSchemeService: ColorSchemeService;
 
     public colorByFields: string[] = [];
+    public disabledList: string[] = [];
+
+    private disabledDatasets: Map<string, any> = new Map<string, any>();
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -335,6 +338,49 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return pos;
     }
 
+    legendItemSelected(data: any): void {
+        let key = data.value;
+
+        // Chartjs only seem to update if the entire data object was changed
+        // Create a copy of the data object to set at the end
+        let chartData: ScatterPlotData = {
+            xLabels: this.chart.data.xLabels,
+            yLabels: this.chart.data.yLabels,
+            labels: this.chart.data.labels,
+            datasets: this.chart.data.datasets
+        };
+
+        if (data.currentlyActive) {
+            let updatedDatasets = [];
+            // Search for the dataset and move it to the disabled map
+            for (let dataset of chartData.datasets) {
+                if (dataset.label === key) {
+                    this.disabledDatasets.set(key, dataset);
+                } else {
+                    updatedDatasets.push(dataset);
+                }
+            }
+            // Put something in the disabled dataset map, so the value will be marked as disabled
+            if (!this.disabledDatasets.get(key)) {
+                this.disabledDatasets.set(key, null);
+            }
+            chartData.datasets = updatedDatasets;
+        } else {
+            // Check the disabled map and move it back to the normal data
+            let dataset = this.disabledDatasets.get(key);
+            if (dataset) {
+                chartData.datasets.push(dataset);
+            }
+            // Make sure to remove the key frm the map
+            this.disabledDatasets.delete(key);
+        }
+
+        // Update the display
+        this.chart.data = chartData;
+        this.refreshVisualization();
+        this.disabledList = Array.from(this.disabledDatasets.keys());
+    }
+
     /*onClick(event) {
         console.log(event);
     }*/
@@ -527,6 +573,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     };
 
     onQuerySuccess(response) {
+        this.disabledList = [];
+        this.disabledDatasets.clear();
+
         //TODO much of this method could be optimized, but we'll worry about that later
         let xField = this.active.xField.columnName;
         let yField = this.active.yField.columnName;

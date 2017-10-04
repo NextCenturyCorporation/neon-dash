@@ -309,7 +309,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     };
 
     legendItemSelected(data: any): void {
-        console.log('Legend selection');
         let key = data.value;
 
         // Chartjs only seem to update if the entire data object was changed
@@ -329,14 +328,19 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                     updatedDatasets.push(dataset);
                 }
             }
+            // Put something in the disabled dataset map, so the value will be marked as disabled
+            if (!this.disabledDatasets.get(key)) {
+                this.disabledDatasets.set(key, null);
+            }
             chartData.datasets = updatedDatasets;
         } else {
             // Check the disabled map and move it back to the normal data
             let dataset = this.disabledDatasets.get(key);
             if (dataset) {
                 chartData.datasets.push(dataset);
-                this.disabledDatasets.delete(key);
             }
+            // Make sure to remove the key from the map
+            this.disabledDatasets.delete(key);
         }
 
         // Update the display
