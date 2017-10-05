@@ -645,13 +645,7 @@
 					"title": "Location",
 					"database": "elisa_uyghur_200",
 					"table": "ui_output",
-					"dataField": "entities.originalText",
-					"configFilter": {
-						"use": true,
-						"lhs": "entities.entityType",
-						"operator": "=",
-						"rhs": "LOC"
-					}
+					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 6,
