@@ -427,11 +427,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             }
         }
 
-        if (series.focusData && series.focusData.length > 0) {
+        /*if (series.focusData && series.focusData.length > 10) {
             let extentStart = series.focusData[0].date;
             let extentEnd = series.focusData[series.focusData.length].date;
             this.timelineData.extent = [extentStart, extentEnd];
-        }
+        }// */
 
         // Make sure to update both the data and primary series
         this.timelineData.data = [series];

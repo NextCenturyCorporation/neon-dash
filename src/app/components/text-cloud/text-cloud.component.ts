@@ -248,29 +248,34 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onQuerySuccess(response): void {
-        if (response.data[0]['_docCount']) {
-            this.active.count = response.data.length;
-        } else {
-            let data = response.data;
-            let cloudData = data || [];
-            let useSizeField: boolean = this.active.sizeField.columnName !== '';
-
-            let activeData = cloudData.map((item) => {
-                item.key = item[this.active.dataField.columnName];
-                item.keyTranslated = item.key;
-                // If we have a size field, asign the value to the value field
-                if (useSizeField) {
-                    item.value = item[this.active.sizeField.columnName];
+        try{
+            if (response.data[0]['_docCount']) {
+                this.active.count = response.data.length;
+            } else {
+                let data = response.data;
+                let cloudData = data || [];
+                let useSizeField: boolean = this.active.sizeField.columnName !== '';
+    
+                let activeData = cloudData.map((item) => {
+                    item.key = item[this.active.dataField.columnName];
+                    item.keyTranslated = item.key;
+                    // If we have a size field, asign the value to the value field
+                    if (useSizeField) {
+                        item.value = item[this.active.sizeField.columnName];
+                    }
+                    return item;
+                });
+                this.active = this.updateObject(this.active, 'data', activeData);
+                this.refreshVisualization();
+                this.queryTitle = this.optionsFromConfig.title || 'Text Cloud by ' + this.active.dataField.prettyName;
+                if (useSizeField && this.queryTitle !== this.optionsFromConfig.title) {
+                    this.queryTitle += ' and ' + this.active.sizeField.prettyName;
                 }
-                return item;
-            });
-            this.active = this.updateObject(this.active, 'data', activeData);
-            this.refreshVisualization();
-            this.queryTitle = this.optionsFromConfig.title || 'Text Cloud by ' + this.active.dataField.prettyName;
-            if (useSizeField && this.queryTitle !== this.optionsFromConfig.title) {
-                this.queryTitle += ' and ' + this.active.sizeField.prettyName;
+                this.getDocCount();
             }
-            this.getDocCount();
+            }
+        catch(e){
+            console.log((<Error>e).message);
         }
     }
 
