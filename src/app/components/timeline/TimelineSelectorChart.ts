@@ -371,7 +371,7 @@ export class TimelineSelectorChart {
 
         context.append('g')
             .attr('class', 'x axis')
-            .attr('transform', 'translate(-' + xCenterOffset + ',' + heightContext + ')')
+            .attr('transform', 'translate(' + xCenterOffset + ',' + heightContext + ')')
             .call(xAxisContext);
 
         context.selectAll('.major text')
@@ -402,7 +402,7 @@ export class TimelineSelectorChart {
 
             focus.append('g')
                 .attr('class', 'x axis')
-                .attr('transform', 'translate(-' + xCenterOffset + ',' + this.heightFocus + ')')
+                .attr('transform', 'translate(' + xCenterOffset + ',' + this.heightFocus + ')')
                 .call(this.xAxisFocus);
 
             focus.selectAll('.major text')

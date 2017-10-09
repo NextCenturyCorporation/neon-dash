@@ -418,7 +418,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     // TODO Reimplement the getColor method here, and add "colors" back into optionsFromConfig, possibly renamed.
 
     onQuerySuccess(response): void {
-        console.log('Query success');
+        //console.log('Query success');
         let colName = this.active.dataField.columnName;
         // let prettyColName = this.active.dataField.prettyName;
         let chartData = new BarData();
