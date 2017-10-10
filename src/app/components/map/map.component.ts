@@ -81,7 +81,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             sizeField: string,
             colorField: string,
             dateField: string
-        }[]
+        }[],
+        clustering: string
     };
     public active: {
         layers: MapLayer[],
@@ -91,7 +92,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         data: number[][],
         colorMap: {},
         unusedColors: string[],
-        nextColorIndex: number
+        nextColorIndex: number,
+        clustering: string
     };
 
     public selection: {
@@ -147,7 +149,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             limit: this.injector.get('limit', 1000),
             unsharedFilterField: {},
             unsharedFilterValue: '',
-            layers: this.injector.get('layers', [])
+            layers: this.injector.get('layers', []),
+            clustering: this.injector.get('clustering', 'points') 
         };
 
         this.filters = [];
@@ -160,7 +163,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             data: [],
             nextColorIndex: 0,
             colorMap: {},
-            unusedColors: []
+            unusedColors: [],
+            clustering: this.optionsFromConfig.clustering
         };
 
         this.selection = {
@@ -662,6 +666,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         let latField = this.active.layers[layerIndex].latitudeField.columnName;
         let colorField = this.active.layers[layerIndex].colorField.columnName;
         let entities = this.cesiumViewer.entities;
+        let dataSource = new Cesium.CustomDataSource("MyData");
         entities.suspendEvents();
         //entities.getOrCreateEntities(layerIndex);
         if (this.active.data[layerIndex]) {
@@ -743,7 +748,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             }
 
             if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
-                let entity = {
+                let entity = dataSource.entities.add({
                     position: Cesium.Cartesian3.fromDegrees(lngCoord, latCoord),
                     point: {
                         show: true, // default
@@ -752,13 +757,15 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                         outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
                         outlineWidth: 0 // default: 0
                     }
-                };
-                let en = entities.add(entity);
-                newDataIds.push(en.id);
+                });
+                if(this.active.clustering == "points"){
+                	let en = entities.add(entity);
+                	newDataIds.push(en.id);
+                }
             } else if (latCoord instanceof Array && lngCoord instanceof Array) {
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
                     if (this.isNumeric(latCoord[pos]) && this.isNumeric(lngCoord[pos])) {
-                        let entity = {
+                        let entity = dataSource.entities.add({
                             position: Cesium.Cartesian3.fromDegrees(lngCoord[pos], latCoord[pos]),
                             point: {
                                 show: true, // default
@@ -767,20 +774,95 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                                 outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
                                 outlineWidth: 0 // default: 0
                             }
-                        };
-                        let en = entities.add(entity);
-                        newDataIds.push(en.id);
+                        });
+                        if(this.active.clustering == "points"){
+                        	let en = entities.add(entity);
+                        	newDataIds.push(en.id);
+                        }
                     }
                 }
             }
         }
-        this.active.data[layerIndex] = newDataIds;
+       
+        this.cesiumViewer.dataSources.add(dataSource);
+        if(this.active.clustering == "points"){
+        	this.active.data[layerIndex] = newDataIds;
+        }
         this.legendMaps[layerIndex] = localColorMap;
         this.calculateLegendData();
         entities.resumeEvents();
+        if(this.active.clustering == "clusters"){
+        	this.active.data[layerIndex] = [];
+        	entities.removeAll();
+        	this.clusterPoints(dataSource);
+        }
         //console.log(response);
         //this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
+
     }
+    
+
+
+	clusterPoints(dataSource){
+
+    let pixelRange = 30;
+    let minimumClusterSize = 3;
+    let enabled = true;
+
+    dataSource.clustering.enabled = enabled;
+    dataSource.clustering.pixelRange = pixelRange;
+    dataSource.clustering.minimumClusterSize = minimumClusterSize;
+
+    let removeListener;
+     var pinBuilder = new Cesium.PinBuilder();
+    var pin50 = pinBuilder.fromText('50+', Cesium.Color.RED, 48).toDataURL();
+    var pin40 = pinBuilder.fromText('40+', Cesium.Color.ORANGE, 48).toDataURL();
+    var pin30 = pinBuilder.fromText('30+', Cesium.Color.YELLOW, 48).toDataURL();
+    var pin20 = pinBuilder.fromText('20+', Cesium.Color.GREEN, 48).toDataURL();
+    var pin10 = pinBuilder.fromText('10+', Cesium.Color.BLUE, 48).toDataURL();
+
+    var singleDigitPins = new Array(8);
+    for (var i = 0; i < singleDigitPins.length; ++i) {
+        singleDigitPins[i] = pinBuilder.fromText('' + (i + 2), Cesium.Color.VIOLET, 48).toDataURL();
+    }
+
+    function customStyle() {
+        if (Cesium.defined(removeListener)) {
+            removeListener();
+            removeListener = undefined;
+        } else {
+            removeListener = dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                cluster.label.show = false;
+                cluster.billboard.show = true;
+                cluster.billboard.id = cluster.label.id;
+                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+
+                if (clusteredEntities.length >= 50) {
+                    cluster.billboard.image = pin50;
+                } else if (clusteredEntities.length >= 40) {
+                    cluster.billboard.image = pin40;
+                } else if (clusteredEntities.length >= 30) {
+                    cluster.billboard.image = pin30;
+                } else if (clusteredEntities.length >= 20) {
+                    cluster.billboard.image = pin20;
+                } else if (clusteredEntities.length >= 10) {
+                    cluster.billboard.image = pin10;
+                } else {
+                    cluster.billboard.image = singleDigitPins[clusteredEntities.length - 2];
+                }
+            });
+        }
+
+        // force a re-cluster with the new styling
+        var pixelRange = dataSource.clustering.pixelRange;
+        dataSource.clustering.pixelRange = 0;
+        dataSource.clustering.pixelRange = pixelRange;
+    }
+
+    // start with custom style
+    customStyle();
+
+	}
 
     calculateLegendData() {
         this.recalculateColorMap();
@@ -946,6 +1028,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         this.logChangeAndStartAllQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
     };
+    
+    handleChangeClustering(){
+    	this.logChangeAndStartAllQueryChain();
+    }
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {

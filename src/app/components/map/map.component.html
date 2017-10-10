@@ -59,6 +59,18 @@
                             [disabled]="meta.layers[i].fields.length == 0">
                             <md-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</md-option>
                         </md-select>
+                        
+                        <br />
+                        
+                        <md-button-toggle-group #clustering="mdButtonToggleGroup" [(ngModel)]="active.clustering" (ngModelChange)="handleChangeClustering()">
+                    		<md-button-toggle value="points">
+                        		Points
+                    		</md-button-toggle>
+                    		<md-button-toggle value="clusters">
+                        		Clusters
+                    		</md-button-toggle>
+                		</md-button-toggle-group>
+                        
                     </div>
                 </div>
                 <table cellspacing="0">
