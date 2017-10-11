@@ -156,7 +156,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             layers: this.injector.get('layers', []),
             clustering: this.injector.get('clustering', 'points') ,
             minClusterSize: this.injector.get('minClusterSize', 3) ,
-            clusterPixelRange: this.injector.get('clusterPixelRange', 10)
+            clusterPixelRange: this.injector.get('clusterPixelRange', 20)
         };
 
         this.filters = [];
@@ -825,15 +825,15 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     	let removeListener;
     	let pinBuilder = new Cesium.PinBuilder();
-    	let pin50 = pinBuilder.fromText('50+', Cesium.Color.RED, 45).toDataURL();
-    	let pin40 = pinBuilder.fromText('40+', Cesium.Color.ORANGE, 45).toDataURL();
-    	let pin30 = pinBuilder.fromText('30+', Cesium.Color.YELLOW, 45).toDataURL();
-    	let pin20 = pinBuilder.fromText('20+', Cesium.Color.GREEN, 45).toDataURL();
-    	let pin10 = pinBuilder.fromText('10+', Cesium.Color.BLUE, 45).toDataURL();
+    	let pin50 = pinBuilder.fromText('50+', Cesium.Color.RED, 52).toDataURL();
+    	let pin40 = pinBuilder.fromText('40+', Cesium.Color.ORANGE, 52).toDataURL();
+    	let pin30 = pinBuilder.fromText('30+', Cesium.Color.YELLOW, 52).toDataURL();
+    	let pin20 = pinBuilder.fromText('20+', Cesium.Color.GREEN, 52).toDataURL();
+    	let pin10 = pinBuilder.fromText('10+', Cesium.Color.BLUE, 52).toDataURL();
 
     	let singleDigitPins = new Array(8);
     	for (let i = 0; i < singleDigitPins.length; ++i) {
-        	singleDigitPins[i] = pinBuilder.fromText('' + (i + 2), Cesium.Color.VIOLET, 45).toDataURL();
+        	singleDigitPins[i] = pinBuilder.fromText('' + (i + 2), Cesium.Color.VIOLET, 52).toDataURL();
     	}
 	
     	function customStyle() {
