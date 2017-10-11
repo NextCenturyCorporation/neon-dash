@@ -82,7 +82,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             colorField: string,
             dateField: string
         }[],
-        clustering: string
+        clustering: string,
+        minClusterSize: number,
+        clusterPixelRange: number
     };
     public active: {
         layers: MapLayer[],
@@ -93,7 +95,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         colorMap: {},
         unusedColors: string[],
         nextColorIndex: number,
-        clustering: string
+        clustering: string,
+        minClusterSize: number,
+        clusterPixelRange: number
     };
 
     public selection: {
@@ -150,7 +154,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             unsharedFilterField: {},
             unsharedFilterValue: '',
             layers: this.injector.get('layers', []),
-            clustering: this.injector.get('clustering', 'points') 
+            clustering: this.injector.get('clustering', 'points') ,
+            minClusterSize: this.injector.get('minClusterSize', 3) ,
+            clusterPixelRange: this.injector.get('clusterPixelRange', 10)
         };
 
         this.filters = [];
@@ -164,7 +170,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             nextColorIndex: 0,
             colorMap: {},
             unusedColors: [],
-            clustering: this.optionsFromConfig.clustering
+            clustering: this.optionsFromConfig.clustering,
+            minClusterSize: this.optionsFromConfig.minClusterSize,
+            clusterPixelRange: this.optionsFromConfig.clusterPixelRange
         };
 
         this.selection = {
@@ -758,7 +766,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                         outlineWidth: 0 // default: 0
                     }
                 });
-                if(this.active.clustering == "points"){
+                if(this.active.clustering === "points"){
                 	let en = entities.add(entity);
                 	newDataIds.push(en.id);
                 }
@@ -775,7 +783,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                                 outlineWidth: 0 // default: 0
                             }
                         });
-                        if(this.active.clustering == "points"){
+                        if(this.active.clustering === "points"){
                         	let en = entities.add(entity);
                         	newDataIds.push(en.id);
                         }
@@ -784,14 +792,18 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             }
         }
        
+        this.cesiumViewer.dataSources.removeAll(true);
         this.cesiumViewer.dataSources.add(dataSource);
-        if(this.active.clustering == "points"){
+        if(this.active.clustering === "points"){
+        dataSource.clustering.enabled = false;
         	this.active.data[layerIndex] = newDataIds;
         }
         this.legendMaps[layerIndex] = localColorMap;
         this.calculateLegendData();
         entities.resumeEvents();
-        if(this.active.clustering == "clusters"){
+        if(this.active.clustering === "clusters"){
+        	this.cesiumViewer.dataSources.removeAll(true);
+            this.cesiumViewer.dataSources.add(dataSource);
         	this.active.data[layerIndex] = [];
         	entities.removeAll();
         	this.clusterPoints(dataSource);
@@ -804,63 +816,63 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
 
 	clusterPoints(dataSource){
+		//greatly inspired by Cesium demo at https://cesiumjs.org/Cesium/Apps/Sandcastle/index.html?src=Clustering.html&label=Showcases
+    	let enabled = true;
 
-    let pixelRange = 30;
-    let minimumClusterSize = 3;
-    let enabled = true;
+    	dataSource.clustering.enabled = enabled;
+    	dataSource.clustering.pixelRange = this.active.clusterPixelRange;
+    	dataSource.clustering.minimumClusterSize = this.active.minClusterSize;
 
-    dataSource.clustering.enabled = enabled;
-    dataSource.clustering.pixelRange = pixelRange;
-    dataSource.clustering.minimumClusterSize = minimumClusterSize;
+    	let removeListener;
+    	let pinBuilder = new Cesium.PinBuilder();
+    	let pin50 = pinBuilder.fromText('50+', Cesium.Color.RED, 45).toDataURL();
+    	let pin40 = pinBuilder.fromText('40+', Cesium.Color.ORANGE, 45).toDataURL();
+    	let pin30 = pinBuilder.fromText('30+', Cesium.Color.YELLOW, 45).toDataURL();
+    	let pin20 = pinBuilder.fromText('20+', Cesium.Color.GREEN, 45).toDataURL();
+    	let pin10 = pinBuilder.fromText('10+', Cesium.Color.BLUE, 45).toDataURL();
 
-    let removeListener;
-     var pinBuilder = new Cesium.PinBuilder();
-    var pin50 = pinBuilder.fromText('50+', Cesium.Color.RED, 48).toDataURL();
-    var pin40 = pinBuilder.fromText('40+', Cesium.Color.ORANGE, 48).toDataURL();
-    var pin30 = pinBuilder.fromText('30+', Cesium.Color.YELLOW, 48).toDataURL();
-    var pin20 = pinBuilder.fromText('20+', Cesium.Color.GREEN, 48).toDataURL();
-    var pin10 = pinBuilder.fromText('10+', Cesium.Color.BLUE, 48).toDataURL();
+    	let singleDigitPins = new Array(8);
+    	for (let i = 0; i < singleDigitPins.length; ++i) {
+        	singleDigitPins[i] = pinBuilder.fromText('' + (i + 2), Cesium.Color.VIOLET, 45).toDataURL();
+    	}
+	
+    	function customStyle() {
+        	if (Cesium.defined(removeListener)) {
+            	removeListener();
+            	removeListener = undefined;
+        	} else {
+            	removeListener = dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                	cluster.label.show = false;
+                	cluster.billboard.show = true;
+                	cluster.billboard.id = cluster.label.id;
+                	cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
 
-    var singleDigitPins = new Array(8);
-    for (var i = 0; i < singleDigitPins.length; ++i) {
-        singleDigitPins[i] = pinBuilder.fromText('' + (i + 2), Cesium.Color.VIOLET, 48).toDataURL();
-    }
+                	if (clusteredEntities.length >= 50) {
+                	    cluster.billboard.image = pin50;
+                	} else if (clusteredEntities.length >= 40) {
+                	    cluster.billboard.image = pin40;
+                	} else if (clusteredEntities.length >= 30) {
+                	    cluster.billboard.image = pin30;
+                	} else if (clusteredEntities.length >= 20) {
+                	    cluster.billboard.image = pin20;
+                	} else if (clusteredEntities.length >= 10) {
+                	    cluster.billboard.image = pin10;
+                	} else {
+                	    cluster.billboard.image = singleDigitPins[clusteredEntities.length - 2];
+                	}
+            	});
+        	}
 
-    function customStyle() {
-        if (Cesium.defined(removeListener)) {
-            removeListener();
-            removeListener = undefined;
-        } else {
-            removeListener = dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
-                cluster.label.show = false;
-                cluster.billboard.show = true;
-                cluster.billboard.id = cluster.label.id;
-                cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+        	// force a re-cluster with the new styling
+        	let pixelRange = dataSource.clustering.pixelRange;
+        	dataSource.clustering.pixelRange = 0;
+        	dataSource.clustering.pixelRange = pixelRange;
+        
+    	}
 
-                if (clusteredEntities.length >= 50) {
-                    cluster.billboard.image = pin50;
-                } else if (clusteredEntities.length >= 40) {
-                    cluster.billboard.image = pin40;
-                } else if (clusteredEntities.length >= 30) {
-                    cluster.billboard.image = pin30;
-                } else if (clusteredEntities.length >= 20) {
-                    cluster.billboard.image = pin20;
-                } else if (clusteredEntities.length >= 10) {
-                    cluster.billboard.image = pin10;
-                } else {
-                    cluster.billboard.image = singleDigitPins[clusteredEntities.length - 2];
-                }
-            });
-        }
+    	// start with custom style
+    	customStyle();
 
-        // force a re-cluster with the new styling
-        var pixelRange = dataSource.clustering.pixelRange;
-        dataSource.clustering.pixelRange = 0;
-        dataSource.clustering.pixelRange = pixelRange;
-    }
-
-    // start with custom style
-    customStyle();
 
 	}
 
