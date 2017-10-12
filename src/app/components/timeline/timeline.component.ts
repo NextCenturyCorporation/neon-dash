@@ -319,18 +319,23 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response) {
-        if (response.data.length === 1 && response.data[0]['_docCount']) {
-            this.active.docCount = response.data[0]['_docCount'];
-        } else {
-            // Convert all the dates into Date objects
-            response.data.map((d) => {
-                d.date = new Date(d.date);
-            });
+        try{
+            if (response.data.length === 1 && response.data[0]['_docCount']) {
+                this.active.docCount = response.data[0]['_docCount'];
+            } else {
+                // Convert all the dates into Date objects
+                response.data.map((d) => {
+                    d.date = new Date(d.date);
+                });
 
-            this.active.data = response.data;
+                this.active.data = response.data;
 
-            this.filterAndRefreshData();
-            this.getDocCount();
+                this.filterAndRefreshData();
+                this.getDocCount();
+            }
+        }
+        catch(e){
+            console.log((<Error>e).message);
         }
     }
 

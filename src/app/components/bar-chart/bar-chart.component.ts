@@ -173,7 +173,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.emptyField.columnName = '';
         this.emptyField.prettyName = '';
 
-        
         this.onClick = this.onClick.bind(this);
         this.chart = {
             type: this.active.chartType,
@@ -203,7 +202,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                         },
                     }],
                     yAxes: [{
-                        
+
                         stacked: true,
                         ticks: {
                             max: 100,

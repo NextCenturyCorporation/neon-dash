@@ -35,6 +35,7 @@ declare let d3;
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
+    
 export class StackedTimelineComponent extends BaseNeonComponent implements OnInit,
         OnDestroy {
     @ViewChild('svg') svg: ElementRef;
@@ -427,12 +428,12 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                 });
             }
         }
-
+        /*
         if (series.focusData && series.focusData.length > 0) {
             let extentStart = series.focusData[0].date;
             let extentEnd = series.focusData[series.focusData.length - 1].date;
             this.timelineData.extent = [extentStart, extentEnd];
-        }
+        }//*/
 
         // Make sure to update both the data and primary series
         this.timelineData.data = [series];
