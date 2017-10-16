@@ -382,7 +382,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         });
         this.meta.layers[layerIndex].unsharedFilterField = this.findFieldObject(layerIndex, 'unsharedFilterField');
         this.meta.layers[layerIndex].unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
-        this.meta.layers[layerIndex].colorField = this.getOptionFromConfig('colorField') || '';
+        this.meta.layers[layerIndex].colorField = this.getOptionFromConfig('colorField') || new FieldMetaData();
 
         this.onUpdateFields(layerIndex);
         //this.changeDetection.detectChanges();

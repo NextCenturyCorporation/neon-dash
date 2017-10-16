@@ -1,44 +1,46 @@
 /* You can add global styles to this file, and also import other style files */
 @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
 @import '~@angular/material/prebuilt-themes/purple-green.css';
+@import '~@angular/material/_theming';
+@import 'src/themes/neon-green-theme.scss';
 /* Rules for sizing the icons. */
-.material-icons.md-8 {
+.material-icons.mat-8 {
     font-size: 8px;
 }
 
-.material-icons.md-12 {
+.material-icons.mat-12 {
     font-size: 12px;
 }
 
-.material-icons.md-18 {
+.material-icons.mat-18 {
     font-size: 18px;
 }
 
-.material-icons.md-24 {
+.material-icons.mat-24 {
     font-size: 24px;
 }
 
-.material-icons.md-36 {
+.material-icons.mat-36 {
     font-size: 36px;
 }
 
-.material-icons.md-48 {
+.material-icons.mat-48 {
     font-size: 48px;
 }
 /* Rules for using icons as black on a light background. */
-.material-icons.md-dark {
+.material-icons.mat-dark {
     color: rgba(0, 0, 0, 0.54);
 }
 
-.material-icons.md-dark.md-inactive {
+.material-icons.mat-dark.mat-inactive {
     color: rgba(0, 0, 0, 0.26);
 }
 /* Rules for using icons as white on a dark background. */
-.material-icons.md-light {
+.material-icons.mat-light {
     color: rgba(255, 255, 255, 1);
 }
 
-.material-icons.md-light.md-inactive {
+.material-icons.mat-light.mat-inactive {
     color: rgba(255, 255, 255, 0.3);
 }
 /* General layout styles. */
@@ -204,4 +206,18 @@
     top: 64px;
     bottom: 0;
     width: 100%;
+}
+//TODO This is a hack
+.mat-toolbar{
+	min-height:56px !important;
+	border-style:solid;
+	border-color:  mat-color($header) mat-color($header) #4DBEC2;
+	//background-color: mat-color($header);
+}
+.mat-primary{
+	border-color: mat-color($primary) mat-color($primary) #4DBEC2;
+}
+//This is also a hack
+.mat-toolbar-row{
+	height: 48px !important;
 }

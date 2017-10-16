@@ -22,20 +22,20 @@ import {DateBucketizer} from '../bucketizers/DateBucketizer';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
 import {Bucketizer} from '../bucketizers/Bucketizer';
-import {TimelineSelectorChart, TimelineSeries, TimelineData} from './TimelineSelectorChart';
+import {StackedTimelineSelectorChart, TimelineSeries, TimelineData} from './stacked-timelineSelectorChart';
 import {YearBucketizer} from '../bucketizers/YearBucketizer';
-import {VisualizationService} from '../../services/visualization.service';
+import {VisualizationService } from '../../services/visualization.service';
 
 declare let d3;
 
 @Component({
     selector: 'app-timeline',
-    templateUrl: './timeline.component.html',
-    styleUrls: ['./timeline.component.scss'],
+    templateUrl: './stacked-timeline.component.html',
+    styleUrls: ['./stacked-timeline.component.scss'],
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimelineComponent extends BaseNeonComponent implements OnInit,
+export class StackedTimelineComponent extends BaseNeonComponent implements OnInit,
         OnDestroy {
     @ViewChild('svg') svg: ElementRef;
 
@@ -52,15 +52,18 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         table: string,
         dateField: string,
         granularity: string,
+        groupField: string,
     };
 
     public active: {
         dateField: FieldMetaData,
         data: {
             value: number,
-            date: Date
+            date: Date,
+            groupField: string
         }[],
         granularity: string,
+        groupField: FieldMetaData,
         ylabel: string,
         docCount: number
     };
@@ -72,7 +75,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     private colorSchemeService: ColorSchemeService;
 
-    private timelineChart: TimelineSelectorChart;
+    private timelineChart: StackedTimelineSelectorChart;
     private timelineData: TimelineData;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -84,7 +87,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
             dateField: this.injector.get('dateField', null),
-            granularity: this.injector.get('granularity', 'day')
+            granularity: this.injector.get('granularity', 'day'),
+            groupField: this.injector.get('groupField', null)
         };
         this.colorSchemeService = colorSchemeSrv;
         this.filters = [];
@@ -92,7 +96,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.active = {
             dateField: new FieldMetaData(),
             data: [],
-            granularity: this.optionsFromConfig.granularity,
+            granularity: 'day',
+            groupField: new FieldMetaData(),
             ylabel: 'Count',
             docCount: 0
         };
@@ -110,7 +115,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     subNgOnInit() {
-        this.timelineChart = new TimelineSelectorChart(this, this.svg, this.timelineData);
+        this.timelineChart = new StackedTimelineSelectorChart(this, this.svg, this.timelineData);
     };
 
     postInit() {
@@ -121,16 +126,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     };
 
-    subGetBindings(bindings: any) {
-        bindings.dateField = this.active.dateField.columnName;
-        bindings.granularity = this.active.granularity;
-    }
-
     getExportFields() {
-        //{
-        //    columnName: 'date',
-        //    prettyName: 'Date'
-        //},
         let fields = [{
             columnName: 'value',
             prettyName: 'Count'
@@ -176,19 +172,16 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     onUpdateFields() {
         this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
+        this.active.groupField = this.findFieldObject('groupField', neonMappings.BAR_GROUPS);
     };
 
     addLocalFilter(key: string, startDate: Date, endDate: Date, local?: boolean) {
-        try {
-            this.filters[0] = {
-                key: key,
-                startDate: new Date(startDate),
-                endDate: new Date(endDate),
-                local: local
-            };
-        } catch (e) {
-            // Ignore potential date format errors
-        }
+        this.filters[0] = {
+            key: key,
+            startDate: startDate,
+            endDate: endDate,
+            local: local
+        };
     };
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
@@ -279,6 +272,13 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                 groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
             /* falls through */
         }
+        /*
+        if(this.active.groupField != null){
+            groupBys.push({columnName: this.active.groupField.columnName,
+            prettyName: this.active.groupField.prettyName});
+            }
+        //*/
+
         query = query.groupBy(groupBys);
         query = query.sortBy('date', neon.query['ASCENDING']);
         query = query.where(whereClause);
@@ -328,7 +328,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             });
 
             this.active.data = response.data;
-
             this.filterAndRefreshData();
             this.getDocCount();
         }
@@ -363,77 +362,78 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             endDate: null
         };
 
-        if (this.active.data.length > 0) {
-            // The query includes a sort, so it *should* be sorted.
-            // Start date will be the first entry, and the end date will be the last
-            series.startDate = this.active.data[0].date;
-            let lastDate = this.active.data[this.active.data.length - 1].date;
-            series.endDate = d3.time[this.active.granularity]
-                .utc.offset(lastDate, 1);
+        // The query includes a sort, so it *should* be sorted.
+        // Start date will be the first entry, and the end date will be the last
+        series.startDate = this.active.data[0].date;
+        let lastDate = this.active.data[this.active.data.length - 1].date;
+        series.endDate = d3.time[this.active.granularity]
+            .utc.offset(lastDate, 1);
 
-            let filter = null;
-            if (this.filters.length > 0) {
-                filter = this.filters[0];
+        let filter = null;
+        if (this.filters.length > 0) {
+            filter = this.filters[0];
+        }
+
+        // If we have a bucketizer, use it
+        if (this.timelineData.bucketizer) {
+            this.timelineData.bucketizer.setStartDate(series.startDate);
+            this.timelineData.bucketizer.setEndDate(series.endDate);
+
+            let numBuckets = this.timelineData.bucketizer.getNumBuckets();
+            for (let i = 0; i < numBuckets; i++) {
+                let bucketDate = this.timelineData.bucketizer.getDateForBucket(i);
+                series.data[i] = {
+                    date: bucketDate,
+                    value: 0,
+                    groupField: this.active.groupField
+                };
             }
 
-            // If we have a bucketizer, use it
-            if (this.timelineData.bucketizer) {
-                this.timelineData.bucketizer.setStartDate(series.startDate);
-                this.timelineData.bucketizer.setEndDate(series.endDate);
-
-                let numBuckets = this.timelineData.bucketizer.getNumBuckets();
-                for (let i = 0; i < numBuckets; i++) {
-                    let bucketDate = this.timelineData.bucketizer.getDateForBucket(i);
-                    series.data[i] = {
-                        date: bucketDate,
-                        value: 0
-                    };
-                }
-
-                for (let row of this.active.data) {
-                    // Check if this should be in the focus data
-                    // Focus data is not bucketized, just zeroed
-                    if (filter) {
-                        if (filter.startDate <= row.date && filter.endDate >= row.date) {
-                            series.focusData.push({
-                                date: this.zeroDate(row.date),
-                                value: row.value
-                            });
-                        }
-                    }
-
-                    let bucketIndex = this.timelineData.bucketizer.getBucketIndex(row.date);
-
-                    if (series.data[bucketIndex]) {
-                        series.data[bucketIndex].value += row.value;
+            for (let row of this.active.data) {
+                // Check if this should be in the focus data
+                // Focus data is not bucketized, just zeroed
+                if (filter) {
+                    if (filter.startDate <= row.date && filter.endDate >= row.date) {
+                        series.focusData.push({
+                            date: this.zeroDate(row.date),
+                            value: row.value,
+                            groupField: this.active.groupField
+                        });
                     }
                 }
-            } else {
-                // No bucketizer, just add the data
-                for (let row of this.active.data) {
-                    // Check if this should be in the focus data
-                    if (filter) {
-                        if (filter.startDate <= row.date && filter.endDate >= row.date) {
-                            series.focusData.push({
-                                date: row.date,
-                                value: row.value
-                            });
-                        }
-                    }
 
-                    series.data.push({
-                        date: row.date,
-                        value: row.value
-                    });
+                let bucketIndex = this.timelineData.bucketizer.getBucketIndex(row.date);
+
+                if (series.data[bucketIndex]) {
+                    series.data[bucketIndex].value += row.value;
                 }
             }
+        } else {
+            // No bucketizer, just add the data
+            for (let row of this.active.data) {
+                // Check if this should be in the focus data
+                if (filter) {
+                    if (filter.startDate <= row.date && filter.endDate >= row.date) {
+                        series.focusData.push({
+                            date: row.date,
+                            value: row.value,
+                            groupField: this.active.groupField
+                        });
+                    }
+                }
 
-            // Commenting this out fixes the issue of focus selections being truncated by one.
-            /*if (series.focusData && series.focusData.length > 0) {
-                let extentStart = series.focusData[0].date;
-                let extentEnd = series.focusData[series.focusData.length].date;
-                this.timelineData.extent = [extentStart, extentEnd];
-            }*/
+                series.data.push({
+                    date: row.date,
+                    value: row.value,
+                    groupField: this.active.groupField
+                });
+            }
+        }
+
+        if (series.focusData && series.focusData.length > 0) {
+            let extentStart = series.focusData[0].date;
+            let extentEnd = series.focusData[series.focusData.length - 1].date;
+            this.timelineData.extent = [extentStart, extentEnd];
         }
 
         // Make sure to update both the data and primary series
@@ -513,6 +513,22 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
     };
 
+    handleChangeGroupField() {
+        this.logChangeAndStartQueryChain();
+    };
+
+    handleChangeAndFilters() {
+        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+        // this.updateNeonFilter();
+    };
+
+    subGetBindings(bindings: any) {
+        bindings.dateField = this.active.dateField.columnName;
+        bindings.granularity = this.active.granularity;
+        bindings.groupField = this.active.groupField.columnName;
+    }
+
+
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
         // this.logChange(option, value, type);
         if (!this.initializing) {
@@ -553,8 +569,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     removeFilter(/*value: string*/) {
         this.filters = [];
-        if (this.timelineChart) {
         this.timelineChart.clearBrush();
     }
-}
 }

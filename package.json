@@ -5,7 +5,12 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
-    "build": "ng build",
+    "prebuild": "rm -f target/lorelei-dev.war && mkdir -p target",
+    "build": "ng build --env=prod --base-href /lorelei/",
+    "postbuild": "cd dist && zip -r lorelei.war * && cd .. && mv dist/lorelei.war target/lorelei.war",
+    "prebuild-dev": "rm -f target/lorelei-dev.war && mkdir -p target",
+    "build-dev": "ng build --base-href /lorelei/",
+    "postbuild-dev": "cd dist && zip -r lorelei-dev.war * && cd .. && mv dist/lorelei-dev.war target/lorelei-dev.war",
     "lint": "ng lint",
     "test": "ng test",
     "e2e": "ng e2e",

@@ -19,16 +19,24 @@
 .visualization-sidenav {
     height: 100%;
     cursor: default;
+    border-radius: 15px;
 
     .header.text {
+    	font-size: 16px;
         font-weight: bold;
-        text-transform: uppercase;
+		text-transform: capitalize;
+		color: mat-color($header-text);
+    }
+
+   	.text {
+   		font-size: 14px;
+   		color: mat-color($fade);
     }
 
     .visualization-sidenav-options {
         min-width: 320px;
 
-        md-input,
+        mat-input,
         mat-select,
         table {
             width: 100%;
@@ -78,7 +86,7 @@
 
 .body-container {
     position: absolute;
-    top: 64px;
+    top: 58px;
     bottom: 0;
     width: 100%;
 }

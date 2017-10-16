@@ -3,6 +3,7 @@
 import { TestBed, async, ComponentFixture } from '@angular/core/testing';
 import { VisualizationContainerComponent } from './visualization-container.component';
 import { VisualizationInjectorComponent } from '../visualization-injector/visualization-injector.component';
+import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
@@ -34,6 +35,7 @@ describe('Component: VisualizationContainer', () => {
             declarations: [
                 VisualizationContainerComponent,
                 VisualizationInjectorComponent,
+                DocumentViewerComponent,
                 TextCloudComponent,
                 BarChartComponent,
                 LineChartComponent,

@@ -46,6 +46,8 @@ import { VisualizationContainerComponent } from './components/visualization-cont
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
+import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
+import { DocumentViewerSingleItemComponent } from './components/document-viewer-single-item/document-viewer-single-item.component';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
@@ -54,6 +56,7 @@ import { TimelineComponent } from './components/timeline/timeline.component';
 import { LegendComponent } from './components/legend/legend.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
+import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
 import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
@@ -77,6 +80,8 @@ export function getAppConfig() {
         AddVisualizationComponent,
         TextCloudComponent,
         BarChartComponent,
+        DocumentViewerComponent,
+        DocumentViewerSingleItemComponent,
         UnsharedFilterComponent,
         LineChartComponent,
         VisualizationInjectorComponent,
@@ -85,6 +90,7 @@ export function getAppConfig() {
         MapComponent,
         TimelineComponent,
         DataTableComponent,
+        StackedTimelineComponent,
         ScatterPlotComponent,
         FilterBuilderComponent,
         SnackBarComponent,
@@ -100,7 +106,7 @@ export function getAppConfig() {
         ChartModule,
         NgxDatatableModule,
         BrowserAnimationsModule,
-        AppMaterialModule,
+        AppMaterialModule
     ],
     providers: [
         ActiveGridService,
@@ -121,7 +127,8 @@ export function getAppConfig() {
             useFactory: getAppConfig
         }
     ],
-    entryComponents: [AppComponent, AddVisualizationComponent, FilterTrayComponent, SnackBarComponent, ConfigEditorComponent],
+    entryComponents: [AppComponent, AddVisualizationComponent, DocumentViewerSingleItemComponent, FilterTrayComponent, SnackBarComponent,
+        ConfigEditorComponent],
     bootstrap: [AppComponent]
 })
 

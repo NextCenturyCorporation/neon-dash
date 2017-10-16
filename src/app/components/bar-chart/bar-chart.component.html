@@ -1,5 +1,5 @@
 <mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="primary" layout-align="space-between center" flex>
+    <mat-toolbar color="header" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
         <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
@@ -98,7 +98,7 @@
             <chart class="chart" #myChart [type]="chart.type" [data]="chart.data" [options]="chart.options"></chart>
         </div>
     </div>
-    <!--<div class="text-cloud" md-fill layout="col">
+    <!--<div class="text-cloud" mat-fill layout="col">
         <a (click)="addFilter(item.key, item.keyTranslated)" class="text" *ngFor="let item of active.data" [revarl]="item.count"
             [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
                 <div>

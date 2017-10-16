@@ -398,11 +398,11 @@ export const neonVisualizations: any[] = [
         type: 'dataTable',
         icon: 'ViewData64'
     },
-    //{
-    //    name: 'Document Viewer',
-    //    type: 'documentViewer',
-    //    icon: 'DocumentViewer64'
-    //},
+    {
+        name: 'Document Viewer',
+        type: 'documentViewer',
+        icon: 'DocumentViewer64'
+    },
     {
         minPixelX: 480,
         name: 'Filter Builder',
@@ -442,6 +442,11 @@ export const neonVisualizations: any[] = [
         name: 'Scatter Plot',
         type: 'scatterPlot',
         icon: 'ScatterPlot64'
+    },
+    {
+        name: 'Stacked Timeline',
+        type: 'stackedTimeline',
+        icon: 'Timeline64'
     },
     //{
     //    name: 'Sunburst Chart',

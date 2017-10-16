@@ -1,5 +1,5 @@
 <mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="primary" layout-align="space-between center" flex>
+    <mat-toolbar color="header" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
         <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
@@ -59,6 +59,18 @@
                             [disabled]="meta.layers[i].fields.length == 0">
                             <mat-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
+
+                        <br />
+
+                        <mat-button-toggle-group #clustering="matButtonToggleGroup" [(ngModel)]="active.clustering" (ngModelChange)="handleChangeClustering()">
+                    		<mat-button-toggle value="points">
+                        		Points
+                    		</mat-button-toggle>
+                    		<mat-button-toggle value="clusters">
+                        		Clusters
+                    		</mat-button-toggle>
+                		</mat-button-toggle-group>
+
                     </div>
                 </div>
                 <table cellspacing="0">

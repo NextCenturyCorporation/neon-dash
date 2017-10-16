@@ -2,10 +2,12 @@ import { Component, Input, ViewContainerRef, ViewChild, ReflectiveInjector, Comp
 
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
+import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { MapComponent } from '../map/map.component';
+import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { NeonGridItem } from '../../neon-grid-item';
@@ -13,8 +15,8 @@ import {VisualizationService} from '../../services/visualization.service';
 
 @Component({
     selector: 'app-visualization-injector',
-    entryComponents: [TextCloudComponent, BarChartComponent, LineChartComponent, MapComponent, TimelineComponent,
-        DataTableComponent, ScatterPlotComponent, FilterBuilderComponent],
+    entryComponents: [TextCloudComponent, BarChartComponent, DocumentViewerComponent, LineChartComponent, MapComponent, TimelineComponent,
+        DataTableComponent, StackedTimelineComponent, ScatterPlotComponent, FilterBuilderComponent],
     template: `<div #dynamicComponentContainer></div>`,
 })
 export class VisualizationInjectorComponent {
@@ -72,13 +74,14 @@ export class VisualizationInjectorComponent {
         switch (type) {
             case 'dataTable': return DataTableComponent;
             case 'textCloud': return TextCloudComponent;
+            case 'documentViewer': return DocumentViewerComponent;
             case 'barChart': return BarChartComponent;
             case 'lineChart': return LineChartComponent;
             case 'map': return MapComponent;
             case 'timeline': return TimelineComponent;
+            case 'stackedTimeline': return StackedTimelineComponent;
             case 'scatterPlot': return ScatterPlotComponent;
             case 'filterBuilder': return FilterBuilderComponent;
-
 
             default: return null;
         }

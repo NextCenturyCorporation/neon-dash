@@ -1,4 +1,5 @@
 @import '~@angular/material/_theming';
+@import './_custom-theming.scss';
 // Plus imports for other components in your app.
 
 // Include the base styles for Angular Material core. We include this here so that you only
@@ -11,8 +12,14 @@
 //$primary: mat-palette($mat-green, A400, A200, A700);
 //$accent:  mat-palette($mat-deep-purple, 400, 200, 700);
 
-$primary: mat-palette($mat-green, 700, 500, 900);
-$accent:  mat-palette($mat-grey, 400, 200, 600);
+$primary: mat-palette($mat-teal-custom, 500, 400, 900);
+$accent:  mat-palette($mat-grey4, 500, 200, 600);
+$header: mat-palette($mat-white, 500, 200, 900);
+$header-text: mat-palette($mat-grey1, 500, 200, 600);
+$fade: mat-palette($mat-grey2, 500, 400, 600);
+
+//$background: mat-palette($mat-grey2, 500, 200, 600);
+//$foreground: mat-palette($mat-grey4, 500, 200, 600);
 
 // The warn palette is optional (defaults to red).
 $warn:    mat-palette($mat-red, A400, A200, A700);

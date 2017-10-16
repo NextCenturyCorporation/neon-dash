@@ -33,6 +33,12 @@
                 </mat-select>
                 <p></p>
 
+                <mat-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true" (ngModelChange)="handleChangeGroupField()"
+                    [disabled]="meta.fields.length == 0">
+                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                </mat-select>
+                <p></p>
+
                 <mat-button-toggle-group #hourGranularity="matButtonToggleGroup" [(ngModel)]="active.granularity" (ngModelChange)="handleChangeGranularity()">
                     <mat-button-toggle value="year">
                         Year
@@ -75,8 +81,11 @@
             </div>
         </div>
         <!-- Timeline chart div -->
-        <div #svg class="timeline-selector-chart"></div>
-        <div class ="xlabel"> {{active.granularity}}</div>
-        <div class ="ylabel">{{active.ylabel}}</div>
+        <div #svg class="stacked-timeline-selector-chart">
+        </div>
+        <div class ="xlabel"> {{active.granularity}}
+        </div>
+        <div class ="ylabel">{{active.ylabel}}
+        </div>
     </div>
 </mat-sidenav-container>

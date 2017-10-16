@@ -7,6 +7,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 import { VisualizationInjectorComponent } from './visualization-injector.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
+import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
 import { TimelineComponent } from '../timeline/timeline.component';
@@ -28,6 +29,7 @@ describe('Component: VisualizationInjector', () => {
             declarations: [
                 VisualizationInjectorComponent,
                 TextCloudComponent,
+                DocumentViewerComponent,
                 BarChartComponent,
                 LineChartComponent,
                 LegendComponent,

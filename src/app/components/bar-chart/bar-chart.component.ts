@@ -106,7 +106,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         unsharedFilterField: any,
         unsharedFilterValue: string,
         colorField: string,
-        limit: number;
+        limit: number,
+        chartType: string // bar or horizontalBar
     };
     public active: {
         dataField: FieldMetaData,
@@ -117,7 +118,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         filterable: boolean,
         layers: any[],
         data: any[],
-        aggregation: string
+        aggregation: string,
+        chartType: string,
+        maxNum: number
     };
 
     public chart: {
@@ -132,7 +135,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     // Used to change the colors between active/inactive in the legend
     public selectedLabels: string[] = [];
     public colorFieldNames: string[] = [];
-    private defaultActiveColor = new Color(57, 181, 74);
+    private defaultActiveColor = new Color(77, 190, 194);
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
@@ -148,7 +151,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             colorField: this.injector.get('colorField', null),
             limit: this.injector.get('limit', 100),
             unsharedFilterField: {},
-            unsharedFilterValue: ''
+            unsharedFilterValue: '',
+            chartType: this.injector.get('chartType', 'bar')
         };
         this.filters = [];
         this.active = {
@@ -160,12 +164,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             filterable: true,
             layers: [],
             data: [],
-            aggregation: 'count'
+            aggregation: 'count',
+            chartType: this.injector.get('chartType', 'bar'),
+            maxNum: 0
         };
 
         this.onClick = this.onClick.bind(this);
         this.chart = {
-            type: 'bar',
+            type: this.active.chartType,
             data: {
                 labels: [],
                 datasets: [new BarDataSet(0, this.defaultActiveColor)]
@@ -185,10 +191,19 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 },
                 scales: {
                     xAxes: [{
-                        stacked: true
+                        stacked: true,
+                        ticks: {
+                            max: 100,
+                            beginAtZero: true,  //scaleBeginAtZero: true
+                        },
                     }],
                     yAxes: [{
-                        stacked: true
+
+                        stacked: true,
+                        ticks: {
+                            max: 100,
+                            beginAtZero: true  //scaleBeginAtZero: true
+                        }
                     }],
                 },
                 legend: {
@@ -212,7 +227,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         };
         this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
         this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
-        this.queryTitle = 'Bar Chart';
+        this.queryTitle = this.optionsFromConfig.title || 'Bar Chart';
     };
 
     subNgOnInit() {
@@ -424,6 +439,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             }
         }
 
+        chartData.labels.sort();
+
         for (let row of response.data) {
             let key: string = row[colName];
             if (!key) {
@@ -472,7 +489,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 title = 'Sum'; // + this.active.aggregationField.prettyName;
                 break;
         }
-        title += ' by ' + this.active.dataField.prettyName;
+        title = this.optionsFromConfig.title || this.queryTitle + ' by ' + this.active.dataField.prettyName;
         this.queryTitle = title;
     }
 
@@ -541,7 +558,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         if (!data || !data[0] || !data[0]['data'] || !data[0]['data'].length) {
             return text;
         } else {
-            return 'Top ' + data[0]['data'].length;
+            let total = data[0]['data'].reduce((sum, elem) => {
+                return sum += elem;
+            }, 0);
+            return 'Total ' + total;
         }
     };
 

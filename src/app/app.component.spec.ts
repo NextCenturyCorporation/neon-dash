@@ -26,12 +26,14 @@ import { DatasetSelectorComponent } from './components/dataset-selector/dataset-
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
+import { DocumentViewerComponent } from './components/document-viewer/document-viewer.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { MapComponent } from './components//map/map.component';
 import { LegendComponent } from './components/legend/legend.component';
+import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
 import { ExportControlComponent } from './components/export-control/export-control.component';
 import { DataTableComponent } from './components/data-table/data-table.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
@@ -75,12 +77,14 @@ describe('App: NeonGtd', () => {
                 DatasetSelectorComponent,
                 VisualizationContainerComponent,
                 VisualizationInjectorComponent,
+                DocumentViewerComponent,
                 TextCloudComponent,
                 BarChartComponent,
                 LineChartComponent,
                 TimelineComponent,
                 LegendComponent,
                 ExportControlComponent,
+                StackedTimelineComponent,
                 MapComponent,
                 DataTableComponent,
                 ScatterPlotComponent,
@@ -125,7 +129,7 @@ describe('App: NeonGtd', () => {
     }));
 
     it('should include top level layout components', async(() => {
-        expect(de.nativeElement.querySelectorAll('md-sidenav-container')).toBeTruthy();
+        expect(de.nativeElement.querySelectorAll('mat-sidenav-container')).toBeTruthy();
         expect(de.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
         // Since the about pane and options pane are rendered only after a user opens their sidenav area,
         // these should not exist upon initial render.

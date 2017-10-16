@@ -2,7 +2,7 @@
     <mat-toolbar color="primary">
         <span class="mat-36">Add Visualizations</span>
     </mat-toolbar>
-    <div class="add-visualization-grid-container" md-fill>
+    <div class="add-visualization-grid-container" mat-fill>
         <mat-grid-list cols="4" rowHeight="130px" gutterSize="5px">
             <mat-grid-tile *ngFor="let item of visualizations; let i = index;" [class.selected]="item.selected" [colspan]="1" [rowspan]="1"
                 class="add-visualization-tile" matRipple>

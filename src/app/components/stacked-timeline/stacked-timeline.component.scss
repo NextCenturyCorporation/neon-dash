@@ -24,13 +24,7 @@
     .header.text {
     	font-size: 16px;
         font-weight: bold;
-		text-transform: capitalize;
-		color: mat-color($header-text);
-    }
-
-   	.text {
-   		font-size: 14px;
-   		color: mat-color($fade);
+        text-transform: capitalize;
     }
 
     .visualization-sidenav-options {
@@ -86,7 +80,7 @@
 
 .body-container {
     position: absolute;
-    top: 58px;
+    top: 64px;
     bottom: 0;
     width: 100%;
 }
@@ -94,7 +88,7 @@
 .text-container {
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
+    justify-content: space-between;
     height: 45px;
 }
 
@@ -114,14 +108,14 @@ h3 {
     margin-top: 0px;
 }
 
-.timeline-selector-chart {
+.stacked-timeline-selector-chart {
     margin: 0 0px 0;
     display:block;
     min-height: 170px;
 
     position: absolute;
     bottom: 0;
-    top: 58px;
+    top: 64px;
     right: 3px;
     left: 3px;
 
@@ -275,7 +269,7 @@ h3 {
 	transform: rotate(-90deg);
 	text-align: left;
 	left: 1%;
-	top: 60%
+	top: 50%
 }
 
 #tl-tooltip-container {

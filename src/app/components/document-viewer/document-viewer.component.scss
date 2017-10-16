@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -51,7 +51,7 @@
         float: right;
         padding-left: 5px;
         margin-left: 5px;
-        line-height: 12px;
+        line-height: 18px;
         border-radius: 3px;
         margin: 2px;
         background-color: mat-color($accent);
@@ -67,20 +67,27 @@
         }
     }
 
-    .text-cloud {
-        overflow-wrap: break-word;
+    .document-viewer-list-item {
         display: inline-block;
+        padding-left: 15px;
+        padding-right: 15px;
+        width: 90% ;
+    }
 
-        .text {
-            display: inline-block;
-            padding: 4px 4px;
-            cursor: pointer;
+    .metadata-row {
+        margin: 6px 0px;
+    }
 
-            &:hover {
-                text-decoration: none;
-                color: #4DBEC2 !important;
-            }
-        }
+    .metadata-item {
+        padding: 0px 0px 0px 16px;
+    }
+
+    .metadata-item:nth-child(1) {
+        padding: 0px 16px 0px 0px;
+    }
+
+    span.metadata-title {
+        font-weight: bold;
     }
 }
 

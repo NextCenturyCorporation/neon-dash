@@ -4,7 +4,7 @@
             <mat-toolbar class="mat-primary">
                 <span>Export Format</span>
             </mat-toolbar>
-            <!--<div class='radio-container' layout="row" md-margin>
+            <!--<div class='radio-container' layout="row" mat-margin>
                 <mat-radio-group [(ngModel)]="formData.exportFormat" name="exportFormatGroup" (change)="setExportFormat(formData.exportFormat)">
                     <mat-radio-button *ngFor="let format of exportService.getFileFormats()" [value]="format.value">{{ (format.name) ? format.name.toUpperCase() : 'Invalid Type'}}</mat-radio-button>
                 </mat-radio-group>
@@ -16,14 +16,14 @@
             <mat-toolbar class="mat-primary">
                 <span>Themes</span>
             </mat-toolbar>
-            <div class='radio-container' layout="row" md-margin>
+            <div class='radio-container' layout="row" mat-margin>
                 <mat-radio-group [(ngModel)]="formData.currentTheme" name="currentThemeGroup" (change)="setCurrentTheme(formData.currentTheme)">
                     <mat-radio-button *ngFor="let theme of themesService.getThemes()" [value]="theme.id">{{ theme.name }}</mat-radio-button>
                 </mat-radio-group>
             </div>
             <p></p>
 
-            <div md-margin>
+            <div mat-margin>
               <mat-toolbar class="mat-primary">
                   <span>Property Service Configuration</span>
               </mat-toolbar>

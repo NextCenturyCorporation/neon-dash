@@ -76,16 +76,22 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             sizeField: string,
             colorField: string,
             dateField: string
-        }[]
+        }[],
+        clustering: string,
+        minClusterSize: number,
+        clusterPixelRange: number
     };
     public active: {
-        layers: MapLayer[]
+        layers: MapLayer[],
         andFilters: boolean,
         limit: number,
         filterable: boolean,
         data: number[][],
         unusedColors: string[],
-        nextColorIndex: number
+        nextColorIndex: number,
+        clustering: string,
+        minClusterSize: number,
+        clusterPixelRange: number
     };
 
     public selection: {
@@ -135,7 +141,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             limit: this.injector.get('limit', 1000),
             unsharedFilterField: {},
             unsharedFilterValue: '',
-            layers: this.injector.get('layers', [])
+            layers: this.injector.get('layers', []),
+            clustering: this.injector.get('clustering', 'points'),
+            minClusterSize: this.injector.get('minClusterSize', 3),
+            clusterPixelRange: this.injector.get('clusterPixelRange', 20)
         };
 
         this.filters = [];
@@ -147,7 +156,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             filterable: true,
             data: [],
             nextColorIndex: 0,
-            unusedColors: []
+            unusedColors: [],
+            clustering: this.optionsFromConfig.clustering,
+            minClusterSize: this.optionsFromConfig.minClusterSize,
+            clusterPixelRange: this.optionsFromConfig.clusterPixelRange
         };
 
         this.selection = {
@@ -169,7 +181,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             rectangle: null,
             isExact: true
         };
-        this.queryTitle = 'Map';
+        this.queryTitle = this.optionsFromConfig.title || 'Map';
         //this.addEmptyLayer();
     };
 
@@ -631,6 +643,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         let latField = this.active.layers[layerIndex].latitudeField.columnName;
         let colorField = this.active.layers[layerIndex].colorField.columnName;
         let entities = this.cesiumViewer.entities;
+        let dataSource = new Cesium.CustomDataSource('MyData');
         entities.suspendEvents();
         //entities.getOrCreateEntities(layerIndex);
         if (this.active.data[layerIndex]) {
@@ -655,27 +668,96 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     let colorString = this.colorSchemeService.getColorFor(colorField, point[colorField]).toRgb();
                     color = Cesium.Color.fromCssColorString(colorString);
             } else {
-                color = Cesium.Color.Blue;
+                color = Cesium.Color.WHITE;
             }
             let lngCoord = point[lngField];
             let latCoord = point[latField];
+
+            //This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
+            // like if latFied holds 'JSONMapping.status.geolocation.latitude', but the actual latitude value is
+            // saved at point['JSONMapping']['status']['geolocation']['latitude']
+            let lngFieldParts = lngField.split('.');
+            let latFieldParts = latField.split('.');
+            if ( !lngCoord && lngFieldParts.length > 1) {
+                lngCoord = point[lngFieldParts[0]];
+                lngFieldParts.shift();
+                while (lngFieldParts.length > 0) {
+                    if (lngFieldParts.length === 1 && lngCoord instanceof Array) {
+                        lngCoord = lngCoord.map((elem) => {
+                            return elem[lngFieldParts[0]];
+                        });
+                    } else {
+                        lngCoord = lngCoord[lngFieldParts[0]];
+                    }
+                    lngFieldParts.shift();
+                }
+            }
+            if ( !latCoord && latFieldParts.length > 1) {
+                latCoord = point[latFieldParts[0]];
+                latFieldParts.shift();
+                while (latFieldParts.length > 0) {
+                    if (latFieldParts.length === 1 && latCoord instanceof Array) {
+                        latCoord = latCoord.map((elem) => {
+                            return elem[latFieldParts[0]];
+                        });
+                    } else {
+                        latCoord = latCoord[latFieldParts[0]];
+                    }
+                    latFieldParts.shift();
+                }
+            }
+
             if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
-                let entity = {
+                let entity = dataSource.entities.add({
                     position: Cesium.Cartesian3.fromDegrees(lngCoord, latCoord),
                     point: {
                         show: true, // default
                         color: color, // default: WHITE
-                        pixelSize: 4, // default: 1
-                        outlineColor: color, // default: BLACK
+                        pixelSize: 12, // default: 1
+                        outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
                         outlineWidth: 0 // default: 0
                     }
-                };
+                });
+                if (this.active.clustering === 'points') {
                 let en = entities.add(entity);
                 newDataIds.push(en.id);
             }
+            } else if (latCoord instanceof Array && lngCoord instanceof Array) {
+                for (let pos = latCoord.length - 1; pos >= 0; pos--) {
+                    if (this.isNumeric(latCoord[pos]) && this.isNumeric(lngCoord[pos])) {
+                        let entity = dataSource.entities.add({
+                            position: Cesium.Cartesian3.fromDegrees(lngCoord[pos], latCoord[pos]),
+                            point: {
+                                show: true, // default
+                                color: color, // default: WHITE
+                                pixelSize: 12, // default: 1
+                                outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
+                                outlineWidth: 0 // default: 0
         }
-        this.active.data[layerIndex] = newDataIds;
+                        });
+                        if (this.active.clustering === 'points') {
+                            let en = entities.add(entity);
+                            newDataIds.push(en.id);
+                        }
+                    }
+                }
+            }
+        }
+
+        this.cesiumViewer.dataSources.removeAll(true);
+        this.cesiumViewer.dataSources.add(dataSource);
+        if (this.active.clustering === 'points') {
+            dataSource.clustering.enabled = false;
+            this.active.data[layerIndex] = newDataIds;
+        }
         entities.resumeEvents();
+        if (this.active.clustering === 'clusters') {
+            this.cesiumViewer.dataSources.removeAll(true);
+            this.cesiumViewer.dataSources.add(dataSource);
+            this.active.data[layerIndex] = [];
+            entities.removeAll();
+            this.clusterPoints(dataSource);
+        }
         //console.log(response);
         //this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
         this.updateLegend();
@@ -689,6 +771,64 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             }
         }
         this.colorByFields = colorByFields;
+    }
+
+    clusterPoints(dataSource) {
+    //greatly inspired by Cesium demo at https://cesiumjs.org/Cesium/Apps/Sandcastle/index.html?src=Clustering.html&label=Showcases
+        let enabled = true;
+
+        dataSource.clustering.enabled = enabled;
+        dataSource.clustering.pixelRange = this.active.clusterPixelRange;
+        dataSource.clustering.minimumClusterSize = this.active.minClusterSize;
+
+        let removeListener;
+        let pinBuilder = new Cesium.PinBuilder();
+        let pin50 = pinBuilder.fromText('50+', Cesium.Color.RED, 52).toDataURL();
+        let pin40 = pinBuilder.fromText('40+', Cesium.Color.ORANGE, 52).toDataURL();
+        let pin30 = pinBuilder.fromText('30+', Cesium.Color.YELLOW, 52).toDataURL();
+        let pin20 = pinBuilder.fromText('20+', Cesium.Color.GREEN, 52).toDataURL();
+        let pin10 = pinBuilder.fromText('10+', Cesium.Color.BLUE, 52).toDataURL();
+
+        let singleDigitPins = new Array(8);
+        for (let i = 0; i < singleDigitPins.length; ++i) {
+            singleDigitPins[i] = pinBuilder.fromText('' + (i + 2), Cesium.Color.VIOLET, 52).toDataURL();
+        }
+
+        let customStyle = function() {
+            if (Cesium.defined(removeListener)) {
+                removeListener();
+                removeListener = undefined;
+            } else {
+                removeListener = dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                    cluster.label.show = false;
+                    cluster.billboard.show = true;
+                    cluster.billboard.id = cluster.label.id;
+                    cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+
+                    if (clusteredEntities.length >= 50) {
+                        cluster.billboard.image = pin50;
+                    } else if (clusteredEntities.length >= 40) {
+                        cluster.billboard.image = pin40;
+                    } else if (clusteredEntities.length >= 30) {
+                        cluster.billboard.image = pin30;
+                    } else if (clusteredEntities.length >= 20) {
+                        cluster.billboard.image = pin20;
+                    } else if (clusteredEntities.length >= 10) {
+                        cluster.billboard.image = pin10;
+                    } else {
+                        cluster.billboard.image = singleDigitPins[clusteredEntities.length - 2];
+                    }
+                });
+            }
+
+            // force a re-cluster with the new styling
+            let pixelRange = dataSource.clustering.pixelRange;
+            dataSource.clustering.pixelRange = 0;
+            dataSource.clustering.pixelRange = pixelRange;
+        };
+
+    	// start with custom style
+        customStyle();
     }
 
     refreshVisualization() {
@@ -806,10 +946,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         // this.updateNeonFilter();
     };
 
+    handleChangeClustering() {
+        this.logChangeAndStartAllQueryChain();
+    }
+
     // Get filters and format for each call in HTML
     getCloseableFilters() {
         // let closeableFilters = this.filters.map((filter) => {
-        //    return filter.key + " Filter";
+        //    return filter.key + ' Filter';
         //});
         //return closeableFilters;
         //TODO

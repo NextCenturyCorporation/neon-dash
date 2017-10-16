@@ -21,14 +21,15 @@
     cursor: default;
 
     .header.text {
+    	font-size: 16px;
         font-weight: bold;
-        text-transform: uppercase;
+        text-transform: capitalize;
     }
 
     .visualization-sidenav-options {
         min-width: 320px;
 
-        md-input,
+        mat-input,
         mat-select,
         table {
             width: 100%;
@@ -88,8 +89,6 @@
     flex-direction: row;
     justify-content: space-between;
     height: 45px;
-    padding-top: 5px;
-    padding-left: 5px;
 }
 
 .chart-container {
