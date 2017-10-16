@@ -256,7 +256,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                 sizex: item.sizex,
                 sizey: item.sizey,
                 dragHandle: '.drag-handle',
-                borderSize: 5,
+                borderSize: 10,
             };
             item.id = uuid.v4();
             this.activeGridService.addItem(item);

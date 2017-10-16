@@ -319,7 +319,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response) {
-        try{
+        try {
             if (response.data.length === 1 && response.data[0]['_docCount']) {
                 this.active.docCount = response.data[0]['_docCount'];
             } else {
@@ -333,8 +333,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                 this.filterAndRefreshData();
                 this.getDocCount();
             }
-        }
-        catch(e){
+        } catch (e) {
             console.log((<Error>e).message);
         }
     }

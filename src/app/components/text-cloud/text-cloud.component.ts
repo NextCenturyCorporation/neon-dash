@@ -248,14 +248,14 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onQuerySuccess(response): void {
-        try{
+        try {
             if (response.data[0]['_docCount']) {
                 this.active.count = response.data.length;
             } else {
                 let data = response.data;
                 let cloudData = data || [];
                 let useSizeField: boolean = this.active.sizeField.columnName !== '';
-    
+
                 let activeData = cloudData.map((item) => {
                     item.key = item[this.active.dataField.columnName];
                     item.keyTranslated = item.key;
@@ -273,8 +273,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 }
                 this.getDocCount();
             }
-            }
-        catch(e){
+        } catch (e) {
             console.log((<Error>e).message);
         }
     }

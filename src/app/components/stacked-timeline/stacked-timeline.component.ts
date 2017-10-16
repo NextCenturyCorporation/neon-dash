@@ -35,7 +35,7 @@ declare let d3;
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-    
+
 export class StackedTimelineComponent extends BaseNeonComponent implements OnInit,
         OnDestroy {
     @ViewChild('svg') svg: ElementRef;
