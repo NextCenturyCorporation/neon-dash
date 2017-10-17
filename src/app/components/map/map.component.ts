@@ -143,8 +143,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             unsharedFilterValue: '',
             layers: this.injector.get('layers', []),
             clustering: this.injector.get('clustering', 'points'),
-            minClusterSize: this.injector.get('minClusterSize', 3),
-            clusterPixelRange: this.injector.get('clusterPixelRange', 20)
+            minClusterSize: this.injector.get('minClusterSize', 5),
+            clusterPixelRange: this.injector.get('clusterPixelRange', 15    )
         };
 
         this.filters = [];
@@ -643,6 +643,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         let latField = this.active.layers[layerIndex].latitudeField.columnName;
         let colorField = this.active.layers[layerIndex].colorField.columnName;
         let entities = this.cesiumViewer.entities;
+        // let uniqueEntities = new HashMap();
         let dataSource = new Cesium.CustomDataSource('MyData');
         entities.suspendEvents();
         //entities.getOrCreateEntities(layerIndex);
@@ -672,6 +673,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             }
             let lngCoord = point[lngField];
             let latCoord = point[latField];
+            console.log(point);
 
             //This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
             // like if latFied holds 'JSONMapping.status.geolocation.latitude', but the actual latitude value is
@@ -733,7 +735,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                                 pixelSize: 12, // default: 1
                                 outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
                                 outlineWidth: 0 // default: 0
-        }
+                            }
                         });
                         if (this.active.clustering === 'points') {
                             let en = entities.add(entity);

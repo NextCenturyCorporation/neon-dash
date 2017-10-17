@@ -70,13 +70,12 @@
 }
 
 .visualization-border {
-    padding-left: 2px;
-    padding-right: 2px;
-    padding-bottom: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-bottom: 8px;
     height: 100%;
     box-sizing: border-box;
-    border-radius: 40px 40px 20px 20px;
-    background-color: mat-color($accent);
+    background-color: mat-color($white);
 }
 
 .visualization-container1 {

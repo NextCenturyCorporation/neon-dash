@@ -43,7 +43,7 @@
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [{
-				"name": "elisa_uyghur_200",
+				"name": "elisa_uyghur_2",
 				"prettyName": "ELISA Uyghur",
 				"tables": [{
 					"name": "ui_output",
@@ -560,7 +560,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "topics",
 					"aggregation": "",
@@ -593,7 +593,7 @@
 				"$$hashKey": "object:30",
 				"bindings": {
 					"title": "Sentiment",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "sentimentString",
 					"aggregation": "count",
@@ -627,7 +627,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Location",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "LOC"
 				},
@@ -649,7 +649,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "People",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"unsharedFilterField": "",
 					"unsharedFilterValue": "",
@@ -673,7 +673,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Organizations",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "ORG"
 				},
@@ -695,7 +695,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "GeoPolitical Entities",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "GPE"
 				},
@@ -718,7 +718,7 @@
 				"bindings": {
 					"title": "Situation Map",
 					"config": [{
-						"database": "elisa_uyghur_200",
+						"database": "elisa_uyghur_2",
 						"filterable": true,
 						"name": "EVENTS",
 						"show": true,
@@ -769,7 +769,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Timeline",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dateField": "createdAt",
 					"granularity": "month"
@@ -790,7 +790,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation Documents",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "translatedText",
 					"idField": "id",
