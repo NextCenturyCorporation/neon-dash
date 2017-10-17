@@ -721,7 +721,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             }
             let lngCoord = point[lngField];
             let latCoord = point[latField];
-            console.log(point);
+            //console.log(point);
 
             //This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
             // like if latFied holds "JSONMapping.status.geolocation.latitude", but the actual latitude value is
@@ -977,7 +977,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             this.active.layers[i].longitudeField.columnName
         ]);
         if (clauses) {
-            console.log(clauses);
+            //console.log(clauses);
             let values = [this.selection.endLat, this.selection.endLon, this.selection.startLat, this.selection.startLon];
             //FIX THE NEXT LINE!!!!
             let emptyIfUnchanged = clauses.filter(cl => (values.indexOf(cl.rhs) === -1 ));
