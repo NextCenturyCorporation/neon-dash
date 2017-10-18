@@ -378,7 +378,7 @@ export class StackedTimelineSelectorChart {
 
         context.append('g')
             .attr('class', 'x axis')
-            .attr('transform', 'translate(-' + xCenterOffset + ',' + heightContext + ')')
+            .attr('transform', 'translate(' + xCenterOffset + ',' + heightContext + ')')
             .call(xAxisContext);
 
          /*
@@ -454,7 +454,7 @@ export class StackedTimelineSelectorChart {
 
             focus.append('g')
                 .attr('class', 'x axis')
-                .attr('transform', 'translate(-' + xCenterOffset + ',' + this.heightFocus + ')')
+                .attr('transform', 'translate(' + xCenterOffset + ',' + this.heightFocus + ')')
                 .call(this.xAxisFocus);
 
             focus.selectAll('.major text')
@@ -550,8 +550,6 @@ export class StackedTimelineSelectorChart {
             }));
             maxY = maxY ? maxY : MIN_VALUE;
 
-
-            console.log(heightContext);
             let yContext = this.data.logarithmic ?
                 d3.scale.log().clamp(true).range([heightContext, 0]) : d3.scale.linear().range([heightContext, 0]);
 
@@ -601,7 +599,7 @@ export class StackedTimelineSelectorChart {
                         style = 'stroke:#f1f1f1;';
                         barheight++;
                     }
-                    style +=  'fill:' + series.color + ';';
+                    style += 'fill:' + series.color + ';';
 
                     contextContainer.selectAll('.bar')
                         .data(series.data)
@@ -895,7 +893,7 @@ export class StackedTimelineSelectorChart {
                 .enter().append('g');
             //*/
             ///*
-            categories.selectAll('rect.bar')
+            focus.selectAll('rect.bar')
                 .data(series.focusData)
                 .enter().append('rect')
                 .attr('class', (d) => {
