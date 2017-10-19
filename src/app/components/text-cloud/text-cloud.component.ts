@@ -175,7 +175,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getVisualizationName(): string {
-        return 'Bar Chart';
+        return 'Text Cloud';
     }
 
     refreshVisualization() {
@@ -315,8 +315,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         };
         if (this.filterIsUnique(filter)) {
             this.addLocalFilter(filter);
-            this.addNeonFilter(false, filter);
-            this.executeQueryChain();
+            this.addNeonFilter(true, filter);
         }
     };
 

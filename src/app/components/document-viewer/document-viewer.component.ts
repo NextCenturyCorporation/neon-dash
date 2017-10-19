@@ -16,6 +16,7 @@ import { FieldMetaData } from '../../dataset';
 import { neonMappings } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+// import * as moment from 'moment';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
 import { ThemesService } from '../../services/themes.service';
@@ -242,6 +243,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     formatMetadataEntry(record, metadataEntry) {
         let field = record[metadataEntry.field];
         if (typeof field  === 'string') {
+            // let asDate = moment(field, 'ddd MMM D hh:mm:ss ')
+            // if ()
             return field || 'None';
         } else if (field instanceof Array) {
             let matches = [];
