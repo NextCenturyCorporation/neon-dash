@@ -19,6 +19,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
+import { HttpClientModule } from '@angular/common/http';
 
 import 'hammerjs';
 
@@ -103,6 +104,7 @@ export function getAppConfig() {
         CommonModule,
         FormsModule,
         HttpModule,
+        HttpClientModule,
         NgGridModule,
         ChartModule,
         NgxDatatableModule,

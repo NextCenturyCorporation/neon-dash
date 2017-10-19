@@ -117,7 +117,7 @@ export class TimelineSelectorChart {
         this.marginFocus = {
                 top: 0,
                 bottom: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT)
-            };//*/
+            };
         this.marginContext = {
                 top: DEFAULT_MARGIN,
                 bottom: 0
@@ -298,7 +298,7 @@ export class TimelineSelectorChart {
             xFocusDomain = this.xDomain;
         }
         //this.xFocus.domain(xFocusDomain);
-        this.xContext.domain(xFocusDomain);//this.xDomain);
+        this.xContext.domain(xFocusDomain);
 
         this.xAxisFocus = d3.svg.axis().scale(this.xFocus).orient('bottom');
         let xAxisContext = d3.svg.axis().scale(this.xFocus).orient('bottom');

@@ -15,6 +15,7 @@
  */
 import { Dataset } from './dataset';
 
+
 export class DashboardConfig {
     gridsterColumns: number;
     gridsterMargins: number;
@@ -68,3 +69,4 @@ export class NeonGTDConfig {
     translationKeys: { [ key: string ]: string } = {};
     errors: String[];
 }
+

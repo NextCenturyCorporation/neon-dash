@@ -1,6 +1,6 @@
 import {VisualizationService} from '../../services/visualization.service';
 
-declare var Cesium: any;
+declare let Cesium: any;
 import {
     Component,
     OnInit,
@@ -22,10 +22,10 @@ import {ColorSchemeService} from '../../services/color-scheme.service';
 import {FieldMetaData} from '../../dataset';
 import {neonMappings} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import {LegendItem, LegendGroup} from '../legend/legend.component';
 import {BaseLayeredNeonComponent} from '../base-neon-component/base-layered-neon.component';
 import 'cesium/Build/Cesium/Cesium.js';
 import * as _ from 'lodash';
+import {color} from 'd3';
 
 export class MapLayer {
     title: string;
@@ -63,11 +63,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         longitudeField: string,
         sizeField: string,
         colorField: string,
-        colorMapping: {
-            match: string,
-            label: string,
-            color: string
-        }[],
         dateField: string,
         limit: number,
         unsharedFilterField: Object,
@@ -92,7 +87,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         limit: number,
         filterable: boolean,
         data: number[][],
-        colorMap: {},
         unusedColors: string[],
         nextColorIndex: number,
         clustering: string,
@@ -120,13 +114,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         isExact: boolean
     };
 
+    public colorByFields: string[] = [];
+
     public filterVisible: boolean[] = [];
-
-    //passed to legend
-    public legendData: LegendItem[];
-
-    //stores legend information unique to each layer
-    public legendMaps: any[];
 
     private colorSchemeService: ColorSchemeService;
 
@@ -147,7 +137,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             latitudeField: this.injector.get('latitudeField', null),
             longitudeField: this.injector.get('longitudeField', null),
             colorField: this.injector.get('colorField', null),
-            colorMapping: this.injector.get('colorMapping', []),
             sizeField: this.injector.get('sizeField', null),
             dateField: this.injector.get('dateField', null),
             limit: this.injector.get('limit', 1000),
@@ -168,7 +157,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             filterable: true,
             data: [],
             nextColorIndex: 0,
-            colorMap: {},
             unusedColors: [],
             clustering: this.optionsFromConfig.clustering,
             minClusterSize: this.optionsFromConfig.minClusterSize,
@@ -195,8 +183,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             isExact: true
         };
         this.queryTitle = this.optionsFromConfig.title || 'Map';
-        this.legendData = [];
-        this.legendMaps = [];
         //this.addEmptyLayer();
     };
 
@@ -488,8 +474,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     latLonToXy(position) {
         let viewer = this.cesiumViewer;
         let p = viewer.scene.globe.ellipsoid.cartographicToCartesian({ 'latitude': position.lat, 'longitude': position.lon });
-        let pos = Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, p);
-        return pos;
+        return Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, p);
     }
 
     xyToLatLon(position) {
@@ -499,11 +484,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             let cartographic = Cesium.Cartographic.fromCartesian(cartesian);
             let longitude = Cesium.Math.toDegrees(cartographic.longitude);
             let latitude = Cesium.Math.toDegrees(cartographic.latitude);
-            let geoPosition = {
+           return  {
                 lat: latitude,
                 lon: longitude
             };
-            return geoPosition;
+
         }
         return null;
     }
@@ -602,8 +587,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     getNeonFilterFields(layerIndex) {
-        let fields = [this.active.layers[layerIndex].latitudeField.columnName, this.active.layers[layerIndex].longitudeField.columnName];
-        return fields;
+        return [this.active.layers[layerIndex].latitudeField.columnName, this.active.layers[layerIndex].longitudeField.columnName];
     }
 
     getVisualizationName() {
@@ -656,16 +640,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         return !isNaN(parseFloat(n)) && isFinite(n);
     }
 
-    getConfigColorForKey(key) {
-        if (typeof key !== 'string') {
-            key = String(key);
-        }
-        for (let mapping of this.optionsFromConfig.colorMapping) {
-            if (key.match(mapping.match)) {
-                return mapping.color;
-            }
-        }
-    }
 
     onQuerySuccess(layerIndex, response) {
         // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
@@ -686,9 +660,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         //keeps track of the ids for entities we put into cesium so we can change/remove single layers
         //without needing to remove and readd all layers
         let newDataIds = [];
-        let localColorMap = {};
-        this.legendMaps[layerIndex] = localColorMap;
-        this.recalculateColorMap();
 
         //entities.removeAll();
         //if (this.selection.selectionGeometry) {
@@ -700,22 +671,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         for (let point of data) {
             let color;
             if (colorField && point[colorField]) {
-                let colorKey = point[colorField];
-                if (this.optionsFromConfig.colorMapping.length > 0) {
-                    let colorString = this.getConfigColorForKey(colorKey);
-                    color = colorString ? Cesium.Color.fromCssColorString(colorString) : Cesium.Color.WHITE;
-                } else if (localColorMap[colorKey]) {
-                    color = localColorMap[colorKey];
-                } else if (this.active.colorMap[colorKey]) {
-                    color = this.active.colorMap[colorKey];
-                    localColorMap[colorKey] = color;
-                } else {
                     let colorString = this.colorSchemeService.getColorFor(colorField, point[colorField]).toRgb();
-                    let legendItem: LegendItem = this.getLegendItem(colorKey, colorString);
                     color = Cesium.Color.fromCssColorString(colorString);
-                    localColorMap[colorKey] = color;
-                    this.active.colorMap[colorKey] = color;
-                }
             } else {
                 color = Cesium.Color.WHITE;
             }
@@ -799,9 +756,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         dataSource.clustering.enabled = false;
             this.active.data[layerIndex] = newDataIds;
         }
-        this.legendMaps[layerIndex] = localColorMap;
-        this.calculateLegendData();
+
         entities.resumeEvents();
+        this.updateLegend();
         if (this.active.clustering === 'clusters') {
             this.cesiumViewer.dataSources.removeAll(true);
             this.cesiumViewer.dataSources.add(dataSource);
@@ -878,54 +835,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     }
 
-    calculateLegendData() {
-        this.recalculateColorMap();
-        let data: LegendItem[] = [];
-        for (let key in this.active.colorMap) {
-            if (this.active.colorMap.hasOwnProperty(key)) {
-                let color = this.active.colorMap[key];
-                let colorString = color.toCssColorString();
-                let li = this.getLegendItem(key, colorString);
-                data.push(li);
-            }
-        }
-        this.legendData = data;
-    }
-
-    getLegendItem(colorKey, colorString) {
-        let legendItem: LegendItem = {
-            prettyName: colorKey,
-            accessName: colorKey,
-            activeColor: colorString,
-            inactiveColor: 'rgb(128,128,128)',
-            active: true
-        };
-        return legendItem;
-    }
-
-    recalculateColorMap() {
-        for (let key in this.active.colorMap) {
-            if (this.active.colorMap.hasOwnProperty(key)) {
-                let exists = false;
-                for (let legendMap of this.legendMaps) {
-                    for (let usedColorKey in legendMap) {
-                        if (usedColorKey === key) {
-                            exists = true;
-                            break;
-                        }
-                    }
-                    if (exists) {
-                        break;
-                    }
-                }
-                if (!exists) {
-                    let color = this.active.colorMap[key];
-                    this.active.unusedColors.push(color.toCssColorString());
-                    delete this.active.colorMap[key];
-                }
-            }
-        }
-
+    updateLegend() {
+     let colorByFields: string[] = [];
+     for (let layer of this.active.layers) {
+         if (layer.colorField.columnName !== '') {
+             colorByFields.push(layer.colorField.columnName);
+             }
+         }
+     this.colorByFields = colorByFields;
     }
 
     refreshVisualization() {

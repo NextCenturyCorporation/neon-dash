@@ -101,7 +101,7 @@
         </div>
         <div class=" legend-container " style="">
             <div>
-                <app-legend [data]="legendData"></app-legend>
+               <app-legend [fieldNames]="colorByFields"></app-legend>
             </div>
             <div class="filter-reset " *ngFor="let value of getCloseableFilters() ">
                 <span class="filter-label " [title]="getFilterTitle(value) ">{{ getFilterCloseText(value) }}</span>

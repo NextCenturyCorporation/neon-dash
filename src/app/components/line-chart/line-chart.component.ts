@@ -20,7 +20,6 @@ import * as neon from 'neon-framework';
 import {DateBucketizer} from '../bucketizers/DateBucketizer';
 import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
 import {YearBucketizer} from '../bucketizers/YearBucketizer';
-import {LegendItem} from '../legend/legend.component';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
 import {ChartModule} from 'angular2-chartjs';
 import * as moment from 'moment-timezone';
@@ -36,8 +35,6 @@ import {VisualizationService} from '../../services/visualization.service';
 export class LineChartComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
     @ViewChild('myChart') chartModule: ChartModule;
-
-
 
     private optionsFromConfig: {
         title: string,
@@ -96,6 +93,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     };
     private colorSchemeService: ColorSchemeService;
     private mouseEventValid: boolean;
+    public colorByFields: string[] = [];
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -660,7 +658,12 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             title += ' by ' + this.active.groupField.prettyName;
         }
         this.queryTitle = title;
+        this.updateLegend();
     };
+
+    updateLegend() {
+ this.colorByFields = [this.active.groupField.columnName];
+    }
 
     dateToIsoDayHour(date: Date): string {
         // 2017-03-09T15:21:01Z
@@ -749,21 +752,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             this.executeQueryChain();
         }
     };
-
-    getLegendData(): LegendItem[] {
-        let legendData: LegendItem[] = [];
-        let datasets = this.chart.data.datasets;
-        for (let i = 0; i < datasets.length; i++) {
-            legendData[i] = {
-                prettyName: datasets[i].label,
-                accessName: datasets[i].label,
-                activeColor: datasets[i].pointBorderColor,
-                inactiveColor: 'rgba(50,50,50,1)',
-                active: true
-            };
-        }
-        return legendData;
-    }
 
 
     // Get filters and format for each call in HTML

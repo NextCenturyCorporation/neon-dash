@@ -30,6 +30,7 @@ import { AddVisualizationComponent } from './components/add-visualization/add-vi
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 
+
 import { MdDialog, MdDialogConfig, MdDialogRef } from '@angular/material';
 
 @Component({

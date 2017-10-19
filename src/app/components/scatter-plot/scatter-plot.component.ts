@@ -42,6 +42,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         xField: string,
         yField: string,
         labelField: string,
+        groupField: string,
         unsharedFilterField: Object,
         unsharedFilterValue: string,
         limit: number
@@ -50,6 +51,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         xField: FieldMetaData,
         yField: FieldMetaData,
         labelField: FieldMetaData,
+        groupField: FieldMetaData,
         andFilters: boolean,
         limit: number,
         filterable: boolean,
@@ -103,6 +105,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             xField: this.injector.get('xField', null),
             yField: this.injector.get('yField', null),
             labelField: this.injector.get('labelField', null),
+            groupField: this.injector.get('colorField', null),
             limit: this.injector.get('limit', 200),
             unsharedFilterField: {},
             unsharedFilterValue: ''
@@ -114,6 +117,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             xField: new FieldMetaData(),
             yField: new FieldMetaData(),
             labelField: new FieldMetaData(),
+            groupField: new FieldMetaData() ,
             andFilters: true,
             limit: this.optionsFromConfig.limit,
             filterable: true,
@@ -192,8 +196,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.scatter.options['legend'].display = false;
         let tooltipTitleFunc = (tooltips) => {
             //console.log(tooltips.length);
-            let title = this.active.pointLabels[tooltips[0].index];
-            return title;
+            return this.active.pointLabels[tooltips[0].index];
         };
         let tooltipDataFunc = (tooltips) => {
             let dataPoint = this.scatter.data.datasets[tooltips.datasetIndex].data[tooltips.index];
@@ -209,8 +212,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             } else {
                 yLabel = this.scatter.data.yLabels[dataPoint.y];
             }
-            let label = this.active.xField.prettyName + ': ' + xLabel + '  ' + this.active.yField.prettyName + ': ' + yLabel;
-            return label;
+            return this.active.xField.prettyName + ': ' + xLabel + '  ' + this.active.yField.prettyName + ': ' + yLabel;
         };
         this.scatter.options['tooltips'] = { callbacks: {} };
         this.scatter.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
@@ -238,12 +240,14 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         bindings.yField = this.active.yField.columnName;
         bindings.labelField = this.active.labelField.columnName;
         bindings.limit = this.active.limit;
+        bindings.colorField = this.active.groupField.columnName;
     }
 
     onUpdateFields() {
         this.active.xField = this.findFieldObject('xField', neonMappings.TAGS);
         this.active.yField = this.findFieldObject('yField', neonMappings.TAGS);
         this.active.labelField = this.findFieldObject('labelField', neonMappings.TAGS);
+        this.active.groupField = this.findFieldObject('colorField', neonMappings.TAGS);
     };
 
     createFilter(key, startDate, endDate) {
@@ -279,8 +283,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         let dsMeta = chart.controller.getDatasetMeta(0);
         if (dsMeta.data.length > index) {
             let pointMeta = dsMeta.data[index];
-            let x = pointMeta.getCenterPoint().x;
-            return x;
+            return pointMeta.getCenterPoint().x;
         }
         return -1;
     }
@@ -425,8 +428,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     getNeonFilterFields() {
-        let fields = [this.active.xField.columnName, this.active.yField.columnName];
-        return fields;
+        return [this.active.xField.columnName, this.active.yField.columnName];
     }
     getVisualizationName() {
         return 'Scatter Plot';
