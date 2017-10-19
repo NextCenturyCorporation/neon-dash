@@ -342,7 +342,7 @@
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "Location",
+					"title": "Locations",
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "LOC"
@@ -645,7 +645,7 @@
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "Location",
+					"title": "Locations",
 					"database": "elisa_uyghur_200",
 					"table": "ui_output",
 					"dataField": "LOC"
@@ -936,7 +936,7 @@
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "Location",
+					"title": "Locations",
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "LOC"
@@ -1239,7 +1239,7 @@
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "Location",
+					"title": "Locations",
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "LOC"
@@ -1542,7 +1542,7 @@
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "Location",
+					"title": "LocationS",
 					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "LOC"
@@ -1845,7 +1845,7 @@
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "Location",
+					"title": "Locations",
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "LOC"
@@ -2116,7 +2116,7 @@
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "Location",
+					"title": "Locations",
 					"database": "haiti_4",
 					"table": "ui_output",
 					"dataField": "LOC",
