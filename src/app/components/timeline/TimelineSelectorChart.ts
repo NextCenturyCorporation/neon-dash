@@ -301,7 +301,7 @@ export class TimelineSelectorChart {
         this.xContext.domain(xFocusDomain);//this.xDomain);
 
         this.xAxisFocus = d3.svg.axis().scale(this.xFocus).orient('bottom');
-        let xAxisContext = d3.svg.axis().scale(this.xFocus).orient('bottom');
+        let xAxisContext = d3.svg.axis().scale(this.xContext).orient('bottom');
 
         // We don't want the ticks to be too close together, so calculate the most ticks that
         // comfortably fit on the timeline
