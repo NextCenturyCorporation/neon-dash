@@ -86,9 +86,10 @@
 
 .body-container {
     position: absolute;
-    top: 58px;
+    top: 56px;
     bottom: 0;
     width: 100%;
+    height: 80%;
 }
 
 .text-container {
@@ -117,7 +118,7 @@ h3 {
 .timeline-selector-chart {
     margin: 0 0px 0;
     display:block;
-    min-height: 170px;
+    min-height: 150px;
 
     position: absolute;
     bottom: 0;
