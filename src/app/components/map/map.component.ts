@@ -666,8 +666,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         for (let point of data) {
             let color;
             if (colorField && point[colorField]) {
-                    let colorString = this.colorSchemeService.getColorFor(colorField, point[colorField]).toRgb();
-                    color = Cesium.Color.fromCssColorString(colorString);
+                let colorString = this.colorSchemeService.getColorFor(colorField, point[colorField]).toRgb();
+                color = Cesium.Color.fromCssColorString(colorString);
             } else {
                 color = Cesium.Color.WHITE;
             }
@@ -753,6 +753,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             this.active.data[layerIndex] = newDataIds;
         }
         entities.resumeEvents();
+        this.updateLegend();
         if (this.active.clustering === 'clusters') {
             this.cesiumViewer.dataSources.removeAll(true);
             this.cesiumViewer.dataSources.add(dataSource);
@@ -762,7 +763,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
         //console.log(response);
         //this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
-        this.updateLegend();
     }
 
     updateLegend() {

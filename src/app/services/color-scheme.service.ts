@@ -33,7 +33,6 @@ export class ColorSet {
         if (color == null) {
             color = this.colorList[this.currentIndex];
             this.mappings.set(value, color);
-
             this.currentIndex = (this.currentIndex + 1) % this.colorList.length;
         }
         return color;
@@ -125,7 +124,6 @@ export class ColorSchemeService {
             colorSet = new ColorSet();
             colorSet.colorList = this.colorList[this.colorPosition];
             this.colorMaps.set(set, colorSet);
-
             this.colorPosition = (this.colorPosition + 1) % this.colorList.length;
         }
         return colorSet.getColorForValue(value);
