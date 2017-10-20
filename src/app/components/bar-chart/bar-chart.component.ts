@@ -120,7 +120,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         data: any[],
         aggregation: string,
         chartType: string,
-        maxNum: number
+        maxNum: number,
+        seenValues: string[]
     };
 
     public chart: {
@@ -166,7 +167,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             data: [],
             aggregation: 'count',
             chartType: this.injector.get('chartType', 'bar'),
-            maxNum: 0
+            maxNum: 0,
+            seenValues: []
         };
 
         this.onClick = this.onClick.bind(this);
@@ -424,6 +426,25 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
         let hasColor = this.hasColorField();
 
+        // Use our seen values list to create dummy values for every category not returned this time.
+        let valsToAdd = [];
+        for (let value of this.active.seenValues) {
+            let exists = false;
+            for (let row of response.data) {
+                if (row[colName] === value) {
+                    exists = true;
+                }
+            }
+            if (!exists) {
+                let item = {
+                    value: 0
+                };
+                item[colName] = value;
+                valsToAdd.push(item);
+            }
+        }
+        response.data = response.data.concat(valsToAdd);
+
         /*
          * We need to build the datasets.
          * The datasets are just arrays of the data to draw, and the data is indexed
@@ -434,11 +455,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             if (!key) {
                 continue;
             }
+            // Add any labels that we haven't seen before to our "seen values" list so we have them for next time.
+            if (this.active.seenValues.indexOf(key) === -1) {
+                this.active.seenValues.push(key);
+            }
             if (chartData.labels.indexOf(key) === -1) {
                 chartData.labels.push(key);
             }
         }
-
         chartData.labels.sort();
 
         for (let row of response.data) {
@@ -526,6 +550,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeDataField() {
+        this.active.seenValues = [];
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
     };
 
