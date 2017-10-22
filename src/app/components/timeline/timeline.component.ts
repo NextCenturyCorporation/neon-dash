@@ -40,6 +40,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('svg') svg: ElementRef;
 
     private filters: {
+        id: string,
         key: string,
         startDate: Date,
         endDate: Date,
@@ -178,9 +179,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
     };
 
-    addLocalFilter(key: string, startDate: Date, endDate: Date, local?: boolean) {
+    addLocalFilter(id: string, key: string, startDate: Date, endDate: Date, local?: boolean) {
         try {
             this.filters[0] = {
+                id: id,
                 key: key,
                 startDate: new Date(startDate),
                 endDate: new Date(endDate),
@@ -193,20 +195,27 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
         let filter = {
+            id: undefined,
             key: this.active.dateField.columnName,
             startDate: startDate,
             endDate: endDate,
             local: true
         };
-
+        if (this.filters.length > 0) {
+            filter.id = this.filters[0].id;
+        }
         this.filters[0] = filter;
-        this.addNeonFilter(false, filter);
+        if (filter.id === undefined) {
+            this.addNeonFilter(false, filter);
+        } else {
+            this.replaceNeonFilter(false, filter);
+        }
 
         // Update the charts
         this.filterAndRefreshData();
     }
 
-    createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
+    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         for (let filter of this.filters) {
             // Only apply filters that aren't local
             let filterClauses = [];
@@ -305,7 +314,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         let table = this.meta.table.name;
         let fields = [this.active.dateField.columnName];
         let ignoredFilterIds = [];
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
             for (let filter of neonFilters) {
                 // The data we want is in the whereClause's subclauses
@@ -319,7 +328,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response) {
-        if (response.data.length === 1 && response.data[0]['_docCount']) {
+        if (response.data.length === 1 && response.data[0]['_docCount'] !== undefined) {
             this.active.docCount = response.data[0]['_docCount'];
         } else {
             // Convert all the dates into Date objects
@@ -491,7 +500,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = [this.active.dateField.columnName];
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
             for (let filter of neonFilters) {
                 // The data we want is in the whereClause's subclauses
@@ -500,7 +509,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                     let key = whereClause.whereClauses[0].lhs;
                     let startDate = whereClause.whereClauses[0].rhs;
                     let endDate = whereClause.whereClauses[1].rhs;
-                    this.addLocalFilter(key, startDate, endDate);
+                    this.addLocalFilter(filter.id, key, startDate, endDate);
                 }
 
             }
@@ -526,11 +535,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         //    return filter.key + " Filter";
         //});
         //return closeableFilters;
-        if (this.filters.length > 0) {
-            return ['Date Filter'];
-        } else {
-            return [];
-        }
+        return this.filters;
     };
 
     getFilterTitle(value: string) {

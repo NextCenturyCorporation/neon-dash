@@ -91,6 +91,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('myChart') chartModule: ChartComponent;
 
     private filters: {
+        id: string,
         key: string,
         value: string,
         prettyKey: string
@@ -276,12 +277,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             let key = this.active.dataField.columnName;
             let prettyKey = this.active.dataField.prettyName;
             let filter = {
+                id: undefined,
                 key: key,
                 value: value,
                 prettyKey: prettyKey
             };
+            if (this.filters.length > 0) {
+                filter.id = this.filters[0].id;
+            }
             this.addLocalFilter(filter);
-            this.addNeonFilter(false, filter);
+            if (filter.id === undefined) {
+                this.addNeonFilter(false, filter);
+            } else {
+                this.replaceNeonFilter(false, filter);
+            }
             this.refreshVisualization();
         }
     };
@@ -299,7 +308,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.filters[0] = filter;
     };
 
-    createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
+    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         let filterClauses = this.filters.map(function(filter) {
             return neon.query.where(fieldName, '=', filter.value);
         });
@@ -405,7 +414,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let table = this.meta.table.name;
         let fields = this.getNeonFilterFields();
         // get relevant neon filters and check for filters that should be ignored and add that to query
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         // console.log(neonFilters);
         if (neonFilters.length > 0) {
             let ignoredFilterIds = [];
@@ -528,12 +537,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = [this.active.dataField.columnName];
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
             for (let filter of neonFilters) {
                 let key = filter.filter.whereClause.lhs;
                 let value = filter.filter.whereClause.rhs;
                 let f = {
+                    if: filter.id,
                     key: key,
                     value: value,
                     prettyKey: key
@@ -592,9 +602,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
-        return this.filters.map((filter) => {
-            return filter.value;
-        });
+        return this.filters;
     };
 
     getFilterTitle(value: string) {

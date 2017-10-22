@@ -167,16 +167,19 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         //remove the filters
         if (removeFilters.length > 0) {
-            this.filterService.removeFiltersForKeys(removeFilters, () => {
-                //on success, clear out the filters
-                let temp = [];
-                for (let id of this.active.filterIds) {
-                    if (removeFilters.indexOf(id) === -1) {
-                        temp.push(id);
+            this.filterService.removeFilters(
+                this.messenger,
+                removeFilters,
+                () => {
+                    //on success, clear out the filters
+                    let temp = [];
+                    for (let id of this.active.filterIds) {
+                        if (removeFilters.indexOf(id) === -1) {
+                            temp.push(id);
+                        }
                     }
-                }
-                this.active.filterIds = temp;
-            });
+                    this.active.filterIds = temp;
+                });
         }
         //add the existing filters
         for (let key in cls) {
@@ -196,7 +199,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             this.active.andor = 'and';
             this.addBlankWhereClause();
         };
-        this.filterService.removeFiltersForKeys(this.active.filterIds, callback.bind(this));
+        this.filterService.removeFilters(this.messenger, this.active.filterIds, callback.bind(this));
     }
 
     getDatabaseTableKey(database, table) {
@@ -212,51 +215,54 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         }
         let database = clauses[0].database.name;
         let table = clauses[0].table.name;
-        let fields: string[] = clauses.map((clause) => {
-            return clause.field.columnName;
-        });
         let databaseTableKey = this.getDatabaseTableKey(database, table);
         let text = database + ' - ' + table + ' - filter';
         let visName = this.getVisualizationName();
         let onSuccess = () => {
-            let filters = this.filterService.getFilters(database, table, fields, true);
+            let filters = this.filterService.getFiltersByOwner(this.id);
             for (let filter of filters) {
-                let name = filter.filter.filterName;
-                if (name.indexOf(FilterService.FILTER_BUILDER_PREFIX) === 0) {
-                    this.active.filterIds[databaseTableKey] = filter.id;
-                }
+                this.active.filterIds[databaseTableKey] = filter.id;
             }
         };
-        let onFailure = () => {
+        let onError = () => {
             console.log('filter failed to set');
         };
 
         let filterId = this.active.filterIds[databaseTableKey];
 
         if (filterId) {
-            this.filterService.replaceFilterById(this.messenger, database, table, fields, this.createNeonFilterClauseEquals.bind(this),
+            this.filterService.replaceFilter(
+                this.messenger,
+                filterId,
+                this.id,
+                database,
+                table,
+                this.createNeonFilterClauseEquals(database, table, ''),
                 {
                     visName: visName,
                     text: text
-                }, filterId, onSuccess.bind(this),
-                onFailure.bind(this));
+                },
+                onSuccess.bind(this),
+                onError.bind(this));
         } else {
-            this.filterService.addFilter(this.messenger, database, table, fields,
-                this.createNeonFilterClauseEquals.bind(this),
+            this.filterService.addFilter(
+                this.messenger,
+                this.id,
+                database,
+                table,
+                this.createNeonFilterClauseEquals(database, table, ''),
                 {
                     visName: visName,
                     text: text
-                }
-                , onSuccess.bind(this),
-                onFailure.bind(this)
+                },
+                onSuccess.bind(this),
+                onError.bind(this)
             );
         }
 
     };
 
-    createNeonFilterClauseEquals(databaseAndTableName: { table: string, database: string }, _fieldName: string) {
-        let table = databaseAndTableName.table;
-        let database = databaseAndTableName.database;
+    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         let filterClauses = [];
         for (let whereClause of this.active.whereClauses) {
             if (whereClause.database.name === database && whereClause.table.name === table && whereClause.active) {

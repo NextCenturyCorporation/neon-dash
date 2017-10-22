@@ -410,8 +410,15 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             this.selection.mouseDown = false;
             if (this.mouseEventValid) {
                 let filter = this.getFilterFromSelectionPositions();
+                if (this.filters.length > 0) {
+                    filter.id = this.filters[0].id;
+                }
                 this.addLocalFilter(filter);
-                this.addNeonFilter(true, filter);
+                if (filter.id) {
+                    this.replaceNeonFilter(true, filter);
+                } else {
+                    this.addNeonFilter(true, filter);
+                }
             }
         }
         this.stopEventPropagation(event);
@@ -477,15 +484,20 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             y2 = this.chart.data['yLabels'][i];
         }
         return {
-            xMin: x1, xMax: x2, yMin: y1, yMax: y2,
-            xField: this.active.xField.columnName, yField: this.active.yField.columnName
+            id: undefined,
+            xMin: x1,
+            xMax: x2,
+            yMin: y1,
+            yMax: y2,
+            xField: this.active.xField.columnName,
+            yField: this.active.yField.columnName
         };
     }
 
-    createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldNames: string[]) {
+    createNeonFilterClauseEquals(database: string, table: string, xyFieldNames: string[]) {
         let filterClauses = [];
-        let xField = fieldNames[0];
-        let yField = fieldNames[1];
+        let xField = xyFieldNames[0];
+        let yField = xyFieldNames[1];
         let filter = this.filters[0];
         filterClauses[0] = neon.query.where(xField, '>=', filter.xMin);
         filterClauses[1] = neon.query.where(xField, '<=', filter.xMax);
@@ -741,7 +753,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     // Get filters and format for each call in HTML
     getCloseableFilters() {
         if (this.filters.length > 0) {
-            return ['Scatter Filter'];
+            return [{
+                id: this.filters[0].id,
+                value: 'Scatter Filter'
+            }];
         } else {
             return [];
         }
@@ -765,6 +780,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 }
 
 export class ScatterPlotFilter {
+    id: string;
     xMin: any;
     xMax: any;
     yMin: any;

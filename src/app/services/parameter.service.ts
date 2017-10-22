@@ -209,13 +209,17 @@ export class ParameterService {
         };
 
         if (args.isParameterValid(parameterValue) && this.isDatasetValid(dataWithMappings, args.mappings)) {
-            let filterName = {
-                text: (args.mappings.length > 1 ? args.filterName : dataWithMappings.fields[args.mappings[0]]) +
-                    ' ' + (args.operator || '=') + ' ' + parameterValue
-            };
-            this.filterService.addFilter(this.messenger, dataWithMappings.database, dataWithMappings.table,
-                this.findFieldsForMappings(dataWithMappings, args.mappings),
-                args.createFilterClauseCallback(args.operator, parameterValue), filterName, callNextFunction, callNextFunction);
+            let filterName = (args.mappings.length > 1 ? args.filterName : dataWithMappings.fields[args.mappings[0]]) +
+                    ' ' + (args.operator || '=') + ' ' + parameterValue;
+            this.filterService.addFilter(
+                this.messenger,
+                '',
+                dataWithMappings.database,
+                dataWithMappings.table,
+                args.createFilterClauseCallback(args.operator, parameterValue),
+                filterName,
+                callNextFunction,
+                callNextFunction);
         } else {
             callNextFunction();
         }

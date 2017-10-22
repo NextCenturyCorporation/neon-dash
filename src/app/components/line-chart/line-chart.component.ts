@@ -773,7 +773,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = [this.active.dateField.columnName];
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         this.active.hasFilters = (neonFilters && neonFilters.length > 0);
     }
 

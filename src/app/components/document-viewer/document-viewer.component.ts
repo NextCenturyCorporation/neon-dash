@@ -121,7 +121,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         return filter.value;
     }
 
-    createNeonFilterClauseEquals(databaseAndTableName, fieldName) {
+    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         return null; // This visualization doesn't filter.
     }
 
@@ -163,7 +163,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     onQuerySuccess(response) {
-        if (response.data.length === 1 && response.data[0]['_docCount']) {
+        if (response.data.length === 1 && response.data[0]['_docCount'] !== undefined) {
             this.active.docCount = response.data[0]['_docCount'];
         } else {
             let fields = this.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
