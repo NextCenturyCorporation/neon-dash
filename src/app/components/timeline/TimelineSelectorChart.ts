@@ -6,7 +6,7 @@ import {Bucketizer} from '../bucketizers/Bucketizer';
 
 declare let d3;
 
-const DEFAULT_MARGIN = 35;
+const DEFAULT_MARGIN = 15;
 const DEFAULT_HEIGHT = 150;
 const DEFAULT_WIDTH = 1000;
 
