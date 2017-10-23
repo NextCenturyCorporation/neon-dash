@@ -284,7 +284,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             animation: false, // disable animation widget
             mapMode2D: Cesium.MapMode2D.ROTATE,
             sceneModePicker: false,
-            navigationHelpButton: false
+            navigationHelpButton: false,
+            infoBox: false
         });
 
         this.cesiumViewer.screenSpaceEventHandler.removeInputAction(

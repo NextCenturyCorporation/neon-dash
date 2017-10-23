@@ -38,7 +38,7 @@
 		},
 		{
 			"name": "ELISA Uyghur Annotations",
-			"connectOnLoad": true,
+			"connectOnLoad": false,
 			"layout": "elisa_uig-layout",
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
@@ -223,7 +223,7 @@
 		},
 		{
 			"name": "Haiti Data",
-			"connectOnLoad": false,
+			"connectOnLoad": true,
 			"layout": "haiti-layout",
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
