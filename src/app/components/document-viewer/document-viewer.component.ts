@@ -217,7 +217,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             'No Data' :
             this.active.data.length < this.active.docCount ?
                 'Top ' + this.active.data.length + ' of ' + this.active.docCount :
-                'Total: ' + this.active.data.length;
+                'Total ' + this.active.data.length;
     }
 
     setupFilters() {

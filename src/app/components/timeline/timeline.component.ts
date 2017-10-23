@@ -194,6 +194,26 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
+        // By default, this will give us too many values in other visualizations. For example, selecting March
+        // will give a filter from 3/1 to 4/1, which causes all other visualizations to pull March and April
+        // documents. To avoid this, decrement the next granularity down by 1.
+        switch (this.active.granularity) {
+            case 'year':
+                endDate.setMonth(endDate.getMonth() - 1);
+                break;
+            case 'month':
+                endDate.setDate(endDate.getDate() - 1);
+                break;
+            case 'day':
+                endDate.setHours(endDate.getHours() - 1);
+                break;
+            case 'hour':
+                endDate.setMinutes(endDate.getMinutes() - 1);
+                break;
+            case 'minute':
+                endDate.setSeconds(endDate.getSeconds() - 1);
+                break;
+        }
         let filter = {
             id: undefined,
             key: this.active.dateField.columnName,
@@ -354,7 +374,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             'No Data' :
             shownCount < this.active.docCount ?
                 'Top ' + shownCount + ' of ' + this.active.docCount :
-                'Total: ' + shownCount;
+                'Total ' + shownCount;
     }
 
     /**

@@ -2300,12 +2300,12 @@
 							"field": "PER"
 						}],
 						[{
-							"name": "Locations",
-							"field": "LOC"
+                            "name": "Organizations",
+                            "field": "ORG"
 						}],
 						[{
-							"name": "Sentiment",
-							"field": "sentimentString"
+                            "name": "Locations",
+                            "field": "LOC"
 						}]
 					],
 					"limit": 50
