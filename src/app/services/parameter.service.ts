@@ -151,7 +151,7 @@ export class ParameterService {
 
         let filterStateExists: boolean = this.readFilterState(parameters, ignoreDashboardState);
         if (!filterStateExists) {
-            let callback: Function = () => {
+            let callback = () => {
                 let dashboardStateId: string|number = this.cleanValue(parameters[ParameterService.DASHBOARD_STATE_ID], 'contains');
 
                 if (this.doesParameterExist(dashboardStateId) && !ignoreDashboardState) {
@@ -196,7 +196,7 @@ export class ParameterService {
      * @param {Function} endCallback
      * @private
      */
-    addFiltersForDashboardParameters(parameters: any, argsList: any[], endCallback: Function) {
+    addFiltersForDashboardParameters(parameters: any, argsList: any[], endCallback: () => any ) {
         let args = argsList.shift();
         let parameterValue = args.cleanParameter(parameters[args.parameterKey], args.operator);
         let dataWithMappings = this.datasetService.getFirstDatabaseAndTableWithMappings(args.mappings);
