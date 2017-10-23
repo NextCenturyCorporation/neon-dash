@@ -48,6 +48,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     private FIELD_ID: string;
     private filters: {
+        id: string,
         fieldsByLayer: {
             latField: string,
             lonField: string
@@ -421,13 +422,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 let localFilters = this.createFilter(fieldsByLayer, localLayerName);
                 this.addLocalFilter(localFilters);
                 for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
-                    let fields = localFilters.fieldsByLayer[i];
-                    let f = {
-                        latField: fields.latitudeName,
-                        lonField: fields.longitudeName,
-                        filterName: this.getFilterTextForLayer(i)
-                    };
-                    this.addNeonFilter(i, true, f);
+                    let neonFilters = this.filterService.getFiltersByOwner(this.id);
+                    if (neonFilters && neonFilters.length) {
+                        localFilters.id = neonFilters[0].id;
+                        this.replaceNeonFilter(i, true, localFilters);
+                    } else {
+                        this.addNeonFilter(i, true, localFilters);
+                    }
                 }
 
                 let zoomRect = rect;
@@ -576,6 +577,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     createFilter(fieldsByLayer, name) {
         return {
+            id: undefined,
             fieldsByLayer: fieldsByLayer,
             filterName: name
         };
@@ -585,7 +587,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         this.filters[0] = filter;
     };
 
-    createNeonFilterClauseEquals(_databaseAndTableName: {}, latLonFieldNames: string[]) {
+    createNeonFilterClauseEquals(database: string, table: string, latLonFieldNames: string[]) {
         let filterClauses = [];
         //console.log(fieldName);
         let latField = latLonFieldNames[0];
@@ -745,11 +747,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     this.active.colorMap[colorKey] = color;
                 }
 
+
             } else {
                 color = Cesium.Color.WHITE;
             }
             let lngCoord = point[lngField];
             let latCoord = point[latField];
+
             //console.log(point);
 
             //This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
@@ -831,6 +835,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             this.active.data[layerIndex] = newDataIds;
         }
         entities.resumeEvents();
+        this.updateLegend();
         if (this.active.clustering === 'clusters') {
             this.cesiumViewer.dataSources.removeAll(true);
             this.cesiumViewer.dataSources.add(dataSource);
@@ -840,7 +845,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
         //console.log(response);
         //this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
-        this.updateLegend();
     }
 
     updateLegend() {
@@ -919,7 +923,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         let database = this.meta.layers[i].database.name;
         let table = this.meta.layers[i].table.name;
         let fields = this.getNeonFilterFields(i);
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         return neonFilters && neonFilters.length > 0;
     }
 
@@ -954,13 +958,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         let database = this.meta.layers[i].database.name;
         let table = this.meta.layers[i].table.name;
         let fields = this.getNeonFilterFields(i);
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         let clauses = this.getClausesFromFilterWithIdenticalArguments(neonFilters, [
             this.active.layers[i].latitudeField.columnName,
             this.active.layers[i].longitudeField.columnName
         ]);
         if (clauses) {
-            console.log(clauses);
+            // console.log(clauses);
             let values = [this.selection.endLat, this.selection.endLon, this.selection.startLat, this.selection.startLon];
             //FIX THE NEXT LINE!!!!
             let emptyIfUnchanged = clauses.filter(cl => (values.indexOf(cl.rhs) === -1 ));
@@ -1037,11 +1041,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         //});
         //return closeableFilters;
         //TODO
-        if (this.filters.length > 0) {
-            return ['Map Filter'];
-        } else {
-            return [];
-        }
+        return this.filters;
     };
 
     getFilterTitle(): string {
@@ -1067,12 +1067,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     removeFilter(/*value*/): void {
         this.filters = [];
+        this.removeFilterBox();
     }
 
-    handleRemoveFilter(value): void {
+    handleRemoveFilter(filter: any): void {
         for (let i = 0; i < this.meta.layers.length; i++) {
-            this.removeLocalFilterFromLocalAndNeon(i, value, true, false);
+            this.removeLocalFilterFromLocalAndNeon(i, filter, true, false);
         }
+        this.filters = [];
         this.removeFilterBox();
     };
 

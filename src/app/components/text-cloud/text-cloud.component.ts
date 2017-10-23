@@ -20,7 +20,13 @@ import {VisualizationService} from '../../services/visualization.service';
 })
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     private textCloud: TextCloud;
-    private filters: any[];
+    private filters: {
+        id: string,
+        key: string,
+        value: string,
+        translated: string,
+        prettyKey: string
+    }[];
 
     private optionsFromConfig: {
         title: string,
@@ -153,11 +159,16 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     addLocalFilter(filter) {
-        //this.filters.push(filter);
+        // Make sure we're not adding a useless duplicate.
+        for (let index = this.filters.length - 1; index >= 0; index--) {
+            if (filter.id === this.filters[index].id) {
+                return;
+            }
+        }
         this.filters = this.updateArray(this.filters, filter);
     };
 
-    createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
+    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         let filterClauses = this.filters.map((filter) => {
             return neon.query.where(fieldName, '=', filter.value);
         });
@@ -175,7 +186,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getVisualizationName(): string {
-        return 'Bar Chart';
+        return 'Text Cloud';
     }
 
     refreshVisualization() {
@@ -246,28 +257,27 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     onQuerySuccess(response): void {
         try {
-            if (response.data[0]['_docCount']) {
+            if (response && response.data && response.data.length && response.data[0]['_docCount'] !== undefined) {
                 this.active.count = response.data.length;
             } else {
-        let data = response.data;
-        let cloudData = data || [];
-        let useSizeField: boolean = this.active.sizeField.columnName !== '';
+                let cloudData = response.data || [];
+                let useSizeField: boolean = this.active.sizeField.columnName !== '';
 
-        let activeData = cloudData.map((item) => {
-            item.key = item[this.active.dataField.columnName];
-            item.keyTranslated = item.key;
-            // If we have a size field, asign the value to the value field
-            if (useSizeField) {
-                item.value = item[this.active.sizeField.columnName];
-            }
-            return item;
-        });
-        this.active = this.updateObject(this.active, 'data', activeData);
-        this.refreshVisualization();
+                let activeData = cloudData.map((item) => {
+                    item.key = item[this.active.dataField.columnName];
+                    item.keyTranslated = item.key;
+                    // If we have a size field, asign the value to the value field
+                    if (useSizeField) {
+                        item.value = item[this.active.sizeField.columnName];
+                    }
+                    return item;
+                });
+                this.active = this.updateObject(this.active, 'data', activeData);
+                this.refreshVisualization();
                 this.queryTitle = this.optionsFromConfig.title || 'Text Cloud by ' + this.active.dataField.prettyName;
                 if (useSizeField && this.queryTitle !== this.optionsFromConfig.title) {
-            this.queryTitle += ' and ' + this.active.sizeField.prettyName;
-        }
+                    this.queryTitle += ' and ' + this.active.sizeField.prettyName;
+                }
                 this.getDocCount();
             }
         } catch (e) {
@@ -281,12 +291,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = [this.active.dataField.columnName];
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
             for (let filter of neonFilters) {
                 let key = filter.filter.whereClause.lhs;
                 let value = filter.filter.whereClause.rhs;
                 let f = {
+                    id: filter.id,
                     key: key,
                     value: value,
                     prettyKey: key
@@ -309,14 +320,14 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let key = this.active.dataField.columnName;
         let prettyKey = this.active.dataField.prettyName;
         let filter = {
+            id: undefined, // This will be set in the success callback of addNeonFilter.
             key: key,
             value: value,
             prettyKey: prettyKey
         };
         if (this.filterIsUnique(filter)) {
             this.addLocalFilter(filter);
-            this.addNeonFilter(false, filter);
-            this.executeQueryChain();
+            this.addNeonFilter(true, filter);
         }
     };
 
@@ -362,9 +373,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     };
 
     getFilterData() {
-        return this.filters.map((filter) => {
-            return filter.value;
-        });
+        return this.filters;
     };
 
     createFilterDesc(value: string) {
@@ -390,14 +399,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Delete Filter ' + this.createFilterDesc(value);
     };
 
-    removeFilter(value: string) {
-        let newFilters = [];
-        for (let f of this.filters) {
-            if (value !== f.value) {
-                newFilters.push(f);
+    removeFilter(id: string) {
+        let filterIndex = -1;
+        for (let index = this.filters.length - 1; index >= 0; index--) {
+            if (this.filters[index].id === id) {
+                this.filters.splice(index, 1);
             }
         }
-        this.filters = newFilters;
     }
 
     // These methods must be present for AoT compile

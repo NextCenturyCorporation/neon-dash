@@ -530,7 +530,7 @@ export class StackedTimelineSelectorChart {
                         style = 'stroke:#f1f1f1;';
                         barheight++;
                     }
-                    style +=  'fill:' + series.color + ';';
+                    style += 'fill:' + series.color + ';';
 
                     contextContainer.selectAll('.bar')
                         .data(series.data)
@@ -824,7 +824,7 @@ export class StackedTimelineSelectorChart {
                 .enter().append('g');
             //*/
             ///*
-            categories.selectAll('rect.bar')
+            focus.selectAll('rect.bar')
                 .data(series.focusData)
                 .enter().append('rect')
                 .attr('class', (d) => {

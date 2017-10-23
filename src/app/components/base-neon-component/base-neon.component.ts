@@ -360,7 +360,7 @@ export abstract class BaseNeonComponent implements OnInit,
      * @param databaseAndTableName
      * @param fieldName
      */
-    abstract createNeonFilterClauseEquals(databaseAndTableName: {database: string, table: string}, fieldName: any);
+    abstract createNeonFilterClauseEquals(database: string, table: string, fieldName: string | string[]);
 
     /**
      * Returns the list of field objects on which filters are set.
@@ -384,25 +384,61 @@ export abstract class BaseNeonComponent implements OnInit,
      * @param filter
      */
     addNeonFilter(executeQueryChainOnSuccess: boolean, filter: any) {
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields: string[] = this.getNeonFilterFields();
-        let text = this.getFilterText(filter);
-        let visName = this.getVisualizationName();
-
-        let onSuccess = () => {
-            //console.log('filter set successfully');
+        let filterName = {
+            visName: this.getVisualizationName(),
+            text: this.getFilterText(filter)
+        };
+        let onSuccess = (resp: any) => {
+            if (typeof resp === 'string') {
+                filter.id = resp;
+            }
             if (executeQueryChainOnSuccess) {
                 this.executeQueryChain();
             }
         };
-        this.filterService.addFilter(this.messenger, database, table, fields,
-            this.createNeonFilterClauseEquals.bind(this),
-            {
-                visName: visName,
-                text: text
+        let filterFields = this.getNeonFilterFields();
+        this.filterService.addFilter(this.messenger,
+            this.id,
+            this.meta.database.name,
+            this.meta.table.name,
+            this.createNeonFilterClauseEquals(
+                this.meta.database.name,
+                this.meta.table.name,
+                (filterFields.length === 1) ? filterFields[0] : filterFields),
+            filterName,
+            onSuccess.bind(this),
+            () => {
+                console.log('filter failed to set');
+            });
+        this.changeDetection.detectChanges();
+    };
+
+    /**
+     * Replace a filter and register the change with Neon.
+     * @param {boolean} executeQueryChainOnSuccess
+     * @param filter
+     */
+    replaceNeonFilter(executeQueryChainOnSuccess: boolean, filter: any) {
+        let filterName = {
+            visName: this.getVisualizationName(),
+            text: this.getFilterText(filter)
+        };
+        let onSuccess = (resp: any) => {
+            if (executeQueryChainOnSuccess) {
+                this.executeQueryChain();
             }
-            , onSuccess.bind(this),
+        };
+        this.filterService.replaceFilter(this.messenger,
+            filter.id,
+            this.id,
+            this.meta.database.name,
+            this.meta.table.name,
+            this.createNeonFilterClauseEquals(
+                this.meta.database.name,
+                this.meta.table.name,
+                this.getNeonFilterFields()),
+            filterName,
+            onSuccess.bind(this),
             () => {
                 console.log('filter failed to set');
             });
@@ -624,7 +660,7 @@ export abstract class BaseNeonComponent implements OnInit,
      * Called when a filter has been removed
      * @param value the filter name
      */
-    abstract removeFilter(value: string): void;
+    abstract removeFilter(filter: any): void;
 
     /**
      * Check that the local filter column name and value are not null/empty
@@ -651,14 +687,13 @@ export abstract class BaseNeonComponent implements OnInit,
      * @param shouldRequery
      * @param shouldRefresh
      */
-    removeLocalFilterFromLocalAndNeon(name: string, shouldRequery: boolean, shouldRefresh: boolean) {
+    removeLocalFilterFromLocalAndNeon(filter: any, shouldRequery: boolean, shouldRefresh: boolean) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = this.getNeonFilterFields();
-        this.filterService.removeFilter(database, table, fields,
+        this.filterService.removeFilter(
+            this.messenger,
+            filter.id,
             () => {
-                this.removeFilter(name);
+                this.removeFilter(filter.id);
                 if (shouldRequery) {
                     this.executeQueryChain();
                 } else {
@@ -671,7 +706,7 @@ export abstract class BaseNeonComponent implements OnInit,
             },
             () => {
                 console.error('error removing filter');
-            }, this.messenger);
+            });
         this.changeDetection.detectChanges();
     };
 

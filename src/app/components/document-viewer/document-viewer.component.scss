@@ -34,6 +34,14 @@
    		color: mat-color($fade);
     }
 
+    .openSingleRecordButton {
+        background-color: mat-color($primary);
+        color: mat-color($white);
+        line-height: 20px;
+        height: 20px;
+        width: 100%;
+    }
+
     .visualization-sidenav-options {
         min-width: 320px;
 

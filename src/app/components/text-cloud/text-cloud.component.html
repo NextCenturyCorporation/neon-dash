@@ -83,9 +83,9 @@
     <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
         <mat-spinner ></mat-spinner>
     </div>
-    <div class="filter-reset" *ngFor="let value of getFilterData()">
-        <span class="filter-label" [title]="createFilterDesc(value)">{{ createFilterText(value) }}</span>
-        <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveDesc(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value, true, false)">
+    <div class="filter-reset" *ngFor="let filter of getFilterData()">
+        <span class="filter-label" [title]="createFilterDesc(filter.value)">{{ createFilterText(filter.value) }}</span>
+        <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveDesc(filter.value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
             <mat-icon class="mat-18">close</mat-icon>
         </button>
     </div>

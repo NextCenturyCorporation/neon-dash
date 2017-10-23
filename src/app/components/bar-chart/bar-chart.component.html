@@ -87,9 +87,9 @@
                 <app-legend *ngIf="hasColorField()" [activeList]="selectedLabels"
                             [fieldNames]="colorFieldNames"></app-legend>
             </div>
-            <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
-                <span class="filter-label" [title]="getFilterTitle(value)">{{ getFilterCloseText(value) }}</span>
-                <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveFilterTooltip(value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value, false, true)">
+            <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+                <span class="filter-label" [title]="getFilterTitle(filter.value)">{{ getFilterCloseText(filter.value) }}</span>
+                <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveFilterTooltip(filter.value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, false, true)">
                   <mat-icon class="mat-18">close</mat-icon>
                 </button>
             </div>

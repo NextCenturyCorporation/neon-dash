@@ -72,10 +72,10 @@
             <mat-spinner ></mat-spinner>
         </div>
         <div class="text-container">
-            <div class="filter-reset" *ngFor="let value of getCloseableFilters()">
-                <span class="filter-label" [title]="getFilterTitle(value)">{{ value }}</span>
-                <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveFilterTooltip(value)"
-                        tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(value, true)">
+            <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+                <span class="filter-label" [title]="getFilterTitle('Date Filter')">{{ 'Date Filter' }}</span>
+                <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveFilterTooltip('Date Filter')"
+                        tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, true)">
                     <mat-icon class="mat-18">close</mat-icon>
                 </button>
             </div>

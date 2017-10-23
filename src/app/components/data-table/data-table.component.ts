@@ -35,6 +35,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('dragView') dragView: ElementRef;
 
     private filters: {
+        id: string,
         key: string,
         value: string,
         prettyKey: string
@@ -178,15 +179,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         console.log(obj);
     };
 
-    addLocalFilter(key, value, prettyKey) {
-        this.filters[0] = {
-            key: key,
-            value: value,
-            prettyKey: prettyKey
-        };
+    addLocalFilter(filter) {
+        this.filters[0] = filter;
     };
 
-    createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
+    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         let filterClauses = this.filters.map(function(filter) {
             return neon.query.where(fieldName, '=', filter.value);
         });
@@ -309,12 +306,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = [this.active.sortField.columnName];
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
             for (let filter of neonFilters) {
                 let key = filter.filter.whereClause.lhs;
                 let value = filter.filter.whereClause.rhs;
-                this.addLocalFilter(key, value, key);
+                this.addLocalFilter({
+                    id: filter.id,
+                    key: key,
+                    value: value,
+                    prettyKey: key
+                });
             }
         } else {
             this.filters = [];
