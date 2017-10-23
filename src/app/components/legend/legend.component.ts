@@ -36,10 +36,9 @@ export class LegendComponent implements OnInit {
     @Input() disabledList: string[];
     /**
      * Event triggered when an item in the legend has been selected.
-     * The event includes the value selected, and a boolean if the value is currently selected
-     * @type {EventEmitter<{value: string; currentlyActive: boolean}>}
+     * The event includes the field name, value, and a boolean if the value is currently selected
      */
-    @Output() itemSelected = new EventEmitter<{value: string, currentlyActive: boolean}>();
+    @Output() itemSelected = new EventEmitter<{fieldName: string, value: string, currentlyActive: boolean}>();
 
     @ViewChild('menu') menu: any;
 
@@ -91,10 +90,12 @@ export class LegendComponent implements OnInit {
     /**
      * Handle a selection of a value in the legend
      * @param $event
+     * @param {string} setName
      * @param {string} key
      */
-    keySelected($event, key: string) {
+    keySelected($event, setName: string, key: string) {
         this.itemSelected.emit({
+            fieldName: setName,
             value: key,
             currentlyActive: !this.isDisabled(key)
         });
