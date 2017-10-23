@@ -99,16 +99,16 @@
             <div #cesiumContainer id="cesiumContainer" (click)="stopEventPropagation($event)"></div>
             <div class="map-selection" *ngIf="selection.showSelection" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
         </div>
-        <div class=" legend-container " style="">
-            <div>
-                <app-legend [fieldNames]="colorByFields"></app-legend>
-            </div>
-            <div class="filter-reset " *ngFor="let value of getCloseableFilters() ">
-                <span class="filter-label " [title]="getFilterTitle(value) ">{{ getFilterCloseText(value) }}</span>
-                <button mat-icon-button aria-label="Close " [matTooltip]="getRemoveFilterTooltip(value) " tooltip-position="below" (click)="handleRemoveFilter(value)">
-                    <mat-icon class="mat-18 ">close</mat-icon>
-                  </button>
-            </div>
-        </div>
+<!--         <div class=" legend-container " style=""> -->
+<!--             <div> -->
+<!--                 <app-legend [fieldNames]="colorByFields"></app-legend> -->
+<!--             </div> -->
+<!--             <div class="filter-reset " *ngFor="let value of getCloseableFilters() "> -->
+<!--                 <span class="filter-label " [title]="getFilterTitle(value) ">{{ getFilterCloseText(value) }}</span> -->
+<!--                 <button mat-icon-button aria-label="Close " [matTooltip]="getRemoveFilterTooltip(value) " tooltip-position="below" (click)="handleRemoveFilter(value)"> -->
+<!--                     <mat-icon class="mat-18 ">close</mat-icon> -->
+<!--                   </button> -->
+<!--             </div> -->
+<!--         </div> -->
     </div>
 </mat-sidenav-container>
