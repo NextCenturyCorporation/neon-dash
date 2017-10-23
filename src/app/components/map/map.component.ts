@@ -25,7 +25,6 @@ import * as neon from 'neon-framework';
 import {BaseLayeredNeonComponent} from '../base-neon-component/base-layered-neon.component';
 import 'cesium/Build/Cesium/Cesium.js';
 import * as _ from 'lodash';
-import {color} from 'd3';
 
 export class MapLayer {
     title: string;
@@ -115,6 +114,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     private cesiumViewer: any;
     @ViewChild('cesiumContainer') cesiumContainer: ElementRef;
+    private removedEntities = [];
+    public disabledList: string[] = [];
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -668,7 +669,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                         pixelSize: 4, // default: 1
                         outlineColor: color, // default: BLACK
                         outlineWidth: 0 // default: 0
-                    }
+                    },
+                    colorField: colorField,
+                    colorValue: point[colorField]
                 };
                 let en = entities.add(entity);
                 newDataIds.push(en.id);
@@ -837,8 +840,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     };
 
     getRemoveFilterTooltip() {
-        let tooltip = 'Delete ' + this.getFilterTitle();
-        return tooltip;
+        return 'Delete ' + this.getFilterTitle();
     };
 
     removeFilter(/*value*/): void {
@@ -858,6 +860,42 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     getIconForFilter(index: number): string {
         return this.filterVisible[index] ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
+    }
+
+    legendItemSelected(event: any) {
+        let fieldName: string = event.fieldName;
+        let value: string = event.value;
+        let currentlyActive: boolean = event.currentlyActive;
+        let entities = this.cesiumViewer.entities;
+        entities.suspendEvents();
+
+        // Find fields with that value, and remove them from the map into a disabled list
+        if (currentlyActive) {
+            for (let layer of this.active.layers) {
+                if (layer.colorField.columnName === fieldName) {
+
+                    for (let id of this.active.data[this.active.layers.indexOf(layer)]) {
+                        let entity = entities.getById(id);
+                        if (entity && entity._colorValue === value) {
+                            entities.removeById(id);
+                            this.removedEntities.push(entity);
+                        }
+                    }
+                }
+            }
+            this.disabledList.push(value);
+        } else {
+            // Move entities that match from the disabled list to the map
+            for (let entity of this.removedEntities) {
+                if (entity._colorField === fieldName && entity._colorValue === value) {
+                    entities.add(entity);
+                    this.removedEntities.splice(this.removedEntities.indexOf(entity), 1);
+                }
+            }
+            this.disabledList.splice(this.disabledList.indexOf(value), 1);
+        }
+
+        entities.resumeEvents();
     }
 
 
