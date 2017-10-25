@@ -35,6 +35,11 @@ export class LegendComponent implements OnInit {
      */
     @Input() disabledList: string[];
     /**
+     * List of [columnName, value] pairs that should be marked as inactive.
+     * If this list is populated, it will be used over the disabledList
+     */
+    @Input() disabledSets: [string[]];
+    /**
      * Event triggered when an item in the legend has been selected.
      * The event includes the field name, value, and a boolean if the value is currently selected
      */
@@ -84,7 +89,7 @@ export class LegendComponent implements OnInit {
 
     getColorFor(colorSet: ColorSet, key: string): string {
         let color = colorSet.getColorForValue(key);
-        return this.isDisabled(key) ? color.getInactiveRgba() : color.toRgb();
+        return this.isDisabled(colorSet.name, key) ? color.getInactiveRgba() : color.toRgb();
     }
 
     /**
@@ -97,7 +102,7 @@ export class LegendComponent implements OnInit {
         this.itemSelected.emit({
             fieldName: setName,
             value: key,
-            currentlyActive: !this.isDisabled(key)
+            currentlyActive: !this.isDisabled(setName, key)
         });
         $event.stopPropagation();
     }
@@ -105,18 +110,31 @@ export class LegendComponent implements OnInit {
     /**
      * Check if the value should be marked as disabled
      * @param {string} key
+     * @param {string} setName
      * @return {boolean}
      */
-    isDisabled(key: string): boolean {
-        // If the enabled list is non-null, check it first
+    isDisabled(setName: string, key: string): boolean {
+        if (this.disabledSets && this.disabledSets.length > 0) {
+            try {
+                for (let set of this.disabledSets) {
+                    if (set[0] === setName && set[1] === key) {
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                // Let errors pass
+            }
+        }
+        // If the enabled list is non-null, check it
         if (this.activeList && this.activeList.length > 0) {
             return this.activeList.indexOf(key) === -1;
         }
         return this.disabledList && this.disabledList.indexOf(key) >= 0;
     }
 
-    getIcon(key: string): string {
-        if (this.isDisabled(key)) {
+    getIcon(colorSet: ColorSet, key: string): string {
+        if (this.isDisabled(colorSet.name, key)) {
             return 'check_box_outline_blank';
         } else {
             return 'check_box';

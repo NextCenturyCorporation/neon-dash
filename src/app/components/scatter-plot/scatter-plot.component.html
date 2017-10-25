@@ -86,7 +86,7 @@
             <div>
                 <app-legend *ngIf="hasColorField()"
                             (itemSelected)="legendItemSelected($event)"
-                            [disabledList]="disabledList"
+                            [disabledList]="disabledSet"
                             [fieldNames]="colorByFields"></app-legend>
             </div>
             <div class="filter-reset" *ngFor="let value of getCloseableFilters()">

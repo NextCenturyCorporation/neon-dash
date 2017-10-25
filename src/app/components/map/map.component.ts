@@ -115,7 +115,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     private cesiumViewer: any;
     @ViewChild('cesiumContainer') cesiumContainer: ElementRef;
     private removedEntities = [];
-    public disabledList: string[] = [];
+    public disabledSet: [string[]] = [] as [string[]];
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -883,7 +883,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     }
                 }
             }
-            this.disabledList.push(value);
+            this.disabledSet.push([fieldName, value]);
         } else {
             // Move entities that match from the disabled list to the map
             for (let entity of this.removedEntities) {
@@ -892,7 +892,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     this.removedEntities.splice(this.removedEntities.indexOf(entity), 1);
                 }
             }
-            this.disabledList.splice(this.disabledList.indexOf(value), 1);
+            this.disabledSet.splice(this.disabledSet.indexOf([fieldName, value]), 1);
         }
 
         entities.resumeEvents();
