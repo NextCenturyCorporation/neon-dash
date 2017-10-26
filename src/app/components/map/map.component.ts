@@ -626,6 +626,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     onQuerySuccess(layerIndex, response) {
+        // Clear the disabled list
+        this.disabledSet = [] as [string[]];
         // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
         // TODO break this function into smaller bits so it is more understandable.
         let lngField = this.active.layers[layerIndex].longitudeField.columnName;
@@ -633,6 +635,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         let colorField = this.active.layers[layerIndex].colorField.columnName;
         let entities = this.cesiumViewer.entities;
         entities.suspendEvents();
+
+        // Re-add all the removed entities
+        for (let entity of this.removedEntities) {
+            entities.add(entity);
+        }
+        this.removedEntities = [];
+
         //entities.getOrCreateEntities(layerIndex);
         if (this.active.data[layerIndex]) {
             for (let id of this.active.data[layerIndex]) {
