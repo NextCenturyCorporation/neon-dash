@@ -272,7 +272,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             mapMode2D: Cesium.MapMode2D.ROTATE,
             sceneModePicker: false,
             navigationHelpButton: false,
-            infoBox: false
+            infoBox: true
         });
 
         this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
@@ -747,7 +747,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             }
 
             if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
+            	//let nameString = String.format('%2f, %2f', latCoord, lngCoord);
+            	//let lat = parseFloat(latCoord * 100 / 100).toFixed(2);
+            	let lat = parseFloat(latCoord).toFixed(3);
+            	let lng = parseFloat(lngCoord).toFixed(3);
                 let entity = dataSource.entities.add({
+                    name: lat + ', ' + lng,
                     position: Cesium.Cartesian3.fromDegrees(lngCoord, latCoord),
                     point: {
                         show: true, // default
@@ -759,12 +764,16 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 });
                 if (this.active.clustering === 'points') {
                 let en = entities.add(entity);
+                console.log(en);
                 newDataIds.push(en.id);
             }
             } else if (latCoord instanceof Array && lngCoord instanceof Array) {
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
                     if (this.isNumeric(latCoord[pos]) && this.isNumeric(lngCoord[pos])) {
+                    	let lat = parseFloat(latCoord[pos]).toFixed(3);
+                    	let lng = parseFloat(lngCoord[pos]).toFixed(3);
                         let entity = dataSource.entities.add({
+                        	name: lat + ', ' + lng,
                             position: Cesium.Cartesian3.fromDegrees(lngCoord[pos], latCoord[pos]),
                             point: {
                                 show: true, // default
@@ -777,6 +786,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                         });
                         if (this.active.clustering === 'points') {
                             let en = entities.add(entity);
+                            //console.log(en);
                             newDataIds.push(en.id);
                         }
                     }
