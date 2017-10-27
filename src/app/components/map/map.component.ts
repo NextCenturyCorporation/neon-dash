@@ -81,6 +81,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         clustering: string,
         minClusterSize: number,
         clusterPixelRange: number,
+        hover: {
+            hoverTime: number,
+            hoverTextField: string
+        },
         west: number,
         east: number,
         north: number,
@@ -125,6 +129,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     private colorSchemeService: ColorSchemeService;
 
     private cesiumViewer: any;
+    private hoverTimeout: any;
     @ViewChild('cesiumContainer') cesiumContainer: ElementRef;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -150,6 +155,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             clustering: this.injector.get('clustering', 'points'),
             minClusterSize: this.injector.get('minClusterSize', 5),
             clusterPixelRange: this.injector.get('clusterPixelRange', 15),
+            hover: this.injector.get('hover', null),
             west: this.injector.get('west', null),
             east: this.injector.get('east', null),
             north: this.injector.get('north', null),
@@ -448,9 +454,27 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     onMouseMove(movement) {
+        let end = movement.endPosition;
         if (this.selection.selectionDown && movement) {
-            this.setEndPos(movement.endPosition);
+            this.setEndPos(end);
             this.drawSelection();
+        }
+
+        if (this.optionsFromConfig.hover) {
+            if (this.hoverTimeout) {
+                clearTimeout(this.hoverTimeout);
+                delete this.hoverTimeout;
+            }
+
+            let viewer = this.cesiumViewer,
+                objectsAtLocation = viewer.scene.drillPick(end);
+
+            if (objectsAtLocation.length) {
+                this.hoverTimeout = setTimeout(() => {
+                    viewer.selectedEntity = objectsAtLocation[0].id;
+                    delete this.hoverTimeout;
+                }, 300);
+            }
         }
         //console.log(movement.endPosition);
         //console.log(this.xyToLatLon(movement.endPosition))
@@ -661,6 +685,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         if (dateField) {
             fields.push(dateField);
         }
+        if (this.optionsFromConfig.hover) {
+            fields.push(this.optionsFromConfig.hover.hoverTextField);
+        }
         query = query.withFields(fields);
         let whereClause = neon.query.and.apply(neon.query, whereClauses);
         query = query.where(whereClause);
@@ -745,51 +772,16 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     latFieldParts.shift();
                 }
             }
-
-            if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
-            	//let nameString = String.format('%2f, %2f', latCoord, lngCoord);
-            	//let lat = parseFloat(latCoord * 100 / 100).toFixed(2);
-            	let lat = parseFloat(latCoord).toFixed(3);
-            	let lng = parseFloat(lngCoord).toFixed(3);
-                let entity = dataSource.entities.add({
-                    name: lat + ', ' + lng,
-                    position: Cesium.Cartesian3.fromDegrees(lngCoord, latCoord),
-                    point: {
-                        show: true, // default
-                        color: color, // default: WHITE
-                        pixelSize: 12, // default: 1
-                        outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
-                        outlineWidth: 0 // default: 0
-                    }
-                });
-                if (this.active.clustering === 'points') {
-                let en = entities.add(entity);
-                console.log(en);
-                newDataIds.push(en.id);
+            
+			let description;
+            if (this.optionsFromConfig.hover) {
+                description = point[this.optionsFromConfig.hover.hoverTextField];
             }
+            if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
+            	this.createAndAddPoint(latCoord, lngCoord, color, dataSource, newDataIds, entities, description);
             } else if (latCoord instanceof Array && lngCoord instanceof Array) {
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
-                    if (this.isNumeric(latCoord[pos]) && this.isNumeric(lngCoord[pos])) {
-                    	let lat = parseFloat(latCoord[pos]).toFixed(3);
-                    	let lng = parseFloat(lngCoord[pos]).toFixed(3);
-                        let entity = dataSource.entities.add({
-                        	name: lat + ', ' + lng,
-                            position: Cesium.Cartesian3.fromDegrees(lngCoord[pos], latCoord[pos]),
-                            point: {
-                                show: true, // default
-                                color: color, // default: WHITE
-                                pixelSize: 12, // default: 1
-                                outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
-                                outlineWidth: 0, // default: 0
-                                translucencyByDistance : new Cesium.NearFarScalar(100, .4, 8.0e6, 0.4)
-                            }
-                        });
-                        if (this.active.clustering === 'points') {
-                            let en = entities.add(entity);
-                            //console.log(en);
-                            newDataIds.push(en.id);
-                        }
-                    }
+                    this.createAndAddPoint(latCoord[pos], lngCoord[pos], color, dataSource, newDataIds, entities, description);
                 }
             }
         }
@@ -822,6 +814,31 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
         this.colorByFields = colorByFields;
     }
+    
+    createAndAddPoint(latCoord, lngCoord, color, dataSource, newDataIds, entities, description){
+        if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
+            let lat = parseFloat(latCoord).toFixed(3);
+            let lng = parseFloat(lngCoord).toFixed(3);
+            console.log(description);
+            let entity = dataSource.entities.add({
+                name: lat + ', ' + lng,
+                position: Cesium.Cartesian3.fromDegrees(lngCoord, latCoord),
+                point: {
+                    show: true, // default
+                    color: color, // default: WHITE
+                    pixelSize: 12, // default: 1
+                    outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
+                    outlineWidth: 0, // default: 0
+                    translucencyByDistance : new Cesium.NearFarScalar(100, .4, 8.0e6, 0.4)
+                },
+                //description: lat + ', ' + lng
+        	});
+        	if (this.active.clustering === 'points') {
+            	let en = entities.add(entity);
+            	newDataIds.push(en.id);
+        	}   
+        } 	
+    }
 
     clusterPoints(dataSource) {
     //greatly inspired by Cesium demo at https://cesiumjs.org/Cesium/Apps/Sandcastle/index.html?src=Clustering.html&label=Showcases
@@ -851,6 +868,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             } else {
                 removeListener = dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
                     cluster.label.show = false;
+                    //cluster.point.show = true;
                     cluster.billboard.show = true;
                     cluster.billboard.id = cluster.label.id;
                     cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
