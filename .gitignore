@@ -1,5 +1,8 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
+# client folder is outdated: ignore it if it exists
+/client
+
 # compiled output
 /dist
 /tmp

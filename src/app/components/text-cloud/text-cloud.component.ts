@@ -278,7 +278,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 if (useSizeField && this.queryTitle !== this.optionsFromConfig.title) {
                     this.queryTitle += ' and ' + this.active.sizeField.prettyName;
                 }
-                this.getDocCount();
+                if (cloudData.length === 0) {
+                    this.active.count = 0;
+                } else {
+                    this.getDocCount();
+                }
             }
         } catch (e) {
             console.log((<Error>e).message);

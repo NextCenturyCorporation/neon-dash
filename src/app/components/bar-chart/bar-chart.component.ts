@@ -543,7 +543,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 let key = filter.filter.whereClause.lhs;
                 let value = filter.filter.whereClause.rhs;
                 let f = {
-                    if: filter.id,
+                    id: filter.id,
                     key: key,
                     value: value,
                     prettyKey: key

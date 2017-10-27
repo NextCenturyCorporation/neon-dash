@@ -428,6 +428,7 @@ export abstract class BaseNeonComponent implements OnInit,
                 this.executeQueryChain();
             }
         };
+        let filterFields = this.getNeonFilterFields();
         this.filterService.replaceFilter(this.messenger,
             filter.id,
             this.id,
@@ -436,7 +437,7 @@ export abstract class BaseNeonComponent implements OnInit,
             this.createNeonFilterClauseEquals(
                 this.meta.database.name,
                 this.meta.table.name,
-                this.getNeonFilterFields()),
+                (filterFields.length === 1) ? filterFields[0] : filterFields),
             filterName,
             onSuccess.bind(this),
             () => {
