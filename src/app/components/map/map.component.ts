@@ -867,9 +867,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 removeListener = undefined;
             } else {
                 removeListener = dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
-                    cluster.label.show = false;
-                    //cluster.point.show = true;
-                    cluster.billboard.show = true;
+                    cluster.label.show = true;
+                    cluster.label.showBackground = true;
+                    cluster.label.font = '18px sans-serif'
+                    cluster.point.show = true;
+                    //cluster.billboard.show = true;
                     cluster.billboard.id = cluster.label.id;
                     cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
 
