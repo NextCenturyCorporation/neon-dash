@@ -15,58 +15,7 @@
  */
 @import '~@angular/material/_theming';
 @import '../../../themes/neon-green-theme.scss';
-
-.visualization-sidenav {
-    height: 100%;
-    cursor: default;
-
-    .header.text {
-        font-weight: bold;
-        text-transform: uppercase;
-    }
-
-    .visualization-sidenav-options {
-        min-width: 320px;
-
-        md-input,
-        mat-select,
-        table {
-            width: 100%;
-            margin-top: 15px;
-        }
-
-        .error-icon {
-            vertical-align: middle;
-        }
-    }
-
-    .filter-reset {
-        float: right;
-        padding-left: 5px;
-        margin-left: 5px;
-        line-height: 18px;
-        border-radius: 3px;
-        margin: 2px;
-        background-color: mat-color($accent);
-
-        .filter-label {
-            display: inline-block;
-            max-width: 100px;
-            overflow: hidden;
-            position: relative;
-            text-overflow: ellipsis;
-            top: 4px;
-            white-space: nowrap;
-        }
-    }
-}
-
-.body-container {
-    position: absolute;
-    top: 64px;
-    bottom: 0;
-    width: 100%;
-}
+@import '../../../themes/visualization-common.scss';
 
 .text-container {
     display: flex;
@@ -200,10 +149,4 @@
 /deep/ .icon-down:before {
     font-family: 'Material Icons';
     content: "keyboard_arrow_down";
-}
-
-.neon-green-dark-theme {
-    .filter-reset {
-        background-color: mat-color($primary);
-    }
 }
