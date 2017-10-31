@@ -27,38 +27,54 @@
                         <mat-icon *ngIf="meta.layers.length > 1" (click)="removeLayer(i)">delete</mat-icon>
                         <mat-icon>{{getIconForFilter(i)}}</mat-icon>
                     </mat-toolbar>
+
                     <div [hidden]="!filterVisible[i]" >
                         <mat-form-field>
                             <input matInput placeholder="Layer Name" [(ngModel)]="active.layers[i].title" required="true">
                         </mat-form-field>
-                        <br />
 
-                        <mat-select placeholder="Database" [(ngModel)]="meta.layers[i].database" required="true" (ngModelChange)="handleChangeDatabase(i)" [disabled]="meta.databases.length < 2">
-                            <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                        </mat-select>
-                        <br />
+                        <mat-form-field>
+                            <mat-select placeholder="Database" [(ngModel)]="meta.layers[i].database" required="true"
+                                        (ngModelChange)="handleChangeDatabase(i)" [disabled]="meta.databases.length < 2">
+                                <mat-option *ngFor="let database of meta.databases"
+                                            [value]="database">{{ database.prettyName }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
 
-                        <mat-select placeholder="Table" [(ngModel)]="meta.layers[i].table" required="true" (ngModelChange)="handleChangeTable(i)" [disabled]="meta.layers[i].tables.length < 2">
-                            <mat-option *ngFor="let table of meta.layers[i].tables" [value]="table">{{ table.prettyName }}</mat-option>
-                        </mat-select>
-                        <br />
+                        <mat-form-field>
+                            <mat-select placeholder="Table" [(ngModel)]="meta.layers[i].table" required="true"
+                                        (ngModelChange)="handleChangeTable(i)" [disabled]="meta.layers[i].tables.length < 2">
+                                <mat-option *ngFor="let table of meta.layers[i].tables"
+                                            [value]="table">{{ table.prettyName }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
 
-                        <mat-select placeholder="Latitude Field" [(ngModel)]="active.layers[i].latitudeField" required="true" (ngModelChange)="handleChangeLatitudeField(i)"
-                            [disabled]="meta.layers[i].fields.length == 0">
-                            <mat-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</mat-option>
-                        </mat-select>
-                        <br />
+                        <mat-form-field>
+                            <mat-select placeholder="Latitude Field" [(ngModel)]="active.layers[i].latitudeField"
+                                        required="true" (ngModelChange)="handleChangeLatitudeField(i)"
+                                        [disabled]="meta.layers[i].fields.length == 0">
+                                <mat-option *ngFor="let field of meta.layers[i].fields"
+                                            [value]="field">{{ field.prettyName }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
 
-                        <mat-select placeholder="Longitude Field" [(ngModel)]="active.layers[i].longitudeField" required="true" (ngModelChange)="handleChangeLongitudeField(i)"
-                            [disabled]="meta.layers[i].fields.length == 0">
-                            <mat-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</mat-option>
-                        </mat-select>
-                        <br />
+                        <mat-form-field>
+                            <mat-select placeholder="Longitude Field" [(ngModel)]="active.layers[i].longitudeField"
+                                        required="true" (ngModelChange)="handleChangeLongitudeField(i)"
+                                        [disabled]="meta.layers[i].fields.length == 0">
+                                <mat-option *ngFor="let field of meta.layers[i].fields"
+                                            [value]="field">{{ field.prettyName }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
 
-                        <mat-select placeholder="Color Field" [(ngModel)]="active.layers[i].colorField" required="true" (ngModelChange)="handleChangeColorField(i)"
-                            [disabled]="meta.layers[i].fields.length == 0">
-                            <mat-option *ngFor="let field of meta.layers[i].fields" [value]="field">{{ field.prettyName }}</mat-option>
-                        </mat-select>
+                        <mat-form-field>
+                            <mat-select placeholder="Color Field" [(ngModel)]="active.layers[i].colorField"
+                                        required="true" (ngModelChange)="handleChangeColorField(i)"
+                                        [disabled]="meta.layers[i].fields.length == 0">
+                                <mat-option *ngFor="let field of meta.layers[i].fields"
+                                            [value]="field">{{ field.prettyName }}</mat-option>
+                            </mat-select>
+                        </mat-form-field>
                     </div>
                 </div>
                 <table cellspacing="0">
