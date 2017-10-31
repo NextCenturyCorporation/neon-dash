@@ -29,7 +29,7 @@ import { ParameterService } from '../../services/parameter.service';
 import { ThemesService } from '../../services/themes.service';
 import { FilterService } from '../../services/filter.service';
 
-import { MdSnackBar } from '@angular/material';
+import { MatSnackBar } from '@angular/material';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {AppMaterialModule} from '../../app.material.module';
@@ -57,7 +57,7 @@ describe('Component: DashboardOptionsComponent', () => {
                 ErrorNotificationService,
                 VisualizationService,
                 ExportService,
-                MdSnackBar,
+                MatSnackBar,
                 ParameterService,
                 ThemesService,
                 ViewContainerRef,

@@ -15,7 +15,7 @@
  *
  */
 import { TestBed, inject } from '@angular/core/testing';
-import { MdDialogRef, MdGridListModule} from '@angular/material';
+import { MatDialogRef, MatGridListModule} from '@angular/material';
 import { AddVisualizationComponent } from './add-visualization.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ThemesService } from '../../services/themes.service';
@@ -28,7 +28,7 @@ describe('Component: AddVisualization', () => {
         TestBed.configureTestingModule({
             imports: [
                 BrowserAnimationsModule,
-                MdGridListModule,
+                MatGridListModule,
                 AppMaterialModule
             ],
             declarations: [
@@ -42,7 +42,7 @@ describe('Component: AddVisualization', () => {
     });
 
     it('should create an instance', inject([ActiveGridService, ThemesService],
-        (activeGridService: ActiveGridService, themesService: ThemesService, mdDialogRef: MdDialogRef<AddVisualizationComponent>) => {
+        (activeGridService: ActiveGridService, themesService: ThemesService, mdDialogRef: MatDialogRef<AddVisualizationComponent>) => {
         let component = new AddVisualizationComponent(activeGridService, themesService, mdDialogRef);
         expect(component).toBeTruthy();
     }));
