@@ -2234,7 +2234,11 @@
 						"longitudeField": "geoLocations.lon",
 						"dateField": "createdAt",
 						"colorField": "topics"
-					}]
+					}],
+					"hover": {
+						"hoverTime": 300,
+						"hoverTextField": "translatedText"
+					}
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 0,

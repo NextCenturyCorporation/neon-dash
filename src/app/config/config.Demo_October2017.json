@@ -2245,7 +2245,11 @@
 					"west": -75.2674560547,
 					"east": -67.5438232422,
 					"north": 20.7218648877,
-					"south": 17.0139322219
+					"south": 17.0139322219,
+                                        "hover": {
+                                            "hoverTime": 300,
+                                            "hoverTextField": "translatedText"
+                                        }
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae"
 			},
