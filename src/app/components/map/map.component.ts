@@ -759,7 +759,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             let color;
             if (colorField && point[colorField]) {
                 let colorString = this.colorSchemeService.getColorFor(colorField, point[colorField]).toRgb();
-                color = Cesium.Color.fromCssColorString('rgb(0, 255, 0)');
+                color = Cesium.Color.fromCssColorString(colorString);
             } else {
                 color = Cesium.Color.WHITE;
             }
