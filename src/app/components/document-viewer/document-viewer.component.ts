@@ -200,6 +200,18 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     deepFind(obj, pathStr) {
         for (let i = 0, path = pathStr.split('.'), len = path.length; i < len; i++) {
+            if (obj instanceof Array) {
+                let nestedPath = path.slice(i).join('.');
+                let pieces = [];
+                for (let item = 0; item < obj.length; item++) {
+                    let entryValue = this.deepFind(obj[item], nestedPath);
+                    if (entryValue instanceof Array) {
+                        entryValue = this.flatten(entryValue);
+                    }
+                    pieces = pieces.concat(entryValue);
+                }
+                return pieces;
+            }
             obj = obj[path[i]];
             if (!obj) {
                 return undefined;
@@ -241,7 +253,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     formatMetadataEntry(record, metadataEntry) {
-        let field = record[metadataEntry.field];
+        let field = record[metadataEntry.field]; // We don't have to deepFind because we did that in onQuerySuccess
         if (typeof field  === 'string') {
             // let asDate = moment(field, 'ddd MMM D hh:mm:ss ')
             // if ()
