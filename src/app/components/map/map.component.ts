@@ -81,10 +81,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         clustering: string,
         minClusterSize: number,
         clusterPixelRange: number,
-        hover: {
+        hoverSelect: {
             hoverTime: number,
-            hoverTextField: string
         },
+        hoverPopupEnabled: boolean,
         west: number,
         east: number,
         north: number,
@@ -130,6 +130,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     private cesiumViewer: any;
     private hoverTimeout: any;
+    private popupEntity: any;
+
     @ViewChild('cesiumContainer') cesiumContainer: ElementRef;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -155,7 +157,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             clustering: this.injector.get('clustering', 'points'),
             minClusterSize: this.injector.get('minClusterSize', 5),
             clusterPixelRange: this.injector.get('clusterPixelRange', 15),
-            hover: this.injector.get('hover', null),
+            hoverSelect: this.injector.get('hoverSelect', null),
+            hoverPopupEnabled: this.injector.get('hoverPopupEnabled', false),
             west: this.injector.get('west', null),
             east: this.injector.get('east', null),
             north: this.injector.get('north', null),
@@ -267,7 +270,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         Cesium.Camera.DEFAULT_VIEW_FACTOR = 0;
         Cesium.Camera.DEFAULT_VIEW_RECTANGLE = rectangle;
         this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
-            sceneMode: Cesium.SceneMode.SCENE2D,
+            sceneMode: Cesium.SceneMode.SCENE3D,
             imageryProviderViewModels: imagerySources,
             //set default imagery to eliminate annoying text and using a bing key by default
             selectedImageryProviderViewModel: imagerySources[sourceId],
@@ -304,6 +307,18 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         //Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
         this.cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
        // this.cesiumViewer.camera.flyHome(0);
+
+        this.popupEntity = this.optionsFromConfig.hoverPopupEnabled && this.cesiumViewer.entities.add({
+            label : {
+                show : false,
+                showBackground : true,
+                font : '14px monospace',
+                horizontalOrigin : Cesium.HorizontalOrigin.LEFT,
+                verticalOrigin : Cesium.VerticalOrigin.TOP,
+                pixelOffset : new Cesium.Cartesian2(15, 0),
+                eyeOffset: new Cesium.Cartesian3(0, 0, -6)
+            }
+        });
 
         // Draw everything
         this.handleChangeLimit();
@@ -460,22 +475,39 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             this.drawSelection();
         }
 
-        if (this.optionsFromConfig.hover) {
-            if (this.hoverTimeout) {
-                clearTimeout(this.hoverTimeout);
-                delete this.hoverTimeout;
+
+        if (this.optionsFromConfig.hoverPopupEnabled || this.optionsFromConfig.hoverSelect) {
+            let viewer = this.cesiumViewer,
+                objectsAtLocation = viewer.scene.drillPick(end); // get all entities under mouse
+
+            if (this.optionsFromConfig.hoverPopupEnabled) {
+                let popup = this.popupEntity;
+
+                //ensure that an object exists at cursor and that it isn't the popup
+                if (objectsAtLocation.length && objectsAtLocation[0].id.id !== popup.id) {
+                    popup.position = objectsAtLocation[0].id.position.getValue();
+                    popup.label.show = true;
+                    popup.label.text = 'Count: ' + objectsAtLocation.length;
+                } else {
+                    popup.label.show = false;
+                }
             }
 
-            let viewer = this.cesiumViewer,
-                objectsAtLocation = viewer.scene.drillPick(end);
-
-            if (objectsAtLocation.length) {
-                this.hoverTimeout = setTimeout(() => {
-                    viewer.selectedEntity = objectsAtLocation[0].id;
+            if (this.optionsFromConfig.hoverSelect) {
+                if (this.hoverTimeout) {
+                    clearTimeout(this.hoverTimeout);
                     delete this.hoverTimeout;
-                }, 300);
+                }
+
+                if (objectsAtLocation.length) {
+                    this.hoverTimeout = setTimeout(() => {
+                        viewer.selectedEntity = objectsAtLocation[0].id;
+                        delete this.hoverTimeout;
+                    }, 300);
+                }
             }
         }
+
         //console.log(movement.endPosition);
         //console.log(this.xyToLatLon(movement.endPosition))
     }
@@ -685,9 +717,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         if (dateField) {
             fields.push(dateField);
         }
-        if (this.optionsFromConfig.hover) {
-            fields.push(this.optionsFromConfig.hover.hoverTextField);
-        }
         query = query.withFields(fields);
         let whereClause = neon.query.and.apply(neon.query, whereClauses);
         query = query.where(whereClause);
@@ -730,7 +759,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             let color;
             if (colorField && point[colorField]) {
                 let colorString = this.colorSchemeService.getColorFor(colorField, point[colorField]).toRgb();
-                color = Cesium.Color.fromCssColorString('rgb(0, 255, 0)');
+                color = Cesium.Color.fromCssColorString(colorString);
             } else {
                 color = Cesium.Color.WHITE;
             }
@@ -772,16 +801,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     latFieldParts.shift();
                 }
             }
-            let description;
-            if (this.optionsFromConfig.hover) {
-                description = point[this.optionsFromConfig.hover.hoverTextField];
-            }
-            if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
-                this.createAndAddPoint(latCoord, lngCoord, color, dataSource, newDataIds, entities, description);
-            } else if (latCoord instanceof Array && lngCoord instanceof Array) {
+
+            if (latCoord instanceof Array && lngCoord instanceof Array) {
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
-                    this.createAndAddPoint(latCoord[pos], lngCoord[pos], color, dataSource, newDataIds, entities, description);
+                    this.createAndAddPoint(latCoord[pos], lngCoord[pos], color, dataSource, newDataIds);
                 }
+            } else {
+                this.createAndAddPoint(latCoord, lngCoord, color, dataSource, newDataIds);
             }
         }
 
@@ -791,15 +817,18 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             dataSource.clustering.enabled = false;
             this.active.data[layerIndex] = newDataIds;
         }
-        entities.resumeEvents();
-        this.updateLegend();
         if (this.active.clustering === 'clusters') {
-            this.cesiumViewer.dataSources.removeAll(true);
-            this.cesiumViewer.dataSources.add(dataSource);
             this.active.data[layerIndex] = [];
-            entities.removeAll();
             this.clusterPoints(dataSource);
         }
+        this.updateLegend();
+        entities.resumeEvents();
+
+        let scene = this.cesiumViewer.scene;
+        if (scene.mode === Cesium.SceneMode.SCENE3D) {
+            setTimeout(() => scene.morphTo2D(0), 300);
+        }
+
         //console.log(response);
         //this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
     }
@@ -814,11 +843,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         this.colorByFields = colorByFields;
     }
 
-    createAndAddPoint(latCoord, lngCoord, color, dataSource, newDataIds, entities, description) {
+    createAndAddPoint(latCoord, lngCoord, color, dataSource, newDataIds) {
         if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
             let lat = parseFloat(latCoord).toFixed(3);
             let lng = parseFloat(lngCoord).toFixed(3);
-            console.log(description);
             let entity = dataSource.entities.add({
                 name: lat + ', ' + lng,
                 position: Cesium.Cartesian3.fromDegrees(lngCoord, latCoord),
@@ -829,12 +857,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
                     outlineWidth: 0, // default: 0
                     translucencyByDistance : new Cesium.NearFarScalar(100, .4, 8.0e6, 0.4)
-                },
-                //description: lat + ', ' + lng
+                }
             });
             if (this.active.clustering === 'points') {
-                let en = entities.add(entity);
-                newDataIds.push(en.id);
+
+                newDataIds.push(entity.id);
             }
         }
     }
