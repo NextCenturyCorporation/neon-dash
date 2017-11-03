@@ -319,12 +319,9 @@ export abstract class BaseNeonComponent implements OnInit,
      * Initialize all the field metadata
      */
     initFields() {
-        // Sort the fields that are displayed in the dropdowns in the options menus
-        // alphabetically.
-        let fields = this.datasetService
-            .getSortedFields(this.meta.database['name'], this.meta.table['name']);
-        this.meta.fields = fields.filter(function(f) {
-            return (f && f.type);
+        // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
+        this.meta.fields = this.datasetService.getSortedFields(this.meta.database.name, this.meta.table.name).filter(function(field) {
+            return (field && field.columnName);
         });
         this.meta.unsharedFilterField = this.findFieldObject('unsharedFilterField');
         this.meta.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
@@ -713,5 +710,29 @@ export abstract class BaseNeonComponent implements OnInit,
 
     getButtonText() {
         return '';
-    }
+    };
+
+    /**
+     * Publishes the given ID to the select_id event.
+     *
+     * @arg {(number|string)} id
+     * @fires select_id
+     */
+    publishSelectId(id) {
+        this.messenger.publish('select_id', {
+            database: this.meta.database.name,
+            table: this.meta.table.name,
+            id: id
+        });
+    };
+
+    /**
+     * Subscribes the given callback function to the select_id event.
+     *
+     * @arg {function} callback
+     * @listens select_id
+     */
+    subscribeToSelectId(callback) {
+        this.messenger.subscribe('select_id', callback);
+    };
 }

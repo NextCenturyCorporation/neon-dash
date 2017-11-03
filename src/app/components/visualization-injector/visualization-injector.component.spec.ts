@@ -5,41 +5,46 @@ import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
-import { VisualizationInjectorComponent } from './visualization-injector.component';
-import { TextCloudComponent } from '../text-cloud/text-cloud.component';
-import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
-import { LineChartComponent } from '../line-chart/line-chart.component';
-import { TimelineComponent } from '../timeline/timeline.component';
-import { MapComponent } from '../map/map.component';
-import { LegendComponent } from '../legend/legend.component';
-import { ExportControlComponent } from '../export-control/export-control.component';
 import { DataTableComponent } from '../data-table/data-table.component';
-import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
+import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
+import { LegendComponent } from '../legend/legend.component';
+import { LineChartComponent } from '../line-chart/line-chart.component';
+import { MapComponent } from '../map/map.component';
+import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
+import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
+import { TextCloudComponent } from '../text-cloud/text-cloud.component';
+import { TimelineComponent } from '../timeline/timeline.component';
+import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
+import { VisualizationInjectorComponent } from './visualization-injector.component';
+import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
+
+import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {AppMaterialModule} from '../../app.material.module';
-import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
-import {VisualizationService} from '../../services/visualization.service';
+import { VisualizationService } from '../../services/visualization.service';
 
 describe('Component: VisualizationInjector', () => {
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
-                VisualizationInjectorComponent,
-                TextCloudComponent,
-                DocumentViewerComponent,
                 BarChartComponent,
-                LineChartComponent,
-                LegendComponent,
-                MapComponent,
-                TimelineComponent,
                 DataTableComponent,
-                ScatterPlotComponent,
-                FilterBuilderComponent,
+                DocumentViewerComponent,
                 ExportControlComponent,
-                UnsharedFilterComponent
+                FilterBuilderComponent,
+                LegendComponent,
+                LineChartComponent,
+                MapComponent,
+                ScatterPlotComponent,
+                StackedTimelineComponent,
+                TextCloudComponent,
+                TimelineComponent,
+                UnsharedFilterComponent,
+                VisualizationInjectorComponent,
+                WikiViewerComponent
             ],
             providers: [ComponentFactoryResolver],
             imports: [

@@ -1,0 +1,55 @@
+<mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar color="header" layout-align="space-between center" flex>
+        <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
+        <span class="fill-remaining"></span>
+        <span class="error-message text" *ngIf="active.errorMessage">{{ active.errorMessage }}</span>
+        <span class="wiki-name text" *ngIf="active.wikiName">{{ active.wikiName }}</span>
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+            <mat-icon class="mat-24">settings</mat-icon>
+        </button>
+    </mat-toolbar>
+
+    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+        <mat-card align="left">
+            <mat-card-content>
+                <div class="icon-with-text" *ngIf="active.errorMessage">
+                    <mat-icon class="error-message icon">error</mat-icon>
+                    <div class="error-message text">{{ active.errorMessage }}</div>
+                </div>
+
+                <div class="icon-with-text" *ngIf="active.wikiName">
+                    <mat-icon class="wiki-name icon">web</mat-icon>
+                    <div class="wiki-name text">{{ active.wikiName }}</div>
+                </div>
+
+                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                </mat-select>
+                <p></p>
+
+                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                </mat-select>
+                <p></p>
+
+                <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length < 1">
+                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                </mat-select>
+                <p></p>
+
+                <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length < 1">
+                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                </mat-select>
+                <p></p>
+
+                <app-export-control [exportId]="exportId"></app-export-control>
+            </mat-card-content>
+        </mat-card>
+    </mat-sidenav>
+
+    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+        <mat-spinner ></mat-spinner>
+    </div>
+
+    <div class="wiki-text html" [innerHTML]="active.wikiText"></div>
+</mat-sidenav-container>
