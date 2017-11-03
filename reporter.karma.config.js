@@ -12,6 +12,8 @@ module.exports = function (config) {
             require('karma-firefox-launcher'),
             require('karma-jasmine-html-reporter'),
             require('karma-phantomjs-launcher'),
+            require('karma-remap-istanbul'),
+            require('karma-junit-reporter'),
             require('@angular/cli/plugins/karma')
         ],
         files: [
@@ -32,7 +34,18 @@ module.exports = function (config) {
         mime: {
             'text/x-typescript': ['ts','tsx']
         },
-        reporters: ['progress'],
+        junitReporter: {
+            outputDir: 'reports/tests'
+        },
+        remapIstanbulReporter: {
+            reports: {
+                html: 'reports/coverage',
+                lcovonly: './reports/coverage/coverage.lcov',
+                // Include cobertura reports for Jenkins
+                cobertura: './reports/coverage/cobertura-coverage.xml'
+            }
+        },
+        reporters: ['progress', 'karma-remap-istanbul', 'junit'],
         browserDisconnectTimeout: 60000,
         browserDisconnectTolerance: 3,
         browserNoActivityTimeout: 60000,
