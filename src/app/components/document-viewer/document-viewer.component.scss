@@ -34,14 +34,6 @@
    		color: mat-color($fade);
     }
 
-    .openSingleRecordButton {
-        background-color: mat-color($primary);
-        color: mat-color($white);
-        line-height: 20px;
-        height: 20px;
-        width: 100%;
-    }
-
     .visualization-sidenav-options {
         min-width: 320px;
 
@@ -82,19 +74,36 @@
         width: 90% ;
     }
 
+    .document-viewer-button-table {
+        width: 100%;
+    }
+
+    .document-viewer-button-cell {
+        width: 50%;
+    }
+
+    .document-viewer-button {
+        background-color: mat-color($primary);
+        color: mat-color($white);
+        line-height: 20px;
+        height: 20px;
+        width: 100%;
+    }
+
     .metadata-row {
-        margin: 6px 0px;
+        line-height: 20px;
+        margin: 5px 0px;
     }
 
     .metadata-item {
-        padding: 0px 0px 0px 16px;
+        padding: 0px 0px 0px 15px;
     }
 
     .metadata-item:nth-child(1) {
-        padding: 0px 16px 0px 0px;
+        padding: 0px 15px 0px 0px;
     }
 
-    span.metadata-title {
+    span.metadata-bold {
         font-weight: bold;
     }
 }

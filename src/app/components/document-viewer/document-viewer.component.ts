@@ -41,6 +41,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         table: string,
         dataField: string,
         dateField: string,
+        idField: string,
         metadataFields: any[], // Array of arrays. Each internal array is a row of metadata and contains {name, field} objects.
         popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
         limit: number
@@ -49,6 +50,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     public active: {
         dataField: FieldMetaData,
         dateField: FieldMetaData,
+        idField: FieldMetaData,
         metadataFields: any[],
         limit: number,
         data: any[],
@@ -65,6 +67,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             table: this.injector.get('table', null),
             dataField: this.injector.get('dataField', null),
             dateField: this.injector.get('dateField', null),
+            idField: this.injector.get('idField', null),
             metadataFields: this.injector.get('metadataFields', null),
             popoutFields: this.injector.get('popoutFields', null),
             limit: this.injector.get('limit', null)
@@ -72,6 +75,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         this.active = {
             dataField: new FieldMetaData(),
             dateField: new FieldMetaData(),
+            idField: new FieldMetaData(),
             metadataFields: [],
             limit: 50,
             data: [],
@@ -104,6 +108,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         {
             columnName: this.active.dateField.columnName,
             prettyName: this.active.dateField.prettyName
+        },
+        {
+            columnName: this.active.idField.columnName,
+            prettyName: this.active.idField.prettyName
         }];
     }
 
@@ -114,6 +122,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     onUpdateFields() {
         this.active.dataField = this.findFieldObject('dataField', neonMappings.NEWSFEED_TEXT);
         this.active.dateField = this.findFieldObject('dateField', null); // If not set in the config, ignore it altogether.
+        this.active.idField = this.findFieldObject('idField', null);
         this.active.metadataFields = this.optionsFromConfig.metadataFields;
     }
 
@@ -142,7 +151,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         valid = (this.meta.database && this.meta.database.name && valid);
         valid = (this.meta.table && this.meta.table.name && valid);
         valid = (this.active.dataField && this.active.dataField.columnName && valid);
-        // We intentionally don't include dateField in the validity check, because we're allowed to leave it null.
+        // We intentionally don't include dateField or idField in the validity check, because we're allowed to leave it null.
         return valid;
     }
 
@@ -158,6 +167,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             fields = fields.concat(this.active.dateField.columnName);
             query = query.sortBy(this.active.dateField.columnName, neon.query['DESCENDING']);
         }
+        if (this.active.idField.columnName) {
+            fields = fields.concat(this.active.idField.columnName);
+        }
         return query.where(whereClause).withFields(fields).limit(this.active.limit);
 
     }
@@ -169,6 +181,12 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             let fields = this.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
                 return x.field;
             }).concat(this.active.dataField.columnName);
+            if (this.active.dateField.columnName) {
+                fields = fields.concat(this.active.dateField.columnName);
+            }
+            if (this.active.idField.columnName) {
+                fields = fields.concat(this.active.idField.columnName);
+            }
             let data = response.data.map(function(element) {
                 let elem = {};
                 for (let field of fields) {
@@ -200,18 +218,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     deepFind(obj, pathStr) {
         for (let i = 0, path = pathStr.split('.'), len = path.length; i < len; i++) {
-            if (obj instanceof Array) {
-                let nestedPath = path.slice(i).join('.');
-                let pieces = [];
-                for (let item = 0; item < obj.length; item++) {
-                    let entryValue = this.deepFind(obj[item], nestedPath);
-                    if (entryValue instanceof Array) {
-                        entryValue = this.flatten(entryValue);
-                    }
-                    pieces = pieces.concat(entryValue);
-                }
-                return pieces;
-            }
             obj = obj[path[i]];
             if (!obj) {
                 return undefined;
@@ -253,7 +259,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     formatMetadataEntry(record, metadataEntry) {
-        let field = record[metadataEntry.field]; // We don't have to deepFind because we did that in onQuerySuccess
+        let field = record[metadataEntry.field];
         if (typeof field  === 'string') {
             // let asDate = moment(field, 'ddd MMM D hh:mm:ss ')
             // if ()
@@ -300,7 +306,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         }
     }
 
-    openSingleRecord(item) {
+    private openSingleRecord(item) {
         let config = new MatDialogConfig();
         // config.viewContainerRef = this.viewContainerRef;
         let metadata = this.optionsFromConfig.metadataFields;
@@ -317,15 +323,18 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         this.singleItemRef.afterClosed().subscribe(() => {
             this.singleItemRef = null;
         });
+    };
+
+    /**
+     * Publishes a select_id event for the ID of the given selected item.
+     *
+     * @arg {object} item
+     * @fires select_id
+     * @private
+     */
+    private selectSingleRecord(item) {
+        if (this.active.idField.columnName && item[this.active.idField.columnName]) {
+            this.publishSelectId(item[this.active.idField.columnName]);
+        }
     }
 }
-
-/**
- * arrayFilter is used to filter only for certain results from a returned array. It accomodates both object and string/number arrays.
- * {
- *     "filterOn": String, the (non-nested) field of each  object in the array to filter on. "" or "*" to filters on the complete object.
- *     "filterType": String, the type of filter this is. Must be one of "=" or "!="
- *     "filterFor": Array, values to include or exclude. The filterOn field must match one of these values to be included/excluded.
- *     "show": String, the field to show for any included object. Use "" or "*" to show the entire object (as for string/number arrays).
- * }
- */

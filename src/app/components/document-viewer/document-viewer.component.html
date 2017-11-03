@@ -44,6 +44,13 @@
                 </mat-select>
                 <p></p>
 
+                <!-- ID field selector -->
+                <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeDataField()"
+                    [disabled]="meta.fields.length == 0">
+                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                </mat-select>
+                <p></p>
+
                 <!-- Limit selector -->
                 <table cellspacing="0">
                     <tr>
@@ -108,11 +115,20 @@
             <div class="mat-list-item-text" layout="column">
                 <p class="metadata-row" *ngFor="let row of active.metadataFields">
                     <span class="metadata-item" *ngFor="let metadataElement of row">
-                        <span class="metadata-title">{{metadataElement.name}}: </span><span class="metadata-text">{{formatMetadataEntry(item, metadataElement)}}</span>
+                        <span class="metadata-bold">{{metadataElement.name}}: </span><span class="metadata-text">{{formatMetadataEntry(item, metadataElement)}}</span>
                     </span>
                 </p>
                 <!-- <p>{{item[active.dataField.columnName]}}</p> -->
-                <button mat-button class="openSingleRecordButton" (click)="openSingleRecord(item)">View Source Text</button>
+                <table cellspacing="0" class="document-viewer-button-table">
+                    <tr>
+                        <td class="document-viewer-button-cell">
+                            <button mat-button class="document-viewer-button" (click)="openSingleRecord(item)">View Source Text</button>
+                        </td>
+                        <td class="document-viewer-button-cell" *ngIf="active.idField.columnName">
+                            <button mat-button class="document-viewer-button" (click)="selectSingleRecord(item)">Select</button>
+                        </td>
+                    </tr>
+                </table>
             </div>
             <hr>
         </div>

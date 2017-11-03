@@ -29,8 +29,7 @@ import {VisualizationService} from '../../services/visualization.service';
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DataTableComponent extends BaseNeonComponent implements OnInit,
-    OnDestroy {
+export class DataTableComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     @ViewChild('table') table: any;
     @ViewChild('dragView') dragView: ElementRef;
 
@@ -45,12 +44,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         title: string,
         database: string,
         table: string,
+        idField: string,
         sortField: string,
         limit: number,
         unsharedFilterField: Object,
         unsharedFilterValue: string
     };
+
     public active: {
+        idField: FieldMetaData,
         sortField: FieldMetaData,
         andFilters: boolean,
         limit: number,
@@ -70,6 +72,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         x: number,
         y: number,
     };
+
     public changeDetection: ChangeDetectorRef;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -80,6 +83,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
+            idField: this.injector.get('idField', null),
             sortField: this.injector.get('sortField', null),
             limit: this.injector.get('limit', 100),
             unsharedFilterField: {},
@@ -87,6 +91,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         };
         this.filters = [];
         this.active = {
+            idField: new FieldMetaData(),
             sortField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
@@ -127,11 +132,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
     };
 
     subGetBindings(bindings: any) {
+        bindings.idField = this.active.idField.columnName;
         bindings.sortField = this.active.sortField.columnName;
         bindings.limit = this.active.limit;
-    }
+    };
 
     onUpdateFields() {
+        this.active.idField = this.findFieldObject('idField', neonMappings.TAGS);
         this.active.sortField = this.findFieldObject('sortField', neonMappings.TAGS);
         let initialHeaderLimit = 25;
         let numHeaders = 0;
@@ -146,7 +153,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         this.active.activeHeaders = this.getActiveHeaders();
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
-    }
+    };
 
     getActiveHeaders() {
         let active = [];
@@ -167,13 +174,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
                   prettyName: header.name
               };
           });
-    }
+    };
 
     closeColumnSelector() {
         this.active.showColumnSelector = 'hide';
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
-    }
+    };
 
     logAndDisplay(obj) {
         console.log(obj);
@@ -198,20 +205,21 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
 
     getNeonFilterFields(): string[] {
         return [this.active.sortField.columnName];
-    }
+    };
+
     getVisualizationName(): string {
         return 'Data Chart';
-    }
+    };
 
     getFilterText() {
         return this.filters[0].value;
-    }
+    };
 
     refreshVisualization() {
         this.table.recalculate();
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
-    }
+    };
 
     isValidQuery() {
         let valid = true;
@@ -220,7 +228,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         valid = (this.active.sortField && this.active.sortField.columnName && valid);
         // valid = (this.active.aggregation && valid);
         return valid;
-    }
+    };
 
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
@@ -240,7 +248,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
 
     getFiltersToIgnore() {
         return null;
-    }
+    };
 
     arrayToString(arr) {
         let modArr = arr
@@ -257,11 +265,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
                 }
         });
         return '[' + modArr + ']';
-    }
+    };
 
     objectToString(base) {
         return '';
-    }
+    };
 
     toCellString(base, type) {
         if (base === null) {
@@ -273,29 +281,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         } else {
             return base;
         }
-    }
+    };
 
-    deepFind(obj, pathStr) {
+    deepFind (obj, pathStr) {
         for (let i = 0, path = pathStr.split('.'), len = path.length; i < len; i++) {
-            if (obj instanceof Array) {
-                let nestedPath = path.slice(i).join('.');
-                let pieces = [];
-                for (let item = 0; item < obj.length; item++) {
-                    let entryValue = this.deepFind(obj[item], nestedPath);
-                    if (entryValue instanceof Array) {
-                        entryValue = this.flatten(entryValue);
-                    }
-                    pieces = pieces.concat(entryValue);
-                }
-                return pieces;
-            }
             obj = obj[path[i]];
             if (!obj) {
                 return undefined;
             }
         };
         return obj;
-    }
+    };
 
     onQuerySuccess(response): void {
         //this.active.data = response.data.map(this.normalizeObject.bind(this));
@@ -310,7 +306,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         }.bind(this));
         this.active.data = data;
         this.refreshVisualization();
-    }
+    };
 
     setupFilters() {
         // Get neon filters
@@ -333,7 +329,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         } else {
             this.filters = [];
         }
-    }
+    };
 
     handleFiltersChangedEvent() {
 
@@ -342,15 +338,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeLimit() {
         this.logChangeAndStartQueryChain();
-    }
+    };
 
-    handleChangeSortField() {
+    handleChangeField() {
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
     };
 
     isDragging(): boolean {
         return (this.drag.mousedown && this.drag.downIndex >= 0);
-    }
+    };
 
     //mouse up in a drag and drop element
     onMouseUp(i) {
@@ -375,7 +371,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         this.clearHeaderStyles();
         this.drag.downIndex = -1;
         this.drag.mousedown = false;
-    }
+    };
 
     //clicks on a drag and drop icon of an element
     onMouseDown(i) {
@@ -385,7 +381,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
             this.active.headers[i].style['backgroundColor'] = 'rgba(0, 0, 0, .2)';
             this.active.headers[i].style['border'] = 'gray dashed 1px';
         }
-    }
+    };
 
     //enters a NEW drag and drop element
     onMouseEnter(i) {
@@ -398,7 +394,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
                 this.active.headers[i].style['borderBottom'] = style;
             }
         }
-    }
+    };
 
     onMouseLeaveItem(i) {
         if (this.isDragging()) {
@@ -407,14 +403,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
                 this.active.headers[i].style['borderTop'] = null;
             }
         }
-    }
+    };
 
     //leaves drag and drop area
     onMouseLeaveArea() {
         this.drag.downIndex = -1;
         this.drag.mousedown = false;
         this.clearHeaderStyles();
-    }
+    };
 
     //moving in drag and drop area
     onMouseMove(event) {
@@ -422,13 +418,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
             this.drag.x = event.screenX;
             this.drag.y = event.screenY;
         }
-    }
+    };
 
     clearHeaderStyles() {
         for (let header of this.active.headers) {
             header.style = {};
         }
-    }
+    };
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
@@ -453,14 +449,27 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
     unsharedFilterChanged() {
         // Update the data
         this.executeQueryChain();
-    }
+    };
 
     unsharedFilterRemoved() {
         // Update the data
         this.executeQueryChain();
-    }
+    };
 
-    removeFilter(/*value: string*/) {
+    removeFilter() {
         this.filters = [];
-    }
+    };
+
+    /**
+     * Publishes a select_id event for the ID of the first item in the given list of selected items.
+     *
+     * @arg {array} selected.selected
+     * @fires select_id
+     * @private
+     */
+    private onSelect({selected}) {
+        if (selected && selected.length && this.active.idField.columnName && selected[0][this.active.idField.columnName]) {
+            this.publishSelectId(selected[0][this.active.idField.columnName]);
+        }
+    };
 }

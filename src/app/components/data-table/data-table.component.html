@@ -27,7 +27,13 @@
                 </mat-select>
                 <p></p>
 
-                <mat-select placeholder="Initial Sort Field" [(ngModel)]="active.sortField" required="true" (ngModelChange)="handleChangeSortField()"
+                <mat-select placeholder="Default Sort Field" [(ngModel)]="active.sortField" required="true" (ngModelChange)="handleChangeField()"
+                    [disabled]="meta.fields.length == 0">
+                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                </mat-select>
+                <p></p>
+
+                <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()"
                     [disabled]="meta.fields.length == 0">
                     <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                 </mat-select>
@@ -82,15 +88,7 @@
         </div>
         <div class="chart-container">
             <ngx-datatable #table class="material table" [rows]="active.data" [columns]="active.activeHeaders" [headerHeight]="30" [footerHeight]="0"
-                [rowHeight]="25" [scrollbarH]="true" [scrollbarV]="true" [reorderable]="false">
-                <!--<ngx-datatable-column *ngFor="let c of active.headers" name="{{c.name}}" prop="{{c.prop}}">
-                    <template let-column="column" ngx-datatable-header-template>
-                            <span >{{column.name}} <mat-icon>keyboard_arrow_down</mat-icon></span>
-                    </template>
-                    <template let-row="row" let-value="value" ngx-datatable-cell-template>
-                            {{value}}
-                    </template>
-                </ngx-datatable-column>-->
+                [rowHeight]="25" [scrollbarH]="true" [scrollbarV]="true" [reorderable]="false" [selectionType]="'single'" (select)="onSelect($event)">
             </ngx-datatable>
             <div *ngIf="active.showColumnSelector=='show'" class="column-selector">
                 <div class="column-selector-header"><span> Columns </span>
