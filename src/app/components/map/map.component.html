@@ -100,9 +100,9 @@
             <div class="map-selection" *ngIf="selection.showSelection" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
         </div>
         <div class=" legend-container " style="">
-            <!--<div>
+            <div>
                 <app-legend [fieldNames]="colorByFields"></app-legend>
-            </div> -->
+            </div>
             <div class="filter-reset " *ngFor="let filter of getCloseableFilters() ">
                 <span class="filter-label " [title]="getFilterTitle('Map Filter') ">{{ getFilterCloseText('Map Filter') }}</span>
                 <button mat-icon-button aria-label="Close " [matTooltip]="getRemoveFilterTooltip('Map Filter') " tooltip-position="below" (click)="handleRemoveFilter(filter)">

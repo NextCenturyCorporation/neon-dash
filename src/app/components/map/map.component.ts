@@ -322,6 +322,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
         // Draw everything
         this.handleChangeLimit();
+
+        let scene = this.cesiumViewer.scene;
+        setTimeout(() => scene.mode === Cesium.SceneMode.SCENE3D && scene.morphTo2D(0), 700);
     }
 
     subNgOnDestroy() {
@@ -756,9 +759,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         //let legendIndex = 0;
         let data = response.data;
         for (let point of data) {
-            let color;
-            if (colorField && point[colorField]) {
-                let colorString = this.colorSchemeService.getColorFor(colorField, point[colorField]).toRgb();
+            let color,
+                colorValue = colorField && point[colorField];
+            if (colorValue) {
+                let colorString = this.colorSchemeService.getColorFor(colorField, colorValue).toRgb();
                 color = Cesium.Color.fromCssColorString(colorString);
             } else {
                 color = Cesium.Color.WHITE;
@@ -823,11 +827,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
         this.updateLegend();
         entities.resumeEvents();
-
-        let scene = this.cesiumViewer.scene;
-        if (scene.mode === Cesium.SceneMode.SCENE3D) {
-            setTimeout(() => scene.morphTo2D(0), 300);
-        }
 
         //console.log(response);
         //this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
