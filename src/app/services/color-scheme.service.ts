@@ -118,7 +118,7 @@ export class ColorSchemeService {
      * @param {string} set
      * @param {string} value
      */
-    public getColorFor(set: string, value: string): Color {
+    public getColorFor(set: string, value: string|Array<string>): Color {
         let colorSet = this.colorMaps.get(set);
         if (colorSet == null) {
             colorSet = new ColorSet();
@@ -126,7 +126,8 @@ export class ColorSchemeService {
             this.colorMaps.set(set, colorSet);
             this.colorPosition = (this.colorPosition + 1) % this.colorList.length;
         }
-        return colorSet.getColorForValue(value);
+        let colorKey = (value instanceof Array) ? value.join() : value;
+        return colorSet.getColorForValue(colorKey);
     }
 
     /**
