@@ -275,6 +275,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit,
         }
     }
 
+    flatten(array) {
+        return (array || []).reduce(function(sum, element) {
+            return sum.concat(Array.isArray(element) ? this.flatten(element) : element);
+        }.bind(this), []); // "(array || [])" and ", []" prevent against exceptions and return [] when array is null or empty.
+    }
+
     deepFind(obj, pathStr) {
         for (let i = 0, path = pathStr.split('.'), len = path.length; i < len; i++) {
             if (obj instanceof Array) {
