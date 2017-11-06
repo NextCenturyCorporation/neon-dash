@@ -10,21 +10,27 @@ Building the **neon-dash** application requires [Node.js][Node.js] (Version 6.9.
 
 		npm install -g @angular/cli
 
-The recommended package manager for the project is the [Yarn Package Manager][yarn]. npm can also be used.
+The recommended package manager for the project is the [Yarn Package Manager][yarn]. To install yarn:
 
-## Development server
+		npm install -g yarn
+
+Now, install the dependencies:
+
+		yarn install
+		
+If you decide not to use, yarn, use npm to install the dependencies: 
+
+		npm install
+
+## Run Development Server
 
 Start a [Neon server][neon] running on port 8080. As an alternate to building the server, you can use the [Neon Quickstart Docker Image][neon-quickstart].
 
 Run `npm start` or `yarn start` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-## Code scaffolding
+## Build for Deployment
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive/pipe/service/route/class`.
-
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+If you need to deliver the application to someone else, so need the war file, run `npm run build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
 
 ## Generating Documentation
 
@@ -38,6 +44,10 @@ Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.
 
 Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/). 
 Before running the tests make sure you are serving the app via `ng serve`.
+
+## Code scaffolding
+
+If you wish to create a new component, run `ng generate component <component-name>` to generate the appropriate files as a basis. You can also use `ng generate directive/pipe/service/route/class`.
 
 ## Pre-Commit Hooks
 
