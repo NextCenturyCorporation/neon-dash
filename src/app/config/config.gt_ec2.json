@@ -5,19 +5,33 @@
 			"layout": "ils-layout",
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
-			"databases": [{
-				"name": "ldc_uyghur_3",
-				"prettyName": "Ground Truth",
-				"tables": [{
-					"name": "ui_output",
-					"prettyName": "UI Output",
-					"mappings": {
-						"date": "createdAt",
-						"latitude": "geoLocations.lat",
-						"longitude": "geoLocations.lon"
-					}
-				}]
-			}],
+			"databases": [
+                {
+                    "name": "ldc_uyghur_3",
+                    "prettyName": "Ground Truth",
+                    "tables": [{
+                        "name": "ui_output",
+                        "prettyName": "UI Output",
+                        "mappings": {
+                            "date": "createdAt",
+                            "latitude": "geoLocations.lat",
+                            "longitude": "geoLocations.lon"
+                        }
+                    }]
+                },
+                {
+                    "name": "ldc_data_xy",
+                    "prettyName": "XY Data DB",
+                    "tables": [{
+                        "name": "record",
+                        "prettyName": "XY Data Table",
+                        "mappings": {
+                            "x": "Xcoordinate",
+                            "y": "Ycoordinate"
+                        }
+                    }]
+                }
+            ],
 			"options": {
 				"checkForCoordinateValidation": "null_values",
 				"colorMaps": {
@@ -544,7 +558,42 @@
 				},
 				"row": 0,
 				"col": 19
-			}
+			},
+            {
+                "name": "Scatter Plot",
+                "type": "scatterPlot",
+                "icon": "ScatterPlot64",
+                "selected": true,
+                "id": "3f451b37-ac6c-4c4c-b227-2100d8cba466",
+                "gridConfig": {
+                    "col": 1,
+                    "row": 1,
+                    "sizex": 10,
+                    "sizey": 8,
+                    "dragHandle": null,
+                    "resizeHandle": null,
+                    "fixed": false,
+                    "draggable": true,
+                    "resizable": true,
+                    "borderSize": 25
+                },
+                "sizex": 10,
+                "sizey": 8,
+                "row": 16,
+                "col": 0,
+                "bindings": {
+                    "title": "Scatter Plot",
+                    "database": "ldc_data_xy",
+                    "table": "record",
+                    "unsharedFilterField": "",
+                    "unsharedFilterValue": "",
+                    "colorField": "",
+                    "xField": "Xcoordinate",
+                    "yField": "Ycoordinate",
+                    "labelField": "uuid",
+                    "limit": 200
+                }
+            }
 		],
 		"elisa_uig-layout": [{
 				"name": "Bar Chart",
