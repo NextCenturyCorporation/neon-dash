@@ -13,9 +13,10 @@
  * limitations under the License.
  *
  */
- @import '../component.scss';
+@import '../base-neon-component/base-neon.component.scss';
 
- // Smaller top value and height than default
+// FIXME:  Replace hard-coded colors with themes
+
 .body-container {
     top: 26px;
     height: 80%;

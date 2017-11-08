@@ -13,8 +13,7 @@
  * limitations under the License.
  *
  */
-@import '~@angular/material/_theming';
-@import 'src/themes/neon-green-theme.scss';
+@import '../base-neon-component/base-neon.component.scss';
 
 .filter-label {
   margin-left: 5px;

@@ -21,13 +21,6 @@
 @import '~@angular/material/_theming';
 @import 'src/themes/neon-green-theme.scss';
 
-.body-container {
-    position: absolute;
-    top: 56px;
-    bottom: 0;
-    width: 100%;
-}
-
 .visualization-sidenav {
     height: 100%;
     cursor: default;
@@ -43,9 +36,7 @@
     .visualization-sidenav-options {
         min-width: 320px;
 
-        mat-input,
-        mat-select,
-        table {
+        mat-input, mat-select, table {
             width: 100%;
             margin-top: 15px;
         }
@@ -80,6 +71,13 @@
         color: mat-color($fade);
     }
 
+}
+
+.body-container {
+    position: absolute;
+    top: 56px;
+    bottom: 0;
+    width: 100%;
 }
 
 .text-container {

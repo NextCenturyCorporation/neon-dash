@@ -13,14 +13,7 @@
  * limitations under the License.
  *
  */
- @import '../component.scss';
-
-.text-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    height: 45px;
-}
+@import '../base-neon-component/base-neon.component.scss';
 
 .chart-container {
     height: 95%;

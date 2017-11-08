@@ -13,6 +13,8 @@
  * limitations under the License.
  *
  */
+ @import '../base-neon-component/base-neon.component.scss';
+ 
  .add-visualization {
 
     .add-visualization-button{
@@ -22,7 +24,6 @@
         a {
             background: none;
             border: 0;
-            /*      color: @main-text-color;*/
             display: block;
             padding-bottom: 15px;
             padding-top: 15px;
@@ -30,7 +31,6 @@
             &.collapsed:hover,
             &:focus,
             &:hover {
-                /*              color: @accent-bright;*/
                 cursor: pointer;
             }
         }
@@ -74,7 +74,7 @@
         &:focus,
         &:hover {
             cursor: pointer;
-            color: green;
+            color: mat-color($primary);
         }
     }
 }
@@ -87,11 +87,11 @@
 
 //.selected {
 .add-visualization-tile:hover {
-    border: 1px solid #39B54A;
+    border: 1px solid mat-color($primary);
     border-radius: 7px;
 }
 
 .add-visualization-tile:active {
-    border: 1px solid #39B54A;
+    border: 1px solid  mat-color($primary);
     border-radius: 7px;
 }

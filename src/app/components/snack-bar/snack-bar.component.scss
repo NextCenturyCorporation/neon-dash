@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
- @import '../component.scss';
+@import '../base-neon-component/base-neon.component.scss';
 
 .messages {
     color: mat-color($accent);
@@ -26,15 +26,6 @@
 // .message-category {
 // }
 
-.close-button {
-  width: 20px;
-  height: 20px;
-}
-
-.close-icon {
-  font-size: 14px;
-}
-
 // .category-list {
 // }
 
@@ -46,6 +37,15 @@
 
 // .message-body {
 // }
+
+.close-button {
+    width: 20px;
+    height: 20px;
+}
+  
+.close-icon {
+    font-size: 14px;
+}  
 
 .category-label {
     display: flex;
