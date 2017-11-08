@@ -8,7 +8,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings } from '../../neon-namespaces';
+import { neonMappings, neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
@@ -32,8 +32,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         idField: FieldMetaData,
         linkField: FieldMetaData,
         textColor: string,
-        wikiName: string,
-        wikiText: SafeHtml
+        wikiName: string[],
+        wikiText: SafeHtml[]
     };
 
     private optionsFromConfig: {
@@ -44,6 +44,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         table: string,
         title: string
     };
+
+    private isLoadingWikiPage: boolean;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
@@ -65,9 +67,10 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             idField: new FieldMetaData(),
             linkField: new FieldMetaData(),
             textColor: '#111',
-            wikiName: '',
-            wikiText: ''
+            wikiName: [],
+            wikiText: []
         };
+        this.isLoadingWikiPage = false;
         this.queryTitle = this.optionsFromConfig.title || 'Wiki Viewer';
         this.subscribeToSelectId(this.getSelectIdCallback());
     };
@@ -169,11 +172,22 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         let self = this;
         return function(message) {
             if (message.database === self.meta.database.name && message.table === self.meta.table.name) {
-                self.active.id = message.id;
-                self.active.wikiText = '';
+                self.active.id = Array.isArray(message.id) ? message.id[0] : message.id;
                 self.executeQueryChain();
             }
         };
+    };
+
+    /**
+     * Returns the label for the tab using the given array of names and the given index.
+     *
+     * @arg {array} names
+     * @arg {number} index
+     * @return {string}
+     * @private
+     */
+    private getTabLabel(names, index) {
+        return names && names.length > index ? names[index] : '';
     };
 
     /**
@@ -213,32 +227,21 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @override
      */
     onQuerySuccess(response: any) {
+        this.active.wikiName = [];
+        this.active.wikiText = [];
+
         try {
-            if (response && response.data && response.data.length && response.data[0][this.active.linkField.columnName]) {
-                let link = response.data[0][this.active.linkField.columnName];
-                let self = this;
-                this.http.get (WikiViewerComponent.WIKI_LINK_PREFIX + link).toPromise().then(function(wikiResponse) {
-                    let responseObject = JSON.parse(wikiResponse.text()).parse;
-                    self.active.errorMessage = '';
-                    self.active.wikiName = responseObject.title;
-                    self.active.wikiText = self.sanitizer.bypassSecurityTrustHtml(responseObject.text['*']);
-                    self.refreshVisualization();
-                }).catch(function(error) {
-                    self.active.errorMessage = 'Query Error';
-                    self.active.wikiName = '';
-                    self.active.wikiText = '';
-                    self.refreshVisualization();
-                });
+            if (response && response.data && response.data.length && response.data[0]) {
+                this.active.errorMessage = '';
+                this.isLoadingWikiPage = true;
+                let links = neonUtilities.deepFind(response.data[0], this.active.linkField.columnName);
+                this.retrieveWikiPage(Array.isArray(links) ? links : [links]);
             } else {
                 this.active.errorMessage = 'No Data';
-                this.active.wikiName = '';
-                this.active.wikiText = '';
                 this.refreshVisualization();
             }
         } catch (e) {
             this.active.errorMessage = 'Error';
-            this.active.wikiName = '';
-            this.active.wikiText = '';
             this.refreshVisualization();
         }
     };
@@ -279,6 +282,37 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     removeFilter(filter: any) {
         // Do nothing.
+    };
+
+    /**
+     * Retrieves the wiki pages recursively using the given array of links.  Refreshes the visualization once finished.
+     *
+     * @arg {array} links
+     * @private
+     */
+    private retrieveWikiPage(links) {
+        if (!links.length) {
+            this.isLoadingWikiPage = false;
+            this.refreshVisualization();
+            return;
+        }
+
+        let self = this;
+        this.http.get (WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).toPromise().then(function(wikiResponse) {
+            let responseObject = JSON.parse(wikiResponse.text());
+            if (responseObject.error) {
+                self.active.wikiName.push(links[0]);
+                self.active.wikiText.push(self.sanitizer.bypassSecurityTrustHtml(responseObject.error.info));
+            } else {
+                self.active.wikiName.push(responseObject.parse.title);
+                self.active.wikiText.push(self.sanitizer.bypassSecurityTrustHtml(responseObject.parse.text['*']));
+            }
+            self.retrieveWikiPage(links.slice(1));
+        }).catch(function(error) {
+            self.active.wikiName.push(links[0]);
+            self.active.wikiText.push(self.sanitizer.bypassSecurityTrustHtml(error));
+            self.retrieveWikiPage(links.slice(1));
+        });
     };
 
     /**

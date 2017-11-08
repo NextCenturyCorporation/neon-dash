@@ -40,7 +40,7 @@ class TestDatasetService extends DatasetService {
     }
 };
 
-describe('Component: WikiViewer', () => {
+fdescribe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 
@@ -86,8 +86,8 @@ describe('Component: WikiViewer', () => {
             idField: new FieldMetaData(),
             linkField: new FieldMetaData(),
             textColor: '#111',
-            wikiName: '',
-            wikiText: ''
+            wikiName: [],
+            wikiText: []
         });
     }));
 
@@ -180,16 +180,16 @@ describe('Component: WikiViewer', () => {
     it('sets expected properties in onQuerySuccess if response returns no data', (() => {
         component.active.linkField.columnName = 'testLinkField';
         component.active.errorMessage = 'testErrorMessage';
-        component.active.wikiName = 'testName';
-        component.active.wikiText = 'testText';
+        component.active.wikiName = ['testName'];
+        component.active.wikiText = ['testText'];
 
         component.onQuerySuccess({
             data: []
         });
 
         expect(component.active.errorMessage).toBe('No Data');
-        expect(component.active.wikiName).toBe('');
-        expect(component.active.wikiText).toBe('');
+        expect(component.active.wikiName).toEqual([]);
+        expect(component.active.wikiText).toEqual([]);
     }));
 
     it('calls http.get and sets expected properties in onQuerySuccess if response returns data',
@@ -220,15 +220,16 @@ describe('Component: WikiViewer', () => {
         // Wait for the HTTP response.
         tick(500);
         expect(component.active.errorMessage).toBe('');
-        expect(component.active.wikiName).toBe('Test Title');
-        expect(component.active.wikiText.toString()).toBe(
+        expect(component.active.wikiName).toEqual(['Test Title']);
+        expect(component.active.wikiText.length).toBe(1);
+        expect(component.active.wikiText[0].toString()).toBe(
             'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)');
     })));
 
     it('calls http.get and sets expected properties in onQuerySuccess if response failed', fakeAsync(inject([XHRBackend], (mockBackend) => {
         component.active.linkField.columnName = 'testLinkField';
-        component.active.wikiName = 'testName';
-        component.active.wikiText = 'testText';
+        component.active.wikiName = ['testName'];
+        component.active.wikiText = ['testText'];
 
         mockBackend.connections.subscribe((connection) => {
             connection.mockError(new Response(new ResponseOptions({
@@ -245,9 +246,61 @@ describe('Component: WikiViewer', () => {
 
         // Wait for the HTTP response.
         tick(500);
-        expect(component.active.errorMessage).toBe('Query Error');
-        expect(component.active.wikiName).toBe('');
-        expect(component.active.wikiText).toBe('');
+        expect(component.active.errorMessage).toBe('');
+        expect(component.active.wikiName).toEqual(['testLinkValue']);
+        expect(component.active.wikiText.length).toBe(1);
+        expect(component.active.wikiText[0].toString()).toBeTruthy();
+    })));
+
+    it('calls http.get multiple times and sets expected properties in onQuerySuccess if response returns data with multiple links',
+    fakeAsync(inject([XHRBackend], (mockBackend) => {
+
+        component.active.linkField.columnName = 'testLinkField';
+        component.active.errorMessage = 'testErrorMessage';
+
+        mockBackend.connections.subscribe((connection) => {
+            if (connection.request.url === WikiViewerComponent.WIKI_LINK_PREFIX + 'testLinkValue1') {
+                connection.mockRespond(new Response(new ResponseOptions({
+                    body: JSON.stringify({
+                        parse: {
+                            text: {
+                                '*': '<p>Test Content 1</p>'
+                            },
+                            title: 'Test Title 1'
+                        }
+                    })
+                })));
+            }
+
+            if (connection.request.url === WikiViewerComponent.WIKI_LINK_PREFIX + 'testLinkValue2') {
+                connection.mockRespond(new Response(new ResponseOptions({
+                    body: JSON.stringify({
+                        parse: {
+                            text: {
+                                '*': '<p>Test Content 2</p>'
+                            },
+                            title: 'Test Title 2'
+                        }
+                    })
+                })));
+            }
+        });
+
+        component.onQuerySuccess({
+            data: [{
+                testLinkField: ['testLinkValue1', 'testLinkValue2']
+            }]
+        });
+
+        // Wait for the HTTP response.
+        tick(500);
+        expect(component.active.errorMessage).toBe('');
+        expect(component.active.wikiName).toEqual(['Test Title 1', 'Test Title 2']);
+        expect(component.active.wikiText.length).toBe(2);
+        expect(component.active.wikiText[0].toString()).toBe(
+            'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)');
+        expect(component.active.wikiText[1].toString()).toBe(
+            'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)');
     })));
 
     it('sets expected fields in onUpdateFields to empty strings because fields are empty', (() => {
@@ -348,7 +401,7 @@ describe('Component: WikiViewer', () => {
         expect(errorMessageInSidenav.nativeElement.textContent).toBe('Test Error Message');
     }));
 
-    it('hides wiki-name in toolbar and sidenav if active.wikiName is undefined', (() => {
+    it('hides wiki-name in toolbar and sidenav if active.wikiName is empty', (() => {
         let nameInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .wiki-name'));
         expect(nameInToolbar).toBeNull();
 
@@ -359,13 +412,13 @@ describe('Component: WikiViewer', () => {
         expect(nameInSidenav).toBeNull();
     }));
 
-    it('shows wiki-name in toolbar and sidenav if active.wikiName is defined', (() => {
-        component.active.wikiName = 'Test Name';
+    it('shows wiki-name in toolbar and sidenav if active.wikiName is not empty', (() => {
+        component.active.wikiName = ['Test Name'];
         fixture.detectChanges();
 
         let nameInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .wiki-name'));
         expect(nameInToolbar).not.toBeNull();
-        expect(nameInToolbar.nativeElement.textContent).toBe('Test Name');
+        expect(nameInToolbar.nativeElement.textContent).toBe('Total 1');
 
         let iconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .wiki-name.icon'));
         expect(iconInSidenav).not.toBeNull();
@@ -373,7 +426,7 @@ describe('Component: WikiViewer', () => {
 
         let nameInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .wiki-name.text'));
         expect(nameInSidenav).not.toBeNull();
-        expect(nameInSidenav.nativeElement.textContent).toBe('Test Name');
+        expect(nameInSidenav.nativeElement.textContent).toBe('Total 1');
     }));
 
     it('shows settings icon button in toolbar', (() => {
@@ -437,27 +490,80 @@ describe('Component: WikiViewer', () => {
         expect(spinner).not.toBeNull();
     }));
 
-    it('shows wiki-text is empty if active.wikiText is empty', inject([DomSanitizer], (sanitizer) => {
-        let text = fixture.debugElement.query(By.css('mat-sidenav-container .wiki-text'));
-        expect(text).not.toBeNull();
-        expect(text.nativeElement.textContent).toBe('');
-        expect(text.nativeElement.innerHTML).toBe('');
-    }));
+    it('shows loading overlay if calling onQuerySuccess', fakeAsync(inject([XHRBackend], (mockBackend) => {
+        component.active.linkField.columnName = 'testLinkField';
 
-    it('shows wiki-text with active.wikiText', inject([DomSanitizer], (sanitizer) => {
-        component.active.wikiText = sanitizer.bypassSecurityTrustHtml('<p>test</p>');
+        mockBackend.connections.subscribe((connection) => {
+            fixture.detectChanges();
+
+            let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
+            expect(loadingOverlay).not.toBeNull();
+
+            let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
+            expect(spinner).not.toBeNull();
+
+            connection.mockRespond(new Response(new ResponseOptions({
+                body: JSON.stringify({
+                    parse: {
+                        text: {
+                            '*': ''
+                        },
+                        title: ''
+                    }
+                })
+            })));
+        });
+
+        component.onQuerySuccess({
+            data: [{
+                testLinkField: 'testLinkValue'
+            }]
+        });
+
+        // Wait for the HTTP response.
+        tick(500);
         fixture.detectChanges();
 
-        expect(component.active.wikiText.toString()).toBe(
-            'SafeValue must use [property]=binding: <p>test</p> (see http://g.co/ng/security#xss)');
-        let text = fixture.debugElement.query(By.css('mat-sidenav-container .wiki-text'));
-        expect(text).not.toBeNull();
-        expect(text.nativeElement.textContent).toBe('test');
-        expect(text.nativeElement.innerHTML).toBe('<p>test</p>');
+        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
+        expect(loadingOverlay).not.toBeNull();
+
+        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
+        expect(spinner).not.toBeNull();
+    })));
+
+    it('hides wiki-text tabs if active.wikiText is empty', inject([DomSanitizer], (sanitizer) => {
+        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        expect(tabs.length).toBe(0);
+
+        let text = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .wiki-text'));
+        expect(text.length).toBe(0);
+    }));
+
+    it('shows wiki-text tabs if active.wikiText is not empty', inject([DomSanitizer], (sanitizer) => {
+        component.active.wikiName = ['Tab One', 'Tab Two'];
+        component.active.wikiText = [sanitizer.bypassSecurityTrustHtml('<p>one</p>'), sanitizer.bypassSecurityTrustHtml('<p>two</p>')];
+        fixture.detectChanges();
+
+        expect(component.active.wikiText.length).toBe(2);
+        expect(component.active.wikiText[0].toString()).toBe(
+            'SafeValue must use [property]=binding: <p>one</p> (see http://g.co/ng/security#xss)');
+        expect(component.active.wikiText[1].toString()).toBe(
+            'SafeValue must use [property]=binding: <p>two</p> (see http://g.co/ng/security#xss)');
+
+        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+        expect(tabs.length).toBe(2);
+        expect(tabs[0].nativeElement.textContent).toBe('Tab One');
+        expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
+        expect(tabs[1].nativeElement.textContent).toBe('Tab Two');
+        expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
+
+        let text = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .wiki-text'));
+        expect(text.length).toBe(1);
+        expect(text[0].nativeElement.innerHTML).toBe('<p>one</p>');
     }));
 });
 
-describe('Component: WikiViewer with config', () => {
+fdescribe('Component: WikiViewer with config', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 
@@ -525,8 +631,8 @@ describe('Component: WikiViewer with config', () => {
             idField: new FieldMetaData('testIdField', 'Test ID Field'),
             linkField: new FieldMetaData('testLinkField', 'Test Link Field'),
             textColor: '#111',
-            wikiName: '',
-            wikiText: ''
+            wikiName: [],
+            wikiText: []
         });
     }));
 
