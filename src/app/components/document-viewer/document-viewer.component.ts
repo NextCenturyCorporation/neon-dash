@@ -13,7 +13,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings } from '../../neon-namespaces';
+import { neonMappings, neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 // import * as moment from 'moment';
@@ -160,7 +160,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
-        let fields = this.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
+        let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
             return x.field;
         }).concat(this.active.dataField.columnName);
         if (this.active.dateField.columnName) {
@@ -178,7 +178,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (response.data.length === 1 && response.data[0]['_docCount'] !== undefined) {
             this.active.docCount = response.data[0]['_docCount'];
         } else {
-            let fields = this.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
+            let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
                 return x.field;
             }).concat(this.active.dataField.columnName);
             if (this.active.dateField.columnName) {
@@ -190,7 +190,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             let data = response.data.map(function(element) {
                 let elem = {};
                 for (let field of fields) {
-                    elem[field] = this.deepFind(element, field);
+                    elem[field] = neonUtilities.deepFind(element, field);
                 }
                 return elem;
             }.bind(this));
@@ -208,22 +208,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             .where(whereClause)
             .aggregate(neon.query['COUNT'], '*', '_docCount');
         this.executeQuery(countQuery);
-    }
-
-    flatten(array) {
-        return (array || []).reduce(function(sum, element) {
-            return sum.concat(Array.isArray(element) ? this.flatten(element) : element);
-        }.bind(this), []); // "(array || [])" and ", []" prevent against exceptions and return [] when array is null or empty.
-    }
-
-    deepFind(obj, pathStr) {
-        for (let i = 0, path = pathStr.split('.'), len = path.length; i < len; i++) {
-            obj = obj[path[i]];
-            if (!obj) {
-                return undefined;
-            }
-        };
-        return obj;
     }
 
     refreshVisualization() {
