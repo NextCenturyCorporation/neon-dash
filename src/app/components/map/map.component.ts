@@ -283,7 +283,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       mapMode2D: Cesium.MapMode2D.ROTATE,
       sceneModePicker: false,
       navigationHelpButton: false,
-      infoBox: true
+      infoBox: false
     });
 
     this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
@@ -492,7 +492,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         if (objectsAtLocation.length && objectsAtLocation[0].id.id !== popup.id) {
           popup.position = objectsAtLocation[0].id.position.getValue();
           popup.label.show = true;
-          popup.label.text = 'Count: ' + objectsAtLocation.length;
+          popup.label.text = objectsAtLocation[0].id.name + '\nCount: ' + objectsAtLocation[0].id.description;
         } else {
           popup.label.show = false;
         }
