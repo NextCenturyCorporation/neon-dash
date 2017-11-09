@@ -41,8 +41,8 @@ export namespace neonUtilities {
             if (itemToReturn instanceof Array) {
                 let nestedPath = path.slice(i).join('.');
                 let pieces = [];
-                for (let j = 0; j < itemToReturn.length; j++) {
-                    let entryValue = deepFind(itemToReturn[j], nestedPath);
+                for (let itemInList of itemToReturn) {
+                    let entryValue = deepFind(itemInList, nestedPath);
                     if (entryValue instanceof Array) {
                         entryValue = flatten(entryValue);
                     }

@@ -172,8 +172,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                         me.datasetService.setLayout(layoutName);
                     }
 
-                    for (let i = 0; i < message.dashboard.length; ++i) {
-                        message.dashboard[i].id = uuid.v4();
+                    for (let dashboard of message.dashboard) {
+                        dashboard.id = uuid.v4();
                     }
                     me.activeGridService.setGridItems(message.dashboard);
                     me.onActiveDatasetChanged.emit(me.activeDataset);
@@ -247,8 +247,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         this.activeGridService.clear();
 
         // Recreate the layout each time to ensure all visualizations are using the new dataset.
-        for (let i = 0; i < this.layouts[layoutName].length; i++) {
-            let item = _.cloneDeep(this.layouts[layoutName][i]);
+        for (let layout of this.layouts[layoutName]) {
+            let item = _.cloneDeep(layout);
             item.gridConfig = {
                 row: item.row,
                 col: item.col,

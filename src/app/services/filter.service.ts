@@ -113,8 +113,8 @@ export class FilterService {
             if (clause.type === 'where' && fields.indexOf(clause.lhs) >= 0) {
                 return true;
             } else if (clause.type !== 'where') {
-                for (let i = 0; i < clause.whereClauses.length; i++) {
-                    if (!checkClauses(clause.whereClauses[i])) {
+                for (let whereClause of clause.whereClauses) {
+                    if (!checkClauses(whereClause)) {
                         return false;
                     }
                 }

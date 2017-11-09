@@ -120,8 +120,8 @@ export class ExportControlComponent implements OnInit {
           })
           .map(widget => widget.callback());
         for (let widgetObject of widgetObjects) {
-            for (let x = 0; x < widgetObject.data.length; x++) {
-                data.data.push(widgetObject.data[x]);
+            for (let widgetObjectItem of widgetObject.data) {
+                data.data.push(widgetObjectItem);
             }
         }
 

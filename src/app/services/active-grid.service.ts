@@ -78,8 +78,8 @@ export class ActiveGridService {
     getMaxColInUse(): number {
         let maxCol = 0;
 
-        for (let i = 0; i < this.gridItems.length; i++) {
-            maxCol = Math.max(maxCol, (this.gridItems[i].gridConfig.col + this.gridItems[i].gridConfig.sizex - 1));
+        for (let gridItem of this.gridItems) {
+            maxCol = Math.max(maxCol, (gridItem.gridConfig.col + gridItem.gridConfig.sizex - 1));
         }
         return maxCol;
     }
@@ -91,8 +91,8 @@ export class ActiveGridService {
     getMaxRowInUse(): number {
         let maxRow = 0;
 
-        for (let i = 0; i < this.gridItems.length; i++) {
-            maxRow = Math.max(maxRow, (this.gridItems[i].gridConfig.row + this.gridItems[i].gridConfig.sizey - 1));
+        for (let gridItem of this.gridItems) {
+            maxRow = Math.max(maxRow, (gridItem.gridConfig.row + gridItem.gridConfig.sizey - 1));
         }
         return maxRow;
     }
@@ -112,8 +112,8 @@ export class ActiveGridService {
     setGridItems(items: NeonGridItem[]) {
         this.clear();
         if (items) {
-            for (let i = 0; i < items.length; i++) {
-                this.gridItems.push(items[i]);
+            for (let item of items) {
+                this.gridItems.push(item);
             }
         }
     }
@@ -210,8 +210,8 @@ export class ActiveGridService {
      * @param row the row in which to place the item's top-left corner
      */
     itemFits(item: NeonGridItem) { // (item: NeonGridItem, col: number, row: number) {
-        for (let i = 0; i < this.gridItems.length; i++) {
-            if (this.itemsOverlap(item, this.gridItems[i])) {
+        for (let gridItem of this.gridItems) {
+            if (this.itemsOverlap(item, gridItem)) {
                 return false;
             }
         }

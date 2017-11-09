@@ -263,9 +263,9 @@ export class DatasetService {
      * @return {Object} The dataset object if a match exists or undefined otherwise.
      */
     public getDatasetWithName(datasetName: string): Dataset {
-        for (let i = 0; i < this.datasets.length; ++i) {
-            if (this.datasets[i].name === datasetName) {
-                return this.datasets[i];
+        for (let dataset of this.datasets) {
+            if (dataset.name === datasetName) {
+                return dataset;
             }
         }
 
@@ -279,9 +279,9 @@ export class DatasetService {
      * or undefined otherwise.
      */
     public getDatabaseWithName(databaseName: string): DatabaseMetaData {
-        for (let i = 0; i < this.dataset.databases.length; ++i) {
-            if (this.dataset.databases[i].name === databaseName) {
-                return this.dataset.databases[i];
+        for (let database of this.dataset.databases) {
+            if (database.name === databaseName) {
+                return database;
             }
         }
 
@@ -307,9 +307,9 @@ export class DatasetService {
      */
     public getTableWithName(databaseName: string, tableName: string): TableMetaData {
         let tables = this.getTables(databaseName);
-        for (let i = 0; i < tables.length; ++i) {
-            if (tables[i].name === tableName) {
-                return tables[i];
+        for (let table of tables) {
+            if (table.name === tableName) {
+                return table;
             }
         }
 
@@ -323,11 +323,11 @@ export class DatasetService {
     public getDatabaseAndTableNames(): Object {
         let databases = this.getDatabases();
         let names = {};
-        for (let i = 0; i < databases.length; ++i) {
-            names[databases[i].name] = [];
-            let tables = this.getTables(databases[i].name);
-            for (let j = 0; j < tables.length; ++j) {
-                names[databases[i].name].push(tables[j].name);
+        for (let database of databases) {
+            names[database.name] = [];
+            let tables = this.getTables(database.name);
+            for (let table of tables) {
+                names[database.name].push(table.name);
             }
         }
         return names;
@@ -342,16 +342,16 @@ export class DatasetService {
      */
     public getFirstTableWithMappings(databaseName: string, keys: string[]): TableMetaData {
         let tables = this.getTables(databaseName);
-        for (let i = 0; i < tables.length; ++i) {
+        for (let table of tables) {
             let success = true;
-            for (let j = 0; j < keys.length; ++j) {
-                if (!(tables[i].mappings[keys[j]])) {
+            for (let key of keys) {
+                if (!(table.mappings[key])) {
                     success = false;
                     break;
                 }
             }
             if (success) {
-                return tables[i];
+                return table;
             }
         }
 
@@ -366,16 +366,14 @@ export class DatasetService {
      * If no match was found, an empty object is returned instead.
      */
     public getFirstDatabaseAndTableWithMappings(keys: string[]): any {
-        for (let i = 0; i < this.dataset.databases.length; ++i) {
-            let database = this.dataset.databases[i];
-            for (let j = 0; j < database.tables.length; ++j) {
-                let table = database.tables[j];
+        for (let database of this.dataset.databases) {
+            for (let table of database.tables) {
                 let success = true;
                 let fields = {};
                 if (keys  && keys.length > 0) {
-                    for (let k = 0; k < keys.length; k++) {
-                        if (table.mappings[keys[k]]) {
-                            fields[keys[k]] = table.mappings[keys[k]];
+                    for (let key of keys) {
+                        if (table.mappings[key]) {
+                            fields[key] = table.mappings[key];
                         } else {
                             success = false;
                         }

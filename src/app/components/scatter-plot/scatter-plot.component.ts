@@ -61,7 +61,7 @@ class ScatterDataSet {
      * Set the background color to the default color of this set
      */
     setInactive() {
-        for (let i = 0; i < this.data.length; i++) {
+        for (let item of this.data) {
             this.backgroundColor = this.color.getInactiveRgba();
             this.borderColor = this.backgroundColor;
         }
