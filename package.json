@@ -5,12 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
-    "prebuild": "rm -f target/lorelei-dev.war && mkdir -p target && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
-    "build": "ng build --env=prod --base-href /lorelei/",
-    "postbuild": "cd dist && zip -r lorelei.war * && cd .. && mv dist/lorelei.war target/lorelei.war",
-    "prebuild-dev": "rm -f target/lorelei-dev.war && mkdir -p target && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
-    "build-dev": "ng build --base-href /lorelei/",
-    "postbuild-dev": "cd dist && zip -r lorelei-dev.war * && cd .. && mv dist/lorelei-dev.war target/lorelei-dev.war",
+    "build": "ng build",
     "lint": "ng lint",
     "test": "ng test",
     "e2e": "ng e2e",

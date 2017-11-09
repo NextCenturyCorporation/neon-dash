@@ -14,7 +14,6 @@
         "app/config/*.json",
         "app/config/*.yaml"
       ],
-      "deployUrl": "/lorelei/",
       "index": "index.html",
       "main": "main.ts",
       "polyfills": "polyfills.ts",
