@@ -31,17 +31,18 @@ export namespace neonUtilities {
     /**
      * Returns the object nested inside the given object using the given path string (with periods to mark each nested property).
      *
-     * @arg {object} obj
-     * @arg {string} pathStr
+     * @arg {object} item
+     * @arg {string} pathString
      * @return {object}
      */
-    export function deepFind(obj, pathStr) {
-        for (let i = 0, path = (pathStr ? pathStr.split('.') : []), len = path.length; i < len; i++) {
-            if (obj instanceof Array) {
+    export function deepFind(item, pathString) {
+        let itemToReturn = item;
+        for (let i = 0, path = (pathString ? pathString.split('.') : []), length = path.length; i < length; i++) {
+            if (itemToReturn instanceof Array) {
                 let nestedPath = path.slice(i).join('.');
                 let pieces = [];
-                for (let item = 0; item < obj.length; item++) {
-                    let entryValue = deepFind(obj[item], nestedPath);
+                for (let j = 0; j < itemToReturn.length; j++) {
+                    let entryValue = deepFind(itemToReturn[j], nestedPath);
                     if (entryValue instanceof Array) {
                         entryValue = flatten(entryValue);
                     }
@@ -49,12 +50,12 @@ export namespace neonUtilities {
                 }
                 return pieces;
             }
-            obj = obj ? obj[path[i]] : undefined;
-            if (!obj) {
+            itemToReturn = itemToReturn ? itemToReturn[path[i]] : undefined;
+            if (!itemToReturn) {
                 return undefined;
             }
         }
-        return obj;
+        return itemToReturn;
     }
 }
 

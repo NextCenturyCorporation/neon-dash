@@ -368,7 +368,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             return 'No Data';
         }
         let shownCount = this.active.data.reduce((sum, element) => {
-            return sum += element.value;
+            return sum + element.value;
         }, 0);
         return !shownCount ?
             'No Data' :

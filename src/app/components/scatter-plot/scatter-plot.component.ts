@@ -330,12 +330,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     forcePosInsideChart(pos, min, max) {
-        if (pos < min) {
-            pos = min;
-        } else if (pos > max) {
-            pos = max;
-        }
-        return pos;
+        return pos < min ? min : (pos > max ? max : pos);
     }
 
     legendItemSelected(data: any): void {
@@ -705,12 +700,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return '';
     }
 
-    removeDuplicatesAndSort(arr) {
-        arr = arr.sort();
-        arr = arr.filter(function(item, pos, ary) {
-            return !pos || item !== ary[pos - 1];
+    removeDuplicatesAndSort(inputArray) {
+        return inputArray.sort().filter(function(element, index, array) {
+            return !index || element !== array[index - 1];
         });
-        return arr;
     }
 
     setupFilters() {

@@ -59,10 +59,7 @@ export class TextCloud {
 
     // Converts hex to an RGB array
     private toRGB(code: string): number[] {
-        if (code.length === 4) {
-            code = code.replace(/(\w)(\w)(\w)/gi, '\$1\$1\$2\$2\$3\$3');
-        }
-        let hex = /(\w{2})(\w{2})(\w{2})/.exec(code);
+        let hex = /(\w{2})(\w{2})(\w{2})/.exec((code.length === 4 ? code.replace(/(\w)(\w)(\w)/gi, '\$1\$1\$2\$2\$3\$3') : code));
         return [parseInt(hex[1], 16), parseInt(hex[2], 16), parseInt(hex[3], 16)];
     }
 

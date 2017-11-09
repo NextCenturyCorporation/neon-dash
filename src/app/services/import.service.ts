@@ -130,10 +130,11 @@ export class ImportService {
     sizeToReadable(size: number): string {
         let nameList = ['bytes', 'kB', 'mB', 'gB', 'tB', 'pB'];
         let name = 0;
-        while (size > 1000) {
-            size /= 1000;
+        let readableSize = size;
+        while (readableSize > 1000) {
+            readableSize /= 1000;
             name++;
         }
-        return (Math.round(size * 10) / 10) + ' ' + nameList[name];
+        return (Math.round(readableSize * 10) / 10) + ' ' + nameList[name];
     }
 }

@@ -594,7 +594,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             return text;
         } else {
             let total = data[0]['data'].reduce((sum, elem) => {
-                return sum += elem;
+                return sum + elem;
             }, 0);
             return 'Total ' + total;
         }

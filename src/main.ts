@@ -141,14 +141,14 @@ function validateConfig(config) {
     }
 }
 
-function bootstrapWithData(config) {
-  config = validateConfig(config);
+function bootstrapWithData(configFromFile) {
+  let configObject = validateConfig(configFromFile);
   let errors = neonConfigErrors;
   neonConfigErrors = null;
   if (errors && errors.length > 0) {
-      config.errors = errors;
+      configObject.errors = errors;
   }
-  window['appConfig'] = config;
+  window['appConfig'] = configObject;
   return platformBrowserDynamic().bootstrapModule(AppModule);
 }
 
