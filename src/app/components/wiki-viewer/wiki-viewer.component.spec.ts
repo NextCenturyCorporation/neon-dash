@@ -40,7 +40,7 @@ class TestDatasetService extends DatasetService {
     }
 };
 
-fdescribe('Component: WikiViewer', () => {
+describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 
@@ -563,7 +563,7 @@ fdescribe('Component: WikiViewer', () => {
     }));
 });
 
-fdescribe('Component: WikiViewer with config', () => {
+describe('Component: WikiViewer with config', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 
