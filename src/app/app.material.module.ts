@@ -4,9 +4,9 @@ import {
     MatCardModule, MatCheckboxModule, MatDialogModule, MatGridListModule, MatIconModule, MatInputModule,
     MatListModule, MatMenuModule, MatProgressBarModule, MatProgressSpinnerModule, MatRadioModule, MatRippleModule,
     MatSelectModule, MatSidenavModule, MatSliderModule, MatSlideToggleModule, MatSnackBarModule, MatTabsModule,
-    MatToolbarModule, MatTooltipModule
+    MatToolbarModule, MatTooltipModule,
+    MATERIAL_COMPATIBILITY_MODE
 } from '@angular/material';
-import { MATERIAL_COMPATIBILITY_MODE } from '@angular/material';
 
 const MD_MODULES = [
     MatButtonModule,

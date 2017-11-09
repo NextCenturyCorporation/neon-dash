@@ -16,8 +16,7 @@
 import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef, MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';

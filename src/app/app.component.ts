@@ -19,7 +19,7 @@ import { DashboardOptionsComponent } from './components/dashboard-options/dashbo
 import { Dataset } from './dataset';
 
 import { NeonGTDConfig } from './neon-gtd-config';
-import { MatSnackBar, MatToolbar } from '@angular/material';
+import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar } from '@angular/material';
 import { ActiveGridService } from './services/active-grid.service';
 import { DatasetService } from './services/dataset.service';
 import { ThemesService } from './services/themes.service';
@@ -29,8 +29,6 @@ import { VisualizationContainerComponent } from './components/visualization-cont
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
-
-import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 
 @Component({
     selector: 'app-root',
