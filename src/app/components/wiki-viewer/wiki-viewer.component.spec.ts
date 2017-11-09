@@ -472,11 +472,11 @@ describe('Component: WikiViewer', () => {
     it('hides loading overlay by default', (() => {
         fixture.detectChanges();
 
-        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
-        expect(loadingOverlay).not.toBeNull();
+        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
+        expect(hiddenLoadingOverlay).not.toBeNull();
 
-        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
-        expect(spinner).not.toBeNull();
+        let hiddenSpinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
+        expect(hiddenSpinner).not.toBeNull();
     }));
 
     it('shows loading overlay if isLoading is true', (() => {
@@ -524,11 +524,11 @@ describe('Component: WikiViewer', () => {
         tick(500);
         fixture.detectChanges();
 
-        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
-        expect(loadingOverlay).not.toBeNull();
+        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
+        expect(hiddenLoadingOverlay).not.toBeNull();
 
-        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
-        expect(spinner).not.toBeNull();
+        let hiddenSpinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
+        expect(hiddenSpinner).not.toBeNull();
     })));
 
     it('hides wiki-text tabs if active.wikiText is empty', inject([DomSanitizer], (sanitizer) => {

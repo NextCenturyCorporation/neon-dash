@@ -25,7 +25,6 @@ import * as neon from 'neon-framework';
 import {BaseLayeredNeonComponent} from '../base-neon-component/base-layered-neon.component';
 import 'cesium/Build/Cesium/Cesium.js';
 import * as _ from 'lodash';
-import {color} from 'd3';
 import {Set, Map} from 'hash-set-map';
 import * as geohash from 'geo-hash';
 
@@ -620,8 +619,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       });
     };
 
-    let field = find(this.optionsFromConfig.layers[layerIndex][bindingKey]);
-    return field || this.getBlankField();
+    return find(this.optionsFromConfig.layers[layerIndex][bindingKey]) || this.getBlankField();
   }
 
   createFilter(fieldsByLayer, name) {

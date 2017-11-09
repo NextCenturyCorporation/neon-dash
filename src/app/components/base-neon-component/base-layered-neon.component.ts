@@ -696,16 +696,16 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             });
         };
 
-        let field;
+        let fieldObject;
         if (bindingKey) {
-            field = find(this.getOptionFromConfig(bindingKey));
+            fieldObject = find(this.getOptionFromConfig(bindingKey));
         }
 
-        if (!field && mappingKey) {
-            field = find(this.getMapping(layerIndex, mappingKey));
+        if (!fieldObject && mappingKey) {
+            fieldObject = find(this.getMapping(layerIndex, mappingKey));
         }
 
-        return field || this.datasetService.createBlankField();
+        return fieldObject || this.datasetService.createBlankField();
     }
 
     /**
