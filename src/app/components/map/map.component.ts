@@ -1027,9 +1027,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     // See if any neon filters are local filters and set/clear appropriately
     //TODO needs to be reworked now that we have layers.
     //I'm not sure what it even should do from a user perspective.
-    let allLayersHaveFilters: boolean = true;
-    let oneOrMoreLayersHaveFilters: boolean = false;
-    let oneOrMoreFiltersHaveChanged: boolean = false;
+    let allLayersHaveFilters = true;
+    let oneOrMoreLayersHaveFilters = false;
+    let oneOrMoreFiltersHaveChanged = false;
     for (let i = 0; i < this.meta.layers.length; i++) {
       let layerHasFilter: boolean = this.doesLayerStillHaveFilter(i);
       oneOrMoreLayersHaveFilters = oneOrMoreLayersHaveFilters || layerHasFilter;

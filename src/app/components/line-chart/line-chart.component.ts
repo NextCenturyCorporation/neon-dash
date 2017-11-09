@@ -419,8 +419,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             let endIndex: number = items[0]._index;
             //let endX = items[0].getCenterPoint().x;
             //let startX = this.selection.startX
-            let endX: number = -1;
-            let startX: number = -1;
+            let endX = -1;
+            let startX = -1;
             if (startIndex > endIndex) {
                 let temp = startIndex;
                 startIndex = endIndex;
