@@ -20,7 +20,7 @@ import { HttpModule } from '@angular/http';
 
 import { AboutNeonComponent } from './about-neon.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import {AppMaterialModule} from '../../app.material.module';
+import { AppMaterialModule } from '../../app.material.module';
 
 describe('Component: AboutNeonComponent', () => {
 

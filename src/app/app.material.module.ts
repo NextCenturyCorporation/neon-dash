@@ -1,4 +1,4 @@
-import {NgModule} from '@angular/core';
+import { NgModule } from '@angular/core';
 import {
     MatButtonModule, MatButtonToggleModule,
     MatCardModule, MatCheckboxModule, MatDialogModule, MatGridListModule, MatIconModule, MatInputModule,
@@ -6,7 +6,7 @@ import {
     MatSelectModule, MatSidenavModule, MatSliderModule, MatSlideToggleModule, MatSnackBarModule, MatTabsModule,
     MatToolbarModule, MatTooltipModule
 } from '@angular/material';
-import {MATERIAL_COMPATIBILITY_MODE} from '@angular/material';
+import { MATERIAL_COMPATIBILITY_MODE } from '@angular/material';
 
 const MD_MODULES = [
     MatButtonModule,

@@ -17,7 +17,7 @@ import { neonMappings, neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 // import * as moment from 'moment';
-import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';

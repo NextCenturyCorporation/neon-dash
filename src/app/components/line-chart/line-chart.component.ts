@@ -8,22 +8,22 @@ import {
     ViewChild,
     ChangeDetectorRef
 } from '@angular/core';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {ColorSchemeService} from '../../services/color-scheme.service';
-import {FieldMetaData } from '../../dataset';
-import {neonMappings} from '../../neon-namespaces';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { ColorSchemeService } from '../../services/color-scheme.service';
+import { FieldMetaData } from '../../dataset';
+import { neonMappings } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import {DateBucketizer} from '../bucketizers/DateBucketizer';
-import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
-import {YearBucketizer} from '../bucketizers/YearBucketizer';
-import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
-import {ChartModule} from 'angular2-chartjs';
+import { DateBucketizer } from '../bucketizers/DateBucketizer';
+import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
+import { YearBucketizer } from '../bucketizers/YearBucketizer';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { ChartModule } from 'angular2-chartjs';
 import * as moment from 'moment-timezone';
-import {VisualizationService} from '../../services/visualization.service';
+import { VisualizationService } from '../../services/visualization.service';
 
 @Component({
     selector: 'app-line-chart',

@@ -8,23 +8,23 @@ import {
     Injector, ElementRef, ViewChild, HostListener,
     ChangeDetectorRef
 } from '@angular/core';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {ColorSchemeService} from '../../services/color-scheme.service';
-import {FieldMetaData } from '../../dataset';
-import {neonMappings} from '../../neon-namespaces';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { ColorSchemeService } from '../../services/color-scheme.service';
+import { FieldMetaData } from '../../dataset';
+import { neonMappings } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import {DateBucketizer} from '../bucketizers/DateBucketizer';
-import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
-import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
-import {Bucketizer} from '../bucketizers/Bucketizer';
-import {StackedTimelineSelectorChart, TimelineSeries, TimelineData} from './stacked-timelineSelectorChart';
-import {YearBucketizer} from '../bucketizers/YearBucketizer';
-import {VisualizationService } from '../../services/visualization.service';
+import { DateBucketizer } from '../bucketizers/DateBucketizer';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
+import { Bucketizer } from '../bucketizers/Bucketizer';
+import { StackedTimelineSelectorChart, TimelineSeries, TimelineData } from './stacked-timelineSelectorChart';
+import { YearBucketizer } from '../bucketizers/YearBucketizer';
+import { VisualizationService } from '../../services/visualization.service';
 
 declare let d3;
 

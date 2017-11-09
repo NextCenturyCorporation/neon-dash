@@ -1,5 +1,5 @@
 'use strict';
-import {YearBucketizer} from './YearBucketizer';
+import { YearBucketizer } from './YearBucketizer';
 /*
  * Copyright 2016 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");

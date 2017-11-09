@@ -16,7 +16,7 @@
 import { Injectable } from '@angular/core';
 
 export interface ExportInfo {
-    id: number|string;
+    id: number | string;
     callback: Function;
 }
 

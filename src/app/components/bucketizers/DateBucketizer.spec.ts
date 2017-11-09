@@ -1,4 +1,4 @@
-import {DateBucketizer} from './DateBucketizer';
+import { DateBucketizer } from './DateBucketizer';
 /*
  * Copyright 2016 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the 'License');

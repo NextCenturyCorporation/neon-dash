@@ -8,8 +8,8 @@ import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
 import { neonMappings } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
-import {VisualizationService} from '../../services/visualization.service';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { VisualizationService } from '../../services/visualization.service';
 
 @Component({
     selector: 'app-text-cloud',
@@ -285,7 +285,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 }
             }
         } catch (e) {
-            console.log((<Error>e).message);
+            console.log((<Error> e).message);
         }
     }
 

@@ -17,8 +17,8 @@ import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {AppMaterialModule} from '../../app.material.module';
-import {VisualizationService} from '../../services/visualization.service';
+import { AppMaterialModule } from '../../app.material.module';
+import { VisualizationService } from '../../services/visualization.service';
 
 describe('Component: Filter Builder', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();

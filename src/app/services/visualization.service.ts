@@ -16,9 +16,9 @@
 import { Injectable } from '@angular/core';
 
 import * as _ from 'lodash';
-import {NeonGridItem} from '../neon-grid-item';
-import {BaseNeonComponent} from '../components/base-neon-component/base-neon.component';
-import {BaseLayeredNeonComponent} from '../components/base-neon-component/base-layered-neon.component';
+import { NeonGridItem } from '../neon-grid-item';
+import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
+import { BaseLayeredNeonComponent } from '../components/base-neon-component/base-layered-neon.component';
 
 /**
  * Basic information about a visualization

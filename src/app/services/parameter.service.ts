@@ -152,7 +152,7 @@ export class ParameterService {
         let filterStateExists: boolean = this.readFilterState(parameters, ignoreDashboardState);
         if (!filterStateExists) {
             let callback: () => any = () => {
-                let dashboardStateId: string|number = this.cleanValue(parameters[ParameterService.DASHBOARD_STATE_ID], 'contains');
+                let dashboardStateId: string | number = this.cleanValue(parameters[ParameterService.DASHBOARD_STATE_ID], 'contains');
 
                 if (this.doesParameterExist(dashboardStateId) && !ignoreDashboardState) {
                     this.loadState(dashboardStateId, '');
@@ -174,7 +174,7 @@ export class ParameterService {
         let filterStateId = this.cleanValue(parameters[ParameterService.FILTER_STATE_ID], 'contains');
 
         if (this.doesParameterExist(filterStateId)) {
-            let dashboardStateId: string|number = this.cleanValue(parameters[ParameterService.DASHBOARD_STATE_ID], 'contains');
+            let dashboardStateId: string | number = this.cleanValue(parameters[ParameterService.DASHBOARD_STATE_ID], 'contains');
 
             if (!this.doesParameterExist(dashboardStateId) || ignoreDashboardState) {
                 dashboardStateId = '';
@@ -230,7 +230,7 @@ export class ParameterService {
      * @param {String} dashboardStateId
      * @param {String} filterStateId
      */
-    loadState(dashboardStateId: string|number, filterStateId: string|number) {
+    loadState(dashboardStateId: string | number, filterStateId: string | number) {
         let connection: neon.query.Connection = this.connectionService.getActiveConnection() ||
             this.connectionService.createActiveConnection();
         let params: any = {};
@@ -254,7 +254,7 @@ export class ParameterService {
      * @param {Object} dashboardState.dataset
      * @param {String} dashboardStateId
      */
-    loadStateSuccess(dashboardState: any, dashboardStateId: number|string) {
+    loadStateSuccess(dashboardState: any, dashboardStateId: number | string) {
         if (_.keys(dashboardState).length) {
             if (dashboardStateId) {
                 let matchingDataset: Dataset = this.datasetService.getDatasetWithName(dashboardState.dataset.name);
@@ -306,8 +306,8 @@ export class ParameterService {
      * @return {Number} or {String}
      */
     /* tslint:disable:no-unused-variable */
-    private cleanValue(value: string, operator: string): number|string {
-        let retVal: number|string = value;
+    private cleanValue(value: string, operator: string): number | string {
+        let retVal: number | string = value;
 
         if ($.isNumeric(value) && operator !== 'contains') {
             retVal = parseFloat(value);

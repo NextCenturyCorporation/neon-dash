@@ -4,15 +4,15 @@ import {
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import {VisualizationService} from '../../services/visualization.service';
+import { VisualizationService } from '../../services/visualization.service';
 import * as uuid from 'node-uuid';
 
 /**

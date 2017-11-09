@@ -30,7 +30,7 @@ import { ConfigEditorComponent } from '../config-editor/config-editor.component'
 
 import * as _ from 'lodash';
 import * as neon from 'neon-framework';
-import {VisualizationService} from '../../services/visualization.service';
+import { VisualizationService } from '../../services/visualization.service';
 
 @Component({
   selector: 'app-dashboard-options',

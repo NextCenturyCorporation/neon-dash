@@ -1,8 +1,8 @@
 /// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import * as _ from 'lodash';
-import {ElementRef} from '@angular/core';
-import {StackedTimelineComponent} from './stacked-timeline.component';
-import {Bucketizer} from '../bucketizers/Bucketizer';
+import { ElementRef } from '@angular/core';
+import { StackedTimelineComponent } from './stacked-timeline.component';
+import { Bucketizer } from '../bucketizers/Bucketizer';
 
 declare let d3;
 

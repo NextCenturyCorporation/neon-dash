@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, ViewContainerRef, Input} from '@angular/core';
+import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material';

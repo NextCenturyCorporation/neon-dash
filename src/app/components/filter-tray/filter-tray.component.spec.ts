@@ -11,7 +11,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {AppMaterialModule} from '../../app.material.module';
+import { AppMaterialModule } from '../../app.material.module';
 
 describe('Component: FilterTray', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
