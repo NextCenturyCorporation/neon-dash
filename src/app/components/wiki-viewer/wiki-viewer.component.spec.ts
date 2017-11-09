@@ -38,7 +38,7 @@ class TestDatasetService extends DatasetService {
             databases: [testDatabase]
         });
     }
-};
+}
 
 describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;

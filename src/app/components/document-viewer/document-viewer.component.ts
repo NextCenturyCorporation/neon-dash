@@ -307,7 +307,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         this.singleItemRef.afterClosed().subscribe(() => {
             this.singleItemRef = null;
         });
-    };
+    }
 
     /**
      * Publishes a select_id event for the ID of the given selected item.

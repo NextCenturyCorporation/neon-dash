@@ -41,7 +41,7 @@ export class DateBucketizer extends Bucketizer {
 
     getMillisMultiplier(): number {
         return this.millisMultiplier;
-    };
+    }
 
     /**
      * Sets the minutes, seconds and millis to 0. If the granularity of the date is day,
@@ -58,7 +58,7 @@ export class DateBucketizer extends Bucketizer {
             zeroed.setUTCHours(0);
         }
         return zeroed;
-    };
+    }
 
     /**
      * Calculates the bucket index for the date
@@ -71,7 +71,7 @@ export class DateBucketizer extends Bucketizer {
         let difference = date.getTime() - effectiveStartDate.getTime();
         difference = (difference < 0) ? 0 : difference;
         return Math.floor(difference / this.millisMultiplier);
-    };
+    }
 
     /**
      * Calculate the representative date for a particular bucket at the current granularity
@@ -83,7 +83,7 @@ export class DateBucketizer extends Bucketizer {
         let effectiveStartDate = this.zeroOutDate(this.getStartDate());
         let startDateInMs = effectiveStartDate.getTime();
         return new Date(startDateInMs + (this.millisMultiplier * bucketIndex));
-    };
+    }
 
     /**
      * Calculate the number of intervals or buckets needed at the current granularity
@@ -99,7 +99,7 @@ export class DateBucketizer extends Bucketizer {
         // values
         let difference = Math.abs(effectiveEndDate.getTime() - effectiveStartDate.getTime());
         return Math.ceil(difference / this.millisMultiplier);
-    };
+    }
 
     /**
      * Rounds the date up to the beginning of the next bucket, unless the date is already at
@@ -114,7 +114,7 @@ export class DateBucketizer extends Bucketizer {
         } else {
             return roundedDate;
         }
-    };
+    }
 
     /**
      * Rounds the date down to the beginning of the current bucket
@@ -128,12 +128,12 @@ export class DateBucketizer extends Bucketizer {
         } else {
             return roundedDate;
         }
-    };
+    }
 
     getDateFormat(): string {
         if (this.getGranularity() === DateBucketizer.DAY) {
             return 'd MMM yyyy';
         }
         return 'd MMM yyyy HH:mm';
-    };
+    }
 }

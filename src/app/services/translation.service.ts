@@ -51,7 +51,7 @@ export class TranslationService {
 
         this.setService('google');
         this.loadTranslationCache();
-    };
+    }
 
     /**
      * Sets the default translation service.
@@ -77,7 +77,7 @@ export class TranslationService {
                 successCallback(null);
             }
         }
-    };
+    }
 
     /**
      * Returns all the available translation services.
@@ -86,7 +86,7 @@ export class TranslationService {
      */
     getAllServices(): string[] {
         return _.keys(this.apis);
-    };
+    }
 
     /**
      * If the service being used has an API key.
@@ -95,7 +95,7 @@ export class TranslationService {
      */
     hasKey(): boolean {
         return this.apis[this.chosenApi].key ? true : false;
-    };
+    }
 
     /**
      * Translates all strings in text with language code specified in 'from' to the language
@@ -197,7 +197,7 @@ export class TranslationService {
                 translateCallback().then(successCallback, failureCallback);
             }
         }
-    };
+    }
 
     /**
      * Saves the translation cache by sending it to the Neon server.
@@ -208,7 +208,7 @@ export class TranslationService {
         if (connection) {
             connection.setTranslationCache(this.translationCache, () => {});
         }
-    };
+    }
 
     /**
      * Retrieves all languages supported by the default translation service.
@@ -222,7 +222,7 @@ export class TranslationService {
         } else {
             successCallback(this.apis[this.chosenApi].languages);
         }
-    };
+    }
 
     /**
      * Retrieves and sets all languages supported by the default translation service.
@@ -246,7 +246,7 @@ export class TranslationService {
                 message: error.data.error.message,
                 reason: this.concatErrorResponses(error.data.error.errors)
             }));
-    };
+    }
 
     /**
      * Helper method to combine a list of errors and their reasons into one string.
@@ -262,7 +262,7 @@ export class TranslationService {
             reasons += error['reason'] + '\n';
         });
         return reasons;
-    };
+    }
 
     /**
      * Loads the translation cache by asking the Neon server.
@@ -276,5 +276,5 @@ export class TranslationService {
                 this.translationCache = JSON.parse(response);
             });
         }
-    };
+    }
 }

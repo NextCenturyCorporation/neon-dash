@@ -28,7 +28,7 @@ export class PropertyService {
     constructor(private http: Http) {
         this.http = http;
         this.baseUrl = '/neon/services/propertyservice/';
-    };
+    }
 
     /**
      * Sets the a given property.
@@ -45,11 +45,11 @@ export class PropertyService {
             headers: h
         })
           .toPromise().then(successCallback).catch(failureCallback);
-    };
+    }
 
     setPropertyJson(propertyName: string, value: object, successCallback?: (resp: any) => any, failureCallback?: (resp: any) => any) {
         return this.setProperty(propertyName, JSON.stringify(value), successCallback, failureCallback);
-    };
+    }
 
     /**
      * Gets a string representation of a property
@@ -60,7 +60,7 @@ export class PropertyService {
      */
     getProperty(propertyName: string, successCallback?: (resp: any) => any, failureCallback?: (resp: any) => any) {
          return this.http.get(this.baseUrl + propertyName).toPromise().then(successCallback).catch(failureCallback);
-    };
+    }
 
     getPropertyJson(propertyName: string, successCallback?: (resp: any) => any, failureCallback?: (resp: any) => any) {
         return this.http.get(this.baseUrl + propertyName).toPromise().then((resp: any) => {
@@ -82,7 +82,7 @@ export class PropertyService {
      */
     deleteProperty(propertyName: string, successCallback?: (resp: any) => any, failureCallback?: (resp: any) => any) {
          return this.http.delete(this.baseUrl + propertyName).toPromise().then(successCallback).catch(failureCallback);
-    };
+    }
 
     /**
      * If the service being used has an API key.
@@ -92,5 +92,5 @@ export class PropertyService {
     hasProperty(): boolean {
         //return this.apis[this.chosenApi].key ? true : false;
         throw new Error('Not implemented yet');
-    };
+    }
 }

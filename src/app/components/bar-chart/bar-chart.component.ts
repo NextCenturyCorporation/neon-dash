@@ -231,19 +231,19 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
         this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
         this.queryTitle = this.optionsFromConfig.title || 'Bar Chart';
-    };
+    }
 
     subNgOnInit() {
         //Do nothing
-    };
+    }
 
     postInit() {
         this.executeQueryChain();
-    };
+    }
 
     subNgOnDestroy() {
         this.chartModule['chart'].destroy();
-    };
+    }
 
     subGetBindings(bindings: any) {
         bindings.dataField = this.active.dataField.columnName;
@@ -267,7 +267,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
-    };
+    }
 
     onClick(_event, elements: any[]) {
         // console.log(event);
@@ -293,7 +293,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             }
             this.refreshVisualization();
         }
-    };
+    }
 
     onUpdateFields() {
         if (this.optionsFromConfig.aggregation) {
@@ -302,11 +302,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.active.aggregationField = this.findFieldObject('aggregationField', neonMappings.TAGS);
         this.active.dataField = this.findFieldObject('dataField', neonMappings.TAGS);
         this.meta.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
-    };
+    }
 
     addLocalFilter(filter) {
         this.filters[0] = filter;
-    };
+    }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         let filterClauses = this.filters.map(function(filter) {
@@ -319,7 +319,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             return neon.query.and.apply(neon.query, filterClauses);
         }
         return neon.query.or.apply(neon.query, filterClauses);
-    };
+    }
 
     getNeonFilterFields(): string[] {
         return [this.active.dataField.columnName];
@@ -407,7 +407,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                     .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
         }
 
-    };
+    }
 
     getFiltersToIgnore() {
         let database = this.meta.database.name;
@@ -562,20 +562,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     handleChangeDataField() {
         this.active.seenValues = [];
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    };
+    }
 
     handleChangeAggregationField() {
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    };
+    }
 
     handleChangeColorField() {
         this.logChangeAndStartQueryChain(); // ('colorField', this.active.colorField.columnName);
-    };
+    }
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
-    };
+    }
 
     unsharedFilterChanged() {
         // Update the data
@@ -598,24 +598,24 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             }, 0);
             return 'Total ' + total;
         }
-    };
+    }
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
         return this.filters;
-    };
+    }
 
     getFilterTitle(value: string) {
         return this.active.dataField.columnName + ' = ' + value;
-    };
+    }
 
     getFilterCloseText(value: string) {
         return value;
-    };
+    }
 
     getRemoveFilterTooltip(value: string) {
         return 'Delete Filter ' + this.getFilterTitle(value);
-    };
+    }
 
     removeFilter(/*value: string*/) {
         this.filters = [];

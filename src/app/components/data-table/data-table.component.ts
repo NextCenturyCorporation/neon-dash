@@ -113,29 +113,29 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         };
         this.queryTitle = this.optionsFromConfig.title || 'Raw Data';
         this.enableRedrawAfterResize(true);
-    };
+    }
 
     subNgOnInit() {
         //Do nothing
-    };
+    }
 
     postInit() {
         this.executeQueryChain();
-    };
+    }
 
     subNgOnDestroy() {
         //Do nothing
-    };
+    }
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
-    };
+    }
 
     subGetBindings(bindings: any) {
         bindings.idField = this.active.idField.columnName;
         bindings.sortField = this.active.sortField.columnName;
         bindings.limit = this.active.limit;
-    };
+    }
 
     onUpdateFields() {
         this.active.idField = this.findFieldObject('idField', neonMappings.TAGS);
@@ -147,13 +147,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             numHeaders++;
         }
         this.recalculateActiveHeaders();
-    };
+    }
 
     recalculateActiveHeaders() {
         this.active.activeHeaders = this.getActiveHeaders();
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
-    };
+    }
 
     getActiveHeaders() {
         let active = [];
@@ -163,7 +163,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
         }
         return active;
-    };
+    }
 
     getExportFields() {
         return this.active.headers
@@ -174,21 +174,21 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                   prettyName: header.name
               };
           });
-    };
+    }
 
     closeColumnSelector() {
         this.active.showColumnSelector = 'hide';
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
-    };
+    }
 
     logAndDisplay(obj) {
         console.log(obj);
-    };
+    }
 
     addLocalFilter(filter) {
         this.filters[0] = filter;
-    };
+    }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         let filterClauses = this.filters.map(function(filter) {
@@ -201,25 +201,25 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             return neon.query.and.apply(neon.query, filterClauses);
         }
         return neon.query.or.apply(neon.query, filterClauses);
-    };
+    }
 
     getNeonFilterFields(): string[] {
         return [this.active.sortField.columnName];
-    };
+    }
 
     getVisualizationName(): string {
         return 'Data Chart';
-    };
+    }
 
     getFilterText() {
         return this.filters[0].value;
-    };
+    }
 
     refreshVisualization() {
         this.table.recalculate();
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
-    };
+    }
 
     isValidQuery() {
         let valid = true;
@@ -228,7 +228,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         valid = (this.active.sortField && this.active.sortField.columnName && valid);
         // valid = (this.active.aggregation && valid);
         return valid;
-    };
+    }
 
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
@@ -244,11 +244,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
         //let dataField = this.active.dataField.columnName;
         return query.where(whereClause).sortBy(this.active.sortField.columnName, neon.query['DESCENDING']).limit(this.active.limit);
-    };
+    }
 
     getFiltersToIgnore() {
         return null;
-    };
+    }
 
     arrayToString(arr) {
         let modArr = arr
@@ -265,11 +265,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 }
         });
         return '[' + modArr + ']';
-    };
+    }
 
     objectToString(base) {
         return '';
-    };
+    }
 
     toCellString(base, type) {
         if (base === null) {
@@ -281,7 +281,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         } else {
             return base;
         }
-    };
+    }
 
     onQuerySuccess(response): void {
         //this.active.data = response.data.map(this.normalizeObject.bind(this));
@@ -296,7 +296,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }.bind(this));
         this.active.data = data;
         this.refreshVisualization();
-    };
+    }
 
     setupFilters() {
         // Get neon filters
@@ -319,24 +319,24 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         } else {
             this.filters = [];
         }
-    };
+    }
 
     handleFiltersChangedEvent() {
 
         this.executeQueryChain();
-    };
+    }
 
     handleChangeLimit() {
         this.logChangeAndStartQueryChain();
-    };
+    }
 
     handleChangeField() {
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    };
+    }
 
     isDragging(): boolean {
         return (this.drag.mousedown && this.drag.downIndex >= 0);
-    };
+    }
 
     //mouse up in a drag and drop element
     onMouseUp(i) {
@@ -361,7 +361,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.clearHeaderStyles();
         this.drag.downIndex = -1;
         this.drag.mousedown = false;
-    };
+    }
 
     //clicks on a drag and drop icon of an element
     onMouseDown(i) {
@@ -371,7 +371,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.active.headers[i].style['backgroundColor'] = 'rgba(0, 0, 0, .2)';
             this.active.headers[i].style['border'] = 'gray dashed 1px';
         }
-    };
+    }
 
     //enters a NEW drag and drop element
     onMouseEnter(i) {
@@ -384,7 +384,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 this.active.headers[i].style['borderBottom'] = style;
             }
         }
-    };
+    }
 
     onMouseLeaveItem(i) {
         if (this.isDragging()) {
@@ -393,14 +393,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 this.active.headers[i].style['borderTop'] = null;
             }
         }
-    };
+    }
 
     //leaves drag and drop area
     onMouseLeaveArea() {
         this.drag.downIndex = -1;
         this.drag.mousedown = false;
         this.clearHeaderStyles();
-    };
+    }
 
     //moving in drag and drop area
     onMouseMove(event) {
@@ -408,13 +408,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.drag.x = event.screenX;
             this.drag.y = event.screenY;
         }
-    };
+    }
 
     clearHeaderStyles() {
         for (let header of this.active.headers) {
             header.style = {};
         }
-    };
+    }
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
@@ -422,33 +422,33 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             return filter.value;
         });
         return closeableFilters;
-    };
+    }
 
     getFilterTitle(value: string) {
         return this.active.sortField.columnName + ' = ' + value;
-    };
+    }
 
     getFilterCloseText(value: string) {
         return value;
-    };
+    }
 
     getRemoveFilterTooltip(value: string) {
         return 'Delete Filter ' + this.getFilterTitle(value);
-    };
+    }
 
     unsharedFilterChanged() {
         // Update the data
         this.executeQueryChain();
-    };
+    }
 
     unsharedFilterRemoved() {
         // Update the data
         this.executeQueryChain();
-    };
+    }
 
     removeFilter() {
         this.filters = [];
-    };
+    }
 
     /**
      * Publishes a select_id event for the ID of the first item in the given list of selected items.
@@ -461,5 +461,5 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (selected && selected.length && this.active.idField.columnName && selected[0][this.active.idField.columnName]) {
             this.publishSelectId(selected[0][this.active.idField.columnName]);
         }
-    };
+    }
 }

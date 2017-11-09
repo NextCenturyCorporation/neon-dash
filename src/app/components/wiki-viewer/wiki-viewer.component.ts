@@ -73,7 +73,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         this.isLoadingWikiPage = false;
         this.queryTitle = this.optionsFromConfig.title || 'Wiki Viewer';
         this.subscribeToSelectId(this.getSelectIdCallback());
-    };
+    }
 
     /**
      * Creates and returns the filter for the wiki viewer (null because the wiki viewer does not filter).
@@ -83,7 +83,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string | string[]) {
         return null;
-    };
+    }
 
     /**
      * Creates and returns the query for the wiki viewer.
@@ -102,7 +102,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         ];
 
         return query.where(neon.query.and.apply(query, whereClauses));
-    };
+    }
 
     /**
      * Returns the wiki viewer export fields.
@@ -118,7 +118,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             columnName: this.active.linkField.columnName,
             prettyName: this.active.linkField.prettyName
         }];
-    };
+    }
 
     /**
      * Returns the list filters for the wiki viewer to ignore (null for no filters).
@@ -128,7 +128,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     getFiltersToIgnore(): any[] {
         return null;
-    };
+    }
 
     /**
      * Returns the text for the given filter.
@@ -139,7 +139,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     getFilterText(filter: any): string {
         return '';
-    };
+    }
 
     /**
      * Returns the list of filter fields for the wiki viewer (an empty array because the wiki viewer does not filter).
@@ -149,7 +149,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     getNeonFilterFields(): string[] {
         return [];
-    };
+    }
 
     /**
      * Returns the option for the given field from the wiki viewer config.
@@ -160,7 +160,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     getOptionFromConfig(option: string): any {
         return this.optionsFromConfig[option];
-    };
+    }
 
     /**
      * Creates and returns the callback function for a select_id event.
@@ -176,7 +176,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
                 self.executeQueryChain();
             }
         };
-    };
+    }
 
     /**
      * Returns the label for the tab using the given array of names and the given index.
@@ -188,7 +188,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     private getTabLabel(names, index) {
         return names && names.length > index ? names[index] : '';
-    };
+    }
 
     /**
      * Returns the name for the wiki viewer.
@@ -198,7 +198,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     getVisualizationName(): string {
         return 'Wiki Viewer';
-    };
+    }
 
     /**
      * Handles a change to a field by running a new query.
@@ -207,7 +207,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     private handleChangeField() {
         this.logChangeAndStartQueryChain();
-    };
+    }
 
     /**
      * Returns whether the wiki viewer query using the active data config is valid.
@@ -218,7 +218,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     isValidQuery(): boolean {
         return !!(this.meta.database && this.meta.database.name && this.meta.table && this.meta.table.name && this.active.id &&
             this.active.idField && this.active.idField.columnName && this.active.linkField && this.active.linkField.columnName);
-    };
+    }
 
     /**
      * Handles the wiki viewer query results.
@@ -244,7 +244,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             this.active.errorMessage = 'Error';
             this.refreshVisualization();
         }
-    };
+    }
 
     /**
      * Updates the fields for the wiki viewer.
@@ -254,7 +254,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     onUpdateFields() {
         this.active.idField = this.findFieldObject('idField');
         this.active.linkField = this.findFieldObject('linkField');
-    };
+    }
 
     /**
      * Initializes the wiki viewer by running its query.
@@ -263,7 +263,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     postInit() {
         this.executeQueryChain();
-    };
+    }
 
     /**
      * Refreshes the wiki viewer.
@@ -272,7 +272,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     refreshVisualization() {
         this.changeDetection.detectChanges();
-    };
+    }
 
     /**
      * Removes the given filter from the wiki viewer (does nothing because the wiki viewer does not filter).
@@ -282,7 +282,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     removeFilter(filter: any) {
         // Do nothing.
-    };
+    }
 
     /**
      * Retrieves the wiki pages recursively using the given array of links.  Refreshes the visualization once finished.
@@ -313,7 +313,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             self.active.wikiText.push(self.sanitizer.bypassSecurityTrustHtml(error));
             self.retrieveWikiPage(links.slice(1));
         });
-    };
+    }
 
     /**
      * Sets filters for the wiki viewer (does nothing because the wiki viewer does not filter).
@@ -322,7 +322,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     setupFilters() {
         // Do nothing.
-    };
+    }
 
     /**
      * Sets the given bindings for the wiki viewer.
@@ -333,7 +333,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     subGetBindings(bindings: any) {
         bindings.idField = this.active.idField.columnName;
         bindings.linkField = this.active.linkField.columnName;
-    };
+    }
 
     /**
      * Destroys any wiki viewer sub-components if needed.
@@ -342,7 +342,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     subNgOnDestroy() {
         // Do nothing.
-    };
+    }
 
     /**
      * Initializes any wiki viewer sub-components if needed.
@@ -351,9 +351,9 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     subNgOnInit() {
         // Do nothing.
-    };
+    }
 
     sanitize(text) {
         return this.sanitizer.bypassSecurityTrustHtml(text);
-    };
+    }
 }

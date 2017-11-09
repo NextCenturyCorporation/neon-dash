@@ -38,7 +38,7 @@ export class ConnectionService {
         }
 
         return this.activeConnection;
-    };
+    }
 
     /**
      * Returns the active connection.
@@ -47,5 +47,5 @@ export class ConnectionService {
      */
     public getActiveConnection(): neon.query.Connection {
         return this.activeConnection;
-    };
+    }
 }

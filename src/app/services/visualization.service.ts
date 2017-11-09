@@ -64,7 +64,7 @@ export class VisualizationService {
             component: component
         });
         }
-    };
+    }
 
     /**
      * Register the grid data for a visualization
@@ -100,7 +100,7 @@ export class VisualizationService {
         if (index >= 0) {
         this.widgets.splice(index, 1);
         }
-    };
+    }
 
     /**
      * Returns a list of all objects currently registered to this service, so the functions they have references to can
@@ -127,5 +127,5 @@ export class VisualizationService {
         }
 
         return widgetList;
-    };
+    }
 }

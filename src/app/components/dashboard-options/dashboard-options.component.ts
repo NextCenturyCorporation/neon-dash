@@ -131,14 +131,14 @@ export class DashboardOptionsComponent implements OnInit {
                 this.handleStateFailure(response);
             });
         }
-    };
+    }
 
     /*
      * Validates a state's name by checking that the name doesn't exist already for another saved state.
      */
     validateName(name: string): boolean {
         return (!this.stateNames.length || this.stateNames.indexOf(name) === -1);
-    };
+    }
 
     /*
      * Loads the states for the name choosen and updates the dashboard and url parameters.
@@ -170,7 +170,7 @@ export class DashboardOptionsComponent implements OnInit {
                 this.handleStateFailure(response);
             });
         }
-    };
+    }
 
     /*
      * Deletes the state for the name choosen.
@@ -202,11 +202,11 @@ export class DashboardOptionsComponent implements OnInit {
                 this.handleStateFailure(response);
             });
         }
-    };
+    }
 
     getDefaultOptionTitle() {
         return this.isLoading ? 'Loading...' : 'Select a name';
-    };
+    }
 
     /*
      * Replaces the url parameters on a successful state save.
@@ -222,7 +222,7 @@ export class DashboardOptionsComponent implements OnInit {
         // $location.search("dashboard_state_id", response.dashboardStateId);
         // $location.search("filter_state_id", response.filterStateId);
         this.loadStateNames();
-    };
+    }
 
     /*
      * Shows an error notification on a state call error.
@@ -231,7 +231,7 @@ export class DashboardOptionsComponent implements OnInit {
      */
     handleStateFailure(response) {
         this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
-    };
+    }
 
     /*
      * Retrieves all the current state names before when any of the modals are shown.
@@ -254,7 +254,7 @@ export class DashboardOptionsComponent implements OnInit {
             this.stateNames = [];
             this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
         });
-    };
+    }
 
     setStateToLoad(name: string) {
         this.formData.stateToLoad = name;

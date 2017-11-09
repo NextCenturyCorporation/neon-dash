@@ -34,27 +34,27 @@ export class ImportService {
 
     getUserName(): string {
         return this.userName;
-    };
+    }
 
     setUserName(name: string) {
         this.userName = name;
-    };
+    }
 
     getDatabaseName(): string {
         return this.databaseName;
-    };
+    }
 
     setDatabaseName(dbName: string) {
         this.databaseName = dbName;
-    };
+    }
 
     getDateString(): string {
         return this.dateString;
-    };
+    }
 
     setDateString(dateString: string) {
         this.dateString = dateString;
-    };
+    }
 
     /**
      * Gets the maximum allowable file input size, in either bytes or a human-readable string depending on
@@ -65,7 +65,7 @@ export class ImportService {
      */
     getMaxSize(readable: boolean): any {
         return readable ? this.sizeToReadable(ImportService.MAX_SIZE) : ImportService.MAX_SIZE;
-    };
+    }
 
     /**
      * Given an array of objects, assumed to each have a name field and a type field at the very least,
@@ -117,7 +117,7 @@ export class ImportService {
             }
         });
         return [];
-    };
+    }
 
     /**
      * Takes an integer and makes it more easily human-readable, assuming the number's units
@@ -135,5 +135,5 @@ export class ImportService {
             name++;
         }
         return (Math.round(size * 10) / 10) + ' ' + nameList[name];
-    };
+    }
 }

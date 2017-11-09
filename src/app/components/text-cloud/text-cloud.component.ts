@@ -95,19 +95,19 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             count: 0
         };
         this.queryTitle = this.optionsFromConfig.title || 'Text Cloud';
-    };
+    }
 
     subNgOnInit() {
         this.updateTextCloudSettings();
-    };
+    }
 
     postInit() {
         this.executeQueryChain();
-    };
+    }
 
     subNgOnDestroy() {
         //Do nothing
-    };
+    }
 
     subGetBindings(bindings: any) {
         bindings.dataField = this.active.dataField.columnName;
@@ -130,13 +130,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
-    };
+    }
 
     updateTextCloudSettings() {
         let options = new TextCloudOptions(new SizeOptions(80, 140, '%'),
             new ColorOptions('#aaaaaa', this.active.textColor));
         this.textCloud = new TextCloud(options);
-    };
+    }
 
     updateObject(prev, field, value) {
         let obj = Object.assign({}, prev);
@@ -156,7 +156,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.active = this.updateObject(this.active, 'dataField', dataField);
         this.active = this.updateObject(this.active, 'sizeField', sizeField);
         this.meta = Object.assign({}, this.meta); //trigger action
-    };
+    }
 
     addLocalFilter(filter) {
         // Make sure we're not adding a useless duplicate.
@@ -166,7 +166,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             }
         }
         this.filters = this.updateArray(this.filters, filter);
-    };
+    }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         let filterClauses = this.filters.map((filter) => {
@@ -179,7 +179,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             return neon.query.and.apply(neon.query, filterClauses);
         }
         return neon.query.or.apply(neon.query, filterClauses);
-    };
+    }
 
     getNeonFilterFields(): string[] {
         return [this.active.dataField.columnName];
@@ -233,7 +233,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 .groupBy(dataField).aggregate(neon.query[this.sizeAggregation], sizeColumn, sizeColumn)
                 .sortBy(sizeColumn, neon.query['DESCENDING']).limit(this.active.limit);
         }
-    };
+    }
 
     getFiltersToIgnore() {
         return null;
@@ -317,7 +317,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     isFilterSet(): boolean {
         return this.filters.length > 0;
-    };
+    }
 
     onClick(item) {
         let value = item.key;
@@ -333,7 +333,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             this.addLocalFilter(filter);
             this.addNeonFilter(true, filter);
         }
-    };
+    }
 
     filterIsUnique(filter) {
         for (let f of this.filters) {
@@ -348,21 +348,21 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
          let data = this.textCloud.createTextCloud(this.active.data);
          this.active = this.updateObject(this.active, 'data', data);
          //this.active.data = data;
-    };
+    }
 
     handleChangeDataField() {
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    };
+    }
 
     handleChangeLimit() {
         this.active.limit = this.active.limit || 1;
         this.logChangeAndStartQueryChain(); // ('limit', this.active.limit, 'button');
-    };
+    }
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
-    };
+    }
 
     handleChangeSizeField() {
         this.logChangeAndStartQueryChain();
@@ -374,15 +374,15 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             this.active.data.length < this.active.count ?
                 'Top ' + this.active.data.length + ' of ' + this.active.count :
                 'Total ' + this.active.data.length;
-    };
+    }
 
     getFilterData() {
         return this.filters;
-    };
+    }
 
     createFilterDesc(value: string) {
         return this.active.dataField.columnName + ' = ' + value;
-    };
+    }
 
     createFilterText(value: string) {
         if (!this.active.allowsTranslations) {
@@ -397,11 +397,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         });
 
         return text;
-    };
+    }
 
     getRemoveDesc(value: string) {
         return 'Delete Filter ' + this.createFilterDesc(value);
-    };
+    }
 
     removeFilter(id: string) {
         let filterIndex = -1;

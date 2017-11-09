@@ -79,7 +79,7 @@ export class ExportControlComponent implements OnInit {
         console.log('shoop');
         this.mdSnackBar.open('Export In Progress...', 'OK', config);
         window.location.assign('/neon/services/exportservice/generateZip/' + queryResults.data);
-    };
+    }
 
     exportFail(response) {
         let config = new MatSnackBarConfig();
@@ -89,7 +89,7 @@ export class ExportControlComponent implements OnInit {
         } else {
             this.mdSnackBar.open('Error: The export service failed to respond properly.', 'Close', config);
         }
-    };
+    }
 
     handleExportClick() {
         let exportAll = this.exportTarget === 'all';

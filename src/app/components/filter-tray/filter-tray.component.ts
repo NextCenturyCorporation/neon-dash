@@ -52,17 +52,17 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
             this.onEventChanged();
         };
         this.filterService.removeFilters(this.messenger, filterIds, onSuccess.bind(this));
-    };
+    }
 
     onEventChanged() {
         this.updateFilterTray(this.filterService.getFilters());
-    };
+    }
 
     updateFilterTray(rawState: any[]) {
         this.filters.raw = rawState;
         let filters = this.formatFilters(rawState);
         this.filters.formatted = filters;
-    };
+    }
 
     formatFilters(filters: any[]): any[] {
         if (filters.length > 0) {
@@ -94,7 +94,7 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
             return resultList;
         }
         return [];
-    };
+    }
 
     ngOnDestroy() {
         this.messenger.unsubscribeAll();

@@ -26,7 +26,7 @@ export namespace neonUtilities {
         return (array || []).reduce(function(sum, element) {
             return sum.concat(Array.isArray(element) ? this.flatten(element) : element);
         }.bind(this), []); // "(array || [])" and ", []" prevent against exceptions and return [] when array is null or empty.
-    };
+    }
 
     /**
      * Returns the object nested inside the given object using the given path string (with periods to mark each nested property).
@@ -53,10 +53,10 @@ export namespace neonUtilities {
             if (!obj) {
                 return undefined;
             }
-        };
+        }
         return obj;
-    };
-};
+    }
+}
 
 // Mappings used in the JSON configuration file.
 export namespace neonMappings {
@@ -112,12 +112,12 @@ export namespace neonMappings {
     export const MAX_LON = 'maxLon';
     export const BOUNDS = 'bounds';
     export const POINT = 'point';
-};
+}
 
 export namespace neonVisualizationMinPixel { // jshint ignore:line
     export const x = 320;
     export const y = 240;
-};
+}
 
 export const neonVisualizations: any[] = [
     //    {   // jshint ignore:line

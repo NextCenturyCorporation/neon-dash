@@ -117,15 +117,15 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     subNgOnInit() {
         this.timelineChart = new StackedTimelineSelectorChart(this, this.svg, this.timelineData);
-    };
+    }
 
     postInit() {
         this.executeQueryChain();
-    };
+    }
 
     subNgOnDestroy() {
 
-    };
+    }
 
     getExportFields() {
         let fields = [{
@@ -169,12 +169,12 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
-    };
+    }
 
     onUpdateFields() {
         this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
         this.active.groupField = this.findFieldObject('groupField', neonMappings.BAR_GROUPS);
-    };
+    }
 
     addLocalFilter(id: string, key: string, startDate: Date, endDate: Date, local?: boolean) {
         this.filters[0] = {
@@ -184,7 +184,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             endDate: endDate,
             local: local
         };
-    };
+    }
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
         let filter = {
@@ -219,7 +219,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             return neon.query.and.apply(neon.query, filterClauses);
         }
         return null;
-    };
+    }
 
     getFilterText(filter) {
         // I.E. TIMELINE - EARTHQUAKES: 8 AUG 2015 TO 20 DEC 2015
@@ -296,7 +296,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
            query.where(neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
         }
         return query.aggregate(neon.query['COUNT'], '*', 'value');
-    };
+    }
 
     getDocCount() {
         let databaseName = this.meta.database.name;
@@ -520,16 +520,16 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     handleChangeDateField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeGroupField() {
         this.logChangeAndStartQueryChain();
-    };
+    }
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
-    };
+    }
 
     subGetBindings(bindings: any) {
         bindings.dateField = this.active.dateField.columnName;
@@ -543,7 +543,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         if (!this.initializing) {
             this.executeQueryChain();
         }
-    };
+    }
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
@@ -552,15 +552,15 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         //});
         //return closeableFilters;
         return this.filters;
-    };
+    }
 
     getFilterTitle(value: string) {
         return this.active.dateField.columnName + ' = ' + value;
-    };
+    }
 
     getRemoveFilterTooltip(value: string) {
         return 'Delete Filter ' + this.getFilterTitle(value);
-    };
+    }
 
     unsharedFilterChanged() {
         // Update the data

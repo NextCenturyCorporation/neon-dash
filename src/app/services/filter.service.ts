@@ -37,7 +37,7 @@ export class FilterService {
     constructor(private errorNotificationService: ErrorNotificationService, private datasetService: DatasetService) {
         this.messenger = new neon.eventing.Messenger();
         this.filters = [];
-    };
+    }
 
     /**
      * Gets all the filters from the server.
@@ -58,7 +58,7 @@ export class FilterService {
                 this.errorNotificationService.showErrorMessage(null, response.responseJSON);
             }
         });
-    };
+    }
 
     /**
      * Returns all filters matching the given comparitor object. The comparitor object can be as sparse
@@ -155,7 +155,7 @@ export class FilterService {
             onSuccess(id); // Return the ID of the created filter.
         },
         onError);
-    };
+    }
 
     replaceFilter(messenger: neon.eventing.Messenger,
         id: string,
@@ -182,7 +182,7 @@ export class FilterService {
             onSuccess(id); // Return the ID of the replaced filter.
         },
         onError);
-    };
+    }
 
     removeFilter(messenger: neon.eventing.Messenger,
         id: string,

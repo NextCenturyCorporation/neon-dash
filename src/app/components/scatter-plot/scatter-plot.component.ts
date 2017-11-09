@@ -260,22 +260,22 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         };
         this.chart.data.datasets.push(new ScatterDataSet(this.defaultColor));
         this.queryTitle = 'Scatter Plot';
-    };
+    }
     subNgOnInit() {
         // do nothing
-    };
+    }
 
     postInit() {
         this.executeQueryChain();
-    };
+    }
 
     subNgOnDestroy() {
         this.chartModule['chart'].destroy();
-    };
+    }
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
-    };
+    }
 
     subGetBindings(bindings: any) {
         bindings.xField = this.active.xField.columnName;
@@ -289,7 +289,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.active.yField = this.findFieldObject('yField', neonMappings.TAGS);
         this.active.labelField = this.findFieldObject('labelField', neonMappings.TAGS);
         this.meta.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
-    };
+    }
 
     createFilter(key, startDate, endDate) {
         return {
@@ -301,7 +301,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     addLocalFilter(f) {
         this.filters[0] = f;
-    };
+    }
 
     getExportFields() {
         let usedFields = [this.active.xField,
@@ -504,7 +504,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         filterClauses[2] = neon.query.where(yField, '>=', filter.yMin);
         filterClauses[3] = neon.query.where(yField, '<=', filter.yMax);
         return neon.query.and.apply(neon.query, filterClauses);
-    };
+    }
 
     getFilterText() {
         // I.E. test - earthquakes - time = 10/11/2015 to 5/1/2016"
@@ -574,7 +574,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         query = query.limit(this.active.limit);
         query = query.aggregate(neon.query['COUNT'], '*', 'value');
         return query;
-    };
+    }
 
     getFiltersToIgnore() {
         return null;
@@ -582,7 +582,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     isNumber(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
-    };
+    }
 
     onQuerySuccess(response) {
         this.disabledList = [];
@@ -680,7 +680,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.queryTitle = 'Scatter Plot: ' + this.active.xField.prettyName + ' vs ' + this.active.yField.prettyName;
         // Force the legend to update
         this.colorByFields = [this.meta.colorField.columnName];
-    };
+    }
 
 
     xAxisTickCallback(value): string {
@@ -723,24 +723,24 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeXField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeYField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeLabelField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeColorField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
-    };
+    }
 
     unsharedFilterChanged() {
         this.logChangeAndStartQueryChain();
@@ -760,19 +760,19 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         } else {
             return [];
         }
-    };
+    }
 
     getFilterTitle(/*value: string*/) {
         return this.active.xField.columnName + ' vs ' + this.active.yField.columnName;
-    };
+    }
 
     getFilterCloseText(value: string) {
         return value;
-    };
+    }
 
     getRemoveFilterTooltip(/*value: string*/) {
         return 'Delete Filter ' + this.getFilterTitle();
-    };
+    }
 
     removeFilter(/*value: string*/) {
         this.filters = [];
@@ -787,4 +787,4 @@ export class ScatterPlotFilter {
     yMax: any;
     xField: string;
     yField: string;
-};
+}

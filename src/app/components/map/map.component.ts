@@ -203,7 +203,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     };
     this.queryTitle = this.optionsFromConfig.title || 'Map';
     //this.addEmptyLayer();
-  };
+  }
 
   subNgOnInit() {
 
@@ -334,11 +334,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       // This must be called to stop Cesium's event loop
       this.cesiumViewer.destroy();
     }
-  };
+  }
 
   getOptionFromConfig(field) {
     return this.optionsFromConfig[field];
-  };
+  }
 
   subAddEmptyLayer() {
     this.active.layers.push({
@@ -604,7 +604,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     if (!layer.title || layer.title === '') {
       layer.title = 'New Layer';
     }
-  };
+  }
 
   findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
     // If there are no layers or the index is past the end of the layers in the config, default to the original
@@ -630,11 +630,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       fieldsByLayer: fieldsByLayer,
       filterName: name
     };
-  };
+  }
 
   addLocalFilter(filter) {
     this.filters[0] = filter;
-  };
+  }
 
   createNeonFilterClauseEquals(database: string, table: string, latLonFieldNames: string[]) {
     let filterClauses = [];
@@ -653,7 +653,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     //let endDatePlusOneDate = new Date(endDatePlusOne);
     //filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
     return neon.query.and.apply(neon.query, filterClauses);
-  };
+  }
 
   getFilterTextByFields(fieldsByLayer: any[]) {
     if (fieldsByLayer.length === 1) {
@@ -727,7 +727,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     query = query.where(whereClause);
     query = query.limit(this.active.limit);
     return query;
-  };
+  }
 
   isNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
@@ -1058,28 +1058,28 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
   handleChangeDateField(layerIndex) {
     this.logChangeAndStartQueryChain(layerIndex);
-  };
+  }
 
   handleChangeSizeField(layerIndex) {
     this.logChangeAndStartQueryChain(layerIndex);
-  };
+  }
 
   handleChangeColorField(layerIndex) {
     this.logChangeAndStartQueryChain(layerIndex);
-  };
+  }
 
   handleChangeLatitudeField(layerIndex) {
     this.logChangeAndStartQueryChain(layerIndex);
-  };
+  }
 
   handleChangeLongitudeField(layerIndex) {
     this.logChangeAndStartQueryChain(layerIndex);
-  };
+  }
 
   handleChangeAndFilters() {
     this.logChangeAndStartAllQueryChain(); // ('andFilters', this.active.andFilters, 'button');
     // this.updateNeonFilter();
-  };
+  }
 
   handleChangeClustering() {
     this.logChangeAndStartAllQueryChain();
@@ -1093,7 +1093,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     //return closeableFilters;
     //TODO
     return this.filters;
-  };
+  }
 
   getFilterTitle(): string {
     let title = 'Map Filter';
@@ -1101,7 +1101,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       title += ' *Filter has been altered outside of Map visualization and selection rectange may not accurately represent filter.';
     }
     return title;
-  };
+  }
 
   getFilterCloseText(value: string) {
     let v = value;
@@ -1109,12 +1109,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       v += '*';
     }
     return v;
-  };
+  }
 
   getRemoveFilterTooltip() {
     let tooltip = 'Delete ' + this.getFilterTitle();
     return tooltip;
-  };
+  }
 
   removeFilter(/*value*/): void {
     this.filters = [];
@@ -1127,7 +1127,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
     this.filters = [];
     this.removeFilterBox();
-  };
+  }
 
   toggleFilter(index: number): void {
     this.filterVisible[index] = !(this.filterVisible[index]);

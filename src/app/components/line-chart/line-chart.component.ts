@@ -226,16 +226,16 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         };
 
         this.queryTitle = 'Line Chart';
-    };
+    }
 
     subNgOnInit() {
         this.chart.type = 'line';
-    };
+    }
 
     postInit() {
         //Do nothing.  An on change unfortunately kicks off the initial query.
         this.logChangeAndStartQueryChain();
-    };
+    }
 
     subNgOnDestroy() {
         this.chartModule['chart'].destroy();
@@ -244,7 +244,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             datasets: []
         };
         this.chart.options = {};
-    };
+    }
 
     getExportFields() {
         let valuePrettyName = this.active.aggregation +
@@ -296,7 +296,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
-    };
+    }
 
     onUpdateFields() {
         if (this.optionsFromConfig.aggregation) {
@@ -306,7 +306,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.active.dateField = this.findFieldObject('dateField', neonMappings.TAGS);
         this.active.groupField = this.findFieldObject('groupField', neonMappings.TAGS);
         this.active = Object.assign({}, this.active);
-    };
+    }
 
     legendItemSelected(data: any): void {
         let key = data.value;
@@ -476,7 +476,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let endDatePlusOneDate = new Date(endDatePlusOne);
         filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
         return neon.query.and.apply(neon.query, filterClauses);
-    };
+    }
 
     getFilterText() {
         // I.E. test - earthquakes - time = 10/11/2015 to 5/1/2016"
@@ -568,7 +568,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 return query.aggregate(neon.query['MAX'], yAxisField, 'value');
         }
 
-    };
+    }
 
     getColorFromScheme(name): string {
         return this.colorSchemeService.getColorFor(this.active.groupField.columnName, name).toRgb();
@@ -711,7 +711,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         }
         this.queryTitle = title;
         this.updateLegend();
-    };
+    }
 
     updateLegend() {
         this.colorByFields = [this.active.groupField.columnName];
@@ -783,27 +783,27 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeDateField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeGroupField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeAggregationField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
         // this.updateNeonFilter();
-    };
+    }
 
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
         // this.logChange(option, value, type);
         if (!this.initializing) {
             this.executeQueryChain();
         }
-    };
+    }
 
 
     // Get filters and format for each call in HTML
@@ -817,15 +817,15 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
     getFilterTitle(value: string) {
         return this.active.dateField.columnName + ' = ' + value;
-    };
+    }
 
     getFilterCloseText(value: string) {
         return value;
-    };
+    }
 
     getRemoveFilterTooltip(value: string) {
         return 'Delete Filter ' + this.getFilterTitle(value);
-    };
+    }
 
     removeFilter(/*value: string*/) {
         this.setupFilters();

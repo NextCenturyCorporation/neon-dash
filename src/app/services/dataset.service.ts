@@ -76,7 +76,7 @@ export class DatasetService {
             }
         });
         this.removeFromArray(database.tables, indexListToRemove);
-    };
+    }
 
     static validateDatabases(dataset): void {
         let indexListToRemove = [];
@@ -95,7 +95,7 @@ export class DatasetService {
             }
         });
         this.removeFromArray(dataset.databases, indexListToRemove);
-    };
+    }
 
     constructor(@Inject('config') private config: NeonGTDConfig) {
         this.datasets = (config.datasets ? config.datasets : []);
@@ -134,7 +134,7 @@ export class DatasetService {
      */
     public getDatasets(): Dataset[] {
         return this.datasets;
-    };
+    }
 
     /**
      * Adds the given dataset to the list of datasets maintained by this service and returns the new list.
@@ -144,7 +144,7 @@ export class DatasetService {
         DatasetService.validateDatabases(dataset);
         this.datasets.push(dataset);
         return this.datasets;
-    };
+    }
 
     /**
      * Sets the active dataset to the given dataset.
@@ -239,7 +239,7 @@ export class DatasetService {
      */
     public getDatastore(): string {
         return this.dataset.datastore;
-    };
+    }
 
     /**
      * Returns the hostname for the active dataset.
@@ -247,7 +247,7 @@ export class DatasetService {
      */
     public getHostname(): string {
         return this.dataset.hostname;
-    };
+    }
 
     /**
      * Returns the databases for the active dataset.
@@ -255,7 +255,7 @@ export class DatasetService {
      */
     public getDatabases(): DatabaseMetaData[] {
         return this.dataset.databases;
-    };
+    }
 
     /**
      * Returns the dataset with the given name or undefined if no such dataset exists.
@@ -270,7 +270,7 @@ export class DatasetService {
         }
 
         return undefined;
-    };
+    }
 
     /**
      * Returns the database with the given name or an Object with an empty name if no such database exists in the dataset.
@@ -286,7 +286,7 @@ export class DatasetService {
         }
 
         return undefined;
-    };
+    }
 
     /**
      * Returns the tables for the database with the given name in the active dataset.
@@ -296,7 +296,7 @@ export class DatasetService {
     public getTables(databaseName: string): TableMetaData[] {
         let database = this.getDatabaseWithName(databaseName);
         return database ? database.tables : [];
-    };
+    }
 
     /**
      * Returns the table with the given name or an Object with an empty name if no such table exists in the database with the given name.
@@ -314,7 +314,7 @@ export class DatasetService {
         }
 
         return undefined;
-    };
+    }
 
     /**
      * Returns a map of database names to an array of table names within that database.
@@ -331,7 +331,7 @@ export class DatasetService {
             }
         }
         return names;
-    };
+    }
 
     /**
      * Returns the the first table in the database with the given name containing all the given mappings.
@@ -356,7 +356,7 @@ export class DatasetService {
         }
 
         return undefined;
-    };
+    }
 
     /**
      * Returns an object containing the first database, table, and fields found in the active dataset with all the given mappings.
@@ -393,7 +393,7 @@ export class DatasetService {
         }
 
         return {};
-    };
+    }
 
     /**
      * Returns the field objects for the database and table with the given names.
@@ -409,7 +409,7 @@ export class DatasetService {
         }
 
         return table.fields;
-    };
+    }
 
     /**
      * Returns a sorted copy of the array of field objects for the database and table with the given names,
@@ -440,7 +440,7 @@ export class DatasetService {
         });
 
         return fields;
-    };
+    }
 
     /**
      * Returns the mappings for the table with the given name.
@@ -456,7 +456,7 @@ export class DatasetService {
         }
 
         return table.mappings;
-    };
+    }
 
     /**
      * Returns the mapping for the table with the given name and the given key.
@@ -474,7 +474,7 @@ export class DatasetService {
         }
 
         return table.mappings[key];
-    };
+    }
 
     /**
      * Sets the mapping for the table with the given name at the given key to the given field name.
@@ -491,7 +491,7 @@ export class DatasetService {
         }
 
         table.mappings[key] = fieldName;
-    };
+    }
 
     /**
      * Returns an array of relations for the given database, table, and fields.  The given table is related to another table if
@@ -599,7 +599,7 @@ export class DatasetService {
         });
 
         return [result];
-    };
+    }
 
     /**
      * Returns the initial configuration parameters for the map with the given name in the active dataset.
@@ -608,7 +608,7 @@ export class DatasetService {
      */
     public getMapConfig(name: string): Object {
         return this.dataset.mapConfig[name] || {};
-    };
+    }
 
     /**
      * Sets the map layer configuration for the active dataset.
@@ -617,7 +617,7 @@ export class DatasetService {
     public setMapLayers(config: any): void {
         this.dataset.mapLayers = config;
         this.updateDataset();
-    };
+    }
 
     /**
      * Adds a map layer configuration for the active dataset.
@@ -627,7 +627,7 @@ export class DatasetService {
     public addMapLayer(name: string, layers: string): void {
         this.dataset.mapLayers[name] = layers;
         this.updateDataset();
-    };
+    }
 
     /**
      * Returns the map layer configuration for the map with the given name in the active dataset.
@@ -635,7 +635,7 @@ export class DatasetService {
      */
     public getMapLayers(name: string): any[] {
         return this.dataset.mapLayers[name] || [];
-    };
+    }
 
     /**
      * Sets the line chart configuration for the active dataset.
@@ -644,7 +644,7 @@ export class DatasetService {
     public setLineCharts(config: any[]): void {
         this.dataset.lineCharts = config;
         this.updateDataset();
-    };
+    }
 
     /**
      * Adds a line chart configuration for the active dataset.
@@ -654,7 +654,7 @@ export class DatasetService {
     public addLineChart(chartName: string, charts: Object[]): void {
         this.dataset.lineCharts[chartName] = charts;
         this.updateDataset();
-    };
+    }
 
     /**
      * Returns the line chart configuration for the the line chart with the given name in the active dataset.
@@ -662,7 +662,7 @@ export class DatasetService {
      */
     public getLineCharts(name: string): Object {
         return this.dataset.lineCharts[name] || [];
-    };
+    }
 
     /**
      * Returns the linky configuration for the active dataset.
@@ -670,7 +670,7 @@ export class DatasetService {
      */
     public getLinkyConfig(): any {
         return this.dataset.linkyConfig;
-    };
+    }
 
     /**
      * Sets the linky configuration for the active dataset.
@@ -683,7 +683,7 @@ export class DatasetService {
      */
     public setLinkyConfig(config: Object): void {
         this.dataset.linkyConfig = config;
-    };
+    }
 
     /**
      * Updates the database at the given index (default 0) from the given dataset by adding undefined fields for each table.
@@ -752,7 +752,7 @@ export class DatasetService {
      */
     public getActiveDatasetOptions(): DatasetOptions {
         return this.dataset.options;
-    };
+    }
 
     /**
      * Returns the color maps option for the database, table, and field in the active dataset with the given names.
@@ -765,7 +765,7 @@ export class DatasetService {
     public getActiveDatasetColorMaps(databaseName: string, tableName: string, fieldName: string): Object {
         let colorMaps = this.getActiveDatasetOptions().colorMaps || {};
         return colorMaps[databaseName] && colorMaps[databaseName][tableName] ? colorMaps[databaseName][tableName][fieldName] || {} : {};
-    };
+    }
 
     /**
      * Creates and returns a new blank field object.
@@ -778,7 +778,7 @@ export class DatasetService {
             prettyName: '',
             hide: false
         };
-    };
+    }
 
     /**
      * Returns whether the given field object is valid.
@@ -787,7 +787,7 @@ export class DatasetService {
      */
     public isFieldValid(fieldObject: FieldMetaData): boolean {
         return Boolean(fieldObject && fieldObject.columnName);
-    };
+    }
 
     /**
      * Returns the pretty name for the given database name.
@@ -802,7 +802,7 @@ export class DatasetService {
             }
         });
         return name;
-    };
+    }
 
     /**
      * Returns the pretty name for the given table name in the given database.
@@ -818,5 +818,5 @@ export class DatasetService {
             }
         });
         return name;
-    };
+    }
 }

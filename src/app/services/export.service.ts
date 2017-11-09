@@ -78,7 +78,7 @@ export class ExportService {
             callback: bundleFunction
         });
         return this.widgetNumber;
-    };
+    }
 
     /**
      * Unregisters a function with the given ID from this  Should be called by visualization widgets upon being destroyed.
@@ -92,7 +92,7 @@ export class ExportService {
                 return;
             }
         }
-    };
+    }
 
     /**
      * Returns a list of all objects currently registered to this  so the functions they have references to can
@@ -101,7 +101,7 @@ export class ExportService {
      */
     getWidgets(): ExportInfo[] {
         return this.widgets;
-    };
+    }
 
     /**
      * Sets the file format in which widgets should request exports, given as a number that corresponds to an extension (for a list of
@@ -110,7 +110,7 @@ export class ExportService {
      */
     setFileFormat(fileFormat: number) {
         this.format = fileFormat;
-    };
+    }
 
     /**
      * Returns the available formats.
@@ -118,7 +118,7 @@ export class ExportService {
      */
     getFileFormats(): any[] {
         return ExportService.AVAILABLE_FORMATS;
-    };
+    }
 
     /**
      * Returns the numeric value of the file format in which widgets should request exports.
@@ -126,7 +126,7 @@ export class ExportService {
      */
     getFileFormat(): number {
         return this.format;
-    };
+    }
 
     /**
      * Returns the limit clause that should be given to queries going to export.
@@ -135,7 +135,7 @@ export class ExportService {
      */
     getLimitClause(): any {
         return this.limitClause;
-    };
+    }
 
     /**
      * Returns the limit clause that should be given to queries going to export.
@@ -144,7 +144,7 @@ export class ExportService {
      */
     getIgnoreFilters(): boolean {
         return this.ignoreFilters_;
-    };
+    }
 
     /**
      * Returns the list of ignored filter ids that should be given to queries going to export.
@@ -153,5 +153,5 @@ export class ExportService {
      */
     getIgnoredFilterIds(): string[] {
         return this.ignoredFilterIds_;
-    };
+    }
 }
