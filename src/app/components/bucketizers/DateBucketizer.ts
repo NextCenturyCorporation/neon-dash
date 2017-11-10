@@ -1,7 +1,5 @@
-'use strict';
-import { Bucketizer } from './Bucketizer';
 /*
- * Copyright 2015 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +13,10 @@ import { Bucketizer } from './Bucketizer';
  * limitations under the License.
  *
  */
+
+'use strict';
+
+import { Bucketizer } from './Bucketizer';
 
 export class DateBucketizer extends Bucketizer {
     public static readonly DAY: string = 'day';

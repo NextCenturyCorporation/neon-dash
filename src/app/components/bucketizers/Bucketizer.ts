@@ -1,4 +1,3 @@
-'use strict';
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +13,8 @@
  * limitations under the License.
  *
  */
+
+'use strict';
 
 /**
  * Abstract bucketizer parent class
