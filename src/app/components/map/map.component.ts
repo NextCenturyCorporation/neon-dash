@@ -475,7 +475,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       this.drawSelection();
     }
 
-
     if (this.optionsFromConfig.hoverPopupEnabled || this.optionsFromConfig.hoverSelect) {
       let viewer = this.cesiumViewer;
       let objectsAtLocation = viewer.scene.drillPick(end); // get all entities under mouse
@@ -558,7 +557,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       obj[y] = correctedXy.y;
     }
   }
-
 
   latLonToXy(position) {
     let viewer = this.cesiumViewer;
@@ -781,7 +779,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         this.createAndAddPoint(id, obj['lat'], obj['lng'], obj['color'], obj['count'], dataSource, newDataIds, entities);
       }
     }
-
 
     this.cesiumViewer.dataSources.removeAll(true);
     this.cesiumViewer.dataSources.add(dataSource);
@@ -1094,7 +1091,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
   getIconForFilter(index: number): string {
     return this.filterVisible[index] ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
   }
-
 
   /*removeLocalFilterFromLocalAndNeon(value: string) {
       // If we are removing a filter, assume its both local and neon so it should be removed in both

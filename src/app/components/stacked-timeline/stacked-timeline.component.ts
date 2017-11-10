@@ -530,7 +530,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         bindings.groupField = this.active.groupField.columnName;
     }
 
-
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
         if (!this.initializing) {
             this.executeQueryChain();

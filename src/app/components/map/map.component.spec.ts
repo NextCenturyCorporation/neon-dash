@@ -65,8 +65,6 @@ describe('Component: Map', () => {
         fixture.detectChanges();
     });
 
-
-
     // Cesium causes the test to fail just because PhantomJS does not have webgl.
     // Disabling this test until i can find a resolution.
     it('should create an instance', () => {

@@ -74,7 +74,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     /* A reference to the dialog for the filter tray. */
     private filterTrayDialogRef: MatDialogRef<FilterTrayComponent>;
 
-
     constructor(public datasetService: DatasetService, public themesService: ThemesService,
         private activeGridService: ActiveGridService, public dialog: MatDialog,
         public viewContainerRef: ViewContainerRef, @Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MatSnackBar) {

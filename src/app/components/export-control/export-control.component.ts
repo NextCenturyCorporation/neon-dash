@@ -69,7 +69,6 @@ export class ExportControlComponent implements OnInit {
         event.preventDefault();
     }
 
-
     exportSuccess(queryResults) {
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;

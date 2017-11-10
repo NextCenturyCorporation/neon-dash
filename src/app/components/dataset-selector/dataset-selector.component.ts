@@ -265,7 +265,6 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
     }
 
-
     /**
      * Updates the layout of visualizations in the dashboard for the custom visualizations set.
      * @method updateCustomLayout

@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 
-
 export class LogMessage {
  componentName: string;
  time: Date;

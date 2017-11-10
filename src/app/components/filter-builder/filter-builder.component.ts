@@ -17,7 +17,6 @@ import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
 
-
 @Component({
     selector: 'app-filter-builder',
     templateUrl: './filter-builder.component.html',

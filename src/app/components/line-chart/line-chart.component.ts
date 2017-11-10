@@ -491,7 +491,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         return 'Line Chart';
     }
 
-
     refreshVisualization() {
         this.chartModule['chart'].update();
     }
@@ -778,7 +777,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             this.executeQueryChain();
         }
     }
-
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {

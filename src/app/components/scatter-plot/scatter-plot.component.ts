@@ -656,7 +656,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.colorByFields = [this.meta.colorField.columnName];
     }
 
-
     xAxisTickCallback(value): string {
         if (this.active.xAxisIsNumeric) {
             return value;
