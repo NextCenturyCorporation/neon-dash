@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import {} from 'jasmine';
+import {} from 'jasmine-core';
 
 import { MapComponent } from './map.component';
 import { LegendComponent } from '../legend/legend.component';

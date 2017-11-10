@@ -5,7 +5,7 @@ import { Injector } from '@angular/core';
 
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
-import {} from 'jasmine';
+import {} from 'jasmine-core';
 
 import { FilterBuilderComponent } from './filter-builder.component';
 import { ExportService } from '../../services/export.service';

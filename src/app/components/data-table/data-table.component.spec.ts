@@ -7,7 +7,7 @@ import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
-import {} from 'jasmine';
+import {} from 'jasmine-core';
 
 import { DataTableComponent } from './data-table.component';
 import { ExportControlComponent } from '../export-control/export-control.component';

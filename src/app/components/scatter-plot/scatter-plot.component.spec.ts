@@ -5,7 +5,7 @@ import { Injector } from '@angular/core';
 
 import { ChartModule } from 'angular2-chartjs';
 
-import {} from 'jasmine';
+import {} from 'jasmine-core';
 
 import { ScatterPlotComponent } from './scatter-plot.component';
 import { LegendComponent } from '../legend/legend.component';

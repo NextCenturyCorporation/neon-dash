@@ -10,7 +10,7 @@ import { Injector } from '@angular/core';
 import { MockBackend } from '@angular/http/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine';
+import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
 
 import { ExportControlComponent } from '../export-control/export-control.component';

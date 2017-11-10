@@ -5,7 +5,7 @@ import { Injector } from '@angular/core';
 
 import { ChartModule } from 'angular2-chartjs';
 
-import {} from 'jasmine';
+import {} from 'jasmine-core';
 
 import { TimelineComponent } from './timeline.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
