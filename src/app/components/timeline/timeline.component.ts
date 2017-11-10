@@ -15,7 +15,7 @@ import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings } from '../../neon-namespaces';
+import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
@@ -284,7 +284,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = neon.query.where(this.active.dateField.columnName, '!=', null);
         let dateField = this.active.dateField.columnName;
-        query = query.aggregate(neon.query['MIN'], dateField, 'date');
+        query = query.aggregate(neonVariables.MIN, dateField, 'date');
         let groupBys: any[] = [];
         switch (this.active.granularity) {
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
@@ -305,13 +305,13 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             /* falls through */
         }
         query = query.groupBy(groupBys);
-        query = query.sortBy('date', neon.query['ASCENDING']);
+        query = query.sortBy('date', neonVariables.ASCENDING);
         query = query.where(whereClause);
         // Add the unshared filter field, if it exists
         if (this.hasUnsharedFilter()) {
            query.where(neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
         }
-        return query.aggregate(neon.query['COUNT'], '*', 'value');
+        return query.aggregate(neonVariables.COUNT, '*', 'value');
     }
 
     getDocCount() {
@@ -321,7 +321,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         let countQuery = new neon.query.Query()
             .selectFrom(databaseName, tableName)
             .where(whereClause)
-            .aggregate(neon.query['COUNT'], '*', '_docCount');
+            .aggregate(neonVariables.COUNT, '*', '_docCount');
         this.executeQuery(countQuery);
     }
 
@@ -344,8 +344,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response) {
-        if (response.data.length === 1 && response.data[0]['_docCount'] !== undefined) {
-            this.active.docCount = response.data[0]['_docCount'];
+        if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
+            this.active.docCount = response.data[0]._docCount;
         } else {
             // Convert all the dates into Date objects
             response.data.map((d) => {

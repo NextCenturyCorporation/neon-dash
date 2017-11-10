@@ -15,7 +15,7 @@ import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings } from '../../neon-namespaces';
+import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ChartModule } from 'angular2-chartjs';
@@ -258,6 +258,19 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.chart.data.datasets.push(new ScatterDataSet(this.defaultColor));
         this.queryTitle = 'Scatter Plot';
     }
+
+    /**
+     * Returns the chart in the chart module.
+     *
+     * @return {object}
+     * @private
+     */
+    private getChart() {
+        /* tslint:disable:no-string-literal */
+        return this.chartModule['chart'];
+        /* tslint:enable:no-string-literal */
+    }
+
     subNgOnInit() {
         // do nothing
     }
@@ -267,7 +280,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     subNgOnDestroy() {
-        this.chartModule['chart'].destroy();
+        this.getChart().destroy();
     }
 
     getOptionFromConfig(field) {
@@ -411,7 +424,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     onHover(event) {
-        let chartArea = this.chartModule['chart'].chartArea;
+        let chartArea = this.getChart().chartArea;
         let chartXPos = event.offsetX;
         let chartYPos = event.offsetY;
         if (!this.selection.mouseDown && event.buttons > 0 && this.mouseEventValid) {
@@ -435,7 +448,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     getFilterFromSelectionPositions() {
-        let chart = this.chartModule['chart'];
+        let chart = this.getChart();
         let x1 = chart.scales['x-axis-1'].getValueForPixel(this.selection.startX);
         let y1 = chart.scales['y-axis-1'].getValueForPixel(this.selection.startY);
         let x2 = chart.scales['x-axis-1'].getValueForPixel(this.selection.endX);
@@ -448,15 +461,15 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         y2 = temp;
         if (!this.active.xAxisIsNumeric) {
             let i = Math.ceil(x1);
-            x1 = this.chart.data['xLabels'][i];
+            x1 = this.chart.data.xLabels[i];
             i = Math.floor(x2);
-            x2 = this.chart.data['xLabels'][i];
+            x2 = this.chart.data.xLabels[i];
         }
         if (!this.active.yAxisIsNumeric) {
             let i = Math.ceil(y1);
-            y1 = this.chart.data['yLabels'][i];
+            y1 = this.chart.data.yLabels[i];
             i = Math.floor(y2);
-            y2 = this.chart.data['yLabels'][i];
+            y2 = this.chart.data.yLabels[i];
         }
         return {
             id: undefined,
@@ -504,7 +517,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     refreshVisualization() {
-        this.chartModule['chart'].update();
+        this.getChart().update();
     }
 
     isValidQuery() {
@@ -543,10 +556,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         }
 
         query = query.groupBy(groupBys);
-        query = query.sortBy(xField, neon.query['ASCENDING']);
+        query = query.sortBy(xField, neonVariables.ASCENDING);
         query.where(neon.query.and.apply(query, whereClauses));
         query = query.limit(this.active.limit);
-        query = query.aggregate(neon.query['COUNT'], '*', 'value');
+        query = query.aggregate(neonVariables.COUNT, '*', 'value');
         return query;
     }
 

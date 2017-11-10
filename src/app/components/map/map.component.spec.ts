@@ -24,8 +24,10 @@ import { VisualizationService } from '../../services/visualization.service';
 function webgl_support(): any {
     try {
         let canvas = document.createElement('canvas');
+        /* tslint:disable:no-string-literal */
         return !!window['WebGLRenderingContext'] && (
             canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
+        /* tslint:enable:no-string-literal */
     } catch (e) { return false; }
 }
 

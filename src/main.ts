@@ -143,7 +143,9 @@ function bootstrapWithData(configFromFile) {
   if (errors && errors.length > 0) {
       configObject.errors = errors;
   }
+  /* tslint:disable:no-string-literal */
   window['appConfig'] = configObject;
+  /* tslint:enable:no-string-literal */
   return platformBrowserDynamic().bootstrapModule(AppModule);
 }
 

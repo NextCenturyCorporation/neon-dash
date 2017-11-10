@@ -212,9 +212,9 @@ export class FilterService {
 
     private getFilterNameString(database: string, table: string, filterName: string | {visName: string, text: string}) {
         if (typeof filterName === 'object') {
-            let nameString = filterName['visName'] ? filterName['visName'] + ' - ' : '';
+            let nameString = filterName.visName ? filterName.visName + ' - ' : '';
             nameString += this.datasetService.getTableWithName(database, table).prettyName;
-            nameString += filterName['text'] ? ': ' + filterName['text'] : '';
+            nameString += filterName.text ? ': ' + filterName.text : '';
             return nameString;
         } else {
             return filterName;

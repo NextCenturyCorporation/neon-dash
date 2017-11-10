@@ -70,7 +70,9 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { AppMaterialModule } from './app.material.module';
 
 export function getAppConfig() {
+    /* tslint:disable:no-string-literal */
     return window['appConfig'];
+    /* tslint:enable:no-string-literal */
 }
 
 @NgModule({
@@ -137,6 +139,5 @@ export function getAppConfig() {
     bootstrap: [AppComponent]
 })
 
-export class AppModule {
-
-}
+/* tslint:disable:no-unnecessary-class */
+export class AppModule { }

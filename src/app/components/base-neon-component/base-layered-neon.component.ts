@@ -266,8 +266,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         let fields = this.getExportFields(layerIndex);
         for (let field of fields) {
             finalObject.data[0].fields.push({
-                query: field['columnName'],
-                pretty: field['prettyName'] || field['columnName']
+                query: field.columnName,
+                pretty: field.prettyName || field.columnName
             });
         }
 
@@ -347,7 +347,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * @param layerIndex
      */
     initTables(layerIndex) {
-        this.meta.layers[layerIndex].tables = this.datasetService.getTables(this.meta.layers[layerIndex].database['name']);
+        this.meta.layers[layerIndex].tables = this.datasetService.getTables(this.meta.layers[layerIndex].database.name);
         this.meta.layers[layerIndex].table = this.meta.layers[layerIndex].tables[0];
 
         if (this.meta.layers[layerIndex].tables.length > 0) {
@@ -371,7 +371,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         // Sort the fields that are displayed in the dropdowns in the options menus
         // alphabetically.
         let fields = this.datasetService
-            .getSortedFields(this.meta.layers[layerIndex].database['name'], this.meta.layers[layerIndex].table['name']);
+            .getSortedFields(this.meta.layers[layerIndex].database.name, this.meta.layers[layerIndex].table.name);
         this.meta.layers[layerIndex].fields = fields.filter(function(f) {
             return (f && f.type);
         });
@@ -686,7 +686,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
         let find = (name: string) => {
             return _.find(this.meta.layers[layerIndex].fields, function(field) {
-                return field['columnName'] === name;
+                return field.columnName === name;
             });
         };
 

@@ -15,7 +15,7 @@ import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings } from '../../neon-namespaces';
+import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -228,6 +228,18 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.queryTitle = 'Line Chart';
     }
 
+    /**
+     * Returns the chart in the chart module.
+     *
+     * @return {object}
+     * @private
+     */
+    private getChart() {
+        /* tslint:disable:no-string-literal */
+        return this.chartModule['chart'];
+        /* tslint:enable:no-string-literal */
+    }
+
     subNgOnInit() {
         this.chart.type = 'line';
     }
@@ -238,7 +250,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     subNgOnDestroy() {
-        this.chartModule['chart'].destroy();
+        this.getChart().destroy();
         this.chart.data = {
             labels: [],
             datasets: []
@@ -492,7 +504,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     refreshVisualization() {
-        this.chartModule['chart'].update();
+        this.getChart().update();
     }
 
     isValidQuery() {
@@ -516,7 +528,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         let yAxisField = this.active.aggregationField.columnName;
         let dateField = this.active.dateField.columnName;
         let groupField = this.active.groupField.columnName;
-        query = query.aggregate(neon.query['MIN'], dateField, 'date');
+        query = query.aggregate(neonVariables.MIN, dateField, 'date');
         let groupBys: any[] = [];
         switch (this.active.granularity) {
             case 'hour':
@@ -535,20 +547,20 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         groupBys.push(groupField);
         query = query.groupBy(groupBys);
         // we assume sorted by date later to get min and max date!
-        query = query.sortBy('date', neon.query['ASCENDING']);
+        query = query.sortBy('date', neonVariables.ASCENDING);
         query = query.where(whereClause);
         query = query.limit(this.active.limit);
         switch (this.active.aggregation) {
             case 'count':
-                return query.aggregate(neon.query['COUNT'], '*', 'value');
+                return query.aggregate(neonVariables.COUNT, '*', 'value');
             case 'sum':
-                return query.aggregate(neon.query['SUM'], yAxisField, 'value');
+                return query.aggregate(neonVariables.SUM, yAxisField, 'value');
             case 'average':
-                return query.aggregate(neon.query['AVG'], yAxisField, 'value');
+                return query.aggregate(neonVariables.AVG, yAxisField, 'value');
             case 'min':
-                return query.aggregate(neon.query['MIN'], yAxisField, 'value');
+                return query.aggregate(neonVariables.MIN, yAxisField, 'value');
             case 'max':
-                return query.aggregate(neon.query['MAX'], yAxisField, 'value');
+                return query.aggregate(neonVariables.MAX, yAxisField, 'value');
         }
 
     }
@@ -566,7 +578,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.disabledList = [];
 
         // need to reset chart when data potentially changes type (or number of datasets)
-        let ctx = this.chartModule['chart'].chart.ctx;
+        let ctx = this.getChart().chart.ctx;
         let tmpLimit = this.active.groupLimit;
         if (response.data.length === 0) {
             return;

@@ -32,7 +32,7 @@ export class TranslationService {
         this.apis = {
             google: {
                 base: 'https://www.googleapis.com/language/translate/v2',
-                key: (this.config.translationKeys) ? this.config.translationKeys['google'] : undefined,
+                key: (this.config.translationKeys) ? this.config.translationKeys.google : undefined,
                 methods: {
                     translate: '',
                     detect: '/detect',
@@ -163,11 +163,12 @@ export class TranslationService {
                     params += '&' + this.apis[this.chosenApi].params.from + '=' + from;
                 }
 
+                let self = this;
                 return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.translate + '?' + params)
                     .toPromise()
                     .then((response) => {
                         // Cache the translations for later use.
-                        response['data'].data.translations.forEach((item, index) => {
+                        self.getResponseData(response).data.translations.forEach((item, index) => {
                             if (!cached[index]) {
                                 this.translationCache[to][text[index]] = item.translatedText;
                             }
@@ -175,7 +176,7 @@ export class TranslationService {
                         // Add the cached translations in the response data for the callback.
                         cached.forEach((item, index) => {
                             if (item) {
-                                response['data'].data.translations[index].translatedText = item;
+                                self.getResponseData(response).data.translations[index].translatedText = item;
                             }
                         });
                         return response;
@@ -236,10 +237,11 @@ export class TranslationService {
         let params = this.apis[this.chosenApi].params.key + '=' + this.apis[this.chosenApi].key +
             '&' + this.apis[this.chosenApi].params.to + '=en';
 
+        let self = this;
         return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.languages + '?' + params)
             .toPromise()
             .then((response) => {
-                _.forEach(response['data'].data.languages, (elem: any) => {
+                _.forEach(self.getResponseData(response).data.languages, (elem: any) => {
                     this.apis[this.chosenApi].languages[elem.language] = elem.name;
                 });
                 return this.apis[this.chosenApi].languages;
@@ -253,15 +255,14 @@ export class TranslationService {
     /**
      * Helper method to combine a list of errors and their reasons into one string.
      * @param {Array} errors Array of errors containing reasons for the error.
-     * @param {String} errors[].reason Reason for a particular error.
      * @method concatErrorResponses
      * @return {String} All the error reasons in one string.
      * @private
      */
-    private concatErrorResponses(errors: string[]): string {
+    private concatErrorResponses(errors: { reason: string }[]): string {
         let reasons = 'Reasons:\n';
         _.forEach(errors, (error) => {
-            reasons += error['reason'] + '\n';
+            reasons += error.reason + '\n';
         });
         return reasons;
     }
@@ -278,5 +279,18 @@ export class TranslationService {
                 this.translationCache = JSON.parse(response);
             });
         }
+    }
+
+    /**
+     * Returns the data in the given response object.
+     *
+     * @arg {object} response
+     * @return {array}
+     * @private
+     */
+    private getResponseData(response: any) {
+        /* tslint:disable:no-string-literal */
+        return response['data'];
+        /* tslint:enable:no-string-literal */
     }
 }

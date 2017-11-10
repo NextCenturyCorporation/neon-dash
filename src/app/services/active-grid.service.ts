@@ -57,8 +57,10 @@ export class ActiveGridService {
 
     expandItem(item: NeonGridItem) {
         let visibleRows = 0;
-        if (this.grid && this.grid['_ngEl']) {
-            visibleRows = Math.floor(this.grid['_ngEl'].nativeElement.offsetParent.clientHeight / this.grid.rowHeight);
+        let gridElement = this.getGridElement();
+        if (this.grid && gridElement) {
+            visibleRows = Math.floor(gridElement.nativeElement.offsetParent.clientHeight /
+                this.grid.rowHeight);
         }
 
         item.lastGridConfig  = _.clone(item.gridConfig);
@@ -66,6 +68,18 @@ export class ActiveGridService {
         item.gridConfig.col = 1;
         // TODO:  Puzzle out why this exceeds the visible space by a couple rows.
         item.gridConfig.sizey = (visibleRows > 0) ? visibleRows : item.gridConfig.sizex;
+    }
+
+    /**
+     * Returns the grid element.
+     *
+     * @return {object}
+     * @private
+     */
+    private getGridElement() {
+        /* tslint:disable:no-string-literal */
+        return this.grid['_ngEl'];
+        /* tslint:enable:no-string-literal */
     }
 
     getGridItems(): NeonGridItem[] {

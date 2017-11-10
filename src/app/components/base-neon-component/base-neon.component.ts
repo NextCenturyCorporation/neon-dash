@@ -211,8 +211,8 @@ export abstract class BaseNeonComponent implements OnInit,
             let fields = this.getExportFields();
             for (let field of fields) {
                 finalObject.data[0].fields.push({
-                    query: field['columnName'],
-                    pretty: field['prettyName'] || field['columnName']
+                    query: field.columnName,
+                    pretty: field.prettyName || field.columnName
                 });
             }
 
@@ -298,7 +298,7 @@ export abstract class BaseNeonComponent implements OnInit,
      * Load all the table metadata, then call initFields()
      */
     initTables() {
-        this.meta.tables = this.datasetService.getTables(this.meta.database['name']);
+        this.meta.tables = this.datasetService.getTables(this.meta.database.name);
         this.meta.table = this.meta.tables[0];
 
         if (this.meta.tables.length > 0) {
@@ -581,7 +581,7 @@ export abstract class BaseNeonComponent implements OnInit,
         let me = this;
         let find = function(name) {
             return _.find(me.meta.fields, function(field) {
-                return field['columnName'] === name;
+                return field.columnName === name;
             });
         };
 

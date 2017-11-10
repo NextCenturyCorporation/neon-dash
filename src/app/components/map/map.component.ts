@@ -612,7 +612,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     let me = this;
     let find = function(name) {
       return _.find(me.meta.layers[layerIndex].fields, function(field) {
-        return field['columnName'] === name;
+        return field.columnName === name;
       });
     };
 
@@ -773,11 +773,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
     for (let id of allHashes) {
       let obj = map.get(id);
+      /* tslint:disable:no-string-literal */
       if (obj['lat'] instanceof Array) {
         this.createAndAddPoint(id, obj['lat'][0], obj['lng'][0], obj['color'], obj['count'], dataSource, newDataIds, entities);
       } else {
         this.createAndAddPoint(id, obj['lat'], obj['lng'], obj['color'], obj['count'], dataSource, newDataIds, entities);
       }
+      /* tslint:enable:no-string-literal */
     }
 
     this.cesiumViewer.dataSources.removeAll(true);

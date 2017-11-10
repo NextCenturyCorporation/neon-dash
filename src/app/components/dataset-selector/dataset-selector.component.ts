@@ -304,14 +304,14 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             };
 
             if (visualization.database && visualization.table) {
-                layout['bindings'] = {
+                layout.bindings = {
                     'bind-database': '\'' + visualization.database + '\'',
                     'bind-table': '\'' + visualization.table + '\''
                 };
             }
 
             _.each(visualization.bindings, function(value, key) {
-                layout['bindings'][key] = '\'' + value + '\'';
+                layout.bindings[key] = '\'' + value + '\'';
             });
 
             this.activeGridService.addItem(layout);

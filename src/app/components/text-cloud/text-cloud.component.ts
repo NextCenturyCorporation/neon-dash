@@ -6,7 +6,7 @@ import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings } from '../../neon-namespaces';
+import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
@@ -224,14 +224,14 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
         if (this.active.sizeField.columnName === '') {
             // Normal aggregation query
-            return query.where(whereClause).groupBy(dataField).aggregate(neon.query['COUNT'], '*', 'value')
-                .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
+            return query.where(whereClause).groupBy(dataField).aggregate(neonVariables.COUNT, '*', 'value')
+                .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
         } else {
             // Query for data with the size field and sort by it
             let sizeColumn = this.active.sizeField.columnName;
             return query.where(neon.query.and(whereClause, neon.query.where(sizeColumn, '!=', null)))
                 .groupBy(dataField).aggregate(neon.query[this.sizeAggregation], sizeColumn, sizeColumn)
-                .sortBy(sizeColumn, neon.query['DESCENDING']).limit(this.active.limit);
+                .sortBy(sizeColumn, neonVariables.DESCENDING).limit(this.active.limit);
         }
     }
 
@@ -251,13 +251,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             .selectFrom(databaseName, tableName)
             .where(whereClause)
             .groupBy(this.active.dataField.columnName)
-            .aggregate(neon.query['COUNT'], '*', '_docCount');
+            .aggregate(neonVariables.COUNT, '*', '_docCount');
         this.executeQuery(countQuery);
     }
 
     onQuerySuccess(response): void {
         try {
-            if (response && response.data && response.data.length && response.data[0]['_docCount'] !== undefined) {
+            if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
                 this.active.count = response.data.length;
             } else {
                 let cloudData = response.data || [];

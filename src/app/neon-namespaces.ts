@@ -15,6 +15,20 @@
  */
 /* eslist-disable */
 
+import * as neon from 'neon-framework';
+
+export namespace neonVariables {
+    /* tslint:disable:no-string-literal */
+    export const ASCENDING = neon.query['ASCENDING'];
+    export const AVG = neon.query['AVG'];
+    export const COUNT = neon.query['COUNT'];
+    export const DESCENDING = neon.query['DESCENDING'];
+    export const MAX = neon.query['MAX'];
+    export const MIN = neon.query['MIN'];
+    export const SUM = neon.query['SUM'];
+    /* tslint:enable:no-string-literal */
+}
+
 export namespace neonUtilities {
     /**
      * Flattens and returns the given array.

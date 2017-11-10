@@ -41,11 +41,11 @@ export class TextCloud {
         }
 
         return data.map((item) => {
-            let weighting = item['value'] - lowest;
-            item['fontSize'] = this.options.size.start + (weighting * fontIncr) + this.options.size.unit;
+            let weighting = item.value - lowest;
+            item.fontSize = this.options.size.start + (weighting * fontIncr) + this.options.size.unit;
 
             if (this.options.color) {
-                item['color'] = this.tagColor(this.options.color, colorIncr, weighting);
+                item.color = this.tagColor(this.options.color, colorIncr, weighting);
             }
             return item;
         });

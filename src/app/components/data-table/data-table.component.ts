@@ -15,7 +15,7 @@ import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonUtilities } from '../../neon-namespaces';
+import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
@@ -236,7 +236,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 this.meta.unsharedFilterValue));
         }
 
-        return query.where(whereClause).sortBy(this.active.sortField.columnName, neon.query['DESCENDING']).limit(this.active.limit);
+        return query.where(whereClause).sortBy(this.active.sortField.columnName, neonVariables.DESCENDING).limit(this.active.limit);
     }
 
     getFiltersToIgnore() {
@@ -359,8 +359,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (i >= 0) {
             this.drag.downIndex = i;
             this.drag.mousedown = true;
-            this.active.headers[i].style['backgroundColor'] = 'rgba(0, 0, 0, .2)';
-            this.active.headers[i].style['border'] = 'gray dashed 1px';
+            this.setStyle(i, 'backgroundColor', 'rgba(0, 0, 0, .2)');
+            this.setStyle(i, 'border', 'gray dashed 1px');
         }
     }
 
@@ -370,9 +370,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.drag.currentIndex = i;
             let style = 'thick solid gray';
             if (i < this.drag.downIndex) {
-                this.active.headers[i].style['borderTop'] = style;
+                this.setStyle(i, 'borderTop', style);
             } else if (i > this.drag.downIndex) {
-                this.active.headers[i].style['borderBottom'] = style;
+                this.setStyle(i, 'borderBottom', style);
             }
         }
     }
@@ -380,8 +380,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     onMouseLeaveItem(i) {
         if (this.isDragging()) {
             if (i !== this.drag.downIndex) {
-                this.active.headers[i].style['borderBottom'] = null;
-                this.active.headers[i].style['borderTop'] = null;
+                this.setStyle(i, 'borderBottom', null);
+                this.setStyle(i, 'borderTop', null);
             }
         }
     }
@@ -452,5 +452,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (selected && selected.length && this.active.idField.columnName && selected[0][this.active.idField.columnName]) {
             this.publishSelectId(selected[0][this.active.idField.columnName]);
         }
+    }
+
+    /**
+     * Sets the given style in the headers with the given index to the given value.
+     *
+     * @arg {number} index
+     * @arg {string} style
+     * @arg {string} value
+     * @private
+     */
+    private setStyle(index: number, style: string, value: string) {
+        this.active.headers[index].style[style] = value;
     }
 }

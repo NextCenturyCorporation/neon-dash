@@ -13,7 +13,7 @@ import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings } from '../../neon-namespaces';
+import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from 'angular2-chartjs';
@@ -228,8 +228,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             // Returning null removes the row from the tooltip
             return value === 0 ? null : tooltip.label + ': ' + value;
         };
-        this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
-        this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
+        this.chart.options.tooltips.callbacks.title = tooltipTitleFunc.bind(this);
+        this.chart.options.tooltips.callbacks.label = tooltipDataFunc.bind(this);
         this.queryTitle = this.optionsFromConfig.title || 'Bar Chart';
     }
 
@@ -242,7 +242,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     subNgOnDestroy() {
-        this.chartModule['chart'].destroy();
+        this.chartModule.chart.destroy();
     }
 
     subGetBindings(bindings: any) {
@@ -355,7 +355,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         }
 
         this.selectedLabels = selectedLabels;
-        this.chartModule['chart'].update();
+        this.chartModule.chart.update();
     }
 
     isValidQuery() {
@@ -395,14 +395,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         query.where(neon.query.and.apply(query, whereClauses));
         switch (this.active.aggregation) {
             case 'count':
-                return query.groupBy(groupBy).aggregate(neon.query['COUNT'], '*', 'value')
-                    .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
+                return query.groupBy(groupBy).aggregate(neonVariables.COUNT, '*', 'value')
+                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
             case 'sum':
-                return query.groupBy(groupBy).aggregate(neon.query['SUM'], yAxisField, 'value')
-                    .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
+                return query.groupBy(groupBy).aggregate(neonVariables.SUM, yAxisField, 'value')
+                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
             case 'average':
-                return query.groupBy(groupBy).aggregate(neon.query['AVG'], yAxisField, 'value')
-                    .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
+                return query.groupBy(groupBy).aggregate(neonVariables.AVG, yAxisField, 'value')
+                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
         }
 
     }
@@ -585,11 +585,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     getButtonText() {
         let text = 'No Data';
-        let data = this.chart.data['datasets'];
-        if (!data || !data[0] || !data[0]['data'] || !data[0]['data'].length) {
+        let data = this.chart.data.datasets;
+        if (!data || !data[0] || !data[0].data || !data[0].data.length) {
             return text;
         } else {
-            let total = data[0]['data'].reduce((sum, elem) => {
+            let total = data[0].data.reduce((sum, elem) => {
                 return sum + elem;
             }, 0);
             return 'Total ' + total;
