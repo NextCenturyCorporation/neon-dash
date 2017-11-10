@@ -118,7 +118,7 @@ export class ColorSchemeService {
      * @param {string} set
      * @param {string} value
      */
-    public getColorFor(set: string, value: string | Array<string>): Color {
+    public getColorFor(set: string, value: string | string[]): Color {
         let colorSet = this.colorMaps.get(set);
         if (colorSet == null) {
             colorSet = new ColorSet();
