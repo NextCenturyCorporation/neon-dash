@@ -89,11 +89,11 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     postInit() {
-
+        // Do nothing.
     }
 
     subNgOnDestroy() {
-
+        // Do nothing.
     }
 
     subGetBindings(bindings) {
@@ -227,7 +227,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     removeFilter(value) {
-
+        // Do nothing.
     }
 
     handleChangeDataField() {

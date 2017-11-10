@@ -27,11 +27,11 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit() {
-
+        // Do nothing.
     }
 
     ngOnDestroy() {
-
+        // Do nothing.
     }
 
     formatMetadataEntry(record, metadataEntry) {

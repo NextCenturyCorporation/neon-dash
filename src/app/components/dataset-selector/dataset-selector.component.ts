@@ -182,7 +182,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         });
     }
 
-    ngOnDestroy(): void { }
+    ngOnDestroy(): void {
+        // Do nothing.
+    }
 
     /**
      * Connects to the preset dataset at the given index.

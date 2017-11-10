@@ -411,7 +411,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     // These methods must be present for AoT compile
-    requestExport() {}
+    requestExport() {
+        // Do nothing.
+    }
 
     unsharedFilterChanged() {
         // Update the data

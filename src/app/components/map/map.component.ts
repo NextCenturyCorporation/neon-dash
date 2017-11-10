@@ -204,7 +204,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
   }
 
   subNgOnInit() {
-
+    // Do nothing.
   }
 
   postInit() {

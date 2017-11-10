@@ -206,7 +206,9 @@ export class TranslationService {
     saveTranslationCache() {
         let connection = this.connectionService.getActiveConnection();
         if (connection) {
-            connection.setTranslationCache(this.translationCache, () => {});
+            connection.setTranslationCache(this.translationCache, () => {
+                // TODO
+            });
         }
     }
 

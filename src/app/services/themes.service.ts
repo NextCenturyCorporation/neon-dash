@@ -28,7 +28,9 @@ export class ThemesService {
 
     private currentTheme: any = ThemesService.THEMES[0];
 
-    constructor() { }
+    constructor() {
+        // Do nothing.
+    }
 
     getThemes(): string[] {
         return ThemesService.THEMES;

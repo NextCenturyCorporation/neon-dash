@@ -119,7 +119,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     subNgOnDestroy() {
-
+        // Do nothing.
     }
 
     subGetBindings(bindings: any) {

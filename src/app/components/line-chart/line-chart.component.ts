@@ -381,8 +381,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         }
     }
 
-    mouseUp(/*event*/) {
-
+    mouseUp() {
+        // Do nothing.
     }
 
     onHover(event, items) {

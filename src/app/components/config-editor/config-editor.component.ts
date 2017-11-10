@@ -59,7 +59,7 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
     }
 
     ngOnInit(): void {
-
+        // Do nothing.
     }
 
     ngAfterViewInit() {

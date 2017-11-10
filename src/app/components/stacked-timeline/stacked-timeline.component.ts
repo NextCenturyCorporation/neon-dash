@@ -124,7 +124,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     }
 
     subNgOnDestroy() {
-
+        // Do nothing.
     }
 
     getExportFields() {

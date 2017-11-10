@@ -18,7 +18,9 @@ declare var require: any;
 declare var Cesium: any;
 
 // Prevent Karma from running prematurely.
-__karma__.loaded = function() {};
+__karma__.loaded = function() {
+    // Do nothing.
+};
 
 // First, initialize the Angular testing environment.
 getTestBed().initTestEnvironment(

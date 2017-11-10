@@ -40,7 +40,9 @@ export class ActiveGridService {
     private grid: NgGrid;
     private gridConfig: NgGridConfig;
 
-    constructor() { }
+    constructor() {
+        // Do nothing.
+    }
 
     clear() {
         this.gridItems.length = 0;

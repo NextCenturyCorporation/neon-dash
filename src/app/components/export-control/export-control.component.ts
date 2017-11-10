@@ -63,6 +63,7 @@ export class ExportControlComponent implements OnInit {
     }
 
     setExportFormat(value: number) {
+        // Do nothing.
     }
 
     toggleExportFormat(event: Event) {

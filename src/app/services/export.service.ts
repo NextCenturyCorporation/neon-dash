@@ -63,7 +63,9 @@ export class ExportService {
     // The current widget registration number. Incremented when a new widget is registered.
     private widgetNumber: number = -1;
 
-    constructor() { }
+    constructor() {
+        // Do nothing.
+    }
 
     /**
      * Registers a function to this  so that it can be executed as part of a bulk operation. Should be called by visualization
