@@ -46,8 +46,9 @@ const MD_MODULES = [
     entryComponents: [],
     bootstrap: []
 })
+
 /**
  * This class just imports/exports all the material components we need
  */
-export class AppMaterialModule {
-}
+/* tslint:disable:no-unnecessary-class */
+export class AppMaterialModule { }

@@ -23,4 +23,6 @@ const routes: Routes = [];
   exports: [RouterModule],
   providers: []
 })
+
+/* tslint:disable:no-unnecessary-class */
 export class NeonGtdRoutingModule { }

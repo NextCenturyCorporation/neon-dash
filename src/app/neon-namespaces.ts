@@ -33,13 +33,13 @@ export namespace neonUtilities {
     /**
      * Flattens and returns the given array.
      *
-     * @arg {array} array
-     * @return {array} array
+     * @arg {array} input
+     * @return {array}
      */
-    export function flatten(array) {
-        return (array || []).reduce(function(sum, element) {
-            return sum.concat(Array.isArray(element) ? this.flatten(element) : element);
-        }.bind(this), []); // "(array || [])" and ", []" prevent against exceptions and return [] when array is null or empty.
+    export function flatten(input) {
+        return (input || []).reduce(function(array, element) {
+            return array.concat(Array.isArray(element) ? flatten(element) : element);
+        }, []);
     }
 
     /**

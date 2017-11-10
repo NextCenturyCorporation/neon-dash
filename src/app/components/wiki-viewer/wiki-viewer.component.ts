@@ -169,11 +169,10 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @private
      */
     private getSelectIdCallback() {
-        let self = this;
-        return function(message) {
-            if (message.database === self.meta.database.name && message.table === self.meta.table.name) {
-                self.active.id = Array.isArray(message.id) ? message.id[0] : message.id;
-                self.executeQueryChain();
+        return (message) => {
+            if (message.database === this.meta.database.name && message.table === this.meta.table.name) {
+                this.active.id = Array.isArray(message.id) ? message.id[0] : message.id;
+                this.executeQueryChain();
             }
         };
     }
