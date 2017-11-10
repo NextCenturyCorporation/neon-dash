@@ -33,13 +33,13 @@ const HTTP_PROVIDERS = [
 ];
 
 const EMPTY_CONFIG = {
-  'dashboard': {},
-  'help': {},
-  'datasets': [],
-  'layouts': {
-      'default': []
+  dashboard: {},
+  help: {},
+  datasets: [],
+  layouts: {
+      default: []
   },
-  'customFilters': {}
+  customFilters: {}
 };
 
 let neonConfigErrors = [];

@@ -32,8 +32,8 @@ describe('Component: AboutNeonComponent', () => {
             infoUtils: {
                 getNeonVersion: function(cb) {
                     let result: any = {
-                        'name': 'neon-gtd',
-                        'version': 'test-version'
+                        name: 'neon-gtd',
+                        version: 'test-version'
                     };
                     cb(result);
                 }

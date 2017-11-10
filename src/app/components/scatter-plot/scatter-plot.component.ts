@@ -582,8 +582,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             let x = point[xField];
             let y = point[yField];
             let p = {
-                'x': x,
-                'y': y
+                x: x,
+                y: y
             };
 
             // The key of the dataset is the value of the color field, or ''

@@ -550,7 +550,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       needCorrection = true;
     }
     if (needCorrection) {
-      let correctedXy = this.latLonToXy({'lat': obj[lat], 'lon': obj[lon]});
+      let correctedXy = this.latLonToXy({
+        lat: obj[lat],
+        lon: obj[lon]
+      });
       obj[x] = correctedXy.x;
       obj[y] = correctedXy.y;
     }
@@ -559,7 +562,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
   latLonToXy(position) {
     let viewer = this.cesiumViewer;
-    let p = viewer.scene.globe.ellipsoid.cartographicToCartesian({'latitude': position.lat, 'longitude': position.lon});
+    let p = viewer.scene.globe.ellipsoid.cartographicToCartesian({
+      latitude: position.lat,
+      longitude: position.lon
+    });
     return Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, p);
   }
 
