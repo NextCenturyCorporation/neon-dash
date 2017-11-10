@@ -37,7 +37,8 @@ export namespace neonUtilities {
      */
     export function deepFind(item, pathString) {
         let itemToReturn = item;
-        for (let i = 0, path = (pathString ? pathString.split('.') : []), length = path.length; i < length; i++) {
+        let path = (pathString ? pathString.split('.') : []);
+        for (let i = 0; i < path.length; i++) {
             if (itemToReturn instanceof Array) {
                 let nestedPath = path.slice(i).join('.');
                 let pieces = [];

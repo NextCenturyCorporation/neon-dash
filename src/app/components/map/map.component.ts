@@ -477,8 +477,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
 
     if (this.optionsFromConfig.hoverPopupEnabled || this.optionsFromConfig.hoverSelect) {
-      let viewer = this.cesiumViewer,
-        objectsAtLocation = viewer.scene.drillPick(end); // get all entities under mouse
+      let viewer = this.cesiumViewer;
+      let objectsAtLocation = viewer.scene.drillPick(end); // get all entities under mouse
 
       if (this.optionsFromConfig.hoverPopupEnabled) {
         let popup = this.popupEntity;
@@ -743,8 +743,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     let allHashes = [];
     let map = new Map();
     for (let point of data) {
-      let color,
-        colorValue = colorField && point[colorField];
+      let color;
+      let colorValue = colorField && point[colorField];
       if (colorValue) {
         let colorString = this.colorSchemeService.getColorFor(colorField, colorValue).toRgb();
         color = Cesium.Color.fromCssColorString(colorString);
