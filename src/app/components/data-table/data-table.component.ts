@@ -247,9 +247,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     arrayToString(arr) {
         let modArr = arr
         .filter(function(el) {
-            return el; // && !(typeof el === 'object');
+            return el;
         })
-            .map(function (base) {
+            .map(function(base) {
                 if ((typeof base === 'object')) {
                     return this.objectToString(base);
                 } else if (Array.isArray(base)) {
@@ -278,7 +278,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onQuerySuccess(response): void {
-        let data = response.data.map(function (d) {
+        let data = response.data.map(function(d) {
             let row = {};
             for (let field of this.meta.fields)  {
                 if (field.type) {

@@ -22,7 +22,7 @@ describe('dateBucketizer', function() {
         bucketizer = new DateBucketizer();
     });
 
-    it('constants are correct', function () {
+    it('constants are correct', function() {
        expect(DateBucketizer.DAY).toBe('day');
        expect(DateBucketizer.HOUR).toBe('hour');
     });
