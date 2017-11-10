@@ -193,8 +193,8 @@ export class ActiveGridService {
             item2.gridConfig.col > (item1.gridConfig.col + item1.gridConfig.sizex - 1)) {
             return false;
         }
-        if ( item1.gridConfig.row > (item2.gridConfig.row + item2.gridConfig.sizey - 1) ||
-             item2.gridConfig.row > (item1.gridConfig.row + item1.gridConfig.sizey - 1)) {
+        if (item1.gridConfig.row > (item2.gridConfig.row + item2.gridConfig.sizey - 1) ||
+            item2.gridConfig.row > (item1.gridConfig.row + item1.gridConfig.sizey - 1)) {
             return false;
         }
 

@@ -40,7 +40,7 @@ describe('Service: DatasetService', () => {
 
     it('should have no active datasets at creation',
         inject([DatasetService], (service: DatasetService) => {
-        expect(service.getDataset()).toEqual(new Dataset() );
+        expect(service.getDataset()).toEqual(new Dataset());
     }));
 
     it('should return datasets by name',

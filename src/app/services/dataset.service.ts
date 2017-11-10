@@ -402,7 +402,7 @@ export class DatasetService {
     public getFields(databaseName: string, tableName: string): FieldMetaData[] {
         let table = this.getTableWithName(databaseName, tableName);
 
-        if ( !table ) {
+        if (!table) {
             return [];
         }
 
@@ -420,7 +420,7 @@ export class DatasetService {
     public getSortedFields(databaseName: string, tableName: string, ignoreHiddenFields?: boolean): FieldMetaData[] {
         let table = this.getTableWithName(databaseName, tableName);
 
-        if ( !table ) {
+        if (!table) {
             return [];
         }
 

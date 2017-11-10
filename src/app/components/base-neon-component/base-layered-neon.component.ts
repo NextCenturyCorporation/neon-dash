@@ -667,7 +667,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.outstandingDataQueriesByLayer[layerIndex][table].done(this.baseOnQuerySuccess.bind(this, layerIndex));
 
         this.outstandingDataQueriesByLayer[layerIndex][table].fail((response) => {
-            if ( response.statusText === 'abort') {
+            if (response.statusText === 'abort') {
                 // query was aborted so we don't care.  We assume we aborted it on purpose.
             } else {
                 this.isLoading--;
