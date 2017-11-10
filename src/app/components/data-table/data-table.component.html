@@ -101,7 +101,7 @@
                     <mat-list-item *ngFor="let header of active.headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
                         (mouseleave)="onMouseLeaveItem(i)" [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
                         <mat-icon (mousedown)="onMouseDown(i)">drag_handle</mat-icon>
-                        <mat-checkbox [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{header.name}}</mat-checkbox>
+                        <mat-checkbox [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{ header.name }}</mat-checkbox>
                     </mat-list-item>
                 </mat-list>
             </div>
