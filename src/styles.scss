@@ -240,6 +240,7 @@
     bottom: 0;
     width: 100%;
 }
+
 //TODO This is a hack
 .mat-toolbar{
 	min-height:56px !important;
@@ -247,10 +248,20 @@
 	border-color:  mat-color($header) mat-color($header) #4DBEC2;
 	//background-color: mat-color($header);
 }
+
 .mat-primary{
 	border-color: mat-color($primary) mat-color($primary) #4DBEC2;
 }
+
 //This is also a hack
 .mat-toolbar-row{
 	height: 48px !important;
 }
+
+// Styling for the tabs in the Wiki Viewer.
+.mat-tab-label {
+    height: 30px !important;
+    min-width: unset !important;
+    padding: 0 10px !important;
+}
+

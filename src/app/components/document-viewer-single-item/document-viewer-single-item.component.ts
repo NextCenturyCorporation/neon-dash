@@ -2,6 +2,7 @@ import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 
 import { ThemesService } from '../../services/themes.service';
+import { neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
 @Component({
@@ -21,7 +22,7 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
         public dialogRef: MatDialogRef<DocumentViewerSingleItemComponent>) {
         this.messenger = new neon.eventing.Messenger();
         this.data = data;
-        this.text = this.deepFind(data.item, data.textField);
+        this.text = neonUtilities.deepFind(data.item, data.textField);
         this.metadata = this.data.metadataFields;
     }
 
@@ -31,34 +32,6 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
 
-    }
-
-    flatten(array) {
-        return (array || []).reduce(function(sum, element) {
-            return sum.concat(Array.isArray(element) ? this.flatten(element) : element);
-        }.bind(this), []); // "(array || [])" and ", []" prevent against exceptions and return [] when array is null or empty.
-    }
-
-    deepFind(obj, pathStr) {
-        for (let i = 0, path = pathStr.split('.'), len = path.length; i < len; i++) {
-            if (obj instanceof Array) {
-                let nestedPath = path.slice(i).join('.');
-                let pieces = [];
-                for (let item = 0; item < obj.length; item++) {
-                    let entryValue = this.deepFind(obj[item], nestedPath);
-                    if (entryValue instanceof Array) {
-                        entryValue = this.flatten(entryValue);
-                    }
-                    pieces = pieces.concat(entryValue);
-                }
-                return pieces;
-            }
-            obj = obj[path[i]];
-            if (!obj) {
-                return undefined;
-            }
-        };
-        return obj;
     }
 
     formatMetadataEntry(record, metadataEntry) {

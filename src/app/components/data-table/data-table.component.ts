@@ -15,7 +15,7 @@ import {FilterService} from '../../services/filter.service';
 import {ExportService} from '../../services/export.service';
 import {ThemesService} from '../../services/themes.service';
 import {FieldMetaData} from '../../dataset';
-import {neonMappings} from '../../neon-namespaces';
+import { neonMappings, neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 //import * as _ from 'lodash';
 import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
@@ -283,29 +283,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
     };
 
-    flatten(array) {
-        return (array || []).reduce(function(sum, element) {
-            return sum.concat(Array.isArray(element) ? this.flatten(element) : element);
-        }.bind(this), []); // "(array || [])" and ", []" prevent against exceptions and return [] when array is null or empty.
-    };
-
-    deepFind (obj, pathStr) {
-        for (let i = 0, path = pathStr.split('.'), len = path.length; i < len; i++) {
-            obj = obj[path[i]];
-            if (!obj) {
-                return undefined;
-            }
-        };
-        return obj;
-    };
-
     onQuerySuccess(response): void {
         //this.active.data = response.data.map(this.normalizeObject.bind(this));
         let data = response.data.map(function (d) {
             let row = {};
             for (let field of this.meta.fields)  {
                 if (field.type) {
-                    row[field.columnName] = this.toCellString(this.deepFind(d, field.columnName), field.type);
+                    row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
                 }
             }
             return row;
