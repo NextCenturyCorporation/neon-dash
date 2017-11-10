@@ -719,7 +719,6 @@ export class DatasetService {
                     });
                     pendingTypesRequests++;
                     connection.getFieldTypes (database.name, table.name, function(types) {
-                        //console.log(types);
                         for (let f of table.fields) {
                             if (types && types[f.columnName]) {
                                 f.type = types[f.columnName];

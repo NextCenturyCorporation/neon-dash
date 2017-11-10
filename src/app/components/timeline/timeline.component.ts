@@ -128,10 +128,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     getExportFields() {
-        //{
-        //    columnName: 'date',
-        //    prettyName: 'Date'
-        //},
         let fields = [{
             columnName: 'value',
             prettyName: 'Count'
@@ -291,7 +287,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         query = query.aggregate(neon.query['MIN'], dateField, 'date');
         let groupBys: any[] = [];
         switch (this.active.granularity) {
-            //Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
+            // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
             case 'minute':
                 groupBys.push(new neon.query.GroupByFunctionClause('minute', dateField, 'minute'));
             /* falls through */
@@ -543,7 +539,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
-        // this.logChange(option, value, type);
         if (!this.initializing) {
             this.executeQueryChain();
         }
@@ -551,10 +546,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
-        // let closeableFilters = this.filters.map((filter) => {
-        //    return filter.key + " Filter";
-        //});
-        //return closeableFilters;
         return this.filters;
     }
 

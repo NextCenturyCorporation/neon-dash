@@ -233,7 +233,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     postInit() {
-        //Do nothing.  An on change unfortunately kicks off the initial query.
+        // Do nothing.  An on change unfortunately kicks off the initial query.
         this.logChangeAndStartQueryChain();
     }
 
@@ -369,8 +369,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     mouseLeave(event) {
-        //console.log('leave');
-        //console.log(event);
         this.mouseEventValid = false;
         this.selection.mouseDown = false;
         this.stopEventPropagation(event);
@@ -378,8 +376,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     mouseDown(event) {
-        //console.log('down');
-        //console.log(event);
         if (event.buttons > 0) {
             this.mouseEventValid = true;
         }
@@ -417,8 +413,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             let chartTop = chartArea.top;
             let startIndex: number = this.selection.startIndex;
             let endIndex: number = items[0]._index;
-            //let endX = items[0].getCenterPoint().x;
-            //let startX = this.selection.startX
             let endX = -1;
             let startX = -1;
             if (startIndex > endIndex) {
@@ -428,7 +422,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             }
             // at this point, start Index is <= end index
             if (startIndex === 0) {
-                //first element, so don't go off the chart
+                // first element, so don't go off the chart
                 startX = this.getPointXLocationByIndex(items[0]._chart, startIndex);
             } else {
                 let a = this.getPointXLocationByIndex(items[0]._chart, startIndex - 1);
@@ -437,7 +431,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             }
 
             if (endIndex >= this.chart.data.labels.length - 1) {
-                //last element, so don't go off the chart
+                // last element, so don't go off the chart
                 endX = this.getPointXLocationByIndex(items[0]._chart, endIndex);
             } else {
                 let a = this.getPointXLocationByIndex(items[0]._chart, endIndex);
@@ -449,10 +443,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             this.selection.height = chartBottom - chartTop;
             this.selection.y = chartTop;
             redraw = true;
-            //this.selection.visibleOverlay=!this.selection.visibleOverlay;
         }
         if (isMouseUp) {
-            //The button was clicked, handle the selection.
+            // The button was clicked, handle the selection.
             this.selection.startDate = this.active.dateBucketizer.getDateForBucket(this.selection.startIndex);
             this.selection.endDate = this.active.dateBucketizer.getDateForBucket(this.selection.endIndex);
             let key = this.active.dateField.columnName;
@@ -465,8 +458,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         if (redraw) {
             this.changeDetection.detectChanges();
         }
-        //console.log(event);
-        //console.log(items);
     }
 
     createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
@@ -542,16 +533,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
                 /* falls through */
         }
-        //groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
-        //groupBys.push(new neon.query.GroupByFunctionClause('month', dateField, 'month'));
-        //groupBys.push(new neon.query.GroupByFunctionClause('dayOfMonth', dateField, 'day'));
-        //if (this.active.granularity === 'hour') {
-        //    groupBys.push(new neon.query.GroupByFunctionClause('hour', dateField, 'hour'));
-        //}
         groupBys.push(groupField);
         query = query.groupBy(groupBys);
-        //query = query.sortBy('value', neon.query['DESCENDING']);
-        //we assume sorted by date later to get min and max date!
+        // we assume sorted by date later to get min and max date!
         query = query.sortBy('date', neon.query['ASCENDING']);
         query = query.where(whereClause);
         query = query.limit(this.active.limit);
@@ -584,15 +568,11 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
         // need to reset chart when data potentially changes type (or number of datasets)
         let ctx = this.chartModule['chart'].chart.ctx;
-        //this.chartModule['chart'].destroy();
-        //this.chartModule['chart'] = new Chart(ctx, this.chart);
-        //this.chartModule['chart'].reset();
         let tmpLimit = this.active.groupLimit;
         if (response.data.length === 0) {
             return;
         }
         let dataSetField = this.active.groupField.columnName;
-        // let prettyColName = this.active.dateField.prettyName;
         let myData = {};
         let startDate = response.data[0].date;
         let endDate = response.data[response.data.length - 1].date;
@@ -612,7 +592,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 this.active.dateBucketizer = new YearBucketizer();
                 break;
         }
-        //this.active.dateBucketizer = new DateBucketizer();
         let bucketizer = this.active.dateBucketizer;
         bucketizer.setStartDate(new Date(startDate));
         bucketizer.setEndDate(new Date(endDate));
@@ -632,9 +611,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 }
                 myData[dataSet][idx] = row.value;
                 totals[dataSet] += row.value;
-                //if (numDatasets > tmpLimit){
-                //  break;
-                //}
             }
         }
         let datasets = []; // TODO type to chartjs
@@ -795,11 +771,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-        // this.updateNeonFilter();
     }
 
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
-        // this.logChange(option, value, type);
         if (!this.initializing) {
             this.executeQueryChain();
         }

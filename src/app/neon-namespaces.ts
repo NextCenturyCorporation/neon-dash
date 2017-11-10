@@ -121,21 +121,11 @@ export namespace neonVisualizationMinPixel { // jshint ignore:line
 }
 
 export const neonVisualizations: any[] = [
-    //    {   // jshint ignore:line
-    //        name: 'Aggregation Table',
-    //        type: 'aggregationTable',
-    //        icon: 'Count64'
-    //    },
     {
         name: 'Bar Chart',
         type: 'barChart',
         icon: 'BarChart64'
     },
-    //{
-    //    name: 'Custom Filter List',
-    //    type: 'customFilterList',
-    //    icon: 'CustomFilterList64'
-    //},
     {
         name: 'Data Table',
         type: 'dataTable',
@@ -152,11 +142,6 @@ export const neonVisualizations: any[] = [
         type: 'filterBuilder',
         icon: 'CreateFilter64'
     },
-    //{
-    //    name: 'Gantt Chart',
-    //    type: 'ganttChart',
-    //    icon: 'Gantt64'
-    //},
     {
         name: 'Line Chart',
         type: 'lineChart',
@@ -166,21 +151,6 @@ export const neonVisualizations: any[] = [
         type: 'map',
         icon: 'Map64'
     },
-    //{
-    //    name: 'Network Graph',
-    //    type: 'networkGraph',
-    //    icon: 'Graph64'
-    //},
-    //{
-    //    name: 'Newsfeed',
-    //    type: 'newsFeed',
-    //    icon: 'News64'
-    //},
-    // {
-    //    name: 'Ops Clock',
-    //    type: 'opsClock',
-    //    icon: 'OpsClock64'
-    //},
     {
         name: 'Scatter Plot',
         type: 'scatterPlot',
@@ -191,11 +161,6 @@ export const neonVisualizations: any[] = [
         type: 'stackedTimeline',
         icon: 'Timeline64'
     },
-    //{
-    //    name: 'Sunburst Chart',
-    //    type: 'sunburstChart',
-    //    icon: 'Sunburst64'
-    //},
     {
         name: 'Text Cloud',
         type: 'textCloud',

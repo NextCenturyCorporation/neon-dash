@@ -290,7 +290,6 @@ export class TimelineSelectorChart {
         } else {
             xFocusDomain = this.xDomain;
         }
-        // this.xFocus.domain(xFocusDomain);
         this.xContext.domain(xFocusDomain);
 
         this.xAxisFocus = d3.svg.axis().scale(this.xFocus).orient('bottom');

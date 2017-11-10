@@ -13,7 +13,7 @@ export class SnackBarComponent {
     }[] = [];
 
     public addErrors(messageType: string, newMessages: string[]) {
-        //This method smells weird to me, but this is the implementation i came up with
+        // This method smells weird to me, but this is the implementation i came up with
         let msgObj = {
             type: messageType,
             display: newMessages
@@ -31,7 +31,7 @@ export class SnackBarComponent {
 
     public close(index) {
         if (index < 0 || !this.messages || index >= this.messages.length) {
-            //TODO ERROR in the error reporting!
+            // TODO ERROR in the error reporting!
             return;
         }
         this.messages.splice(index, 1);

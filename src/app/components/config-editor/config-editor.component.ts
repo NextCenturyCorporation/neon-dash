@@ -6,7 +6,6 @@ import { NeonGTDConfig } from './../../neon-gtd-config';
 import { PropertyService } from '../../services/property.service';
 import * as JSONEditor from 'jsoneditor';
 declare var editor: any;
-//import { JsonEditorComponent, JsonEditorOptions } from 'ng2-jsoneditor';
 import * as _ from 'lodash';
 
 @Component({
@@ -56,7 +55,7 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
               viewValue: 'Text (read only)'
           }
         ];
-        //'tree' (default), 'view', 'form', 'code', 'text
+        // 'tree' (default), 'view', 'form', 'code', 'text
     }
 
     ngOnInit(): void {
@@ -106,8 +105,6 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
     }
 
     public reset() {
-        //this.prettyText = JSON.stringify(this.currentConfig, null, 2);
-        //this.text = JSON.stringify(this.currentConfig);
         this.editorData = _.cloneDeep(this.currentConfig);
         this.editor.set(this.editorData);
     }

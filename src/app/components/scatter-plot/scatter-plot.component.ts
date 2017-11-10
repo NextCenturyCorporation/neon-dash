@@ -195,7 +195,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.yAxisTickCallback = this.yAxisTickCallback.bind(this);
 
         let tooltipTitleFunc = (tooltips) => {
-            //console.log(tooltips.length);
             return this.active.pointLabels[tooltips[0].index];
         };
         let tooltipDataFunc = (tooltips) => {
@@ -222,8 +221,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 responsive: true,
                 maintainAspectRatio: false,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
-                //onClick: this.onClick.bind(this),
-                //onTouchStart: this.touchStart.bind(this),
                 animation: {
                   duration: 0 // general animation time
                 },
@@ -376,13 +373,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.disabledList = Array.from(this.disabledDatasets.keys());
     }
 
-    /*onClick(event) {
-        console.log(event);
-    }*/
-
     mouseLeave(event) {
-        //console.log('leave');
-        //console.log(event);
         this.mouseEventValid = false;
         this.selection.mouseDown = false;
         this.stopEventPropagation(event);
@@ -390,16 +381,12 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     mouseDown(event) {
-        //console.log('down');
-        //console.log(event);
         if (event.buttons > 0) {
             this.mouseEventValid = true;
         }
     }
 
     mouseUp(event) {
-        //console.log('up');
-        //console.log(event);
         if (this.selection.mouseDown && event.buttons === 0) {
             // mouse up event
             this.selection.mouseDown = false;
@@ -429,26 +416,19 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         let chartYPos = event.offsetY;
         if (!this.selection.mouseDown && event.buttons > 0 && this.mouseEventValid) {
             // mouse down event
-            console.log(event);
             this.selection.mouseDown = true;
             this.selection.startX = this.forcePosInsideChart(chartXPos, chartArea.left, chartArea.right);
             this.selection.startY = this.forcePosInsideChart(chartYPos, chartArea.top, chartArea.bottom);
         }
 
-        //console.log(chartXPos);
-
         if (this.selection.mouseDown && this.mouseEventValid) {
             // drag event near items
-            //console.log(chartXPos);
             this.selection.endX = this.forcePosInsideChart(chartXPos, chartArea.left, chartArea.right);
             this.selection.endY = this.forcePosInsideChart(chartYPos, chartArea.top, chartArea.bottom);
-            //console.log(this.selection.endX);
             this.selection.x = Math.min(this.selection.startX, this.selection.endX);
             this.selection.y = Math.min(this.selection.startY, this.selection.endY);
             this.selection.width = Math.abs(this.selection.startX - this.selection.endX);
             this.selection.height = Math.abs(this.selection.startY - this.selection.endY);
-            //console.log("x: " + this.selection.startX + " " + this.selection.endX);
-            //console.log(this.selection.x + " " + this.selection.width);
         }
         this.stopEventPropagation(event);
         this.changeDetection.detectChanges();
@@ -533,7 +513,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         valid = (this.meta.table && this.meta.table.name && valid);
         valid = (this.active.xField && this.active.xField.columnName && valid);
         valid = (this.active.yField && this.active.yField.columnName && valid);
-        //valid = (this.active.labelField && valid);
         return valid;
     }
 
@@ -583,7 +562,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.disabledList = [];
         this.disabledDatasets.clear();
 
-        //TODO much of this method could be optimized, but we'll worry about that later
+        // TODO much of this method could be optimized, but we'll worry about that later
         let xField = this.active.xField.columnName;
         let yField = this.active.yField.columnName;
         let colorField = this.meta.colorField.columnName;
@@ -732,7 +711,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-        // this.updateNeonFilter();
     }
 
     unsharedFilterChanged() {

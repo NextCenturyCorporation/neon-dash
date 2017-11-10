@@ -67,8 +67,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         public themesService: ThemesService,
         public changeDetection: ChangeDetectorRef,
         protected visualizationService: VisualizationService) {
-        //These assignments just eliminated unused warnings that occur even though the arguments are
-        //automatically assigned to instance variables.
+        // These assignments just eliminated unused warnings that occur even though the arguments are
+        // automatically assigned to instance variables.
         this.exportService = this.exportService;
         this.filterService = this.filterService;
         this.connectionService = this.connectionService;
@@ -103,9 +103,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     ngOnInit() {
         this.initializing = true;
         this.outstandingDataQueriesByLayer = [];
-        //for (let database of this.datasetService.getDatabases()) {
-        //this.outstandingDataQueriesByLayer[0] = {};
-        //}
         this.initData();
         try {
             this.setupFilters();
@@ -250,10 +247,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * @return {}
      */
     exportOneLayer(query: neon.query.Query, layerIndex: number) {
-        //console.log('EXPORT NOT IMPLEMENTED IN '+ this.getVisualizationName());
         let exportName = this.queryTitle;
         if (exportName) {
-            //replaceAll
+            // replaceAll
             exportName = exportName.split(':').join(' ');
         }
         let finalObject = {
@@ -264,7 +260,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
                 fields: [],
                 ignoreFilters: query.ignoreFilters,
                 selectionOnly: query.selectionOnly,
-                ignoredFilterIds: [], //query.ignoredFilterIds,
+                ignoredFilterIds: [],
                 type: 'query'
             }]
         };
@@ -283,13 +279,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * Get a query ready to give to the ExportService.
      */
     export() {
-        //TODO this function needs to be changed  to abstract once we get through all the visualizations.
+        // TODO this function needs to be changed  to abstract once we get through all the visualizations.
         let queries = this.createAllQueries();
         let mapFunction = this.exportOneLayer.bind(this);
         if (queries) {
             return queries.map(mapFunction).filter(fo => fo);
         } else {
-            console.log('SKIPPING EXPORT FOR ' + this.getVisualizationName());
+            console.error('SKIPPING EXPORT FOR ' + this.getVisualizationName());
             return null;
         }
     }
@@ -385,7 +381,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.meta.layers[layerIndex].colorField = this.getOptionFromConfig('colorField') || new FieldMetaData();
 
         this.onUpdateFields(layerIndex);
-        //this.changeDetection.detectChanges();
     }
 
     /**
@@ -463,7 +458,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             filterName,
             onSuccess.bind(this),
             () => {
-                console.log('filter failed to set');
+                console.error('filter failed to set');
             });
         this.changeDetection.detectChanges();
     }
@@ -497,7 +492,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             filterName,
             onSuccess.bind(this),
             () => {
-                console.log('filter failed to set');
+                console.error('filter failed to set');
             });
         this.changeDetection.detectChanges();
     }
@@ -662,7 +657,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         // object.
         if (!this.outstandingDataQueriesByLayer[layerIndex][table]) {
             // TODO do something
-            console.log('execute query did not return an object');
+            console.error('execute query did not return an object');
         }
 
         this.outstandingDataQueriesByLayer[layerIndex][table].always(() => {
@@ -673,7 +668,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
 
         this.outstandingDataQueriesByLayer[layerIndex][table].fail((response) => {
             if ( response.statusText === 'abort') {
-                //query was aborted so we don't care.  We assume we aborted it on purpose.
+                // query was aborted so we don't care.  We assume we aborted it on purpose.
             } else {
                 this.isLoading--;
                 if (response.status === 0) {
@@ -740,8 +735,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * @param event
      */
     onUpdateDataChannelEvent(event) {
-        console.log('update data channel event');
-        console.log(event);
+        // TODO
     }
 
     /**
@@ -773,7 +767,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * If not initializing, calls executeQueryChain(index) for a layer
      */
     logChangeAndStartQueryChain(layerIndex: number) { // (option: string, value: any, type?: string) {
-        // this.logChange(option, value, type);
         if (!this.initializing) {
             this.executeQueryChain(layerIndex);
         }
@@ -809,7 +802,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
                         this.refreshVisualization();
                     }
                 }
-                //console.log('remove filter' + value);
                 this.changeDetection.detectChanges();
             },
             () => {

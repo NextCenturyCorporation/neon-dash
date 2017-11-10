@@ -264,7 +264,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         query = query.aggregate(neon.query['MIN'], dateField, 'date');
         let groupBys: any[] = [];
         switch (this.active.granularity) {
-            //Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
+            // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
             case 'minute':
                 groupBys.push(new neon.query.GroupByFunctionClause('minute', dateField, 'minute'));
             /* falls through */
@@ -281,12 +281,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                 groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
             /* falls through */
         }
-        /*
-        if(this.active.groupField != null){
-            groupBys.push({columnName: this.active.groupField.columnName,
-            prettyName: this.active.groupField.prettyName});
-            }
-        //*/
 
         query = query.groupBy(groupBys);
         query = query.sortBy('date', neon.query['ASCENDING']);
@@ -528,7 +522,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-        // this.updateNeonFilter();
     }
 
     subGetBindings(bindings: any) {
@@ -539,7 +532,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
 
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
-        // this.logChange(option, value, type);
         if (!this.initializing) {
             this.executeQueryChain();
         }
@@ -547,10 +539,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
-        // let closeableFilters = this.filters.map((filter) => {
-        //    return filter.key + " Filter";
-        //});
-        //return closeableFilters;
         return this.filters;
     }
 

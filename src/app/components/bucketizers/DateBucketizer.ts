@@ -91,7 +91,7 @@ export class DateBucketizer extends Bucketizer {
      */
     getNumBuckets(): number {
         let effectiveStartDate = this.zeroOutDate(this.getStartDate());
-        //We want the start of the next bucket, however, roundUpBucket will not go past the end date and we need this to
+        // We want the start of the next bucket, however, roundUpBucket will not go past the end date and we need this to
         let endDatePlusOneDay = new Date(this.getEndDate().getTime() + this.millisMultiplier);
         let effectiveEndDate = this.zeroOutDate(endDatePlusOneDay);
 

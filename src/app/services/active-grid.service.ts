@@ -54,7 +54,6 @@ export class ActiveGridService {
     }
 
     expandItem(item: NeonGridItem) {
-        console.log(this.grid['_elNg']);
         let visibleRows = 0;
         if (this.grid && this.grid['_ngEl']) {
             visibleRows = Math.floor(this.grid['_ngEl'].nativeElement.offsetParent.clientHeight / this.grid.rowHeight);

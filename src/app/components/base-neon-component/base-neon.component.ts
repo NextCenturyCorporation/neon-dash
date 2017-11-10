@@ -65,8 +65,8 @@ export abstract class BaseNeonComponent implements OnInit,
         public themesService: ThemesService,
         public changeDetection: ChangeDetectorRef,
         protected visualizationService: VisualizationService) {
-        //These assignments just eliminated unused warnings that occur even though the arguments are
-        //automatically assigned to instance variables.
+        // These assignments just eliminated unused warnings that occur even though the arguments are
+        // automatically assigned to instance variables.
         this.exportService = this.exportService;
         this.filterService = this.filterService;
         this.connectionService = this.connectionService;
@@ -187,14 +187,13 @@ export abstract class BaseNeonComponent implements OnInit,
      * Get a query ready to give to the ExportService.
      */
     export(): any {
-        //TODO this function needs to be changed  to abstract once we get through all the visualizations.
+        // TODO this function needs to be changed  to abstract once we get through all the visualizations.
 
         let query = this.createQuery();
         if (query) {
-            //console.log('EXPORT NOT IMPLEMENTED IN '+ this.getVisualizationName());
             let exportName = this.queryTitle;
             if (exportName) {
-                //replaceAll
+                // replaceAll
                 exportName = exportName.split(':').join(' ');
             }
             let finalObject = {
@@ -205,7 +204,7 @@ export abstract class BaseNeonComponent implements OnInit,
                     fields: [],
                     ignoreFilters: query.ignoreFilters,
                     selectionOnly: query.selectionOnly,
-                    ignoredFilterIds: [], //query.ignoredFilterIds,
+                    ignoredFilterIds: [],
                     type: 'query'
                 }]
             };
@@ -219,7 +218,7 @@ export abstract class BaseNeonComponent implements OnInit,
 
             return finalObject;
         } else {
-            console.log('SKIPPING EXPORT FOR ' + this.getVisualizationName());
+            console.error('SKIPPING EXPORT FOR ' + this.getVisualizationName());
             return null;
         }
 
@@ -327,7 +326,6 @@ export abstract class BaseNeonComponent implements OnInit,
         this.meta.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
 
         this.onUpdateFields();
-        //this.changeDetection.detectChanges();
     }
 
     /**
@@ -405,7 +403,7 @@ export abstract class BaseNeonComponent implements OnInit,
             filterName,
             onSuccess.bind(this),
             () => {
-                console.log('filter failed to set');
+                console.error('filter failed to set');
             });
         this.changeDetection.detectChanges();
     }
@@ -438,7 +436,7 @@ export abstract class BaseNeonComponent implements OnInit,
             filterName,
             onSuccess.bind(this),
             () => {
-                console.log('filter failed to set');
+                console.error('filter failed to set');
             });
         this.changeDetection.detectChanges();
     }
@@ -552,7 +550,7 @@ export abstract class BaseNeonComponent implements OnInit,
         // object.
         if (!this.outstandingDataQuery[database][table]) {
             // TODO do something
-            console.log('execute query did not return an object');
+            console.error('execute query did not return an object');
         }
 
         this.outstandingDataQuery[database][table].always(function() {
@@ -563,7 +561,7 @@ export abstract class BaseNeonComponent implements OnInit,
 
         this.outstandingDataQuery[database][table].fail(function(response) {
             if ( response.statusText === 'abort') {
-                //query was aborted so we don't care.  We assume we aborted it on purpose.
+                // query was aborted so we don't care.  We assume we aborted it on purpose.
             } else {
                 this.isLoading = false;
                 if (response.status === 0) {
@@ -624,8 +622,7 @@ export abstract class BaseNeonComponent implements OnInit,
      * @param event
      */
     onUpdateDataChannelEvent(event) {
-        console.log('update data channel event');
-        console.log(event);
+        // TODO
     }
 
     /**
@@ -648,7 +645,6 @@ export abstract class BaseNeonComponent implements OnInit,
      * If not initializing, calls executeQueryChain();
      */
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
-        // this.logChange(option, value, type);
         if (!this.initializing) {
             this.executeQueryChain();
         }
@@ -699,7 +695,6 @@ export abstract class BaseNeonComponent implements OnInit,
                         this.refreshVisualization();
                     }
                 }
-                //console.log('remove filter' + value);
                 this.changeDetection.detectChanges();
             },
             () => {

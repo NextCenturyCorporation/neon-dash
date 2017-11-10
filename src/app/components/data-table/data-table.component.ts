@@ -17,7 +17,6 @@ import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
 import { neonMappings, neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-//import * as _ from 'lodash';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
 
@@ -116,7 +115,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     subNgOnInit() {
-        //Do nothing
+        // Do nothing
     }
 
     postInit() {
@@ -124,7 +123,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     subNgOnDestroy() {
-        //Do nothing
+        // Do nothing
     }
 
     getOptionFromConfig(field) {
@@ -180,10 +179,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.active.showColumnSelector = 'hide';
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
-    }
-
-    logAndDisplay(obj) {
-        console.log(obj);
     }
 
     addLocalFilter(filter) {
@@ -242,7 +237,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 this.meta.unsharedFilterValue));
         }
 
-        //let dataField = this.active.dataField.columnName;
         return query.where(whereClause).sortBy(this.active.sortField.columnName, neon.query['DESCENDING']).limit(this.active.limit);
     }
 
@@ -284,7 +278,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onQuerySuccess(response): void {
-        //this.active.data = response.data.map(this.normalizeObject.bind(this));
         let data = response.data.map(function (d) {
             let row = {};
             for (let field of this.meta.fields)  {
@@ -338,14 +331,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return (this.drag.mousedown && this.drag.downIndex >= 0);
     }
 
-    //mouse up in a drag and drop element
+    // mouse up in a drag and drop element
     onMouseUp(i) {
         if (this.isDragging && this.drag.downIndex !== this.drag.currentIndex) {
             let length = this.active.headers.length;
             if (this.drag.downIndex >= length || i >= length || this.drag.downIndex < 0 || i < 0) {
-                console.log('index out of bounds!');
+                // Do nothing
             } else {
-              //  console.log('move index ' + this.drag.downIndex + ' to ' + i);
                 let h = this.active.headers;
                 let si = this.drag.downIndex; // startIndex
                 let ei = i; // endIndex
@@ -363,7 +355,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.drag.mousedown = false;
     }
 
-    //clicks on a drag and drop icon of an element
+    // clicks on a drag and drop icon of an element
     onMouseDown(i) {
         if (i >= 0) {
             this.drag.downIndex = i;
@@ -373,7 +365,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
-    //enters a NEW drag and drop element
+    // enters a NEW drag and drop element
     onMouseEnter(i) {
         if (this.isDragging()) {
             this.drag.currentIndex = i;
@@ -395,14 +387,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
-    //leaves drag and drop area
+    // leaves drag and drop area
     onMouseLeaveArea() {
         this.drag.downIndex = -1;
         this.drag.mousedown = false;
         this.clearHeaderStyles();
     }
 
-    //moving in drag and drop area
+    // moving in drag and drop area
     onMouseMove(event) {
         if (this.isDragging()) {
             this.drag.x = event.screenX;

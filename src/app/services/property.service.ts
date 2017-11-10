@@ -22,7 +22,6 @@ import { ConnectionService } from './connection.service';
 
 @Injectable()
 export class PropertyService {
-    //http: Http;
     baseUrl: string;
 
     constructor(private http: Http) {
@@ -90,7 +89,6 @@ export class PropertyService {
      * @return {Boolean} True if there is an API key being used, false otherwise.
      */
     hasProperty(): boolean {
-        //return this.apis[this.chosenApi].key ? true : false;
         throw new Error('Not implemented yet');
     }
 }

@@ -138,7 +138,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        console.log('neon gtd onDestroy called');
+        // Do nothing.
     }
 
     toggleDashboardOptions() {

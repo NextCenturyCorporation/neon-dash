@@ -23,8 +23,6 @@ describe('monthBucketizer', function() {
     });
 
     it('initial values are correct', function() {
-        console.log(bucketizer.getStartDate());
-        console.log(bucketizer.getEndDate());
         expect(bucketizer.getStartDate()).toBe(undefined);
         expect(bucketizer.getEndDate()).toBe(undefined);
     });

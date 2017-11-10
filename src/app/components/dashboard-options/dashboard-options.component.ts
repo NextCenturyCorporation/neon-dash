@@ -79,12 +79,7 @@ export class DashboardOptionsComponent implements OnInit {
             disableClose: true
         };
         let dialogRef = this.dialog.open(ConfigEditorComponent, dConfig);
-        //dialogRef.instance.configEditorRef
-        //dialogRef.afterClosed().subscribe(result => {
-        //  this.selectedOption = result;
-        //});
-      }
-
+    }
 
     /*
      * Saves the current state to the given name.
@@ -93,7 +88,7 @@ export class DashboardOptionsComponent implements OnInit {
      */
     saveState(name: string) {
         if (!this.validateName(name)) {
-            console.log('Name already exists');
+            console.error('Name already exists');
             return;
         }
         // TODO: Enable once the visualization service has been migrated
@@ -110,17 +105,6 @@ export class DashboardOptionsComponent implements OnInit {
 
             // Get each visualization's bindings and save them to our dashboard state parameter
             stateParams.dashboard = this.visualizationService.getWidgets();
-
-            // Get each visualization's bindings and save them to our dashboard state parameter
-            // this.visualizationService.getWidgets().forEach(function(widget) {
-            //     let bindings = widget.callback();
-            //     let visualization = _.filter(stateParams.dashboard, {
-            //         id: widget.id
-            //     });
-            //     if(visualization && visualization.length) {
-            //         visualization[0].bindings = _.deepClone(bindings);
-            //     }
-            // });
 
             stateParams.dataset = this.datasetService.getDataset();
 
@@ -144,23 +128,15 @@ export class DashboardOptionsComponent implements OnInit {
      */
     loadState(name: string) {
         if (this.validateName(name)) {
-            console.log('State doesnt exist?');
             return;
         }
-        console.log('Loading ' + name);
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if (connection) {
             let stateParams = {
                 stateName: name
             };
             connection.loadState(stateParams, (dashboardState) => {
-                console.log('Loaded state:');
-                console.log(dashboardState);
                 if (_.keys(dashboardState).length) {
-                    // let searchParams: URLSearchParams = new URLSearchParams();
-                    // dashboardState.dashboardStateId = searchParams.get('dashboard_state_id');
-                    // dashboardState.filterStateId = searchParams.get('filter_state_id');
-
                     this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
                 } else {
                     this.errorNotificationService.showErrorMessage(null, 'State ' + name + ' not found.');
@@ -177,25 +153,11 @@ export class DashboardOptionsComponent implements OnInit {
      */
     deleteState(name: string) {
         if (this.validateName(name)) {
-            console.log('State doesnt exist?');
             return;
         }
-        console.log('Deleting ' + name);
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if (connection) {
             connection.deleteState(this.formData.stateToDelete, (stateIds) => {
-                // let params: URLSearchParams = new URLSearchParams();
-                // let dashboardStateId: string = params.get('dashboard_state_id');
-                // let filterStateId: string = params.get('filter_state_id');
-                // console.log('loaded ' + dashboardStateId + ' ' + filterStateId);
-                //
-                // // Delete the state parameters if either match the IDs deleted
-                // if (dashboardStateId && stateIds.dashboardStateId && dashboardStateId === stateIds.dashboardStateId)  {
-                //     params.delete('dashboard_state_id');
-                // }
-                // if (filterStateId && stateIds.filterStateId && filterStateId === stateIds.filterStateId)  {
-                //     params.delete('filter_state_id');
-                // }
                 this.loadStateNames();
             }, (response) => {
                 this.handleStateFailure(response);

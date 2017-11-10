@@ -63,7 +63,6 @@ export class ExportControlComponent implements OnInit {
     }
 
     setExportFormat(value: number) {
-        //this.exportService.setFileFormat(value);
     }
 
     toggleExportFormat(event: Event) {
@@ -75,7 +74,6 @@ export class ExportControlComponent implements OnInit {
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         config.duration = 3000;
-        console.log('shoop');
         this.mdSnackBar.open('Export In Progress...', 'OK', config);
         window.location.assign('/neon/services/exportservice/generateZip/' + queryResults.data);
     }

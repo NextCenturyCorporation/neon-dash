@@ -201,7 +201,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       isExact: true
     };
     this.queryTitle = this.optionsFromConfig.title || 'Map';
-    //this.addEmptyLayer();
   }
 
   subNgOnInit() {
@@ -273,11 +272,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
       sceneMode: Cesium.SceneMode.SCENE3D,
       imageryProviderViewModels: imagerySources,
-      //set default imagery to eliminate annoying text and using a bing key by default
+      // set default imagery to eliminate annoying text and using a bing key by default
       selectedImageryProviderViewModel: imagerySources[sourceId],
       terrainProviderViewModels: [],
-      fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
-      timeline: false, //disable timeline widget
+      fullscreenButton: false, // full screen button doesn't work in our context, so don't show it
+      timeline: false, // disable timeline widget
       animation: false, // disable animation widget
       mapMode2D: Cesium.MapMode2D.ROTATE,
       sceneModePicker: false,
@@ -305,9 +304,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onMouseMove.bind(this),
       Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-    //Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
+    // Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
     this.cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
-    // this.cesiumViewer.camera.flyHome(0);
 
     this.popupEntity = this.optionsFromConfig.hoverPopupEnabled && this.cesiumViewer.entities.add({
       label: {
@@ -402,7 +400,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     if (this.selection.selectionGeometry) {
       entities.removeById(this.selection.selectionGeometry.id);
     }
-    //if (!this.selection.selectionGeometry) {
     let color = (this.selection.isExact ? Cesium.Color.GREEN : Cesium.Color.RED.withAlpha(.3));
     let geo = entities.add({
       name: 'SelectionRectangle',
@@ -415,7 +412,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       }
     });
     this.selection.selectionGeometry = geo;
-    //}
   }
 
   onSelectUp(event) {
@@ -487,7 +483,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       if (this.optionsFromConfig.hoverPopupEnabled) {
         let popup = this.popupEntity;
 
-        //ensure that an object exists at cursor and that it isn't the popup
+        // ensure that an object exists at cursor and that it isn't the popup
         if (objectsAtLocation.length && objectsAtLocation[0].id.id !== popup.id) {
           popup.position = objectsAtLocation[0].id.position.getValue();
           popup.label.show = true;
@@ -511,9 +507,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
       }
     }
-
-    //console.log(movement.endPosition);
-    //console.log(this.xyToLatLon(movement.endPosition))
   }
 
   setEndPos(position) {
@@ -534,7 +527,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
   correctSelectionToMapExtents() {
     let a = '1';
     let b = '2';
-    if (a === b) {//TODO fix this later
+    if (a === b) { // TODO fix this later
       this.correctLatLon(this.selection, 'startLat', 'startX', 'startLon', 'startY');
       this.correctLatLon(this.selection, 'endLat', 'endX', 'endLon', 'endY');
     }
@@ -636,7 +629,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
   createNeonFilterClauseEquals(database: string, table: string, latLonFieldNames: string[]) {
     let filterClauses = [];
-    //console.log(fieldName);
     let latField = latLonFieldNames[0];
     let lonField = latLonFieldNames[1];
     let minLat = Math.min(this.selection.startLat, this.selection.endLat);
@@ -647,9 +639,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     filterClauses[1] = neon.query.where(latField, '<=', maxLat);
     filterClauses[2] = neon.query.where(lonField, '>=', minLon);
     filterClauses[3] = neon.query.where(lonField, '<=', maxLon);
-    //let endDatePlusOne = this.selection.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
-    //let endDatePlusOneDate = new Date(endDatePlusOne);
-    //filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
     return neon.query.and.apply(neon.query, filterClauses);
   }
 
@@ -741,22 +730,15 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     // let uniqueEntities = new HashMap();
     let dataSource = new Cesium.CustomDataSource('MyData');
     entities.suspendEvents();
-    //entities.getOrCreateEntities(layerIndex);
     if (this.active.data[layerIndex]) {
       for (let id of this.active.data[layerIndex]) {
         entities.removeById(id);
       }
     }
-    //keeps track of the ids for entities we put into cesium so we can change/remove single layers
-    //without needing to remove and readd all layers
+    // keeps track of the ids for entities we put into cesium so we can change/remove single layers
+    // without needing to remove and readd all layers
     let newDataIds = [];
 
-    //entities.removeAll();
-    //if (this.selection.selectionGeometry) {
-    //    entities.add(this.selection.selectionGeometry);
-    //}
-
-    //let legendIndex = 0;
     let data = response.data;
     let allHashes = [];
     let map = new Map();
@@ -773,30 +755,19 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       let latCoord = this.retrieveLocationField(point, latField);
       let hash = [];
 
-
       if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
         let hashCode = geohash.encode(latCoord, lngCoord);
-        //console.log('Before: ' + hash);
         hash.push(hashCode);
-        //console.log('After: ' + hash);
-        //console.log('lat: ' + latCoord + ' lng: ' + lngCoord + ' hash: ' + hashCode);
         this.addOrUpdateUniquePoint(map, allHashes, hashCode, latCoord, lngCoord, color);
       } else if (latCoord instanceof Array && lngCoord instanceof Array) {
         for (let pos = latCoord.length - 1; pos >= 0; pos--) {
           let hashCode = geohash.encode(latCoord[pos], lngCoord[pos]);
-          //console.log("Before: " + hash);
           hash.push(hashCode);
-          //hash.push(geohash.encode(latCoord[pos], lngCoord[pos]));
-          //console.log(pos,hash.length, latCoord[pos], lngCoord[pos]);
           this.addOrUpdateUniquePoint(map, allHashes, hashCode, latCoord[pos], lngCoord[pos], color);
         }
       }
     }
-    //console.log("Weird encoded number's hash" + geohash.encode(18.83333, -72.10528));
-    //console.log(allHashes);
     for (let id of allHashes) {
-      //console.log(id);
-      //console.log(map.get(id));
       let obj = map.get(id);
       if (obj['lat'] instanceof Array) {
         this.createAndAddPoint(id, obj['lat'][0], obj['lng'][0], obj['color'], obj['count'], dataSource, newDataIds, entities);
@@ -818,9 +789,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
     this.updateLegend();
     entities.resumeEvents();
-
-    //console.log(response);
-    //this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
   }
 
   updateLegend() {
@@ -833,7 +801,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     this.colorByFields = colorByFields;
   }
 
-  //This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
+  // This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
   // like if latFied holds 'JSONMapping.status.geolocation.latitude', but the actual latitude value is
   // saved at point['JSONMapping']['status']['geolocation']['latitude']
   retrieveLocationField(point, locField) {
@@ -859,14 +827,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
   addOrUpdateUniquePoint(map, allHashes, hash, lat, lng, color) {
     if (map.has(hash)) {
-      //console.log("duplicate");
       let obj = map.get(hash);
-      //console.log("Old obj:" + obj.count);
       obj.count++;
-      //console.log("New obj:" + obj.count);
       map.set(hash, obj);
     } else {
-      //console.log("new");
       allHashes.push(hash);
       let obj = {
         lat: lat,
@@ -904,7 +868,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
   }
 
   clusterPoints(dataSource) {
-    //greatly inspired by Cesium demo at https://cesiumjs.org/Cesium/Apps/Sandcastle/index.html?src=Clustering.html&label=Showcases
+    // greatly inspired by Cesium demo at https://cesiumjs.org/Cesium/Apps/Sandcastle/index.html?src=Clustering.html&label=Showcases
     let enabled = true;
 
     dataSource.clustering.enabled = enabled;
@@ -934,7 +898,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
           cluster.label.showBackground = true;
           cluster.label.font = '18px sans-serif';
           cluster.point.show = true;
-          //cluster.billboard.show = true;
           cluster.billboard.id = cluster.label.id;
           cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
 
@@ -965,7 +928,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
   }
 
   refreshVisualization() {
-    //Cesium doesn't need to be refreshed manually
+    // Cesium doesn't need to be refreshed manually
   }
 
   doesLayerStillHaveFilter(i): boolean {
@@ -983,8 +946,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         if (filter.filter.whereClause.type === 'and') {
           clauses = filter.filter.whereClause.whereClauses;
         } else if (args.length === 1) {
-          //if it is not an 'and' and only has 1 where class.
-          //This shouldn't be used in map, but may be used more generically.
+          // if it is not an 'and' and only has 1 where class.
+          // This shouldn't be used in map, but may be used more generically.
           clauses = [filter.filter.whereClause];
         }
         let continu = clauses && clauses.length > 0;
@@ -1013,9 +976,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       this.active.layers[i].longitudeField.columnName
     ]);
     if (clauses) {
-      // console.log(clauses);
       let values = [this.selection.endLat, this.selection.endLon, this.selection.startLat, this.selection.startLon];
-      //FIX THE NEXT LINE!!!!
+      // TODO FIX THE NEXT LINE!!!!
       let emptyIfUnchanged = clauses.filter(cl => (values.indexOf(cl.rhs) === -1));
       return emptyIfUnchanged.length > 0;
     }
@@ -1025,8 +987,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
   setupFilters() {
     // Get neon filters
     // See if any neon filters are local filters and set/clear appropriately
-    //TODO needs to be reworked now that we have layers.
-    //I'm not sure what it even should do from a user perspective.
+    // TODO needs to be reworked now that we have layers.
+    // I'm not sure what it even should do from a user perspective.
     let allLayersHaveFilters = true;
     let oneOrMoreLayersHaveFilters = false;
     let oneOrMoreFiltersHaveChanged = false;
@@ -1037,11 +999,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       let filterHasChanged = this.hasLayerFilterChanged(i);
       oneOrMoreFiltersHaveChanged = oneOrMoreFiltersHaveChanged || filterHasChanged;
     }
-    console.log('oneOrMoreLayersHaveFilters: ' + oneOrMoreLayersHaveFilters);
-    console.log('allLayersHaveFilters: ' + allLayersHaveFilters);
-    console.log('oneOrMoreFiltersHaveChanged: ' + oneOrMoreFiltersHaveChanged);
     if (!oneOrMoreLayersHaveFilters) {
-      //aka no layers have filters
+      // aka no layers have filters
       this.filters = [];
       this.removeFilterBox();
     } else if (oneOrMoreFiltersHaveChanged) {
@@ -1076,7 +1035,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
   handleChangeAndFilters() {
     this.logChangeAndStartAllQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-    // this.updateNeonFilter();
   }
 
   handleChangeClustering() {
@@ -1085,11 +1043,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
   // Get filters and format for each call in HTML
   getCloseableFilters() {
-    // let closeableFilters = this.filters.map((filter) => {
-    //    return filter.key + ' Filter';
-    //});
-    //return closeableFilters;
-    //TODO
+    // TODO
     return this.filters;
   }
 

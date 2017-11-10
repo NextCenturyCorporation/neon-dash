@@ -106,7 +106,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     subNgOnDestroy() {
-        //Do nothing
+        // Do nothing
     }
 
     subGetBindings(bindings: any) {
@@ -155,7 +155,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let sizeField = this.findFieldObject('sizeField', neonMappings.TAGS);
         this.active = this.updateObject(this.active, 'dataField', dataField);
         this.active = this.updateObject(this.active, 'sizeField', sizeField);
-        this.meta = Object.assign({}, this.meta); //trigger action
+        this.meta = Object.assign({}, this.meta); // trigger action
     }
 
     addLocalFilter(filter) {
@@ -285,7 +285,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 }
             }
         } catch (e) {
-            console.log((<Error> e).message);
+            console.error((<Error> e).message);
         }
     }
 
@@ -347,7 +347,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     createTextCloud() {
          let data = this.textCloud.createTextCloud(this.active.data);
          this.active = this.updateObject(this.active, 'data', data);
-         //this.active.data = data;
     }
 
     handleChangeDataField() {
@@ -361,7 +360,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-        // this.updateNeonFilter();
     }
 
     handleChangeSizeField() {

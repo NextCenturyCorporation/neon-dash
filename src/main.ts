@@ -62,12 +62,11 @@ let http = injector.get(Http);
 
 function handleConfigJsonError(error) {
     if (isErrorNotFound(error, 'json')) {
-        console.log(error);
-        console.log('missing json file.');
+        console.error(error);
+        console.error('missing json file.');
     } else {
-        console.log(error);
+        console.error(error);
         showError('Error reading config.json: ' + error.message);
-        //document.write('Error in json file.  See browser console for more details');
     }
     showError('Cannot find valid config.yaml or config.json.');
     bootstrapWithData(EMPTY_CONFIG);
@@ -80,16 +79,16 @@ function loadConfigJson() {
 }
 
 function isErrorNotFound(error, fileType) {
-    //TODO could add other server errors
+    // TODO could add other server errors
     return error.status === 404;
 }
 
 function handleConfigYamlError(error) {
     if (isErrorNotFound(error, 'yaml')) {
-        console.log(error);
-        console.log('missing yaml file. trying json config.');
+        console.error(error);
+        console.error('missing yaml file. trying json config.');
     } else {
-        console.log(error);
+        console.error(error);
         showError('Error reading config.yaml: ' + error.message);
     }
 }
@@ -108,12 +107,12 @@ function loadConfigFromPropertyService() {
 
 function handleConfigPropertyServiceError(error) {
     if (error.message === 'No config') {
-        //Do nothing, this is the expected response
+        // Do nothing, this is the expected response
     } else if (isErrorNotFound(error, 'Property Service')) {
-        console.log(error);
-        console.log('missing config from Property Service. Trying yaml config.');
+        console.error(error);
+        console.error('missing config from Property Service. Trying yaml config.');
     } else {
-        console.log(error);
+        console.error(error);
         showError('Error reading Property Service config: ' + error.message);
     }
 }
@@ -126,17 +125,11 @@ function loadConfigYaml() {
 
 function validateConfig(config) {
     if (config) {
-        /*if (!config.datasets) {
-            showError('Config is missing \'datasets\' property');
-            console.log('Config is missing \'datasets\' property');
-            console.log(config);
-            config.datasets = [];
-        }*/
         return config;
     } else {
         showError('Config from config.yaml or config.json is empty');
-        console.log('Config appears to be empty');
-        console.log(config);
+        console.error('Config appears to be empty');
+        console.error(config);
         return EMPTY_CONFIG;
     }
 }

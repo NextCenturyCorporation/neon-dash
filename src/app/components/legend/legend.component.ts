@@ -48,8 +48,6 @@ export class LegendComponent implements OnInit {
     private _FieldNames: string[];
 
     constructor(private colorSchemeService: ColorSchemeService) {
-        //private connectionService: ConnectionService, private datasetService: DatasetService, private filterService: FilterService,
-        //private exportService: ExportService, private injector: Injector, private themesService: ThemesService) {
         this.menuIcon = 'keyboard_arrow_down';
     }
 

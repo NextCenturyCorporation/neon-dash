@@ -197,7 +197,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                         stacked: true,
                         ticks: {
                             max: 100,
-                            beginAtZero: true  //scaleBeginAtZero: true
+                            beginAtZero: true
                         }
                     }],
                     yAxes: [{
@@ -205,7 +205,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                         stacked: true,
                         ticks: {
                             max: 100,
-                            beginAtZero: true  //scaleBeginAtZero: true
+                            beginAtZero: true
                         }
                     }]
                 },
@@ -234,7 +234,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     subNgOnInit() {
-        //Do nothing
+        // Do nothing
     }
 
     postInit() {
@@ -270,8 +270,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     onClick(_event, elements: any[]) {
-        // console.log(event);
-        //event.toString();
         for (let el of elements) {
             let value = el._model.label;
             let key = this.active.dataField.columnName;
@@ -415,7 +413,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let fields = this.getNeonFilterFields();
         // get relevant neon filters and check for filters that should be ignored and add that to query
         let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        // console.log(neonFilters);
         if (neonFilters.length > 0) {
             let ignoredFilterIds = [];
             for (let filter of neonFilters) {
@@ -574,7 +571,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-        // this.updateNeonFilter();
     }
 
     unsharedFilterChanged() {
