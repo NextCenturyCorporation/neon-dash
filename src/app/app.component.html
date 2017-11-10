@@ -3,7 +3,7 @@
         <mat-toolbar color="primary">
             <span class="mat-36">Datasets</span>
         </mat-toolbar>
-        <app-dataset-selector (onActiveDatasetChanged)="sidenav.toggle()" >
+        <app-dataset-selector (activeDatasetChanged)="sidenav.toggle()" >
         </app-dataset-selector>
     </mat-sidenav>
     <mat-sidenav #sidenavright class="neon-gtd-sidenav-about-neon" mat-fill align="end">

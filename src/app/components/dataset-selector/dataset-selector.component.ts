@@ -113,8 +113,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         info: '',
         data: false
     };
-    @Output() onGridItemsChanged: EventEmitter<number> = new EventEmitter<number>();
-    @Output() onActiveDatasetChanged: EventEmitter<any> = new EventEmitter<any>();
+    @Output() gridItemsChanged: EventEmitter<number> = new EventEmitter<number>();
+    @Output() activeDatasetChanged: EventEmitter<any> = new EventEmitter<any>();
 
     private messenger: neon.eventing.Messenger;
 
@@ -142,7 +142,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             this.datasets.some((dataset, index) => {
                 if ((activeDataset && activeDataset === dataset.name.toLowerCase()) || (!activeDataset && dataset.connectOnLoad)) {
                     this.connectToPreset(index, true);
-                    this.onActiveDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
+                    this.activeDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
                     return true;
                 }
                 return false;
@@ -160,7 +160,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                         info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
                         data: true
                     };
-                    me.onActiveDatasetChanged.emit(me.activeDataset);
+                    me.activeDatasetChanged.emit(me.activeDataset);
                 }
                 if (message.dashboard) {
                     let layoutName: string = 'savedDashboard-' + message.dashboardStateId;
@@ -175,8 +175,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                         dashboard.id = uuid.v4();
                     }
                     me.activeGridService.setGridItems(message.dashboard);
-                    me.onActiveDatasetChanged.emit(me.activeDataset);
-                    me.onGridItemsChanged.emit(message.dashboard.length);
+                    me.activeDatasetChanged.emit(me.activeDataset);
+                    me.gridItemsChanged.emit(message.dashboard.length);
                 }
             }
         });
@@ -262,8 +262,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             this.activeGridService.addItem(item);
         }
 
-        this.onGridItemsChanged.emit(this.layouts[layoutName].length);
-        this.onActiveDatasetChanged.emit(this.activeDataset);
+        this.gridItemsChanged.emit(this.layouts[layoutName].length);
+        this.activeDatasetChanged.emit(this.activeDataset);
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
     }
 
@@ -321,7 +321,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         // $location.search("dashboard_state_id", null);
         // $location.search("filter_state_id", null);
 
-        this.onGridItemsChanged.emit(this.customVisualizations.length);
+        this.gridItemsChanged.emit(this.customVisualizations.length);
         this.parameterService.addFiltersFromUrl();
     }
 
@@ -398,7 +398,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
             data: true
         };
-        this.onActiveDatasetChanged.emit(this.activeDataset);
+        this.activeDatasetChanged.emit(this.activeDataset);
         this.datasets = this.datasetService.addDataset(dataset);
         this.datasetService.setActiveDataset(dataset);
         this.updateCustomLayout();
