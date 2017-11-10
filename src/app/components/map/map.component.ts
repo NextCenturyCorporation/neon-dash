@@ -83,7 +83,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     minClusterSize: number,
     clusterPixelRange: number,
     hoverSelect: {
-      hoverTime: number,
+      hoverTime: number
     },
     hoverPopupEnabled: boolean,
     west: number,
@@ -346,7 +346,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       longitudeField: new FieldMetaData(),
       colorField: new FieldMetaData(),
       sizeField: new FieldMetaData(),
-      dateField: new FieldMetaData(),
+      dateField: new FieldMetaData()
     });
     this.filterVisible[this.active.layers.length - 1] = true;
   }

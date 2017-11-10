@@ -29,7 +29,7 @@ const HTTP_PROVIDERS = [
     {provide: RequestOptions, useClass: BaseRequestOptions},
     {provide: ResponseOptions, useClass: BaseResponseOptions},
     XHRBackend,
-    {provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy()},
+    {provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy()}
 ];
 
 const EMPTY_CONFIG = {

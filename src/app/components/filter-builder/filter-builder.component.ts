@@ -33,14 +33,14 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     private optionsFromConfig: {
         title: string,
         database: string,
-        table: string,
+        table: string
     };
 
     public active: {
         operators: OperatorMetaData[],
         andor: string,
         whereClauses: WhereClauseMetaData[],
-        filterIds: string[],
+        filterIds: string[]
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -50,14 +50,14 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
+            table: this.injector.get('table', null)
         };
 
         this.active = {
             operators: [],
             andor: 'and',
             whereClauses: [],
-            filterIds: [],
+            filterIds: []
         };
 
         this.active.operators.push({ value: '=', prettyName: '=' });

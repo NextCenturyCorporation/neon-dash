@@ -70,7 +70,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         currentIndex: number,
         field: { prop: string, name: string, active: boolean },
         x: number,
-        y: number,
+        y: number
     };
 
     public changeDetection: ChangeDetectorRef;
@@ -109,7 +109,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             currentIndex: -1,
             field: null,
             x: 0,
-            y: 0,
+            y: 0
         };
         this.queryTitle = this.optionsFromConfig.title || 'Raw Data';
         this.enableRedrawAfterResize(true);

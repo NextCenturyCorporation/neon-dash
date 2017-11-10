@@ -12,7 +12,7 @@ import * as _ from 'lodash';
 @Component({
   selector: 'app-config-editor',
   templateUrl: 'config-editor.component.html',
-  styleUrls: ['config-editor.component.scss'],
+  styleUrls: ['config-editor.component.scss']
 })
 export class ConfigEditorComponent implements AfterViewInit, OnInit {
     @ViewChild('JsonEditorComponent') editorRef: ElementRef;
@@ -119,7 +119,7 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
           history: true,
           mode: 'tree',
           search: true,
-          indentation: 2,
+          indentation: 2
        };
     }
 }

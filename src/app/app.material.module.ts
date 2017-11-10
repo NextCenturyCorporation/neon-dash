@@ -30,7 +30,7 @@ const MD_MODULES = [
     MatSnackBarModule,
     MatTabsModule,
     MatToolbarModule,
-    MatTooltipModule,
+    MatTooltipModule
 ];
 
 @NgModule({

@@ -44,7 +44,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             unsharedFilterField: any,
             unsharedFilterValue: string,
             colorField: FieldMetaData
-        }[],
+        }[]
     };
 
     public exportId: number;
@@ -80,7 +80,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.isLoading = 0;
         this.meta = {
             databases: [],
-            layers: [],
+            layers: []
         };
         this.isExportable = true;
         this.doExport = this.doExport.bind(this);

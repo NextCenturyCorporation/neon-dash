@@ -111,7 +111,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         layers: any[],
         xAxisIsNumeric: boolean,
         yAxisIsNumeric: boolean,
-        pointLabels: string[],
+        pointLabels: string[]
     };
 
     // Alternate color: rgba(57, 181, 74, 0.9)
@@ -129,7 +129,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         width: number,
         x: number,
         y: number,
-        visibleOverlay: boolean,
+        visibleOverlay: boolean
     };
 
     public chart: {
@@ -174,7 +174,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             layers: [],
             xAxisIsNumeric: true,
             yAxisIsNumeric: true,
-            pointLabels: [],
+            pointLabels: []
         };
 
         this.selection = {
@@ -187,7 +187,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             startY: 0,
             endX: 0,
             endY: 0,
-            visibleOverlay: false,
+            visibleOverlay: false
         };
 
         this.onHover = this.onHover.bind(this);
@@ -225,7 +225,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 //onClick: this.onClick.bind(this),
                 //onTouchStart: this.touchStart.bind(this),
                 animation: {
-                  duration: 0, // general animation time
+                  duration: 0 // general animation time
                 },
                 hover: {
                     mode: 'point',

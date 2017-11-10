@@ -52,7 +52,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         database: string,
         table: string,
         dateField: string,
-        granularity: string,
+        granularity: string
     };
 
     public active: {

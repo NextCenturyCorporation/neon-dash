@@ -3,7 +3,7 @@ import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectionStrateg
 @Component({
   selector: 'app-snack-bar',
   templateUrl: 'snack-bar.component.html',
-  styleUrls: ['snack-bar.component.scss'],
+  styleUrls: ['snack-bar.component.scss']
 })
 export class SnackBarComponent {
     public snackBarRef: any;

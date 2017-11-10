@@ -53,7 +53,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         table: string,
         dateField: string,
         granularity: string,
-        groupField: string,
+        groupField: string
     };
 
     public active: {

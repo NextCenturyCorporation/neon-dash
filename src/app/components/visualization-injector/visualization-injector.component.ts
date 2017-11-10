@@ -19,7 +19,7 @@ import { VisualizationService } from '../../services/visualization.service';
     selector: 'app-visualization-injector',
     entryComponents: [BarChartComponent, DataTableComponent, DocumentViewerComponent, FilterBuilderComponent, LineChartComponent,
         MapComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent, TimelineComponent, WikiViewerComponent],
-    template: `<div #dynamicComponentContainer></div>`,
+    template: `<div #dynamicComponentContainer></div>`
 })
 export class VisualizationInjectorComponent {
     currentComponent = null;

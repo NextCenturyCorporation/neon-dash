@@ -33,7 +33,7 @@ describe('Component: LineChart', () => {
       declarations: [
         LineChartComponent,
         LegendComponent,
-        ExportControlComponent,
+        ExportControlComponent
       ],
       providers: [
         ConnectionService,

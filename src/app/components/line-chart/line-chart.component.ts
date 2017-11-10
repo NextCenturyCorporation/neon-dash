@@ -89,7 +89,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             datasets: any[]
         },
         type: string,
-        options: any,
+        options: any
     };
     private colorSchemeService: ColorSchemeService;
     private mouseEventValid: boolean;
@@ -199,7 +199,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
                 onClick: null,
                 animation: {
-                  duration: 0, // general animation time
+                  duration: 0 // general animation time
                 },
                 hover: {
                     mode: 'index',

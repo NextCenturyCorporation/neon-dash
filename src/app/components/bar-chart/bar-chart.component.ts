@@ -185,7 +185,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
                 onClick: this.onClick,
                 animation: {
-                  duration: 0, // general animation time
+                  duration: 0 // general animation time
                 },
                 hover: {
                     mode: 'point',
@@ -197,8 +197,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                         stacked: true,
                         ticks: {
                             max: 100,
-                            beginAtZero: true,  //scaleBeginAtZero: true
-                        },
+                            beginAtZero: true  //scaleBeginAtZero: true
+                        }
                     }],
                     yAxes: [{
 
@@ -207,7 +207,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                             max: 100,
                             beginAtZero: true  //scaleBeginAtZero: true
                         }
-                    }],
+                    }]
                 },
                 legend: {
                     display: false
