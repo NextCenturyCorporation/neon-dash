@@ -358,8 +358,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-    * returns -1 if cannot be found
-    */
+     * returns -1 if cannot be found
+     */
     getPointXLocationByIndex(chart, index): number {
         let dsMeta = chart.controller.getDatasetMeta(0);
         if (dsMeta.data.length > index) {

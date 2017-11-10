@@ -368,9 +368,9 @@ export abstract class BaseNeonComponent implements OnInit,
     abstract getVisualizationName(): string;
 
     /**
-    * Must return null for no filters.  Returning an empty array causes the
-    * query to ignore ALL fitlers.
-    */
+     * Must return null for no filters.  Returning an empty array causes the
+     * query to ignore ALL fitlers.
+     */
     abstract getFiltersToIgnore(): string[];
 
     /**

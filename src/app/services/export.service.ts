@@ -31,11 +31,11 @@ export interface ExportInfo {
 export class ExportService {
 
    /**
-     * Which one of these is made with "selected: true" should be the same as the declared initial value for
-     * format inside of exportService.js.
-     * The value field of each format should match up with the static final ints declared in ExportService.groovy,
-     * and serves as a psuedo-enum value.
-     */
+    * Which one of these is made with "selected: true" should be the same as the declared initial value for
+    * format inside of exportService.js.
+    * The value field of each format should match up with the static final ints declared in ExportService.groovy,
+    * and serves as a psuedo-enum value.
+    */
     public static AVAILABLE_FORMATS: any[] = [{
         name: 'csv',
         value: 0

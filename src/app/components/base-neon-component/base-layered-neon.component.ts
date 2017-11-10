@@ -422,9 +422,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     abstract getVisualizationName(): string;
 
     /**
-    * Must return null for no filters.  Returning an empty array causes the
-    * query to ignore ALL fitlers.
-    */
+     * Must return null for no filters.  Returning an empty array causes the
+     * query to ignore ALL fitlers.
+     */
     abstract getFiltersToIgnore(): string[];
 
     /**
@@ -548,9 +548,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     }
 
     /**
-    This is expected to get called whenever a query is expected to be run.
-    This could be startup, user action to change field, relevant filter change
-    from another visualization
+     * This is expected to get called whenever a query is expected to be run.
+     * This could be startup, user action to change field, relevant filter change
+     * from another visualization
      */
     executeAllQueryChain() {
         for (let i = 0; i < this.meta.layers.length; i++) {

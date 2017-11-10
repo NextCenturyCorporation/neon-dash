@@ -19,10 +19,10 @@ export interface NeonGridItem {
     bindings?: any;
     col?: number;
     description?: string;
-    /** The active NgGridItem configuration for this visualization instance. **/
+    /* The active NgGridItem configuration for this visualization instance. */
     gridConfig: NgGridItemConfig;
     id?: string;
-    /** The previous NgGridItem configuration for this visualization--used for expand/collapse features. **/
+    /* The previous NgGridItem configuration for this visualization--used for expand/collapse features. */
     lastGridConfig?: NgGridItemConfig;
     row?: number;
     sizex?: number;

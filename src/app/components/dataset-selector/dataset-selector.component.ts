@@ -89,7 +89,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      *             Each custom relation database contains:
      *         {Object} database The database object
      *         {Array} customRelationTables The array of custom relation table objects configured by the user through the popup.
-                   Each custom relation table contains:
+     *             Each custom relation table contains:
      *             {Object} table The table object
      *             {Object} field The field object
      */
