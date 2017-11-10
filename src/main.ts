@@ -155,11 +155,11 @@ function showError(error) {
 neon.ready(function() {
   neon.setNeonServerUrl('../neon');
   let config;
-  config = loadConfigYaml().then(conf => bootstrapWithData(conf), function(error) {
+  config = loadConfigYaml().then(bootstrapWithData, function(error) {
     handleConfigYamlError(error);
-    loadConfigJson().then(conf => bootstrapWithData(conf), function(error2) {
+    loadConfigJson().then(bootstrapWithData, function(error2) {
       handleConfigJsonError(error2);
-      loadConfigFromPropertyService().then(conf => bootstrapWithData(conf), error3 => handleConfigPropertyServiceError);
+      loadConfigFromPropertyService().then(bootstrapWithData, handleConfigPropertyServiceError);
 });
   });
 });
