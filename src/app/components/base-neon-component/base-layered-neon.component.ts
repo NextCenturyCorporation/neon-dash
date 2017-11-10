@@ -282,7 +282,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         let queries = this.createAllQueries();
         let mapFunction = this.exportOneLayer.bind(this);
         if (queries) {
-            return queries.map(mapFunction).filter(fo => fo);
+            return queries.map(mapFunction).filter((fo) => fo);
         } else {
             console.error('SKIPPING EXPORT FOR ' + this.getVisualizationName());
             return null;

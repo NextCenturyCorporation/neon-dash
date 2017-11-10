@@ -125,13 +125,13 @@ export class TranslationService {
             let translateCallback = (): Promise<{}> => {
                 let params = this.apis[this.chosenApi].params.key + '=' + this.apis[this.chosenApi].key;
 
-                this.apis[this.chosenApi].params.other.forEach(param => {
+                this.apis[this.chosenApi].params.other.forEach((param) => {
                     params += '&' + param;
                 });
 
                 let cached = [];
 
-                text.forEach(elem => {
+                text.forEach((elem) => {
                     if (this.translationCache[to][elem]) {
                         // Add a blank parameter so their indicies match the indices of the list of cached translations.
                         params += '&' + this.apis[this.chosenApi].params.text + '=';
@@ -165,7 +165,7 @@ export class TranslationService {
 
                 return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.translate + '?' + params)
                     .toPromise()
-                    .then(response => {
+                    .then((response) => {
                         // Cache the translations for later use.
                         response['data'].data.translations.forEach((item, index) => {
                             if (!cached[index]) {
@@ -180,7 +180,7 @@ export class TranslationService {
                         });
                         return response;
                     })
-                    .catch(response =>
+                    .catch((response) =>
                         Observable.throw({
                             message: response.data.error.message,
                             reason: this.concatErrorResponses(response.data.error.errors)
@@ -236,13 +236,13 @@ export class TranslationService {
 
         return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.languages + '?' + params)
             .toPromise()
-            .then(response => {
+            .then((response) => {
                 _.forEach(response['data'].data.languages, (elem: any) => {
                     this.apis[this.chosenApi].languages[elem.language] = elem.name;
                 });
                 return this.apis[this.chosenApi].languages;
             })
-            .catch(error => Observable.throw({
+            .catch((error) => Observable.throw({
                 message: error.data.error.message,
                 reason: this.concatErrorResponses(error.data.error.errors)
             }));
@@ -272,7 +272,7 @@ export class TranslationService {
     private loadTranslationCache() {
         let connection = this.connectionService.getActiveConnection();
         if (connection) {
-            connection.getTranslationCache(response => {
+            connection.getTranslationCache((response) => {
                 this.translationCache = JSON.parse(response);
             });
         }

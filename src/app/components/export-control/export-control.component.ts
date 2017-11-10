@@ -114,7 +114,7 @@ export class ExportControlComponent implements OnInit {
           .filter((widget) => {
               return exportAll || widget.id === localExportId;
           })
-          .map(widget => widget.callback());
+          .map((widget) => widget.callback());
         for (let widgetObject of widgetObjects) {
             for (let widgetObjectItem of widgetObject.data) {
                 data.data.push(widgetObjectItem);

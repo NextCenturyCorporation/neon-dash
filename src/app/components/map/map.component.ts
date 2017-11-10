@@ -981,7 +981,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     if (clauses) {
       let values = [this.selection.endLat, this.selection.endLon, this.selection.startLat, this.selection.startLon];
       // TODO FIX THE NEXT LINE!!!!
-      let emptyIfUnchanged = clauses.filter(cl => (values.indexOf(cl.rhs) === -1));
+      let emptyIfUnchanged = clauses.filter((cl) => (values.indexOf(cl.rhs) === -1));
       return emptyIfUnchanged.length > 0;
     }
     return true;

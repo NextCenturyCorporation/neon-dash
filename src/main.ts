@@ -74,7 +74,7 @@ function handleConfigJsonError(error) {
 
 function loadConfigJson() {
     return http.get('./app/config/config.json')
-        .map(response => response.json())
+        .map((response) => response.json())
         .toPromise();
 }
 
@@ -119,7 +119,7 @@ function handleConfigPropertyServiceError(error) {
 
 function loadConfigYaml() {
    return http.get('./app/config/config.yaml')
-       .map(response => yaml.load(response.text()))
+       .map((response) => yaml.load(response.text()))
        .toPromise();
 }
 
