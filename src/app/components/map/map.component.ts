@@ -898,7 +898,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 point: {
                     show: true, // default
                     color: color, // default: WHITE
-                    pixelSize: 12, // default: 1
+                    pixelSize: 6, // default: 1
                     outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
                     outlineWidth: 0, // default: 0
                     translucencyByDistance: new Cesium.NearFarScalar(100, .4, 8.0e6, 0.4)
