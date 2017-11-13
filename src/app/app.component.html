@@ -12,7 +12,7 @@
         </mat-toolbar>
         <app-about-neon *ngIf="showAbout"></app-about-neon>
         <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout"></app-dashboard-options>
-        <button mat-button (click)="sidenavright.close()">Close</button>
+        <button mat-raised-button (click)="sidenavright.close()" class="mat-primary">Close</button>
     </mat-sidenav>
     <mat-toolbar color="primary" layout-align="space-between center" flex>
         <button mat-button [attr.aria-label]="datasetService.getName() || 'Choose Data'" style="margin-right: 10px;" (click)="sidenav.toggle()"
