@@ -14,54 +14,49 @@
  *
  */
 /* eslist-disable */
-export namespace charts { };
-export namespace mediators { };
 
-export namespace neonColors {
-    export const GREEN = '#39b54a';
-    export const RED = '#C23333';
-    export const BLUE = '#3662CC';
-    export const ORANGE = '#ff7f0e';
-    export const PURPLE = '#9467bd';
-    export const BROWN = '#8c564b';
-    export const PINK = '#e377c2';
-    export const GRAY = '#7f7f7f';
-    export const YELLOW = '#bcbd22';
-    export const CYAN = '#17becf';
-    export const LIGHT_GREEN = '#98df8a';
-    export const LIGHT_RED = '#ff9896';
-    export const LIGHT_BLUE = '#aec7e8';
-    export const LIGHT_ORANGE = '#ffbb78';
-    export const LIGHT_PURPLE = '#c5b0d5';
-    export const LIGHT_BROWN = '#c49c94';
-    export const LIGHT_PINK = '#f7b6d2';
-    export const LIGHT_GRAY = '#c7c7c7';
-    export const LIGHT_YELLOW = '#dbdb8d';
-    export const LIGHT_CYAN = '#9edae5';
-    export const LIST = [
-        GREEN,
-        RED,
-        BLUE,
-        ORANGE,
-        PURPLE,
-        BROWN,
-        PINK,
-        GRAY,
-        YELLOW,
-        CYAN,
-        LIGHT_GREEN,
-        LIGHT_RED,
-        LIGHT_BLUE,
-        LIGHT_ORANGE,
-        LIGHT_PURPLE,
-        LIGHT_BROWN,
-        LIGHT_PINK,
-        LIGHT_GRAY,
-        LIGHT_YELLOW,
-        LIGHT_CYAN
-    ];
-    export const DEFAULT: string = GRAY;
-}
+export namespace neonUtilities {
+    /**
+     * Flattens and returns the given array.
+     *
+     * @arg {array} array
+     * @return {array} array
+     */
+    export function flatten(array) {
+        return (array || []).reduce(function(sum, element) {
+            return sum.concat(Array.isArray(element) ? this.flatten(element) : element);
+        }.bind(this), []); // "(array || [])" and ", []" prevent against exceptions and return [] when array is null or empty.
+    };
+
+    /**
+     * Returns the object nested inside the given object using the given path string (with periods to mark each nested property).
+     *
+     * @arg {object} obj
+     * @arg {string} pathStr
+     * @return {object}
+     */
+    export function deepFind(obj, pathStr) {
+        for (let i = 0, path = (pathStr ? pathStr.split('.') : []), len = path.length; i < len; i++) {
+            if (obj instanceof Array) {
+                let nestedPath = path.slice(i).join('.');
+                let pieces = [];
+                for (let item = 0; item < obj.length; item++) {
+                    let entryValue = deepFind(obj[item], nestedPath);
+                    if (entryValue instanceof Array) {
+                        entryValue = flatten(entryValue);
+                    }
+                    pieces = pieces.concat(entryValue);
+                }
+                return pieces;
+            }
+            obj = obj ? obj[path[i]] : undefined;
+            if (!obj) {
+                return undefined;
+            }
+        };
+        return obj;
+    };
+};
 
 // Mappings used in the JSON configuration file.
 export namespace neonMappings {
@@ -119,259 +114,6 @@ export namespace neonMappings {
     export const POINT = 'point';
 };
 
-export namespace neonWizard {
-    export namespace mappings {
-        export const DATE = {
-            name: 'date',
-            prettyName: 'Date'
-        };
-        export const TAGS = {
-            name: 'tags',
-            prettyName: 'Tag Cloud Field'
-        };
-        export const LATITUDE = {
-            name: 'latitude',
-            prettyName: 'Latitude'
-        };
-        export const LONGITUDE = {
-            name: 'longitude',
-            prettyName: 'Longitude'
-        };
-        export const COLOR = {
-            name: 'color_by',
-            prettyName: 'Map Color By'
-        };
-        export const SIZE = {
-            name: 'size_by',
-            prettyName: 'Map Size By'
-        };
-        export const SORT = {
-            name: 'sort_by',
-            prettyName: 'Data Table Sort By'
-        };
-        export const AGGREGATE = {
-            name: 'count_by',
-            prettyName: 'Aggregation Table Field'
-        };
-        export const Y_AXIS = {
-            name: 'y_axis',
-            prettyName: 'Y-Axis'
-        };
-        export const BAR_GROUPS = {
-            name: 'bar_x_axis',
-            prettyName: 'Bar Chart X-Axis'
-        };
-        export const LINE_GROUPS = {
-            name: 'line_category',
-            prettyName: 'Line Chart Grouping'
-        };
-        export const GRAPH_NODE = {
-            name: 'graph_nodes',
-            prettyName: 'Graph Nodes'
-        };
-        export const GRAPH_LINKED_NODE = {
-            name: 'graph_links',
-            prettyName: 'Graph Linked Nodes'
-        };
-        export const GRAPH_NODE_NAME = {
-            name: 'graph_node_name',
-            prettyName: 'Graph Nodes Name'
-        };
-        export const GRAPH_LINKED_NODE_NAME = {
-            name: 'graph_link_name',
-            prettyName: 'Graph Linked Nodes Name'
-        };
-        export const GRAPH_NODE_SIZE = {
-            name: 'graph_node_size',
-            prettyName: 'Graph Node Size'
-        };
-        export const GRAPH_LINKED_NODE_SIZE = {
-            name: 'graph_link_size',
-            prettyName: 'Graph Linked Node Size'
-        };
-        export const GRAPH_FLAG = {
-            name: 'graph_flag',
-            prettyName: 'Graph Flag Field'
-        };
-        export const NEWSFEED_TEXT = {
-            name: 'newsfeed_text',
-            prettyName: 'Graph Text Field'
-        };
-    }
-}
-
-export namespace neonWizard {
-    export const visualizationBindings: any = {};
-}
-
-neonWizard.visualizationBindings.barchart = [
-    {
-        label: 'X-Axis',
-        name: 'bind-x-axis-field',
-        bindingName: 'bar_x_axis'
-    }, {
-        label: 'Aggregation',
-        name: 'bind-aggregation',
-        options: [
-            {
-                name: 'count',
-                prettyName: 'Count',
-                defaultOption: true
-            }, {
-                name: 'sum',
-                prettyName: 'Sum'
-            }, {
-                name: 'average',
-                prettyName: 'Average'
-            }
-        ]
-    }, {
-        label: 'Y-Axis',
-        name: 'bind-y-axis-field',
-        bindingName: 'y_axis'
-    }
-];
-neonWizard.visualizationBindings['circular-heat-form'] = [
-    {
-        label: 'Date Field',
-        name: 'bind-date-field',
-        bindingName: 'date'
-    }
-];
-neonWizard.visualizationBindings['count-by'] = [
-    {
-        label: 'Group Field',
-        name: 'bind-group-field',
-        bindingName: 'count_by'
-    }, {
-        label: 'Aggregation',
-        name: 'bind-aggregation',
-        options: [
-            {
-                name: 'count',
-                prettyName: 'Count',
-                defaultOption: true
-            }, {
-                name: 'min',
-                prettyName: 'Minimum'
-            }, {
-                name: 'max',
-                prettyName: 'maximum'
-            }
-        ]
-    }, {
-        label: 'Aggregation Field',
-        name: 'bind-aggregation-field'
-    }
-];
-neonWizard.visualizationBindings['directed-graph'] = [];
-neonWizard.visualizationBindings['filter-builder'] = [];
-neonWizard.visualizationBindings['gantt-chart'] = [
-    {
-        label: 'Start Field',
-        name: 'bind-start-field'
-    }, {
-        label: 'End Field',
-        name: 'bind-end-field'
-    }, {
-        label: 'Color Field',
-        name: 'bind-color-field'
-    }
-];
-neonWizard.visualizationBindings.linechart = [
-    {
-        label: 'Date Granularity',
-        name: 'bind-granularity',
-        options: [
-            {
-                name: 'day',
-                prettyName: 'Day',
-                defaultOption: true
-            }, {
-                name: 'hour',
-                prettyName: 'Hour'
-            }
-        ]
-    }
-];
-neonWizard.visualizationBindings.map = [];
-neonWizard.visualizationBindings.newsfeed = [
-    {
-        label: 'Primary Title Field',
-        name: 'bind-primary-title-field'
-    }, {
-        label: 'Secondary Title Field',
-        name: 'bind-secondary-title-field'
-    }, {
-        label: 'Date Field',
-        name: 'bind-date-field',
-        bindingName: 'date'
-    }, {
-        label: 'Content Field',
-        name: 'bind-content-field'
-    }
-];
-neonWizard.visualizationBindings['plotly-graph'] = [
-    {
-        label: 'X Attribute',
-        name: 'bind-x-axis-field'
-    }, {
-        label: 'Y Attribute',
-        name: 'bind-y-axis-field'
-    }, {
-        label: 'Type',
-        name: 'graph-type',
-        options: [
-            {
-                name: 'scatter',
-                prettyName: 'Scatter Plot',
-                defaultOption: true
-            }, {
-                name: 'heatmapScatter',
-                prettyName: 'Heatmap Scatter Plot'
-            }, {
-                name: 'histogramScatter',
-                prettyName: 'Histogram Plot'
-            }
-        ]
-    }
-];
-neonWizard.visualizationBindings['query-results-table'] = [];
-neonWizard.visualizationBindings.sunburst = [];
-neonWizard.visualizationBindings['tag-cloud'] = [
-    {
-        label: 'Data Field',
-        name: 'bind-tag-field',
-        bindingName: 'tags'
-    }
-];
-neonWizard.visualizationBindings['timeline-selector'] = [
-    {
-        label: 'Date Field',
-        name: 'bind-date-field',
-        bindingName: 'date'
-    }, {
-        label: 'Date Granularity',
-        name: 'bind-granularity',
-        options: [
-            {
-                name: 'year',
-                prettyName: 'Year'
-            }, {
-                name: 'month',
-                prettyName: 'Month'
-            }, {
-                name: 'day',
-                prettyName: 'Day',
-                defaultOption: true
-            }, {
-                name: 'hour',
-                prettyName: 'Hour'
-            }
-        ]
-    }
-];
-
 export namespace neonVisualizationMinPixel { // jshint ignore:line
     export const x = 320;
     export const y = 240;
@@ -398,11 +140,11 @@ export const neonVisualizations: any[] = [
         type: 'dataTable',
         icon: 'ViewData64'
     },
-    //{
-    //    name: 'Document Viewer',
-    //    type: 'documentViewer',
-    //    icon: 'DocumentViewer64'
-    //},
+    {
+        name: 'Document Viewer',
+        type: 'documentViewer',
+        icon: 'DocumentViewer64'
+    },
     {
         minPixelX: 480,
         name: 'Filter Builder',
@@ -442,6 +184,11 @@ export const neonVisualizations: any[] = [
         name: 'Scatter Plot',
         type: 'scatterPlot',
         icon: 'ScatterPlot64'
+    },
+    {
+        name: 'Stacked Timeline',
+        type: 'stackedTimeline',
+        icon: 'Timeline64'
     },
     //{
     //    name: 'Sunburst Chart',

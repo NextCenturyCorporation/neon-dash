@@ -14,15 +14,22 @@
  *
  */
 export class FieldMetaData {
-    columnName: string;
-    prettyName: string;
+    columnName: string = '';
+    prettyName: string = '';
     hide: boolean;
     type?: string;
+
+    constructor(columnName?: string, prettyName?: string, hide?: boolean, type?: string) {
+        this.columnName = columnName || '';
+        this.prettyName = prettyName || '';
+        this.hide = hide || false;
+        this.type = type || '';
+    }
 }
 
 export class TableMetaData {
-    name: string;
-    prettyName: string;
+    name: string = '';
+    prettyName: string = '';
     fields: FieldMetaData[];
     mappings: TableMappings;
 

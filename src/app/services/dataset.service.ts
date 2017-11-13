@@ -431,6 +431,9 @@ export class DatasetService {
         });
 
         fields.sort(function(x, y) {
+            if (!x.prettyName || !y.prettyName) {
+                return 0;
+            }
             // Compare field pretty names and ignore case.
             return (x.prettyName.toUpperCase() < y.prettyName.toUpperCase()) ?
                 -1 : ((x.prettyName.toUpperCase() > y.prettyName.toUpperCase()) ? 1 : 0);

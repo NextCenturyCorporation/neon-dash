@@ -38,7 +38,6 @@ export class ColorSet {
         if (color == null) {
             color = this.colorList[this.currentIndex];
             this.mappings.set(value, color);
-
             this.currentIndex = (this.currentIndex + 1) % this.colorList.length;
         }
         return color;
@@ -124,16 +123,16 @@ export class ColorSchemeService {
      * @param {string} set
      * @param {string} value
      */
-    public getColorFor(set: string, value: string): Color {
+    public getColorFor(set: string, value: string|Array<string>): Color {
         let colorSet = this.colorMaps.get(set);
         if (colorSet == null) {
             colorSet = new ColorSet(set);
             colorSet.colorList = this.colorList[this.colorPosition];
             this.colorMaps.set(set, colorSet);
-
             this.colorPosition = (this.colorPosition + 1) % this.colorList.length;
         }
-        return colorSet.getColorForValue(value);
+        let colorKey = (value instanceof Array) ? value.join() : value;
+        return colorSet.getColorForValue(colorKey);
     }
 
     /**

@@ -1,5 +1,5 @@
 <mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="primary" layout-align="space-between center" flex>
+    <mat-toolbar color="header" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
         <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
@@ -75,6 +75,15 @@
                                             [value]="field">{{ field.prettyName }}</mat-option>
                             </mat-select>
                         </mat-form-field>
+
+                        <mat-button-toggle-group #clustering="matButtonToggleGroup" [(ngModel)]="active.clustering" (ngModelChange)="handleChangeClustering()">
+                    		<mat-button-toggle value="points">
+                        		Points
+                    		</mat-button-toggle>
+                    		<mat-button-toggle value="clusters">
+                        		Clusters
+                    		</mat-button-toggle>
+                		</mat-button-toggle-group>
                     </div>
                 </div>
                 <table cellspacing="0">
@@ -109,11 +118,11 @@
                             [disabledSets]="disabledSet"
                             (itemSelected)="legendItemSelected($event)"></app-legend>
             </div>
-            <div class="filter-reset " *ngFor="let value of getCloseableFilters() ">
-                <span class="filter-label " [title]="getFilterTitle(value) ">{{ getFilterCloseText(value) }}</span>
-                <button mat-icon-button aria-label="Close " [matTooltip]="getRemoveFilterTooltip(value) " tooltip-position="below" (click)="handleRemoveFilter(value)">
+            <div class="filter-reset " *ngFor="let filter of getCloseableFilters() ">
+                <span class="filter-label " [title]="getFilterTitle('Map Filter') ">{{ getFilterCloseText('Map Filter') }}</span>
+                <button mat-icon-button aria-label="Close " [matTooltip]="getRemoveFilterTooltip('Map Filter') " tooltip-position="below" (click)="handleRemoveFilter(filter)">
                     <mat-icon class="mat-18 ">close</mat-icon>
-                  </button>
+                </button>
             </div>
         </div>
     </div>

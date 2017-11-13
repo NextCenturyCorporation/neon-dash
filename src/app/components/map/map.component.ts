@@ -25,6 +25,9 @@ import * as neon from 'neon-framework';
 import {BaseLayeredNeonComponent} from '../base-neon-component/base-layered-neon.component';
 import 'cesium/Build/Cesium/Cesium.js';
 import * as _ from 'lodash';
+import {color} from 'd3';
+import {Set, Map} from 'hash-set-map';
+import * as geohash from 'geo-hash';
 
 export class MapLayer {
     title: string;
@@ -47,6 +50,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     private FIELD_ID: string;
     private filters: {
+        id: string,
         fieldsByLayer: {
             latField: string,
             lonField: string
@@ -75,7 +79,18 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             sizeField: string,
             colorField: string,
             dateField: string
-        }[]
+        }[],
+        clustering: string,
+        minClusterSize: number,
+        clusterPixelRange: number,
+        hoverSelect: {
+        hoverTime: number,
+        },
+        hoverPopupEnabled: boolean,
+        west: number,
+        east: number,
+        north: number,
+        south: number
     };
     public active: {
         layers: MapLayer[]
@@ -84,7 +99,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         filterable: boolean,
         data: number[][],
         unusedColors: string[],
-        nextColorIndex: number
+        nextColorIndex: number,
+        clustering: string,
+        minClusterSize: number,
+        clusterPixelRange: number
     };
 
     public selection: {
@@ -113,6 +131,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     private colorSchemeService: ColorSchemeService;
 
     private cesiumViewer: any;
+    private hoverTimeout: any;
+    private popupEntity: any;
+
     @ViewChild('cesiumContainer') cesiumContainer: ElementRef;
     private removedEntities = [];
     public disabledSet: [string[]] = [] as [string[]];
@@ -136,7 +157,16 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             limit: this.injector.get('limit', 1000),
             unsharedFilterField: {},
             unsharedFilterValue: '',
-            layers: this.injector.get('layers', [])
+            layers: this.injector.get('layers', []),
+            clustering: this.injector.get('clustering', 'points'),
+            minClusterSize: this.injector.get('minClusterSize', 5),
+            clusterPixelRange: this.injector.get('clusterPixelRange', 15),
+            hoverSelect: this.injector.get('hoverSelect', null),
+            hoverPopupEnabled: this.injector.get('hoverPopupEnabled', false),
+            west: this.injector.get('west', null),
+            east: this.injector.get('east', null),
+            north: this.injector.get('north', null),
+            south: this.injector.get('south', null)
         };
 
         this.filters = [];
@@ -148,7 +178,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             filterable: true,
             data: [],
             nextColorIndex: 0,
-            unusedColors: []
+            unusedColors: [],
+            clustering: this.optionsFromConfig.clustering,
+            minClusterSize: this.optionsFromConfig.minClusterSize,
+            clusterPixelRange: this.optionsFromConfig.clusterPixelRange
         };
 
         this.selection = {
@@ -170,7 +203,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             rectangle: null,
             isExact: true
         };
-        this.queryTitle = 'Map';
+        this.queryTitle = this.optionsFromConfig.title || 'Map';
         //this.addEmptyLayer();
     };
 
@@ -214,19 +247,46 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         //  3D Map and Columbus view.
         //  Rotating 2D map
         // These were mostly done to prevent the more complex problem of drawing on a 3D map.
+        let sourceId = 0;
+        for (; sourceId < imagerySources.length; sourceId++) {
+            let sourceName = imagerySources[sourceId].name;
+            if ('ESRI World Street Map' === sourceName) {
+            break;
+            }
+        }
+        if (sourceId === imagerySources.length) {
+            sourceId = 0;
+        }
+        console.log(sourceId);
+        let west = -180.0;
+        let east = 180.0;
+        let north = 90.0;
+        let south = -90.0;
+
+        if (this.optionsFromConfig.west != null) {
+            west = this.optionsFromConfig.west;
+            east = this.optionsFromConfig.east;
+            north = this.optionsFromConfig.north;
+            south = this.optionsFromConfig.south;
+        }
+
+        let rectangle = Cesium.Rectangle.fromDegrees(west, south, east, north);
+        Cesium.Camera.DEFAULT_VIEW_FACTOR = 0;
+        Cesium.Camera.DEFAULT_VIEW_RECTANGLE = rectangle;
 
         this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
-            sceneMode: Cesium.SceneMode.SCENE2D,
+            sceneMode: Cesium.SceneMode.SCENE3D,
             imageryProviderViewModels: imagerySources,
             //set default imagery to eliminate annoying text and using a bing key by default
-            selectedImageryProviderViewModel: imagerySources[9],
+            selectedImageryProviderViewModel: imagerySources[sourceId],
             terrainProviderViewModels: [],
             fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
             timeline: false, //disable timeline widget
             animation: false, // disable animation widget
             mapMode2D: Cesium.MapMode2D.ROTATE,
             sceneModePicker: false,
-            navigationHelpButton: false
+            navigationHelpButton: false,
+            infoBox: false
         });
 
         this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
@@ -251,10 +311,24 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
         //Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
         this.cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
-        this.cesiumViewer.camera.flyHome(0);
+        // this.cesiumViewer.camera.flyHome(0);
+
+        this.popupEntity = this.optionsFromConfig.hoverPopupEnabled && this.cesiumViewer.entities.add({
+            label: {
+                show: false,
+                showBackground: true,
+                font: '14px monospace',
+                horizontalOrigin: Cesium.HorizontalOrigin.LEFT,
+                verticalOrigin: Cesium.VerticalOrigin.TOP,
+                pixelOffset: new Cesium.Cartesian2(15, 0),
+                eyeOffset: new Cesium.Cartesian3(0, 0, -6)
+            }
+        });
 
         // Draw everything
         this.handleChangeLimit();
+        let scene = this.cesiumViewer.scene;
+        setTimeout(() => scene.mode === Cesium.SceneMode.SCENE3D && scene.morphTo2D(0), 700);
     }
 
     subNgOnDestroy() {
@@ -364,13 +438,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 let localFilters = this.createFilter(fieldsByLayer, localLayerName);
                 this.addLocalFilter(localFilters);
                 for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
-                    let fields = localFilters.fieldsByLayer[i];
-                    let f = {
-                        latField: fields.latitudeName,
-                        lonField: fields.longitudeName,
-                        filterName: this.getFilterTextForLayer(i)
-                    };
-                    this.addNeonFilter(i, true, f);
+                    let neonFilters = this.filterService.getFiltersByOwner(this.id);
+                    if (neonFilters && neonFilters.length) {
+                        localFilters.id = neonFilters[0].id;
+                        this.replaceNeonFilter(i, true, localFilters);
+                    } else {
+                        this.addNeonFilter(i, true, localFilters);
+                    }
                 }
 
                 let zoomRect = rect;
@@ -402,10 +476,44 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     onMouseMove(movement) {
+        let end = movement.endPosition;
         if (this.selection.selectionDown && movement) {
-            this.setEndPos(movement.endPosition);
+            this.setEndPos(end);
             this.drawSelection();
         }
+
+        if (this.optionsFromConfig.hoverPopupEnabled || this.optionsFromConfig.hoverSelect) {
+            let viewer = this.cesiumViewer,
+            objectsAtLocation = viewer.scene.drillPick(end); // get all entities under mouse
+
+            if (this.optionsFromConfig.hoverPopupEnabled) {
+                let popup = this.popupEntity;
+
+                //ensure that an object exists at cursor and that it isn't the popup
+                if (objectsAtLocation.length && objectsAtLocation[0].id.id !== popup.id) {
+                    popup.position = objectsAtLocation[0].id.position.getValue();
+                    popup.label.show = true;
+                    popup.label.text = objectsAtLocation[0].id.name + '\nCount: ' + objectsAtLocation[0].id.description;
+                } else {
+                    popup.label.show = false;
+                }
+            }
+
+            if (this.optionsFromConfig.hoverSelect) {
+                if (this.hoverTimeout) {
+                    clearTimeout(this.hoverTimeout);
+                    delete this.hoverTimeout;
+                }
+
+                if (objectsAtLocation.length) {
+                    this.hoverTimeout = setTimeout(() => {
+                    viewer.selectedEntity = objectsAtLocation[0].id;
+                    delete this.hoverTimeout;
+                    }, 300);
+                }
+            }
+        }
+
         //console.log(movement.endPosition);
         //console.log(this.xyToLatLon(movement.endPosition))
     }
@@ -519,6 +627,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     createFilter(fieldsByLayer, name) {
         return {
+            id: undefined,
             fieldsByLayer: fieldsByLayer,
             filterName: name
         };
@@ -528,7 +637,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         this.filters[0] = filter;
     };
 
-    createNeonFilterClauseEquals(_databaseAndTableName: {}, latLonFieldNames: string[]) {
+    createNeonFilterClauseEquals(database: string, table: string, latLonFieldNames: string[]) {
         let filterClauses = [];
         //console.log(fieldName);
         let latField = latLonFieldNames[0];
@@ -634,6 +743,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         let latField = this.active.layers[layerIndex].latitudeField.columnName;
         let colorField = this.active.layers[layerIndex].colorField.columnName;
         let entities = this.cesiumViewer.entities;
+        // let uniqueEntities = new HashMap();
+        let dataSource = new Cesium.CustomDataSource('MyData');
         entities.suspendEvents();
 
         // Re-add all the removed entities
@@ -659,34 +770,62 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
         //let legendIndex = 0;
         let data = response.data;
+        let allHashes = [];
+        let map = new Map();
         for (let point of data) {
-            let color;
-            if (colorField && point[colorField]) {
-                    let colorString = this.colorSchemeService.getColorFor(colorField, point[colorField]).toRgb();
-                    color = Cesium.Color.fromCssColorString(colorString);
+            let color,
+                colorValue = colorField && point[colorField];
+            if (colorValue) {
+                let colorString = this.colorSchemeService.getColorFor(colorField, colorValue).toRgb();
+                color = Cesium.Color.fromCssColorString(colorString);
             } else {
-                color = Cesium.Color.Blue;
+                color = Cesium.Color.WHITE;
             }
-            let lngCoord = point[lngField];
-            let latCoord = point[latField];
+            let lngCoord = this.retrieveLocationField(point, lngField);
+            let latCoord = this.retrieveLocationField(point, latField);
+            let hash = [];
+
             if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
-                let entity = {
-                    position: Cesium.Cartesian3.fromDegrees(lngCoord, latCoord),
-                    point: {
-                        show: true, // default
-                        color: color, // default: WHITE
-                        pixelSize: 4, // default: 1
-                        outlineColor: color, // default: BLACK
-                        outlineWidth: 0 // default: 0
-                    },
-                    colorField: colorField,
-                    colorValue: point[colorField]
-                };
-                let en = entities.add(entity);
-                newDataIds.push(en.id);
+                let hashCode = geohash.encode(latCoord, lngCoord);
+                //console.log('Before: ' + hash);
+                hash.push(hashCode);
+                //console.log('After: ' + hash);
+                //console.log('lat: ' + latCoord + ' lng: ' + lngCoord + ' hash: ' + hashCode);
+                this.addOrUpdateUniquePoint(map, allHashes, hashCode, latCoord, lngCoord, color);
+            } else if (latCoord instanceof Array && lngCoord instanceof Array) {
+                for (let pos = latCoord.length - 1; pos >= 0; pos--) {
+                    let hashCode = geohash.encode(latCoord[pos], lngCoord[pos]);
+                    //console.log("Before: " + hash);
+                    hash.push(hashCode);
+                    //hash.push(geohash.encode(latCoord[pos], lngCoord[pos]));
+                    //console.log(pos,hash.length, latCoord[pos], lngCoord[pos]);
+                    this.addOrUpdateUniquePoint(map, allHashes, hashCode, latCoord[pos], lngCoord[pos], color);
+                }
             }
         }
-        this.active.data[layerIndex] = newDataIds;
+        //console.log("Weird encoded number's hash" + geohash.encode(18.83333, -72.10528));
+        //console.log(allHashes);
+        for (let id of allHashes) {
+            //console.log(id);
+            //console.log(map.get(id));
+            let obj = map.get(id);
+            if (obj['lat'] instanceof Array) {
+                this.createAndAddPoint(id, obj['lat'][0], obj['lng'][0], obj['color'], obj['count'], dataSource, newDataIds, entities);
+            } else {
+                this.createAndAddPoint(id, obj['lat'], obj['lng'], obj['color'], obj['count'], dataSource, newDataIds, entities);
+            }
+        }
+        this.cesiumViewer.dataSources.removeAll(true);
+        this.cesiumViewer.dataSources.add(dataSource);
+        if (this.active.clustering === 'points') {
+            dataSource.clustering.enabled = false;
+            this.active.data[layerIndex] = newDataIds;
+        }
+        if (this.active.clustering === 'clusters') {
+            this.active.data[layerIndex] = [];
+            this.clusterPoints(dataSource);
+        }
+        this.updateLegend();
         entities.resumeEvents();
         //console.log(response);
         //this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
@@ -703,6 +842,136 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         this.colorByFields = colorByFields;
     }
 
+    //This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
+    // like if latFied holds 'JSONMapping.status.geolocation.latitude', but the actual latitude value is
+    // saved at point['JSONMapping']['status']['geolocation']['latitude']
+    retrieveLocationField(point, locField) {
+        let lngCoord = point[locField];
+        let lngFieldParts = locField.split('.');
+
+        if (!lngCoord && lngFieldParts.length > 1) {
+            lngCoord = point[lngFieldParts[0]];
+            lngFieldParts.shift();
+            while (lngFieldParts.length > 0) {
+            if (lngFieldParts.length === 1 && lngCoord instanceof Array) {
+                lngCoord = lngCoord.map((elem) => {
+                return elem[lngFieldParts[0]];
+                });
+            } else {
+                lngCoord = lngCoord[lngFieldParts[0]];
+            }
+            lngFieldParts.shift();
+            }
+        }
+        return lngCoord;
+    }
+
+    addOrUpdateUniquePoint(map, allHashes, hash, lat, lng, color) {
+        if (map.has(hash)) {
+            //console.log("duplicate");
+            let obj = map.get(hash);
+            //console.log("Old obj:" + obj.count);
+            obj.count++;
+            //console.log("New obj:" + obj.count);
+            map.set(hash, obj);
+        } else {
+            //console.log("new");
+            allHashes.push(hash);
+            let obj = {
+            lat: lat,
+            lng: lng,
+            color: color,
+            count: 1
+            };
+            map.set(hash, obj);
+        }
+    }
+
+    createAndAddPoint(id, latCoord, lngCoord, color, description, dataSource, newDataIds, entities) {
+        if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
+            let lat = parseFloat(latCoord).toFixed(3);
+            let lng = parseFloat(lngCoord).toFixed(3);
+            let entity = dataSource.entities.add({
+                id: id,
+                name: lat + ', ' + lng,
+                position: Cesium.Cartesian3.fromDegrees(lngCoord, latCoord),
+                point: {
+                    show: true, // default
+                    color: color, // default: WHITE
+                    pixelSize: 12, // default: 1
+                    outlineColor: color === Cesium.Color.WHITE ? Cesium.Color.BLACK : color, // default: BLACK
+                    outlineWidth: 0, // default: 0
+                    translucencyByDistance: new Cesium.NearFarScalar(100, .4, 8.0e6, 0.4)
+                },
+                description: description
+            });
+            if (this.active.clustering === 'points') {
+                newDataIds.push(entity.id);
+            }
+        }
+    }
+
+    clusterPoints(dataSource) {
+        //greatly inspired by Cesium demo at https://cesiumjs.org/Cesium/Apps/Sandcastle/index.html?src=Clustering.html&label=Showcases
+        let enabled = true;
+
+        dataSource.clustering.enabled = enabled;
+        dataSource.clustering.pixelRange = this.active.clusterPixelRange;
+        dataSource.clustering.minimumClusterSize = this.active.minClusterSize;
+
+        let removeListener;
+        let pinBuilder = new Cesium.PinBuilder();
+        let pin50 = pinBuilder.fromText('50+', Cesium.Color.RED, 52).toDataURL();
+        let pin40 = pinBuilder.fromText('40+', Cesium.Color.ORANGE, 52).toDataURL();
+        let pin30 = pinBuilder.fromText('30+', Cesium.Color.YELLOW, 52).toDataURL();
+        let pin20 = pinBuilder.fromText('20+', Cesium.Color.GREEN, 52).toDataURL();
+        let pin10 = pinBuilder.fromText('10+', Cesium.Color.BLUE, 52).toDataURL();
+
+        let singleDigitPins = new Array(8);
+        for (let i = 0; i < singleDigitPins.length; ++i) {
+            singleDigitPins[i] = pinBuilder.fromText('' + (i + 2), Cesium.Color.VIOLET, 52).toDataURL();
+        }
+
+        let customStyle = function() {
+            if (Cesium.defined(removeListener)) {
+                removeListener();
+                removeListener = undefined;
+            } else {
+                removeListener = dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                    cluster.label.show = true;
+                    cluster.label.showBackground = true;
+                    cluster.label.font = '18px sans-serif';
+                    cluster.point.show = true;
+                    //cluster.billboard.show = true;
+                    cluster.billboard.id = cluster.label.id;
+                    cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+
+                    if (clusteredEntities.length >= 50) {
+                    cluster.billboard.image = pin50;
+                    } else if (clusteredEntities.length >= 40) {
+                    cluster.billboard.image = pin40;
+                    } else if (clusteredEntities.length >= 30) {
+                    cluster.billboard.image = pin30;
+                    } else if (clusteredEntities.length >= 20) {
+                    cluster.billboard.image = pin20;
+                    } else if (clusteredEntities.length >= 10) {
+                    cluster.billboard.image = pin10;
+                    } else {
+                    cluster.billboard.image = singleDigitPins[clusteredEntities.length - 2];
+                    }
+                });
+            }
+
+            // force a re-cluster with the new styling
+            let pixelRange = dataSource.clustering.pixelRange;
+            dataSource.clustering.pixelRange = 0;
+            dataSource.clustering.pixelRange = pixelRange;
+        };
+
+        // start with custom style
+        customStyle();
+    }
+
     refreshVisualization() {
         //Cesium doesn't need to be refreshed manually
     }
@@ -711,7 +980,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         let database = this.meta.layers[i].database.name;
         let table = this.meta.layers[i].table.name;
         let fields = this.getNeonFilterFields(i);
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         return neonFilters && neonFilters.length > 0;
     }
 
@@ -746,13 +1015,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         let database = this.meta.layers[i].database.name;
         let table = this.meta.layers[i].table.name;
         let fields = this.getNeonFilterFields(i);
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         let clauses = this.getClausesFromFilterWithIdenticalArguments(neonFilters, [
             this.active.layers[i].latitudeField.columnName,
             this.active.layers[i].longitudeField.columnName
         ]);
         if (clauses) {
-            console.log(clauses);
+            // console.log(clauses);
             let values = [this.selection.endLat, this.selection.endLon, this.selection.startLat, this.selection.startLon];
             //FIX THE NEXT LINE!!!!
             let emptyIfUnchanged = clauses.filter(cl => (values.indexOf(cl.rhs) === -1 ));
@@ -818,6 +1087,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         // this.updateNeonFilter();
     };
 
+    handleChangeClustering() {
+        this.logChangeAndStartAllQueryChain();
+    }
+
     // Get filters and format for each call in HTML
     getCloseableFilters() {
         // let closeableFilters = this.filters.map((filter) => {
@@ -825,11 +1098,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         //});
         //return closeableFilters;
         //TODO
-        if (this.filters.length > 0) {
-            return ['Map Filter'];
-        } else {
-            return [];
-        }
+        return this.filters;
     };
 
     getFilterTitle(): string {
@@ -854,12 +1123,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     removeFilter(/*value*/): void {
         this.filters = [];
+        this.removeFilterBox();
     }
 
-    handleRemoveFilter(value): void {
+    handleRemoveFilter(filter: any): void {
         for (let i = 0; i < this.meta.layers.length; i++) {
-            this.removeLocalFilterFromLocalAndNeon(i, value, true, false);
+            this.removeLocalFilterFromLocalAndNeon(i, filter, true, false);
         }
+        this.filters = [];
         this.removeFilterBox();
     };
 

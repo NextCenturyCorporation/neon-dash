@@ -91,6 +91,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('myChart') chartModule: ChartComponent;
 
     private filters: {
+        id: string,
         key: string,
         value: string,
         prettyKey: string
@@ -106,7 +107,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         unsharedFilterField: any,
         unsharedFilterValue: string,
         colorField: string,
-        limit: number;
+        limit: number,
+        chartType: string // bar or horizontalBar
     };
     public active: {
         dataField: FieldMetaData,
@@ -117,7 +119,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         filterable: boolean,
         layers: any[],
         data: any[],
-        aggregation: string
+        aggregation: string,
+        chartType: string,
+        maxNum: number,
+        seenValues: string[]
     };
 
     public chart: {
@@ -132,7 +137,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     // Used to change the colors between active/inactive in the legend
     public selectedLabels: string[] = [];
     public colorFieldNames: string[] = [];
-    private defaultActiveColor = new Color(57, 181, 74);
+    private defaultActiveColor = new Color(77, 190, 194);
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
@@ -148,7 +153,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             colorField: this.injector.get('colorField', null),
             limit: this.injector.get('limit', 100),
             unsharedFilterField: {},
-            unsharedFilterValue: ''
+            unsharedFilterValue: '',
+            chartType: this.injector.get('chartType', 'bar')
         };
         this.filters = [];
         this.active = {
@@ -160,12 +166,15 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             filterable: true,
             layers: [],
             data: [],
-            aggregation: 'count'
+            aggregation: 'count',
+            chartType: this.injector.get('chartType', 'bar'),
+            maxNum: 0,
+            seenValues: []
         };
 
         this.onClick = this.onClick.bind(this);
         this.chart = {
-            type: 'bar',
+            type: this.active.chartType,
             data: {
                 labels: [],
                 datasets: [new BarDataSet(0, this.defaultActiveColor)]
@@ -185,10 +194,19 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 },
                 scales: {
                     xAxes: [{
-                        stacked: true
+                        stacked: true,
+                        ticks: {
+                            max: 100,
+                            beginAtZero: true,  //scaleBeginAtZero: true
+                        },
                     }],
                     yAxes: [{
-                        stacked: true
+
+                        stacked: true,
+                        ticks: {
+                            max: 100,
+                            beginAtZero: true  //scaleBeginAtZero: true
+                        }
                     }],
                 },
                 legend: {
@@ -212,7 +230,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         };
         this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
         this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
-        this.queryTitle = 'Bar Chart';
+        this.queryTitle = this.optionsFromConfig.title || 'Bar Chart';
     };
 
     subNgOnInit() {
@@ -259,12 +277,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             let key = this.active.dataField.columnName;
             let prettyKey = this.active.dataField.prettyName;
             let filter = {
+                id: undefined,
                 key: key,
                 value: value,
                 prettyKey: prettyKey
             };
+            if (this.filters.length > 0) {
+                filter.id = this.filters[0].id;
+            }
             this.addLocalFilter(filter);
-            this.addNeonFilter(false, filter);
+            if (filter.id === undefined) {
+                this.addNeonFilter(false, filter);
+            } else {
+                this.replaceNeonFilter(false, filter);
+            }
             this.refreshVisualization();
         }
     };
@@ -282,7 +308,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.filters[0] = filter;
     };
 
-    createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
+    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         let filterClauses = this.filters.map(function(filter) {
             return neon.query.where(fieldName, '=', filter.value);
         });
@@ -388,7 +414,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let table = this.meta.table.name;
         let fields = this.getNeonFilterFields();
         // get relevant neon filters and check for filters that should be ignored and add that to query
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         // console.log(neonFilters);
         if (neonFilters.length > 0) {
             let ignoredFilterIds = [];
@@ -409,6 +435,25 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
         let hasColor = this.hasColorField();
 
+        // Use our seen values list to create dummy values for every category not returned this time.
+        let valsToAdd = [];
+        for (let value of this.active.seenValues) {
+            let exists = false;
+            for (let row of response.data) {
+                if (row[colName] === value) {
+                    exists = true;
+                }
+            }
+            if (!exists) {
+                let item = {
+                    value: 0
+                };
+                item[colName] = value;
+                valsToAdd.push(item);
+            }
+        }
+        response.data = response.data.concat(valsToAdd);
+
         /*
          * We need to build the datasets.
          * The datasets are just arrays of the data to draw, and the data is indexed
@@ -419,10 +464,15 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             if (!key) {
                 continue;
             }
+            // Add any labels that we haven't seen before to our "seen values" list so we have them for next time.
+            if (this.active.seenValues.indexOf(key) === -1) {
+                this.active.seenValues.push(key);
+            }
             if (chartData.labels.indexOf(key) === -1) {
                 chartData.labels.push(key);
             }
         }
+        chartData.labels.sort();
 
         for (let row of response.data) {
             let key: string = row[colName];
@@ -472,7 +522,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 title = 'Sum'; // + this.active.aggregationField.prettyName;
                 break;
         }
-        title += ' by ' + this.active.dataField.prettyName;
+        title = this.optionsFromConfig.title || this.queryTitle + ' by ' + this.active.dataField.prettyName;
         this.queryTitle = title;
     }
 
@@ -487,12 +537,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = [this.active.dataField.columnName];
-        let neonFilters = this.filterService.getFilters(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
             for (let filter of neonFilters) {
                 let key = filter.filter.whereClause.lhs;
                 let value = filter.filter.whereClause.rhs;
                 let f = {
+                    id: filter.id,
                     key: key,
                     value: value,
                     prettyKey: key
@@ -509,6 +560,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeDataField() {
+        this.active.seenValues = [];
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
     };
 
@@ -541,15 +593,16 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         if (!data || !data[0] || !data[0]['data'] || !data[0]['data'].length) {
             return text;
         } else {
-            return 'Top ' + data[0]['data'].length;
+            let total = data[0]['data'].reduce((sum, elem) => {
+                return sum += elem;
+            }, 0);
+            return 'Total ' + total;
         }
     };
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
-        return this.filters.map((filter) => {
-            return filter.value;
-        });
+        return this.filters;
     };
 
     getFilterTitle(value: string) {

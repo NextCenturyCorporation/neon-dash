@@ -1,20 +1,24 @@
 import { Component, Input, ViewContainerRef, ViewChild, ReflectiveInjector, ComponentFactoryResolver } from '@angular/core';
 
-import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
-import { LineChartComponent } from '../line-chart/line-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
-import { TimelineComponent } from '../timeline/timeline.component';
+import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
+import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
+import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
-import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
+import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
+import { TextCloudComponent } from '../text-cloud/text-cloud.component';
+import { TimelineComponent } from '../timeline/timeline.component';
+import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
+
 import { NeonGridItem } from '../../neon-grid-item';
-import {VisualizationService} from '../../services/visualization.service';
+import { VisualizationService } from '../../services/visualization.service';
 
 @Component({
     selector: 'app-visualization-injector',
-    entryComponents: [TextCloudComponent, BarChartComponent, LineChartComponent, MapComponent, TimelineComponent,
-        DataTableComponent, ScatterPlotComponent, FilterBuilderComponent],
+    entryComponents: [BarChartComponent, DataTableComponent, DocumentViewerComponent, FilterBuilderComponent, LineChartComponent,
+        MapComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent, TimelineComponent, WikiViewerComponent],
     template: `<div #dynamicComponentContainer></div>`,
 })
 export class VisualizationInjectorComponent {
@@ -70,15 +74,17 @@ export class VisualizationInjectorComponent {
 
     getComponent(type: string): any {
         switch (type) {
-            case 'dataTable': return DataTableComponent;
-            case 'textCloud': return TextCloudComponent;
             case 'barChart': return BarChartComponent;
+            case 'dataTable': return DataTableComponent;
+            case 'documentViewer': return DocumentViewerComponent;
+            case 'filterBuilder': return FilterBuilderComponent;
             case 'lineChart': return LineChartComponent;
             case 'map': return MapComponent;
-            case 'timeline': return TimelineComponent;
             case 'scatterPlot': return ScatterPlotComponent;
-            case 'filterBuilder': return FilterBuilderComponent;
-
+            case 'stackedTimeline': return StackedTimelineComponent;
+            case 'textCloud': return TextCloudComponent;
+            case 'timeline': return TimelineComponent;
+            case 'wikiViewer': return WikiViewerComponent;
 
             default: return null;
         }

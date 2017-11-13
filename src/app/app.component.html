@@ -1,12 +1,12 @@
 <mat-sidenav-container class="neon-gtd-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-sidenav #sidenav class="neon-gtd-sidenav" md-fill align="start">
+    <mat-sidenav #sidenav class="neon-gtd-sidenav" mat-fill align="start">
         <mat-toolbar color="primary">
             <span class="mat-36">Datasets</span>
         </mat-toolbar>
         <app-dataset-selector (onActiveDatasetChanged)="sidenav.toggle()" >
         </app-dataset-selector>
     </mat-sidenav>
-    <mat-sidenav #sidenavright class="neon-gtd-sidenav-about-neon" md-fill align="end">
+    <mat-sidenav #sidenavright class="neon-gtd-sidenav-about-neon" mat-fill align="end">
         <mat-toolbar color="primary">
             <span class="mat-36">{{(showAbout) ? 'About...' : 'Options...'}}</span>
         </mat-toolbar>
@@ -17,7 +17,7 @@
     <mat-toolbar color="primary" layout-align="space-between center" flex>
         <button mat-button [attr.aria-label]="datasetService.getName() || 'Choose Data'" style="margin-right: 10px;" (click)="sidenav.toggle()"
             matTooltip="Selects one of the available datasets." tooltip-position="below" class="neon-gtd-text-button">
-            <i class="material-icons md-24" style="vertical-align: sub">menu</i>&nbsp;{{ datasetService.getName() || "Choose Data..." }}
+            <i class="material-icons mat-24" style="vertical-align: sub">menu</i>&nbsp;{{ datasetService.getName() || "Choose Data..." }}
         </button>
         <button mat-mini-fab aria-label="Add Visualization" matTooltip="Add a new visualization to the current dashboard." tooltip-position="below"
             (click)="openAddVisualizationDialog()" *ngIf="showAddVisualizationButton">
@@ -41,7 +41,7 @@
             ?
         </a>
     </mat-toolbar>
-    <div class="neon-gtd-content" md-fill layout="col">
+    <div class="neon-gtd-content" mat-fill layout="col">
         <div [ngGrid]="gridConfig" #grid >
             <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridConfig" (onResizeStop)="onResizeStop(i, $event)" name="item.id" id="item.id">
                 <app-visualization-container [visualization]="gridItems[i]"></app-visualization-container>

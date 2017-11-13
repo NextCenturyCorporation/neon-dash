@@ -382,7 +382,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         });
         this.meta.layers[layerIndex].unsharedFilterField = this.findFieldObject(layerIndex, 'unsharedFilterField');
         this.meta.layers[layerIndex].unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
-        this.meta.layers[layerIndex].colorField = this.getOptionFromConfig('colorField') || '';
+        this.meta.layers[layerIndex].colorField = this.getOptionFromConfig('colorField') || new FieldMetaData();
 
         this.onUpdateFields(layerIndex);
         //this.changeDetection.detectChanges();
@@ -415,7 +415,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * @param databaseAndTableName
      * @param fieldName
      */
-    abstract createNeonFilterClauseEquals(databaseAndTableName: {database: string, table: string}, fieldName: any);
+    abstract createNeonFilterClauseEquals(database: string, table: string, fieldName: string | string[]);
 
     /**
      * Returns the list of field objects on which filters are set for the layer.
@@ -440,25 +440,62 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * @param filter
      */
     addNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, filter: any) {
-        let database = this.meta.layers[layerIndex].database.name;
-        let table = this.meta.layers[layerIndex].table.name;
-        let fields: string[] = this.getNeonFilterFields(layerIndex);
-        let text = this.getFilterText(filter);
-        let visName = this.getVisualizationName();
-
-        let onSuccess = () => {
-            //console.log('filter set successfully');
+        let filterName = {
+            visName: this.getVisualizationName(),
+            text: this.getFilterText(filter)
+        };
+        let onSuccess = (resp: any) => {
+            if (typeof resp === 'string') {
+                filter.id = resp;
+            }
             if (executeQueryChainOnSuccess) {
                 this.executeQueryChain(layerIndex);
             }
         };
-        this.filterService.addFilter(this.messenger, database, table, fields,
-            this.createNeonFilterClauseEquals.bind(this),
-            {
-                visName: visName,
-                text: text
+        this.filterService.addFilter(this.messenger,
+            this.id,
+            this.meta.layers[layerIndex].database.name,
+            this.meta.layers[layerIndex].table.name,
+            this.createNeonFilterClauseEquals(
+                this.meta.layers[layerIndex].database.name,
+                this.meta.layers[layerIndex].table.name,
+                this.getNeonFilterFields(layerIndex)),
+            filterName,
+            onSuccess.bind(this),
+            () => {
+                console.log('filter failed to set');
+            });
+        this.changeDetection.detectChanges();
+    };
+
+    /**
+     * Replace a filter and register the change with Neon.
+     * @param layerIndex
+     * @param {boolean} executeQueryChainOnSuccess
+     * @param filter
+     */
+    replaceNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, filter: any) {
+        let filterName = {
+            visName: this.getVisualizationName(),
+            text: this.getFilterText(filter)
+        };
+        let onSuccess = (resp: any) => {
+            if (executeQueryChainOnSuccess) {
+                this.executeQueryChain(layerIndex);
             }
-            , onSuccess.bind(this),
+        };
+        this.filterService.replaceFilter(
+            this.messenger,
+            filter.id,
+            this.id,
+            this.meta.layers[layerIndex].database.name,
+            this.meta.layers[layerIndex].table.name,
+            this.createNeonFilterClauseEquals(
+                this.meta.layers[layerIndex].database.name,
+                this.meta.layers[layerIndex].table.name,
+                this.getNeonFilterFields(layerIndex)),
+            filterName,
+            onSuccess.bind(this),
             () => {
                 console.log('filter failed to set');
             });
@@ -755,14 +792,16 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * @param shouldRequery
      * @param shouldRefresh
      */
-    removeLocalFilterFromLocalAndNeon(layerIndex: number, name: string, shouldRequery, shouldRefresh) {
+    removeLocalFilterFromLocalAndNeon(layerIndex: number, filter: any, shouldRequery: boolean, shouldRefresh: boolean) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
         let database = this.meta.layers[layerIndex].database.name;
         let table = this.meta.layers[layerIndex].table.name;
         let fields = this.getNeonFilterFields(layerIndex);
-        this.filterService.removeFilter(database, table, fields,
+        this.filterService.removeFilter(
+            this.messenger,
+            filter.id,
             () => {
-                this.removeFilter(name);
+                this.removeFilter(filter);
                 if (shouldRequery) {
                     this.executeQueryChain(layerIndex);
                 } else {
@@ -775,7 +814,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             },
             () => {
                 console.error('error removing filter');
-            }, this.messenger);
+            });
         this.changeDetection.detectChanges();
     };
 

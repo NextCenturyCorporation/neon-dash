@@ -143,6 +143,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             this.datasets.some((dataset, index) => {
                 if ((activeDataset && activeDataset === dataset.name.toLowerCase()) || (!activeDataset && dataset.connectOnLoad)) {
                     this.connectToPreset(index, true);
+                    this.onActiveDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
                     return true;
                 }
                 return false;
@@ -254,7 +255,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                 sizex: item.sizex,
                 sizey: item.sizey,
                 dragHandle: '.drag-handle',
-                borderSize: 5,
+                borderSize: 10,
             };
             item.id = uuid.v4();
             this.activeGridService.addItem(item);
