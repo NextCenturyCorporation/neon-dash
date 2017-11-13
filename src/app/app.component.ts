@@ -123,7 +123,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     onResizeStop(i, event) {
+        this.showItemLocation(event);
         this.visualizations.toArray()[i].onResizeStop();
+    }
+
+    onDragStop(i, event) {
+       this.showItemLocation(event);
     }
 
     ngAfterViewInit() {
@@ -145,5 +150,17 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             this.dashboardOptionsComponent.loadStateNames();
         }
         this.showAbout = false;
+    }
+
+    showItemLocation(event) {
+        /**
+         * COMMENTED OUT!  If you are debugging, you can uncomment this, and see what is going on
+         * as you move grid items.  It should not be in production code.
+         * if (event == null) {
+         *   return;
+         * }
+         * let str = `row: ${event.row} col: ${event.col} sizex: ${event.sizex} sizey: ${event.sizey}`;
+         * console.log(str);
+         */
     }
 }
