@@ -14,3 +14,24 @@
  *
  */
  @import '../base-neon-component/base-neon.component.scss';
+
+.visualization-sidenav {
+    .visualization-sidenav-options {
+        .icon-with-text {
+            display: flex;
+            line-height: 20px;
+        }
+
+        .icon-with-text > mat-icon {
+            display: inline-flex;
+            font-size: 20px;
+            height: 20px;
+            width: 20px;
+            margin-right: 5px;
+        }
+
+        .icon-with-text > div {
+            display: inline-flex;
+        }
+    }
+}
