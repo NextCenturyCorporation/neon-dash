@@ -29,6 +29,7 @@ export class ElasticsearchLogger {
     }
 
     public doLog(component: string, message: string): void {
+        /* tslint:disable:no-console */
         let  fullMsg = new LogMessage();
         fullMsg.componentName = component;
         fullMsg.time = new Date();
@@ -41,5 +42,6 @@ export class ElasticsearchLogger {
             (err) => {
                 console.log('Error occured!! ');
             });
+        /* tslint:enable:no-console */
     }
 }

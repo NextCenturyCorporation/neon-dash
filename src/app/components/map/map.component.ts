@@ -268,7 +268,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     if (sourceId === imagerySources.length) {
       sourceId = 0;
     }
-    console.log(sourceId);
     let west = -180.0;
     let east = 180.0;
     let north = 90.0;
