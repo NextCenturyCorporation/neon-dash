@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,7 +16,7 @@
 import { Injectable } from '@angular/core';
 
 export interface ExportInfo {
-    id: number|string;
+    id: number | string;
     callback: Function;
 }
 
@@ -31,11 +31,11 @@ export interface ExportInfo {
 export class ExportService {
 
    /**
-     * Which one of these is made with "selected: true" should be the same as the declared initial value for
-     * format inside of exportService.js.
-     * The value field of each format should match up with the static final ints declared in ExportService.groovy,
-     * and serves as a psuedo-enum value.
-     */
+    * Which one of these is made with "selected: true" should be the same as the declared initial value for
+    * format inside of exportService.js.
+    * The value field of each format should match up with the static final ints declared in ExportService.groovy,
+    * and serves as a psuedo-enum value.
+    */
     public static AVAILABLE_FORMATS: any[] = [{
         name: 'csv',
         value: 0
@@ -63,7 +63,9 @@ export class ExportService {
     // The current widget registration number. Incremented when a new widget is registered.
     private widgetNumber: number = -1;
 
-    constructor() { }
+    constructor() {
+        // Do nothing.
+    }
 
     /**
      * Registers a function to this  so that it can be executed as part of a bulk operation. Should be called by visualization
@@ -78,7 +80,7 @@ export class ExportService {
             callback: bundleFunction
         });
         return this.widgetNumber;
-    };
+    }
 
     /**
      * Unregisters a function with the given ID from this  Should be called by visualization widgets upon being destroyed.
@@ -92,7 +94,7 @@ export class ExportService {
                 return;
             }
         }
-    };
+    }
 
     /**
      * Returns a list of all objects currently registered to this  so the functions they have references to can
@@ -101,7 +103,7 @@ export class ExportService {
      */
     getWidgets(): ExportInfo[] {
         return this.widgets;
-    };
+    }
 
     /**
      * Sets the file format in which widgets should request exports, given as a number that corresponds to an extension (for a list of
@@ -110,7 +112,7 @@ export class ExportService {
      */
     setFileFormat(fileFormat: number) {
         this.format = fileFormat;
-    };
+    }
 
     /**
      * Returns the available formats.
@@ -118,7 +120,7 @@ export class ExportService {
      */
     getFileFormats(): any[] {
         return ExportService.AVAILABLE_FORMATS;
-    };
+    }
 
     /**
      * Returns the numeric value of the file format in which widgets should request exports.
@@ -126,7 +128,7 @@ export class ExportService {
      */
     getFileFormat(): number {
         return this.format;
-    };
+    }
 
     /**
      * Returns the limit clause that should be given to queries going to export.
@@ -135,7 +137,7 @@ export class ExportService {
      */
     getLimitClause(): any {
         return this.limitClause;
-    };
+    }
 
     /**
      * Returns the limit clause that should be given to queries going to export.
@@ -144,7 +146,7 @@ export class ExportService {
      */
     getIgnoreFilters(): boolean {
         return this.ignoreFilters_;
-    };
+    }
 
     /**
      * Returns the list of ignored filter ids that should be given to queries going to export.
@@ -153,5 +155,5 @@ export class ExportService {
      */
     getIgnoredFilterIds(): string[] {
         return this.ignoredFilterIds_;
-    };
+    }
 }

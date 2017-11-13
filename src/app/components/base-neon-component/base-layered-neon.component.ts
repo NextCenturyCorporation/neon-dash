@@ -1,18 +1,33 @@
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import {
     OnInit,
     OnDestroy,
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import {VisualizationService} from '../../services/visualization.service';
+import { VisualizationService } from '../../services/visualization.service';
 import * as uuid from 'node-uuid';
 
 /**
@@ -44,7 +59,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             unsharedFilterField: any,
             unsharedFilterValue: string,
             colorField: FieldMetaData
-        }[],
+        }[]
     };
 
     public exportId: number;
@@ -67,8 +82,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         public themesService: ThemesService,
         public changeDetection: ChangeDetectorRef,
         protected visualizationService: VisualizationService) {
-        //These assignments just eliminated unused warnings that occur even though the arguments are
-        //automatically assigned to instance variables.
+        // These assignments just eliminated unused warnings that occur even though the arguments are
+        // automatically assigned to instance variables.
         this.exportService = this.exportService;
         this.filterService = this.filterService;
         this.connectionService = this.connectionService;
@@ -80,7 +95,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.isLoading = 0;
         this.meta = {
             databases: [],
-            layers: [],
+            layers: []
         };
         this.isExportable = true;
         this.doExport = this.doExport.bind(this);
@@ -90,7 +105,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         // Make sure the empty field has non-null values
         this.emptyField.columnName = '';
         this.emptyField.prettyName = '';
-    };
+    }
 
     /**
      * Initializes the visualization.
@@ -103,9 +118,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     ngOnInit() {
         this.initializing = true;
         this.outstandingDataQueriesByLayer = [];
-        //for (let database of this.datasetService.getDatabases()) {
-        //this.outstandingDataQueriesByLayer[0] = {};
-        //}
         this.initData();
         try {
             this.setupFilters();
@@ -117,12 +129,11 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
         this.visualizationService.registerBindings(this.id, this);
 
-
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
         this.postInit();
-    };
+    }
 
     /**
      * Method for anything that needs to be done once the visualization has been initialized
@@ -250,10 +261,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * @return {}
      */
     exportOneLayer(query: neon.query.Query, layerIndex: number) {
-        //console.log('EXPORT NOT IMPLEMENTED IN '+ this.getVisualizationName());
         let exportName = this.queryTitle;
         if (exportName) {
-            //replaceAll
+            // replaceAll
             exportName = exportName.split(':').join(' ');
         }
         let finalObject = {
@@ -264,43 +274,43 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
                 fields: [],
                 ignoreFilters: query.ignoreFilters,
                 selectionOnly: query.selectionOnly,
-                ignoredFilterIds: [], //query.ignoredFilterIds,
+                ignoredFilterIds: [],
                 type: 'query'
             }]
         };
         let fields = this.getExportFields(layerIndex);
         for (let field of fields) {
             finalObject.data[0].fields.push({
-                query: field['columnName'],
-                pretty: field['prettyName'] || field['columnName']
+                query: field.columnName,
+                pretty: field.prettyName || field.columnName
             });
         }
 
         return finalObject;
-    };
+    }
 
     /**
      * Get a query ready to give to the ExportService.
      */
     export() {
-        //TODO this function needs to be changed  to abstract once we get through all the visualizations.
+        // TODO this function needs to be changed  to abstract once we get through all the visualizations.
         let queries = this.createAllQueries();
         let mapFunction = this.exportOneLayer.bind(this);
         if (queries) {
-            return queries.map(mapFunction).filter(fo => fo);
+            return queries.map(mapFunction).filter((fo) => fo);
         } else {
-            console.log('SKIPPING EXPORT FOR ' + this.getVisualizationName());
+            console.error('SKIPPING EXPORT FOR ' + this.getVisualizationName());
             return null;
         }
-    };
+    }
 
     doExport() {
         return this.export();
-    };
+    }
 
     protected enableRedrawAfterResize(enable: boolean) {
         this.redrawAfterResize = enable;
-    };
+    }
 
     onResizeStop() {
         if (this.redrawAfterResize) {
@@ -319,11 +329,11 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.exportService.unregister(this.exportId);
         this.visualizationService.unregister(this.id);
         this.subNgOnDestroy();
-    };
+    }
 
     initData() {
         this.addEmptyLayer();
-    };
+    }
 
     /**
      * Initialize the database metadata for a layer
@@ -345,14 +355,14 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
 
             this.initTables(layerIndex);
         }
-    };
+    }
 
     /**
      * Initialize the table metadata for a layer
      * @param layerIndex
      */
     initTables(layerIndex) {
-        this.meta.layers[layerIndex].tables = this.datasetService.getTables(this.meta.layers[layerIndex].database['name']);
+        this.meta.layers[layerIndex].tables = this.datasetService.getTables(this.meta.layers[layerIndex].database.name);
         this.meta.layers[layerIndex].table = this.meta.layers[layerIndex].tables[0];
 
         if (this.meta.layers[layerIndex].tables.length > 0) {
@@ -366,7 +376,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             }
             this.initFields(layerIndex);
         }
-    };
+    }
 
     /**
      * Initialize the field metadata for a layer
@@ -376,7 +386,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         // Sort the fields that are displayed in the dropdowns in the options menus
         // alphabetically.
         let fields = this.datasetService
-            .getSortedFields(this.meta.layers[layerIndex].database['name'], this.meta.layers[layerIndex].table['name']);
+            .getSortedFields(this.meta.layers[layerIndex].database.name, this.meta.layers[layerIndex].table.name);
         this.meta.layers[layerIndex].fields = fields.filter(function(f) {
             return (f && f.type);
         });
@@ -385,8 +395,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.meta.layers[layerIndex].colorField = this.getOptionFromConfig('colorField') || new FieldMetaData();
 
         this.onUpdateFields(layerIndex);
-        //this.changeDetection.detectChanges();
-    };
+    }
 
     /**
      * Called when any field metadata changes.
@@ -428,9 +437,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     abstract getVisualizationName(): string;
 
     /**
-    * Must return null for no filters.  Returning an empty array causes the
-    * query to ignore ALL fitlers.
-    */
+     * Must return null for no filters.  Returning an empty array causes the
+     * query to ignore ALL fitlers.
+     */
     abstract getFiltersToIgnore(): string[];
 
     /**
@@ -463,10 +472,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             filterName,
             onSuccess.bind(this),
             () => {
-                console.log('filter failed to set');
+                console.error('filter failed to set');
             });
         this.changeDetection.detectChanges();
-    };
+    }
 
     /**
      * Replace a filter and register the change with Neon.
@@ -497,10 +506,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             filterName,
             onSuccess.bind(this),
             () => {
-                console.log('filter failed to set');
+                console.error('filter failed to set');
             });
         this.changeDetection.detectChanges();
-    };
+    }
 
     /**
      * Create a title for a query
@@ -551,12 +560,12 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
                 : '');
         }
         return title;
-    };
+    }
 
     /**
-    This is expected to get called whenever a query is expected to be run.
-    This could be startup, user action to change field, relevant filter change
-    from another visualization
+     * This is expected to get called whenever a query is expected to be run.
+     * This could be startup, user action to change field, relevant filter change
+     * from another visualization
      */
     executeAllQueryChain() {
         for (let i = 0; i < this.meta.layers.length; i++) {
@@ -662,7 +671,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         // object.
         if (!this.outstandingDataQueriesByLayer[layerIndex][table]) {
             // TODO do something
-            console.log('execute query did not return an object');
+            console.error('execute query did not return an object');
         }
 
         this.outstandingDataQueriesByLayer[layerIndex][table].always(() => {
@@ -672,8 +681,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.outstandingDataQueriesByLayer[layerIndex][table].done(this.baseOnQuerySuccess.bind(this, layerIndex));
 
         this.outstandingDataQueriesByLayer[layerIndex][table].fail((response) => {
-            if ( response.statusText === 'abort') {
-                //query was aborted so we don't care.  We assume we aborted it on purpose.
+            if (response.statusText === 'abort') {
+                // query was aborted so we don't care.  We assume we aborted it on purpose.
             } else {
                 this.isLoading--;
                 if (response.status === 0) {
@@ -684,7 +693,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
                 this.changeDetection.detectChanges();
             }
         });
-    };
+    }
 
     /**
      * Get field object from the key into the config options
@@ -692,21 +701,21 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
         let find = (name: string) => {
             return _.find(this.meta.layers[layerIndex].fields, function(field) {
-                return field['columnName'] === name;
+                return field.columnName === name;
             });
         };
 
-        let field;
+        let fieldObject;
         if (bindingKey) {
-            field = find(this.getOptionFromConfig(bindingKey));
+            fieldObject = find(this.getOptionFromConfig(bindingKey));
         }
 
-        if (!field && mappingKey) {
-            field = find(this.getMapping(layerIndex, mappingKey));
+        if (!fieldObject && mappingKey) {
+            fieldObject = find(this.getMapping(layerIndex, mappingKey));
         }
 
-        return field || this.datasetService.createBlankField();
-    };
+        return fieldObject || this.datasetService.createBlankField();
+    }
 
     /**
      * Get a blank FieldMetaData object
@@ -717,7 +726,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
 
     getMapping(layerIndex, key: string): string {
         return this.datasetService.getMapping(this.meta.layers[layerIndex].database.name, this.meta.layers[layerIndex].table.name, key);
-    };
+    }
 
     /**
      * Called after the filters in the filter service have changed.
@@ -740,8 +749,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * @param event
      */
     onUpdateDataChannelEvent(event) {
-        console.log('update data channel event');
-        console.log(event);
+        // TODO
     }
 
     /**
@@ -750,7 +758,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     handleChangeDatabase(layerIndex) {
         this.initTables(layerIndex);
         this.logChangeAndStartQueryChain(layerIndex); // ('database', this.active.database.name);
-    };
+    }
 
     /**
      * Handles changes in the active table
@@ -758,7 +766,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     handleChangeTable(layerIndex) {
         this.initFields(layerIndex);
         this.logChangeAndStartQueryChain(layerIndex); // ('table', this.active.table.name);
-    };
+    }
 
     /**
      * If not initializing, calls executeQueryChain();
@@ -773,11 +781,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * If not initializing, calls executeQueryChain(index) for a layer
      */
     logChangeAndStartQueryChain(layerIndex: number) { // (option: string, value: any, type?: string) {
-        // this.logChange(option, value, type);
         if (!this.initializing) {
             this.executeQueryChain(layerIndex);
         }
-    };
+    }
 
     /**
      * Called when a filter has been removed
@@ -809,14 +816,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
                         this.refreshVisualization();
                     }
                 }
-                //console.log('remove filter' + value);
                 this.changeDetection.detectChanges();
             },
             () => {
                 console.error('error removing filter');
             });
         this.changeDetection.detectChanges();
-    };
+    }
 
     getButtonText() {
         return '';

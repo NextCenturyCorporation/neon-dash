@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -69,7 +69,7 @@ export class ColorSchemeService {
             new Color(31, 120, 180), new Color(51, 160, 44), new Color(227, 26, 28),
             new Color(255, 127, 0), new Color(106, 61, 154), new Color(177, 89, 40),
             new Color(166, 206, 227), new Color(178, 223, 138), new Color(251, 154, 153),
-            new Color(253, 191, 111), new Color(202, 178, 214), new Color(255, 255, 153),
+            new Color(253, 191, 111), new Color(202, 178, 214), new Color(255, 255, 153)
         ],
         [
             new Color(228, 26, 28), new Color(55, 126, 184), new Color(77, 175, 74),
@@ -109,7 +109,7 @@ export class ColorSchemeService {
             new Color(244, 165, 130), new Color(253, 219, 199), new Color(247, 247, 247),
             new Color(209, 229, 240), new Color(146, 197, 222), new Color(67, 147, 195),
             new Color(33, 102, 172), new Color(5, 48, 97)
-        ],
+        ]
     ];
     private colorPosition = 0;
 
@@ -118,7 +118,7 @@ export class ColorSchemeService {
      * @param {string} set
      * @param {string} value
      */
-    public getColorFor(set: string, value: string|Array<string>): Color {
+    public getColorFor(set: string, value: string | string[]): Color {
         let colorSet = this.colorMaps.get(set);
         if (colorSet == null) {
             colorSet = new ColorSet();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,4 +23,6 @@ const routes: Routes = [];
   exports: [RouterModule],
   providers: []
 })
+
+/* tslint:disable:no-unnecessary-class */
 export class NeonGtdRoutingModule { }

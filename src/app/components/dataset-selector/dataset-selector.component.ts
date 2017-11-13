@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,9 +18,8 @@ import { URLSearchParams } from '@angular/http';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
-import { Dataset } from '../../dataset';
+import { Dataset, DatabaseMetaData, TableMetaData, FieldMetaData } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
-import { DatabaseMetaData, TableMetaData, FieldMetaData } from '../../dataset';
 import { ParameterService } from '../../services/parameter.service';
 import { neonVisualizationMinPixel } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
@@ -90,7 +89,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      *             Each custom relation database contains:
      *         {Object} database The database object
      *         {Array} customRelationTables The array of custom relation table objects configured by the user through the popup.
-                   Each custom relation table contains:
+     *             Each custom relation table contains:
      *             {Object} table The table object
      *             {Object} field The field object
      */
@@ -114,8 +113,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         info: '',
         data: false
     };
-    @Output() onGridItemsChanged: EventEmitter<number> = new EventEmitter<number>();
-    @Output() onActiveDatasetChanged: EventEmitter<any> = new EventEmitter<any>();
+    @Output() gridItemsChanged: EventEmitter<number> = new EventEmitter<number>();
+    @Output() activeDatasetChanged: EventEmitter<any> = new EventEmitter<any>();
 
     private messenger: neon.eventing.Messenger;
 
@@ -143,7 +142,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             this.datasets.some((dataset, index) => {
                 if ((activeDataset && activeDataset === dataset.name.toLowerCase()) || (!activeDataset && dataset.connectOnLoad)) {
                     this.connectToPreset(index, true);
-                    this.onActiveDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
+                    this.activeDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
                     return true;
                 }
                 return false;
@@ -161,7 +160,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                         info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
                         data: true
                     };
-                    me.onActiveDatasetChanged.emit(me.activeDataset);
+                    me.activeDatasetChanged.emit(me.activeDataset);
                 }
                 if (message.dashboard) {
                     let layoutName: string = 'savedDashboard-' + message.dashboardStateId;
@@ -172,18 +171,20 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                         me.datasetService.setLayout(layoutName);
                     }
 
-                    for (let i = 0; i < message.dashboard.length; ++i) {
-                        message.dashboard[i].id = uuid.v4();
+                    for (let dashboard of message.dashboard) {
+                        dashboard.id = uuid.v4();
                     }
                     me.activeGridService.setGridItems(message.dashboard);
-                    me.onActiveDatasetChanged.emit(me.activeDataset);
-                    me.onGridItemsChanged.emit(message.dashboard.length);
+                    me.activeDatasetChanged.emit(me.activeDataset);
+                    me.gridItemsChanged.emit(message.dashboard.length);
                 }
             }
         });
     }
 
-    ngOnDestroy(): void { }
+    ngOnDestroy(): void {
+        // Do nothing.
+    }
 
     /**
      * Connects to the preset dataset at the given index.
@@ -220,7 +221,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             // Wait to update the layout until after we finish the dataset updates.
             me.finishConnectToPreset(dataset, loadDashboardState);
         });
-    };
+    }
 
     finishConnectToPreset(dataset: Dataset, loadDashboardState: boolean) {
         this.datasetService.setActiveDataset(dataset);
@@ -247,25 +248,24 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         this.activeGridService.clear();
 
         // Recreate the layout each time to ensure all visualizations are using the new dataset.
-        for (let i = 0; i < this.layouts[layoutName].length; i++) {
-            let item = _.cloneDeep(this.layouts[layoutName][i]);
+        for (let layout of this.layouts[layoutName]) {
+            let item = _.cloneDeep(layout);
             item.gridItemConfig = {
                 row: item.row,
                 col: item.col,
                 sizex: item.sizex,
                 sizey: item.sizey,
                 dragHandle: '.drag-handle',
-                borderSize: 10,
+                borderSize: 10
             };
             item.id = uuid.v4();
             this.activeGridService.addItem(item);
         }
 
-        this.onGridItemsChanged.emit(this.layouts[layoutName].length);
-        this.onActiveDatasetChanged.emit(this.activeDataset);
+        this.gridItemsChanged.emit(this.layouts[layoutName].length);
+        this.activeDatasetChanged.emit(this.activeDataset);
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
-    };
-
+    }
 
     /**
      * Updates the layout of visualizations in the dashboard for the custom visualizations set.
@@ -304,14 +304,14 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             };
 
             if (visualization.database && visualization.table) {
-                layout['bindings'] = {
+                layout.bindings = {
                     'bind-database': '\'' + visualization.database + '\'',
                     'bind-table': '\'' + visualization.table + '\''
                 };
             }
 
             _.each(visualization.bindings, function(value, key) {
-                layout['bindings'][key] = '\'' + value + '\'';
+                layout.bindings[key] = '\'' + value + '\'';
             });
 
             this.activeGridService.addItem(layout);
@@ -321,9 +321,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         // $location.search("dashboard_state_id", null);
         // $location.search("filter_state_id", null);
 
-        this.onGridItemsChanged.emit(this.customVisualizations.length);
+        this.gridItemsChanged.emit(this.customVisualizations.length);
         this.parameterService.addFiltersFromUrl();
-    };
+    }
 
     /**
      * Selection event for the custom dataset popup.
@@ -331,7 +331,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     selectCustom() {
         // Removed call to xdata logger library
         // Custom connection dialog is not yet implemented.
-    };
+    }
 
     /**
      * Creates and returns a new custom dataset object using the user configuration saved in the global variables.
@@ -369,7 +369,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         });
 
         return dataset;
-    };
+    }
 
     /**
      * Sets the active dataset to the databases and tables in the list of custom databases
@@ -398,12 +398,12 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
             data: true
         };
-        this.onActiveDatasetChanged.emit(this.activeDataset);
+        this.activeDatasetChanged.emit(this.activeDataset);
         this.datasets = this.datasetService.addDataset(dataset);
         this.datasetService.setActiveDataset(dataset);
         this.updateCustomLayout();
 
         // TODO: Manage the custom connection modal.
         // $element.find(".modal").modal("hide");
-    };
+    }
 }

@@ -6,12 +6,10 @@ module.exports = function (config) {
         basePath: '',
         frameworks: ['jasmine', '@angular/cli'],
         plugins: [
-            require('phantomjs-prebuilt'),
             require('karma-jasmine'),
             require('karma-chrome-launcher'),
             require('karma-firefox-launcher'),
             require('karma-jasmine-html-reporter'),
-            require('karma-phantomjs-launcher'),
             require('@angular/cli/plugins/karma')
         ],
         files: [
@@ -40,7 +38,7 @@ module.exports = function (config) {
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: false,
-        browsers: ['Chrome', 'Firefox', 'PhantomJS'],
+        browsers: ['Chrome', 'Firefox'],
         singleRun: true,
         client: {
             captureConsole: true,

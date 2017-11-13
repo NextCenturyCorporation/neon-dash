@@ -1,6 +1,5 @@
-/* tslint:disable:no-unused-variable */
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -32,8 +31,8 @@ import { FilterService } from '../../services/filter.service';
 import { MdSnackBar } from '@angular/material';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {AppMaterialModule} from '../../app.material.module';
-import {VisualizationService} from '../../services/visualization.service';
+import { AppMaterialModule } from '../../app.material.module';
+import { VisualizationService } from '../../services/visualization.service';
 
 describe('Component: DashboardOptionsComponent', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();

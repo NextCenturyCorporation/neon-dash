@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 /// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import {
     Component,
@@ -8,23 +23,23 @@ import {
     Injector, ElementRef, ViewChild, HostListener,
     ChangeDetectorRef
 } from '@angular/core';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {ColorSchemeService} from '../../services/color-scheme.service';
-import {FieldMetaData } from '../../dataset';
-import {neonMappings} from '../../neon-namespaces';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { ColorSchemeService } from '../../services/color-scheme.service';
+import { FieldMetaData } from '../../dataset';
+import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import {DateBucketizer} from '../bucketizers/DateBucketizer';
-import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
-import {MonthBucketizer} from '../bucketizers/MonthBucketizer';
-import {Bucketizer} from '../bucketizers/Bucketizer';
-import {StackedTimelineSelectorChart, TimelineSeries, TimelineData} from './stacked-timelineSelectorChart';
-import {YearBucketizer} from '../bucketizers/YearBucketizer';
-import {VisualizationService } from '../../services/visualization.service';
+import { DateBucketizer } from '../bucketizers/DateBucketizer';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
+import { Bucketizer } from '../bucketizers/Bucketizer';
+import { StackedTimelineSelectorChart, TimelineSeries, TimelineData } from './stacked-timelineSelectorChart';
+import { YearBucketizer } from '../bucketizers/YearBucketizer';
+import { VisualizationService } from '../../services/visualization.service';
 
 declare let d3;
 
@@ -53,7 +68,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         table: string,
         dateField: string,
         granularity: string,
-        groupField: string,
+        groupField: string
     };
 
     public active: {
@@ -117,15 +132,15 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     subNgOnInit() {
         this.timelineChart = new StackedTimelineSelectorChart(this, this.svg, this.timelineData);
-    };
+    }
 
     postInit() {
         this.executeQueryChain();
-    };
+    }
 
     subNgOnDestroy() {
-
-    };
+        // Do nothing.
+    }
 
     getExportFields() {
         let fields = [{
@@ -169,12 +184,12 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
-    };
+    }
 
     onUpdateFields() {
         this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
         this.active.groupField = this.findFieldObject('groupField', neonMappings.BAR_GROUPS);
-    };
+    }
 
     addLocalFilter(id: string, key: string, startDate: Date, endDate: Date, local?: boolean) {
         this.filters[0] = {
@@ -184,7 +199,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             endDate: endDate,
             local: local
         };
-    };
+    }
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
         let filter = {
@@ -219,7 +234,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             return neon.query.and.apply(neon.query, filterClauses);
         }
         return null;
-    };
+    }
 
     getFilterText(filter) {
         // I.E. TIMELINE - EARTHQUAKES: 8 AUG 2015 TO 20 DEC 2015
@@ -261,10 +276,10 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = neon.query.where(this.active.dateField.columnName, '!=', null);
         let dateField = this.active.dateField.columnName;
-        query = query.aggregate(neon.query['MIN'], dateField, 'date');
+        query = query.aggregate(neonVariables.MIN, dateField, 'date');
         let groupBys: any[] = [];
         switch (this.active.granularity) {
-            //Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
+            // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
             case 'minute':
                 groupBys.push(new neon.query.GroupByFunctionClause('minute', dateField, 'minute'));
             /* falls through */
@@ -281,22 +296,16 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                 groupBys.push(new neon.query.GroupByFunctionClause('year', dateField, 'year'));
             /* falls through */
         }
-        /*
-        if(this.active.groupField != null){
-            groupBys.push({columnName: this.active.groupField.columnName,
-            prettyName: this.active.groupField.prettyName});
-            }
-        //*/
 
         query = query.groupBy(groupBys);
-        query = query.sortBy('date', neon.query['ASCENDING']);
+        query = query.sortBy('date', neonVariables.ASCENDING);
         query = query.where(whereClause);
         // Add the unshared filter field, if it exists
         if (this.hasUnsharedFilter()) {
            query.where(neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
         }
-        return query.aggregate(neon.query['COUNT'], '*', 'value');
-    };
+        return query.aggregate(neonVariables.COUNT, '*', 'value');
+    }
 
     getDocCount() {
         let databaseName = this.meta.database.name;
@@ -305,7 +314,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         let countQuery = new neon.query.Query()
             .selectFrom(databaseName, tableName)
             .where(whereClause)
-            .aggregate(neon.query['COUNT'], '*', '_docCount');
+            .aggregate(neonVariables.COUNT, '*', '_docCount');
         this.executeQuery(countQuery);
     }
 
@@ -328,8 +337,8 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     }
 
     onQuerySuccess(response) {
-        if (response.data.length === 1 && response.data[0]['_docCount'] !== undefined) {
-            this.active.docCount = response.data[0]['_docCount'];
+        if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
+            this.active.docCount = response.data[0]._docCount;
         } else {
             // Convert all the dates into Date objects
             response.data.map((d) => {
@@ -347,7 +356,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             return 'No Data';
         }
         let shownCount = this.active.data.reduce((sum, element) => {
-            return sum += element.value;
+            return sum + element.value;
         }, 0);
         return !shownCount ?
             'No Data' :
@@ -520,16 +529,15 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     handleChangeDateField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeGroupField() {
         this.logChangeAndStartQueryChain();
-    };
+    }
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-        // this.updateNeonFilter();
-    };
+    }
 
     subGetBindings(bindings: any) {
         bindings.dateField = this.active.dateField.columnName;
@@ -537,30 +545,24 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         bindings.groupField = this.active.groupField.columnName;
     }
 
-
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
-        // this.logChange(option, value, type);
         if (!this.initializing) {
             this.executeQueryChain();
         }
-    };
+    }
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
-        // let closeableFilters = this.filters.map((filter) => {
-        //    return filter.key + " Filter";
-        //});
-        //return closeableFilters;
         return this.filters;
-    };
+    }
 
     getFilterTitle(value: string) {
         return this.active.dateField.columnName + ' = ' + value;
-    };
+    }
 
     getRemoveFilterTooltip(value: string) {
         return 'Delete Filter ' + this.getFilterTitle(value);
-    };
+    }
 
     unsharedFilterChanged() {
         // Update the data

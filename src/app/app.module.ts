@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -70,7 +70,9 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { AppMaterialModule } from './app.material.module';
 
 export function getAppConfig() {
+    /* tslint:disable:no-string-literal */
     return window['appConfig'];
+    /* tslint:enable:no-string-literal */
 }
 
 @NgModule({
@@ -137,6 +139,5 @@ export function getAppConfig() {
     bootstrap: [AppComponent]
 })
 
-export class AppModule {
-
-}
+/* tslint:disable:no-unnecessary-class */
+export class AppModule { }

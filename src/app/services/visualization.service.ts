@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,9 +16,9 @@
 import { Injectable } from '@angular/core';
 
 import * as _ from 'lodash';
-import {NeonGridItem} from '../neon-grid-item';
-import {BaseNeonComponent} from '../components/base-neon-component/base-neon.component';
-import {BaseLayeredNeonComponent} from '../components/base-neon-component/base-layered-neon.component';
+import { NeonGridItem } from '../neon-grid-item';
+import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
+import { BaseLayeredNeonComponent } from '../components/base-neon-component/base-layered-neon.component';
 
 /**
  * Basic information about a visualization
@@ -64,7 +64,7 @@ export class VisualizationService {
             component: component
         });
         }
-    };
+    }
 
     /**
      * Register the grid data for a visualization
@@ -100,7 +100,7 @@ export class VisualizationService {
         if (index >= 0) {
         this.widgets.splice(index, 1);
         }
-    };
+    }
 
     /**
      * Returns a list of all objects currently registered to this service, so the functions they have references to can
@@ -127,5 +127,5 @@ export class VisualizationService {
         }
 
         return widgetList;
-    };
+    }
 }

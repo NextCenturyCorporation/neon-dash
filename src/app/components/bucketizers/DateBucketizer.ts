@@ -1,7 +1,5 @@
-'use strict';
-import {Bucketizer} from './Bucketizer';
 /*
- * Copyright 2015 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,6 +13,10 @@ import {Bucketizer} from './Bucketizer';
  * limitations under the License.
  *
  */
+
+'use strict';
+
+import { Bucketizer } from './Bucketizer';
 
 export class DateBucketizer extends Bucketizer {
     public static readonly DAY: string = 'day';
@@ -41,7 +43,7 @@ export class DateBucketizer extends Bucketizer {
 
     getMillisMultiplier(): number {
         return this.millisMultiplier;
-    };
+    }
 
     /**
      * Sets the minutes, seconds and millis to 0. If the granularity of the date is day,
@@ -58,7 +60,7 @@ export class DateBucketizer extends Bucketizer {
             zeroed.setUTCHours(0);
         }
         return zeroed;
-    };
+    }
 
     /**
      * Calculates the bucket index for the date
@@ -71,7 +73,7 @@ export class DateBucketizer extends Bucketizer {
         let difference = date.getTime() - effectiveStartDate.getTime();
         difference = (difference < 0) ? 0 : difference;
         return Math.floor(difference / this.millisMultiplier);
-    };
+    }
 
     /**
      * Calculate the representative date for a particular bucket at the current granularity
@@ -83,7 +85,7 @@ export class DateBucketizer extends Bucketizer {
         let effectiveStartDate = this.zeroOutDate(this.getStartDate());
         let startDateInMs = effectiveStartDate.getTime();
         return new Date(startDateInMs + (this.millisMultiplier * bucketIndex));
-    };
+    }
 
     /**
      * Calculate the number of intervals or buckets needed at the current granularity
@@ -91,7 +93,7 @@ export class DateBucketizer extends Bucketizer {
      */
     getNumBuckets(): number {
         let effectiveStartDate = this.zeroOutDate(this.getStartDate());
-        //We want the start of the next bucket, however, roundUpBucket will not go past the end date and we need this to
+        // We want the start of the next bucket, however, roundUpBucket will not go past the end date and we need this to
         let endDatePlusOneDay = new Date(this.getEndDate().getTime() + this.millisMultiplier);
         let effectiveEndDate = this.zeroOutDate(endDatePlusOneDay);
 
@@ -99,7 +101,7 @@ export class DateBucketizer extends Bucketizer {
         // values
         let difference = Math.abs(effectiveEndDate.getTime() - effectiveStartDate.getTime());
         return Math.ceil(difference / this.millisMultiplier);
-    };
+    }
 
     /**
      * Rounds the date up to the beginning of the next bucket, unless the date is already at
@@ -114,7 +116,7 @@ export class DateBucketizer extends Bucketizer {
         } else {
             return roundedDate;
         }
-    };
+    }
 
     /**
      * Rounds the date down to the beginning of the current bucket
@@ -128,12 +130,12 @@ export class DateBucketizer extends Bucketizer {
         } else {
             return roundedDate;
         }
-    };
+    }
 
     getDateFormat(): string {
         if (this.getGranularity() === DateBucketizer.DAY) {
             return 'd MMM yyyy';
         }
         return 'd MMM yyyy HH:mm';
-    };
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,7 +40,9 @@ export class ActiveGridService {
     private grid: NgGrid;
     private gridConfig: NgGridConfig;
 
-    constructor() { }
+    constructor() {
+        // Do nothing.
+    }
 
     clear() {
         this.gridItems.length = 0;
@@ -54,10 +56,11 @@ export class ActiveGridService {
     }
 
     expandItem(item: NeonGridItem) {
-        console.log(this.grid['_elNg']);
         let visibleRows = 0;
-        if (this.grid && this.grid['_ngEl']) {
-            visibleRows = Math.floor(this.grid['_ngEl'].nativeElement.offsetParent.clientHeight / this.grid.rowHeight);
+        let gridElement = this.getGridElement();
+        if (this.grid && gridElement) {
+            visibleRows = Math.floor(gridElement.nativeElement.offsetParent.clientHeight /
+                this.grid.rowHeight);
         }
 
         item.lastGridItemConfig  = _.clone(item.gridItemConfig);
@@ -65,6 +68,18 @@ export class ActiveGridService {
         item.gridItemConfig.col = 1;
         // TODO:  Puzzle out why this exceeds the visible space by a couple rows.
         item.gridItemConfig.sizey = (visibleRows > 0) ? visibleRows : item.gridItemConfig.sizex;
+    }
+
+    /**
+     * Returns the grid element.
+     *
+     * @return {object}
+     * @private
+     */
+    private getGridElement() {
+        /* tslint:disable:no-string-literal */
+        return this.grid['_ngEl'];
+        /* tslint:enable:no-string-literal */
     }
 
     getGridItems(): NeonGridItem[] {
@@ -78,8 +93,8 @@ export class ActiveGridService {
     getMaxColInUse(): number {
         let maxCol = 0;
 
-        for (let i = 0; i < this.gridItems.length; i++) {
-            maxCol = Math.max(maxCol, (this.gridItems[i].gridItemConfig.col + this.gridItems[i].gridItemConfig.sizex - 1));
+        for (let gridItem of this.gridItems) {
+            maxCol = Math.max(maxCol, (gridItem.gridItemConfig.col + gridItem.gridItemConfig.sizex - 1));
         }
         return maxCol;
     }
@@ -91,8 +106,8 @@ export class ActiveGridService {
     getMaxRowInUse(): number {
         let maxRow = 0;
 
-        for (let i = 0; i < this.gridItems.length; i++) {
-            maxRow = Math.max(maxRow, (this.gridItems[i].gridItemConfig.row + this.gridItems[i].gridItemConfig.sizey - 1));
+        for (let gridItem of this.gridItems) {
+            maxRow = Math.max(maxRow, (gridItem.gridItemConfig.row + gridItem.gridItemConfig.sizey - 1));
         }
         return maxRow;
     }
@@ -112,8 +127,8 @@ export class ActiveGridService {
     setGridItems(items: NeonGridItem[]) {
         this.clear();
         if (items) {
-            for (let i = 0; i < items.length; i++) {
-                this.gridItems.push(items[i]);
+            for (let item of items) {
+                this.gridItems.push(item);
             }
         }
     }
@@ -194,8 +209,8 @@ export class ActiveGridService {
             item2.gridItemConfig.col > (item1.gridItemConfig.col + item1.gridItemConfig.sizex - 1)) {
             return false;
         }
-        if ( item1.gridItemConfig.row > (item2.gridItemConfig.row + item2.gridItemConfig.sizey - 1) ||
-             item2.gridItemConfig.row > (item1.gridItemConfig.row + item1.gridItemConfig.sizey - 1)) {
+        if (item1.gridItemConfig.row > (item2.gridItemConfig.row + item2.gridItemConfig.sizey - 1) ||
+            item2.gridItemConfig.row > (item1.gridItemConfig.row + item1.gridItemConfig.sizey - 1)) {
             return false;
         }
 
@@ -210,8 +225,8 @@ export class ActiveGridService {
      * @param row the row in which to place the item's top-left corner
      */
     itemFits(item: NeonGridItem) { // (item: NeonGridItem, col: number, row: number) {
-        for (let i = 0; i < this.gridItems.length; i++) {
-            if (this.itemsOverlap(item, this.gridItems[i])) {
+        for (let gridItem of this.gridItems) {
+            if (this.itemsOverlap(item, gridItem)) {
                 return false;
             }
         }
