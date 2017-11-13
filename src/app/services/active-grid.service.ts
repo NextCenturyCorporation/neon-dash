@@ -47,10 +47,10 @@ export class ActiveGridService {
     }
 
     contractItem(item: NeonGridItem) {
-        item.gridConfig.sizex = item.lastGridConfig.sizex;
-        item.gridConfig.sizey = item.lastGridConfig.sizey;
-        item.gridConfig.row = item.lastGridConfig.row;
-        item.gridConfig.col = item.lastGridConfig.col;
+        item.gridItemConfig.sizex = item.lastGridItemConfig.sizex;
+        item.gridItemConfig.sizey = item.lastGridItemConfig.sizey;
+        item.gridItemConfig.row = item.lastGridItemConfig.row;
+        item.gridItemConfig.col = item.lastGridItemConfig.col;
     }
 
     expandItem(item: NeonGridItem) {
@@ -60,11 +60,11 @@ export class ActiveGridService {
             visibleRows = Math.floor(this.grid['_ngEl'].nativeElement.offsetParent.clientHeight / this.grid.rowHeight);
         }
 
-        item.lastGridConfig  = _.clone(item.gridConfig);
-        item.gridConfig.sizex = (this.gridConfig) ? this.gridConfig.max_cols : this.getMaxColInUse();
-        item.gridConfig.col = 1;
+        item.lastGridItemConfig  = _.clone(item.gridItemConfig);
+        item.gridItemConfig.sizex = (this.gridConfig) ? this.gridConfig.max_cols : this.getMaxColInUse();
+        item.gridItemConfig.col = 1;
         // TODO:  Puzzle out why this exceeds the visible space by a couple rows.
-        item.gridConfig.sizey = (visibleRows > 0) ? visibleRows : item.gridConfig.sizex;
+        item.gridItemConfig.sizey = (visibleRows > 0) ? visibleRows : item.gridItemConfig.sizex;
     }
 
     getGridItems(): NeonGridItem[] {
@@ -79,7 +79,7 @@ export class ActiveGridService {
         let maxCol = 0;
 
         for (let i = 0; i < this.gridItems.length; i++) {
-            maxCol = Math.max(maxCol, (this.gridItems[i].gridConfig.col + this.gridItems[i].gridConfig.sizex - 1));
+            maxCol = Math.max(maxCol, (this.gridItems[i].gridItemConfig.col + this.gridItems[i].gridItemConfig.sizex - 1));
         }
         return maxCol;
     }
@@ -92,17 +92,17 @@ export class ActiveGridService {
         let maxRow = 0;
 
         for (let i = 0; i < this.gridItems.length; i++) {
-            maxRow = Math.max(maxRow, (this.gridItems[i].gridConfig.row + this.gridItems[i].gridConfig.sizey - 1));
+            maxRow = Math.max(maxRow, (this.gridItems[i].gridItemConfig.row + this.gridItems[i].gridItemConfig.sizey - 1));
         }
         return maxRow;
     }
 
     moveItemToTop(item: NeonGridItem) {
-        item.gridConfig.row = 0;
+        item.gridItemConfig.row = 0;
     }
 
     moveItemToBottom(item: NeonGridItem) {
-        item.gridConfig.row = this.getMaxRowInUse() + 1;
+        item.gridItemConfig.row = this.getMaxRowInUse() + 1;
     }
 
     setGridConfig(config: NgGridConfig) {
@@ -145,7 +145,7 @@ export class ActiveGridService {
 
         let newItem = _.cloneDeep(item);
         newItem.id = uuid.v4();
-        newItem.gridConfig = {
+        newItem.gridItemConfig = {
             col: 1,
             row: 1,
             sizex: (item.sizex) ? item.sizex : ActiveGridService.DEFAULT_SIZEX,
@@ -162,8 +162,8 @@ export class ActiveGridService {
         }
 
         // Adjust the contraints to account for the visualization size.
-        maxCol = maxCol - newItem.gridConfig.sizex + 1;
-        maxRow = maxRow - newItem.gridConfig.sizey + 1;
+        maxCol = maxCol - newItem.gridItemConfig.sizex + 1;
+        maxRow = maxRow - newItem.gridItemConfig.sizey + 1;
 
         // Find the first spot in which the visualization fits.
         let x = 1;
@@ -172,8 +172,8 @@ export class ActiveGridService {
         while (y <= maxRow && !found) {
             x = 1;
             while (x <= maxCol && !found) {
-                newItem.gridConfig.col = x;
-                newItem.gridConfig.row = y;
+                newItem.gridItemConfig.col = x;
+                newItem.gridItemConfig.row = y;
                 found = this.itemFits(newItem); // (newItem, x, y);
                 x++;
             }
@@ -190,12 +190,12 @@ export class ActiveGridService {
      * @param item2 the second item
      */
     itemsOverlap(item1: NeonGridItem, item2: NeonGridItem) {
-        if (item1.gridConfig.col > (item2.gridConfig.col + item2.gridConfig.sizex - 1) ||
-            item2.gridConfig.col > (item1.gridConfig.col + item1.gridConfig.sizex - 1)) {
+        if (item1.gridItemConfig.col > (item2.gridItemConfig.col + item2.gridItemConfig.sizex - 1) ||
+            item2.gridItemConfig.col > (item1.gridItemConfig.col + item1.gridItemConfig.sizex - 1)) {
             return false;
         }
-        if ( item1.gridConfig.row > (item2.gridConfig.row + item2.gridConfig.sizey - 1) ||
-             item2.gridConfig.row > (item1.gridConfig.row + item1.gridConfig.sizey - 1)) {
+        if ( item1.gridItemConfig.row > (item2.gridItemConfig.row + item2.gridItemConfig.sizey - 1) ||
+             item2.gridItemConfig.row > (item1.gridItemConfig.row + item1.gridItemConfig.sizey - 1)) {
             return false;
         }
 

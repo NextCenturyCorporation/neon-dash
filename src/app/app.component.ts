@@ -125,8 +125,21 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         });
     }
 
+    showItemLocation(event) {
+        if (event == null) {
+            return;
+        }
+        let str = `row: ${event.row} col: ${event.col} sizex: ${event.sizex} sizey: ${event.sizey}`;
+        console.log(str);
+    }
+
     onResizeStop(i, event) {
+        this.showItemLocation(event);
         this.visualizations.toArray()[i].onResizeStop();
+    }
+
+    onDragStop(i, event) {
+       this.showItemLocation(event);
     }
 
     ngAfterViewInit() {

@@ -565,7 +565,7 @@
                 "icon": "ScatterPlot64",
                 "selected": true,
                 "id": "3f451b37-ac6c-4c4c-b227-2100d8cba466",
-                "gridConfig": {
+                "gridItemConfig": {
                     "col": 1,
                     "row": 1,
                     "sizex": 10,
