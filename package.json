@@ -12,12 +12,13 @@
     "build-dev": "ng build --base-href /lorelei/",
     "postbuild-dev": "cd dist && zip -r lorelei-dev.war * && cd .. && mv dist/lorelei-dev.war target/lorelei-dev.war",
     "lint": "ng lint",
+    "lint-fix": "ng lint -fix",
     "test": "ng test",
     "e2e": "ng e2e",
     "docs": "npm run typedoc -- --options typedoc.json --exclude '**/*.spec.ts' ./src/",
     "typedoc": "typedoc"
   },
-  "pre-commit": "lint",
+  "pre-commit": "lint-fix",
   "private": true,
   "dependencies": {
     "@angular/animations": "4.4.4",
