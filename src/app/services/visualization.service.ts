@@ -115,11 +115,11 @@ export class VisualizationService {
             // Clone everything
             let gridItem: NeonGridItem = _.cloneDeep(item.gridData);
             // Move the row/col/sizes up to the root
-            let gridConfig = gridItem.gridConfig;
-            gridItem.sizex = gridConfig.sizex;
-            gridItem.sizey = gridConfig.sizey;
-            gridItem.row = gridConfig.row;
-            gridItem.col = gridConfig.col;
+            let gridItemConfig = gridItem.gridItemConfig;
+            gridItem.sizex = gridItemConfig.sizex;
+            gridItem.sizey = gridItemConfig.sizey;
+            gridItem.row = gridItemConfig.row;
+            gridItem.col = gridItemConfig.col;
 
             // Re-build the bindings
             gridItem.bindings = item.component.getBindings();

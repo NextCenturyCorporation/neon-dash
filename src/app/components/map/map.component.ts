@@ -104,7 +104,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     west: number,
     east: number,
     north: number,
-    south: number
+    south: number,
+    geoServer: {
+      offline: boolean,
+      mapUrl: string,
+      layer: string
+    }
   };
   public active: {
     layers: MapLayer[],
@@ -178,7 +183,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       west: this.injector.get('west', null),
       east: this.injector.get('east', null),
       north: this.injector.get('north', null),
-      south: this.injector.get('south', null)
+      south: this.injector.get('south', null),
+      geoServer: this.injector.get('geoServer', [])
     };
 
     this.filters = [];
@@ -253,21 +259,64 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
   }
 
   ngAfterViewInit() {
-    let imagerySources = Cesium.createDefaultImageryProviderViewModels();
+    if (this.optionsFromConfig.geoServer.offline) {
+      this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
+        sceneMode: Cesium.SceneMode.SCENE3D,
+        imageryViewModels: [],
+        imageryProvider: new Cesium.WebMapServiceImageryProvider({
+          url: 'http://localhost:8080/geoserver/Natural_Earth/wms',
+          layers: 'Natural_Earth:NE1_HR_LC_SR_W_DR',
+          parameters: {
+              transparent: true,
+              tiled: true,
+              requestWaterMask: true
+          }//*/
+        }),
+        //set default imagery to eliminate annoying text and using a bing key by default
+        terrainProviderViewModels: [],
+        fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
+        timeline: false, //disable timeline widget
+        animation: false, // disable animation widget
+        baseLayerPicker: false,
+        mapMode2D: Cesium.MapMode2D.ROTATE,
+        sceneModePicker: false,
+        navigationHelpButton: false,
+        infoBox: false
+    });
+    } else {
+        let imagerySources = Cesium.createDefaultImageryProviderViewModels();
+        let sourceId = 0;
+        for (; sourceId < imagerySources.length; sourceId++) {
+            let sourceName = imagerySources[sourceId].name;
+            //console.log('Sourcename ' + sourceId + ': ' + sourceName);
+            if ('ESRI World Street Map' === sourceName) {
+            break;
+          }
+        }
+        if (sourceId === imagerySources.length) {
+          sourceId = 0;
+        }
+        this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
+          sceneMode: Cesium.SceneMode.SCENE3D,
+          imageryProviderViewModels: imagerySources,
+          //set default imagery to eliminate annoying text and using a bing key by default
+          selectedImageryProviderViewModel: imagerySources[sourceId],
+          terrainProviderViewModels: [],
+          fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
+          timeline: false, //disable timeline widget
+          animation: false, // disable animation widget
+          //baseLayerPicker: false,
+          mapMode2D: Cesium.MapMode2D.ROTATE,
+          sceneModePicker: false,
+          navigationHelpButton: false,
+          infoBox: false
+        });
+    }
+
     // In order to get a minimal viable product in the short time span we have, we decided to disable the following Cesium features:
     //  3D Map and Columbus view.
     //  Rotating 2D map
     // These were mostly done to prevent the more complex problem of drawing on a 3D map.
-    let sourceId = 0;
-    for (; sourceId < imagerySources.length; sourceId++) {
-      let sourceName = imagerySources[sourceId].name;
-      if ('ESRI World Street Map' === sourceName) {
-        break;
-      }
-    }
-    if (sourceId === imagerySources.length) {
-      sourceId = 0;
-    }
     let west = -180.0;
     let east = 180.0;
     let north = 90.0;
@@ -283,20 +332,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     let rectangle = Cesium.Rectangle.fromDegrees(west, south, east, north);
     Cesium.Camera.DEFAULT_VIEW_FACTOR = 0;
     Cesium.Camera.DEFAULT_VIEW_RECTANGLE = rectangle;
-    this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
-      sceneMode: Cesium.SceneMode.SCENE3D,
-      imageryProviderViewModels: imagerySources,
-      // set default imagery to eliminate annoying text and using a bing key by default
-      selectedImageryProviderViewModel: imagerySources[sourceId],
-      terrainProviderViewModels: [],
-      fullscreenButton: false, // full screen button doesn't work in our context, so don't show it
-      timeline: false, // disable timeline widget
-      animation: false, // disable animation widget
-      mapMode2D: Cesium.MapMode2D.ROTATE,
-      sceneModePicker: false,
-      navigationHelpButton: false,
-      infoBox: false
-    });
 
     this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
       Cesium.ScreenSpaceEventType.LEFT_DOWN, Cesium.KeyboardEventModifier.SHIFT);

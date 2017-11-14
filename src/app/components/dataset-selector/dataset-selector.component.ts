@@ -250,7 +250,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         // Recreate the layout each time to ensure all visualizations are using the new dataset.
         for (let layout of this.layouts[layoutName]) {
             let item = _.cloneDeep(layout);
-            item.gridConfig = {
+            item.gridItemConfig = {
                 row: item.row,
                 col: item.col,
                 sizex: item.sizex,
