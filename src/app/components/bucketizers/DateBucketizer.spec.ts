@@ -1,7 +1,6 @@
-import {DateBucketizer} from './DateBucketizer';
 /*
- * Copyright 2016 Next Century Corporation
- * Licensed under the Apache License, Version 2.0 (the 'License');
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -15,6 +14,8 @@ import {DateBucketizer} from './DateBucketizer';
  *
  */
 
+import { DateBucketizer } from './DateBucketizer';
+
 describe('dateBucketizer', function() {
     let bucketizer: DateBucketizer;
 
@@ -22,7 +23,7 @@ describe('dateBucketizer', function() {
         bucketizer = new DateBucketizer();
     });
 
-    it('constants are correct', function () {
+    it('constants are correct', function() {
        expect(DateBucketizer.DAY).toBe('day');
        expect(DateBucketizer.HOUR).toBe('hour');
     });

@@ -1,18 +1,33 @@
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import {
     OnInit,
     OnDestroy,
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import {VisualizationService} from '../../services/visualization.service';
+import { VisualizationService } from '../../services/visualization.service';
 import * as uuid from 'node-uuid';
 
 /**
@@ -65,8 +80,8 @@ export abstract class BaseNeonComponent implements OnInit,
         public themesService: ThemesService,
         public changeDetection: ChangeDetectorRef,
         protected visualizationService: VisualizationService) {
-        //These assignments just eliminated unused warnings that occur even though the arguments are
-        //automatically assigned to instance variables.
+        // These assignments just eliminated unused warnings that occur even though the arguments are
+        // automatically assigned to instance variables.
         this.exportService = this.exportService;
         this.filterService = this.filterService;
         this.connectionService = this.connectionService;
@@ -95,7 +110,7 @@ export abstract class BaseNeonComponent implements OnInit,
         // Make sure the empty field has non-null values
         this.emptyField.columnName = '';
         this.emptyField.prettyName = '';
-    };
+    }
 
     /**
      * Initializes the visualization.
@@ -126,7 +141,7 @@ export abstract class BaseNeonComponent implements OnInit,
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
         this.postInit();
-    };
+    }
 
     /**
      * Method for anything that needs to be done once the visualization has been initialized
@@ -187,14 +202,13 @@ export abstract class BaseNeonComponent implements OnInit,
      * Get a query ready to give to the ExportService.
      */
     export(): any {
-        //TODO this function needs to be changed  to abstract once we get through all the visualizations.
+        // TODO this function needs to be changed  to abstract once we get through all the visualizations.
 
         let query = this.createQuery();
         if (query) {
-            //console.log('EXPORT NOT IMPLEMENTED IN '+ this.getVisualizationName());
             let exportName = this.queryTitle;
             if (exportName) {
-                //replaceAll
+                // replaceAll
                 exportName = exportName.split(':').join(' ');
             }
             let finalObject = {
@@ -205,21 +219,21 @@ export abstract class BaseNeonComponent implements OnInit,
                     fields: [],
                     ignoreFilters: query.ignoreFilters,
                     selectionOnly: query.selectionOnly,
-                    ignoredFilterIds: [], //query.ignoredFilterIds,
+                    ignoredFilterIds: [],
                     type: 'query'
                 }]
             };
             let fields = this.getExportFields();
             for (let field of fields) {
                 finalObject.data[0].fields.push({
-                    query: field['columnName'],
-                    pretty: field['prettyName'] || field['columnName']
+                    query: field.columnName,
+                    pretty: field.prettyName || field.columnName
                 });
             }
 
             return finalObject;
         } else {
-            console.log('SKIPPING EXPORT FOR ' + this.getVisualizationName());
+            console.error('SKIPPING EXPORT FOR ' + this.getVisualizationName());
             return null;
         }
 
@@ -227,11 +241,11 @@ export abstract class BaseNeonComponent implements OnInit,
 
     doExport() {
         return this.export();
-    };
+    }
 
     protected enableRedrawAfterResize(enable: boolean) {
         this.redrawAfterResize = enable;
-    };
+    }
 
     onResizeStop() {
         if (this.redrawAfterResize) {
@@ -272,7 +286,7 @@ export abstract class BaseNeonComponent implements OnInit,
             $scope.element.find(element).off('resize', resize);
         }); */
         this.subNgOnDestroy();
-    };
+    }
 
     /**
      * Load all the database metadata, then call initTables()
@@ -293,13 +307,13 @@ export abstract class BaseNeonComponent implements OnInit,
 
             this.initTables();
         }
-    };
+    }
 
     /**
      * Load all the table metadata, then call initFields()
      */
     initTables() {
-        this.meta.tables = this.datasetService.getTables(this.meta.database['name']);
+        this.meta.tables = this.datasetService.getTables(this.meta.database.name);
         this.meta.table = this.meta.tables[0];
 
         if (this.meta.tables.length > 0) {
@@ -313,7 +327,7 @@ export abstract class BaseNeonComponent implements OnInit,
             }
             this.initFields();
         }
-    };
+    }
 
     /**
      * Initialize all the field metadata
@@ -327,8 +341,7 @@ export abstract class BaseNeonComponent implements OnInit,
         this.meta.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
 
         this.onUpdateFields();
-        //this.changeDetection.detectChanges();
-    };
+    }
 
     /**
      * Called when any field metadata changes.
@@ -370,9 +383,9 @@ export abstract class BaseNeonComponent implements OnInit,
     abstract getVisualizationName(): string;
 
     /**
-    * Must return null for no filters.  Returning an empty array causes the
-    * query to ignore ALL fitlers.
-    */
+     * Must return null for no filters.  Returning an empty array causes the
+     * query to ignore ALL fitlers.
+     */
     abstract getFiltersToIgnore(): string[];
 
     /**
@@ -405,10 +418,10 @@ export abstract class BaseNeonComponent implements OnInit,
             filterName,
             onSuccess.bind(this),
             () => {
-                console.log('filter failed to set');
+                console.error('filter failed to set');
             });
         this.changeDetection.detectChanges();
-    };
+    }
 
     /**
      * Replace a filter and register the change with Neon.
@@ -438,10 +451,10 @@ export abstract class BaseNeonComponent implements OnInit,
             filterName,
             onSuccess.bind(this),
             () => {
-                console.log('filter failed to set');
+                console.error('filter failed to set');
             });
         this.changeDetection.detectChanges();
-    };
+    }
 
     /**
      * Create a title for a query
@@ -468,7 +481,7 @@ export abstract class BaseNeonComponent implements OnInit,
                 : '');
         }
         return title;
-    };
+    }
 
     /**
      * Execute the Neon query chain.
@@ -552,7 +565,7 @@ export abstract class BaseNeonComponent implements OnInit,
         // object.
         if (!this.outstandingDataQuery[database][table]) {
             // TODO do something
-            console.log('execute query did not return an object');
+            console.error('execute query did not return an object');
         }
 
         this.outstandingDataQuery[database][table].always(function() {
@@ -562,8 +575,8 @@ export abstract class BaseNeonComponent implements OnInit,
         this.outstandingDataQuery[database][table].done(this.baseOnQuerySuccess.bind(this));
 
         this.outstandingDataQuery[database][table].fail(function(response) {
-            if ( response.statusText === 'abort') {
-                //query was aborted so we don't care.  We assume we aborted it on purpose.
+            if (response.statusText === 'abort') {
+                // query was aborted so we don't care.  We assume we aborted it on purpose.
             } else {
                 this.isLoading = false;
                 if (response.status === 0) {
@@ -574,7 +587,7 @@ export abstract class BaseNeonComponent implements OnInit,
                 this.changeDetection.detectChanges();
             }
         });
-    };
+    }
 
     /**
      * Get field object from the key into the config options
@@ -583,25 +596,25 @@ export abstract class BaseNeonComponent implements OnInit,
         let me = this;
         let find = function(name) {
             return _.find(me.meta.fields, function(field) {
-                return field['columnName'] === name;
+                return field.columnName === name;
             });
         };
 
-        let field;
+        let fieldObject;
         if (bindingKey) {
-            field = find(this.getOptionFromConfig(bindingKey));
+            fieldObject = find(this.getOptionFromConfig(bindingKey));
         }
 
-        if (!field && mappingKey) {
-            field = find(this.getMapping(mappingKey));
+        if (!fieldObject && mappingKey) {
+            fieldObject = find(this.getMapping(mappingKey));
         }
 
-        return field || this.datasetService.createBlankField();
-    };
+        return fieldObject || this.datasetService.createBlankField();
+    }
 
     getMapping(key: string): string {
         return this.datasetService.getMapping(this.meta.database.name, this.meta.table.name, key);
-    };
+    }
 
     /**
      * Called after the filters in the filter service have changed.
@@ -624,8 +637,7 @@ export abstract class BaseNeonComponent implements OnInit,
      * @param event
      */
     onUpdateDataChannelEvent(event) {
-        console.log('update data channel event');
-        console.log(event);
+        // TODO
     }
 
     /**
@@ -634,7 +646,7 @@ export abstract class BaseNeonComponent implements OnInit,
     handleChangeDatabase() {
         this.initTables();
         this.logChangeAndStartQueryChain(); // ('database', this.active.database.name);
-    };
+    }
 
     /**
      * Handles changes in the active table
@@ -642,17 +654,16 @@ export abstract class BaseNeonComponent implements OnInit,
     handleChangeTable() {
         this.initFields();
         this.logChangeAndStartQueryChain(); // ('table', this.active.table.name);
-    };
+    }
 
     /**
      * If not initializing, calls executeQueryChain();
      */
     logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
-        // this.logChange(option, value, type);
         if (!this.initializing) {
             this.executeQueryChain();
         }
-    };
+    }
 
     /**
      * Called when a filter has been removed
@@ -699,18 +710,17 @@ export abstract class BaseNeonComponent implements OnInit,
                         this.refreshVisualization();
                     }
                 }
-                //console.log('remove filter' + value);
                 this.changeDetection.detectChanges();
             },
             () => {
                 console.error('error removing filter');
             });
         this.changeDetection.detectChanges();
-    };
+    }
 
     getButtonText() {
         return '';
-    };
+    }
 
     /**
      * Publishes the given ID to the select_id event.
@@ -724,7 +734,7 @@ export abstract class BaseNeonComponent implements OnInit,
             table: this.meta.table.name,
             id: id
         });
-    };
+    }
 
     /**
      * Subscribes the given callback function to the select_id event.
@@ -734,5 +744,5 @@ export abstract class BaseNeonComponent implements OnInit,
      */
     subscribeToSelectId(callback) {
         this.messenger.subscribe('select_id', callback);
-    };
+    }
 }

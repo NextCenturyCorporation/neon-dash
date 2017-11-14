@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import {
     Component,
     OnInit,
@@ -7,18 +22,18 @@ import {
     Injector, ViewChild,
     ChangeDetectorRef
 } from '@angular/core';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {FieldMetaData} from '../../dataset';
-import {neonMappings} from '../../neon-namespaces';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { FieldMetaData } from '../../dataset';
+import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
-import {ChartComponent} from 'angular2-chartjs';
-import {VisualizationService} from '../../services/visualization.service';
-import {Color, ColorSchemeService} from '../../services/color-scheme.service';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { ChartComponent } from 'angular2-chartjs';
+import { VisualizationService } from '../../services/visualization.service';
+import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 
 /**
  * Data used to draw the bar chart
@@ -185,7 +200,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
                 onClick: this.onClick,
                 animation: {
-                  duration: 0, // general animation time
+                  duration: 0 // general animation time
                 },
                 hover: {
                     mode: 'point',
@@ -196,15 +211,15 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                     xAxes: [{
                         stacked: true,
                         ticks: {
-                            beginAtZero: true,  //scaleBeginAtZero: true
-                        },
+                            beginAtZero: true
+                        }
                     }],
                     yAxes: [{
                         stacked: true,
                         ticks: {
-                            beginAtZero: true  //scaleBeginAtZero: true
+                            beginAtZero: true
                         }
-                    }],
+                    }]
                 },
                 legend: {
                     display: false
@@ -225,22 +240,22 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             // Returning null removes the row from the tooltip
             return value === 0 ? null : tooltip.label + ': ' + value;
         };
-        this.chart.options['tooltips'].callbacks.title = tooltipTitleFunc.bind(this);
-        this.chart.options['tooltips'].callbacks.label = tooltipDataFunc.bind(this);
+        this.chart.options.tooltips.callbacks.title = tooltipTitleFunc.bind(this);
+        this.chart.options.tooltips.callbacks.label = tooltipDataFunc.bind(this);
         this.queryTitle = this.optionsFromConfig.title || 'Bar Chart';
-    };
+    }
 
     subNgOnInit() {
-        //Do nothing
-    };
+        // Do nothing
+    }
 
     postInit() {
         this.executeQueryChain();
-    };
+    }
 
     subNgOnDestroy() {
-        this.chartModule['chart'].destroy();
-    };
+        this.chartModule.chart.destroy();
+    }
 
     subGetBindings(bindings: any) {
         bindings.dataField = this.active.dataField.columnName;
@@ -264,11 +279,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
-    };
+    }
 
     onClick(_event, elements: any[]) {
-        // console.log(event);
-        //event.toString();
         for (let el of elements) {
             let value = el._model.label;
             let key = this.active.dataField.columnName;
@@ -290,7 +303,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             }
             this.refreshVisualization();
         }
-    };
+    }
 
     onUpdateFields() {
         if (this.optionsFromConfig.aggregation) {
@@ -299,11 +312,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.active.aggregationField = this.findFieldObject('aggregationField', neonMappings.TAGS);
         this.active.dataField = this.findFieldObject('dataField', neonMappings.TAGS);
         this.meta.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
-    };
+    }
 
     addLocalFilter(filter) {
         this.filters[0] = filter;
-    };
+    }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         let filterClauses = this.filters.map(function(filter) {
@@ -316,7 +329,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             return neon.query.and.apply(neon.query, filterClauses);
         }
         return neon.query.or.apply(neon.query, filterClauses);
-    };
+    }
 
     getNeonFilterFields(): string[] {
         return [this.active.dataField.columnName];
@@ -354,7 +367,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         }
 
         this.selectedLabels = selectedLabels;
-        this.chartModule['chart'].update();
+        this.chartModule.chart.update();
     }
 
     isValidQuery() {
@@ -394,17 +407,17 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         query.where(neon.query.and.apply(query, whereClauses));
         switch (this.active.aggregation) {
             case 'count':
-                return query.groupBy(groupBy).aggregate(neon.query['COUNT'], '*', 'value')
-                    .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
+                return query.groupBy(groupBy).aggregate(neonVariables.COUNT, '*', 'value')
+                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
             case 'sum':
-                return query.groupBy(groupBy).aggregate(neon.query['SUM'], yAxisField, 'value')
-                    .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
+                return query.groupBy(groupBy).aggregate(neonVariables.SUM, yAxisField, 'value')
+                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
             case 'average':
-                return query.groupBy(groupBy).aggregate(neon.query['AVG'], yAxisField, 'value')
-                    .sortBy('value', neon.query['DESCENDING']).limit(this.active.limit);
+                return query.groupBy(groupBy).aggregate(neonVariables.AVG, yAxisField, 'value')
+                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
         }
 
-    };
+    }
 
     getFiltersToIgnore() {
         let database = this.meta.database.name;
@@ -412,7 +425,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let fields = this.getNeonFilterFields();
         // get relevant neon filters and check for filters that should be ignored and add that to query
         let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        // console.log(neonFilters);
         if (neonFilters.length > 0) {
             let ignoredFilterIds = [];
             for (let filter of neonFilters) {
@@ -558,20 +570,19 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     handleChangeDataField() {
         this.active.seenValues = [];
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    };
+    }
 
     handleChangeAggregationField() {
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    };
+    }
 
     handleChangeColorField() {
         this.logChangeAndStartQueryChain(); // ('colorField', this.active.colorField.columnName);
-    };
+    }
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-        // this.updateNeonFilter();
-    };
+    }
 
     unsharedFilterChanged() {
         // Update the data
@@ -585,33 +596,33 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     getButtonText() {
         let text = 'No Data';
-        let data = this.chart.data['datasets'];
-        if (!data || !data[0] || !data[0]['data'] || !data[0]['data'].length) {
+        let data = this.chart.data.datasets;
+        if (!data || !data[0] || !data[0].data || !data[0].data.length) {
             return text;
         } else {
-            let total = data[0]['data'].reduce((sum, elem) => {
-                return sum += elem;
+            let total = data[0].data.reduce((sum, elem) => {
+                return sum + elem;
             }, 0);
             return 'Total ' + total;
         }
-    };
+    }
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
         return this.filters;
-    };
+    }
 
     getFilterTitle(value: string) {
         return this.active.dataField.columnName + ' = ' + value;
-    };
+    }
 
     getFilterCloseText(value: string) {
         return value;
-    };
+    }
 
     getRemoveFilterTooltip(value: string) {
         return 'Delete Filter ' + this.getFilterTitle(value);
-    };
+    }
 
     removeFilter(/*value: string*/) {
         this.filters = [];

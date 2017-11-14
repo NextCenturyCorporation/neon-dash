@@ -1,4 +1,18 @@
-/* tslint:disable:no-unused-variable */
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By, DomSanitizer } from '@angular/platform-browser';
@@ -10,7 +24,7 @@ import { Injector } from '@angular/core';
 import { MockBackend } from '@angular/http/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine';
+import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
 
 import { ExportControlComponent } from '../export-control/export-control.component';
@@ -38,9 +52,9 @@ class TestDatasetService extends DatasetService {
             databases: [testDatabase]
         });
     }
-};
+}
 
-fdescribe('Component: WikiViewer', () => {
+describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 
@@ -472,11 +486,11 @@ fdescribe('Component: WikiViewer', () => {
     it('hides loading overlay by default', (() => {
         fixture.detectChanges();
 
-        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
-        expect(loadingOverlay).not.toBeNull();
+        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
+        expect(hiddenLoadingOverlay).not.toBeNull();
 
-        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
-        expect(spinner).not.toBeNull();
+        let hiddenSpinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
+        expect(hiddenSpinner).not.toBeNull();
     }));
 
     it('shows loading overlay if isLoading is true', (() => {
@@ -524,11 +538,11 @@ fdescribe('Component: WikiViewer', () => {
         tick(500);
         fixture.detectChanges();
 
-        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
-        expect(loadingOverlay).not.toBeNull();
+        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
+        expect(hiddenLoadingOverlay).not.toBeNull();
 
-        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
-        expect(spinner).not.toBeNull();
+        let hiddenSpinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
+        expect(hiddenSpinner).not.toBeNull();
     })));
 
     it('hides wiki-text tabs if active.wikiText is empty', inject([DomSanitizer], (sanitizer) => {
@@ -563,7 +577,7 @@ fdescribe('Component: WikiViewer', () => {
     }));
 });
 
-fdescribe('Component: WikiViewer with config', () => {
+describe('Component: WikiViewer with config', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 

@@ -13,6 +13,10 @@
  * limitations under the License.
  *
  */
-@import '~@angular/material/_theming';
-@import '../../../themes/neon-green-theme.scss';
-@import '../../../themes/visualization-common.scss';
+@import '../base-neon-component/base-neon.component.scss';
+
+.chart {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}

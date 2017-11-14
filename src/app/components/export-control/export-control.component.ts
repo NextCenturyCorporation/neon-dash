@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,11 +13,10 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, ViewContainerRef, Input} from '@angular/core';
+import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
 import { URLSearchParams } from '@angular/http';
 
-import { MatSnackBar, MatSnackBarConfig } from '@angular/material';
-import { MatDialog, MatDialogRef } from '@angular/material';
+import { MatDialog, MatDialogRef, MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -64,22 +63,20 @@ export class ExportControlComponent implements OnInit {
     }
 
     setExportFormat(value: number) {
-        //this.exportService.setFileFormat(value);
+        // Do nothing.
     }
 
     toggleExportFormat(event: Event) {
         event.preventDefault();
     }
 
-
     exportSuccess(queryResults) {
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         config.duration = 3000;
-        console.log('shoop');
         this.mdSnackBar.open('Export In Progress...', 'OK', config);
         window.location.assign('/neon/services/exportservice/generateZip/' + queryResults.data);
-    };
+    }
 
     exportFail(response) {
         let config = new MatSnackBarConfig();
@@ -89,7 +86,7 @@ export class ExportControlComponent implements OnInit {
         } else {
             this.mdSnackBar.open('Error: The export service failed to respond properly.', 'Close', config);
         }
-    };
+    }
 
     handleExportClick() {
         let exportAll = this.exportTarget === 'all';
@@ -118,10 +115,10 @@ export class ExportControlComponent implements OnInit {
           .filter((widget) => {
               return exportAll || widget.id === localExportId;
           })
-          .map(widget => widget.callback());
+          .map((widget) => widget.callback());
         for (let widgetObject of widgetObjects) {
-            for (let x = 0; x < widgetObject.data.length; x++) {
-                data.data.push(widgetObject.data[x]);
+            for (let widgetObjectItem of widgetObject.data) {
+                data.data.push(widgetObjectItem);
             }
         }
 

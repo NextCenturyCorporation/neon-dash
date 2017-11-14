@@ -9,13 +9,13 @@
         {{ mode.viewValue }}
       </mat-option>
     </mat-select>
-    <button class="save-btn mat-accent" (click)="save()" mat-raised-button aria-label="Save"
+    <button mat-raised-button class="mat-primary" (click)="save()" aria-label="Save"
       title="Saves configuration to Property Service.  Refresh is required to see changes.">Save</button>
-    <button class="delete-btn mat-accent" (click)="delete()" mat-raised-button aria-label="Delete"
+    <button mat-raised-button class="mat-primary" (click)="delete()" aria-label="Delete"
       title="Removes any configuration saved in the Property Service.  Configuration will be loaded from yaml or json files.">Delete</button>
-    <button class="reset-btn mat-accent" (click)="reset()" mat-raised-button aria-label="Reset"
+    <button mat-raised-button class="mat-primary" (click)="reset()" aria-label="Reset"
       title="Reset changes to actively loaded configuation.">Reset</button>
-    <button class="close-btn mat-accent" matDialogClose="close" mat-raised-button aria-label="Close"
+    <button mat-raised-button class="mat-primary" matDialogClose="close" aria-label="Close"
       title="Close configuration editor and discard changes.">Close</button>
   </div>
 </div>

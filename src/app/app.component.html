@@ -3,16 +3,16 @@
         <mat-toolbar color="primary">
             <span class="mat-36">Datasets</span>
         </mat-toolbar>
-        <app-dataset-selector (onActiveDatasetChanged)="sidenav.toggle()" >
+        <app-dataset-selector (activeDatasetChanged)="sidenav.toggle()" >
         </app-dataset-selector>
     </mat-sidenav>
     <mat-sidenav #sidenavright class="neon-gtd-sidenav-about-neon" mat-fill align="end">
         <mat-toolbar color="primary">
-            <span class="mat-36">{{(showAbout) ? 'About...' : 'Options...'}}</span>
+            <span class="mat-36">{{ (showAbout) ? 'About...' : 'Options...' }}</span>
         </mat-toolbar>
         <app-about-neon *ngIf="showAbout"></app-about-neon>
         <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout"></app-dashboard-options>
-        <button mat-button (click)="sidenavright.close()">Close</button>
+        <button mat-raised-button (click)="sidenavright.close()" class="mat-primary">Close</button>
     </mat-sidenav>
     <mat-toolbar color="primary" layout-align="space-between center" flex>
         <button mat-button [attr.aria-label]="datasetService.getName() || 'Choose Data'" style="margin-right: 10px;" (click)="sidenav.toggle()"
@@ -43,7 +43,7 @@
     </mat-toolbar>
     <div class="neon-gtd-content" mat-fill layout="col">
         <div [ngGrid]="gridConfig" #grid >
-            <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridConfig" (onResizeStop)="onResizeStop(i, $event)" name="item.id" id="item.id">
+            <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridItemConfig" (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)" name="item.id" id="item.id">
                 <app-visualization-container [visualization]="gridItems[i]"></app-visualization-container>
                 <ng-content></ng-content>
             </div>

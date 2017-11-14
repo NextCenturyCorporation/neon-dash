@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import {
     Component,
     OnInit,
@@ -8,18 +23,18 @@ import {
     ViewChild,
     ChangeDetectorRef
 } from '@angular/core';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {Color, ColorSchemeService} from '../../services/color-scheme.service';
-import {FieldMetaData } from '../../dataset';
-import {neonMappings} from '../../neon-namespaces';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { FieldMetaData } from '../../dataset';
+import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
-import {ChartModule} from 'angular2-chartjs';
-import {VisualizationService} from '../../services/visualization.service';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { ChartModule } from 'angular2-chartjs';
+import { VisualizationService } from '../../services/visualization.service';
 
 /**
  * Data used to draw the scatter plot
@@ -61,7 +76,7 @@ class ScatterDataSet {
      * Set the background color to the default color of this set
      */
     setInactive() {
-        for (let i = 0; i < this.data.length; i++) {
+        for (let item of this.data) {
             this.backgroundColor = this.color.getInactiveRgba();
             this.borderColor = this.backgroundColor;
         }
@@ -111,7 +126,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         layers: any[],
         xAxisIsNumeric: boolean,
         yAxisIsNumeric: boolean,
-        pointLabels: string[],
+        pointLabels: string[]
     };
 
     // Alternate color: rgba(57, 181, 74, 0.9)
@@ -129,7 +144,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         width: number,
         x: number,
         y: number,
-        visibleOverlay: boolean,
+        visibleOverlay: boolean
     };
 
     public chart: {
@@ -174,7 +189,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             layers: [],
             xAxisIsNumeric: true,
             yAxisIsNumeric: true,
-            pointLabels: [],
+            pointLabels: []
         };
 
         this.selection = {
@@ -187,7 +202,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             startY: 0,
             endX: 0,
             endY: 0,
-            visibleOverlay: false,
+            visibleOverlay: false
         };
 
         this.onHover = this.onHover.bind(this);
@@ -195,7 +210,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.yAxisTickCallback = this.yAxisTickCallback.bind(this);
 
         let tooltipTitleFunc = (tooltips) => {
-            //console.log(tooltips.length);
             return this.active.pointLabels[tooltips[0].index];
         };
         let tooltipDataFunc = (tooltips) => {
@@ -222,10 +236,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 responsive: true,
                 maintainAspectRatio: false,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
-                //onClick: this.onClick.bind(this),
-                //onTouchStart: this.touchStart.bind(this),
                 animation: {
-                  duration: 0, // general animation time
+                  duration: 0 // general animation time
                 },
                 hover: {
                     mode: 'point',
@@ -260,22 +272,35 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         };
         this.chart.data.datasets.push(new ScatterDataSet(this.defaultColor));
         this.queryTitle = 'Scatter Plot';
-    };
+    }
+
+    /**
+     * Returns the chart in the chart module.
+     *
+     * @return {object}
+     * @private
+     */
+    private getChart() {
+        /* tslint:disable:no-string-literal */
+        return this.chartModule['chart'];
+        /* tslint:enable:no-string-literal */
+    }
+
     subNgOnInit() {
         // do nothing
-    };
+    }
 
     postInit() {
         this.executeQueryChain();
-    };
+    }
 
     subNgOnDestroy() {
-        this.chartModule['chart'].destroy();
-    };
+        this.getChart().destroy();
+    }
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
-    };
+    }
 
     subGetBindings(bindings: any) {
         bindings.xField = this.active.xField.columnName;
@@ -289,7 +314,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.active.yField = this.findFieldObject('yField', neonMappings.TAGS);
         this.active.labelField = this.findFieldObject('labelField', neonMappings.TAGS);
         this.meta.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
-    };
+    }
 
     createFilter(key, startDate, endDate) {
         return {
@@ -301,7 +326,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     addLocalFilter(f) {
         this.filters[0] = f;
-    };
+    }
 
     getExportFields() {
         let usedFields = [this.active.xField,
@@ -318,8 +343,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-    * returns -1 if cannot be found
-    */
+     * returns -1 if cannot be found
+     */
     getPointXLocationByIndex(chart, index): number {
         let dsMeta = chart.controller.getDatasetMeta(0);
         if (dsMeta.data.length > index) {
@@ -330,12 +355,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     forcePosInsideChart(pos, min, max) {
-        if (pos < min) {
-            pos = min;
-        } else if (pos > max) {
-            pos = max;
-        }
-        return pos;
+        return pos < min ? min : (pos > max ? max : pos);
     }
 
     legendItemSelected(data: any): void {
@@ -381,13 +401,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.disabledList = Array.from(this.disabledDatasets.keys());
     }
 
-    /*onClick(event) {
-        console.log(event);
-    }*/
-
     mouseLeave(event) {
-        //console.log('leave');
-        //console.log(event);
         this.mouseEventValid = false;
         this.selection.mouseDown = false;
         this.stopEventPropagation(event);
@@ -395,16 +409,12 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     mouseDown(event) {
-        //console.log('down');
-        //console.log(event);
         if (event.buttons > 0) {
             this.mouseEventValid = true;
         }
     }
 
     mouseUp(event) {
-        //console.log('up');
-        //console.log(event);
         if (this.selection.mouseDown && event.buttons === 0) {
             // mouse up event
             this.selection.mouseDown = false;
@@ -429,38 +439,31 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     onHover(event) {
-        let chartArea = this.chartModule['chart'].chartArea;
+        let chartArea = this.getChart().chartArea;
         let chartXPos = event.offsetX;
         let chartYPos = event.offsetY;
         if (!this.selection.mouseDown && event.buttons > 0 && this.mouseEventValid) {
             // mouse down event
-            console.log(event);
             this.selection.mouseDown = true;
             this.selection.startX = this.forcePosInsideChart(chartXPos, chartArea.left, chartArea.right);
             this.selection.startY = this.forcePosInsideChart(chartYPos, chartArea.top, chartArea.bottom);
         }
 
-        //console.log(chartXPos);
-
         if (this.selection.mouseDown && this.mouseEventValid) {
             // drag event near items
-            //console.log(chartXPos);
             this.selection.endX = this.forcePosInsideChart(chartXPos, chartArea.left, chartArea.right);
             this.selection.endY = this.forcePosInsideChart(chartYPos, chartArea.top, chartArea.bottom);
-            //console.log(this.selection.endX);
             this.selection.x = Math.min(this.selection.startX, this.selection.endX);
             this.selection.y = Math.min(this.selection.startY, this.selection.endY);
             this.selection.width = Math.abs(this.selection.startX - this.selection.endX);
             this.selection.height = Math.abs(this.selection.startY - this.selection.endY);
-            //console.log("x: " + this.selection.startX + " " + this.selection.endX);
-            //console.log(this.selection.x + " " + this.selection.width);
         }
         this.stopEventPropagation(event);
         this.changeDetection.detectChanges();
     }
 
     getFilterFromSelectionPositions() {
-        let chart = this.chartModule['chart'];
+        let chart = this.getChart();
         let x1 = chart.scales['x-axis-1'].getValueForPixel(this.selection.startX);
         let y1 = chart.scales['y-axis-1'].getValueForPixel(this.selection.startY);
         let x2 = chart.scales['x-axis-1'].getValueForPixel(this.selection.endX);
@@ -473,15 +476,15 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         y2 = temp;
         if (!this.active.xAxisIsNumeric) {
             let i = Math.ceil(x1);
-            x1 = this.chart.data['xLabels'][i];
+            x1 = this.chart.data.xLabels[i];
             i = Math.floor(x2);
-            x2 = this.chart.data['xLabels'][i];
+            x2 = this.chart.data.xLabels[i];
         }
         if (!this.active.yAxisIsNumeric) {
             let i = Math.ceil(y1);
-            y1 = this.chart.data['yLabels'][i];
+            y1 = this.chart.data.yLabels[i];
             i = Math.floor(y2);
-            y2 = this.chart.data['yLabels'][i];
+            y2 = this.chart.data.yLabels[i];
         }
         return {
             id: undefined,
@@ -504,7 +507,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         filterClauses[2] = neon.query.where(yField, '>=', filter.yMin);
         filterClauses[3] = neon.query.where(yField, '<=', filter.yMax);
         return neon.query.and.apply(neon.query, filterClauses);
-    };
+    }
 
     getFilterText() {
         // I.E. test - earthquakes - time = 10/11/2015 to 5/1/2016"
@@ -529,7 +532,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     refreshVisualization() {
-        this.chartModule['chart'].update();
+        this.getChart().update();
     }
 
     isValidQuery() {
@@ -538,7 +541,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         valid = (this.meta.table && this.meta.table.name && valid);
         valid = (this.active.xField && this.active.xField.columnName && valid);
         valid = (this.active.yField && this.active.yField.columnName && valid);
-        //valid = (this.active.labelField && valid);
         return valid;
     }
 
@@ -569,12 +571,12 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         }
 
         query = query.groupBy(groupBys);
-        query = query.sortBy(xField, neon.query['ASCENDING']);
+        query = query.sortBy(xField, neonVariables.ASCENDING);
         query.where(neon.query.and.apply(query, whereClauses));
         query = query.limit(this.active.limit);
-        query = query.aggregate(neon.query['COUNT'], '*', 'value');
+        query = query.aggregate(neonVariables.COUNT, '*', 'value');
         return query;
-    };
+    }
 
     getFiltersToIgnore() {
         return null;
@@ -582,13 +584,13 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     isNumber(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
-    };
+    }
 
     onQuerySuccess(response) {
         this.disabledList = [];
         this.disabledDatasets.clear();
 
-        //TODO much of this method could be optimized, but we'll worry about that later
+        // TODO much of this method could be optimized, but we'll worry about that later
         let xField = this.active.xField.columnName;
         let yField = this.active.yField.columnName;
         let colorField = this.meta.colorField.columnName;
@@ -608,8 +610,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             let x = point[xField];
             let y = point[yField];
             let p = {
-                'x': x,
-                'y': y
+                x: x,
+                y: y
             };
 
             // The key of the dataset is the value of the color field, or ''
@@ -680,8 +682,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.queryTitle = 'Scatter Plot: ' + this.active.xField.prettyName + ' vs ' + this.active.yField.prettyName;
         // Force the legend to update
         this.colorByFields = [this.meta.colorField.columnName];
-    };
-
+    }
 
     xAxisTickCallback(value): string {
         if (this.active.xAxisIsNumeric) {
@@ -705,12 +706,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return '';
     }
 
-    removeDuplicatesAndSort(arr) {
-        arr = arr.sort();
-        arr = arr.filter(function(item, pos, ary) {
-            return !pos || item !== ary[pos - 1];
+    removeDuplicatesAndSort(inputArray) {
+        return inputArray.sort().filter(function(element, index, array) {
+            return !index || element !== array[index - 1];
         });
-        return arr;
     }
 
     setupFilters() {
@@ -723,24 +722,23 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeXField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeYField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeLabelField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeColorField() {
         this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
-    };
+    }
 
     handleChangeAndFilters() {
         this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-        // this.updateNeonFilter();
-    };
+    }
 
     unsharedFilterChanged() {
         this.logChangeAndStartQueryChain();
@@ -760,19 +758,19 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         } else {
             return [];
         }
-    };
+    }
 
     getFilterTitle(/*value: string*/) {
         return this.active.xField.columnName + ' vs ' + this.active.yField.columnName;
-    };
+    }
 
     getFilterCloseText(value: string) {
         return value;
-    };
+    }
 
     getRemoveFilterTooltip(/*value: string*/) {
         return 'Delete Filter ' + this.getFilterTitle();
-    };
+    }
 
     removeFilter(/*value: string*/) {
         this.filters = [];
@@ -787,4 +785,4 @@ export class ScatterPlotFilter {
     yMax: any;
     xField: string;
     yField: string;
-};
+}

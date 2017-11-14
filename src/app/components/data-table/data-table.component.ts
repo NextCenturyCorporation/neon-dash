@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import {
     Component,
     OnInit,
@@ -9,18 +24,16 @@ import {
     ElementRef,
     ChangeDetectorRef
 } from '@angular/core';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {FieldMetaData} from '../../dataset';
-import { neonMappings, neonUtilities } from '../../neon-namespaces';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { FieldMetaData } from '../../dataset';
+import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-//import * as _ from 'lodash';
-import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
-import {VisualizationService} from '../../services/visualization.service';
-
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { VisualizationService } from '../../services/visualization.service';
 
 @Component({
     selector: 'app-data-table',
@@ -70,7 +83,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         currentIndex: number,
         field: { prop: string, name: string, active: boolean },
         x: number,
-        y: number,
+        y: number
     };
 
     public changeDetection: ChangeDetectorRef;
@@ -109,33 +122,33 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             currentIndex: -1,
             field: null,
             x: 0,
-            y: 0,
+            y: 0
         };
         this.queryTitle = this.optionsFromConfig.title || 'Raw Data';
         this.enableRedrawAfterResize(true);
-    };
+    }
 
     subNgOnInit() {
-        //Do nothing
-    };
+        // Do nothing
+    }
 
     postInit() {
         this.executeQueryChain();
-    };
+    }
 
     subNgOnDestroy() {
-        //Do nothing
-    };
+        // Do nothing
+    }
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
-    };
+    }
 
     subGetBindings(bindings: any) {
         bindings.idField = this.active.idField.columnName;
         bindings.sortField = this.active.sortField.columnName;
         bindings.limit = this.active.limit;
-    };
+    }
 
     onUpdateFields() {
         this.active.idField = this.findFieldObject('idField', neonMappings.TAGS);
@@ -147,13 +160,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             numHeaders++;
         }
         this.recalculateActiveHeaders();
-    };
+    }
 
     recalculateActiveHeaders() {
         this.active.activeHeaders = this.getActiveHeaders();
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
-    };
+    }
 
     getActiveHeaders() {
         let active = [];
@@ -163,7 +176,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
         }
         return active;
-    };
+    }
 
     getExportFields() {
         return this.active.headers
@@ -174,21 +187,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                   prettyName: header.name
               };
           });
-    };
+    }
 
     closeColumnSelector() {
         this.active.showColumnSelector = 'hide';
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
-    };
-
-    logAndDisplay(obj) {
-        console.log(obj);
-    };
+    }
 
     addLocalFilter(filter) {
         this.filters[0] = filter;
-    };
+    }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         let filterClauses = this.filters.map(function(filter) {
@@ -201,25 +210,25 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             return neon.query.and.apply(neon.query, filterClauses);
         }
         return neon.query.or.apply(neon.query, filterClauses);
-    };
+    }
 
     getNeonFilterFields(): string[] {
         return [this.active.sortField.columnName];
-    };
+    }
 
     getVisualizationName(): string {
         return 'Data Chart';
-    };
+    }
 
     getFilterText() {
         return this.filters[0].value;
-    };
+    }
 
     refreshVisualization() {
         this.table.recalculate();
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
-    };
+    }
 
     isValidQuery() {
         let valid = true;
@@ -228,7 +237,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         valid = (this.active.sortField && this.active.sortField.columnName && valid);
         // valid = (this.active.aggregation && valid);
         return valid;
-    };
+    }
 
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
@@ -242,20 +251,19 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 this.meta.unsharedFilterValue));
         }
 
-        //let dataField = this.active.dataField.columnName;
-        return query.where(whereClause).sortBy(this.active.sortField.columnName, neon.query['DESCENDING']).limit(this.active.limit);
-    };
+        return query.where(whereClause).sortBy(this.active.sortField.columnName, neonVariables.DESCENDING).limit(this.active.limit);
+    }
 
     getFiltersToIgnore() {
         return null;
-    };
+    }
 
     arrayToString(arr) {
         let modArr = arr
         .filter(function(el) {
-            return el; // && !(typeof el === 'object');
+            return el;
         })
-            .map(function (base) {
+            .map(function(base) {
                 if ((typeof base === 'object')) {
                     return this.objectToString(base);
                 } else if (Array.isArray(base)) {
@@ -265,11 +273,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 }
         });
         return '[' + modArr + ']';
-    };
+    }
 
     objectToString(base) {
         return '';
-    };
+    }
 
     toCellString(base, type) {
         if (base === null) {
@@ -281,11 +289,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         } else {
             return base;
         }
-    };
+    }
 
     onQuerySuccess(response): void {
-        //this.active.data = response.data.map(this.normalizeObject.bind(this));
-        let data = response.data.map(function (d) {
+        let data = response.data.map(function(d) {
             let row = {};
             for (let field of this.meta.fields)  {
                 if (field.type) {
@@ -296,7 +303,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }.bind(this));
         this.active.data = data;
         this.refreshVisualization();
-    };
+    }
 
     setupFilters() {
         // Get neon filters
@@ -319,33 +326,32 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         } else {
             this.filters = [];
         }
-    };
+    }
 
     handleFiltersChangedEvent() {
 
         this.executeQueryChain();
-    };
+    }
 
     handleChangeLimit() {
         this.logChangeAndStartQueryChain();
-    };
+    }
 
     handleChangeField() {
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    };
+    }
 
     isDragging(): boolean {
         return (this.drag.mousedown && this.drag.downIndex >= 0);
-    };
+    }
 
-    //mouse up in a drag and drop element
+    // mouse up in a drag and drop element
     onMouseUp(i) {
         if (this.isDragging && this.drag.downIndex !== this.drag.currentIndex) {
             let length = this.active.headers.length;
             if (this.drag.downIndex >= length || i >= length || this.drag.downIndex < 0 || i < 0) {
-                console.log('index out of bounds!');
+                // Do nothing
             } else {
-              //  console.log('move index ' + this.drag.downIndex + ' to ' + i);
                 let h = this.active.headers;
                 let si = this.drag.downIndex; // startIndex
                 let ei = i; // endIndex
@@ -361,60 +367,60 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.clearHeaderStyles();
         this.drag.downIndex = -1;
         this.drag.mousedown = false;
-    };
+    }
 
-    //clicks on a drag and drop icon of an element
+    // clicks on a drag and drop icon of an element
     onMouseDown(i) {
         if (i >= 0) {
             this.drag.downIndex = i;
             this.drag.mousedown = true;
-            this.active.headers[i].style['backgroundColor'] = 'rgba(0, 0, 0, .2)';
-            this.active.headers[i].style['border'] = 'gray dashed 1px';
+            this.setStyle(i, 'backgroundColor', 'rgba(0, 0, 0, .2)');
+            this.setStyle(i, 'border', 'gray dashed 1px');
         }
-    };
+    }
 
-    //enters a NEW drag and drop element
+    // enters a NEW drag and drop element
     onMouseEnter(i) {
         if (this.isDragging()) {
             this.drag.currentIndex = i;
             let style = 'thick solid gray';
             if (i < this.drag.downIndex) {
-                this.active.headers[i].style['borderTop'] = style;
+                this.setStyle(i, 'borderTop', style);
             } else if (i > this.drag.downIndex) {
-                this.active.headers[i].style['borderBottom'] = style;
+                this.setStyle(i, 'borderBottom', style);
             }
         }
-    };
+    }
 
     onMouseLeaveItem(i) {
         if (this.isDragging()) {
             if (i !== this.drag.downIndex) {
-                this.active.headers[i].style['borderBottom'] = null;
-                this.active.headers[i].style['borderTop'] = null;
+                this.setStyle(i, 'borderBottom', null);
+                this.setStyle(i, 'borderTop', null);
             }
         }
-    };
+    }
 
-    //leaves drag and drop area
+    // leaves drag and drop area
     onMouseLeaveArea() {
         this.drag.downIndex = -1;
         this.drag.mousedown = false;
         this.clearHeaderStyles();
-    };
+    }
 
-    //moving in drag and drop area
+    // moving in drag and drop area
     onMouseMove(event) {
         if (this.isDragging()) {
             this.drag.x = event.screenX;
             this.drag.y = event.screenY;
         }
-    };
+    }
 
     clearHeaderStyles() {
         for (let header of this.active.headers) {
             header.style = {};
         }
-    };
+    }
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
@@ -422,33 +428,33 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             return filter.value;
         });
         return closeableFilters;
-    };
+    }
 
     getFilterTitle(value: string) {
         return this.active.sortField.columnName + ' = ' + value;
-    };
+    }
 
     getFilterCloseText(value: string) {
         return value;
-    };
+    }
 
     getRemoveFilterTooltip(value: string) {
         return 'Delete Filter ' + this.getFilterTitle(value);
-    };
+    }
 
     unsharedFilterChanged() {
         // Update the data
         this.executeQueryChain();
-    };
+    }
 
     unsharedFilterRemoved() {
         // Update the data
         this.executeQueryChain();
-    };
+    }
 
     removeFilter() {
         this.filters = [];
-    };
+    }
 
     /**
      * Publishes a select_id event for the ID of the first item in the given list of selected items.
@@ -461,5 +467,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (selected && selected.length && this.active.idField.columnName && selected[0][this.active.idField.columnName]) {
             this.publishSelectId(selected[0][this.active.idField.columnName]);
         }
-    };
+    }
+
+    /**
+     * Sets the given style in the headers with the given index to the given value.
+     *
+     * @arg {number} index
+     * @arg {string} style
+     * @arg {string} value
+     * @private
+     */
+    private setStyle(index: number, style: string, value: string) {
+        this.active.headers[index].style[style] = value;
+    }
 }

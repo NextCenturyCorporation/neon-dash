@@ -1,4 +1,18 @@
-
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import './polyfills.ts';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
 import { enableProdMode, ReflectiveInjector } from '@angular/core';
@@ -29,17 +43,17 @@ const HTTP_PROVIDERS = [
     {provide: RequestOptions, useClass: BaseRequestOptions},
     {provide: ResponseOptions, useClass: BaseResponseOptions},
     XHRBackend,
-    {provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy()},
+    {provide: XSRFStrategy, useFactory: () => new CookieXSRFStrategy()}
 ];
 
 const EMPTY_CONFIG = {
-  'dashboard': {},
-  'help': {},
-  'datasets': [],
-  'layouts': {
-      'default': []
+  dashboard: {},
+  help: {},
+  datasets: [],
+  layouts: {
+      default: []
   },
-  'customFilters': {}
+  customFilters: {}
 };
 
 let neonConfigErrors = [];
@@ -51,7 +65,9 @@ if (environment.production) {
 // Since angular isn't bootstrapped, the platform browser isn't setup properly for cookies.
 // Since we're not using them, mock the cookie provider
 class NoCheckCookieXSRFStrategy extends CookieXSRFStrategy {
-  configureRequest() {}
+    configureRequest() {
+        // Do nothing.
+    }
 }
 
 let injector = ReflectiveInjector.resolveAndCreate([HTTP_PROVIDERS, {
@@ -62,12 +78,11 @@ let http = injector.get(Http);
 
 function handleConfigJsonError(error) {
     if (isErrorNotFound(error, 'json')) {
-        console.log(error);
-        console.log('missing json file.');
+        console.error(error);
+        console.error('missing json file.');
     } else {
-        console.log(error);
+        console.error(error);
         showError('Error reading config.json: ' + error.message);
-        //document.write('Error in json file.  See browser console for more details');
     }
     showError('Cannot find valid config.yaml or config.json.');
     bootstrapWithData(EMPTY_CONFIG);
@@ -75,21 +90,21 @@ function handleConfigJsonError(error) {
 
 function loadConfigJson() {
     return http.get('./app/config/config.json')
-        .map(response => response.json())
+        .map((response) => response.json())
         .toPromise();
 }
 
 function isErrorNotFound(error, fileType) {
-    //TODO could add other server errors
+    // TODO could add other server errors
     return error.status === 404;
 }
 
 function handleConfigYamlError(error) {
     if (isErrorNotFound(error, 'yaml')) {
-        console.log(error);
-        console.log('missing yaml file. trying json config.');
+        console.error(error);
+        console.error('missing yaml file. trying json config.');
     } else {
-        console.log(error);
+        console.error(error);
         showError('Error reading config.yaml: ' + error.message);
     }
 }
@@ -108,47 +123,43 @@ function loadConfigFromPropertyService() {
 
 function handleConfigPropertyServiceError(error) {
     if (error.message === 'No config') {
-        //Do nothing, this is the expected response
+        // Do nothing, this is the expected response
     } else if (isErrorNotFound(error, 'Property Service')) {
-        console.log(error);
-        console.log('missing config from Property Service. Trying yaml config.');
+        console.error(error);
+        console.error('missing config from Property Service. Trying yaml config.');
     } else {
-        console.log(error);
+        console.error(error);
         showError('Error reading Property Service config: ' + error.message);
     }
 }
 
 function loadConfigYaml() {
    return http.get('./app/config/config.yaml')
-       .map(response => yaml.load(response.text()))
+       .map((response) => yaml.load(response.text()))
        .toPromise();
 }
 
 function validateConfig(config) {
     if (config) {
-        /*if (!config.datasets) {
-            showError('Config is missing \'datasets\' property');
-            console.log('Config is missing \'datasets\' property');
-            console.log(config);
-            config.datasets = [];
-        }*/
         return config;
     } else {
         showError('Config from config.yaml or config.json is empty');
-        console.log('Config appears to be empty');
-        console.log(config);
+        console.error('Config appears to be empty');
+        console.error(config);
         return EMPTY_CONFIG;
     }
 }
 
-function bootstrapWithData(config) {
-  config = validateConfig(config);
+function bootstrapWithData(configFromFile) {
+  let configObject = validateConfig(configFromFile);
   let errors = neonConfigErrors;
   neonConfigErrors = null;
   if (errors && errors.length > 0) {
-      config.errors = errors;
+      configObject.errors = errors;
   }
-  window['appConfig'] = config;
+  /* tslint:disable:no-string-literal */
+  window['appConfig'] = configObject;
+  /* tslint:enable:no-string-literal */
   return platformBrowserDynamic().bootstrapModule(AppModule);
 }
 
@@ -162,11 +173,11 @@ function showError(error) {
 neon.ready(function() {
   neon.setNeonServerUrl('../neon');
   let config;
-  config = loadConfigYaml().then(conf => bootstrapWithData(conf), function(error) {
+  config = loadConfigYaml().then(bootstrapWithData, function(error) {
     handleConfigYamlError(error);
-    loadConfigJson().then(conf => bootstrapWithData(conf), function(error2) {
+    loadConfigJson().then(bootstrapWithData, function(error2) {
       handleConfigJsonError(error2);
-      loadConfigFromPropertyService().then(conf => bootstrapWithData(conf), error3 => handleConfigPropertyServiceError);
+      loadConfigFromPropertyService().then(bootstrapWithData, handleConfigPropertyServiceError);
 });
   });
 });

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import {VisualizationService} from '../../services/visualization.service';
 
 declare let Cesium: any;
@@ -25,7 +40,6 @@ import * as neon from 'neon-framework';
 import {BaseLayeredNeonComponent} from '../base-neon-component/base-layered-neon.component';
 import 'cesium/Build/Cesium/Cesium.js';
 import * as _ from 'lodash';
-import {color} from 'd3';
 import {Set, Map} from 'hash-set-map';
 import * as geohash from 'geo-hash';
 
@@ -84,16 +98,21 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         minClusterSize: number,
         clusterPixelRange: number,
         hoverSelect: {
-        hoverTime: number,
+            hoverTime: number
         },
         hoverPopupEnabled: boolean,
         west: number,
         east: number,
         north: number,
-        south: number
+        south: number,
+        geoServer: {
+            offline: boolean,
+            mapUrl: string,
+            layer: string
+        }
     };
     public active: {
-        layers: MapLayer[]
+        layers: MapLayer[],
         andFilters: boolean,
         limit: number,
         filterable: boolean,
@@ -166,7 +185,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             west: this.injector.get('west', null),
             east: this.injector.get('east', null),
             north: this.injector.get('north', null),
-            south: this.injector.get('south', null)
+            south: this.injector.get('south', null),
+            geoServer: this.injector.get('geoServer', [])
         };
 
         this.filters = [];
@@ -204,11 +224,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             isExact: true
         };
         this.queryTitle = this.optionsFromConfig.title || 'Map';
-        //this.addEmptyLayer();
-    };
+    }
 
     subNgOnInit() {
-
+        // Do nothing
     }
 
     postInit() {
@@ -242,22 +261,62 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     ngAfterViewInit() {
-        let imagerySources = Cesium.createDefaultImageryProviderViewModels();
+        if (this.optionsFromConfig.geoServer.offline) {
+            this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
+                sceneMode: Cesium.SceneMode.SCENE3D,
+                imageryViewModels: [],
+                imageryProvider: new Cesium.WebMapServiceImageryProvider({
+                    url: 'http://localhost:8080/geoserver/Natural_Earth/wms',
+                    layers: 'Natural_Earth:NE1_HR_LC_SR_W_DR',
+                    parameters: {
+                        transparent: true,
+                        tiled: true,
+                        requestWaterMask: true
+                    }//*/
+                }),
+                //set default imagery to eliminate annoying text and using a bing key by default
+                terrainProviderViewModels: [],
+                fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
+                timeline: false, //disable timeline widget
+                animation: false, // disable animation widget
+                baseLayerPicker: false,
+                mapMode2D: Cesium.MapMode2D.ROTATE,
+                sceneModePicker: false,
+                navigationHelpButton: false,
+                infoBox: false
+            });
+        } else {
+            let imagerySources = Cesium.createDefaultImageryProviderViewModels();
+            let sourceId = 0;
+            for (; sourceId < imagerySources.length; sourceId++) {
+                let sourceName = imagerySources[sourceId].name;
+                if ('ESRI World Street Map' === sourceName) {
+                break;
+                }
+            }
+            if (sourceId === imagerySources.length) {
+                sourceId = 0;
+            }
+            this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
+                sceneMode: Cesium.SceneMode.SCENE3D,
+                imageryProviderViewModels: imagerySources,
+                //set default imagery to eliminate annoying text and using a bing key by default
+                selectedImageryProviderViewModel: imagerySources[sourceId],
+                terrainProviderViewModels: [],
+                fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
+                timeline: false, //disable timeline widget
+                animation: false, // disable animation widget
+                //baseLayerPicker: false,
+                mapMode2D: Cesium.MapMode2D.ROTATE,
+                sceneModePicker: false,
+                navigationHelpButton: false,
+                infoBox: false
+            });
+        }
         // In order to get a minimal viable product in the short time span we have, we decided to disable the following Cesium features:
         //  3D Map and Columbus view.
         //  Rotating 2D map
         // These were mostly done to prevent the more complex problem of drawing on a 3D map.
-        let sourceId = 0;
-        for (; sourceId < imagerySources.length; sourceId++) {
-            let sourceName = imagerySources[sourceId].name;
-            if ('ESRI World Street Map' === sourceName) {
-            break;
-            }
-        }
-        if (sourceId === imagerySources.length) {
-            sourceId = 0;
-        }
-        console.log(sourceId);
         let west = -180.0;
         let east = 180.0;
         let north = 90.0;
@@ -273,21 +332,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         let rectangle = Cesium.Rectangle.fromDegrees(west, south, east, north);
         Cesium.Camera.DEFAULT_VIEW_FACTOR = 0;
         Cesium.Camera.DEFAULT_VIEW_RECTANGLE = rectangle;
-
-        this.cesiumViewer = new Cesium.Viewer(this.cesiumContainer.nativeElement, {
-            sceneMode: Cesium.SceneMode.SCENE3D,
-            imageryProviderViewModels: imagerySources,
-            //set default imagery to eliminate annoying text and using a bing key by default
-            selectedImageryProviderViewModel: imagerySources[sourceId],
-            terrainProviderViewModels: [],
-            fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
-            timeline: false, //disable timeline widget
-            animation: false, // disable animation widget
-            mapMode2D: Cesium.MapMode2D.ROTATE,
-            sceneModePicker: false,
-            navigationHelpButton: false,
-            infoBox: false
-        });
 
         this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
             Cesium.ScreenSpaceEventType.LEFT_DOWN, Cesium.KeyboardEventModifier.SHIFT);
@@ -311,7 +355,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
         //Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
         this.cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
-        // this.cesiumViewer.camera.flyHome(0);
 
         this.popupEntity = this.optionsFromConfig.hoverPopupEnabled && this.cesiumViewer.entities.add({
             label: {
@@ -327,6 +370,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
         // Draw everything
         this.handleChangeLimit();
+
         let scene = this.cesiumViewer.scene;
         setTimeout(() => scene.mode === Cesium.SceneMode.SCENE3D && scene.morphTo2D(0), 700);
     }
@@ -336,11 +380,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             // This must be called to stop Cesium's event loop
             this.cesiumViewer.destroy();
         }
-    };
+    }
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
-    };
+    }
 
     subAddEmptyLayer() {
         this.active.layers.push({
@@ -349,7 +393,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
           longitudeField: new FieldMetaData(),
           colorField: new FieldMetaData(),
           sizeField: new FieldMetaData(),
-          dateField: new FieldMetaData(),
+          dateField: new FieldMetaData()
         });
         this.filterVisible[this.active.layers.length - 1] = true;
     }
@@ -405,7 +449,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         if (this.selection.selectionGeometry) {
             entities.removeById(this.selection.selectionGeometry.id);
         }
-        //if (!this.selection.selectionGeometry) {
         let color = (this.selection.isExact ? Cesium.Color.GREEN : Cesium.Color.RED.withAlpha(.3));
         let geo = entities.add({
             name: 'SelectionRectangle',
@@ -418,7 +461,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             }
         });
         this.selection.selectionGeometry = geo;
-        //}
     }
 
     onSelectUp(event) {
@@ -483,8 +525,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
 
         if (this.optionsFromConfig.hoverPopupEnabled || this.optionsFromConfig.hoverSelect) {
-            let viewer = this.cesiumViewer,
-            objectsAtLocation = viewer.scene.drillPick(end); // get all entities under mouse
+            let viewer = this.cesiumViewer;
+            let objectsAtLocation = viewer.scene.drillPick(end); // get all entities under mouse
 
             if (this.optionsFromConfig.hoverPopupEnabled) {
                 let popup = this.popupEntity;
@@ -513,9 +555,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 }
             }
         }
-
-        //console.log(movement.endPosition);
-        //console.log(this.xyToLatLon(movement.endPosition))
     }
 
     setEndPos(position) {
@@ -559,16 +598,21 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             needCorrection = true;
         }
         if (needCorrection) {
-            let correctedXy = this.latLonToXy({ 'lat': obj[lat], 'lon': obj[lon] });
+            let correctedXy = this.latLonToXy({
+                lat: obj[lat],
+                lon: obj[lon]
+            });
             obj[x] = correctedXy.x;
             obj[y] = correctedXy.y;
         }
     }
 
-
     latLonToXy(position) {
         let viewer = this.cesiumViewer;
-        let p = viewer.scene.globe.ellipsoid.cartographicToCartesian({ 'latitude': position.lat, 'longitude': position.lon });
+        let p = viewer.scene.globe.ellipsoid.cartographicToCartesian({
+            latitude: position.lat,
+            longitude: position.lon
+        });
         return Cesium.SceneTransforms.wgs84ToWindowCoordinates(viewer.scene, p);
     }
 
@@ -605,7 +649,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         if (!layer.title || layer.title === '') {
             layer.title = 'New Layer';
         }
-    };
+    }
 
     findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
         // If there are no layers or the index is past the end of the layers in the config, default to the original
@@ -617,12 +661,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         let me = this;
         let find = function(name) {
             return _.find(me.meta.layers[layerIndex].fields, function(field) {
-                return field['columnName'] === name;
+                return field.columnName === name;
             });
         };
 
-        let field = find(this.optionsFromConfig.layers[layerIndex][bindingKey]);
-        return field || this.getBlankField();
+        return find(this.optionsFromConfig.layers[layerIndex][bindingKey]) || this.getBlankField();
     }
 
     createFilter(fieldsByLayer, name) {
@@ -631,15 +674,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             fieldsByLayer: fieldsByLayer,
             filterName: name
         };
-    };
+    }
 
     addLocalFilter(filter) {
         this.filters[0] = filter;
-    };
+    }
 
     createNeonFilterClauseEquals(database: string, table: string, latLonFieldNames: string[]) {
         let filterClauses = [];
-        //console.log(fieldName);
         let latField = latLonFieldNames[0];
         let lonField = latLonFieldNames[1];
         let minLat = Math.min(this.selection.startLat, this.selection.endLat);
@@ -650,11 +692,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         filterClauses[1] = neon.query.where(latField, '<=', maxLat);
         filterClauses[2] = neon.query.where(lonField, '>=', minLon);
         filterClauses[3] = neon.query.where(lonField, '<=', maxLon);
-        //let endDatePlusOne = this.selection.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
-        //let endDatePlusOneDate = new Date(endDatePlusOne);
-        //filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
         return neon.query.and.apply(neon.query, filterClauses);
-    };
+    }
 
     getFilterTextByFields(fieldsByLayer: any[]) {
         if (fieldsByLayer.length === 1) {
@@ -728,7 +767,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         query = query.where(whereClause);
         query = query.limit(this.active.limit);
         return query;
-    };
+    }
 
     isNumeric(n) {
         return !isNaN(parseFloat(n)) && isFinite(n);
@@ -753,7 +792,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
         this.removedEntities = [];
 
-        //entities.getOrCreateEntities(layerIndex);
         if (this.active.data[layerIndex]) {
             for (let id of this.active.data[layerIndex]) {
                 entities.removeById(id);
@@ -763,18 +801,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         //without needing to remove and readd all layers
         let newDataIds = [];
 
-        //entities.removeAll();
-        //if (this.selection.selectionGeometry) {
-        //    entities.add(this.selection.selectionGeometry);
-        //}
-
-        //let legendIndex = 0;
         let data = response.data;
         let allHashes = [];
         let map = new Map();
         for (let point of data) {
-            let color,
-                colorValue = colorField && point[colorField];
+            let color;
+            let colorValue = colorField && point[colorField];
             if (colorValue) {
                 let colorString = this.colorSchemeService.getColorFor(colorField, colorValue).toRgb();
                 color = Cesium.Color.fromCssColorString(colorString);
@@ -787,33 +819,25 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
             if (this.isNumeric(latCoord) && this.isNumeric(lngCoord)) {
                 let hashCode = geohash.encode(latCoord, lngCoord);
-                //console.log('Before: ' + hash);
                 hash.push(hashCode);
-                //console.log('After: ' + hash);
-                //console.log('lat: ' + latCoord + ' lng: ' + lngCoord + ' hash: ' + hashCode);
                 this.addOrUpdateUniquePoint(map, allHashes, hashCode, latCoord, lngCoord, color);
             } else if (latCoord instanceof Array && lngCoord instanceof Array) {
                 for (let pos = latCoord.length - 1; pos >= 0; pos--) {
                     let hashCode = geohash.encode(latCoord[pos], lngCoord[pos]);
-                    //console.log("Before: " + hash);
                     hash.push(hashCode);
-                    //hash.push(geohash.encode(latCoord[pos], lngCoord[pos]));
-                    //console.log(pos,hash.length, latCoord[pos], lngCoord[pos]);
                     this.addOrUpdateUniquePoint(map, allHashes, hashCode, latCoord[pos], lngCoord[pos], color);
                 }
             }
         }
-        //console.log("Weird encoded number's hash" + geohash.encode(18.83333, -72.10528));
-        //console.log(allHashes);
         for (let id of allHashes) {
-            //console.log(id);
-            //console.log(map.get(id));
             let obj = map.get(id);
+            /* tslint:disable:no-string-literal */
             if (obj['lat'] instanceof Array) {
                 this.createAndAddPoint(id, obj['lat'][0], obj['lng'][0], obj['color'], obj['count'], dataSource, newDataIds, entities);
             } else {
                 this.createAndAddPoint(id, obj['lat'], obj['lng'], obj['color'], obj['count'], dataSource, newDataIds, entities);
             }
+            /* tslint:enable:no-string-literal */
         }
         this.cesiumViewer.dataSources.removeAll(true);
         this.cesiumViewer.dataSources.add(dataSource);
@@ -827,8 +851,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
         this.updateLegend();
         entities.resumeEvents();
-        //console.log(response);
-        //this.queryTitle = 'Map of ' + this.meta.table.prettyName + ' locations';
         this.updateLegend();
     }
 
@@ -868,20 +890,16 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     addOrUpdateUniquePoint(map, allHashes, hash, lat, lng, color) {
         if (map.has(hash)) {
-            //console.log("duplicate");
             let obj = map.get(hash);
-            //console.log("Old obj:" + obj.count);
             obj.count++;
-            //console.log("New obj:" + obj.count);
             map.set(hash, obj);
         } else {
-            //console.log("new");
             allHashes.push(hash);
             let obj = {
-            lat: lat,
-            lng: lng,
-            color: color,
-            count: 1
+                lat: lat,
+                lng: lng,
+                color: color,
+                count: 1
             };
             map.set(hash, obj);
         }
@@ -942,22 +960,21 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                     cluster.label.showBackground = true;
                     cluster.label.font = '18px sans-serif';
                     cluster.point.show = true;
-                    //cluster.billboard.show = true;
                     cluster.billboard.id = cluster.label.id;
                     cluster.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
 
                     if (clusteredEntities.length >= 50) {
-                    cluster.billboard.image = pin50;
+                        cluster.billboard.image = pin50;
                     } else if (clusteredEntities.length >= 40) {
-                    cluster.billboard.image = pin40;
+                        cluster.billboard.image = pin40;
                     } else if (clusteredEntities.length >= 30) {
-                    cluster.billboard.image = pin30;
+                        cluster.billboard.image = pin30;
                     } else if (clusteredEntities.length >= 20) {
-                    cluster.billboard.image = pin20;
+                        cluster.billboard.image = pin20;
                     } else if (clusteredEntities.length >= 10) {
-                    cluster.billboard.image = pin10;
+                        cluster.billboard.image = pin10;
                     } else {
-                    cluster.billboard.image = singleDigitPins[clusteredEntities.length - 2];
+                        cluster.billboard.image = singleDigitPins[clusteredEntities.length - 2];
                     }
                 });
             }
@@ -1021,10 +1038,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             this.active.layers[i].longitudeField.columnName
         ]);
         if (clauses) {
-            // console.log(clauses);
             let values = [this.selection.endLat, this.selection.endLon, this.selection.startLat, this.selection.startLon];
-            //FIX THE NEXT LINE!!!!
-            let emptyIfUnchanged = clauses.filter(cl => (values.indexOf(cl.rhs) === -1 ));
+            // TODO FIX THE NEXT LINE!!!!
+            let emptyIfUnchanged = clauses.filter((cl) => (values.indexOf(cl.rhs) === -1));
             return emptyIfUnchanged.length > 0;
         }
         return true;
@@ -1035,9 +1051,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         // See if any neon filters are local filters and set/clear appropriately
         //TODO needs to be reworked now that we have layers.
         //I'm not sure what it even should do from a user perspective.
-        let allLayersHaveFilters:  boolean = true;
-        let oneOrMoreLayersHaveFilters: boolean = false;
-        let oneOrMoreFiltersHaveChanged: boolean = false;
+        let allLayersHaveFilters = true;
+        let oneOrMoreLayersHaveFilters = false;
+        let oneOrMoreFiltersHaveChanged = false;
         for (let i = 0; i < this.meta.layers.length; i++) {
             let layerHasFilter: boolean = this.doesLayerStillHaveFilter(i);
             oneOrMoreLayersHaveFilters = oneOrMoreLayersHaveFilters ||  layerHasFilter;
@@ -1045,9 +1061,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             let filterHasChanged = this.hasLayerFilterChanged(i);
             oneOrMoreFiltersHaveChanged = oneOrMoreFiltersHaveChanged || filterHasChanged;
         }
-        console.log('oneOrMoreLayersHaveFilters: ' + oneOrMoreLayersHaveFilters);
-        console.log('allLayersHaveFilters: ' + allLayersHaveFilters);
-        console.log('oneOrMoreFiltersHaveChanged: ' + oneOrMoreFiltersHaveChanged);
         if (!oneOrMoreLayersHaveFilters) {
             //aka no layers have filters
             this.filters = [];
@@ -1064,28 +1077,27 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     handleChangeDateField(layerIndex) {
         this.logChangeAndStartQueryChain(layerIndex);
-    };
+    }
 
     handleChangeSizeField(layerIndex) {
         this.logChangeAndStartQueryChain(layerIndex);
-    };
+    }
 
     handleChangeColorField(layerIndex) {
         this.logChangeAndStartQueryChain(layerIndex);
-    };
+    }
 
     handleChangeLatitudeField(layerIndex) {
         this.logChangeAndStartQueryChain(layerIndex);
-    };
+    }
 
     handleChangeLongitudeField(layerIndex) {
         this.logChangeAndStartQueryChain(layerIndex);
-    };
+    }
 
     handleChangeAndFilters() {
         this.logChangeAndStartAllQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-        // this.updateNeonFilter();
-    };
+    }
 
     handleChangeClustering() {
         this.logChangeAndStartAllQueryChain();
@@ -1093,13 +1105,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
-        // let closeableFilters = this.filters.map((filter) => {
-        //    return filter.key + " Filter";
-        //});
-        //return closeableFilters;
         //TODO
         return this.filters;
-    };
+    }
 
     getFilterTitle(): string {
         let title = 'Map Filter';
@@ -1107,7 +1115,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             title += ' *Filter has been altered outside of Map visualization and selection rectange may not accurately represent filter.';
         }
         return title;
-    };
+    }
 
     getFilterCloseText(value: string) {
         let v = value;
@@ -1115,11 +1123,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             v += '*';
         }
         return v;
-    };
+    }
 
     getRemoveFilterTooltip() {
         return 'Delete ' + this.getFilterTitle();
-    };
+    }
 
     removeFilter(/*value*/): void {
         this.filters = [];
@@ -1132,7 +1140,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
         this.filters = [];
         this.removeFilterBox();
-    };
+    }
 
     toggleFilter(index: number): void {
         this.filterVisible[index] = !(this.filterVisible[index]);

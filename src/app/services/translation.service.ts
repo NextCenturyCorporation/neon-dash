@@ -1,13 +1,13 @@
 /*
- * Copyright 2016 Next Century Corporation
- * Licensed under the Apache License, Version 2.0 (the 'License');
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an 'AS IS' BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -32,7 +32,7 @@ export class TranslationService {
         this.apis = {
             google: {
                 base: 'https://www.googleapis.com/language/translate/v2',
-                key: (this.config.translationKeys) ? this.config.translationKeys['google'] : undefined,
+                key: (this.config.translationKeys) ? this.config.translationKeys.google : undefined,
                 methods: {
                     translate: '',
                     detect: '/detect',
@@ -51,7 +51,7 @@ export class TranslationService {
 
         this.setService('google');
         this.loadTranslationCache();
-    };
+    }
 
     /**
      * Sets the default translation service.
@@ -77,7 +77,7 @@ export class TranslationService {
                 successCallback(null);
             }
         }
-    };
+    }
 
     /**
      * Returns all the available translation services.
@@ -86,7 +86,7 @@ export class TranslationService {
      */
     getAllServices(): string[] {
         return _.keys(this.apis);
-    };
+    }
 
     /**
      * If the service being used has an API key.
@@ -95,7 +95,7 @@ export class TranslationService {
      */
     hasKey(): boolean {
         return this.apis[this.chosenApi].key ? true : false;
-    };
+    }
 
     /**
      * Translates all strings in text with language code specified in 'from' to the language
@@ -125,13 +125,13 @@ export class TranslationService {
             let translateCallback = (): Promise<{}> => {
                 let params = this.apis[this.chosenApi].params.key + '=' + this.apis[this.chosenApi].key;
 
-                this.apis[this.chosenApi].params.other.forEach(param => {
+                this.apis[this.chosenApi].params.other.forEach((param) => {
                     params += '&' + param;
                 });
 
                 let cached = [];
 
-                text.forEach(elem => {
+                text.forEach((elem) => {
                     if (this.translationCache[to][elem]) {
                         // Add a blank parameter so their indicies match the indices of the list of cached translations.
                         params += '&' + this.apis[this.chosenApi].params.text + '=';
@@ -163,11 +163,12 @@ export class TranslationService {
                     params += '&' + this.apis[this.chosenApi].params.from + '=' + from;
                 }
 
+                let self = this;
                 return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.translate + '?' + params)
                     .toPromise()
-                    .then(response => {
+                    .then((response) => {
                         // Cache the translations for later use.
-                        response['data'].data.translations.forEach((item, index) => {
+                        self.getResponseData(response).data.translations.forEach((item, index) => {
                             if (!cached[index]) {
                                 this.translationCache[to][text[index]] = item.translatedText;
                             }
@@ -175,12 +176,12 @@ export class TranslationService {
                         // Add the cached translations in the response data for the callback.
                         cached.forEach((item, index) => {
                             if (item) {
-                                response['data'].data.translations[index].translatedText = item;
+                                self.getResponseData(response).data.translations[index].translatedText = item;
                             }
                         });
                         return response;
                     })
-                    .catch(response =>
+                    .catch((response) =>
                         Observable.throw({
                             message: response.data.error.message,
                             reason: this.concatErrorResponses(response.data.error.errors)
@@ -197,7 +198,7 @@ export class TranslationService {
                 translateCallback().then(successCallback, failureCallback);
             }
         }
-    };
+    }
 
     /**
      * Saves the translation cache by sending it to the Neon server.
@@ -206,9 +207,11 @@ export class TranslationService {
     saveTranslationCache() {
         let connection = this.connectionService.getActiveConnection();
         if (connection) {
-            connection.setTranslationCache(this.translationCache, () => {});
+            connection.setTranslationCache(this.translationCache, () => {
+                // TODO
+            });
         }
-    };
+    }
 
     /**
      * Retrieves all languages supported by the default translation service.
@@ -222,7 +225,7 @@ export class TranslationService {
         } else {
             successCallback(this.apis[this.chosenApi].languages);
         }
-    };
+    }
 
     /**
      * Retrieves and sets all languages supported by the default translation service.
@@ -234,35 +237,35 @@ export class TranslationService {
         let params = this.apis[this.chosenApi].params.key + '=' + this.apis[this.chosenApi].key +
             '&' + this.apis[this.chosenApi].params.to + '=en';
 
+        let self = this;
         return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.languages + '?' + params)
             .toPromise()
-            .then(response => {
-                _.forEach(response['data'].data.languages, (elem: any) => {
+            .then((response) => {
+                _.forEach(self.getResponseData(response).data.languages, (elem: any) => {
                     this.apis[this.chosenApi].languages[elem.language] = elem.name;
                 });
                 return this.apis[this.chosenApi].languages;
             })
-            .catch(error => Observable.throw({
+            .catch((error) => Observable.throw({
                 message: error.data.error.message,
                 reason: this.concatErrorResponses(error.data.error.errors)
             }));
-    };
+    }
 
     /**
      * Helper method to combine a list of errors and their reasons into one string.
      * @param {Array} errors Array of errors containing reasons for the error.
-     * @param {String} errors[].reason Reason for a particular error.
      * @method concatErrorResponses
      * @return {String} All the error reasons in one string.
      * @private
      */
-    private concatErrorResponses(errors: string[]): string {
+    private concatErrorResponses(errors: { reason: string }[]): string {
         let reasons = 'Reasons:\n';
         _.forEach(errors, (error) => {
-            reasons += error['reason'] + '\n';
+            reasons += error.reason + '\n';
         });
         return reasons;
-    };
+    }
 
     /**
      * Loads the translation cache by asking the Neon server.
@@ -272,9 +275,22 @@ export class TranslationService {
     private loadTranslationCache() {
         let connection = this.connectionService.getActiveConnection();
         if (connection) {
-            connection.getTranslationCache(response => {
+            connection.getTranslationCache((response) => {
                 this.translationCache = JSON.parse(response);
             });
         }
-    };
+    }
+
+    /**
+     * Returns the data in the given response object.
+     *
+     * @arg {object} response
+     * @return {array}
+     * @private
+     */
+    private getResponseData(response: any) {
+        /* tslint:disable:no-string-literal */
+        return response['data'];
+        /* tslint:enable:no-string-literal */
+    }
 }

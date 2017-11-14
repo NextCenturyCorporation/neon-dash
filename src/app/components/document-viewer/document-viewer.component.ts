@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import {
     Component,
     OnInit,
@@ -13,11 +28,11 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonUtilities } from '../../neon-namespaces';
+import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 // import * as moment from 'moment';
-import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
@@ -89,11 +104,11 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     postInit() {
-
+        // Do nothing.
     }
 
     subNgOnDestroy() {
-
+        // Do nothing.
     }
 
     subGetBindings(bindings) {
@@ -165,7 +180,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         }).concat(this.active.dataField.columnName);
         if (this.active.dateField.columnName) {
             fields = fields.concat(this.active.dateField.columnName);
-            query = query.sortBy(this.active.dateField.columnName, neon.query['DESCENDING']);
+            query = query.sortBy(this.active.dateField.columnName, neonVariables.DESCENDING);
         }
         if (this.active.idField.columnName) {
             fields = fields.concat(this.active.idField.columnName);
@@ -175,8 +190,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     onQuerySuccess(response) {
-        if (response.data.length === 1 && response.data[0]['_docCount'] !== undefined) {
-            this.active.docCount = response.data[0]['_docCount'];
+        if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
+            this.active.docCount = response.data[0]._docCount;
         } else {
             let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
                 return x.field;
@@ -206,7 +221,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let countQuery = new neon.query.Query()
             .selectFrom(databaseName, tableName)
             .where(whereClause)
-            .aggregate(neon.query['COUNT'], '*', '_docCount');
+            .aggregate(neonVariables.COUNT, '*', '_docCount');
         this.executeQuery(countQuery);
     }
 
@@ -227,7 +242,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     removeFilter(value) {
-
+        // Do nothing.
     }
 
     handleChangeDataField() {
@@ -307,7 +322,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         this.singleItemRef.afterClosed().subscribe(() => {
             this.singleItemRef = null;
         });
-    };
+    }
 
     /**
      * Publishes a select_id event for the ID of the given selected item.

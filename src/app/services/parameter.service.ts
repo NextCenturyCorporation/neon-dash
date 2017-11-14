@@ -1,13 +1,13 @@
 /*
- * Copyright 2016 Next Century Corporation
- * Licensed under the Apache License, Version 2.0 (the 'License');
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an 'AS IS' BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -57,7 +57,7 @@ export class ParameterService {
     constructor(private datasetService: DatasetService, private connectionService: ConnectionService,
         private errorNotificationService: ErrorNotificationService, private filterService: FilterService) {
         this.messenger = new neon.eventing.Messenger();
-    };
+    }
 
     /**
      * Returns the name of the dataset specified in the URL parameters to set as the active dataset on initial load of the dashboard.
@@ -67,7 +67,7 @@ export class ParameterService {
     findActiveDatasetInUrl(): string {
         let parameters = new URLSearchParams();
         return parameters.get(ParameterService.ACTIVE_DATASET);
-    };
+    }
 
     /**
      * Adds the filters specified in the URL parameters to the dashboard.
@@ -152,7 +152,7 @@ export class ParameterService {
         let filterStateExists: boolean = this.readFilterState(parameters, ignoreDashboardState);
         if (!filterStateExists) {
             let callback: () => any = () => {
-                let dashboardStateId: string|number = this.cleanValue(parameters[ParameterService.DASHBOARD_STATE_ID], 'contains');
+                let dashboardStateId: string | number = this.cleanValue(parameters[ParameterService.DASHBOARD_STATE_ID], 'contains');
 
                 if (this.doesParameterExist(dashboardStateId) && !ignoreDashboardState) {
                     this.loadState(dashboardStateId, '');
@@ -160,7 +160,7 @@ export class ParameterService {
             };
             this.addFiltersForDashboardParameters(parameters, argsList, callback);
         }
-    };
+    }
 
     /**
      * Loads the filter state for a filter state ID found in the given list of parameters. If ignoreDashboardState is false,
@@ -174,7 +174,7 @@ export class ParameterService {
         let filterStateId = this.cleanValue(parameters[ParameterService.FILTER_STATE_ID], 'contains');
 
         if (this.doesParameterExist(filterStateId)) {
-            let dashboardStateId: string|number = this.cleanValue(parameters[ParameterService.DASHBOARD_STATE_ID], 'contains');
+            let dashboardStateId: string | number = this.cleanValue(parameters[ParameterService.DASHBOARD_STATE_ID], 'contains');
 
             if (!this.doesParameterExist(dashboardStateId) || ignoreDashboardState) {
                 dashboardStateId = '';
@@ -186,7 +186,7 @@ export class ParameterService {
         }
 
         return false;
-    };
+    }
 
     /**
      * Adds a filter to the dashboard for the first item in the given list of arguments using the given parameters.
@@ -223,14 +223,14 @@ export class ParameterService {
         } else {
             callNextFunction();
         }
-    };
+    }
 
     /**
      * Loads the dashboard and/or filter states for the given IDs and calls the given callback, if any, when finished.
      * @param {String} dashboardStateId
      * @param {String} filterStateId
      */
-    loadState(dashboardStateId: string|number, filterStateId: string|number) {
+    loadState(dashboardStateId: string | number, filterStateId: string | number) {
         let connection: neon.query.Connection = this.connectionService.getActiveConnection() ||
             this.connectionService.createActiveConnection();
         let params: any = {};
@@ -245,7 +245,7 @@ export class ParameterService {
         }, (response) => {
             this.errorNotificationService.showErrorMessage(null, response.responseJSON.error);
         });
-    };
+    }
 
     /**
      * Handles changing any datasets and visualizations from the result of loading states.
@@ -254,7 +254,7 @@ export class ParameterService {
      * @param {Object} dashboardState.dataset
      * @param {String} dashboardStateId
      */
-    loadStateSuccess(dashboardState: any, dashboardStateId: number|string) {
+    loadStateSuccess(dashboardState: any, dashboardStateId: number | string) {
         if (_.keys(dashboardState).length) {
             if (dashboardStateId) {
                 let matchingDataset: Dataset = this.datasetService.getDatasetWithName(dashboardState.dataset.name);
@@ -296,7 +296,7 @@ export class ParameterService {
         } else {
             this.errorNotificationService.showErrorMessage(null, 'State not found for given IDs.');
         }
-    };
+    }
 
     /**
      * Cleans the given value and returns it as a number or string based on its type and the given operator.
@@ -305,9 +305,8 @@ export class ParameterService {
      * @private
      * @return {Number} or {String}
      */
-    /* tslint:disable:no-unused-variable */
-    private cleanValue(value: string, operator: string): number|string {
-        let retVal: number|string = value;
+    private cleanValue(value: string, operator: string): number | string {
+        let retVal: number | string = value;
 
         if ($.isNumeric(value) && operator !== 'contains') {
             retVal = parseFloat(value);
@@ -316,7 +315,7 @@ export class ParameterService {
             retVal = value.substring(1, value.length - 1);
         }
         return retVal;
-    };
+    }
 
     /**
      * Splits the given array string and returns the result.
@@ -326,7 +325,7 @@ export class ParameterService {
      */
     private splitArray(array: string): string[] {
         return array ? array.split(',') : [];
-    };
+    }
 
     /**
      * Returns whether date strings in the given array create valid date objects.
@@ -345,7 +344,7 @@ export class ParameterService {
             }
         });
         return (!notValid && array.length > 0);
-    };
+    }
 
     /**
      * Returns whether the given parameter exists.
@@ -355,7 +354,7 @@ export class ParameterService {
      */
     private doesParameterExist(parameter: any): any {
         return parameter;
-    };
+    }
 
     /**
      * Returns whether the given array is big enough to contain geographic bounds.
@@ -365,7 +364,7 @@ export class ParameterService {
      */
     private hasBounds(array: any[]): boolean {
         return array.length === 4;
-    };
+    }
 
     /**
      * Returns whether the given dataset is valid and contains all of the given mappings.
@@ -378,7 +377,7 @@ export class ParameterService {
         return dataset.database && dataset.table && dataset.fields && mappings.every((mapping) => {
             return (dataset.fields[mapping] !== undefined);
         });
-    };
+    }
 
     /**
      * Returns the array of fields in the given dataset for the given mappings.
@@ -393,7 +392,7 @@ export class ParameterService {
             fields.push(dataset.fields[mapping]);
         });
         return fields;
-    };
+    }
 
     /**
      * Returns a function to create a filter clause using the given operator and value.
@@ -406,7 +405,7 @@ export class ParameterService {
         return (fieldName: string) => {
             return neon.query.where(fieldName, operator, value);
         };
-    };
+    }
 
     /**
      * Returns a function to create a date filter clause using the given list of dates.
@@ -427,7 +426,7 @@ export class ParameterService {
             let endFilterClause = neon.query.where(fieldName, '<', endDate);
             return neon.query.and.apply(neon.query, [startFilterClause, endFilterClause]);
         };
-    };
+    }
 
     /**
      * Returns a function to create a geographic bounds filter clause using the given list of geographic bounds.
@@ -478,6 +477,6 @@ export class ParameterService {
 
             return neon.query.and(leftClause, rightClause, bottomClause, topClause);
         };
-    };
+    }
 
 }

@@ -13,34 +13,10 @@
  * limitations under the License.
  *
  */
-@import '~@angular/material/_theming';
-@import '../../../themes/neon-green-theme.scss';
+ @import '../base-neon-component/base-neon.component.scss';
 
 .visualization-sidenav {
-    height: 100%;
-    cursor: default;
-    border-radius: 15px;
-
-    .header.text {
-        font-size: 16px;
-        font-weight: bold;
-        text-transform: capitalize;
-        color: mat-color($header-text);
-    }
-
-   .text {
-       font-size: 14px;
-       color: mat-color($fade);
-    }
-
     .visualization-sidenav-options {
-        min-width: 320px;
-
-        mat-select, table, mat-input {
-            width: 100%;
-            margin-top: 10px;
-        }
-
         .icon-with-text {
             display: flex;
             line-height: 20px;
@@ -57,9 +33,5 @@
         .icon-with-text > div {
             display: inline-flex;
         }
-    }
-
-    .html {
-        padding: 15px;
     }
 }

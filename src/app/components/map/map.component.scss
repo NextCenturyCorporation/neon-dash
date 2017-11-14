@@ -13,9 +13,11 @@
  * limitations under the License.
  *
  */
-@import '~@angular/material/_theming';
-@import '../../../themes/neon-green-theme.scss';
-@import '../../../themes/visualization-common.scss';
+@import '../base-neon-component/base-neon.component.scss';
+
+.body-container {
+    height: 87%;
+}
 
 .map-container {
     position: absolute;
@@ -34,7 +36,7 @@
 }
 
 .map-selection {
-    border-color: rgba(0,128,0,.4);
+    border-color: mat-color($primary);
     border-width: 2px;
     border-style: solid;
     height: 10px;

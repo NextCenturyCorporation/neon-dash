@@ -1,13 +1,13 @@
 /*
- * Copyright 2016 Next Century Corporation
- * Licensed under the Apache License, Version 2.0 (the 'License');
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an 'AS IS' BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -37,7 +37,7 @@ export class FilterService {
     constructor(private errorNotificationService: ErrorNotificationService, private datasetService: DatasetService) {
         this.messenger = new neon.eventing.Messenger();
         this.filters = [];
-    };
+    }
 
     /**
      * Gets all the filters from the server.
@@ -58,7 +58,7 @@ export class FilterService {
                 this.errorNotificationService.showErrorMessage(null, response.responseJSON);
             }
         });
-    };
+    }
 
     /**
      * Returns all filters matching the given comparitor object. The comparitor object can be as sparse
@@ -113,8 +113,8 @@ export class FilterService {
             if (clause.type === 'where' && fields.indexOf(clause.lhs) >= 0) {
                 return true;
             } else if (clause.type !== 'where') {
-                for (let i = 0; i < clause.whereClauses.length; i++) {
-                    if (!checkClauses(clause.whereClauses[i])) {
+                for (let whereClause of clause.whereClauses) {
+                    if (!checkClauses(whereClause)) {
                         return false;
                     }
                 }
@@ -155,7 +155,7 @@ export class FilterService {
             onSuccess(id); // Return the ID of the created filter.
         },
         onError);
-    };
+    }
 
     replaceFilter(messenger: neon.eventing.Messenger,
         id: string,
@@ -182,7 +182,7 @@ export class FilterService {
             onSuccess(id); // Return the ID of the replaced filter.
         },
         onError);
-    };
+    }
 
     removeFilter(messenger: neon.eventing.Messenger,
         id: string,
@@ -212,9 +212,9 @@ export class FilterService {
 
     private getFilterNameString(database: string, table: string, filterName: string | {visName: string, text: string}) {
         if (typeof filterName === 'object') {
-            let nameString = filterName['visName'] ? filterName['visName'] + ' - ' : '';
+            let nameString = filterName.visName ? filterName.visName + ' - ' : '';
             nameString += this.datasetService.getTableWithName(database, table).prettyName;
-            nameString += filterName['text'] ? ': ' + filterName['text'] : '';
+            nameString += filterName.text ? ': ' + filterName.text : '';
             return nameString;
         } else {
             return filterName;

@@ -13,9 +13,18 @@
  * limitations under the License.
  *
  */
-@import '~@angular/material/_theming';
-@import '../../../themes/neon-green-theme.scss';
-@import '../../../themes/visualization-common.scss';
+@import '../base-neon-component/base-neon.component.scss';
+
+// FIXME:  When this component is working again, modify these
+
+// FIXME:  Remove the hard-coded colors, using the theme
+
+.text-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    height: 0;
+}
 
 .chart-container {
     position: absolute;
@@ -68,7 +77,7 @@
 }
 
 /deep/ .datatable-row-even {
-    background-color: rgb(240,240,240);
+    background-color: mat-color($white);
 }
 
 /deep/ .sort-asc {}
@@ -112,10 +121,4 @@
 /deep/ .icon-down:before {
     font-family: 'Material Icons';
     content: "keyboard_arrow_down";
-}
-
-.neon-green-dark-theme {
-    .filter-reset {
-        background-color: mat-color($primary);
-    }
 }

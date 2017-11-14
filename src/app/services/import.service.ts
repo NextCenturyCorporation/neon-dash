@@ -1,13 +1,13 @@
 /*
- * Copyright 2016 Next Century Corporation
- * Licensed under the Apache License, Version 2.0 (the 'License');
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an 'AS IS' BASIS,
+ * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -34,27 +34,27 @@ export class ImportService {
 
     getUserName(): string {
         return this.userName;
-    };
+    }
 
     setUserName(name: string) {
         this.userName = name;
-    };
+    }
 
     getDatabaseName(): string {
         return this.databaseName;
-    };
+    }
 
     setDatabaseName(dbName: string) {
         this.databaseName = dbName;
-    };
+    }
 
     getDateString(): string {
         return this.dateString;
-    };
+    }
 
     setDateString(dateString: string) {
         this.dateString = dateString;
-    };
+    }
 
     /**
      * Gets the maximum allowable file input size, in either bytes or a human-readable string depending on
@@ -65,7 +65,7 @@ export class ImportService {
      */
     getMaxSize(readable: boolean): any {
         return readable ? this.sizeToReadable(ImportService.MAX_SIZE) : ImportService.MAX_SIZE;
-    };
+    }
 
     /**
      * Given an array of objects, assumed to each have a name field and a type field at the very least,
@@ -117,7 +117,7 @@ export class ImportService {
             }
         });
         return [];
-    };
+    }
 
     /**
      * Takes an integer and makes it more easily human-readable, assuming the number's units
@@ -130,10 +130,11 @@ export class ImportService {
     sizeToReadable(size: number): string {
         let nameList = ['bytes', 'kB', 'mB', 'gB', 'tB', 'pB'];
         let name = 0;
-        while (size > 1000) {
-            size /= 1000;
+        let readableSize = size;
+        while (readableSize > 1000) {
+            readableSize /= 1000;
             name++;
         }
-        return (Math.round(size * 10) / 10) + ' ' + nameList[name];
-    };
+        return (Math.round(readableSize * 10) / 10) + ' ' + nameList[name];
+    }
 }
