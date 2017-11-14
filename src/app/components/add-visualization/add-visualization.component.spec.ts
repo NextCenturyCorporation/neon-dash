@@ -14,7 +14,7 @@
  *
  */
 import { TestBed, inject } from '@angular/core/testing';
-import { MatDialogRef, MatGridListModule} from '@angular/material';
+import { MatDialogRef, MatGridListModule } from '@angular/material';
 import { AddVisualizationComponent } from './add-visualization.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ThemesService } from '../../services/themes.service';

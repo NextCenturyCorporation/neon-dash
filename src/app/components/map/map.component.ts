@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import {VisualizationService} from '../../services/visualization.service';
+import { VisualizationService } from '../../services/visualization.service';
 
 declare let Cesium: any;
 import {
@@ -28,19 +28,19 @@ import {
     ElementRef,
     ChangeDetectorRef
 } from '@angular/core';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {ColorSchemeService} from '../../services/color-scheme.service';
-import {FieldMetaData} from '../../dataset';
-import {neonMappings} from '../../neon-namespaces';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { ColorSchemeService } from '../../services/color-scheme.service';
+import { FieldMetaData } from '../../dataset';
+import { neonMappings } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import {BaseLayeredNeonComponent} from '../base-neon-component/base-layered-neon.component';
+import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import 'cesium/Build/Cesium/Cesium.js';
 import * as _ from 'lodash';
-import {Set, Map} from 'hash-set-map';
+import { Set, Map } from 'hash-set-map';
 import * as geohash from 'geo-hash';
 
 export class MapLayer {
@@ -161,7 +161,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
-        (<any>window).CESIUM_BASE_URL = 'assets/Cesium';
+        (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
         this.colorSchemeService = colorSchemeSrv;
         this.FIELD_ID = '_id';
         this.optionsFromConfig = {
@@ -470,7 +470,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             let rect = this.getSelectionRectangle();
             let validFilter = (rect.east !== rect.west) && (rect.north !== rect.south);
             if (validFilter) {
-                let fieldsByLayer = this.active.layers.map( (l) => {
+                let fieldsByLayer = this.active.layers.map((l) => {
                     return {
                         latitudeName: l.latitudeField.columnName,
                         longitudeName: l.longitudeField.columnName
@@ -1185,7 +1185,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
         entities.resumeEvents();
     }
-
 
     /*removeLocalFilterFromLocalAndNeon(value: string) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
