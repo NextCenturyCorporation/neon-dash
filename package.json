@@ -7,12 +7,13 @@
     "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "lint": "ng lint",
+    "lint-fix": "ng lint -fix",
     "test": "ng test",
     "e2e": "ng e2e",
     "docs": "npm run typedoc -- --options typedoc.json --exclude '**/*.spec.ts' ./src/",
     "typedoc": "typedoc"
   },
-  "pre-commit": "lint",
+  "pre-commit": "lint-fix",
   "private": true,
   "dependencies": {
     "@angular/animations": "4.4.6",

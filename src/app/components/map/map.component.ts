@@ -266,8 +266,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 sceneMode: Cesium.SceneMode.SCENE3D,
                 imageryViewModels: [],
                 imageryProvider: new Cesium.WebMapServiceImageryProvider({
-                    url: 'http://localhost:8080/geoserver/Natural_Earth/wms',
-                    layers: 'Natural_Earth:NE1_HR_LC_SR_W_DR',
+                    url: this.optionsFromConfig.geoServer.mapUrl,
+                    layers: this.optionsFromConfig.geoServer.layer,
                     parameters: {
                         transparent: true,
                         tiled: true,
