@@ -355,6 +355,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
         //Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
         this.cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
+        this.cesiumViewer.camera.flyHome(0);
 
         this.popupEntity = this.optionsFromConfig.hoverPopupEnabled && this.cesiumViewer.entities.add({
             label: {
