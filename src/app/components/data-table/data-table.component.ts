@@ -329,7 +329,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     handleFiltersChangedEvent() {
-
         this.executeQueryChain();
     }
 
@@ -339,6 +338,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     handleChangeField() {
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+    }
+
+    handleChangeSortField() {
+        this.logChangeAndStartQueryChain();
     }
 
     isDragging(): boolean {
@@ -463,7 +466,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @fires select_id
      * @private
      */
-    private onSelect({selected}) {
+    onSelect({selected}) {
         if (selected && selected.length && this.active.idField.columnName && selected[0][this.active.idField.columnName]) {
             this.publishSelectId(selected[0][this.active.idField.columnName]);
         }
