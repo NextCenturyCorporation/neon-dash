@@ -13,11 +13,10 @@
  * limitations under the License.
  *
  */
-import {ElementRef} from '@angular/core';
-import {
-    AbstractMap, BoundingBoxByDegrees, FilterListener, MapLayer, MapPoint, OptionsFromConfig,
-    whiteString
-} from './map.type.abstract';
+import { ElementRef } from '@angular/core';
+import { AbstractMap, BoundingBoxByDegrees, MapLayer, MapPoint, whiteString } from './map.type.abstract';
+import 'cesium/Build/Cesium/Cesium.js';
+declare var Cesium;
 
 export class CesiumNeonMap extends AbstractMap {
     private cesiumViewer: any;
@@ -46,21 +45,58 @@ export class CesiumNeonMap extends AbstractMap {
     private dataSources = new Map<MapLayer, any>();
 
     doCustomInitialization(mapContainer: ElementRef) {
-        let imagerySources = Cesium.createDefaultImageryProviderViewModels();
         // In order to get a minimal viable product in the short time span we have, we decided to disable the following Cesium features:
         //  3D Map and Columbus view.
         //  Rotating 2D map
         // These were mostly done to prevent the more complex problem of drawing on a 3D map.
-        let sourceId = 0;
-        for (; sourceId < imagerySources.length; sourceId++) {
-            let sourceName = imagerySources[sourceId].name;
-            if ('ESRI World Street Map' === sourceName) {
-                break;
+        let cesiumSettings: any = {
+            sceneMode: Cesium.SceneMode.SCENE3D,
+            terrainProviderViewModels: [],
+            imageryViewModels: [],
+            fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
+            timeline: false, //disable timeline widget
+            animation: false, // disable animation widget
+            baseLayerPicker: true,
+            mapMode2D: Cesium.MapMode2D.ROTATE,
+            sceneModePicker: false,
+            navigationHelpButton: false,
+            infoBox: false
+        };
+
+        let geoOptions = this.optionsFromConfig.geoServer;
+        if (geoOptions && geoOptions.offline) {
+            cesiumSettings.baseLayerPicker = false;
+            cesiumSettings.imageryProvider = new Cesium.WebMapServiceImageryProvider({
+                url: this.optionsFromConfig.geoServer.mapUrl,
+                layers: this.optionsFromConfig.geoServer.layer,
+                parameters: {
+                    transparent: true,
+                    tiled: true,
+                    requestWaterMask: true
+                }
+            });
+        } else if (!cesiumSettings.baseLayerPicker) {
+            // Stand-alone arcgis provider to be used if baseLayerPicker is turned off
+            cesiumSettings.imageryProvider = new Cesium.ArcGisMapServerImageryProvider({
+                url : 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer'
+            });
+        } else {
+            let imagerySources = Cesium.createDefaultImageryProviderViewModels();
+            let sourceId = 0;
+            for (; sourceId < imagerySources.length; sourceId++) {
+                let sourceName = imagerySources[sourceId].name;
+                if ('ESRI World Street Map' === sourceName) {
+                    break;
+                }
             }
+            if (sourceId === imagerySources.length) {
+                sourceId = 0;
+            }
+            cesiumSettings.imageryProviderViewModels = imagerySources;
+            //set default imagery to eliminate annoying text and using a bing key by default
+            cesiumSettings.selectedImageryProviderViewModel = imagerySources[sourceId];
         }
-        if (sourceId === imagerySources.length) {
-            sourceId = 0;
-        }
+
         let west = -180.0;
         let east = 180.0;
         let north = 90.0;
@@ -73,47 +109,36 @@ export class CesiumNeonMap extends AbstractMap {
             south = this.optionsFromConfig.south;
         }
 
-        let rectangle = Cesium.Rectangle.fromDegrees(west, south, east, north);
+        Cesium.BingMapsApi.defaultKey = ''; // remove console line concerning Bing maps
         Cesium.Camera.DEFAULT_VIEW_FACTOR = 0;
-        Cesium.Camera.DEFAULT_VIEW_RECTANGLE = rectangle;
-        this.cesiumViewer = new Cesium.Viewer(mapContainer.nativeElement, {
-            sceneMode: Cesium.SceneMode.SCENE3D,
-            imageryProviderViewModels: imagerySources,
-            //set default imagery to eliminate annoying text and using a bing key by default
-            selectedImageryProviderViewModel: imagerySources[sourceId],
-            terrainProviderViewModels: [],
-            fullscreenButton: false, //full screen button doesn't work in our context, so don't show it
-            timeline: false, //disable timeline widget
-            animation: false, // disable animation widget
-            mapMode2D: Cesium.MapMode2D.ROTATE,
-            sceneModePicker: false,
-            navigationHelpButton: false,
-            infoBox: false
-        });
+        Cesium.Camera.DEFAULT_VIEW_RECTANGLE = Cesium.Rectangle.fromDegrees(west, south, east, north);
+        let viewer = new Cesium.Viewer(mapContainer.nativeElement, cesiumSettings),
+            scene = viewer.scene;
 
-        this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
+        viewer.screenSpaceEventHandler.removeInputAction(
             Cesium.ScreenSpaceEventType.LEFT_DOWN, Cesium.KeyboardEventModifier.SHIFT);
-        this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
+        viewer.screenSpaceEventHandler.removeInputAction(
             Cesium.ScreenSpaceEventType.LEFT_UP, Cesium.KeyboardEventModifier.SHIFT);
-        this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
+        viewer.screenSpaceEventHandler.removeInputAction(
             Cesium.ScreenSpaceEventType.MOUSE_MOVE, Cesium.KeyboardEventModifier.SHIFT);
-        this.cesiumViewer.screenSpaceEventHandler.removeInputAction(
+        viewer.screenSpaceEventHandler.removeInputAction(
             Cesium.ScreenSpaceEventType.LEFT_CLICK, Cesium.KeyboardEventModifier.SHIFT);
 
-        this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onSelectDown.bind(this),
+        viewer.screenSpaceEventHandler.setInputAction(this.onSelectDown.bind(this),
             Cesium.ScreenSpaceEventType.LEFT_DOWN, Cesium.KeyboardEventModifier.SHIFT);
-        this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onSelectUp.bind(this),
+        viewer.screenSpaceEventHandler.setInputAction(this.onSelectUp.bind(this),
             Cesium.ScreenSpaceEventType.LEFT_UP, Cesium.KeyboardEventModifier.SHIFT);
-        this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onSelectUp.bind(this),
+        viewer.screenSpaceEventHandler.setInputAction(this.onSelectUp.bind(this),
             Cesium.ScreenSpaceEventType.LEFT_UP);
-        this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onMouseMove.bind(this),
+        viewer.screenSpaceEventHandler.setInputAction(this.onMouseMove.bind(this),
             Cesium.ScreenSpaceEventType.MOUSE_MOVE, Cesium.KeyboardEventModifier.SHIFT);
-        this.cesiumViewer.screenSpaceEventHandler.setInputAction(this.onMouseMove.bind(this),
+        viewer.screenSpaceEventHandler.setInputAction(this.onMouseMove.bind(this),
             Cesium.ScreenSpaceEventType.MOUSE_MOVE);
 
-        //Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
-        this.cesiumViewer.scene.screenSpaceCameraController.enableRotate = false;
-        // this.cesiumViewer.camera.flyHome(0);
+        // Disable rotation (for 2D map, although this is also true if 3D map becomes enabled)
+        scene.screenSpaceCameraController.enableRotate = false;
+
+        this.cesiumViewer = viewer;
 
         this.popupEntity = this.optionsFromConfig.hoverPopupEnabled && this.cesiumViewer.entities.add({
                 label: {
@@ -127,7 +152,6 @@ export class CesiumNeonMap extends AbstractMap {
                 }
             });
 
-        let scene = this.cesiumViewer.scene;
         setTimeout(() => scene.mode === Cesium.SceneMode.SCENE3D && scene.morphTo2D(0), 700);
     }
 
@@ -141,19 +165,16 @@ export class CesiumNeonMap extends AbstractMap {
         if (this.selection.selectionGeometry) {
             entities.removeById(this.selection.selectionGeometry.id);
         }
-        //if (!this.selection.selectionGeometry) {
-        let color = (this.isDrawnFilterExact ? Cesium.Color.GREEN : Cesium.Color.RED.withAlpha(.3));
-        let geo = entities.add({
+        this.selection.selectionGeometry = entities.add({
             name: 'SelectionRectangle',
             rectangle: {
                 coordinates: new Cesium.CallbackProperty(this.getSelectionRectangle.bind(this), false),
                 material: Cesium.Color.GREEN.withAlpha(0.0),
                 height: 0,
                 outline: true,
-                outlineColor: color
+                outlineColor: this.isDrawnFilterExact ? Cesium.Color.GREEN : Cesium.Color.RED.withAlpha(.3)
             }
         });
-        this.selection.selectionGeometry = geo;
     }
 
     removeFilterBox() {
@@ -272,21 +293,19 @@ export class CesiumNeonMap extends AbstractMap {
     }
 
     private onMouseMove(movement) {
-        let end = movement.endPosition;
-        if (this.selection.selectionDown && movement) {
+        let end = movement && movement.endPosition;
+        if (this.selection.selectionDown && end) {
             this.setEndPos(end);
             this.drawSelection();
-        }
-
-        if (this.optionsFromConfig.hoverPopupEnabled || this.optionsFromConfig.hoverSelect) {
+        } else if (end && (this.optionsFromConfig.hoverPopupEnabled || this.optionsFromConfig.hoverSelect)) {
             let viewer = this.cesiumViewer,
                 objectsAtLocation = viewer.scene.drillPick(end); // get all entities under mouse
 
             if (this.optionsFromConfig.hoverPopupEnabled) {
                 let popup = this.popupEntity;
 
-                //ensure that an object exists at cursor and that it isn't the popup
-                if (objectsAtLocation.length && objectsAtLocation[0].id.id !== popup.id) {
+                // ensure that an object exists at cursor and that it isn't one of the map-feature entities (eg. popup)
+                if (objectsAtLocation.length && !viewer.entities.contains(objectsAtLocation[0].id)) {
                     popup.position = objectsAtLocation[0].id.position.getValue();
                     popup.label.show = true;
                     popup.label.text = objectsAtLocation[0].id.name + '\n' + objectsAtLocation[0].id.description;

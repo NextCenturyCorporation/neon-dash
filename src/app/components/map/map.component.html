@@ -73,6 +73,9 @@
 
                     </div>
                 </div>
+                <mat-select placeholder="Map Type" [ngModel]="optionsFromConfig.mapType" (ngModelChange)="handleChangeMapType($event)">
+                    <mat-option *ngFor="let type of mapTypes" [value]="type.value">{{ type.name }}</mat-option>
+                </mat-select>
                 <table cellspacing="0">
                     <tr>
                         <td>

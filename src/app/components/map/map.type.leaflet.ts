@@ -13,8 +13,8 @@
  * limitations under the License.
  *
  */
-import {AbstractMap, BoundingBoxByDegrees, MapLayer, MapPoint, whiteString} from './map.type.abstract';
-import {ElementRef} from '@angular/core';
+import { AbstractMap, BoundingBoxByDegrees, MapLayer, MapPoint, whiteString } from './map.type.abstract';
+import { ElementRef } from '@angular/core';
 import * as L from 'leaflet';
 
 export class LeafletNeonMap extends AbstractMap {
@@ -33,28 +33,32 @@ export class LeafletNeonMap extends AbstractMap {
     private box: L.Rectangle;
 
     doCustomInitialization(mapContainer: ElementRef) {
-        let osmUrl = 'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            monoUrl = 'http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png',
-            osmAttrib = '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
-            monoAttrib = 'Imagery from <a href="http://giscience.uni-hd.de/">' +
+        let geoOption = this.optionsFromConfig.geoServer,
+            mOptions = this.mapOptions,
+            baseTileLayer = geoOption && geoOption.offline ?
+                L.tileLayer.wms(geoOption.mapUrl, {
+                    layers: geoOption.layer,
+                    transparent: true,
+                    minZoom: mOptions.minZoom,
+                    maxZoom: mOptions.maxZoom
+                }) : new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    minZoom: mOptions.minZoom,
+                    maxZoom: mOptions.maxZoom,
+                    attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+                }),
+            monochrome = new L.TileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
+                minZoom: mOptions.minZoom,
+                maxZoom: mOptions.maxZoom,
+                attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">' +
                 'GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; ' +
-                '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-            osm = new L.TileLayer(osmUrl, {
-                minZoom: this.mapOptions.minZoom,
-                maxZoom: this.mapOptions.maxZoom,
-                attribution: osmAttrib
-            }),
-            monochrome = new L.TileLayer(monoUrl, {
-                minZoom: this.mapOptions.minZoom,
-                maxZoom: this.mapOptions.maxZoom,
-                attribution: monoAttrib
+                '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }),
             baseLayers = {
-                Normal: osm,
+                Normal: baseTileLayer,
                 MonoChrome: monochrome
             };
 
-        this.map = new L.Map(mapContainer.nativeElement, this.mapOptions).addLayer(osm);
+        this.map = new L.Map(mapContainer.nativeElement, this.mapOptions).addLayer(baseTileLayer);
         this.layerControl = L.control.layers(baseLayers, {});
         this.map.addControl(this.layerControl);
 
@@ -82,7 +86,9 @@ export class LeafletNeonMap extends AbstractMap {
                 },
                 circle = new L.CircleMarker([point.lat, point.lng], circlOptions).setRadius(6);
 
-            circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
+            if (this.optionsFromConfig.hoverPopupEnabled) {
+                circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
+            }
             group.addLayer(circle);
         }
         //TODO: cluster layer based on cluster boolean
@@ -123,10 +129,10 @@ export class LeafletNeonMap extends AbstractMap {
             this.box.setBounds(bounds).setStyle({color: this.getBoxColor()});
         }
         this.filterListener.filterByLocation(new BoundingBoxByDegrees(
-            bounds.getNorth(),
             bounds.getSouth(),
-            bounds.getEast(),
-            bounds.getWest()
+            bounds.getNorth(),
+            bounds.getWest(),
+            bounds.getEast()
         ));
     }
     private getBoxColor() {

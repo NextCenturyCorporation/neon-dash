@@ -13,14 +13,17 @@
  * limitations under the License.
  *
  */
-import {Color} from '../../services/color-scheme.service';
-import {FieldMetaData} from '../../dataset';
-import {ElementRef} from '@angular/core';
+import { Color } from '../../services/color-scheme.service';
+import { FieldMetaData } from '../../dataset';
+import { ElementRef } from '@angular/core';
 
 export const whiteString = new Color(255, 255, 255).toRgb();
 
-export const CESIUM_TYPE = 'cesium';
-export const LEAFLET_TYPE = 'leaflet';
+export enum MapType {leaflet, cesium}
+
+// create array of name/value pairs for map types
+export const MapTypePairs: {name: string, value: number}[] =
+    Object.keys(MapType).filter((key) => Number.isNaN(Number.parseInt(key))).map((name) => ({name: name, value: MapType[name]}));
 
 export class MapLayer {
     title: string;
@@ -64,15 +67,20 @@ export interface OptionsFromConfig {
     east: number;
     north: number;
     south: number;
-    mapType: string;
+    mapType: MapType | string;
+    geoServer: {
+        offline: boolean,
+        mapUrl: string,
+        layer: string
+    };
 }
 
 export class BoundingBoxByDegrees {
     constructor(
-        public north: number,
         public south: number,
-        public east: number,
-        public west: number
+        public north: number,
+        public west: number,
+        public east: number
     ) {}
 }
 

@@ -37,24 +37,21 @@ import { FieldMetaData } from '../../dataset';
 import { neonMappings } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
-import 'cesium/Build/Cesium/Cesium.js';
 import * as _ from 'lodash';
 import * as geohash from 'geo-hash';
 import { CesiumNeonMap } from './map.type.cesium';
 import {
     AbstractMap,
     BoundingBoxByDegrees,
-    CESIUM_TYPE,
     FilterListener,
-    LEAFLET_TYPE,
     MapLayer,
     MapPoint,
+    MapType,
+    MapTypePairs,
     OptionsFromConfig,
     whiteString
 } from './map.type.abstract';
 import { LeafletNeonMap } from './map.type.leaflet';
-
-declare let Cesium: any;
 
 class UniqueLocationPoint {
     constructor(public lat: number, public lng: number, public count: number, public colorValue: string) {}
@@ -97,6 +94,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
   public filterVisible: boolean[] = [];
 
+  public mapTypes = MapTypePairs;
+
   private colorSchemeService: ColorSchemeService;
 
   private optionsFromConfig: OptionsFromConfig;
@@ -135,7 +134,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       north: this.injector.get('north', null),
       south: this.injector.get('south', null),
       geoServer: this.injector.get('geoServer', []),
-      mapType: this.injector.get('mapType', LEAFLET_TYPE)
+      mapType: this.injector.get('mapType', MapType.leaflet)
     };
 
     this.filters = [];
@@ -191,11 +190,16 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
   }
 
   ngAfterViewInit() {
-      switch (this.optionsFromConfig.mapType) {
-          case CESIUM_TYPE:
+      let type = this.optionsFromConfig.mapType;
+      if (!this.isNumeric(type)) {
+          type = MapType[type] || MapType.leaflet;
+          this.optionsFromConfig.mapType = type;
+      }
+      switch (type) {
+          case MapType.cesium:
               this.mapObject = new CesiumNeonMap();
               break;
-          case LEAFLET_TYPE:
+          case MapType.leaflet:
           default:
               this.mapObject = new LeafletNeonMap();
       }
@@ -617,6 +621,16 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
   handleChangeClustering() {
     this.logChangeAndStartAllQueryChain();
+  }
+
+  handleChangeMapType(value: MapType) {
+      if (this.optionsFromConfig.mapType !== value) {
+          this.optionsFromConfig.mapType = value;
+          if (this.mapObject) {
+              this.mapObject.destroy();
+          }
+          this.ngAfterViewInit(); // re-initialize map
+      }
   }
 
   // Get filters and format for each call in HTML
