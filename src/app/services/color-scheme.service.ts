@@ -171,10 +171,10 @@ export class Color {
         if (rgbstring == null || rgbstring.length < 5) {
             return null;
         }
-        var rgbstringarray = rgbstring.replace(/[^\d,]/g, '').split(',');
-        var red = Number(rgbstringarray[0]);
-        var green = Number(rgbstringarray[1]);
-        var blue = Number(rgbstringarray[2]);
+        let rgbstringarray = rgbstring.replace(/[^\d,]/g, '').split(',');
+        let red = Number(rgbstringarray[0]);
+        let green = Number(rgbstringarray[1]);
+        let blue = Number(rgbstringarray[2]);
         return Color.fromRgbArray([red, green, blue]);
     }
 

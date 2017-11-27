@@ -291,9 +291,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     postInit() {
         this.executeQueryChain();
 
-        let elems = document.getElementsByClassName("coloraccessor");
-        let style = window.getComputedStyle(elems[0], null).getPropertyValue("color");
-        this.defaultActiveColor = Color.fromRgbString(style);        
+        let elems = document.getElementsByClassName('coloraccessor');
+        let style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
+        this.defaultActiveColor = Color.fromRgbString(style);
         this.chart.data.datasets.push(new ScatterDataSet(this.defaultActiveColor));
     }
 

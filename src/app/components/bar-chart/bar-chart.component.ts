@@ -254,9 +254,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     postInit() {
         this.executeQueryChain();
-           
-        let elems = document.getElementsByClassName("coloraccessor"); 
-        let style = window.getComputedStyle(elems[0], null).getPropertyValue("color");
+
+        let elems = document.getElementsByClassName('coloraccessor');
+        let style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
         this.defaultActiveColor = Color.fromRgbString(style);
     }
 
