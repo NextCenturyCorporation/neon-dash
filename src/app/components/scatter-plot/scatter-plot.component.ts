@@ -104,6 +104,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     private filters: ScatterPlotFilter[];
 
+    private defaultActiveColor;
+
     private optionsFromConfig: {
         title: string,
         database: string,
@@ -128,9 +130,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         yAxisIsNumeric: boolean,
         pointLabels: string[]
     };
-
-    // Alternate color: rgba(57, 181, 74, 0.9)
-    private defaultColor: Color = new Color(51, 153, 255);
 
     private mouseEventValid: boolean;
 
@@ -270,7 +269,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         };
-        this.chart.data.datasets.push(new ScatterDataSet(this.defaultColor));
         this.queryTitle = 'Scatter Plot';
     }
 
@@ -292,6 +290,11 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     postInit() {
         this.executeQueryChain();
+
+        let elems = document.getElementsByClassName("coloraccessor");
+        let style = window.getComputedStyle(elems[0], null).getPropertyValue("color");
+        this.defaultActiveColor = Color.fromRgbString(style);        
+        this.chart.data.datasets.push(new ScatterDataSet(this.defaultActiveColor));
     }
 
     subNgOnDestroy() {
@@ -622,7 +625,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
             let dataSet = dataSetMap.get(dataSetKey);
             if (!dataSet) {
-                let color = this.defaultColor;
+                let color = this.defaultActiveColor;
                 if (hasColor) {
                     color = this.colorSchemeService.getColorFor(this.meta.colorField.columnName, dataSetKey);
                 }

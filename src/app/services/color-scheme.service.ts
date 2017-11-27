@@ -162,6 +162,22 @@ export class Color {
         return new Color(rgb[0], rgb[1], rgb[2]);
     }
 
+    /**
+     * Create a color object from an RGB string, like "rgb(39, 96, 126)"
+     * @param {string} rgbstring
+     * @return {Color}
+     */
+    static fromRgbString(rgbstring: string): Color {
+        if (rgbstring == null || rgbstring.length < 5) {
+            return null;
+        }
+        var rgbstringarray = rgbstring.replace(/[^\d,]/g, '').split(',');
+        var red = Number(rgbstringarray[0]);
+        var green = Number(rgbstringarray[1]);
+        var blue = Number(rgbstringarray[2]);
+        return Color.fromRgbArray([red, green, blue]);
+    }
+
     constructor(r: number, g: number, b: number) {
         this.red = r;
         this.green = g;
