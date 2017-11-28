@@ -28,7 +28,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 import { FieldMetaData } from '../../dataset';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
@@ -84,15 +84,10 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         docCount: number
     };
 
-    private chartDefaults: {
-        activeColor: string,
-        inactiveColor: string
-    };
-
     private colorSchemeService: ColorSchemeService;
-
     private timelineChart: StackedTimelineSelectorChart;
     private timelineData: TimelineData;
+    private defaultActiveColor;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -118,11 +113,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             docCount: 0
         };
 
-        this.chartDefaults = {
-            activeColor: 'rgba(77, 190, 194)',
-            inactiveColor: 'rgba(77, 190, 194, 0.3)'
-        };
-
         this.timelineData = new TimelineData();
         this.timelineData.focusGranularityDifferent = this.active.granularity.toLowerCase() === 'minute';
         this.timelineData.granularity = this.active.granularity;
@@ -136,6 +126,10 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     postInit() {
         this.executeQueryChain();
+
+        let elems = document.getElementsByClassName('coloraccessor');
+        let style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
+        this.defaultActiveColor = Color.fromRgbString(style);
     }
 
     subNgOnDestroy() {
@@ -370,7 +364,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
      */
     filterAndRefreshData() {
         let series: TimelineSeries = {
-            color: this.chartDefaults.activeColor,
+            color: this.defaultActiveColor,
             name: 'Total',
             type: 'bar',
             options: {},
