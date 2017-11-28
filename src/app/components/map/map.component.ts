@@ -40,7 +40,6 @@ import * as neon from 'neon-framework';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import 'cesium/Build/Cesium/Cesium.js';
 import * as _ from 'lodash';
-import { Set, Map } from 'hash-set-map';
 import * as geohash from 'geo-hash';
 
 export class MapLayer {
