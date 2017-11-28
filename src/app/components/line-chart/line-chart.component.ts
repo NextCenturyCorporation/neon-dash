@@ -79,11 +79,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         hasFilters: boolean
     };
 
-    private chartDefaults: {
-        activeColor: string,
-        inactiveColor: string
-    };
-
     public selection: {
         mouseDown: boolean
         startX: number,
@@ -161,10 +156,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             endDate: null
         };
 
-        this.chartDefaults = {
-            activeColor: 'rgba(57, 181, 74, 0.9)',
-            inactiveColor: 'rgba(57, 181, 74, 0.3)'
-        };
         this.mouseEventValid = false;
         this.onHover = this.onHover.bind(this);
 
@@ -644,13 +635,12 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
         for (let datasetName in myData) {
             if (myData.hasOwnProperty(datasetName)) {
+                let colorString = this.getColorFromScheme(datasetName);
                 let d = {
                     label: datasetName,
                     data: myData[datasetName],
-                    borderColor: this.getColorFromScheme(datasetName),
-                    pointBorderColor: this.getColorFromScheme(datasetName),
-                    backgroundColor: 'rgba(0,0,0,0)',
-                    pointBackgroundColor: 'rgba(0,0,0,0)',
+                    borderColor: colorString,
+                    pointBorderColor: colorString,
                     total: totals[datasetName]
                 };
                 datasets.push(d);

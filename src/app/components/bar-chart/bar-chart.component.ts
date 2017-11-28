@@ -152,7 +152,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     // Used to change the colors between active/inactive in the legend
     public selectedLabels: string[] = [];
     public colorFieldNames: string[] = [];
-    private defaultActiveColor = new Color(77, 190, 194);
+    private defaultActiveColor;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
@@ -254,6 +254,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     postInit() {
         this.executeQueryChain();
+
+        let elems = document.getElementsByClassName('coloraccessor');
+        let style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
+        this.defaultActiveColor = Color.fromRgbString(style);
     }
 
     subNgOnDestroy() {
