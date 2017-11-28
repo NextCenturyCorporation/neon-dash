@@ -8,6 +8,10 @@ $white-12-opacity: rgba(white, 0.12);
 $black-6-opacity: rgba(black, 0.06);
 $white-6-opacity: rgba(white, 0.06);
 
+// Our bright accent color, as selected by UX.  Also known as:  $4DBEC2
+$accent-bright: rgb(77, 190, 194);  
+$text-shadow-color: #FFFFFF; 		 
+
 $mat-teal-custom:(
 	50: #E5ECF0,
 	100: #BECFD8,
@@ -34,7 +38,7 @@ $mat-teal-custom:(
 	    700: white,
 	    800: $white-87-opacity,
 	    900: $white-87-opacity,
-	    A100: $black-87-opacity,
+	    A100: $accent-bright,
 	    A200: $black-87-opacity,
 	    A400: $black-87-opacity,
 	    A700: $black-87-opacity,

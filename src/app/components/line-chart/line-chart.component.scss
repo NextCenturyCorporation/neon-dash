@@ -27,7 +27,7 @@
 }
 
 .chart-selection {
-    background-color: rgba(0,128,0,.4);
+    background-color: mat-color($primary, 400, .4);
     height: 10px;
     width: 10px;
     position: absolute;

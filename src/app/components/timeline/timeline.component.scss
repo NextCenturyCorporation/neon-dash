@@ -69,14 +69,14 @@ h3 {
 
         .y.axis {
             text {
-                text-shadow: 1px 1px 0 #FFFFFF /* @text-shadow-color */,
-                1px 0px 0 #FFFFFF /* @text-shadow-color */,
-                1px -1px 0 #FFFFFF /* @text-shadow-color */,
-                -1px 1px 0 #FFFFFF /* @text-shadow-color */,
-                -1px 0px 0 #FFFFFF /* @text-shadow-color */,
-                -1px -1px 0 #FFFFFF /* @text-shadow-color */,
-                0px 2px 0 #FFFFFF /* @text-shadow-color */,
-                0px -2px 0 #FFFFFF /* @text-shadow-color */ /* @visualization-label-shadow */;
+                text-shadow: 1px 1px 0 $text-shadow-color,
+                1px 0px 0 $text-shadow-color,
+                1px -1px 0 $text-shadow-color,
+                -1px 1px 0 $text-shadow-color,
+                -1px 0px 0 $text-shadow-color,
+                -1px -1px 0 $text-shadow-color,
+                0px 2px 0 $text-shadow-color,
+                0px -2px 0 $text-shadow-color;
                 font-weight: bold;
             }
 
@@ -131,8 +131,8 @@ h3 {
         }
 
         .area {
-            fill: #4DBEC2 /* @accent-bright */;
-            stroke: #4DBEC2 /* @accent-bright */;
+            fill: $accent-bright;
+            stroke: $accent-bright;
             stroke-width: 1px;
             clip-path: url(#clip);
         }
@@ -150,8 +150,8 @@ h3 {
         }
 
         .bar {
-            fill: #4DBEC2 /* @accent-bright */;
-            stroke: #4DBEC2 /* @accent-bright */;
+            fill: $accent-bright;
+            stroke: $accent-bright;
             stroke-width: 1px;
         }
 
@@ -163,15 +163,14 @@ h3 {
         }
 
         .series-title {
-            text-shadow: 1px 1px 0 #FFFFFF /* @text-shadow-color */,
-            1px 0px 0 #FFFFFF /* @text-shadow-color */,
-            1px -1px 0 #FFFFFF /* @text-shadow-color */,
-            -1px 1px 0 #FFFFFF /* @text-shadow-color */,
-            -1px 0px 0 #FFFFFF /* @text-shadow-color */,
-            -1px -1px 0 #FFFFFF /* @text-shadow-color */,
-            0px 2px 0 #FFFFFF /* @text-shadow-color */,
-            0px -2px 0 #FFFFFF /* @text-shadow-color */
-            /* @visualization-label-shadow */;
+            text-shadow: 1px 1px 0 $text-shadow-color,
+            1px 0px 0 $text-shadow-color,
+            1px -1px 0 $text-shadow-color,
+            -1px 1px 0 $text-shadow-color,
+            -1px 0px 0 $text-shadow-color,
+            -1px -1px 0 $text-shadow-color,
+            0px 2px 0 $text-shadow-color,
+            0px -2px 0 $text-shadow-color;
             font-weight: bold;
             font-size: 13px;
         }
