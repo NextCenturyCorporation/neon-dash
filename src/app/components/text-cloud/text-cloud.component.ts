@@ -152,7 +152,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return this.optionsFromConfig[field];
     }
 
-    updateTextCloudSettings() {
+    private updateTextCloudSettings() {
         let options = new TextCloudOptions(new SizeOptions(80, 140, '%'),
             new ColorOptions('#aaaaaa', this.active.textColor));
         this.textCloud = new TextCloud(options);
