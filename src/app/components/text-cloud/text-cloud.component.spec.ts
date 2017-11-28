@@ -122,7 +122,7 @@ fdescribe('Component: TextCloud', () => {
         component.getOptionFromConfig('configFilter').operator,
         component.getOptionFromConfig('configFilter').rhs);
     } else if (component.hasUnsharedFilter()) {
-      whereClause = neon.query.where(component.getOptionFromConfig('unsharedFilterField').columnName, 
+      whereClause = neon.query.where(component.getOptionFromConfig('unsharedFilterField').columnName,
         '=', component.getOptionFromConfig('unsharedFilterValue'));
     } else {
       whereClause = neon.query.where(component.active.dataField.columnName, '!=', null);
