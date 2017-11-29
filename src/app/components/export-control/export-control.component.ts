@@ -47,7 +47,7 @@ export class ExportControlComponent implements OnInit {
     constructor(private connectionService: ConnectionService,
         private errorNotificationService: ErrorNotificationService,
         public exportService: ExportService,
-        private mdSnackBar: MatSnackBar,
+        private matSnackBar: MatSnackBar,
         public themesService: ThemesService,
         private viewContainerRef: ViewContainerRef) {
         this.handleExportClick = this.handleExportClick.bind(this);
@@ -74,7 +74,7 @@ export class ExportControlComponent implements OnInit {
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         config.duration = 3000;
-        this.mdSnackBar.open('Export In Progress...', 'OK', config);
+        this.matSnackBar.open('Export In Progress...', 'OK', config);
         window.location.assign('/neon/services/exportservice/generateZip/' + queryResults.data);
     }
 
@@ -82,9 +82,9 @@ export class ExportControlComponent implements OnInit {
         let config = new MatSnackBarConfig();
         config.viewContainerRef = this.viewContainerRef;
         if (response.responseJSON) {
-            this.mdSnackBar.open('Error: ' + response.responseJSON.error, 'Close', config);
+            this.matSnackBar.open('Error: ' + response.responseJSON.error, 'Close', config);
         } else {
-            this.mdSnackBar.open('Error: The export service failed to respond properly.', 'Close', config);
+            this.matSnackBar.open('Error: The export service failed to respond properly.', 'Close', config);
         }
     }
 
@@ -106,7 +106,7 @@ export class ExportControlComponent implements OnInit {
         };
 
         if (!connection) {
-            this.mdSnackBar.open('Please select a dataset before exporting.', 'OK', config);
+            this.matSnackBar.open('Please select a dataset before exporting.', 'OK', config);
             return;
         }
 
@@ -123,7 +123,7 @@ export class ExportControlComponent implements OnInit {
         }
 
         if (this.exportService.getWidgets().length === 0) {
-            this.mdSnackBar.open('There are no visualizations to export.', 'OK', config);
+            this.matSnackBar.open('There are no visualizations to export.', 'OK', config);
             return;
         }
         if (data && data.data && data.data.length === 1) {
