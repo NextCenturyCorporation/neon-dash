@@ -1,20 +1,35 @@
-/* tslint:disable:no-unused-variable */
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
-import { ComponentFixture, inject, TestBed, } from '@angular/core/testing';
+import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
 import { HttpModule, Response, ResponseOptions, XHRBackend } from '@angular/http';
 import { Injector, ReflectiveInjector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
-import {} from 'jasmine';
+import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
 
 import { DocumentViewerComponent } from './document-viewer.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 
+import { neonVariables } from '../../neon-namespaces';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -42,7 +57,7 @@ class TestDatasetService extends DatasetService {
             databases: [testDatabase]
         });
     }
-};
+}
 
 /*
  * First, a note about sending queries to neon:
@@ -220,7 +235,7 @@ describe('Component: DocumentViewer', () => {
 
         // Then add a date field and ensure the result is properly sorting.
         component.active.dateField.columnName = 'testDateField';
-        query = query.sortBy('testDateField', neon.query['DESCENDING'])
+        query = query.sortBy('testDateField', neonVariables.DESCENDING)
             .withFields([
                 'testDataField',
                 'testDateField',
@@ -380,7 +395,7 @@ describe('Component: DocumentViewer', () => {
 
     it('properly formats string metadata entries', () => {
         let record = {
-            value: 'non-nested value',
+            'value': 'non-nested value',
             'nest1.nest2.nestedValue': 'nested value'
         };
         expect(component.formatMetadataEntry(record, {field: 'value'})).toEqual('non-nested value');
@@ -660,15 +675,15 @@ describe('Component: Document Viewer with Config', () => {
             ]
         };
 
-        expect(component.getOptionFromConfig('title')).toEqual(optionsFromConfig['title']);
-        expect(component.getOptionFromConfig('database')).toEqual(optionsFromConfig['database']);
-        expect(component.getOptionFromConfig('table')).toEqual(optionsFromConfig['table']);
-        expect(component.getOptionFromConfig('dataField')).toEqual(optionsFromConfig['dataField']);
-        expect(component.getOptionFromConfig('dateField')).toEqual(optionsFromConfig['dateField']);
-        expect(component.getOptionFromConfig('idField')).toEqual(optionsFromConfig['idField']);
-        expect(component.getOptionFromConfig('metadataFields')).toEqual(optionsFromConfig['metadataFields']);
-        expect(component.getOptionFromConfig('popoutFields')).toEqual(optionsFromConfig['popoutFields']);
-        expect(component.getOptionFromConfig('limit')).toEqual(optionsFromConfig['limit']);
+        expect(component.getOptionFromConfig('title')).toEqual(optionsFromConfig.title);
+        expect(component.getOptionFromConfig('database')).toEqual(optionsFromConfig.database);
+        expect(component.getOptionFromConfig('table')).toEqual(optionsFromConfig.table);
+        expect(component.getOptionFromConfig('dataField')).toEqual(optionsFromConfig.dataField);
+        expect(component.getOptionFromConfig('dateField')).toEqual(optionsFromConfig.dateField);
+        expect(component.getOptionFromConfig('idField')).toEqual(optionsFromConfig.idField);
+        expect(component.getOptionFromConfig('metadataFields')).toEqual(optionsFromConfig.metadataFields);
+        expect(component.getOptionFromConfig('popoutFields')).toEqual(optionsFromConfig.popoutFields);
+        expect(component.getOptionFromConfig('limit')).toEqual(optionsFromConfig.limit);
         expect(component.active).toEqual(active);
     });
 

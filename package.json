@@ -12,12 +12,13 @@
     "build-dev": "ng build --base-href /lorelei/",
     "postbuild-dev": "cd dist && zip -r lorelei-dev.war * && cd .. && mv dist/lorelei-dev.war target/lorelei-dev.war",
     "lint": "ng lint",
+    "lint-fix": "ng lint -fix",
     "test": "ng test",
     "e2e": "ng e2e",
     "docs": "npm run typedoc -- --options typedoc.json --exclude '**/*.spec.ts' ./src/",
     "typedoc": "typedoc"
   },
-  "pre-commit": "lint",
+  "pre-commit": "lint-fix",
   "private": true,
   "dependencies": {
     "@angular/animations": "4.4.4",
@@ -78,7 +79,7 @@
     "@types/node": "~6.0.60",
     "@types/uuid": "3.4.2",
     "angular-material-prefix-updater": "0.0.6",
-    "codelyzer": "2.0.1",
+    "codelyzer": "4.0.1",
     "grunt": "^1.0.1",
     "jasmine-core": "~2.5.2",
     "jasmine-spec-reporter": "~3.2.0",
@@ -96,7 +97,7 @@
     "phantomjs-prebuilt": "^2.1.14",
     "pre-commit": "^1.2.2",
     "protractor": "5.1.0",
-    "tslint": "~4.5.0",
+    "tslint": "~5.8.0",
     "typedoc": "~0.8.0",
     "typescript": "~2.5.0"
   }

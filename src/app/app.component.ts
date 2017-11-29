@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,7 +19,7 @@ import { DashboardOptionsComponent } from './components/dashboard-options/dashbo
 import { Dataset } from './dataset';
 
 import { NeonGTDConfig } from './neon-gtd-config';
-import { MatSnackBar, MatToolbar } from '@angular/material';
+import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar } from '@angular/material';
 import { ActiveGridService } from './services/active-grid.service';
 import { DatasetService } from './services/dataset.service';
 import { ThemesService } from './services/themes.service';
@@ -29,8 +29,6 @@ import { VisualizationContainerComponent } from './components/visualization-cont
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
-
-import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 
 @Component({
     selector: 'app-root',
@@ -55,19 +53,19 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public datasets: Dataset[] = [];
 
     public gridConfig: NgGridConfig = {
-        'resizable': true,
-        'margins': [0, 0, 10, 10],
-        'min_cols': 1,
-        'max_cols': 24,
-        'min_rows': 0,
-        'max_rows': 0,
-        'min_width': 50,
-        'min_height': 50,
-        'maintain_ratio': true,
-        'auto_style': true,
-        'auto_resize': true,
-        'cascade': 'up',
-        'fix_to_grid': true
+        resizable: true,
+        margins: [0, 0, 10, 10],
+        min_cols: 1,
+        max_cols: 24,
+        min_rows: 0,
+        max_rows: 0,
+        min_width: 50,
+        min_height: 50,
+        maintain_ratio: true,
+        auto_style: true,
+        auto_resize: true,
+        cascade: 'up',
+        fix_to_grid: true
     };
 
     /* A reference to the dialog for adding visualizations. */
@@ -75,7 +73,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     /* A reference to the dialog for the filter tray. */
     private filterTrayDialogRef: MatDialogRef<FilterTrayComponent>;
-
 
     constructor(public datasetService: DatasetService, public themesService: ThemesService,
         private activeGridService: ActiveGridService, public dialog: MatDialog,
@@ -126,7 +123,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     onResizeStop(i, event) {
+        this.showItemLocation(event);
         this.visualizations.toArray()[i].onResizeStop();
+    }
+
+    onDragStop(i, event) {
+       this.showItemLocation(event);
     }
 
     ngAfterViewInit() {
@@ -140,7 +142,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        console.log('neon gtd onDestroy called');
+        // Do nothing.
     }
 
     toggleDashboardOptions() {
@@ -148,5 +150,17 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             this.dashboardOptionsComponent.loadStateNames();
         }
         this.showAbout = false;
+    }
+
+    showItemLocation(event) {
+        /**
+         * COMMENTED OUT!  If you are debugging, you can uncomment this, and see what is going on
+         * as you move grid items.  It should not be in production code.
+         * if (event == null) {
+         *   return;
+         * }
+         * let str = `row: ${event.row} col: ${event.col} sizex: ${event.sizex} sizey: ${event.sizey}`;
+         * console.log(str);
+         */
     }
 }

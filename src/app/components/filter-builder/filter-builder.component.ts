@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import {
     Component,
     OnInit,
@@ -7,18 +22,15 @@ import {
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {FieldMetaData, TableMetaData, DatabaseMetaData} from '../../dataset';
-//import {neonMappings} from '../../neon-namespaces';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
-//import * as _ from 'lodash';
-import {BaseNeonComponent} from '../base-neon-component/base-neon.component';
-import {VisualizationService} from '../../services/visualization.service';
-
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { VisualizationService } from '../../services/visualization.service';
 
 @Component({
     selector: 'app-filter-builder',
@@ -33,14 +45,14 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     private optionsFromConfig: {
         title: string,
         database: string,
-        table: string,
+        table: string
     };
 
     public active: {
         operators: OperatorMetaData[],
         andor: string,
         whereClauses: WhereClauseMetaData[],
-        filterIds: string[],
+        filterIds: string[]
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -50,14 +62,14 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
+            table: this.injector.get('table', null)
         };
 
         this.active = {
             operators: [],
             andor: 'and',
             whereClauses: [],
-            filterIds: [],
+            filterIds: []
         };
 
         this.active.operators.push({ value: '=', prettyName: '=' });
@@ -70,33 +82,33 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         this.active.operators.push({ value: 'not contains', prettyName: 'not contains' });
         this.queryTitle = 'Filter Builder';
         this.isExportable = false;
-    };
+    }
 
     subNgOnInit() {
         this.addBlankWhereClause();
-    };
+    }
 
     postInit() {
-        //Do nothing
-    };
+        // Do nothing
+    }
 
     subNgOnDestroy() {
-        //Do nothing
-    };
+        // Do nothing
+    }
 
     getExportFields() {
-        //Do nothing.  Doesn't export nor does this visualization register to export
-        //therefore, this function can be ignored.
+        // Do nothing.  Doesn't export nor does this visualization register to export
+        // therefore, this function can be ignored.
         return null;
     }
 
     getOptionFromConfig(field) {
         return this.optionsFromConfig[field];
-    };
+    }
 
     onUpdateFields() {
-        //TODO pull in filters from previous filter builder??  maybe?
-    };
+        // TODO pull in filters from previous filter builder?  maybe?
+    }
 
     subGetBindings(bindings: any) {
         // TODO
@@ -113,15 +125,13 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             active: false
         };
         this.active.whereClauses.push(clause);
-    };
+    }
 
     removeClause(i) {
         this.active.whereClauses.splice(i, 1);
         if (this.active.whereClauses.length === 0) {
             this.addBlankWhereClause();
         }
-
-        //this.updateFilters();
     }
 
     activateClause(i) {
@@ -138,10 +148,10 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     updateFilters() {
-        //This process seems unnecessarily inefficient.  I sort the clauses just so i know how many times I need to call add neon filter.
-        //Later, I need to sort them again.
+        // This process seems unnecessarily inefficient.  I sort the clauses just so i know how many times I need to call add neon filter.
+        // Later, I need to sort them again.
         let cls = {};
-        //organize clauses by database/field combinations
+        // organize clauses by database/field combinations
         for (let clause of this.active.whereClauses) {
             if (clause.active) {
                 let dt = this.getDatabaseTableKey(clause.database.name, clause.table.name);
@@ -154,8 +164,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             }
         }
 
-        //Remove any filters that we've saved but no longer have the database/table combo
-        //figure out what filters to remove
+        // Remove any filters that we've saved but no longer have the database/table combo
+        // figure out what filters to remove
         let removeFilters = [];
         for (let key in this.active.filterIds) {
             if (this.active.filterIds.hasOwnProperty(key)) {
@@ -165,13 +175,13 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             }
         }
 
-        //remove the filters
+        // remove the filters
         if (removeFilters.length > 0) {
             this.filterService.removeFilters(
                 this.messenger,
                 removeFilters,
                 () => {
-                    //on success, clear out the filters
+                    // on success, clear out the filters
                     let temp = [];
                     for (let id of this.active.filterIds) {
                         if (removeFilters.indexOf(id) === -1) {
@@ -181,7 +191,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                     this.active.filterIds = temp;
                 });
         }
-        //add the existing filters
+        // add the existing filters
         for (let key in cls) {
             if (cls.hasOwnProperty(key)) {
                 let clauses = cls[key];
@@ -225,7 +235,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             }
         };
         let onError = () => {
-            console.log('filter failed to set');
+            console.error('filter failed to set');
         };
 
         let filterId = this.active.filterIds[databaseTableKey];
@@ -260,7 +270,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             );
         }
 
-    };
+    }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
         let filterClauses = [];
@@ -284,12 +294,11 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             return neon.query.and.apply(neon.query, filterClauses);
         }
         return neon.query.or.apply(neon.query, filterClauses);
-    };
+    }
 
     getNeonFilterFields(): string[] {
-        //TODO
+        // TODO
         return [''];
-        //return [this.active.sortField.columnName];
     }
 
     getVisualizationName(): string {
@@ -297,26 +306,26 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     refreshVisualization() {
-        //constantly refreshed due to bindings.  Do nothing
+        // constantly refreshed due to bindings.  Do nothing
     }
 
     isValidQuery() {
-        //Don't query
+        // Don't query
         return false;
     }
 
     createQuery(): neon.query.Query {
-        //Don't query
+        // Don't query
         return null;
-    };
+    }
 
     getFiltersToIgnore() {
-        //Don't query
+        // Don't query
         return null;
     }
 
     onQuerySuccess(): void {
-        //Don't query
+        // Don't query
         return null;
     }
 
@@ -325,21 +334,21 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleFiltersChangedEvent() {
-        //Do nothing
-    };
+        // Do nothing
+    }
 
     getFilterText(_filter): string {
-        //Do nothing, no filters
+        // Do nothing, no filters
         return '';
-    };
+    }
 
     removeFilter(_value: string): void {
-        //Do nothing, no filters
-    };
+        // Do nothing, no filters
+    }
 
     handleValueChange(_event, i) {
         if (this.active.whereClauses[i].value && this.active.whereClauses[i].value !== '') {
-            //this.active.whereClauses[i].active = true;
+            // TODO
         } else {
             this.active.whereClauses[i].active = false;
         }
@@ -351,11 +360,11 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeField() {
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    };
+    }
 
     handleChangeOperator() {
         this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    };
+    }
 }
 
 export class OperatorMetaData {

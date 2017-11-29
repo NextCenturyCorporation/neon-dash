@@ -115,7 +115,7 @@
             <div class="mat-list-item-text" layout="column">
                 <p class="metadata-row" *ngFor="let row of active.metadataFields">
                     <span class="metadata-item" *ngFor="let metadataElement of row">
-                        <span class="metadata-bold">{{metadataElement.name}}: </span><span class="metadata-text">{{formatMetadataEntry(item, metadataElement)}}</span>
+                        <span class="metadata-bold">{{ metadataElement.name }}: </span><span class="metadata-text">{{ formatMetadataEntry(item, metadataElement) }}</span>
                     </span>
                 </p>
                 <!-- <p>{{item[active.dataField.columnName]}}</p> -->

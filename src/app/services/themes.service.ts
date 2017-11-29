@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,7 +28,9 @@ export class ThemesService {
 
     private currentTheme: any = ThemesService.THEMES[0];
 
-    constructor() { }
+    constructor() {
+        // Do nothing.
+    }
 
     getThemes(): string[] {
         return ThemesService.THEMES;

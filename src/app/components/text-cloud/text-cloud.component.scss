@@ -28,7 +28,7 @@
 
             &:hover {
                 text-decoration: none;
-                color: #4DBEC2 !important;
+                color: mat-contrast($primary, A100) !important;
             }
         }
     }

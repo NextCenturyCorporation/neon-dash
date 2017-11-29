@@ -1,6 +1,5 @@
-/* tslint:disable:no-unused-variable */
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -40,7 +39,7 @@ describe('Service: DatasetService', () => {
 
     it('should have no active datasets at creation',
         inject([DatasetService], (service: DatasetService) => {
-        expect(service.getDataset()).toEqual(new Dataset() );
+        expect(service.getDataset()).toEqual(new Dataset());
     }));
 
     it('should return datasets by name',

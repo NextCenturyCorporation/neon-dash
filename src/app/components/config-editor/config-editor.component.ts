@@ -1,3 +1,18 @@
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 import { Component, OnInit, AfterViewInit, OnDestroy, ViewEncapsulation, ElementRef,
   ChangeDetectionStrategy, ChangeDetectorRef, Injector, Inject, ViewChild } from '@angular/core';
 
@@ -6,13 +21,12 @@ import { NeonGTDConfig } from './../../neon-gtd-config';
 import { PropertyService } from '../../services/property.service';
 import * as JSONEditor from 'jsoneditor';
 declare var editor: any;
-//import { JsonEditorComponent, JsonEditorOptions } from 'ng2-jsoneditor';
 import * as _ from 'lodash';
 
 @Component({
   selector: 'app-config-editor',
   templateUrl: 'config-editor.component.html',
-  styleUrls: ['config-editor.component.scss'],
+  styleUrls: ['config-editor.component.scss']
 })
 export class ConfigEditorComponent implements AfterViewInit, OnInit {
     @ViewChild('JsonEditorComponent') editorRef: ElementRef;
@@ -56,11 +70,11 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
               viewValue: 'Text (read only)'
           }
         ];
-        //'tree' (default), 'view', 'form', 'code', 'text
+        // 'tree' (default), 'view', 'form', 'code', 'text
     }
 
     ngOnInit(): void {
-
+        // Do nothing.
     }
 
     ngAfterViewInit() {
@@ -106,8 +120,6 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
     }
 
     public reset() {
-        //this.prettyText = JSON.stringify(this.currentConfig, null, 2);
-        //this.text = JSON.stringify(this.currentConfig);
         this.editorData = _.cloneDeep(this.currentConfig);
         this.editor.set(this.editorData);
     }
@@ -119,7 +131,7 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
           history: true,
           mode: 'tree',
           search: true,
-          indentation: 2,
+          indentation: 2
        };
     }
 }

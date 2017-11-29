@@ -1,6 +1,5 @@
-/* tslint:disable:no-unused-variable */
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,12 +14,12 @@
  *
  */
 import { TestBed, inject } from '@angular/core/testing';
-import { MdDialogRef, MdGridListModule} from '@angular/material';
+import { MdDialogRef, MdGridListModule } from '@angular/material';
 import { AddVisualizationComponent } from './add-visualization.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ThemesService } from '../../services/themes.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {AppMaterialModule} from '../../app.material.module';
+import { AppMaterialModule } from '../../app.material.module';
 
 describe('Component: AddVisualization', () => {
 

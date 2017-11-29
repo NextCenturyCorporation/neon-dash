@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,8 +17,8 @@ import { Injectable } from '@angular/core';
 
 @Injectable()
 export class ErrorNotificationService {
-    showErrorMessage(error: Error|ExceptionInformation, message: string) {
         // TODO: Replace testing log with a call to MdSnackBar to
-        console.log('An error occured: ' + message + '\n' + error);
-    };
+    showErrorMessage(error: Error | ExceptionInformation, message: string) {
+        console.error('An error occured: ' + message + '\n' + error);
+    }
 }

@@ -1,37 +1,24 @@
 {
-	"datasets": [{
+	"datasets": [
+		{
 			"name": "LDC Uyghur Annotations",
 			"connectOnLoad": false,
 			"layout": "ils-layout",
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
-			"databases": [
-                {
-                    "name": "ldc_uyghur_3",
-                    "prettyName": "Ground Truth",
-                    "tables": [{
-                        "name": "ui_output",
-                        "prettyName": "UI Output",
-                        "mappings": {
-                            "date": "createdAt",
-                            "latitude": "geoLocations.lat",
-                            "longitude": "geoLocations.lon"
-                        }
-                    }]
-                },
-                {
-                    "name": "ldc_data_xy",
-                    "prettyName": "XY Data DB",
-                    "tables": [{
-                        "name": "record",
-                        "prettyName": "XY Data Table",
-                        "mappings": {
-                            "x": "Xcoordinate",
-                            "y": "Ycoordinate"
-                        }
-                    }]
-                }
-            ],
+			"databases": [{
+				"name": "ldc_uyghur_3",
+				"prettyName": "Ground Truth",
+				"tables": [{
+					"name": "ui_output",
+					"prettyName": "UI Output",
+					"mappings": {
+						"date": "createdAt",
+						"latitude": "geoLocations.lat",
+						"longitude": "geoLocations.lon"
+					}
+				}]
+			}],
 			"options": {
 				"checkForCoordinateValidation": "null_values",
 				"colorMaps": {
@@ -57,7 +44,7 @@
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [{
-				"name": "elisa_uyghur_2",
+				"name": "elisa_uyghur_200",
 				"prettyName": "ELISA Uyghur",
 				"tables": [{
 					"name": "ui_output",
@@ -168,7 +155,7 @@
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [{
-				"name": "ebola_data_2",
+				"name": "ebola_1",
 				"prettyName": "Ebola Data",
 				"tables": [{
 					"name": "ui_output",
@@ -183,7 +170,7 @@
 			"options": {
 				"checkForCoordinateValidation": "null_values",
 				"colorMaps": {
-					"ebola_data_1": {
+					"ebola_1": {
 						"ui_output": {
 							"entities.entityType": {
 								"LOC": "#98DF8A",
@@ -236,7 +223,7 @@
 			}
 		},
 		{
-			"name": "Haiti Data",
+			"name": "Haiti Earthquake",
 			"connectOnLoad": true,
 			"layout": "haiti-layout",
 			"datastore": "elasticsearch",
@@ -274,7 +261,8 @@
 		}
 	],
 	"layouts": {
-		"ils-layout": [{
+		"ils-layout": [
+			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
@@ -457,6 +445,22 @@
 					"targetLatitudeField": "",
 					"targetLongitudeField": "",
 					"colorField": "",
+					"colorMapping": [{
+							"match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
+							"label": "Need",
+							"color": "rgb(0,255,0)"
+						},
+						{
+							"match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
+							"label": "Need and Issue",
+							"color": "rgb(255,255,0)"
+						},
+						{
+							"match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
+							"label": "Issue",
+							"color": "rgb(255,0,0)"
+						}
+					],
 					"dateField": "createdAt",
 					"sizeField": "",
 					"idField": "",
@@ -558,44 +562,10 @@
 				},
 				"row": 0,
 				"col": 19
-			},
-            {
-                "name": "Scatter Plot",
-                "type": "scatterPlot",
-                "icon": "ScatterPlot64",
-                "selected": true,
-                "id": "3f451b37-ac6c-4c4c-b227-2100d8cba466",
-                "gridItemConfig": {
-                    "col": 1,
-                    "row": 1,
-                    "sizex": 10,
-                    "sizey": 8,
-                    "dragHandle": null,
-                    "resizeHandle": null,
-                    "fixed": false,
-                    "draggable": true,
-                    "resizable": true,
-                    "borderSize": 25
-                },
-                "sizex": 10,
-                "sizey": 8,
-                "row": 16,
-                "col": 0,
-                "bindings": {
-                    "title": "Scatter Plot",
-                    "database": "ldc_data_xy",
-                    "table": "record",
-                    "unsharedFilterField": "",
-                    "unsharedFilterValue": "",
-                    "colorField": "",
-                    "xField": "Xcoordinate",
-                    "yField": "Ycoordinate",
-                    "labelField": "uuid",
-                    "limit": 200
-                }
-            }
+			}
 		],
-		"elisa_uig-layout": [{
+		"elisa_uig-layout": [
+			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
@@ -609,7 +579,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation",
-					"database": "elisa_uyghur_2",
+					"database": "elisa_uyghur_200",
 					"table": "ui_output",
 					"dataField": "topics",
 					"aggregation": "",
@@ -642,7 +612,7 @@
 				"$$hashKey": "object:30",
 				"bindings": {
 					"title": "Sentiment",
-					"database": "elisa_uyghur_2",
+					"database": "elisa_uyghur_200",
 					"table": "ui_output",
 					"dataField": "sentimentString",
 					"aggregation": "count",
@@ -676,7 +646,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Location",
-					"database": "elisa_uyghur_2",
+					"database": "elisa_uyghur_200",
 					"table": "ui_output",
 					"dataField": "LOC"
 				},
@@ -698,7 +668,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "People",
-					"database": "elisa_uyghur_2",
+					"database": "elisa_uyghur_200",
 					"table": "ui_output",
 					"unsharedFilterField": "",
 					"unsharedFilterValue": "",
@@ -722,7 +692,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Organizations",
-					"database": "elisa_uyghur_2",
+					"database": "elisa_uyghur_200",
 					"table": "ui_output",
 					"dataField": "ORG"
 				},
@@ -744,7 +714,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "GeoPolitical Entities",
-					"database": "elisa_uyghur_2",
+					"database": "elisa_uyghur_200",
 					"table": "ui_output",
 					"dataField": "GPE"
 				},
@@ -767,7 +737,7 @@
 				"bindings": {
 					"title": "Situation Map",
 					"config": [{
-						"database": "elisa_uyghur_2",
+						"database": "elisa_uyghur_200",
 						"filterable": true,
 						"name": "EVENTS",
 						"show": true,
@@ -818,7 +788,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Timeline",
-					"database": "elisa_uyghur_2",
+					"database": "elisa_uyghur_200",
 					"table": "ui_output",
 					"dateField": "createdAt",
 					"granularity": "month"
@@ -839,7 +809,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation Documents",
-					"database": "elisa_uyghur_2",
+					"database": "elisa_uyghur_200",
 					"table": "ui_output",
 					"dataField": "translatedText",
 					"idField": "id",
@@ -885,7 +855,8 @@
 				"col": 19
 			}
 		],
-		"grace_uig-layout": [{
+		"grace_uig-layout": [
+			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
@@ -1187,7 +1158,8 @@
 				"col": 19
 			}
 		],
-		"ariel_uig-layout": [{
+		"ariel_uig-layout": [
+			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
@@ -1489,7 +1461,8 @@
 				"col": 19
 			}
 		],
-		"ebola-layout": [{
+		"ebola-layout": [
+			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
@@ -1503,7 +1476,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation",
-					"database": "ebola_data_2",
+					"database": "ebola_1",
 					"table": "ui_output",
 					"dataField": "topics",
 					"aggregation": "count",
@@ -1536,7 +1509,7 @@
 				"$$hashKey": "object:30",
 				"bindings": {
 					"title": "Sentiment",
-					"database": "ebola_data_2",
+					"database": "ebola_1",
 					"table": "ui_output",
 					"dataField": "sentimentString",
 					"aggregation": "count",
@@ -1570,7 +1543,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Location",
-					"database": "ebola_data_2",
+					"database": "ebola_1",
 					"table": "ui_output",
 					"dataField": "LOC"
 				},
@@ -1592,7 +1565,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "People",
-					"database": "ebola_data_2",
+					"database": "ebola_1",
 					"table": "ui_output",
 					"dataField": "PER"
 				},
@@ -1614,7 +1587,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Organizations",
-					"database": "ebola_data_2",
+					"database": "ebola_1",
 					"table": "ui_output",
 					"dataField": "ORG"
 				},
@@ -1636,7 +1609,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "GeoPolitical Entities",
-					"database": "ebola_data_2",
+					"database": "ebola_1",
 					"table": "ui_output",
 					"dataField": "GPE"
 				},
@@ -1658,7 +1631,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation Map",
-					"database": "ebola_data_2",
+					"database": "ebola_1",
 					"filterable": true,
 					"name": "EVENTS",
 					"show": true,
@@ -1707,7 +1680,7 @@
 					"popupFields": [],
 					"layers": [{
 						"title": "Ebola Point Layer",
-						"database": "ebola_data_2",
+						"database": "ebola_1",
 						"table": "ui_output",
 						"latitudeField": "geoLocations.lat",
 						"longitudeField": "geoLocations.lon",
@@ -1733,7 +1706,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Timeline",
-					"database": "ebola_data_2",
+					"database": "ebola_1",
 					"table": "ui_output",
 					"dateField": "createdAt",
 					"granularity": "month"
@@ -1754,7 +1727,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation Documents",
-					"database": "ebola_data_2",
+					"database": "ebola_1",
 					"table": "ui_output",
 					"dataField": "translatedText",
 					"idField": "id",
@@ -1791,7 +1764,8 @@
 				"col": 19
 			}
 		],
-		"nepal-layout": [{
+		"nepal-layout": [
+			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
@@ -2092,12 +2066,15 @@
 				"col": 19
 			}
 		],
-		"haiti-layout": [{
+		"haiti-layout": [
+			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 10,
-				"sizey": 5,
+				"col": 1,
+				"row": 1,
+				"sizex": 5,
+				"sizey": 6,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -2122,16 +2099,16 @@
 						}
 					]
 				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
-				"col": 0
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309"
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
+				"col": 6,
+				"row": 1,
 				"sizex": 5,
-				"sizey": 5,
+				"sizey": 6,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -2142,18 +2119,19 @@
 					"title": "Location",
 					"database": "haiti_4",
 					"table": "ui_output",
-					"dataField": "LOC"
+					"dataField": "LOC",
+					"limit": 60
 				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 0
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7"
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
+				"col": 1,
+				"row": 7,
 				"sizex": 5,
-				"sizey": 5,
+				"sizey": 6,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -2164,18 +2142,19 @@
 					"title": "People",
 					"database": "haiti_4",
 					"table": "ui_output",
-					"dataField": "PER"
+					"dataField": "PER",
+					"limit": 60
 				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 6
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7"
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
+				"col": 6,
+				"row": 7,
 				"sizex": 5,
-				"sizey": 5,
+				"sizey": 6,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 5,
@@ -2186,38 +2165,17 @@
 					"title": "Organizations",
 					"database": "haiti_4",
 					"table": "ui_output",
-					"dataField": "ORG"
+					"dataField": "ORG",
+					"limit": 60
 				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 0
-			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 4,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "GeoPolitical Entities",
-					"database": "haiti_4",
-					"table": "ui_output",
-					"dataField": "GPE"
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 6
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7"
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
+				"col": 11,
+				"row": 1,
 				"sizex": 8,
 				"sizey": 8,
 				"minPixelx": 320,
@@ -2284,21 +2242,22 @@
 						"dateField": "createdAt",
 						"colorField": "topics"
 					}],
-                    "hoverSelect": {
-                        "hoverTime": 300
-                    },
-                    "hoverPopupEnabled": true
+					"geoServer": [{
+						"offline": false,
+						"mapUrl": "http://localhost:8080/geoserver/Natural_Earth/wms",
+						"layer": "Natural_Earth:NE1_HR_LC_SR_W_DR"
+					}]
 				},
-				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 0,
-				"col": 11
+				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae"
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
+				"col": 11,
+				"row": 9,
 				"sizex": 8,
-				"sizey": 7,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -2312,16 +2271,16 @@
 					"dateField": "createdAt",
 					"granularity": "month"
 				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 9,
-				"col": 11
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874"
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
+				"row": 1,
+				"col": 19,
 				"sizex": 6,
-				"sizey": 15,
+				"sizey": 12,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
@@ -2346,23 +2305,16 @@
 							"field": "PER"
 						}],
 						[{
-								"name": "Locations",
-								"field": "LOC"
-							},
-							{
-								"name": "GeoPolitical Entities",
-								"field": "GPE"
-							}
-						],
+							"name": "Locations",
+							"field": "LOC"
+						}],
 						[{
 							"name": "Sentiment",
 							"field": "sentimentString"
 						}]
 					],
 					"limit": 50
-				},
-				"row": 0,
-				"col": 19
+				}
 			}
 		]
 	},

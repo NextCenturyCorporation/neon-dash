@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,14 +19,16 @@ export interface NeonGridItem {
     bindings?: any;
     col?: number;
     description?: string;
-    /** The active NgGridItem configuration for this visualization instance. **/
-    gridConfig: NgGridItemConfig;
     id?: string;
-    /** The previous NgGridItem configuration for this visualization--used for expand/collapse features. **/
-    lastGridConfig?: NgGridItemConfig;
     row?: number;
     sizex?: number;
     sizey?: number;
     title?: string;
     type?: string;
+
+    /** The active NgGridItem configuration for this visualization instance. */
+    gridItemConfig: NgGridItemConfig;
+
+    /** The previous NgGridItem configuration for this visualization--used for expand/collapse features. */
+    lastGridItemConfig?: NgGridItemConfig;
 }

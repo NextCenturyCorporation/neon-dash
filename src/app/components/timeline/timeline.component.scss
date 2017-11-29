@@ -15,8 +15,6 @@
  */
 @import '../base-neon-component/base-neon.component.scss';
 
-// FIXME:  Replace hard-coded colors with themes
-
 .body-container {
     top: 26px;
     height: 80%;
@@ -27,7 +25,7 @@
 }
 
 .no-data {
-    color: #777777 /* @main-text-color */;
+    color: $main-text-color;
     font-weight: bold;
     margin-top: 10px;
 }
@@ -69,14 +67,14 @@ h3 {
 
         .y.axis {
             text {
-                text-shadow: 1px 1px 0 #FFFFFF /* @text-shadow-color */,
-                1px 0px 0 #FFFFFF /* @text-shadow-color */,
-                1px -1px 0 #FFFFFF /* @text-shadow-color */,
-                -1px 1px 0 #FFFFFF /* @text-shadow-color */,
-                -1px 0px 0 #FFFFFF /* @text-shadow-color */,
-                -1px -1px 0 #FFFFFF /* @text-shadow-color */,
-                0px 2px 0 #FFFFFF /* @text-shadow-color */,
-                0px -2px 0 #FFFFFF /* @text-shadow-color */ /* @visualization-label-shadow */;
+                text-shadow: 1px 1px 0 $text-shadow-color,
+                1px 0px 0 $text-shadow-color,
+                1px -1px 0 $text-shadow-color,
+                -1px 1px 0 $text-shadow-color,
+                -1px 0px 0 $text-shadow-color,
+                -1px -1px 0 $text-shadow-color,
+                0px 2px 0 $text-shadow-color,
+                0px -2px 0 $text-shadow-color;
                 font-weight: bold;
             }
 
@@ -90,14 +88,15 @@ h3 {
                 }
             }
         }
+        
 
         .highlight {
-            background-color: #5EE8ED /* @callout */;
-            fill: #5EE8ED /* @callout */;
+            background-color: $accent-bright;
+            fill: $accent-bright;
         }
 
         .multi-highlight {
-            fill: #5EE8ED;
+            fill: $accent-bright;
             fill-opacity: 0.65;
         }
 
@@ -108,20 +107,20 @@ h3 {
             }
 
             .mask {
-                fill: #F1F1F1 /* @main-background */;
+                fill: $main-background;
                 fill-opacity: 0.65;
             }
 
             .resize {
                 path {
-                    fill: #FFFFFF /* @light-chart-axis-color */;
-                    stroke: #777777 /* @chart-text-color */;
+                    fill: $light-chart-axis-color;
+                    stroke: $chart-text-color;
                     stroke-opacity: 0.5;
                 }
             }
 
             .resize-divider {
-                fill: #777777 /* @chart-text-color */;
+                fill: $chart-text-color;
                 fill-opacity: 0.3;
             }
 
@@ -131,8 +130,8 @@ h3 {
         }
 
         .area {
-            fill: #4DBEC2 /* @accent-bright */;
-            stroke: #4DBEC2 /* @accent-bright */;
+            fill: mat-color($primary);
+            stroke: mat-color($primary);
             stroke-width: 1px;
             clip-path: url(#clip);
         }
@@ -144,41 +143,40 @@ h3 {
 
             line {
                 fill: none;
-                stroke: #777777 /* @chart-axis-color */;
+                stroke: $chart-text-color;
                 shape-rendering: crispEdges;
             }
         }
 
         .bar {
-            fill: #4DBEC2 /* @accent-bright */;
-            stroke: #4DBEC2 /* @accent-bright */;
+            fill: mat-color($primary);
+            stroke: mat-color($primary);
             stroke-width: 1px;
         }
 
         .mini-axis {
             fill: none;
             shape-rendering: crispEdges;
-            stroke: rgba(0, 0, 0, 0.2) /* @shadow */;
+            stroke: $shadow;
             stroke-width: 1px;
         }
 
         .series-title {
-            text-shadow: 1px 1px 0 #FFFFFF /* @text-shadow-color */,
-            1px 0px 0 #FFFFFF /* @text-shadow-color */,
-            1px -1px 0 #FFFFFF /* @text-shadow-color */,
-            -1px 1px 0 #FFFFFF /* @text-shadow-color */,
-            -1px 0px 0 #FFFFFF /* @text-shadow-color */,
-            -1px -1px 0 #FFFFFF /* @text-shadow-color */,
-            0px 2px 0 #FFFFFF /* @text-shadow-color */,
-            0px -2px 0 #FFFFFF /* @text-shadow-color */
-            /* @visualization-label-shadow */;
+            text-shadow: 1px 1px 0 $text-shadow-color,
+            1px 0px 0 $text-shadow-color,
+            1px -1px 0 $text-shadow-color,
+            -1px 1px 0 $text-shadow-color,
+            -1px 0px 0 $text-shadow-color,
+            -1px -1px 0 $text-shadow-color,
+            0px 2px 0 $text-shadow-color,
+            0px -2px 0 $text-shadow-color;
             font-weight: bold;
             font-size: 13px;
         }
 
         .tick {
             text {
-                fill: #777777 /* @chart-text-color */;
+                fill: $chart-text-color;
             }
         }
     }
@@ -204,19 +202,19 @@ h3 {
     display: none;
     position: absolute;
     padding: 12px 15px;
-    color: #777777 /* @main-text-color */;
+    color: $main-text-color;
     font-size: 12px;
-    background-color: rgba(255,255,255,0.9) /* @tooltip-background */;
-    border: 1px solid rgba(0, 0, 0, 0.2) /* @shadow-border */;
+    background-color: $tooltip-background;
+    border: 1px solid $shadow;
     border-radius: 4px /* @border-radius */;
     pointer-events: none;
     z-index: 10000;
 
     span{
         font-weight: bold;
-        color: #39B54A /* @accent-bright */;
+        color: $timeline-accent-bright;
         display: block;
-        text-shadow: 0 2px 0 #FFFFFF /* @text-shadow */;
+        text-shadow: 0 2px 0 $text-shadow-color;
     }
 
     .tooltip-date {
@@ -224,7 +222,7 @@ h3 {
         text-transform: uppercase;
         margin-bottom: 5px;
         font-size: 12px;
-        color: #5E5E5E /* @mid-text-color */;
+        color: $mid-text-color;
     }
 
     &:before {
@@ -254,13 +252,13 @@ h3 {
     &.east {
 
         &:before {
-            border-right: 8px solid rgba(0, 0, 0, 0.2) /* @shadow */;
+            border-right: 8px solid $shadow; 
             left:-8px;
             opacity: .5;
         }
 
         &:after {
-            border-right: 7px solid rgba(255,255,255,0.9) /* @tooltip-background */;
+            border-right: 7px solid $tooltip-background;
             left: -6px;
         }
     }
@@ -268,12 +266,12 @@ h3 {
     &.west {
 
         &:before {
-            border-left:8px solid rgba(0, 0, 0, 0.2) /* @shadow */;
+            border-left:8px solid $shadow; 
             left: 100%;
         }
 
         &:after {
-            border-left: 7px solid rgba(255,255,255,0.9) /* @tooltip-background */;
+            border-left: 7px solid $tooltip-background;
             left: 100%;
         }
     }
