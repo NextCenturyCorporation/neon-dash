@@ -103,6 +103,14 @@ export class LeafletNeonMap extends AbstractMap {
     }
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    // Overrides
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    sizeChanged() {
+        super.sizeChanged();
+        this.map.invalidateSize();
+    }
+
+    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     // Drawing support
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     private getGroup(layer: MapLayer) {

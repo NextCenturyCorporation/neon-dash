@@ -686,7 +686,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     return this.filterVisible[index] ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
   }
 
-  /*removeLocalFilterFromLocalAndNeon(value: string) {
+    onResizeStop(): void {
+        super.onResizeStop();
+        return this.mapObject && this.mapObject.sizeChanged();
+    }
+
+    /*removeLocalFilterFromLocalAndNeon(value: string) {
       // If we are removing a filter, assume its both local and neon so it should be removed in both
       let me = this;
       let database = this.active.database.name;

@@ -124,5 +124,9 @@ export abstract class AbstractMap {
     abstract addPoints(points: MapPoint[], layer?: MapLayer, cluster?: boolean);
     abstract clearLayer(layer: MapLayer);
 
+    sizeChanged() {
+        // Do nothing for most cases
+    }
+
     abstract destroy();
 }
