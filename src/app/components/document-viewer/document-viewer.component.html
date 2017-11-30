@@ -31,21 +31,21 @@
                 <p></p>
 
                 <!-- Text field selector -->
-                <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeDataField()"
+                <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeField()"
                     [disabled]="meta.fields.length == 0">
                     <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                 </mat-select>
                 <p></p>
 
                 <!-- Date field selector -->
-                <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="false" (ngModelChange)="handleChangeDateField()"
+                <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="false" (ngModelChange)="handleChangeField()"
                     [disabled]="meta.fields.length == 0">
                     <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                 </mat-select>
                 <p></p>
 
                 <!-- ID field selector -->
-                <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeDataField()"
+                <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()"
                     [disabled]="meta.fields.length == 0">
                     <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                 </mat-select>
@@ -58,7 +58,7 @@
                             <input matInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
                         </td>
                         <td>
-                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeField()">
                                 <mat-icon class="mat-24">refresh</mat-icon>
                             </button>
                         </td>

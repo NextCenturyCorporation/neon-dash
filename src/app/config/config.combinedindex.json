@@ -1,0 +1,61 @@
+{
+	"datasets": [{
+			"name": "Haiti Redo",
+			"connectOnLoad": false,
+			"layout": "haiti-layout",
+			"datastore": "elasticsearch",
+			"hostname": "localhost",
+			"databases": [{
+				"name": "haiti",
+				"prettyName": "Ground Truth",
+				"tables": [{
+					"name": "source",
+					"prettyName": "Source Data",
+					"mappings": {
+						"date": "date",
+						"latitude": "lat",
+						"longitude": "lon"
+					}
+				},
+				{
+					"name": "elisa_el",
+					"prettyName": "Entity Linking"
+				},
+				{
+				"name": "elisa_sentiment",
+					"prettyName": "Sentiment"
+				},
+				{
+				"name": "elisa_loc",
+					"prettyName": "Locations"
+				},
+				{
+				"name": "elisa_sentiment",
+					"prettyName": "Sentiment"
+				},
+				{
+				"name": "elisa_sf",
+					"prettyName": "Situation Frames"
+				}]
+			}],
+			"options": {
+				"checkForCoordinateValidation": "null_values",
+				"colorMaps": {
+					"haiti": {
+						"elisa_sf": {
+							"document_labels": {
+								"LOC": "#98DF8A",
+								"ORG": "#FF9896",
+								"PER": "#AEC7E8"
+							},
+							"types": {
+
+							}
+						}
+					}
+				}
+			}
+		}],
+	"layouts": {
+		}
+}

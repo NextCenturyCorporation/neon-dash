@@ -5,11 +5,30 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
-    "prebuild": "rm -f target/lorelei-dev.war && mkdir -p target && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
-    "build": "ng build --env=prod --base-href /lorelei/",
+   
+    "prebuild-ariel": "rm -f target/*.war  && mkdir -p target  && cp src/app/config/config.ariel.json src/app/config/config.json && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
+    "build-ariel": "ng build --env=prod --deployUrl=/lorelei-ariel/ --base-href /lorelei-ariel/",
+    "postbuild-ariel": "cd dist && zip -r lorelei-ariel.war * && cd .. && mv dist/lorelei-ariel.war target/lorelei-ariel.war",
+    
+    "prebuild": "rm -f target/*.war && mkdir -p target && cp src/app/config/config.gt_ec2.json src/app/config/config.json && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
+    "build": "ng build --env=prod --deployUrl=/lorelei/  --base-href /lorelei/",   
     "postbuild": "cd dist && zip -r lorelei.war * && cd .. && mv dist/lorelei.war target/lorelei.war",
-    "prebuild-dev": "rm -f target/lorelei-dev.war && mkdir -p target && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
-    "build-dev": "ng build --base-href /lorelei/",
+   
+       "prebuild-ux": "rm -f target/*.war && mkdir -p target && cp src/app/config/config.haiti5.all.json src/app/config/config.json && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
+    "build-ux": "ng build --env=prod --deployUrl=/lorelei-ux/  --base-href /lorelei-ux/",   
+    "postbuild-ix": "cd dist && zip -r lorelei.war * && cd .. && mv dist/lorelei.war target/lorelei.war",
+
+     
+    "prebuild-elisa": "rm -f target/*.war && mkdir -p target && cp src/app/config/config.elisa.json src/app/config/config.json && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
+    "build-elisa": "ng build --env=prod --deployUrl=/lorelei-elisa/  --base-href /lorelei-elisa/",
+    "postbuild-elisa": "cd dist && zip -r lorelei-elisa.war * && cd .. && mv dist/lorelei-elisa.war target/lorelei-elisa.war",
+     
+    "prebuild-grace": "rm -f target/*.war && mkdir -p target && cp src/app/config/config.grace.json src/app/config/config.json && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
+    "build-grace": "ng build --env=prod   --deployUrl=/lorelei-grace/ --base-href /lorelei-grace/",
+    "postbuild-grace": "cd dist && zip -r lorelei-grace.war * && cd .. && mv dist/lorelei-grace.war target/lorelei-grace.war",
+    
+    "prebuild-dev": "rm -f target/*.war && mkdir -p target && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
+    "build-dev": "ng build --deployUrl=/lorelei/ --base-href /lorelei/",
     "postbuild-dev": "cd dist && zip -r lorelei-dev.war * && cd .. && mv dist/lorelei-dev.war target/lorelei-dev.war",
     "lint": "ng lint",
     "lint-fix": "ng lint -fix",

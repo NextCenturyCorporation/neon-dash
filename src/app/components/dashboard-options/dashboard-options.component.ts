@@ -54,7 +54,7 @@ export class DashboardOptionsComponent implements OnInit {
 
     constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
         private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
-        private mdSnackBar: MatSnackBar, private parameterService: ParameterService,
+        private matSnackBar: MatSnackBar, private parameterService: ParameterService,
         public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MatDialog,
         private visualizationService: VisualizationService) { }
 
