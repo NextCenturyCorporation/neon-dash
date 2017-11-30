@@ -164,7 +164,8 @@ export class ActiveGridService {
             col: 1,
             row: 1,
             sizex: (item.sizex) ? item.sizex : ActiveGridService.DEFAULT_SIZEX,
-            sizey: (item.sizey) ? item.sizey : ActiveGridService.DEFAULT_SIZEY
+            sizey: (item.sizey) ? item.sizey : ActiveGridService.DEFAULT_SIZEY,
+            dragHandle: '.drag-handle'
         };
 
         // Check for unbound columns/rows.

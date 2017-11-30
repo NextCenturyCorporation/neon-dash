@@ -341,7 +341,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      */
     initDatabases(layerIndex) {
         this.meta.databases = this.datasetService.getDatabases();
-        this.meta.layers[layerIndex].database = this.meta.databases[0];
+        this.meta.layers[layerIndex].database = this.meta.databases[0] || this.meta.layers[layerIndex].database;
 
         if (this.meta.databases.length > 0) {
             if (this.getOptionFromConfig('database')) {

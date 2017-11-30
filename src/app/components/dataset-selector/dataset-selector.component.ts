@@ -285,7 +285,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                 id: id,
                 bindings: {},
                 bordersize: 5,
-                dragHandle: 'drag-handle',
+                dragHandle: '.drag-handle',
                 gridConfig: {
                     row: visualization.row,
                     col: visualization.col,
