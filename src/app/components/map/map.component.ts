@@ -133,7 +133,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       east: this.injector.get('east', null),
       north: this.injector.get('north', null),
       south: this.injector.get('south', null),
-      geoServer: this.injector.get('geoServer', []),
+      geoServer: this.injector.get('geoServer', {}),
       mapType: this.injector.get('mapType', MapType.leaflet)
     };
 
@@ -416,6 +416,34 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     return !isNaN(parseFloat(n)) && isFinite(n);
   }
 
+  protected getMapPoints(lngField: string, latField: string, colorField: string, data: any[]) {
+      let map = new Map<string, UniqueLocationPoint>();
+
+      for (let point of data) {
+          let lngCoord = this.retrieveLocationField(point, lngField),
+              latCoord = this.retrieveLocationField(point, latField),
+              colorValue = colorField && point[colorField];
+
+          if (latCoord instanceof Array && lngCoord instanceof Array) {
+              for (let pos = latCoord.length - 1; pos >= 0; pos--) {
+                  this.addOrUpdateUniquePoint(map, latCoord[pos], lngCoord[pos], colorValue);
+              }
+          } else {
+              this.addOrUpdateUniquePoint(map, latCoord, lngCoord, colorValue);
+          }
+      }
+
+      let mapPoints: MapPoint[] = [];
+      map.forEach((unique) => mapPoints.push(
+          new MapPoint(`${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
+              unique.lat, unique.lng,
+              unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString,
+              'Count: ' + unique.count
+          )
+      ));
+      return mapPoints;
+  }
+
   onQuerySuccess(layerIndex, response) {
     // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
     // TODO break this function into smaller bits so it is more understandable.
@@ -425,34 +453,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     }
 
     let layer = this.active.layers[layerIndex],
-        lngField = layer.longitudeField.columnName,
-        latField = layer.latitudeField.columnName,
-        colorField = layer.colorField.columnName,
-        data = response.data,
-        map = new Map<string, UniqueLocationPoint>();
-
-    for (let point of data) {
-      let lngCoord = this.retrieveLocationField(point, lngField),
-          latCoord = this.retrieveLocationField(point, latField),
-          colorValue = colorField && point[colorField];
-
-      if (latCoord instanceof Array && lngCoord instanceof Array) {
-        for (let pos = latCoord.length - 1; pos >= 0; pos--) {
-          this.addOrUpdateUniquePoint(map, latCoord[pos], lngCoord[pos], colorValue);
-        }
-      } else {
-          this.addOrUpdateUniquePoint(map, latCoord, lngCoord, colorValue);
-      }
-    }
-
-    let mapPoints: MapPoint[] = [];
-    map.forEach((unique) => mapPoints.push(
-        new MapPoint(`${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
-            unique.lat, unique.lng,
-            unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString,
-            'Count: ' + unique.count
-        )
-    ));
+        mapPoints = this.getMapPoints(
+            layer.longitudeField.columnName,
+            layer.latitudeField.columnName,
+            layer.colorField.columnName,
+            response.data
+        );
 
     this.mapObject.clearLayer(layer);
     this.mapObject.addPoints(mapPoints, layer, this.active.clustering === 'clusters');

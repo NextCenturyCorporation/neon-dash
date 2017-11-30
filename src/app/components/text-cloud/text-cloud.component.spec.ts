@@ -56,7 +56,7 @@ class TestDatasetService extends DatasetService {
   }
 }
 
-fdescribe('Component: TextCloud', () => {
+describe('Component: TextCloud', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
   let component: TextCloudComponent;
   let fixture: ComponentFixture<TextCloudComponent>;
