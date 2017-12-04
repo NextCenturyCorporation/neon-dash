@@ -2242,11 +2242,12 @@
 						"dateField": "createdAt",
 						"colorField": "topics"
 					}],
-					"geoServer": [{
-						"offline": false,
+					"geoServer": {
+						"offline":true,
 						"mapUrl": "http://localhost:8080/geoserver/Natural_Earth/wms",
 						"layer": "Natural_Earth:NE1_HR_LC_SR_W_DR"
-					}]
+					},
+					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae"
 			},
