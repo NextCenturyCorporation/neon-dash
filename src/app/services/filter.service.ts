@@ -16,7 +16,6 @@
 import { Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
-import { TableMetaData } from '../dataset';
 import { ErrorNotificationService } from './error-notification.service';
 import { DatasetService } from './dataset.service';
 import * as uuid from 'node-uuid';
@@ -73,13 +72,12 @@ export class FilterService {
         if (!comparitor) {
             return this.filters;
         }
-        this.filters.forEach((filter) => {
-            for (let key of Object.keys(comparitor)) {
-                if (_.isEqual(comparitor[key], filter[key])) {
-                    matches.push(filter);
-                }
+        for (let filter of this.filters) {
+            // if unable to find mismatched values, must be equal
+            if (!Object.keys(comparitor).find((key) => !_.isEqual(comparitor[key], filter[key]))) {
+                matches.push(filter);
             }
-        });
+        }
         return matches;
     }
 
