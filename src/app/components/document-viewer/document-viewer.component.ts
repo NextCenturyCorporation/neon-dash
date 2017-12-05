@@ -59,7 +59,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         idField: string,
         metadataFields: any[], // Array of arrays. Each internal array is a row of metadata and contains {name, field} objects.
         popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
-        limit: number
+        limit: number,
+        showText: boolean
     };
 
     public active: {
@@ -85,7 +86,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             idField: this.injector.get('idField', null),
             metadataFields: this.injector.get('metadataFields', null),
             popoutFields: this.injector.get('popoutFields', null),
-            limit: this.injector.get('limit', null)
+            limit: this.injector.get('limit', null),
+            showText: this.injector.get('showText', false)
         };
         this.active = {
             data: [],
@@ -249,6 +251,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     private handleChangeField() {
         this.logChangeAndStartQueryChain();
+    }
+
+    getText(record) {
+        return neonUtilities.deepFind(record, this.active.dataField.columnName);
     }
 
     formatMetadataEntry(record, metadataEntry) {
