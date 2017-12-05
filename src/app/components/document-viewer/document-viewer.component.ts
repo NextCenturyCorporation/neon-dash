@@ -253,10 +253,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         this.logChangeAndStartQueryChain();
     }
 
-    getText(record) {
-        return neonUtilities.deepFind(record, this.active.dataField.columnName);
-    }
-
     formatMetadataEntry(record, metadataEntry) {
         let field = record[metadataEntry.field];
         if (typeof field  === 'string') {

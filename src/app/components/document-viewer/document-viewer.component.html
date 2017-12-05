@@ -128,7 +128,7 @@
                 </p>
                 <p *ngIf="optionsFromConfig.showText" class="metadata-row">
                     <span class="metadata-bold">Text: </span>
-                    <span class="metadata-text">{{ getText(item) }}</span>
+                    <span class="metadata-text">{{ item[active.dataField.columnName] }}</span>
                 </p>
                 <!-- <p>{{item[active.dataField.columnName]}}</p> -->
                 <table cellspacing="0" class="document-viewer-button-table">
