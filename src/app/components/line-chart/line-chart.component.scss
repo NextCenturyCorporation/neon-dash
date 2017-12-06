@@ -33,3 +33,7 @@
     position: absolute;
 }
 
+.text-container-for-linechart {
+    @extend .text-container;
+    justify-content: space-between;
+}

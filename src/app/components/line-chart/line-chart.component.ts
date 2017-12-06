@@ -14,14 +14,14 @@
  *
  */
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewEncapsulation,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component, ElementRef,
     Injector,
+    OnDestroy,
+    OnInit,
     ViewChild,
-    ChangeDetectorRef
+    ViewEncapsulation
 } from '@angular/core';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -39,6 +39,10 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ChartModule } from 'angular2-chartjs';
 import * as moment from 'moment-timezone';
 import { VisualizationService } from '../../services/visualization.service';
+
+class LocalFilter {
+    constructor(public key: string, public startDate: Date, public endDate: Date, public id?: string) {}
+}
 
 @Component({
     selector: 'app-line-chart',
@@ -76,7 +80,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         aggregation: string,
         dateBucketizer: any,
         granularity: string,
-        hasFilters: boolean
+        filter: LocalFilter
     };
 
     public selection: {
@@ -107,6 +111,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     public disabledList: string[] = [];
 
     private disabledDatasets: Map<string, any> = new Map<string, any>();
+
+    @ViewChild('textContainer') textElement: ElementRef;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -139,7 +145,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             aggregation: 'count',
             dateBucketizer: null,
             granularity: 'day',
-            hasFilters: false
+            filter: null
         };
 
         this.selection = {
@@ -367,14 +373,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.disabledList = Array.from(this.disabledDatasets.keys());
     }
 
-    createFilter(key, startDate, endDate) {
-        return {
-            key: key,
-            startDate: startDate,
-            endDate: endDate
-        };
-    }
-
     /**
      * returns -1 if cannot be found
      */
@@ -459,16 +457,24 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             this.selection.width = Math.abs(startX - endX);
             this.selection.x = Math.min(startX, endX);
             this.selection.height = chartBottom - chartTop;
-            this.selection.y = chartTop;
+            this.selection.y = chartTop + this.textElement.nativeElement.scrollHeight;
             redraw = true;
         }
         if (isMouseUp) {
             // The button was clicked, handle the selection.
-            this.selection.startDate = this.active.dateBucketizer.getDateForBucket(this.selection.startIndex);
-            this.selection.endDate = this.active.dateBucketizer.getDateForBucket(this.selection.endIndex);
+            let start = this.active.dateBucketizer.getDateForBucket(this.selection.startIndex),
+                end = this.active.dateBucketizer.getDateForBucket(this.selection.endIndex),
+                invert = start > end;
+            this.selection.startDate = invert ? end : start;
+            this.selection.endDate = invert ? start : end;
             let key = this.active.dateField.columnName;
-            let f = this.createFilter(key, this.selection.startDate, this.selection.endDate);
-            this.addNeonFilter(true, f);
+            let f = new LocalFilter(key, this.selection.startDate, this.selection.endDate);
+            if (this.active.filter) {
+                f.id = this.active.filter.id;
+                this.replaceNeonFilter(true, f);
+            } else {
+                this.addNeonFilter(true, f);
+            }
             redraw = true;
         }
 
@@ -478,13 +484,17 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         }
     }
 
-    createNeonFilterClauseEquals(_databaseAndTableName: {}, fieldName: string) {
-        let filterClauses = [];
-        filterClauses[0] = neon.query.where(fieldName, '>=', this.selection.startDate);
-        let endDatePlusOne = this.selection.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
-        let endDatePlusOneDate = new Date(endDatePlusOne);
-        filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
-        return neon.query.and.apply(neon.query, filterClauses);
+    createNeonFilterClauseEquals(database: string, table: string, fieldName: string | string[]) {
+        if (typeof fieldName === 'string') {
+            let filterClauses = [];
+            filterClauses[0] = neon.query.where(fieldName, '>=', this.selection.startDate);
+            let endDatePlusOne = this.selection.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
+            let endDatePlusOneDate = new Date(endDatePlusOne);
+            filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
+            return neon.query.and.apply(neon.query, filterClauses);
+        } else {
+            return null;
+        }
     }
 
     getFilterText() {
@@ -703,6 +713,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         }
         this.queryTitle = title;
         this.updateLegend();
+
+        // THOR-252: only way to know if filter was applied is to wait for querySuccess. See #onHover
+        this.setupFilters();
     }
 
     updateLegend() {
@@ -762,11 +775,26 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     setupFilters() {
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = [this.active.dateField.columnName];
-        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        this.active.hasFilters = (neonFilters && neonFilters.length > 0);
+        let localFilters = [],
+            filters = this.filterService.getFiltersForFields(
+                this.meta.database.name,
+                this.meta.table.name,
+                [this.active.dateField.columnName]
+            );
+        for (let filter of filters) {
+            let whereClause = filter.filter.whereClause;
+            if (whereClause && whereClause.whereClauses.length === 2) {
+                localFilters.push(
+                    new LocalFilter(
+                        whereClause.whereClauses[0].lhs,
+                        whereClause.whereClauses[0].rhs,
+                        whereClause.whereClauses[1].rhs,
+                        filter.id
+                    )
+                );
+            }
+        }
+        this.active.filter = localFilters.length ? localFilters[0] : null;
     }
 
     handleChangeLimit() {
@@ -795,25 +823,16 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         }
     }
 
-    // Get filters and format for each call in HTML
-    getCloseableFilters() {
-        // This only supports data filters
-        if (this.active.hasFilters) {
-            return ['Date Filter'];
-        }
-        return [];
-    }
-
-    getFilterTitle(value: string) {
-        return this.active.dateField.columnName + ' = ' + value;
+    getFilterTitle(filter: LocalFilter) {
+        return filter.startDate + ' >= ' + this.active.dateField.columnName + ' < ' + filter.endDate;
     }
 
     getFilterCloseText(value: string) {
         return value;
     }
 
-    getRemoveFilterTooltip(value: string) {
-        return 'Delete Filter ' + this.getFilterTitle(value);
+    getRemoveFilterTooltip(filter: LocalFilter) {
+        return 'Delete Filter ' + this.getFilterTitle(filter);
     }
 
     removeFilter(/*value: string*/) {
