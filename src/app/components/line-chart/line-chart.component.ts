@@ -36,7 +36,7 @@ import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ChartModule } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 import * as moment from 'moment-timezone';
 import { VisualizationService } from '../../services/visualization.service';
 
@@ -54,7 +54,7 @@ class LocalFilter {
 export class LineChartComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
 
-    @ViewChild('myChart') chartModule: ChartModule;
+    @ViewChild('myChart') chartModule: ChartComponent;
     @ViewChild('textContainer') textContainer: ElementRef;
     @ViewChild('chartContainer') chartContainer: ElementRef;
 

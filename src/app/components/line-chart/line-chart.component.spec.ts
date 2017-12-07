@@ -17,7 +17,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { ChartModule } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 
 import {} from 'jasmine-core';
 
@@ -47,7 +47,8 @@ describe('Component: LineChart', () => {
       declarations: [
         LineChartComponent,
         LegendComponent,
-        ExportControlComponent
+        ExportControlComponent,
+        ChartComponent
       ],
       providers: [
         ConnectionService,
@@ -65,7 +66,6 @@ describe('Component: LineChart', () => {
       imports: [
         AppMaterialModule,
         FormsModule,
-        ChartModule,
         BrowserAnimationsModule
       ]
     });

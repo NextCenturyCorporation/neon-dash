@@ -19,7 +19,7 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData, Dataset } from '../../d
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { ChartModule } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 
 import { TextCloudComponent } from './text-cloud.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
@@ -68,7 +68,8 @@ describe('Component: TextCloud', () => {
             declarations: [
                 TextCloudComponent,
                 ExportControlComponent,
-                UnsharedFilterComponent
+                UnsharedFilterComponent,
+                ChartComponent
             ],
             providers: [
                 ConnectionService,
@@ -88,7 +89,6 @@ describe('Component: TextCloud', () => {
             imports: [
                 AppMaterialModule,
                 FormsModule,
-                ChartModule,
                 BrowserAnimationsModule
             ]
         });
@@ -842,6 +842,7 @@ describe('Component: Textcloud with config', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 TextCloudComponent,
                 ExportControlComponent,
                 UnsharedFilterComponent
@@ -871,7 +872,6 @@ describe('Component: Textcloud with config', () => {
             imports: [
                 AppMaterialModule,
                 FormsModule,
-                ChartModule,
                 BrowserAnimationsModule
             ]
         });
@@ -918,6 +918,7 @@ describe('Component: Textcloud with config including configFilter', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 TextCloudComponent,
                 ExportControlComponent,
                 UnsharedFilterComponent
@@ -953,7 +954,6 @@ describe('Component: Textcloud with config including configFilter', () => {
             imports: [
                 AppMaterialModule,
                 FormsModule,
-                ChartModule,
                 BrowserAnimationsModule
             ]
         });

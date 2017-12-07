@@ -36,7 +36,7 @@ import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import { ChartModule } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 import { FormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -50,6 +50,7 @@ describe('Component: VisualizationContainer', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 BarChartComponent,
                 DataTableComponent,
                 DocumentViewerComponent,
@@ -75,7 +76,6 @@ describe('Component: VisualizationContainer', () => {
             imports: [
                 AppMaterialModule,
                 FormsModule,
-                ChartModule,
                 NgxDatatableModule,
                 BrowserAnimationsModule
             ]

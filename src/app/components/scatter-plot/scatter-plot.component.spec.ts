@@ -17,7 +17,7 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { ChartModule } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 
 import {} from 'jasmine-core';
 
@@ -49,7 +49,8 @@ describe('Component: ScatterPlot', () => {
         ScatterPlotComponent,
         LegendComponent,
         ExportControlComponent,
-        UnsharedFilterComponent
+        UnsharedFilterComponent,
+        ChartComponent
       ],
       providers: [
         ConnectionService,
@@ -67,7 +68,6 @@ describe('Component: ScatterPlot', () => {
       imports: [
         AppMaterialModule,
         FormsModule,
-        ChartModule,
         BrowserAnimationsModule
       ]
     });

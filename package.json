@@ -33,7 +33,6 @@
     "ajv": "5.2.0",
     "ajv-keywords": "1.5.1",
     "angular-core": "0.0.5",
-    "angular2-chartjs": "0.4.1",
     "angular2-grid": "2.1.0",
     "brace": "0.10.0",
     "cesium": "1.32.1",

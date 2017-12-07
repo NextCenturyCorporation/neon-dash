@@ -17,7 +17,7 @@ import {  ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { ChartModule } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 
 import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
@@ -65,6 +65,7 @@ describe('Component: BarChart', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 LegendComponent,
                 BarChartComponent,
                 ExportControlComponent,
@@ -86,8 +87,7 @@ describe('Component: BarChart', () => {
             imports: [
                 BrowserAnimationsModule,
                 AppMaterialModule,
-                FormsModule,
-                ChartModule
+                FormsModule
             ]
         });
         fixture = TestBed.createComponent(BarChartComponent);

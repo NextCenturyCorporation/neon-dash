@@ -104,9 +104,7 @@
         </div>
         <div class="chart-container" #chartContainer (click)="stopEventPropagation($event)" (mousedown)="mouseDown($event)" (mouseleave)="mouseLeave($event)" (mouseup)="mouseUp($event)">
             <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x + selectionOffset.x, 'top.px':selection.y + selectionOffset.y}"></div>
-            <chart class="chart" #scatter [type]="chart.type" [data]="chart.data" [options]="chart.options">
-            </chart>
-
+            <app-chart class="chart" #scatter [type]="chart.type" [data]="chart.data" [options]="chart.options"></app-chart>
         </div>
     </div>
 </mat-sidenav-container>
