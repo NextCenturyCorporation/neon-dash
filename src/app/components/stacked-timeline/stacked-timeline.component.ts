@@ -127,9 +127,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     postInit() {
         this.executeQueryChain();
 
-        let elems = document.getElementsByClassName('coloraccessor');
-        let style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
-        this.defaultActiveColor = Color.fromRgbString(style);
+        this.defaultActiveColor = this.getPrimaryThemeColor();
     }
 
     subNgOnDestroy() {

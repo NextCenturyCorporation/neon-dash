@@ -14,6 +14,8 @@
  *
  */
 
+@import '../themes/neon-green-theme';
+
 /* Rules for the Neon GTD App. */
 .neon-gtd-text-button {
     font-size: 24px;
@@ -44,4 +46,8 @@
 
 .neon-gtd-sidenav-dashboard-options {
     width: 450px;
+}
+
+.coloraccessor {
+    color: mat-color($primary);
 }

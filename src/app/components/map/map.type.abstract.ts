@@ -73,6 +73,7 @@ export interface OptionsFromConfig {
         mapUrl: string,
         layer: string
     };
+    singleColor: boolean;
 }
 
 export class BoundingBoxByDegrees {
