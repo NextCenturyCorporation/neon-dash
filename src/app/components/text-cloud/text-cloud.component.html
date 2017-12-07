@@ -93,5 +93,4 @@
     <div class="text-cloud" mat-fill layout="col">
         <a (click)="onClick(item)" class="text" *ngFor="let item of active.data" title="{{item.value}}" [rel]="item.count" [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">{{ item.key }}</a>
     </div>
-    <div class="coloraccessor"></div>
 </mat-sidenav-container>
