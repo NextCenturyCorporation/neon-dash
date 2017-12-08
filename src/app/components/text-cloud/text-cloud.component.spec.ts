@@ -14,7 +14,7 @@
  *
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { DatabaseMetaData, FieldMetaData, TableMetaData, Dataset } from '../../dataset';
 
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
@@ -40,183 +40,602 @@ import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
 class TestDatasetService extends DatasetService {
-  constructor() {
-    super(new NeonGTDConfig());
-    let testDatabase = new DatabaseMetaData('testDatabase', 'Test Database');
-    testDatabase.name = 'testName';
-    testDatabase.tables = [
-      new TableMetaData('testTable', 'Test Table', [
-        new FieldMetaData('testDataField', 'Test Data Field'),
-        new FieldMetaData('testSizeField', 'Test Size Field')
-      ])
-    ];
-    this.setActiveDataset({
-      databases: [testDatabase]
-    });
-  }
+    constructor() {
+        super(new NeonGTDConfig());
+        let testDatabase = new DatabaseMetaData('testDatabase', 'Test Database');
+        testDatabase.name = 'testName';
+        testDatabase.tables = [
+            new TableMetaData('testTable', 'Test Table', [
+                new FieldMetaData('testDataField', 'Test Data Field'),
+                new FieldMetaData('testSizeField', 'Test Size Field')
+            ])
+        ];
+        testDatabase.tables[0].mappings = {
+            tags: 'testDataAndSizeField'
+        };
+        this.setActiveDataset({
+            databases: [testDatabase]
+        });
+    }
 }
 
 fdescribe('Component: TextCloud', () => {
-  let testConfig: NeonGTDConfig = new NeonGTDConfig();
-  let component: TextCloudComponent;
-  let fixture: ComponentFixture<TextCloudComponent>;
+    let component: TextCloudComponent;
+    let fixture: ComponentFixture<TextCloudComponent>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [
-        TextCloudComponent,
-        ExportControlComponent,
-        UnsharedFilterComponent
-      ],
-      providers: [
-        ConnectionService,
-        DatasetService,
-        FilterService,
-        ExportService,
-        TranslationService,
-        VisualizationService,
-        ErrorNotificationService,
-        ThemesService,
-        Injector,
-        { provide: 'config', useValue: new NeonGTDConfig() }
-      ],
-      imports: [
-        AppMaterialModule,
-        FormsModule,
-        ChartModule,
-        BrowserAnimationsModule
-      ]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [
+                TextCloudComponent,
+                ExportControlComponent,
+                UnsharedFilterComponent
+            ],
+            providers: [
+                ConnectionService,
+                {
+                    provide: DatasetService,
+                    useClass: TestDatasetService
+                },
+                FilterService,
+                ExportService,
+                TranslationService,
+                VisualizationService,
+                ErrorNotificationService,
+                ThemesService,
+                Injector,
+                { provide: 'config', useValue: new NeonGTDConfig() }
+            ],
+            imports: [
+                AppMaterialModule,
+                FormsModule,
+                ChartModule,
+                BrowserAnimationsModule
+            ]
+        });
+        fixture = TestBed.createComponent(TextCloudComponent);
+        component = fixture.componentInstance;
     });
-    fixture = TestBed.createComponent(TextCloudComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
 
-  it('should create an instance', (() => {
-    expect(component).toBeTruthy();
-  }));
-
-  it('has expected active properties', (() => {
-    expect(component.active).toEqual({
-      dataField: new FieldMetaData(),
-      sizeField: new FieldMetaData(),
-      andFilters: true,
-      limit: 40,
-      textColor: '#111',
-      allowsTranslations: true,
-      filterable: true,
-      data: [],
-      count: 0
+    it('exists', () => {
+        expect(component).toBeTruthy();
     });
-  }));
 
-  it('returns expected query from createQuery', (() => {
-    component.meta.database = new DatabaseMetaData('testDatabase');
-    component.meta.table = new TableMetaData('testTable');
+    it('has expected active properties', () => {
+        expect(component.active).toEqual({
+            dataField: new FieldMetaData(),
+            sizeField: new FieldMetaData(),
+            andFilters: true,
+            limit: 40,
+            textColor: '#111',
+            allowsTranslations: true,
+            filterable: true,
+            data: [],
+            count: 0
+        });
+    });
 
+    it('has a subNgOnInit method', () => {
+        expect(component.subNgOnInit).toBeDefined();
+    });
 
-    let query = new neon.query.Query().selectFrom('testDatabase', 'testTable');
-    let whereClause;
-    // Checks for an unshared filter in the config file.
-    if (component.getOptionFromConfig('configFilter')) {
-      whereClause = neon.query.where(component.getOptionFromConfig('configFilter').lhs,
-        component.getOptionFromConfig('configFilter').operator,
-        component.getOptionFromConfig('configFilter').rhs);
-    } else if (component.hasUnsharedFilter()) {
-      whereClause = neon.query.where(component.getOptionFromConfig('unsharedFilterField').columnName, '=', component.getOptionFromConfig('unsharedFilterValue'));
-    } else {
-      whereClause = neon.query.where(component.active.dataField.columnName, '!=', null);
-    }
-    let dataField = component.active.dataField.columnName;
+    it('has a postInit method, which calls executeQueryChain', () => {
+        expect(component.postInit).toBeDefined();
+        let executeQueryChainHasBeenCalled = false;
+        component.executeQueryChain = () => {
+            executeQueryChainHasBeenCalled = true;
+        };
+        component.postInit();
+        expect(executeQueryChainHasBeenCalled).toBeTruthy();
+    });
 
-    if (component.active.sizeField.columnName === '') {
-      // Normal aggregation query
-      query.where(whereClause).groupBy(dataField).aggregate(neonVariables.COUNT, '*', 'value')
-        .sortBy('value', neonVariables.DESCENDING).limit(component.active.limit);
-    } else {
-      // Query for data with the size field and sort by it
-      let sizeColumn = component.active.sizeField.columnName;
-      query.where(neon.query.and(whereClause, neon.query.where(sizeColumn, '!=', null)))
-        .groupBy(dataField).aggregate(neon.query[component.sizeAggregation], sizeColumn, sizeColumn)
-        .sortBy(sizeColumn, neonVariables.DESCENDING).limit(component.active.limit);
-    }
+    it('has subNgOnDestroy function that does nothing', () => {
+        expect(component.subNgOnDestroy).toBeDefined();
+    });
 
-    expect(component.createQuery()).toEqual(query);
+    it('has subGetBindings function that updates the input bindings with specific config options', () => {
+        component.active.dataField.columnName = 'testDataField';
+        component.active.sizeField.columnName = 'testSizeField';
+        let bindings = {
+            dataField: undefined,
+            sizeField: undefined,
+            sizeAggregation: undefined,
+            limit: undefined
+        };
+        component.subGetBindings(bindings);
+        expect(bindings.dataField).toEqual('testDataField');
+        expect(bindings.sizeField).toEqual('testSizeField');
+        expect(bindings.sizeAggregation).toEqual('AVG'); // Default value on creation.
+        expect(bindings.limit).toEqual(40); // Default value on creation.
+    });
 
-  }));
+    it('returns the correct value from getExportFields', () => {
+        component.active.dataField.columnName = 'testDataField';
+        component.active.dataField.prettyName = 'Test Data Field';
+        component.active.sizeField.columnName = 'testSizeField';
 
-  it('has subNgOnDestroy function that does nothing', (() => {
-    expect(component.subNgOnDestroy).toBeDefined();
-  }));
+        expect(component.getExportFields()).toEqual([{
+            columnName: 'testDataField',
+            prettyName: 'Test Data Field'
+        }, {
+            columnName: 'value',
+            prettyName: 'Count'
+        }]);
 
-  it('has subGetBindings function that updates the input bindings with specific config options', (() => {
-    let bindings = {
-      'dataField': null,
-      'sizeField': null,
-      'sizeAggregation': null,
-      'limit': null,
-    };
-    component.subGetBindings(bindings);
-    expect(bindings.dataField).toEqual(component.active.dataField.columnName);
-    expect(bindings.sizeField).toEqual(component.active.sizeField.columnName);
-    expect(bindings.sizeAggregation).toEqual(component.sizeAggregation);
-    expect(bindings.limit).toEqual(component.active.limit);
-  }));
+        component.active.sizeField.prettyName = 'Test Size Field';
 
-  it('has getExportFields function that updates the input bindings with specific config options', (() => {
+        expect(component.getExportFields()).toEqual([{
+            columnName: 'testDataField',
+            prettyName: 'Test Data Field'
+        }, {
+            columnName: 'value',
+            prettyName: 'Test Size Field'
+        }]);
+    });
 
-    component.active.dataField.columnName = 'testDataField';
-    component.active.dataField.prettyName = 'Test Data Field';
-    component.active.sizeField.columnName = 'testSizeField';
-    component.active.sizeField.prettyName = 'Test Size Field';
+    it('returns the correct values from getOptionFromConfig', () => {
+        expect(component.getOptionFromConfig('title')).toBeNull();
+        expect(component.getOptionFromConfig('database')).toBeNull();
+        expect(component.getOptionFromConfig('table')).toBeNull();
+        expect(component.getOptionFromConfig('dataField')).toBeNull();
+        expect(component.getOptionFromConfig('configFilter')).toBeNull();
+        expect(component.getOptionFromConfig('unsharedFilterField')).toBeNull();
+        expect(component.getOptionFromConfig('unsharedFilterValue')).toBeNull();
+        expect(component.getOptionFromConfig('sizeField')).toBeNull();
+        expect(component.getOptionFromConfig('sizeAggregation')).toEqual('AVG');
+        expect(component.getOptionFromConfig('limit')).toBe(40);
+        expect(component.getOptionFromConfig('nonexistentOption')).toBeUndefined();
+    });
 
-    expect(component.getExportFields()).toEqual([{
-      columnName: 'testDataField',
-      prettyName: 'Test Data Field'
-    }, {
-      columnName: 'value',
-      prettyName: 'Test Size Field'
-    }]);
+    it('properly updates objects in updateObject', () => {
+        let startingObject = component.updateObject({}, 'value', 'a value');
+        startingObject = component.updateObject(startingObject, 'newField', 'new field value');
+        startingObject = component.updateObject(startingObject, 'value', 'new value');
+        expect(startingObject).toEqual({
+            value: 'new value',
+            newField: 'new field value'
+        });
+    });
 
-  }));
+    it('properly updates arrays in updateArray', () => {
+        let startingArray = component.updateArray([], 'first');
+        startingArray = component.updateArray(startingArray, 'second');
+        expect(startingArray).toEqual(['first', 'second']);
+    });
 
-  it('returns default options from getOptionFromConfig', (() => {
-    expect(component.getOptionFromConfig('database')).toBeNull();
-    expect(component.getOptionFromConfig('dataField')).toBeNull();
-    expect(component.getOptionFromConfig('configFilter')).toBeNull();
-    expect(component.getOptionFromConfig('table')).toBeNull();
-    expect(component.getOptionFromConfig('title')).toBeNull();
-    expect(component.getOptionFromConfig('unsharedFilterField')).toBeNull();
-    expect(component.getOptionFromConfig('unsharedFilterValue')).toBeNull();
-    expect(component.getOptionFromConfig('sizeField')).toBeNull();
-    expect(component.getOptionFromConfig('sizeAggregation')).toEqual('AVG');
-    expect(component.getOptionFromConfig('limit')).toEqual(40);
+    it('sets expected fields in onUpdateFields to the correct values', () => {
+        component.meta.database = new DatabaseMetaData('testDatabase', 'Test Database');
+        component.meta.database.name = 'testName';
+        component.meta.table = new TableMetaData('testTable', 'Test Table');
 
-  }));
+        component.onUpdateFields();
+        expect(component.active.dataField).toEqual({
+            columnName: '',
+            prettyName: '',
+            hide: false
+        });
+        expect(component.active.sizeField).toEqual({
+            columnName: '',
+            prettyName: '',
+            hide: false
+        });
 
-  it('has updateObject which correctly updates a field', (() => {
-    let obj = component.updateObject(component.active, 'limit', 100);
-    expect(obj.limit).toEqual(100);
-  }));
+        component.meta.fields = [
+            new FieldMetaData('testDataField'),
+            new FieldMetaData('testSizeField'),
+            new FieldMetaData('testDataAndSizeField') // Because dataField and sizeField both default to TAGS
+        ];
 
-  it('has updateArray which adds an element to an array', (() => {
-    let arr = [1, 2, 3, 4];
-    expect(component.updateArray(arr, 5)).toEqual([1, 2, 3, 4, 5]);
-  }));
+        component.onUpdateFields();
+        expect(component.active.dataField).toEqual(new FieldMetaData('testDataAndSizeField'));
+        expect(component.active.sizeField).toEqual(new FieldMetaData('testDataAndSizeField'));
+    });
 
-  it('has updateArray which adds an element to an array', (() => {
-    let arr = [];
-    expect(component.updateArray(arr, 5)).toEqual([5]);
-  }));
+    it('properly adds a local filter in addLocalFilter', () => {
+        component.addLocalFilter({
+            id: '1234567890',
+            key: 'testDataField',
+            value: 'Test Value',
+            prettyKey: 'Test Data Field'
+        });
+        expect(component.getFilterData().length).toBe(1);
+        expect(component.getFilterData()[0].id).toEqual('1234567890');
+        component.addLocalFilter({
+            id: '6789012345',
+            key: 'testDataField',
+            value: 'Test Value the Second',
+            prettyKey: 'Test Data Field'
+        });
+        expect(component.getFilterData().length).toBe(2);
+        expect(component.getFilterData()[0].id).toEqual('1234567890');
+        expect(component.getFilterData()[1].id).toEqual('6789012345');
+        component.addLocalFilter({
+            id: '1234567890',
+            key: 'testDataField',
+            value: 'Test Value Again',
+            prettyKey: 'Test Data Field'
+        });
+        expect(component.getFilterData().length).toBe(2);
+        expect(component.getFilterData()[0].id).toEqual('1234567890');
+        expect(component.getFilterData()[1].id).toEqual('6789012345');
+    });
 
-  it('has onUpdateFields which updates dataField, sizeField', (() => {
-      component.onUpdateFields();
-      expect(component.getOptionFromConfig('dataField')).toEqual(component.findFieldObject('dataField', neonMappings.TAGS));
-      expect(component.getOptionFromConfig('sizeField')).toEqual(component.findFieldObject('dataField', neonMappings.TAGS));
-      // let dataField = this.findFieldObject('dataField', neonMappings.TAGS);
-      // let sizeField = this.findFieldObject('sizeField', neonMappings.TAGS);
-      // this.active = this.updateObject(this.active, 'dataField', dataField);
-      // this.active = this.updateObject(this.active, 'sizeField', sizeField);
-      // this.meta = Object.assign({}, this.meta); // trigger action
-  }));
+    it('creates the correct filter clause in createNeonFilterClauseEquals', () => {
+        // This is a nonsensical situation (local filters are added before Neon filters) but test it anyway.
+        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testDataField'))
+            .toEqual(neon.query.and.apply([]));
+
+        component.addLocalFilter({
+            id: '1234567890',
+            key: 'testDataField',
+            value: 'Test Value',
+            prettyKey: 'Test Data Field'
+        });
+        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testDataField'))
+            .toEqual(new neon.query.WhereClause('testDataField', '=', 'Test Value'));
+
+        component.addLocalFilter({
+            id: '6789012345',
+            key: 'testDataField',
+            value: 'Test Value the Second',
+            prettyKey: 'Test Data Field'
+        });
+        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testDataField'))
+            .toEqual(neon.query.and.apply(neon.query, [new neon.query.WhereClause('testDataField', '=', 'Test Value'),
+                                          new neon.query.WhereClause('testDataField', '=', 'Test Value the Second')]));
+
+        component.active.andFilters = false;
+        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testDataField'))
+        .toEqual(neon.query.or.apply(neon.query, [new neon.query.WhereClause('testDataField', '=', 'Test Value'),
+                                      new neon.query.WhereClause('testDataField', '=', 'Test Value the Second')]));
+    });
+
+    it('returns the expected values from getNeonFilterFields', () => {
+        component.active.dataField.columnName = 'testDataField';
+        component.active.sizeField.columnName = 'testSizeField';
+        expect(component.getNeonFilterFields()).toEqual(['testDataField']);
+    });
+
+    it('returns the expected value from getVisualizationName', () => {
+        expect(component.getVisualizationName()).toEqual('Text Cloud');
+    });
+
+    it('has a refreshVisualization method that calls createTextCloud', () => {
+        let createTextCloudHasBeenCalled = false;
+        component.createTextCloud = () => {
+            createTextCloudHasBeenCalled = true;
+        };
+        component.refreshVisualization();
+        expect(createTextCloudHasBeenCalled).toBeTruthy();
+    });
+
+    it('has a getFilterText method that returns the value of a filter passed to it', () => {
+        let filter = {
+            id: `1234567890`,
+            key: 'testDataField',
+            value: 'Value',
+            prettyKey: 'Test Data Field'
+        };
+        expect(component.getFilterText(filter)).toEqual('Value');
+    });
+
+    it('has an isValidQuery method that properly checks whether or not a valid query can be made', () => {
+        expect(component.isValidQuery()).toBeFalsy();
+        component.meta.database = new DatabaseMetaData('testDatabase');
+        expect(component.isValidQuery()).toBeFalsy();
+        component.meta.table = new TableMetaData('testTable');
+        expect(component.isValidQuery()).toBeFalsy();
+        component.active.dataField.columnName = 'testDataField';
+        expect(component.isValidQuery()).toBeTruthy();
+    });
+
+    it('returns expected query from createQuery', () => {
+        component.meta.database = new DatabaseMetaData('testDatabase');
+        component.meta.table = new TableMetaData('testTable');
+        component.active.dataField.columnName = 'testDataField';
+
+        let whereClause = neon.query.where('testDataField', '!=', null);
+        let query = new neon.query.Query().selectFrom('testDatabase', 'testTable')
+            .where(whereClause)
+            .groupBy('testDataField')
+            .aggregate(neonVariables.COUNT, '*', 'value')
+            .sortBy('value', neonVariables.DESCENDING)
+            .limit(40);
+
+        expect(component.createQuery()).toEqual(query);
+
+        component.active.sizeField.columnName = 'testSizeField';
+        component.active.limit = 25;
+        let whereClauses = neon.query.and(whereClause, neon.query.where('testSizeField', '!=', null));
+
+        query = new neon.query.Query().selectFrom('testDatabase', 'testTable')
+            .where(whereClauses)
+            .groupBy('testDataField')
+            .aggregate(neonVariables.AVG, 'testSizeField', 'testSizeField')
+            .sortBy('testSizeField', neonVariables.DESCENDING)
+            .limit(25);
+
+        expect(component.createQuery()).toEqual(query);
+    });
+
+    it('returns null from getFiltersToIgnore', () => {
+        expect(component.getFiltersToIgnore()).toBeNull();
+    });
+
+    it('sets the expected values when getDocCount is called', () => {
+        component.active.count = 40;
+        let docCountResponse = {
+            data: [{
+                _docCount: 8,
+                testDataField: 'getDocCount works differently in the text cloud than in other places'
+            },
+            {
+                _docCount: 5,
+                testDataField: 'it doesn\'t operate on raw documents, and so can\'t somply give a nice count'
+            },
+            {
+                _docCount: 1,
+                testDataField: 'instead, it returns a list of all values and counts them'
+            }]
+        };
+        let calledExecuteQuery = false;
+        component.executeQuery = () => {
+            calledExecuteQuery = true;
+            component.onQuerySuccess(docCountResponse);
+        };
+
+        component.getDocCount();
+
+        expect(calledExecuteQuery).toBeTruthy();
+        expect(component.active.count).toBe(3);
+    });
+
+    it('sets expected values and calls getDocCount if onQuerySuccess returns no data', () => {
+        component.active.dataField.columnName = 'testDataField';
+        component.active.dataField.prettyName = 'Test Data Field';
+        let response = {
+            data: []
+        };
+        // Mock executeQuery to avoid actually sending HTTP requests; assume they succeed.
+        // See document viewer tests for an explanation of why we're doing it this way.
+        let calledExecuteQuery = false;
+        component.executeQuery = () => {
+            calledExecuteQuery = true;
+        };
+
+        component.subNgOnInit(); // To initialize the text cloud so it can update.
+        component.onQuerySuccess(response);
+
+        expect(component.active.data).toEqual([]);
+        expect(component.active.count).toBe(0);
+        expect(component.createTitle()).toEqual('Text Cloud by Test Data Field');
+        expect(calledExecuteQuery).toBeFalsy(); // Don't query for doc count if we got no data.
+
+        component.active.sizeField.columnName = 'testSizeField';
+        component.active.sizeField.prettyName = 'Test Size Field';
+
+        component.onQuerySuccess(response);
+
+        expect(component.active.data).toEqual([]);
+        expect(component.active.count).toBe(0);
+        expect(component.createTitle()).toEqual('Text Cloud by Test Data Field and Test Size Field');
+        expect(calledExecuteQuery).toBeFalsy();
+    });
+
+    it('sets expected values and calls getDocCount if onQuerySuccess returns data', () => {
+        component.active.dataField.columnName = 'testDataField';
+        component.active.dataField.prettyName = 'Test Data Field';
+        let response = {
+            data: [{
+                value: 8,
+                testDataField: 'First',
+                testSizeField: 100
+            },
+            {
+                value: 5,
+                testDataField: 'Second',
+                testSizeField: 75
+            },
+            {
+                value: 1,
+                testDataField: 'Third',
+                testSizeField: 50
+            }]
+        };
+        let docCountResponse = {
+            data: [{
+                _docCount: 8,
+                testDataField: 'a value'
+            },
+            {
+                _docCount: 5,
+                testDataField: 'a second value'
+            },
+            {
+                _docCount: 1,
+                testDataField: 'a third value'
+            }]
+        };
+        // Mock executeQuery to avoid actually sending HTTP requests; assume they succeed.
+        // See document viewer tests for an explanation of why we're doing it this way.
+        let calledExecuteQuery = false;
+        component.executeQuery = () => {
+            calledExecuteQuery = true;
+            component.onQuerySuccess(docCountResponse);
+        };
+        // Mock createTextCloud to skip over its editing of active.data. That will be tested elsewhere.
+        let calledCreateTextCloud = false;
+        component.createTextCloud = () => {
+            calledCreateTextCloud = true;
+        };
+
+        component.subNgOnInit();
+        component.onQuerySuccess(response);
+
+        expect(component.active.data).toEqual([{
+            value: 8,
+            testDataField: 'First',
+            testSizeField: 100,
+            key: 'First',
+            keyTranslated: 'First'
+        },
+        {
+            value: 5,
+            testDataField: 'Second',
+            testSizeField: 75,
+            key: 'Second',
+            keyTranslated: 'Second'
+        },
+        {
+            value: 1,
+            testDataField: 'Third',
+            testSizeField: 50,
+            key: 'Third',
+            keyTranslated: 'Third'
+        }]);
+        expect(component.active.count).toBe(3);
+        expect(component.createTitle()).toEqual('Text Cloud by Test Data Field');
+        expect(calledCreateTextCloud).toBeTruthy();
+        expect(calledExecuteQuery).toBeTruthy();
+
+        component.active.sizeField.columnName = 'testSizeField';
+        component.active.sizeField.prettyName = 'Test Size Field';
+        calledCreateTextCloud = false;
+        calledExecuteQuery = false;
+
+        component.onQuerySuccess(response);
+
+        expect(component.active.data).toEqual([{
+            value: 100,
+            testDataField: 'First',
+            testSizeField: 100,
+            key: 'First',
+            keyTranslated: 'First'
+        },
+        {
+            value: 75,
+            testDataField: 'Second',
+            testSizeField: 75,
+            key: 'Second',
+            keyTranslated: 'Second'
+        },
+        {
+            value: 50,
+            testDataField: 'Third',
+            testSizeField: 50,
+            key: 'Third',
+            keyTranslated: 'Third'
+        }]);
+        expect(component.active.count).toBe(3);
+        expect(component.createTitle()).toEqual('Text Cloud by Test Data Field and Test Size Field');
+        expect(calledCreateTextCloud).toBeTruthy();
+        expect(calledExecuteQuery).toBeTruthy();
+    });
+});
+
+fdescribe('Component: Textcloud with config', () => {
+    let component: TextCloudComponent;
+    let fixture: ComponentFixture<TextCloudComponent>;
+
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [
+                TextCloudComponent,
+                ExportControlComponent,
+                UnsharedFilterComponent
+            ],
+            providers: [
+                ConnectionService,
+                DatasetService,
+                FilterService,
+                ExportService,
+                TranslationService,
+                VisualizationService,
+                ErrorNotificationService,
+                ThemesService,
+                Injector,
+                { provide: 'config', useValue: new NeonGTDConfig() },
+                { provide: 'title', useValue: 'Textcloud with Config Title' },
+                { provide: 'database', useValue: 'testDatabase' },
+                { provide: 'table', useValue: 'testTable' },
+                { provide: 'dataField', useValue: 'testDataField' },
+                { provide: 'configFilter', useValue: null },
+                { provide: 'unsharedFilterField', useValue: 'testUnsharedFilterField' },
+                { provide: 'unsharedFilterValue', useValue: 'testUnsharedFilterValue' },
+                { provide: 'sizeField', useValue: 'testSizeField' },
+                { provide: 'sizeAggregation', useValue: 'COUNT' },
+                { provide: 'limit', useValue: 25 }
+            ],
+            imports: [
+                AppMaterialModule,
+                FormsModule,
+                ChartModule,
+                BrowserAnimationsModule
+            ]
+        });
+        fixture = TestBed.createComponent(TextCloudComponent);
+        component = fixture.componentInstance;
+    });
+
+    it('something to do with getOptionsFromConfig', () => {
+        expect(1).toBe(1); // HUGE TODO
+    });
+
+    it('something to do with queries and using unsharedFilter stuff I think', () => {
+        expect(1).toBe(1); // HUGE TODO
+    });
+});
+
+fdescribe('Component: Textcloud with config including configFilter', () => {
+    let component: TextCloudComponent;
+    let fixture: ComponentFixture<TextCloudComponent>;
+
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [
+                TextCloudComponent,
+                ExportControlComponent,
+                UnsharedFilterComponent
+            ],
+            providers: [
+                ConnectionService,
+                DatasetService,
+                FilterService,
+                ExportService,
+                TranslationService,
+                VisualizationService,
+                ErrorNotificationService,
+                ThemesService,
+                Injector,
+                { provide: 'config', useValue: new NeonGTDConfig() },
+                { provide: 'title', useValue: 'Textcloud with Config Title' },
+                { provide: 'database', useValue: 'testDatabase' },
+                { provide: 'table', useValue: 'testTable' },
+                { provide: 'dataField', useValue: 'testDataField' },
+                { provide: 'configFilter', useValue: {
+                        use: true,
+                        lhs: 'testConfigFilterField',
+                        operator: '=',
+                        rhs: 'testConfigFilterValue'
+                    }
+                },
+                { provide: 'unsharedFilterField', useValue: 'testUnsharedFilterField' },
+                { provide: 'unsharedFilterValue', useValue: 'testUnsharedFilterValue' },
+                { provide: 'sizeField', useValue: 'testSizeField' },
+                { provide: 'sizeAggregation', useValue: 'COUNT' },
+                { provide: 'limit', useValue: 25 }
+            ],
+            imports: [
+                AppMaterialModule,
+                FormsModule,
+                ChartModule,
+                BrowserAnimationsModule
+            ]
+        });
+        fixture = TestBed.createComponent(TextCloudComponent);
+        component = fixture.componentInstance;
+    });
+
+    it('applies the config filter to created queries', () => {
+        expect(1).toBe(1); // HUGE TODO
+    });
 });
