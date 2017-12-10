@@ -528,7 +528,7 @@
             "geoServer": {
               "offline": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
-              "layer": "lorelei_workspace:NE1_HR_LC"
+              "layer": "lorelei_workspace:MapCityLabel"
             },
 	    "mapType": "cesium"
           },
@@ -885,7 +885,7 @@
             "geoServer": {
               "offline": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
-              "layer": "lorelei_workspace:NE1_HR_LC"
+              "layer": "lorelei_workspace:MapCityLabel"
             },
 	    "mapType": "cesium"
           },
@@ -1234,7 +1234,7 @@
             "geoServer": {
               "offline": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
-              "layer": "lorelei_workspace:NE1_HR_LC"
+              "layer": "lorelei_workspace:MapCityLabel"
             },
 	    "mapType": "cesium"
           },
@@ -1578,7 +1578,7 @@
             "geoServer": {
               "offline": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
-              "layer": "lorelei_workspace:NE1_HR_LC"
+              "layer": "lorelei_workspace:MapCityLabel"
             },
 	    "mapType": "cesium"
           },
@@ -1922,7 +1922,7 @@
             "geoServer": {
               "offline": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
-              "layer": "lorelei_workspace:NE1_HR_LC"
+              "layer": "lorelei_workspace:MapCityLabel"
             },
 	    "mapType": "cesium"
           },
@@ -2265,7 +2265,7 @@
             "geoServer": {
               "offline": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
-              "layer": "lorelei_workspace:NE1_HR_LC"
+              "layer": "lorelei_workspace:MapCityLabel"
             },
             "mapType": "cesium"
           },
@@ -2609,7 +2609,7 @@
             "geoServer": {
               "offline": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
-              "layer": "lorelei_workspace:NE1_HR_LC"
+              "layer": "lorelei_workspace:MapCityLabel"
             },
             "mapType": "cesium",
             "hoverSelect": {
