@@ -447,7 +447,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
           }
           mapPoints.push(new MapPoint(
               `${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
-              unique.lat, unique.lng, color, 'Count: ' + unique.count
+              unique.lat, unique.lng, unique.count, color, `Count: ${unique.count}`
           ));
       });
       return mapPoints;

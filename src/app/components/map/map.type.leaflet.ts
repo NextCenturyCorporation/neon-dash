@@ -82,9 +82,10 @@ export class LeafletNeonMap extends AbstractMap {
             let circlOptions = {
                     color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
                     fillColor: point.cssColorString,
-                    weight: 1
+                    weight: 1,
+                    radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
                 },
-                circle = new L.CircleMarker([point.lat, point.lng], circlOptions).setRadius(6);
+                circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
 
             if (this.optionsFromConfig.hoverPopupEnabled) {
                 circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);

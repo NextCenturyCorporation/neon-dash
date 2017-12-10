@@ -90,6 +90,7 @@ export class MapPoint {
         public name: string,
         public lat: number,
         public lng: number,
+        public count: number,
         public cssColorString: string,
         public description: string
     ) {}
