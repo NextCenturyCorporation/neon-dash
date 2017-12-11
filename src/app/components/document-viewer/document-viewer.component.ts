@@ -142,7 +142,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         this.active.dataField = this.findFieldObject('dataField', neonMappings.NEWSFEED_TEXT);
         this.active.dateField = this.findFieldObject('dateField'); // If not set in the config, ignore it altogether.
         this.active.idField = this.findFieldObject('idField');
-        this.active.metadataFields = this.optionsFromConfig.metadataFields;
+        this.active.metadataFields = neonUtilities.flatten(this.optionsFromConfig.metadataFields);
     }
 
     getFilterText(filter) {
