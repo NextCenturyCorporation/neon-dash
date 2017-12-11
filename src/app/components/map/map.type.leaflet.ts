@@ -59,6 +59,12 @@ export class LeafletNeonMap extends AbstractMap {
             };
 
         this.map = new L.Map(mapContainer.nativeElement, this.mapOptions).addLayer(baseTileLayer);
+        if (this.areBoundsSet()) {
+            this.map.fitBounds([
+                [this.optionsFromConfig.north, this.optionsFromConfig.west],
+                [this.optionsFromConfig.south, this.optionsFromConfig.east]
+            ]);
+        }
         this.layerControl = L.control.layers(baseLayers, {});
         this.map.addControl(this.layerControl);
 

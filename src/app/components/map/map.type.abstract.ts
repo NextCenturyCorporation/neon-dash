@@ -129,4 +129,10 @@ export abstract class AbstractMap {
     }
 
     abstract destroy();
+
+    // utility
+    areBoundsSet() {
+        return this.optionsFromConfig.west != null && this.optionsFromConfig.east != null &&
+            this.optionsFromConfig.north != null && this.optionsFromConfig.south != null;
+    }
 }
