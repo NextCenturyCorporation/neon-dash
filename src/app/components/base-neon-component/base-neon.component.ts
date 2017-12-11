@@ -745,4 +745,8 @@ export abstract class BaseNeonComponent implements OnInit,
     subscribeToSelectId(callback) {
         this.messenger.subscribe('select_id', callback);
     }
+
+    getComputedStyle(nativeElement: any) {
+        return window.getComputedStyle(nativeElement, null);
+    }
 }
