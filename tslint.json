@@ -119,7 +119,6 @@
       "check-open-brace",
       "check-whitespace"
     ],
-    "one-variable-per-declaration": true,
     "pipe-impure": true,
     "pipe-naming": ["camelCase"],
     "prefer-for-of": true,

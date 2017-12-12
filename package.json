@@ -48,6 +48,7 @@
     "jquery": "2.2.4",
     "js-yaml": "3.9.1",
     "jsoneditor": "5.9.6",
+    "leaflet": "1.2.0",
     "less": "2.7.2",
     "lodash": "4.15.0",
     "moment": "2.18.1",

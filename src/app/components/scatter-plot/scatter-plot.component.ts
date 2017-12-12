@@ -21,7 +21,7 @@ import {
     ChangeDetectionStrategy,
     Injector,
     ViewChild,
-    ChangeDetectorRef
+    ChangeDetectorRef, ElementRef
 } from '@angular/core';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -100,9 +100,14 @@ class ScatterDataSet {
 })
 export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
+
     @ViewChild('scatter') chartModule: ChartModule;
+    @ViewChild('textContainer') textContainer: ElementRef;
+    @ViewChild('chartContainer') chartContainer: ElementRef;
 
     private filters: ScatterPlotFilter[];
+
+    private defaultActiveColor;
 
     private optionsFromConfig: {
         title: string,
@@ -114,7 +119,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         colorField: string,
         unsharedFilterField: Object,
         unsharedFilterValue: string,
-        limit: number
+        limit: number,
+        displayGridLines: boolean,
+        displayTicks: boolean
     };
     public active: {
         xField: FieldMetaData,
@@ -128,9 +135,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         yAxisIsNumeric: boolean,
         pointLabels: string[]
     };
-
-    // Alternate color: rgba(57, 181, 74, 0.9)
-    private defaultColor: Color = new Color(51, 153, 255);
 
     private mouseEventValid: boolean;
 
@@ -160,6 +164,11 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     private disabledDatasets: Map<string, any> = new Map<string, any>();
 
+    public selectionOffset = {
+        x: 0,
+        y: 0
+    };
+
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
@@ -174,7 +183,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             colorField: this.injector.get('colorField', null),
             limit: this.injector.get('limit', 200),
             unsharedFilterField: {},
-            unsharedFilterValue: ''
+            unsharedFilterValue: '',
+            displayGridLines: this.injector.get('displayGridLines', true),
+            displayTicks: this.injector.get('displayTicks', true)
         };
         this.colorSchemeService = colorSchemeSrv;
         this.filters = [];
@@ -249,14 +260,22 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 },
                 scales: {
                     xAxes: [{
+                        gridLines: {
+                            display: this.optionsFromConfig.displayGridLines
+                        },
                         ticks: {
+                            display: this.optionsFromConfig.displayTicks,
                             callback: this.xAxisTickCallback
                         },
                         position: 'bottom',
                         type: 'linear'
                     }],
                     yAxes: [{
+                        gridLines: {
+                            display: this.optionsFromConfig.displayGridLines
+                        },
                         ticks: {
+                            display: this.optionsFromConfig.displayTicks,
                             callback: this.yAxisTickCallback
                         },
                         type: 'linear'
@@ -270,7 +289,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         };
-        this.chart.data.datasets.push(new ScatterDataSet(this.defaultColor));
         this.queryTitle = 'Scatter Plot';
     }
 
@@ -292,6 +310,14 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     postInit() {
         this.executeQueryChain();
+
+        let elems = document.getElementsByClassName('coloraccessor');
+        let style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
+        this.defaultActiveColor = Color.fromRgbString(style);
+        this.chart.data.datasets.push(new ScatterDataSet(this.defaultActiveColor));
+
+        this.selectionOffset.y = this.textContainer.nativeElement.scrollHeight;
+        this.selectionOffset.x = Number.parseInt(this.getComputedStyle(this.chartContainer.nativeElement).paddingLeft || '0');
     }
 
     subNgOnDestroy() {
@@ -622,7 +648,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
             let dataSet = dataSetMap.get(dataSetKey);
             if (!dataSet) {
-                let color = this.defaultColor;
+                let color = this.defaultActiveColor;
                 if (hasColor) {
                     color = this.colorSchemeService.getColorFor(this.meta.colorField.columnName, dataSetKey);
                 }

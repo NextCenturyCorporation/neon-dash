@@ -88,25 +88,26 @@
         <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
             <mat-spinner ></mat-spinner>
         </div>
-        <div class="text-container">
+        <div #textContainer class="text-container">
             <div>
                 <app-legend *ngIf="hasColorField()"
                             (itemSelected)="legendItemSelected($event)"
                             [disabledList]="disabledSet"
                             [fieldNames]="colorByFields"></app-legend>
             </div>
-            <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-                <span class="filter-label" [title]="getFilterTitle(filter.value)">{{ getFilterCloseText(filter.value) }}</span>
-                <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveFilterTooltip(filter.value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, true)">
-            <mat-icon class="mat-18">close</mat-icon>
-        </button>
+            <div class="filter-reset" *ngIf="filters[0]">
+                <span class="filter-label" [title]="getFilterTitle()">Scatter Filter</span>
+                <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveFilterTooltip()" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filters[0], true)">
+                    <mat-icon class="mat-18">close</mat-icon>
+                </button>
             </div>
         </div>
-        <div class="chart-container" (click)="stopEventPropagation($event)" (mousedown)="mouseDown($event)" (mouseleave)="mouseLeave($event)" (mouseup)="mouseUp($event)">
-            <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x + 10, 'top.px':selection.y + 45}"></div>
+        <div class="chart-container" #chartContainer (click)="stopEventPropagation($event)" (mousedown)="mouseDown($event)" (mouseleave)="mouseLeave($event)" (mouseup)="mouseUp($event)">
+            <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x + selectionOffset.x, 'top.px':selection.y + selectionOffset.y}"></div>
             <chart class="chart" #scatter [type]="chart.type" [data]="chart.data" [options]="chart.options">
             </chart>
 
         </div>
     </div>
+    <div class="coloraccessor"></div>
 </mat-sidenav-container>

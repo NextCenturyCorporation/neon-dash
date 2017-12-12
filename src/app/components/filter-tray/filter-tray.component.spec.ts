@@ -50,8 +50,8 @@ describe('Component: FilterTray', () => {
     });
 
     it('should create an instance', inject([FilterService, ThemesService],
-        (filterService: FilterService, themesService: ThemesService, mdDialogRef: MatDialogRef<FilterTrayComponent>) => {
-        let component = new FilterTrayComponent(filterService, themesService, mdDialogRef);
+        (filterService: FilterService, themesService: ThemesService, matDialogRef: MatDialogRef<FilterTrayComponent>) => {
+        let component = new FilterTrayComponent(filterService, themesService, matDialogRef);
         expect(component).toBeTruthy();
     }));
 });

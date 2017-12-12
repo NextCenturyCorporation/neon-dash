@@ -39,6 +39,13 @@
                     </mat-select>
                 </mat-form-field>
 
+                <!-- Text toggle -->
+                <mat-button-toggle-group [(ngModel)]="optionsFromConfig.showText">
+                    <mat-button-toggle [value]="true">Show</mat-button-toggle>
+                    <mat-button-toggle [value]="false">Hide</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
                 <!-- Date field selector -->
                 <mat-form-field>
                     <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="false" (ngModelChange)="handleChangeDateField()"
@@ -62,7 +69,7 @@
                             <input matInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
                         </td>
                         <td>
-                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeField()">
                                 <mat-icon class="mat-24">refresh</mat-icon>
                             </button>
                         </td>
@@ -119,13 +126,18 @@
             <div class="mat-list-item-text" layout="column">
                 <p class="metadata-row" *ngFor="let row of active.metadataFields">
                     <span class="metadata-item" *ngFor="let metadataElement of row">
-                        <span class="metadata-bold">{{ metadataElement.name }}: </span><span class="metadata-text">{{ formatMetadataEntry(item, metadataElement) }}</span>
+                        <span class="metadata-bold">{{ metadataElement.name }}: </span>
+                        <span class="metadata-text">{{ formatMetadataEntry(item, metadataElement) }}</span>
                     </span>
+                </p>
+                <p *ngIf="optionsFromConfig.showText" class="metadata-row">
+                    <span class="metadata-bold">Text: </span>
+                    <span class="metadata-text">{{ item[active.dataField.columnName] }}</span>
                 </p>
                 <!-- <p>{{item[active.dataField.columnName]}}</p> -->
                 <table cellspacing="0" class="document-viewer-button-table">
                     <tr>
-                        <td class="document-viewer-button-cell">
+                        <td *ngIf="!optionsFromConfig.showText" class="document-viewer-button-cell">
                             <button mat-button class="document-viewer-button" (click)="openSingleRecord(item)">View Source Text</button>
                         </td>
                         <td class="document-viewer-button-cell" *ngIf="active.idField.columnName">

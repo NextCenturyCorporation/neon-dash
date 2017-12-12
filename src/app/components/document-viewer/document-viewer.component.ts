@@ -59,17 +59,18 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         idField: string,
         metadataFields: any[], // Array of arrays. Each internal array is a row of metadata and contains {name, field} objects.
         popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
-        limit: number
+        limit: number,
+        showText: boolean
     };
 
     public active: {
+        data: any[],
         dataField: FieldMetaData,
         dateField: FieldMetaData,
+        docCount: number,
         idField: FieldMetaData,
-        metadataFields: any[],
         limit: number,
-        data: any[],
-        docCount: number
+        metadataFields: any[]
     };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
@@ -85,16 +86,17 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             idField: this.injector.get('idField', null),
             metadataFields: this.injector.get('metadataFields', null),
             popoutFields: this.injector.get('popoutFields', null),
-            limit: this.injector.get('limit', null)
+            limit: this.injector.get('limit', null),
+            showText: this.injector.get('showText', false)
         };
         this.active = {
+            data: [],
             dataField: new FieldMetaData(),
             dateField: new FieldMetaData(),
+            docCount: 0,
             idField: new FieldMetaData(),
-            metadataFields: [],
-            limit: 50,
-            data: [],
-            docCount: 0
+            limit: this.optionsFromConfig.limit || 50,
+            metadataFields: []
         };
         this.queryTitle = this.optionsFromConfig.title || 'Document Viewer';
     }
@@ -136,13 +138,13 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     onUpdateFields() {
         this.active.dataField = this.findFieldObject('dataField', neonMappings.NEWSFEED_TEXT);
-        this.active.dateField = this.findFieldObject('dateField', null); // If not set in the config, ignore it altogether.
-        this.active.idField = this.findFieldObject('idField', null);
+        this.active.dateField = this.findFieldObject('dateField'); // If not set in the config, ignore it altogether.
+        this.active.idField = this.findFieldObject('idField');
         this.active.metadataFields = this.optionsFromConfig.metadataFields;
     }
 
     getFilterText(filter) {
-        return filter.value;
+        return '';
     }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
@@ -161,13 +163,13 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         return null;
     }
 
-    isValidQuery() {
+    isValidQuery(): boolean {
         let valid = true;
         valid = (this.meta.database && this.meta.database.name && valid);
         valid = (this.meta.table && this.meta.table.name && valid);
         valid = (this.active.dataField && this.active.dataField.columnName && valid);
         // We intentionally don't include dateField or idField in the validity check, because we're allowed to leave it null.
-        return valid;
+        return !!(valid);
     }
 
     createQuery() {
@@ -186,7 +188,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             fields = fields.concat(this.active.idField.columnName);
         }
         return query.where(whereClause).withFields(fields).limit(this.active.limit);
-
     }
 
     onQuerySuccess(response) {
@@ -245,23 +246,16 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         // Do nothing.
     }
 
-    handleChangeDataField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeDateField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeLimit() {
+    /**
+     * Responds to changes in a field by starting a new query cycle.
+     */
+    private handleChangeField() {
         this.logChangeAndStartQueryChain();
     }
 
     formatMetadataEntry(record, metadataEntry) {
         let field = record[metadataEntry.field];
         if (typeof field  === 'string') {
-            // let asDate = moment(field, 'ddd MMM D hh:mm:ss ')
-            // if ()
             return field || 'None';
         } else if (field instanceof Array) {
             let matches = [];
@@ -282,7 +276,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         }
     }
 
-    checkIfRecordMatchesFilter(object, filter) {
+    private checkIfRecordMatchesFilter(object, filter) {
         if (!filter) {
             return true;
         } else if (filter.filterType === '=') {

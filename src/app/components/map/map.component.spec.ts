@@ -15,9 +15,7 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { Injector } from '@angular/core';
-
-import {} from 'jasmine-core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Injector, ViewEncapsulation } from '@angular/core';
 
 import { MapComponent } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
@@ -34,6 +32,12 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { VisualizationService } from '../../services/visualization.service';
+import { By } from '@angular/platform-browser';
+import { BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import * as neon from 'neon-framework';
+import * as uuid from 'node-uuid';
+import * as _ from 'lodash';
 
 function webgl_support(): any {
     try {
@@ -45,22 +49,94 @@ function webgl_support(): any {
     } catch (e) { return false; }
 }
 
+class FilterMock extends FilterService {
+    addFilter(messenger: neon.eventing.Messenger, ownerId: string, database: string, table: string,
+              whereClause: any, filterName: string | { visName: string; text: string },
+              onSuccess: (resp: any) => any, onError: (resp: any) => any): void {
+        // avoid network call
+        let filter = new neon.query.Filter().selectFrom(database, table),
+            name = (typeof filterName === 'string') ? filterName :
+                (filterName.visName ? filterName.visName + ' - ' : '') + table + filterName.text ? ': ' + filterName.text : '';
+        filter.whereClause = whereClause;
+        if (filterName) {
+            filter = filter.name(name);
+        }
+        this.getFilters().push({
+            id: database + '-' + table + '-' + uuid.v4(),
+            ownerId: ownerId,
+            database: database,
+            table: table,
+            filter: filter
+        });
+
+        // don't do success call to avoid calling query chain
+    }
+
+    removeFilter(messenger: neon.eventing.Messenger, id: string, onSuccess?: (resp: any) => any, onError?: (resp: any) => any): void {
+        let index = _.findIndex(this.getFilters(), {id: id});
+        this.getFilters().splice(index, 1);
+
+        // don't do success call to avoid calling query chain
+    }
+}
+
+@Component({
+    selector: 'app-map',
+    templateUrl: './map.component.html',
+    styleUrls: ['./map.component.scss'],
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+class TestMapComponent extends MapComponent {
+    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
+                exportService: ExportService, injector: Injector, themesService: ThemesService,
+                colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+        super(connectionService, datasetService, filterService, exportService, injector,
+            themesService, colorSchemeSrv, ref, visualizationService);
+    }
+    getMapPoints(lngField: string, latField: string, colorField: string, data: any[]) {
+        return super.getMapPoints(lngField, latField, colorField, data);
+    }
+}
+
 describe('Component: Map', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
-    let component: MapComponent;
-    let fixture: ComponentFixture<MapComponent>;
+    let fixture: ComponentFixture<TestMapComponent>,
+        component: TestMapComponent,
+        getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
+        getService = (type: any) => fixture.debugElement.injector.get(type),
+        addFilter = (box: BoundingBoxByDegrees, dbName: string, tableName: string, latName: string, lngName: string) => {
+            let meta = component.meta,
+                layerIndex = 0,
+                layer = meta.layers[layerIndex],
+                active = component.active.layers[layerIndex],
+                latfield = new FieldMetaData(latName),
+                lngfield = new FieldMetaData(lngName),
+                catfield = new FieldMetaData('category'),
+                table = new TableMetaData(tableName, tableName, [latfield, lngfield, catfield]),
+                database = new DatabaseMetaData(dbName);
+
+            database.tables.push(table);
+
+            active.latitudeField = latfield;
+            active.longitudeField = lngfield;
+
+            meta.databases[layerIndex] = layer.database = database;
+            layer.table = table;
+
+            component.filterByLocation(box);
+        };
 
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
-                MapComponent,
+                TestMapComponent,
                 LegendComponent,
                 ExportControlComponent
             ],
             providers: [
                 ConnectionService,
                 DatasetService,
-                FilterService,
+                { provide: FilterService, useClass: FilterMock },
                 ExportService,
                 TranslationService,
                 ErrorNotificationService,
@@ -68,7 +144,7 @@ describe('Component: Map', () => {
                 ThemesService,
                 Injector,
                 ColorSchemeService,
-                { provide: 'config', useValue: testConfig }
+                { provide: 'config', useValue: new NeonGTDConfig() }
             ],
             imports: [
                 AppMaterialModule,
@@ -76,18 +152,185 @@ describe('Component: Map', () => {
                 BrowserAnimationsModule
             ]
         });
-        fixture = TestBed.createComponent(MapComponent);
+        fixture = TestBed.createComponent(TestMapComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
 
-    // Cesium causes the test to fail just because PhantomJS does not have webgl.
-    // Disabling this test until i can find a resolution.
     it('should create an instance', () => {
-        if (!webgl_support()) {
-            pending('Cesium requires webgl which is not supported by the browser implementation.');
-        }
         expect(component).toBeTruthy();
     });
 
+    it('should set default configuration values', () => {
+        expect(component.getOptionFromConfig('limit')).toBe(1000);
+        expect(component.getOptionFromConfig('layers')).toEqual([]);
+        expect(component.getOptionFromConfig('clustering')).toBe('points');
+        expect(component.getOptionFromConfig('minClusterSize')).toBe(5);
+        expect(component.getOptionFromConfig('clusterPixelRange')).toBe(15);
+        expect(component.getOptionFromConfig('hoverPopupEnabled')).toBe(false);
+        expect(component.getOptionFromConfig('geoServer')).toEqual({});
+        expect(component.getOptionFromConfig('mapType')).toBe(MapType.leaflet);
+    });
+
+    it('should create the default map (Leaflet)', () => {
+        expect(getDebug('.leaflet-container')).toBeTruthy();
+    });
+
+    it('should change map type to Cesium', () => {
+        if (webgl_support()) {
+            component.handleChangeMapType(MapType.cesium);
+            let mapElement = getDebug('.leaflet-container'),
+                el = mapElement && mapElement.nativeElement,
+                cesium = el && el.firstChild;
+            expect(cesium).toBeTruthy('MapElement should have at least 1 child');
+            expect(cesium.className).toBe('cesium-viewer', 'Failed to create cesium map');
+        }
+    });
+
+    it('should create collapsed map points', () => {
+        let colorService = getService(ColorSchemeService),
+            datasets = [
+                {
+                    data: [
+                        {lat: 0, lng: 0, category: 'a'},
+                        {lat: 0, lng: 0, category: 'b'},
+                        {lat: 0, lng: 0, category: 'c'},
+                        {lat: 0, lng: 0, category: 'd'}
+                    ],
+                    expected: [
+                        new MapPoint(
+                            '0.000\u00b0, 0.000\u00b0', 0, 0,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 4'
+                        )
+                    ]
+                },
+                {
+                    data: [
+                        {lat: 0, lng: 0, category: 'a'},
+                        {lat: 0, lng: 1, category: 'b'},
+                        {lat: 0, lng: 2, category: 'c'},
+                        {lat: 0, lng: 3, category: 'd'}
+                    ],
+                    expected: [
+                        new MapPoint(
+                            '0.000\u00b0, 0.000\u00b0', 0, 0,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 1.000\u00b0', 0, 1,
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 2.000\u00b0', 0, 2,
+                            colorService.getColorFor('category', 'c').toRgb(), 'Count: 1'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 3.000\u00b0', 0, 3,
+                            colorService.getColorFor('category', 'd').toRgb(), 'Count: 1'
+                        )
+                    ]
+                },
+                {
+                    data: [
+                        {lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a'},
+                        {lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b'}
+                    ],
+                    expected: [
+                        new MapPoint(
+                            '0.000\u00b0, 0.000\u00b0', 0, 0,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 8'
+                        )
+                    ]
+                },
+                {
+                    data: [
+                        {lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a'},
+                        {lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b'}
+                    ],
+                    expected: [
+                        new MapPoint(
+                            '0.000\u00b0, 3.000\u00b0', 0, 3,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 2.000\u00b0', 0, 2,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 1.000\u00b0', 0, 1,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 0.000\u00b0', 0, 0,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 7.000\u00b0', 0, 7,
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 6.000\u00b0', 0, 6,
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 5.000\u00b0', 0, 5,
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 4.000\u00b0', 0, 4,
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1'
+                        )
+                    ]
+                }
+            ];
+
+        for (let dataset of datasets) {
+            let mapPoints = component.getMapPoints('lng', 'lat', 'category', dataset.data);
+            expect(mapPoints).toEqual(dataset.expected);
+        }
+    });
+
+    it('should filter by bounding box', () => {
+        let box = new BoundingBoxByDegrees(10, 0, 0, 10),
+            dbName = 'testDB',
+            tableName = 'testTable',
+            latName = 'lat',
+            lngName = 'lng';
+
+        addFilter(box, dbName, tableName, latName, lngName);
+
+        let whereClauses = component.createNeonFilterClauseEquals(dbName, tableName, [latName, lngName]),
+            filterClauses = [
+                neon.query.where(latName, '>=', box.south),
+                neon.query.where(latName, '<=', box.north),
+                neon.query.where(lngName, '>=', box.west),
+                neon.query.where(lngName, '<=', box.east)
+            ],
+            expected = neon.query.and.apply(neon.query, filterClauses);
+
+        expect(whereClauses).toEqual(expected);
+    });
+
+    it('should remove filter when clicked', () => {
+        let box = new BoundingBoxByDegrees(10, 0, 0, 10),
+            dbName = 'testDB',
+            tableName = 'testTable',
+            latName = 'lat',
+            lngName = 'lng';
+
+        addFilter(box, dbName, tableName, latName, lngName);
+
+        let xEl = getDebug('.mat-18').parent.parent;
+        xEl.triggerEventHandler('click', null);
+        expect(getService(FilterService).getFilters().length).toBe(0);
+    });
+
+    it('should add layer when new layer button is clicked', () => {
+        let layerCount = component.active.layers.length;
+
+        let addEl = getDebug('a.mat-mini-fab.mat-accent').parent;
+        addEl.triggerEventHandler('click', null);
+        fixture.detectChanges();
+        expect(component.active.layers.length).toBe(layerCount + 1);
+    });
 });

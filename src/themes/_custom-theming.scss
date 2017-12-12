@@ -8,6 +8,21 @@ $white-12-opacity: rgba(white, 0.12);
 $black-6-opacity: rgba(black, 0.06);
 $white-6-opacity: rgba(white, 0.06);
 
+// Our bright accent color, as selected by UX.  Also known as:  $4DBEC2
+$accent-bright: rgb(77, 190, 194);
+
+// These are from the timeline and stacked timeline
+$text-shadow-color: #FFFFFF;
+$main-text-color: #777777;
+$chart-text-color: #777777;
+$callout: #27607E; // this is the bar highlight color
+$main-background: #F1F1F1;
+$light-chart-axis-color: #FFFFFF;
+$timeline-accent-bright: rgb(57, 146, 181);
+$mid-text-color: #5E5E5E;
+$shadow: rgba(0, 0, 0, 0.2);
+$tooltip-background: rgba(255,255,255,0.9);
+
 $mat-teal-custom:(
 	50: #E5ECF0,
 	100: #BECFD8,
@@ -34,7 +49,7 @@ $mat-teal-custom:(
 	    700: white,
 	    800: $white-87-opacity,
 	    900: $white-87-opacity,
-	    A100: $black-87-opacity,
+	    A100: $accent-bright,
 	    A200: $black-87-opacity,
 	    A400: $black-87-opacity,
 	    A700: $black-87-opacity,

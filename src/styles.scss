@@ -253,12 +253,12 @@
 .mat-toolbar{
 	min-height:56px !important;
 	border-style:solid;
-	border-color:  mat-color($header) mat-color($header) #4DBEC2;
+	border-color:  mat-color($header) mat-color($header) $accent-bright;
 	//background-color: mat-color($header);
 }
 
 .mat-primary{
-	border-color: mat-color($primary) mat-color($primary) #4DBEC2;
+	border-color: mat-color($primary) mat-color($primary) $accent-bright;
 }
 
 //This is also a hack

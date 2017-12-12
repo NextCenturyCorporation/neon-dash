@@ -25,6 +25,7 @@ import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
+import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 
 @Component({
     selector: 'app-text-cloud',
@@ -118,6 +119,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     postInit() {
         this.executeQueryChain();
+
+        let elems = document.getElementsByClassName('coloraccessor');
+        let style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
+        this.active.textColor = Color.fromRgbString(style).toHexString();
     }
 
     subNgOnDestroy() {
@@ -147,7 +152,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return this.optionsFromConfig[field];
     }
 
-    updateTextCloudSettings() {
+    private updateTextCloudSettings() {
         let options = new TextCloudOptions(new SizeOptions(80, 140, '%'),
             new ColorOptions('#aaaaaa', this.active.textColor));
         this.textCloud = new TextCloud(options);

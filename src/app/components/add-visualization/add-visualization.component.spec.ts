@@ -41,8 +41,8 @@ describe('Component: AddVisualization', () => {
     });
 
     it('should create an instance', inject([ActiveGridService, ThemesService],
-        (activeGridService: ActiveGridService, themesService: ThemesService, mdDialogRef: MatDialogRef<AddVisualizationComponent>) => {
-        let component = new AddVisualizationComponent(activeGridService, themesService, mdDialogRef);
+        (activeGridService: ActiveGridService, themesService: ThemesService, matDialogRef: MatDialogRef<AddVisualizationComponent>) => {
+        let component = new AddVisualizationComponent(activeGridService, themesService, matDialogRef);
         expect(component).toBeTruthy();
     }));
 });

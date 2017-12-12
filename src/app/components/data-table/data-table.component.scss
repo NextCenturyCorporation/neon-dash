@@ -33,6 +33,9 @@
     width: 98%;
     display: flex;
     flex-direction: row;
+    padding-left: 0px;
+    padding-right: 0px;
+    height: 100%;
 }
 
 .table {
@@ -121,4 +124,12 @@
 /deep/ .icon-down:before {
     font-family: 'Material Icons';
     content: "keyboard_arrow_down";
+}
+
+/deep/ .datatable-body {
+    height: calc(100%);
+}
+
+/deep/ .mat-drawer-content{
+    height: 100%;
 }
