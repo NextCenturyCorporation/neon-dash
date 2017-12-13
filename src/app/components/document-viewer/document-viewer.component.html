@@ -33,7 +33,7 @@
 
                 <!-- Text field selector -->
                 <mat-form-field>
-                    <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeDataField()"
+                    <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeField()"
                         [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -48,7 +48,7 @@
 
                 <!-- Date field selector -->
                 <mat-form-field>
-                    <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="false" (ngModelChange)="handleChangeDateField()"
+                    <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="false" (ngModelChange)="handleChangeField()"
                         [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -56,7 +56,7 @@
 
                 <!-- ID field selector -->
                 <mat-form-field>
-                    <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeDataField()"
+                    <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()"
                         [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
