@@ -59,7 +59,7 @@ class TestDatasetService extends DatasetService {
     }
 }
 
-fdescribe('Component: TextCloud', () => {
+describe('Component: TextCloud', () => {
     let component: TextCloudComponent;
     let fixture: ComponentFixture<TextCloudComponent>;
 
@@ -530,9 +530,310 @@ fdescribe('Component: TextCloud', () => {
         expect(calledCreateTextCloud).toBeTruthy();
         expect(calledExecuteQuery).toBeTruthy();
     });
+
+    it('properly sets up filters in setupFilters', () => {
+        component.meta.database.name = 'testDatabase';
+        component.meta.table.name = 'testTable';
+        component.active.dataField.columnName = 'testDataField';
+        component.setupFilters();
+        expect(component.isFilterSet()).toBeFalsy();
+
+        let filterService = fixture.componentRef.injector.get(FilterService);
+        filterService.getFiltersForFields = (database, table, fields): any[] => {
+            return [{
+                id: '1234567890',
+                ownerId: '12345',
+                database: 'testDatabase',
+                table: 'testTable',
+                filter: {
+                    filterName: '',
+                    databaseName: 'testDatabase',
+                    tableName: 'testTable',
+                    whereClause: {
+                        type: 'where',
+                        lhs: 'testDataField',
+                        operator: '=',
+                        rhs: 'Value'
+                    }
+                }
+            }];
+        };
+
+        component.setupFilters();
+        expect(component.isFilterSet()).toBeTruthy();
+    });
+
+    it('has an isFilterSet method that properly checks for local filters', () => {
+        expect(component.isFilterSet()).toBeFalsy();
+        component.addLocalFilter({
+            id: '1q2w-3e4r-5t6y-7u8i',
+            key: 'testDataField',
+            value: 'testValue',
+            translated: '',
+            prettyKey: 'testDataField'
+        });
+        expect(component.isFilterSet()).toBeTruthy();
+        component.addLocalFilter({
+            id: '0p9o-8i7u-6y5t-4r3e',
+            key: 'testDataField',
+            value: 'testValueTheSecond',
+            translated: '',
+            prettyKey: 'testDataField'
+        });
+        expect(component.isFilterSet()).toBeTruthy();
+        component.removeFilter('1q2w-3e4r-5t6y-7u8i');
+        expect(component.isFilterSet()).toBeTruthy();
+        component.removeFilter('0p9o-8i7u-6y5t-4r3e');
+        expect(component.isFilterSet()).toBeFalsy();
+    });
+
+    it('has an onClick method that properly sets local and remote filters', () => {
+        component.meta.database.name = 'testDatabase';
+        component.meta.table.name = 'testTable';
+        component.active.dataField.columnName = 'testDataField';
+        component.active.dataField.prettyName = 'testDataField';
+        let filterService = fixture.componentRef.injector.get(FilterService);
+        let serviceAddFilterHasBeenCalled = false;
+        filterService.addFilter = () => {
+            serviceAddFilterHasBeenCalled = true;
+        };
+
+        expect(filterService.getFilters().length).toBe(0);
+        expect(component.isFilterSet()).toBeFalsy();
+
+        component.onClick({
+            key: 'testValue'
+        });
+
+        expect(serviceAddFilterHasBeenCalled).toBeTruthy();
+        expect(component.isFilterSet()).toBeTruthy();
+        expect(component.getFilterData()[0]).toEqual({
+            id: undefined,
+            key: 'testDataField',
+            value: 'testValue',
+            prettyKey: 'testDataField'
+        });
+    });
+
+    it('has a filterIsUnique method that properly checks the uniqueness of filters to add', () => {
+        let filter1 = {
+            id: '12345',
+            key: 'testDataField',
+            value: 'Value 1',
+            prettyKey: 'testDataField'
+        };
+        let filter2 = {
+            id: '67890',
+            key: 'testDataField',
+            value: 'Value 1',
+            prettyKey: 'testDataField'
+        };
+        expect(component.filterIsUnique(filter2)).toBeTruthy();
+        component.addLocalFilter(filter1);
+        expect(component.filterIsUnique(filter2)).toBeFalsy();
+        filter2.key = 'testOtherField';
+        expect(component.filterIsUnique(filter2)).toBeTruthy();
+        filter2.key = 'testDataField';
+        filter2.value = 'Value 2';
+        expect(component.filterIsUnique(filter2)).toBeTruthy();
+    });
+
+    it('properly modifies the active data in createTextCloud', () => {
+        let data = [{
+            testDataField: 'Value 1',
+            value: 20
+        },
+        {
+            testDataField: 'Value 2',
+            value: 10
+        },
+        {
+            testDataField: 'Value 3',
+            value: 30
+        }];
+        component.active.data = data;
+        component.subNgOnInit();
+        component.createTextCloud();
+        expect(component.active.data[0].fontSize).toBeDefined();
+        expect(component.active.data[0].color).toBeDefined();
+        expect(component.active.data[1].fontSize).toBeDefined();
+        expect(component.active.data[2].color).toBeDefined();
+    });
+
+    it('calls logChangeAndStartQueryChain in handleChangeDataField', () => {
+        let logChangeAndStartQueryChainWasCalled = false;
+        component.logChangeAndStartQueryChain = () => {
+            logChangeAndStartQueryChainWasCalled = true;
+        };
+
+        component.handleChangeDataField();
+        expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
+    });
+
+    it('ensures the limit is not zero and calls logChangeAndStartQueryChain in handleChangeLimit', () => {
+        let logChangeAndStartQueryChainWasCalled = false;
+        component.logChangeAndStartQueryChain = () => {
+            logChangeAndStartQueryChainWasCalled = true;
+        };
+
+        component.handleChangeLimit();
+        expect(component.active.limit).toBe(40);
+        expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
+
+        component.active.limit = 0;
+        logChangeAndStartQueryChainWasCalled = false;
+        component.handleChangeLimit();
+        expect(component.active.limit).toBe(1);
+        expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
+    });
+
+    it('calls logChangeAndStartQueryChain in handleChangeAndFilters', () => {
+        let logChangeAndStartQueryChainWasCalled = false;
+        component.logChangeAndStartQueryChain = () => {
+            logChangeAndStartQueryChainWasCalled = true;
+        };
+
+        component.handleChangeAndFilters();
+        expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
+    });
+
+    it('calls logChangeAndStartQueryChain in handleChangeSizeField', () => {
+        let logChangeAndStartQueryChainWasCalled = false;
+        component.logChangeAndStartQueryChain = () => {
+            logChangeAndStartQueryChainWasCalled = true;
+        };
+
+        component.handleChangeSizeField();
+        expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
+    });
+
+    it('returns the proper value from getButtonText', () => {
+        expect(component.getButtonText()).toEqual('No Data');
+        component.active.data = [{
+            testDataField: 'Value',
+            value: 10
+        }];
+        component.active.count = 1;
+        expect(component.getButtonText()).toEqual('Total 1');
+        component.active.count = 5;
+        expect(component.getButtonText()).toEqual('Top 1 of 5');
+    });
+
+    it('properly returns the list of filters from getFilterData', () => {
+        let filter1 = {
+            id: '12345',
+            key: 'testDataField',
+            value: 'Value 1',
+            prettyKey: 'testDataField'
+        };
+        let filter2 = {
+            id: '67890',
+            key: 'testDataField',
+            value: 'Value 1',
+            prettyKey: 'testDataField'
+        };
+
+        expect(component.getFilterData()).toEqual([]);
+        component.addLocalFilter(filter1);
+        expect(component.getFilterData()).toEqual([filter1]);
+        component.addLocalFilter(filter2);
+        expect(component.getFilterData()).toEqual([filter1, filter2]);
+        component.removeFilter('12345');
+        expect(component.getFilterData()).toEqual([filter2]);
+        component.addLocalFilter(filter1);
+        expect(component.getFilterData()).toEqual([filter2, filter1]);
+        component.removeFilter('12345');
+        component.removeFilter('67890');
+        expect(component.getFilterData()).toEqual([]);
+    });
+
+    it('returns the correct value from createFilterDesc', () => {
+        expect(component.createFilterDesc('test')).toEqual(' = test');
+        component.active.dataField.columnName = 'testDataField';
+        expect(component.createFilterDesc('value 2')).toEqual('testDataField = value 2');
+        component.active.dataField.columnName = 'test2';
+        expect(component.createFilterDesc('value 3')).toEqual('test2 = value 3');
+    });
+
+    it('returns the correct value from createFilterText', () => {
+        let filter = {
+            id: '67890',
+            key: 'testDataField',
+            value: 'Value One',
+            prettyKey: 'testDataField',
+            translated: 'Value Uno'
+        };
+        expect(component.createFilterText('Value One')).toEqual('');
+        component.addLocalFilter(filter);
+        expect(component.createFilterText('Value One')).toEqual('Value Uno');
+        component.removeFilter('67890');
+        filter.translated = '';
+        component.addLocalFilter(filter);
+        expect(component.createFilterText('Value One')).toEqual('Value One');
+        component.active.allowsTranslations = false;
+        expect(component.createFilterText('Value One')).toEqual('Value One');
+    });
+
+    it('returns the correct value from getRemoveDesc', () => {
+        expect(component.getRemoveDesc('test')).toEqual('Delete Filter  = test');
+        component.active.dataField.columnName = 'testDataField';
+        expect(component.getRemoveDesc('value 2')).toEqual('Delete Filter testDataField = value 2');
+        component.active.dataField.columnName = 'test2';
+        expect(component.getRemoveDesc('value 3')).toEqual('Delete Filter test2 = value 3');
+    });
+
+    it('properly removes filters in removeFilter', () => {
+        let filter1 = {
+            id: '12345',
+            key: 'testDataField',
+            value: 'Value 1',
+            prettyKey: 'testDataField'
+        };
+        let filter2 = {
+            id: '67890',
+            key: 'testDataField',
+            value: 'Value 1',
+            prettyKey: 'testDataField'
+        };
+
+        expect(component.getFilterData()).toEqual([]);
+        component.addLocalFilter(filter1);
+        expect(component.getFilterData()).toEqual([filter1]);
+        component.addLocalFilter(filter2);
+        expect(component.getFilterData()).toEqual([filter1, filter2]);
+        component.removeFilter('12345');
+        expect(component.getFilterData()).toEqual([filter2]);
+        component.addLocalFilter(filter1);
+        expect(component.getFilterData()).toEqual([filter2, filter1]);
+        component.removeFilter('12345');
+        component.removeFilter('67890');
+        expect(component.getFilterData()).toEqual([]);
+    });
+
+    it('has a requestExport method that does nothing', () => {
+        expect(component.requestExport).toBeDefined();
+    });
+
+    it('has an unsharedFilterChanged method that calls executeQueryChain', () => {
+        let executeQueryChainWasCalled = false;
+        component.executeQueryChain = () => {
+            executeQueryChainWasCalled = true;
+        };
+        component.unsharedFilterChanged();
+        expect(executeQueryChainWasCalled).toBeTruthy();
+    });
+
+    it('has an unsharedFilterRemoved method that calls executeQueryChain', () => {
+        let executeQueryChainWasCalled = false;
+        component.executeQueryChain = () => {
+            executeQueryChainWasCalled = true;
+        };
+        component.unsharedFilterRemoved();
+        expect(executeQueryChainWasCalled).toBeTruthy();
+    });
 });
 
-fdescribe('Component: Textcloud with config', () => {
+describe('Component: Textcloud with config', () => {
     let component: TextCloudComponent;
     let fixture: ComponentFixture<TextCloudComponent>;
 
@@ -577,15 +878,38 @@ fdescribe('Component: Textcloud with config', () => {
     });
 
     it('something to do with getOptionsFromConfig', () => {
-        expect(1).toBe(1); // HUGE TODO
+        expect(component.getOptionFromConfig('title')).toEqual('Textcloud with Config Title');
+        expect(component.getOptionFromConfig('database')).toEqual('testDatabase');
+        expect(component.getOptionFromConfig('table')).toEqual('testTable');
+        expect(component.getOptionFromConfig('dataField')).toEqual('testDataField');
+        expect(component.getOptionFromConfig('configFilter')).toBeNull();
+        expect(component.getOptionFromConfig('unsharedFilterField')).toEqual('testUnsharedFilterField');
+        expect(component.getOptionFromConfig('unsharedFilterValue')).toEqual('testUnsharedFilterValue');
+        expect(component.getOptionFromConfig('sizeField')).toEqual('testSizeField');
+        expect(component.getOptionFromConfig('sizeAggregation')).toEqual('COUNT');
+        expect(component.getOptionFromConfig('limit')).toBe(25);
     });
 
-    it('something to do with queries and using unsharedFilter stuff I think', () => {
-        expect(1).toBe(1); // HUGE TODO
+    it('returns expected query from createQuery when an unshared filter is given', () => {
+        component.meta.database = new DatabaseMetaData('testDatabase');
+        component.meta.table = new TableMetaData('testTable');
+        component.active.dataField.columnName = 'testDataField';
+        component.meta.unsharedFilterField.columnName = 'testUnsharedFilterField';
+        component.meta.unsharedFilterValue = 'testUnsharedFilterValue';
+
+        let whereClause = neon.query.where('testUnsharedFilterField', '=', 'testUnsharedFilterValue');
+        let query = new neon.query.Query().selectFrom('testDatabase', 'testTable')
+            .where(whereClause)
+            .groupBy('testDataField')
+            .aggregate(neonVariables.COUNT, '*', 'value')
+            .sortBy('value', neonVariables.DESCENDING)
+            .limit(25);
+
+        expect(component.createQuery()).toEqual(query);
     });
 });
 
-fdescribe('Component: Textcloud with config including configFilter', () => {
+describe('Component: Textcloud with config including configFilter', () => {
     let component: TextCloudComponent;
     let fixture: ComponentFixture<TextCloudComponent>;
 
@@ -635,7 +959,19 @@ fdescribe('Component: Textcloud with config including configFilter', () => {
         component = fixture.componentInstance;
     });
 
-    it('applies the config filter to created queries', () => {
-        expect(1).toBe(1); // HUGE TODO
+    it('returns expected query from createQuery when a config filter is given', () => {
+        component.meta.database = new DatabaseMetaData('testDatabase');
+        component.meta.table = new TableMetaData('testTable');
+        component.active.dataField.columnName = 'testDataField';
+
+        let whereClause = neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue');
+        let query = new neon.query.Query().selectFrom('testDatabase', 'testTable')
+            .where(whereClause)
+            .groupBy('testDataField')
+            .aggregate(neonVariables.COUNT, '*', 'value')
+            .sortBy('value', neonVariables.DESCENDING)
+            .limit(25);
+
+        expect(component.createQuery()).toEqual(query);
     });
 });
