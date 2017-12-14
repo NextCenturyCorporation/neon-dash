@@ -98,9 +98,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
   private colorSchemeService: ColorSchemeService;
 
-  private optionsFromConfig: OptionsFromConfig;
+  public optionsFromConfig: OptionsFromConfig;
   private mapObject: AbstractMap;
   private filterBoundingBox: BoundingBoxByDegrees;
+
+  public disabledSet: [string[]] = [] as [string[]];
 
   @ViewChild('mapElement') mapElement: ElementRef;
 
@@ -414,6 +416,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
   isNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
+  }
+
+  public legendItemSelected(event: any) {
+      // TODO
   }
 
   protected getMapPoints(lngField: string, latField: string, colorField: string, data: any[]) {
