@@ -90,7 +90,9 @@ export class MapPoint {
         public lat: number,
         public lng: number,
         public cssColorString: string,
-        public description: string
+        public description: string,
+        public colorField: string,
+        public colorValue: string
     ) {}
 }
 
@@ -127,6 +129,20 @@ export abstract class AbstractMap {
     sizeChanged() {
         // Do nothing for most cases
     }
+
+    /**
+     * Hide points from the map by layer and value
+     * @param layer the layer of the points to hide
+     * @param value the value to hide
+     */
+    abstract hidePoints(layer: MapLayer, value: string);
+
+    /**
+     * Unhide points from the map by layer and value
+     * @param layer the layer of the points to unhide
+     * @param value the value to unhide
+     */
+    abstract unhidePoints(layer: MapLayer, value: string);
 
     abstract destroy();
 
