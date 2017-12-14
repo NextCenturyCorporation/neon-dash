@@ -86,9 +86,14 @@
                 		</mat-button-toggle-group>
                     </div>
                 </div>
-                <mat-select placeholder="Map Type" [ngModel]="optionsFromConfig.mapType" (ngModelChange)="handleChangeMapType($event)">
-                    <mat-option *ngFor="let type of mapTypes" [value]="type.value">{{ type.name }}</mat-option>
-                </mat-select>
+
+                <mat-form-field>
+                    <mat-select placeholder="Map Type" [ngModel]="optionsFromConfig.mapType" (ngModelChange)="handleChangeMapType($event)">
+                        <mat-option *ngFor="let type of mapTypes" [value]="type.value">{{ type.name }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+
                 <table cellspacing="0">
                     <tr>
                         <td>
