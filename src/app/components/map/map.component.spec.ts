@@ -169,7 +169,7 @@ describe('Component: Map', () => {
         expect(component.getOptionFromConfig('clusterPixelRange')).toBe(15);
         expect(component.getOptionFromConfig('hoverPopupEnabled')).toBe(false);
         expect(component.getOptionFromConfig('geoServer')).toEqual({});
-        expect(component.getOptionFromConfig('mapType')).toBe(MapType.leaflet);
+        expect(component.getOptionFromConfig('mapType')).toBe(MapType.Leaflet);
     });
 
     it('should create the default map (Leaflet)', () => {
@@ -178,7 +178,7 @@ describe('Component: Map', () => {
 
     it('should change map type to Cesium', () => {
         if (webgl_support()) {
-            component.handleChangeMapType(MapType.cesium);
+            component.handleChangeMapType(MapType.Cesium);
             let mapElement = getDebug('.leaflet-container'),
                 el = mapElement && mapElement.nativeElement,
                 cesium = el && el.firstChild;

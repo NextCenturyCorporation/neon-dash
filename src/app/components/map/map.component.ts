@@ -137,7 +137,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       north: this.injector.get('north', null),
       south: this.injector.get('south', null),
       geoServer: this.injector.get('geoServer', {}),
-      mapType: this.injector.get('mapType', MapType.leaflet)
+      mapType: this.injector.get('mapType', MapType.Leaflet)
     };
 
     this.filters = [];
@@ -195,14 +195,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
   ngAfterViewInit() {
       let type = this.optionsFromConfig.mapType;
       if (!this.isNumeric(type)) {
-          type = MapType[type] || MapType.leaflet;
+          type = MapType[type] || MapType.Leaflet;
           this.optionsFromConfig.mapType = type;
       }
       switch (type) {
-          case MapType.cesium:
+          case MapType.Cesium:
               this.mapObject = new CesiumNeonMap();
               break;
-          case MapType.leaflet:
+          case MapType.Leaflet:
           default:
               this.mapObject = new LeafletNeonMap();
       }

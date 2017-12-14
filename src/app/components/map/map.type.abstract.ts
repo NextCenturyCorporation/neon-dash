@@ -19,7 +19,7 @@ import { ElementRef } from '@angular/core';
 
 export const whiteString = new Color(255, 255, 255).toRgb();
 
-export enum MapType {leaflet, cesium}
+export enum MapType {Leaflet, Cesium}
 
 // create array of name/value pairs for map types
 export const MapTypePairs: {name: string, value: number}[] =
