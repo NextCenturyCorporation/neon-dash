@@ -442,7 +442,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
         // Mark it as active again
         this.disabledSet = this.disabledSet.filter((set) => {
-            return set[0] !== fieldName && set[1] !== value;
+            return !(set[0] === fieldName && set[1] === value);
         }) as [string[]];
       }
   }
