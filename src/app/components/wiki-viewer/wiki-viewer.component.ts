@@ -60,7 +60,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         title: string
     };
 
-    private isLoadingWikiPage: boolean;
+    isLoadingWikiPage: boolean;
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
@@ -219,7 +219,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      *
      * @private
      */
-    private handleChangeField() {
+    handleChangeField() {
         this.logChangeAndStartQueryChain();
     }
 

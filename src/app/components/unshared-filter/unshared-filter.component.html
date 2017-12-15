@@ -1,11 +1,15 @@
 <mat-toolbar class="mat-primary">
     <span>Local Filter</span>
 </mat-toolbar>
-<mat-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField" required="false" [disabled]="meta.fields.length === 0"
-           (ngModelChange)="handleChangeUnsharedFilterField()">
-    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-</mat-select>
-<p></p>
+
+<mat-form-field>
+    <mat-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField"
+                required="false" [disabled]="meta.fields.length === 0"
+                (ngModelChange)="handleChangeUnsharedFilterField()">
+        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+    </mat-select>
+</mat-form-field>
+
 <table cellspacing="0">
     <tr>
         <td>
@@ -13,7 +17,6 @@
                 <input matInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue"
                        [disabled]="!(meta.unsharedFilterField.columnName)">
             </mat-form-field>
-
         </td>
         <td>
             <button mat-icon-button matTooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()"

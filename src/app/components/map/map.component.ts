@@ -54,7 +54,8 @@ import {
 import { LeafletNeonMap } from './map.type.leaflet';
 
 class UniqueLocationPoint {
-    constructor(public lat: number, public lng: number, public count: number, public colorValue: string) {}
+    constructor(public lat: number, public lng: number, public count: number,
+        public colorField: string, public colorValue: string) {}
 }
 
 @Component({
@@ -98,9 +99,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
   private colorSchemeService: ColorSchemeService;
 
-  private optionsFromConfig: OptionsFromConfig;
+  public optionsFromConfig: OptionsFromConfig;
   private mapObject: AbstractMap;
   private filterBoundingBox: BoundingBoxByDegrees;
+
+  public disabledSet: [string[]] = [] as [string[]];
 
   @ViewChild('mapElement') mapElement: ElementRef;
 
@@ -134,7 +137,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       north: this.injector.get('north', null),
       south: this.injector.get('south', null),
       geoServer: this.injector.get('geoServer', {}),
-      mapType: this.injector.get('mapType', MapType.leaflet)
+      mapType: this.injector.get('mapType', MapType.Leaflet)
     };
 
     this.filters = [];
@@ -192,14 +195,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
   ngAfterViewInit() {
       let type = this.optionsFromConfig.mapType;
       if (!this.isNumeric(type)) {
-          type = MapType[type] || MapType.leaflet;
+          type = MapType[type] || MapType.Leaflet;
           this.optionsFromConfig.mapType = type;
       }
       switch (type) {
-          case MapType.cesium:
+          case MapType.Cesium:
               this.mapObject = new CesiumNeonMap();
               break;
-          case MapType.leaflet:
+          case MapType.Leaflet:
           default:
               this.mapObject = new LeafletNeonMap();
       }
@@ -416,6 +419,34 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     return !isNaN(parseFloat(n)) && isFinite(n);
   }
 
+  public legendItemSelected(event: any) {
+      let fieldName: string = event.fieldName;
+      let value: string = event.value;
+      let currentlyActive: boolean = event.currentlyActive;
+
+      if (currentlyActive) {
+        for (let layer of this.active.layers) {
+            if (layer.colorField.columnName === fieldName) {
+                this.mapObject.hidePoints(layer, value);
+            }
+        }
+
+        // Mark it as disabled
+        this.disabledSet.push([fieldName, value]);
+      } else {
+        for (let layer of this.active.layers) {
+            if (layer.colorField.columnName === fieldName) {
+                this.mapObject.unhidePoints(layer, value);
+            }
+        }
+
+        // Mark it as active again
+        this.disabledSet = this.disabledSet.filter((set) => {
+            return set[0] !== fieldName && set[1] !== value;
+        }) as [string[]];
+      }
+  }
+
   protected getMapPoints(lngField: string, latField: string, colorField: string, data: any[]) {
       let map = new Map<string, UniqueLocationPoint>();
 
@@ -426,10 +457,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
           if (latCoord instanceof Array && lngCoord instanceof Array) {
               for (let pos = latCoord.length - 1; pos >= 0; pos--) {
-                  this.addOrUpdateUniquePoint(map, latCoord[pos], lngCoord[pos], colorValue);
+                  this.addOrUpdateUniquePoint(map, latCoord[pos], lngCoord[pos], colorField, colorValue);
               }
           } else {
-              this.addOrUpdateUniquePoint(map, latCoord, lngCoord, colorValue);
+              this.addOrUpdateUniquePoint(map, latCoord, lngCoord, colorField, colorValue);
           }
       }
 
@@ -438,7 +469,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
           new MapPoint(`${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
               unique.lat, unique.lng,
               unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString,
-              'Count: ' + unique.count
+              'Count: ' + unique.count,
+              unique.colorField,
+              unique.colorValue
           )
       ));
       return mapPoints;
@@ -500,7 +533,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     return lngCoord;
   }
 
-  addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, lat: number, lng: number, colorValue: string) {
+  addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, lat: number, lng: number,
+            colorField: string, colorValue: string) {
       if (!this.isNumeric(lat) || !this.isNumeric(lng)) {
           return;
       }
@@ -509,7 +543,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
           obj = map.get(hashCode);
 
       if (!obj) {
-          obj = new UniqueLocationPoint(lat, lng, 0, colorValue);
+          obj = new UniqueLocationPoint(lat, lng, 0, colorField, colorValue);
           map.set(hashCode, obj);
       }
 

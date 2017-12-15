@@ -19,7 +19,7 @@
  */
 
 @import '~@angular/material/_theming';
-@import 'src/themes/neon-green-theme.scss';
+@import '../../../themes/neon-green-theme.scss';
 
 .visualization-sidenav {
     height: 100%;
@@ -35,8 +35,9 @@
 
     .visualization-sidenav-options {
         min-width: 320px;
+        max-width: 450px;
 
-        mat-input, mat-select, table {
+        mat-form-field, mat-input, mat-select, table {
             width: 100%;
             margin-top: 15px;
         }

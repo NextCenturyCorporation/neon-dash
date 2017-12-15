@@ -44,6 +44,8 @@ export class CesiumNeonMap extends AbstractMap {
 
     private dataSources = new Map<MapLayer, any>();
 
+    private hiddenEntities = [];
+
     doCustomInitialization(mapContainer: ElementRef) {
         // In order to get a minimal viable product in the short time span we have, we decided to disable the following Cesium features:
         //  3D Map and Columbus view.
@@ -204,7 +206,9 @@ export class CesiumNeonMap extends AbstractMap {
                     outlineWidth: 0, // default: 0
                     translucencyByDistance: new Cesium.NearFarScalar(100, .4, 8.0e6, 0.4)
                 },
-                description: point.description
+                description: point.description,
+                colorField: point.colorField,
+                colorValue: point.colorValue
             });
         }
 
@@ -224,6 +228,42 @@ export class CesiumNeonMap extends AbstractMap {
 
     destroy() {
         return this.cesiumViewer && this.cesiumViewer.destroy();
+    }
+
+    hidePoints(layer: MapLayer, value: string) {
+        let ds = this.getDataSource(layer);
+        let entities = ds.entities;
+
+        entities.suspendEvents();
+
+        let allEntities = entities.values;
+
+        for (let entity of allEntities) {
+            if (entity._colorValue === value) {
+                entities.removeById(entity.id);
+                this.hiddenEntities.push(entity);
+            }
+        }
+
+        entities.resumeEvents();
+    }
+
+    unhidePoints(layer: MapLayer, value: string) {
+        let ds = this.getDataSource(layer);
+        let entities = ds.entities;
+
+        entities.suspendEvents();
+
+        this.hiddenEntities = this.hiddenEntities.filter((entity) => {
+            let matches = entity._colorField === layer.colorField.columnName &&
+                entity._colorValue === value;
+            if (matches) {
+                entities.add(entity);
+            }
+            return !matches;
+        });
+
+        entities.resumeEvents();
     }
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

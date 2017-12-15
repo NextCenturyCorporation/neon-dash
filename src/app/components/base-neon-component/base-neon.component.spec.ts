@@ -41,7 +41,6 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { neonMappings } from '../../neon-namespaces';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
-import { Set, Map } from 'hash-set-map';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { basename } from 'path';
 import * as neon from 'neon-framework';

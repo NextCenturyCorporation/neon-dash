@@ -19,9 +19,14 @@ import { Injectable } from '@angular/core';
  * A set of colors, used to keep track of which values map to which colors
  */
 export class ColorSet {
+    public name: string;
     public colorList: Color[];
     private currentIndex: number = 0;
     private mappings: Map<string, Color> = new Map<string, Color>();
+
+    constructor(name: string) {
+        this.name = name;
+    }
 
     /**
      * Get the color for a value
@@ -121,7 +126,7 @@ export class ColorSchemeService {
     public getColorFor(set: string, value: string | string[]): Color {
         let colorSet = this.colorMaps.get(set);
         if (colorSet == null) {
-            colorSet = new ColorSet();
+            colorSet = new ColorSet(set);
             colorSet.colorList = this.colorList[this.colorPosition];
             this.colorMaps.set(set, colorSet);
             this.colorPosition = (this.colorPosition + 1) % this.colorList.length;

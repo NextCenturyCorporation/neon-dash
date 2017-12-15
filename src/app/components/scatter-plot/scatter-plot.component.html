@@ -15,42 +15,50 @@
                     <mat-icon class="error-icon">error</mat-icon>
                     {{ getButtonText() }}
                 </label>
-                <p></p>
 
-                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true"
+                                (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases"
+                                    [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true"
+                                (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select placeholder="X Axis Field" [(ngModel)]="active.xField" required="true" (ngModelChange)="handleChangeXField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="X Axis Field" [(ngModel)]="active.xField" required="true"
+                                (ngModelChange)="handleChangeXField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select placeholder="Y Axis Field" [(ngModel)]="active.yField" required="true" (ngModelChange)="handleChangeYField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Y Axis Field" [(ngModel)]="active.yField" required="true"
+                                (ngModelChange)="handleChangeYField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select placeholder="Label Field" [(ngModel)]="active.labelField" required="true" (ngModelChange)="handleChangeLabelField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Label Field" [(ngModel)]="active.labelField" required="true"
+                                (ngModelChange)="handleChangeLabelField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select placeholder="Color Field" [(ngModel)]="meta.colorField"
-                           (ngModelChange)="handleChangeColorField()" [disabled]="meta.fields.length == 0">
-                    <mat-option [value]="emptyField">(None)</mat-option>
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Color Field" [(ngModel)]="meta.colorField"
+                               (ngModelChange)="handleChangeColorField()" [disabled]="meta.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
                 <table cellspacing="0">
                     <tr>
@@ -66,12 +74,10 @@
                         </td>
                     </tr>
                 </table>
-                <p></p>
 
                 <app-unshared-filter [(meta)]="meta"
                                      (unsharedFilterChanged)="unsharedFilterChanged()"
                                      (unsharedFilterRemoved)="unsharedFilterRemoved()"></app-unshared-filter>
-                <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
 
@@ -86,7 +92,7 @@
             <div>
                 <app-legend *ngIf="hasColorField()"
                             (itemSelected)="legendItemSelected($event)"
-                            [disabledList]="disabledList"
+                            [disabledList]="disabledSet"
                             [fieldNames]="colorByFields"></app-legend>
             </div>
             <div class="filter-reset" *ngIf="filters[0]">

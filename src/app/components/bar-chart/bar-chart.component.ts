@@ -211,15 +211,12 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                     xAxes: [{
                         stacked: true,
                         ticks: {
-                            max: 100,
                             beginAtZero: true
                         }
                     }],
                     yAxes: [{
-
                         stacked: true,
                         ticks: {
-                            max: 100,
                             beginAtZero: true
                         }
                     }]
@@ -488,7 +485,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 chartData.labels.push(key);
             }
         }
-        chartData.labels.sort();
 
         for (let row of response.data) {
             let key: string = row[colName];

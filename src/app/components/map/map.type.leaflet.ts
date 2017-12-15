@@ -32,6 +32,8 @@ export class LeafletNeonMap extends AbstractMap {
     private layerControl: L.Control.Layers;
     private box: L.Rectangle;
 
+    private hiddenPoints = [];
+
     doCustomInitialization(mapContainer: ElementRef) {
         let geoOption = this.optionsFromConfig.geoServer,
             mOptions = this.mapOptions,
@@ -88,7 +90,9 @@ export class LeafletNeonMap extends AbstractMap {
             let circlOptions = {
                     color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
                     fillColor: point.cssColorString,
-                    weight: 1
+                    weight: 1,
+                    colorField: point.colorField,
+                    colorValue: point.colorValue
                 },
                 circle = new L.CircleMarker([point.lat, point.lng], circlOptions).setRadius(6);
 
@@ -129,6 +133,31 @@ export class LeafletNeonMap extends AbstractMap {
         }
 
         return group;
+    }
+
+    hidePoints(layer: MapLayer, value: string) {
+        let group = this.getGroup(layer);
+
+        group.eachLayer((circle: L.Layer) => {
+            if (circle.options.colorValue === value) {
+                this.hiddenPoints.push(circle);
+                group.removeLayer(circle);
+            }
+        });
+    }
+
+    unhidePoints(layer: MapLayer, value: string) {
+        let group = this.getGroup(layer);
+
+        this.hiddenPoints = this.hiddenPoints.filter((circle) => {
+            let matches = circle.options.colorField === layer.colorField.columnName &&
+                    circle.options.colorValue === value;
+
+            if (matches) {
+                group.addLayer(circle);
+            }
+            return !matches;
+        });
     }
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

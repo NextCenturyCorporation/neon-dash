@@ -50,7 +50,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
 
-    private optionsFromConfig: {
+    public optionsFromConfig: {
         title: string,
         database: string,
         table: string,
@@ -249,7 +249,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     /**
      * Responds to changes in a field by starting a new query cycle.
      */
-    private handleChangeField() {
+    handleChangeField() {
         this.logChangeAndStartQueryChain();
     }
 

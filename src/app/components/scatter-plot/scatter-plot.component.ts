@@ -105,7 +105,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('textContainer') textContainer: ElementRef;
     @ViewChild('chartContainer') chartContainer: ElementRef;
 
-    private filters: ScatterPlotFilter[];
+    filters: ScatterPlotFilter[];
 
     private defaultActiveColor;
 
