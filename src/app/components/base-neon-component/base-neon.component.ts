@@ -755,4 +755,8 @@ export abstract class BaseNeonComponent implements OnInit,
         }
         return style && Color.fromRgbString(style);
     }
+
+    getComputedStyle(nativeElement: any) {
+        return window.getComputedStyle(nativeElement, null);
+    }
 }
