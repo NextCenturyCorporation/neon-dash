@@ -102,7 +102,7 @@ export class CesiumNeonMap extends AbstractMap {
         let north = 90.0;
         let south = -90.0;
 
-        if (this.optionsFromConfig.west != null) {
+        if (this.areBoundsSet()) {
             west = this.optionsFromConfig.west;
             east = this.optionsFromConfig.east;
             north = this.optionsFromConfig.north;

@@ -53,7 +53,10 @@ class LocalFilter {
 })
 export class LineChartComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
+
     @ViewChild('myChart') chartModule: ChartModule;
+    @ViewChild('textContainer') textContainer: ElementRef;
+    @ViewChild('chartContainer') chartContainer: ElementRef;
 
     private optionsFromConfig: {
         title: string,
@@ -112,7 +115,10 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
     private disabledDatasets: Map<string, any> = new Map<string, any>();
 
-    @ViewChild('textContainer') textElement: ElementRef;
+    public selectionOffset = {
+        x: 0,
+        y: 0
+    };
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -259,6 +265,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     postInit() {
         // Do nothing.  An on change unfortunately kicks off the initial query.
         this.logChangeAndStartQueryChain();
+
+        this.selectionOffset.y = this.textContainer.nativeElement.scrollHeight;
+        this.selectionOffset.x = Number.parseInt(this.getComputedStyle(this.chartContainer.nativeElement).paddingLeft || '0');
     }
 
     subNgOnDestroy() {
@@ -457,7 +466,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             this.selection.width = Math.abs(startX - endX);
             this.selection.x = Math.min(startX, endX);
             this.selection.height = chartBottom - chartTop;
-            this.selection.y = chartTop + this.textElement.nativeElement.scrollHeight;
+            this.selection.y = chartTop;
             redraw = true;
         }
         if (isMouseUp) {
