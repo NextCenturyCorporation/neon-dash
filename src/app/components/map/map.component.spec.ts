@@ -36,8 +36,7 @@ import { By } from '@angular/platform-browser';
 import { BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
-import * as uuid from 'node-uuid';
-import * as _ from 'lodash';
+import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
 
 function webgl_support(): any {
     try {
@@ -47,37 +46,6 @@ function webgl_support(): any {
             canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
         /* tslint:enable:no-string-literal */
     } catch (e) { return false; }
-}
-
-class FilterMock extends FilterService {
-    addFilter(messenger: neon.eventing.Messenger, ownerId: string, database: string, table: string,
-              whereClause: any, filterName: string | { visName: string; text: string },
-              onSuccess: (resp: any) => any, onError: (resp: any) => any): void {
-        // avoid network call
-        let filter = new neon.query.Filter().selectFrom(database, table),
-            name = (typeof filterName === 'string') ? filterName :
-                (filterName.visName ? filterName.visName + ' - ' : '') + table + filterName.text ? ': ' + filterName.text : '';
-        filter.whereClause = whereClause;
-        if (filterName) {
-            filter = filter.name(name);
-        }
-        this.getFilters().push({
-            id: database + '-' + table + '-' + uuid.v4(),
-            ownerId: ownerId,
-            database: database,
-            table: table,
-            filter: filter
-        });
-
-        // don't do success call to avoid calling query chain
-    }
-
-    removeFilter(messenger: neon.eventing.Messenger, id: string, onSuccess?: (resp: any) => any, onError?: (resp: any) => any): void {
-        let index = _.findIndex(this.getFilters(), {id: id});
-        this.getFilters().splice(index, 1);
-
-        // don't do success call to avoid calling query chain
-    }
 }
 
 @Component({

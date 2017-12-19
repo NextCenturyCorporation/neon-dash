@@ -17,11 +17,12 @@
 
 .visualization-sidenav {
 
+    $item-margin: 10px;
+
     .document-viewer-list-item {
         display: inline-block;
-        padding-left: 15px;
-        padding-right: 15px;
-        width: 90% ;
+        margin: 0 $item-margin;
+        width: calc(100% - 2 * #{$item-margin});
     }
 
     .document-viewer-button-table {

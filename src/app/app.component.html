@@ -3,7 +3,7 @@
         <mat-toolbar color="primary">
             <span class="mat-36">Datasets</span>
         </mat-toolbar>
-        <app-dataset-selector (activeDatasetChanged)="sidenav.toggle()" >
+        <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sidenav.toggle()" >
         </app-dataset-selector>
     </mat-sidenav>
     <mat-sidenav #sidenavright class="neon-gtd-sidenav-about-neon" mat-fill align="end">
@@ -24,6 +24,7 @@
             <mat-icon class="mat-24">add</mat-icon>
         </button>
         <span class="fill-remaining"></span>
+        <app-simple-filter #simpleFilter></app-simple-filter>
         <button mat-icon-button aria-label="Show Filters" matTooltip="Show Filters" tooltip-position="below" (click)="openFilterTrayDialog()"
             *ngIf="showFilterTrayButton">
             <mat-icon class="mat-24">notifications</mat-icon>

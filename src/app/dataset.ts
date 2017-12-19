@@ -56,6 +56,7 @@ export class DatabaseMetaData {
 export class DatasetOptions {
     colorMaps?: Object;
     requeryInterval?: number;
+    simpleFilter?: SimpleFilter;
 }
 
 export interface TableMappings {
@@ -70,6 +71,16 @@ export class RelationTableMetaData {
 export class RelationMetaData {
     database: DatabaseMetaData;
     customRelationTables: RelationTableMetaData[];
+}
+
+export class SimpleFilter {
+    constructor(
+        public databaseName: string,
+        public tableName: string,
+        public fieldName: string,
+        public placeHolder?: string,
+        public icon?: string
+    ) {}
 }
 
 export class Dataset {
