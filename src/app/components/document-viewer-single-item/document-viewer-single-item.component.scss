@@ -14,3 +14,11 @@
  *
  */
 @import '../base-neon-component/base-neon.component.scss';
+
+td.metadata-bold {
+    font-weight: bold;
+}
+
+tr.metadata-row:nth-child(even) {
+    background-color: lightgray;
+}

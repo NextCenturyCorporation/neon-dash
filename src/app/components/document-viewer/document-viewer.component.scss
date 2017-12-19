@@ -41,20 +41,15 @@
         width: 100%;
     }
 
-    .metadata-row {
-        line-height: 20px;
-        margin: 5px 0px;
+    table.metadata-table {
+        width: 100%;
     }
 
-    .metadata-item {
-        padding: 0px 0px 0px 15px;
+    table.metadata-table tr.metadata-row:nth-child(even) {
+        background: lightgray;
     }
 
-    .metadata-item:nth-child(1) {
-        padding: 0px 15px 0px 0px;
-    }
-
-    span.metadata-bold {
+    td.metadata-bold {
         font-weight: bold;
     }
 }

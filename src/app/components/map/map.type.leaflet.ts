@@ -20,7 +20,6 @@ import * as L from 'leaflet';
 export class LeafletNeonMap extends AbstractMap {
     private mapOptions: L.MapOptions = {
         minZoom: 2,
-        maxZoom: 10,
         zoom: 2,
         center: L.latLng([0, 0]),
         zoomControl: false,
@@ -39,16 +38,13 @@ export class LeafletNeonMap extends AbstractMap {
                 L.tileLayer.wms(geoOption.mapUrl, {
                     layers: geoOption.layer,
                     transparent: true,
-                    minZoom: mOptions.minZoom,
-                    maxZoom: mOptions.maxZoom
+                    minZoom: mOptions.minZoom
                 }) : new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     minZoom: mOptions.minZoom,
-                    maxZoom: mOptions.maxZoom,
                     attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
                 }),
             monochrome = new L.TileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
                 minZoom: mOptions.minZoom,
-                maxZoom: mOptions.maxZoom,
                 attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">' +
                 'GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; ' +
                 '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -88,9 +84,10 @@ export class LeafletNeonMap extends AbstractMap {
             let circlOptions = {
                     color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
                     fillColor: point.cssColorString,
-                    weight: 1
+                    weight: 1,
+                    radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
                 },
-                circle = new L.CircleMarker([point.lat, point.lng], circlOptions).setRadius(6);
+                circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
 
             if (this.optionsFromConfig.hoverPopupEnabled) {
                 circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);

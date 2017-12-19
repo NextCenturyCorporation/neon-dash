@@ -15,11 +15,11 @@
  */
 
 /*
- *  This file contains common CSS for components.  
+ *  This file contains common CSS for components.
  */
 
 @import '~@angular/material/_theming';
-@import 'src/themes/neon-green-theme.scss';
+@import '../../../themes/neon-green-theme';
 
 .visualization-sidenav {
     height: 100%;
@@ -104,8 +104,3 @@
         background-color: mat-color($primary);
     }
 }
-
-.coloraccessor { 
-    color: mat-color($primary);
-}
-

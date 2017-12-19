@@ -60,7 +60,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         metadataFields: any[], // Array of arrays. Each internal array is a row of metadata and contains {name, field} objects.
         popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
         limit: number,
-        showText: boolean
+        showText: boolean,
+        showSelect: boolean
     };
 
     public active: {
@@ -87,7 +88,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             metadataFields: this.injector.get('metadataFields', null),
             popoutFields: this.injector.get('popoutFields', null),
             limit: this.injector.get('limit', null),
-            showText: this.injector.get('showText', false)
+            showText: this.injector.get('showText', false),
+            showSelect: this.injector.get('showSelect', true)
         };
         this.active = {
             data: [],
@@ -140,7 +142,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         this.active.dataField = this.findFieldObject('dataField', neonMappings.NEWSFEED_TEXT);
         this.active.dateField = this.findFieldObject('dateField'); // If not set in the config, ignore it altogether.
         this.active.idField = this.findFieldObject('idField');
-        this.active.metadataFields = this.optionsFromConfig.metadataFields;
+        this.active.metadataFields = neonUtilities.flatten(this.optionsFromConfig.metadataFields);
     }
 
     getFilterText(filter) {

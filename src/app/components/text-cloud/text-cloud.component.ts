@@ -114,15 +114,15 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     subNgOnInit() {
-        this.updateTextCloudSettings();
+        // Do nothing
     }
 
     postInit() {
-        this.executeQueryChain();
+        // This should happen before execute query as #refreshVisualization() depends on this.textCloud
+        this.active.textColor = this.getPrimaryThemeColor().toHexString();
+        this.updateTextCloudSettings();
 
-        let elems = document.getElementsByClassName('coloraccessor');
-        let style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
-        this.active.textColor = Color.fromRgbString(style).toHexString();
+        this.executeQueryChain();
     }
 
     subNgOnDestroy() {

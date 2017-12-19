@@ -73,6 +73,7 @@ export interface OptionsFromConfig {
         mapUrl: string,
         layer: string
     };
+    singleColor: boolean;
 }
 
 export class BoundingBoxByDegrees {
@@ -89,6 +90,7 @@ export class MapPoint {
         public name: string,
         public lat: number,
         public lng: number,
+        public count: number,
         public cssColorString: string,
         public description: string
     ) {}
