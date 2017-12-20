@@ -129,7 +129,7 @@ class SimpleFilterTester {
     detectChanges() { this.fixture.detectChanges(); }
 }
 
-describe('Component: SimpleFilter with config', () => {
+describe('Component: SimpleFilter', () => {
     let tester: SimpleFilterTester;
 
     beforeEach(() => tester = new SimpleFilterTester());
@@ -219,7 +219,7 @@ describe('Component: SimpleFilter with config', () => {
     });
 });
 
-describe('Component: SimpleFilter', () => {
+describe('Component: SimpleFilter unconfigured', () => {
 
     let tester: SimpleFilterTester;
 

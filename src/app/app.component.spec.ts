@@ -61,6 +61,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { AppMaterialModule } from './app.material.module';
 import { HttpModule } from '@angular/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
 
 describe('App: NeonGtd', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -84,6 +85,7 @@ describe('App: NeonGtd', () => {
                 LineChartComponent,
                 MapComponent,
                 ScatterPlotComponent,
+                SimpleFilterComponent,
                 StackedTimelineComponent,
                 TextCloudComponent,
                 TimelineComponent,

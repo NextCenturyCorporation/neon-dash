@@ -749,9 +749,12 @@ export abstract class BaseNeonComponent implements OnInit,
 
     getPrimaryThemeColor() {
         let elems = document.getElementsByClassName('coloraccessor'),
-            style = elems.length ? window.getComputedStyle(elems[0], null).getPropertyValue('color') : null;
-        if (!style) {
+            style: string;
+        if (!elems.length) {
+            style = 'rgb(255, 255, 255)';
             console.error('Unable to retrieve primary theme without element with class "coloraccessor"');
+        } else {
+            style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
         }
         return style && Color.fromRgbString(style);
     }
