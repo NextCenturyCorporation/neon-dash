@@ -68,6 +68,7 @@ import { WikiViewerComponent } from './components/wiki-viewer/wiki-viewer.compon
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { AppMaterialModule } from './app.material.module';
+import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -94,6 +95,7 @@ export function getAppConfig() {
         LineChartComponent,
         MapComponent,
         ScatterPlotComponent,
+        SimpleFilterComponent,
         SnackBarComponent,
         StackedTimelineComponent,
         TextCloudComponent,

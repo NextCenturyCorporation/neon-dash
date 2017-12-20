@@ -304,9 +304,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     private openSingleRecord(item) {
         let config = new MatDialogConfig();
         // config.viewContainerRef = this.viewContainerRef;
-        let metadata = this.optionsFromConfig.metadataFields;
+        let metadata = this.active.metadataFields;
         if (this.optionsFromConfig.popoutFields) {
-            metadata = metadata.concat(this.optionsFromConfig.popoutFields);
+            metadata = metadata.concat(neonUtilities.flatten(this.optionsFromConfig.popoutFields));
         }
         config.data = {
             item: item,
