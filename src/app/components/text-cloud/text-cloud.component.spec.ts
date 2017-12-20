@@ -402,7 +402,8 @@ describe('Component: TextCloud', () => {
             calledExecuteQuery = true;
         };
 
-        component.subNgOnInit(); // To initialize the text cloud so it can update.
+        component.executeQueryChain = () => undefined; // postInit calls executeQueryChain, but we don't care.
+        component.postInit(); // To initialize the text cloud so it can update.
         component.onQuerySuccess(response);
 
         expect(component.active.data).toEqual([]);
@@ -651,8 +652,9 @@ describe('Component: TextCloud', () => {
             testDataField: 'Value 3',
             value: 30
         }];
+        component.executeQueryChain = () => undefined; // postInit calls executeQueryChain, but we don't care.
         component.active.data = data;
-        component.subNgOnInit();
+        component.postInit();
         component.createTextCloud();
         expect(component.active.data[0].fontSize).toBeDefined();
         expect(component.active.data[0].color).toBeDefined();
