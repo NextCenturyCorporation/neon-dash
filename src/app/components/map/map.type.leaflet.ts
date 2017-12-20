@@ -106,6 +106,11 @@ export class LeafletNeonMap extends AbstractMap {
 
     clearLayer(layer: MapLayer) {
         this.getGroup(layer).clearLayers();
+
+        // Remove any hidden points too
+        this.hiddenPoints = this.hiddenPoints.filter((circle) => {
+            return circle.options.colorField !== layer.colorField.columnName;
+        });
     }
 
     destroy() {

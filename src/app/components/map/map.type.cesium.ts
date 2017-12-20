@@ -224,6 +224,11 @@ export class CesiumNeonMap extends AbstractMap {
         let ds = this.getDataSource(layer);
         this.cesiumViewer.dataSources.remove(ds, true);
         this.dataSources.delete(layer);
+
+        // Remove any hidden points as well
+        this.hiddenEntities = this.hiddenEntities.filter((entity) => {
+            return !(entity._colorField === layer.colorField.columnName);
+        });
     }
 
     destroy() {
