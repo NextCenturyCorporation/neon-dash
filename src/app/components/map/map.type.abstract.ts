@@ -144,6 +144,12 @@ export abstract class AbstractMap {
      */
     abstract unhidePoints(layer: MapLayer, value: string);
 
+    /**
+     * Unhide all points for a layer
+     * @param layer the layer
+     */
+    abstract unhideAllPoints(layer: MapLayer);
+
     abstract destroy();
 
     // utility

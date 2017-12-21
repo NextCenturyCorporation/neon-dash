@@ -493,6 +493,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             response.data
         );
 
+    // Unhide all points
+    for (let currentLayer of this.active.layers) {
+      this.mapObject.unhideAllPoints(currentLayer);
+    }
+    this.disabledSet = [] as [string[]];
+
     this.mapObject.clearLayer(layer);
     this.mapObject.addPoints(mapPoints, layer, this.active.clustering === 'clusters');
 

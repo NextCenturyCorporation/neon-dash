@@ -44,7 +44,7 @@ export class CesiumNeonMap extends AbstractMap {
 
     private dataSources = new Map<MapLayer, any>();
 
-    private hiddenEntities = [];
+    private hiddenEntities = new Map();
 
     doCustomInitialization(mapContainer: ElementRef) {
         // In order to get a minimal viable product in the short time span we have, we decided to disable the following Cesium features:
@@ -226,9 +226,7 @@ export class CesiumNeonMap extends AbstractMap {
         this.dataSources.delete(layer);
 
         // Remove any hidden points as well
-        this.hiddenEntities = this.hiddenEntities.filter((entity) => {
-            return !(entity._colorByField === layer.colorField.columnName);
-        });
+        this.hiddenEntities.set(layer, null);
     }
 
     destroy() {
@@ -243,14 +241,20 @@ export class CesiumNeonMap extends AbstractMap {
 
         let allEntities = entities.values;
 
+        let hiddenEntities: any[] = this.hiddenEntities.get(layer);
+        if (!hiddenEntities) {
+            hiddenEntities = [];
+        }
+
         for (let entity of allEntities) {
-            if (entity._colorValue === value) {
+            if (entity._colorByValue === value) {
                 entities.removeById(entity.id);
-                this.hiddenEntities.push(entity);
+                hiddenEntities.push(entity);
             }
         }
 
         entities.resumeEvents();
+        this.hiddenEntities.set(layer, hiddenEntities);
     }
 
     unhidePoints(layer: MapLayer, value: string) {
@@ -259,16 +263,39 @@ export class CesiumNeonMap extends AbstractMap {
 
         entities.suspendEvents();
 
-        this.hiddenEntities = this.hiddenEntities.filter((entity) => {
-            let matches = entity._colorByField === layer.colorField.columnName &&
-                entity._colorByValue === value;
-            if (matches) {
-                entities.add(entity);
-            }
-            return !matches;
-        });
+        let hiddenEntities: any[] = this.hiddenEntities.get(layer);
+
+        if (hiddenEntities) {
+            hiddenEntities = hiddenEntities.filter((entity) => {
+                let matches = entity._colorByField === layer.colorField.columnName &&
+                    entity._colorByValue === value;
+                if (matches) {
+                    entities.add(entity);
+                }
+                return !matches;
+            });
+        }
 
         entities.resumeEvents();
+        this.hiddenEntities.set(layer, hiddenEntities);
+    }
+
+    unhideAllPoints(layer: MapLayer) {
+        let ds = this.getDataSource(layer);
+        let entities = ds.entities;
+
+        entities.suspendEvents();
+
+        let hiddenEntities: any[] = this.hiddenEntities.get(layer);
+
+        if (hiddenEntities) {
+            for (let entity of hiddenEntities) {
+                entities.add(entity);
+            }
+        }
+
+        entities.resumeEvents();
+        this.hiddenEntities.set(layer, null);
     }
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

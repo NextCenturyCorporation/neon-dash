@@ -32,7 +32,7 @@ export class LeafletNeonMap extends AbstractMap {
     private layerControl: L.Control.Layers;
     private box: L.Rectangle;
 
-    private hiddenPoints = [];
+    private hiddenPoints = new Map();
 
     doCustomInitialization(mapContainer: ElementRef) {
         let geoOption = this.optionsFromConfig.geoServer,
@@ -108,9 +108,7 @@ export class LeafletNeonMap extends AbstractMap {
         this.getGroup(layer).clearLayers();
 
         // Remove any hidden points too
-        this.hiddenPoints = this.hiddenPoints.filter((circle) => {
-            return circle.options.colorByField !== layer.colorField.columnName;
-        });
+        this.hiddenPoints.set(layer, null);
     }
 
     destroy() {
@@ -143,26 +141,52 @@ export class LeafletNeonMap extends AbstractMap {
     hidePoints(layer: MapLayer, value: string) {
         let group = this.getGroup(layer);
 
+        let hiddenPoints: any[] = this.hiddenPoints.get(layer);
+        if (!hiddenPoints) {
+            hiddenPoints = [];
+        }
+
         group.eachLayer((circle: L.Layer) => {
-            if (circle.options.colorValue === value) {
-                this.hiddenPoints.push(circle);
+            if (circle.options.colorByValue === value) {
+                hiddenPoints.push(circle);
                 group.removeLayer(circle);
             }
         });
+
+        this.hiddenPoints.set(layer, hiddenPoints);
     }
 
     unhidePoints(layer: MapLayer, value: string) {
         let group = this.getGroup(layer);
 
-        this.hiddenPoints = this.hiddenPoints.filter((circle) => {
-            let matches = circle.options.colorByField === layer.colorField.columnName &&
-                    circle.options.colorByValue === value;
+        let hiddenPoints: any[] = this.hiddenPoints.get(layer);
 
-            if (matches) {
-                group.addLayer(circle);
+        if (hiddenPoints) {
+            hiddenPoints = hiddenPoints.filter((circle) => {
+                let matches = circle.options.colorByField === layer.colorField.columnName &&
+                        circle.options.colorByValue === value;
+
+                if (matches) {
+                    group.addLayer(circle);
+                }
+                return !matches;
+            });
+        }
+        this.hiddenPoints.set(layer, hiddenPoints);
+    }
+
+    unhideAllPoints(layer: MapLayer) {
+        let group = this.getGroup(layer);
+
+        let hiddenPoints: any[] = this.hiddenPoints.get(layer);
+
+        if (hiddenPoints) {
+            for (let point of hiddenPoints) {
+                group.addLayer(point);
             }
-            return !matches;
-        });
+        }
+
+        this.hiddenPoints.set(layer, null);
     }
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
