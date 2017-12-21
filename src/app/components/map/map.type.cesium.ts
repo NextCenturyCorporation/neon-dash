@@ -207,8 +207,8 @@ export class CesiumNeonMap extends AbstractMap {
                     translucencyByDistance: new Cesium.NearFarScalar(100, .4, 8.0e6, 0.4)
                 },
                 description: point.description,
-                colorField: point.colorField,
-                colorValue: point.colorValue
+                colorByField: point.colorByField,
+                colorByValue: point.colorByValue
             });
         }
 
@@ -227,7 +227,7 @@ export class CesiumNeonMap extends AbstractMap {
 
         // Remove any hidden points as well
         this.hiddenEntities = this.hiddenEntities.filter((entity) => {
-            return !(entity._colorField === layer.colorField.columnName);
+            return !(entity._colorByField === layer.colorField.columnName);
         });
     }
 
@@ -260,8 +260,8 @@ export class CesiumNeonMap extends AbstractMap {
         entities.suspendEvents();
 
         this.hiddenEntities = this.hiddenEntities.filter((entity) => {
-            let matches = entity._colorField === layer.colorField.columnName &&
-                entity._colorValue === value;
+            let matches = entity._colorByField === layer.colorField.columnName &&
+                entity._colorByValue === value;
             if (matches) {
                 entities.add(entity);
             }

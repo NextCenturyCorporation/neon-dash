@@ -91,8 +91,8 @@ export class MapPoint {
         public lng: number,
         public cssColorString: string,
         public description: string,
-        public colorField: string,
-        public colorValue: string
+        public colorByField: string,
+        public colorByValue: string
     ) {}
 }
 
