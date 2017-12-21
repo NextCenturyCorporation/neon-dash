@@ -154,6 +154,32 @@ describe('Component: SimpleFilter', () => {
         expect(filter.filter.whereClause).toEqual(expected);
     });
 
+    it('should replace filter when one already exists', () => {
+        // set input.value
+        let value = 'filter with click';
+        tester.setInput(value);
+
+        // find search icon element and click it
+        tester.clickSearch();
+        let filterId = tester.component.filterId.getValue();
+
+        value = 'replace filter with click';
+        tester.setInput(value);
+        tester.clickSearch();
+
+        // verify that filter id didn't change
+        expect(tester.component.filterId.getValue()).toBe(filterId, 'filter id should not have changed');
+
+        // verify that only one filter is in the filter service
+        expect(tester.filterService.getFilters().length).toBe(1, 'there should still only be 1 filter');
+
+        let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
+        expect(filter).toBeTruthy();
+
+        let expected = neon.query.where(fieldName, 'contains', value);
+        expect(filter.filter.whereClause).toEqual(expected, 'filter clause should be updated');
+    });
+
     it('should filter when the user presses enter', () => {
         // set input.value
         let value = 'filter with enter';

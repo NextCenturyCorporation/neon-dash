@@ -40,7 +40,10 @@ import { TranslationService } from './services/translation.service';
 import { VisualizationService } from './services/visualization.service';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
-import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
+import {
+    AddVisualizationComponent,
+    SimpleSnackBarComponent
+} from './components/add-visualization/add-visualization.component';
 import { AppComponent } from './app.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
@@ -96,6 +99,7 @@ export function getAppConfig() {
         MapComponent,
         ScatterPlotComponent,
         SimpleFilterComponent,
+        SimpleSnackBarComponent,
         SnackBarComponent,
         StackedTimelineComponent,
         TextCloudComponent,
@@ -137,7 +141,7 @@ export function getAppConfig() {
         }
     ],
     entryComponents: [AppComponent, AddVisualizationComponent, DocumentViewerSingleItemComponent, FilterTrayComponent, SnackBarComponent,
-        ConfigEditorComponent],
+        ConfigEditorComponent, SimpleSnackBarComponent],
     bootstrap: [AppComponent]
 })
 
