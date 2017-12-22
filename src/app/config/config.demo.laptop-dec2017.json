@@ -576,6 +576,8 @@
 			"dataField": "translatedText",
 			"dateField": "createdAt",
             "idField": "id",
+            "showSelect": false,
+            "singleColor": true,
             "metadataFields": [
               [
                 {
@@ -933,6 +935,8 @@
 			"dataField": "translatedText",
 			"dateField": "createdAt",
             "idField": "id",
+            "showSelect": false,
+            "singleColor": true,
             "metadataFields": [
               [
                 {
@@ -1282,6 +1286,8 @@
 			"dataField": "originalText",
 			"dateField": "createdAt",
             "idField": "id",
+            "showSelect": false,
+            "singleColor": true,
             "metadataFields": [
               [
                 {
@@ -1626,6 +1632,8 @@
 			"dataField": "originalText",
 			"dateField": "createdAt",
             "idField": "id",
+            "showSelect": false,
+            "singleColor": true,
             "metadataFields": [
               [
                 {
@@ -1970,6 +1978,8 @@
 			"dataField": "translatedText",
 			"dateField": "createdAt",
             "idField": "id",
+            "showSelect": false,
+            "singleColor": true,
             "metadataFields": [
               [
                 {
@@ -2313,6 +2323,8 @@
 			"dataField": "originalText",
 			"dateField": "createdAt",
             "idField": "id",
+            "showSelect": false,
+            "singleColor": true,
             "metadataFields": [
               [
                 {
@@ -2606,6 +2618,10 @@
                 "colorField": "topics"
               }
             ],
+            "west": -75.2674560547,
+            "east": -67.5438232422,
+            "north": 20.7218648877,
+            "south": 17.0139322219,
             "geoServer": {
               "offline": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
@@ -2661,6 +2677,8 @@
 			"dataField": "originalText",
 			"dateField": "createdAt",
             "idField": "id",
+            "showSelect": false,
+            "singleColor": true,
             "metadataFields": [
               [
                 {

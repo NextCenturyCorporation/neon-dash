@@ -32,7 +32,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
+import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 import { FieldMetaData } from '../../dataset';
 import { neonMappings } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
@@ -104,6 +104,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
   private filterBoundingBox: BoundingBoxByDegrees;
 
   public disabledSet: [string[]] = [] as [string[]];
+  private defaultActiveColor: Color;
 
   @ViewChild('mapElement') mapElement: ElementRef;
 
@@ -137,7 +138,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       north: this.injector.get('north', null),
       south: this.injector.get('south', null),
       geoServer: this.injector.get('geoServer', {}),
-      mapType: this.injector.get('mapType', MapType.Leaflet)
+      mapType: this.injector.get('mapType', MapType.Leaflet),
+      singleColor: this.injector.get('singleColor', false)
     };
 
     this.filters = [];
@@ -167,6 +169,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     for (let i = 1; i < this.optionsFromConfig.layers.length; i++) {
       this.addEmptyLayer();
     }
+
+    this.defaultActiveColor = this.getPrimaryThemeColor();
   }
 
   subRemoveLayer(index: number) {
@@ -465,15 +469,19 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       }
 
       let mapPoints: MapPoint[] = [];
-      map.forEach((unique) => mapPoints.push(
+      let rgbColor = this.defaultActiveColor.toRgb();
+      map.forEach((unique) => {
+        let color = rgbColor;
+        if (!this.optionsFromConfig.singleColor) {
+            color = unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString;
+        }
+        mapPoints.push(
           new MapPoint(`${unique.lat.toFixed(3)}\u00b0, ${unique.lng.toFixed(3)}\u00b0`,
-              unique.lat, unique.lng,
-              unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString,
-              'Count: ' + unique.count,
-              unique.colorField,
-              unique.colorValue
-          )
-      ));
+              unique.lat, unique.lng, unique.count,
+              color, 'Count: ' + unique.count,
+              unique.colorField, unique.colorValue
+          ));
+        });
       return mapPoints;
   }
 

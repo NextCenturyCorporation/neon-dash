@@ -15,10 +15,22 @@
  */
 @import '../base-neon-component/base-neon.component.scss';
 
-td.metadata-bold {
-    font-weight: bold;
+.simple-filter {
+    background-color: $main-background;
+    color: mat-color($header-text);
+    height: 90%;
+    display: flex;
+    width: 300px;
+    border-radius: 20px;
 }
 
-tr.metadata-row:nth-child(even) {
-    background-color: lightgray;
+input.simple-filter-input {
+    flex: 1 1 auto;
+    border: none;
+    background: transparent;
+    font-family: $mat-font-family;
+    font-size: 14px; // TODO: tie into theme
+}
+input.simple-filter-input:focus {
+    outline-width: 0;
 }

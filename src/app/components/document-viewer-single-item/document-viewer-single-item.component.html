@@ -1,10 +1,11 @@
 <div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
 	<div class="item" layout="column">
-	    <p *ngFor="let row of metadata">
-	        <span class="metadata-item" *ngFor="let metadataElement of row">
-	            <span class="metadata-title">{{ metadataElement.name }}: </span><span class="metadata-text">{{ formatMetadataEntry(data.item, metadataElement) }}</span>
-	        </span>
-	    </p>
+        <table>
+            <tr class="metadata-row" *ngFor="let metadataElement of metadata">
+                <td class="metadata-bold">{{ metadataElement.name }}: </td>
+                <td >{{ formatMetadataEntry(data.item, metadataElement) }}</td>
+            </tr>
+        </table>
 	    <p>{{ text }}</p>
 	</div>
 	<mat-toolbar class="rounded">

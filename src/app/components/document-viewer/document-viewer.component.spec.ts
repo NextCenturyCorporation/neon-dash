@@ -541,12 +541,10 @@ describe('Component: DocumentViewer', () => {
                 metadataValue: 'Second'
             }
         ];
-        component.active.metadataFields = [
-            [{
-                    name: 'Test',
-                    field: 'metadataValue'
-                }]
-        ];
+        component.active.metadataFields = [{
+            name: 'Test',
+            field: 'metadataValue'
+        }];
         fixture.detectChanges();
 
         // Make sure we have a list of two items.
@@ -556,15 +554,13 @@ describe('Component: DocumentViewer', () => {
         selects = fixture.debugElement.queryAll(By.css('.metadata-row'));
         expect(selects.length).toBe(2);
         // Make sure each metadata row has a single item in it, and that those items have the right name.
+        expect(selects[0].children[0].nativeElement.textContent).toEqual('Test: ');
+        expect(selects[0].children[1].nativeElement.textContent).toEqual('First');
+        expect(selects[1].children[0].nativeElement.textContent).toEqual('Test: ');
+        expect(selects[1].children[1].nativeElement.textContent).toEqual('Second');
+
         selects = fixture.debugElement.queryAll(By.css('.metadata-bold'));
         expect(selects.length).toBe(2);
-        expect(selects[0].nativeElement.textContent).toEqual('Test: ');
-        expect(selects[1].nativeElement.textContent).toEqual('Test: ');
-        // Make sure each metadata row has a single item in it, and that those items have the right value.
-        selects = fixture.debugElement.queryAll(By.css('.metadata-text'));
-        expect(selects.length).toBe(2);
-        expect(selects[0].nativeElement.textContent).toEqual('First');
-        expect(selects[1].nativeElement.textContent).toEqual('Second');
     });
 });
 
@@ -660,18 +656,18 @@ describe('Component: Document Viewer with Config', () => {
             idField: new FieldMetaData('testIDField', 'Test ID Field'),
             limit: 25,
             metadataFields: [
-                [{
+                {
                     name: 'Single Item Metadata Row',
                     field: 'singleItemMetadataRow'
-                }],
-                [{
+                },
+                {
                     name: 'First of Multiple Item Metadata Row',
                     field: 'firstOfMultipleItemMetadataRow'
                 },
                 {
                     name: 'Second of Multiple Item Metadata Row',
                     field: 'secondOfMultipleItemMetadataRow'
-                }]
+                }
             ]
         };
 

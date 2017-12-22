@@ -13,8 +13,8 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit } from '@angular/core';
-import { MatDialogRef } from '@angular/material';
+import { Component, Input, OnInit } from '@angular/core';
+import { MatDialogRef, MatSnackBar } from '@angular/material';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ThemesService } from '../../services/themes.service';
@@ -31,7 +31,7 @@ export class AddVisualizationComponent implements OnInit {
     public selectedIndex: number = -1;
 
     constructor(private activeGridService: ActiveGridService, public themesService: ThemesService,
-        public dialogRef: MatDialogRef<AddVisualizationComponent>) {
+        public dialogRef: MatDialogRef<AddVisualizationComponent>, public snackBar: MatSnackBar) {
         this.themesService = themesService;
     }
 
@@ -39,7 +39,7 @@ export class AddVisualizationComponent implements OnInit {
         this.visualizations = neonVisualizations;
     }
 
-    public onItemSelected(index) {
+    public onItemSelected(shiftKey: boolean, index: number) {
         if (this.selectedIndex !== -1) {
             this.visualizations[this.selectedIndex].selected = false;
         }
@@ -47,5 +47,25 @@ export class AddVisualizationComponent implements OnInit {
         this.selectedIndex = index;
 
         this.activeGridService.addItemInFirstFit(this.visualizations[index]);
+
+        if (!shiftKey) {
+            this.dialogRef.close();
+        }
+
+        this.snackBar.openFromComponent(SimpleSnackBarComponent, {
+            duration: 500,
+            verticalPosition: 'top'
+        });
     }
+}
+
+@Component({
+    selector: 'app-simple-snack-bar',
+    template: `
+        <div class="app-simple-snack-center">{{ message }}</div>
+    `,
+    styles: [':host { display: flex; justify-content: center }']
+})
+export class SimpleSnackBarComponent {
+    @Input() message = 'Visualization Added';
 }
