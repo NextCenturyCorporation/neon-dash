@@ -93,8 +93,8 @@ export class MapPoint {
         public count: number,
         public cssColorString: string,
         public description: string,
-        public colorField: string,
-        public colorValue: string
+        public colorByField: string,
+        public colorByValue: string
     ) {}
 }
 
@@ -145,6 +145,12 @@ export abstract class AbstractMap {
      * @param value the value to unhide
      */
     abstract unhidePoints(layer: MapLayer, value: string);
+
+    /**
+     * Unhide all points for a layer
+     * @param layer the layer
+     */
+    abstract unhideAllPoints(layer: MapLayer);
 
     abstract destroy();
 
