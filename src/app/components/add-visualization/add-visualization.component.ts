@@ -14,7 +14,7 @@
  *
  */
 import { Component, Input, OnInit } from '@angular/core';
-import { MatDialogRef, MdSnackBar } from '@angular/material';
+import { MatDialogRef, MatSnackBar } from '@angular/material';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ThemesService } from '../../services/themes.service';
@@ -31,7 +31,7 @@ export class AddVisualizationComponent implements OnInit {
     public selectedIndex: number = -1;
 
     constructor(private activeGridService: ActiveGridService, public themesService: ThemesService,
-        public dialogRef: MatDialogRef<AddVisualizationComponent>, public snackBar: MdSnackBar) {
+        public dialogRef: MatDialogRef<AddVisualizationComponent>, public snackBar: MatSnackBar) {
         this.themesService = themesService;
     }
 
