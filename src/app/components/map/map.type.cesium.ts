@@ -201,7 +201,7 @@ export class CesiumNeonMap extends AbstractMap {
                 point: {
                     show: true, // default
                     color: color, // default: WHITE
-                    pixelSize: 12, // default: 1
+                    pixelSize: Math.min(Math.floor(12 * Math.pow(point.count, 0.5)), 60), // default: 1
                     outlineColor: point.cssColorString === whiteString ? Cesium.Color.BLACK : color, // default: BLACK
                     outlineWidth: 0, // default: 0
                     translucencyByDistance: new Cesium.NearFarScalar(100, .4, 8.0e6, 0.4)

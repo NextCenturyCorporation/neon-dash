@@ -29,6 +29,7 @@ import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import { VisualizationService } from '../../services/visualization.service';
 import * as uuid from 'node-uuid';
+import { Color } from '../../services/color-scheme.service';
 
 /**
  * Base component for all non-layered Neon visualizations.
@@ -744,6 +745,18 @@ export abstract class BaseNeonComponent implements OnInit,
      */
     subscribeToSelectId(callback) {
         this.messenger.subscribe('select_id', callback);
+    }
+
+    getPrimaryThemeColor() {
+        let elems = document.getElementsByClassName('coloraccessor'),
+            style: string;
+        if (!elems.length) {
+            style = 'rgb(255, 255, 255)';
+            console.error('Unable to retrieve primary theme without element with class "coloraccessor"');
+        } else {
+            style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
+        }
+        return style && Color.fromRgbString(style);
     }
 
     getComputedStyle(nativeElement: any) {

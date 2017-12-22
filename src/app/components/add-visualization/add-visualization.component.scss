@@ -14,7 +14,7 @@
  *
  */
  @import '../base-neon-component/base-neon.component.scss';
- 
+
  .add-visualization {
 
     .add-visualization-button{
@@ -94,4 +94,9 @@
 .add-visualization-tile:active {
     border: 1px solid  mat-color($primary);
     border-radius: 7px;
+}
+
+.app-simple-snack-center {
+    flex: 0 0 auto;
+    font-family: $mat-font-family;
 }

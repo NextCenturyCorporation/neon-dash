@@ -36,8 +36,7 @@ import { By } from '@angular/platform-browser';
 import { BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
-import * as uuid from 'node-uuid';
-import * as _ from 'lodash';
+import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
 
 function webgl_support(): any {
     try {
@@ -47,37 +46,6 @@ function webgl_support(): any {
             canvas.getContext('webgl') || canvas.getContext('experimental-webgl'));
         /* tslint:enable:no-string-literal */
     } catch (e) { return false; }
-}
-
-class FilterMock extends FilterService {
-    addFilter(messenger: neon.eventing.Messenger, ownerId: string, database: string, table: string,
-              whereClause: any, filterName: string | { visName: string; text: string },
-              onSuccess: (resp: any) => any, onError: (resp: any) => any): void {
-        // avoid network call
-        let filter = new neon.query.Filter().selectFrom(database, table),
-            name = (typeof filterName === 'string') ? filterName :
-                (filterName.visName ? filterName.visName + ' - ' : '') + table + filterName.text ? ': ' + filterName.text : '';
-        filter.whereClause = whereClause;
-        if (filterName) {
-            filter = filter.name(name);
-        }
-        this.getFilters().push({
-            id: database + '-' + table + '-' + uuid.v4(),
-            ownerId: ownerId,
-            database: database,
-            table: table,
-            filter: filter
-        });
-
-        // don't do success call to avoid calling query chain
-    }
-
-    removeFilter(messenger: neon.eventing.Messenger, id: string, onSuccess?: (resp: any) => any, onError?: (resp: any) => any): void {
-        let index = _.findIndex(this.getFilters(), {id: id});
-        this.getFilters().splice(index, 1);
-
-        // don't do success call to avoid calling query chain
-    }
 }
 
 @Component({
@@ -199,7 +167,7 @@ describe('Component: Map', () => {
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0,
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 4',
                             'category', 'a'
                         )
@@ -214,22 +182,22 @@ describe('Component: Map', () => {
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0,
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 1.000\u00b0', 0, 1,
+                            '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
                             'category', 'b'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 2.000\u00b0', 0, 2,
+                            '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
                             colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
                             'category', 'c'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 3.000\u00b0', 0, 3,
+                            '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
                             colorService.getColorFor('category', 'd').toRgb(), 'Count: 1',
                             'category', 'd'
                         )
@@ -242,7 +210,7 @@ describe('Component: Map', () => {
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0,
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 8,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 8',
                             'category', 'a'
                         )
@@ -255,42 +223,42 @@ describe('Component: Map', () => {
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 3.000\u00b0', 0, 3,
+                            '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 2.000\u00b0', 0, 2,
+                            '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 1.000\u00b0', 0, 1,
+                            '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0,
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
                             colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 7.000\u00b0', 0, 7,
+                            '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
                             'category', 'b'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 6.000\u00b0', 0, 6,
+                            '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
                             'category', 'b'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 5.000\u00b0', 0, 5,
+                            '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
                             'category', 'b'
                         ),
                         new MapPoint(
-                            '0.000\u00b0, 4.000\u00b0', 0, 4,
+                            '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
                             colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
                             'category', 'b'
                         )
