@@ -56,12 +56,12 @@ import { ColorSchemeService } from './services/color-scheme.service';
 
 import { NgGridModule } from 'angular2-grid';
 
-import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { AppMaterialModule } from './app.material.module';
 import { HttpModule } from '@angular/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
+import { ChartComponent } from './components/chart/chart.component';
 
 describe('App: NeonGtd', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -75,6 +75,7 @@ describe('App: NeonGtd', () => {
                 AppComponent,
                 AboutNeonComponent,
                 BarChartComponent,
+                ChartComponent,
                 DashboardOptionsComponent,
                 DatasetSelectorComponent,
                 DataTableComponent,
@@ -98,7 +99,6 @@ describe('App: NeonGtd', () => {
                 FormsModule,
                 AppMaterialModule,
                 NgGridModule,
-                ChartModule,
                 NgxDatatableModule,
                 HttpModule,
                 BrowserAnimationsModule

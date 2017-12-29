@@ -24,7 +24,6 @@ import {
     OnInit,
     ViewEncapsulation
 } from '@angular/core';
-import { ChartModule } from 'angular2-chartjs';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
