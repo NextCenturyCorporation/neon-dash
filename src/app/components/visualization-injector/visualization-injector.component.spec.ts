@@ -16,7 +16,6 @@
 import { TestBed, inject } from '@angular/core/testing';
 import { ComponentFactoryResolver } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ChartComponent } from '../chart/chart.component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
@@ -38,6 +37,7 @@ import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { VisualizationService } from '../../services/visualization.service';
+import { ChartComponent } from '../chart/chart.component';
 
 describe('Component: VisualizationInjector', () => {
 

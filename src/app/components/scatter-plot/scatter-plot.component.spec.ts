@@ -17,8 +17,6 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { ChartComponent } from '../chart/chart.component';
-
 import {} from 'jasmine-core';
 
 import { ScatterPlotComponent } from './scatter-plot.component';
@@ -37,6 +35,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { VisualizationService } from '../../services/visualization.service';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
+import { ChartComponent } from '../chart/chart.component';
 
 describe('Component: ScatterPlot', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();

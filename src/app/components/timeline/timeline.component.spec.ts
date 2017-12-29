@@ -17,8 +17,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { ChartComponent } from '../chart/chart.component';
-
 import {} from 'jasmine-core';
 
 import { TimelineComponent } from './timeline.component';
@@ -36,6 +34,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { VisualizationService } from '../../services/visualization.service';
+import { ChartComponent } from '../chart/chart.component';
 
 let d3 = require('../../../assets/d3.min.js');
 

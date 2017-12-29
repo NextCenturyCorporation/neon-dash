@@ -19,8 +19,6 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData, Dataset } from '../../d
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { ChartComponent } from '../chart/chart.component';
-
 import { TextCloudComponent } from './text-cloud.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
@@ -38,6 +36,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
+import { ChartComponent } from '../chart/chart.component';
 
 class TestDatasetService extends DatasetService {
     constructor() {
@@ -66,6 +65,7 @@ describe('Component: TextCloud', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 TextCloudComponent,
                 ExportControlComponent,
                 UnsharedFilterComponent,
