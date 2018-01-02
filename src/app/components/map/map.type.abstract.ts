@@ -69,7 +69,7 @@ export interface OptionsFromConfig {
     south: number;
     mapType: MapType | string;
     geoServer: {
-        usGeoserver: boolean,
+        useGeoserver: boolean,
         mapUrl: string,
         layer: string
     };
