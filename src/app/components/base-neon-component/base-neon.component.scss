@@ -32,6 +32,11 @@
         text-transform: capitalize;
         color: mat-color($header-text);
     }
+    
+    .contained-scroll-box {
+    	overflow-y: auto;
+    	height: calc(100% - 66px);
+    }
 
     .visualization-sidenav-options {
         min-width: 320px;

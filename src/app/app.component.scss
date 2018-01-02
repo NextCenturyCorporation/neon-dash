@@ -41,6 +41,8 @@
 }
 
 .neon-gtd-content {
+	overflow-y: auto;
+	height: calc(100% - 66px);
     margin-top: 10px;
 }
 
