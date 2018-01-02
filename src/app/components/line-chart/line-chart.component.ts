@@ -112,6 +112,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     private mouseEventValid: boolean;
     public colorByFields: string[] = [];
     public disabledList: string[] = [];
+    public buttonText = '';
 
     private disabledDatasets: Map<string, any> = new Map<string, any>();
 
@@ -603,15 +604,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.disabledList = [];
 
         // need to reset chart when data potentially changes type (or number of datasets)
-        let ctx = this.getChart().chart.ctx;
         let tmpLimit = this.active.groupLimit;
-        if (response.data.length === 0) {
-            return;
-        }
         let dataSetField = this.active.groupField.columnName;
         let myData = {};
-        let startDate = response.data[0].date;
-        let endDate = response.data[response.data.length - 1].date;
         switch (this.active.granularity) {
             case 'hour':
                 this.active.dateBucketizer = new DateBucketizer();
@@ -628,71 +623,82 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 this.active.dateBucketizer = new YearBucketizer();
                 break;
         }
-        let bucketizer = this.active.dateBucketizer;
-        bucketizer.setStartDate(new Date(startDate));
-        bucketizer.setEndDate(new Date(endDate));
-        let length = bucketizer.getNumBuckets();
-        let fillValue = (this.active.aggregation === 'count' ? 0 : null);
-        let numDatasets = 0;
-        let totals = {};
-        for (let row of response.data) {
-            if (row[dataSetField]) {
-                let dataSet = row[dataSetField];
-                let idx = bucketizer.getBucketIndex(new Date(row.date));
-                let ds = myData[dataSet];
-                if (!ds) {
-                    myData[dataSet] = new Array(length).fill(fillValue);
-                    totals[dataSet] = 0;
-                    numDatasets++;
-                }
-                myData[dataSet][idx] = row.value;
-                totals[dataSet] += row.value;
-            }
-        }
-        let datasets = []; // TODO type to chartjs
-        let datasetIndex = 0;
 
-        for (let datasetName in myData) {
-            if (myData.hasOwnProperty(datasetName)) {
-                let colorString = this.getColorFromScheme(datasetName);
-                let d = {
-                    label: datasetName,
-                    data: myData[datasetName],
-                    borderColor: colorString,
-                    pointBorderColor: colorString,
-                    total: totals[datasetName]
-                };
-                datasets.push(d);
-                datasetIndex++;
+        let datasets = [], // TODO type to chartjs
+            labels = this.chart.data.labels || []; // maintain previous labels in case no data was returned
+
+        if (response.data.length > 0) {
+            delete this.buttonText;
+
+            let bucketizer = this.active.dateBucketizer;
+            bucketizer.setStartDate(new Date(response.data[0].date));
+            bucketizer.setEndDate(new Date(response.data[response.data.length - 1].date));
+
+            let length = bucketizer.getNumBuckets();
+            let fillValue = (this.active.aggregation === 'count' ? 0 : null);
+            let numDatasets = 0;
+            let totals = {};
+            for (let row of response.data) {
+                if (row[dataSetField]) {
+                    let dataSet = row[dataSetField];
+                    let idx = bucketizer.getBucketIndex(new Date(row.date));
+                    let ds = myData[dataSet];
+                    if (!ds) {
+                        myData[dataSet] = new Array(length).fill(fillValue);
+                        totals[dataSet] = 0;
+                        numDatasets++;
+                    }
+                    myData[dataSet][idx] = row.value;
+                    totals[dataSet] += row.value;
+                }
             }
-        }
-        datasets = datasets.sort((a, b) => {
-            return b.total - a.total;
-        });
-        if (datasets.length > tmpLimit) {
-            datasets = datasets.slice(0, tmpLimit);
-        }
-        let labels = new Array(length);
-        for (let i = 0; i < length; i++) {
-            let date = bucketizer.getDateForBucket(i);
-            let dateString = null;
-            switch (this.active.granularity) {
-                case 'hour':
-                    dateString = this.dateToIsoDayHour(date);
-                    break;
-                case 'day':
-                    dateString = this.dateToIsoDay(date);
-                    break;
-                case 'month':
-                    dateString = this.dateToIsoMonth(date);
-                    break;
-                case 'year':
-                    dateString = this.dateToIsoYear(date);
-                    break;
+            let datasetIndex = 0;
+
+            for (let datasetName in myData) {
+                if (myData.hasOwnProperty(datasetName)) {
+                    let colorString = this.getColorFromScheme(datasetName);
+                    let d = {
+                        label: datasetName,
+                        data: myData[datasetName],
+                        borderColor: colorString,
+                        pointBorderColor: colorString,
+                        total: totals[datasetName]
+                    };
+                    datasets.push(d);
+                    datasetIndex++;
+                }
             }
-            labels[i] = dateString;
-            //   labels[i] = date.toUTCString();
+            datasets = datasets.sort((a, b) => {
+                return b.total - a.total;
+            });
+            if (datasets.length > tmpLimit) {
+                datasets = datasets.slice(0, tmpLimit);
+            }
+            labels = new Array(length);
+            for (let i = 0; i < length; i++) {
+                let date = bucketizer.getDateForBucket(i);
+                let dateString = null;
+                switch (this.active.granularity) {
+                    case 'hour':
+                        dateString = this.dateToIsoDayHour(date);
+                        break;
+                    case 'day':
+                        dateString = this.dateToIsoDay(date);
+                        break;
+                    case 'month':
+                        dateString = this.dateToIsoMonth(date);
+                        break;
+                    case 'year':
+                        dateString = this.dateToIsoYear(date);
+                        break;
+                }
+                labels[i] = dateString;
+                //   labels[i] = date.toUTCString();
+            }
+        } else {
+            this.buttonText = 'No Data';
         }
+
         this.chart.data = {
             labels: labels,
             datasets: datasets

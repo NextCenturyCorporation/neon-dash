@@ -34,7 +34,7 @@ export class LeafletNeonMap extends AbstractMap {
     doCustomInitialization(mapContainer: ElementRef) {
         let geoOption = this.optionsFromConfig.geoServer,
             mOptions = this.mapOptions,
-            baseTileLayer = geoOption && geoOption.offline ?
+            baseTileLayer = geoOption && geoOption.useGeoserver ?
                 L.tileLayer.wms(geoOption.mapUrl, {
                     layers: geoOption.layer,
                     transparent: true,

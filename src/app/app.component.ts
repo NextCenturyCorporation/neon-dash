@@ -30,6 +30,8 @@ import { AddVisualizationComponent } from './components/add-visualization/add-vi
 import { FilterTrayComponent } from './components/filter-tray/filter-tray.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 
+import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
+
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -107,8 +109,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         config.viewContainerRef = this.viewContainerRef;
 
         this.addVisDialogRef = this.dialog.open(AddVisualizationComponent, config);
+        L.DomUtil.disableTextSelection();
         this.addVisDialogRef.afterClosed().subscribe(() => {
             this.addVisDialogRef = null;
+            L.DomUtil.enableTextSelection();
         });
     }
 

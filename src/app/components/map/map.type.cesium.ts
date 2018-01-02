@@ -64,7 +64,7 @@ export class CesiumNeonMap extends AbstractMap {
         };
 
         let geoOptions = this.optionsFromConfig.geoServer;
-        if (geoOptions && geoOptions.offline) {
+        if (geoOptions && geoOptions.useGeoserver) {
             cesiumSettings.baseLayerPicker = false;
             cesiumSettings.imageryProvider = new Cesium.WebMapServiceImageryProvider({
                 url: this.optionsFromConfig.geoServer.mapUrl,
