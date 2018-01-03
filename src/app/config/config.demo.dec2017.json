@@ -50,7 +50,13 @@
                 "types": {}
               }
             }
-          }
+          },
+            "simpleFilter": {
+                "databaseName": "ldc_uyghur_3",
+                "tableName": "ui_output",
+                "fieldName": "translatedText",
+                "placeHolder": "Search"
+            }
         }
       },
       {
@@ -606,6 +612,12 @@
                   "name": "GeoPolitical Entities",
                   "field": "GPE"
                 }
+              ],
+              [
+                  {
+                      "name": "Organizations",
+                      "field": "ORG"
+                  }
               ],
               [
                 {
