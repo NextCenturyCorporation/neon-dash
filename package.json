@@ -26,6 +26,10 @@
     "build-grace": "ng build --env=prod   --deployUrl=/lorelei-grace/ --base-href /lorelei-grace/",
     "postbuild-grace": "cd dist && zip -r lorelei-grace.war * && cd .. && mv dist/lorelei-grace.war target/lorelei-grace.war",
     
+    "prebuild-ldc": "rm -f target/*.war && mkdir -p target && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
+    "build-ldc": "ng build --env=prod   --deployUrl=/lorelei-ldc/ --base-href /lorelei-ldc/",
+    "postbuild-ldc": "cd dist && zip -r lorelei-grace.war * && cd .. && mv dist/lorelei-ldc.war target/lorelei-ldc.war",
+    
     "prebuild-dev": "rm -f target/*.war && mkdir -p target && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
     "build-dev": "ng build --deployUrl=/lorelei/ --base-href /lorelei/",
     "postbuild-dev": "cd dist && zip -r lorelei-dev.war * && cd .. && mv dist/lorelei-dev.war target/lorelei-dev.war",
