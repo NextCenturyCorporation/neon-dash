@@ -28,7 +28,7 @@
     
     "prebuild-ldc": "rm -f target/*.war && mkdir -p target && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
     "build-ldc": "ng build --env=prod   --deployUrl=/lorelei-ldc/ --base-href /lorelei-ldc/",
-    "postbuild-ldc": "cd dist && zip -r lorelei-grace.war * && cd .. && mv dist/lorelei-ldc.war target/lorelei-ldc.war",
+    "postbuild-ldc": "cd dist && zip -r lorelei-ldc.war * && cd .. && mv dist/lorelei-ldc.war target/lorelei-ldc.war",
     
     "prebuild-dev": "rm -f target/*.war && mkdir -p target && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
     "build-dev": "ng build --deployUrl=/lorelei/ --base-href /lorelei/",
