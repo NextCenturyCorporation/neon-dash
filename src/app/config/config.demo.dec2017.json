@@ -870,14 +870,31 @@
                 "table": "ui_output",
                 "type": "cluster",
                 "limit": 1000,
-                "latitudeField": "geolocations.latitude",
-                "longitudeField": "geolocations.longitude",
+                "latitudeField": "geolocations.lat",
+                "longitudeField": "geolocations.lon",
                 "sourceLatitudeField": "",
                 "sourceLongitudeField": "",
                 "targetLatitudeField": "",
                 "targetLongitudeField": "",
                 "colorField": "",
-                "dateField": "createdAt",
+                  "colorMapping": [
+              {
+                "match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
+                "label": "Need",
+                "color": "rgb(0,255,0)"
+              },
+              {
+                "match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
+                "label": "Need and Issue",
+                "color": "rgb(255,255,0)"
+              },
+              {
+                "match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
+                "label": "Issue",
+                "color": "rgb(255,0,0)"
+              }
+            ],
+            "dateField": "createdAt",
                 "sizeField": "",
                 "idField": "",
                 "colorCode": "",
@@ -1893,7 +1910,7 @@
             "sourceLongitudeField": "",
             "targetLatitudeField": "",
             "targetLongitudeField": "",
-            "colorField": "topics",
+            "colorField": "",
             "colorMapping": [
               {
                 "match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
