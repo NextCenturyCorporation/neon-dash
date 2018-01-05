@@ -314,6 +314,7 @@
                     "table": "ui_output",
                     "dataField": "translatedText",
                     "idField": "id",
+                    "showSelected": false,
                     "metadataFields": [
                         [
                             {
@@ -345,7 +346,7 @@
                         ],
                         [
                             {
-                                "name": "Orginazations",
+                                "name": "Orginizations",
                                 "field": "ORG"
                             }
                         ],
