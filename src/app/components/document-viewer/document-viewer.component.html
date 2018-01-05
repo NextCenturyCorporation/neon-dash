@@ -121,7 +121,7 @@
         <div class="mat-list-item-text document-viewer-list-item" layout="column">
             <table class="document-viewer-table">
                 <ng-template ngFor let-item [ngForOf]="active.data">
-                    <tr [ngClass]="{'document-viewer-even-row': i % 2 === 1}" *ngFor="let metadataElement of active.metadataFields; index as i">
+                    <tr class="metadata-row" [ngClass]="{'document-viewer-even-row': i % 2 === 1}" *ngFor="let metadataElement of active.metadataFields; index as i">
                         <td class="metadata-bold">{{ metadataElement.name }}: </td>
                         <td>{{ formatMetadataEntry(item, metadataElement) }}</td>
                     </tr>

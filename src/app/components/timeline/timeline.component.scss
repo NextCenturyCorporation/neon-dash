@@ -17,7 +17,7 @@
 
 .body-container {
     top: 26px;
-    height: 80%;
+    height: calc(100% - #{$vis-title-expected-height});
 }
 
 .text-container {
@@ -88,7 +88,7 @@ h3 {
                 }
             }
         }
-        
+
 
         .highlight {
             background-color: $accent-bright;
@@ -252,7 +252,7 @@ h3 {
     &.east {
 
         &:before {
-            border-right: 8px solid $shadow; 
+            border-right: 8px solid $shadow;
             left:-8px;
             opacity: .5;
         }
@@ -266,7 +266,7 @@ h3 {
     &.west {
 
         &:before {
-            border-left:8px solid $shadow; 
+            border-left:8px solid $shadow;
             left: 100%;
         }
 
