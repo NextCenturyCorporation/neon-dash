@@ -32,9 +32,12 @@ import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from 'angular2-chartjs';
+import { Chart } from 'chart.js';
 import { VisualizationService } from '../../services/visualization.service';
 import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 
+let maxScale_global;
+let useManualScale_global = false;
 /**
  * Data used to draw the bar chart
  */
@@ -137,10 +140,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         aggregation: string,
         chartType: string,
         maxNum: number,
+        maxScale: string,
+        scaleManually: boolean,
         seenValues: string[]
     };
 
-    public chart: {
+    //this is what gets loaded into the Chart object; it should always(?) be identical to chartModule.chart.config
+    public chartInfo: {
         data: {
             labels: string[],
             datasets: BarDataSet[]
@@ -158,6 +164,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
                 visualizationService: VisualizationService, private colorSchemeService: ColorSchemeService) {
         super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -182,13 +189,16 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             layers: [],
             data: [],
             aggregation: 'count',
-            chartType: this.injector.get('chartType', 'bar'),
+            chartType: this.optionsFromConfig.chartType || 'bar',
+            maxScale: maxScale_global,
             maxNum: 0,
+            scaleManually: false,
             seenValues: []
         };
 
         this.onClick = this.onClick.bind(this);
-        this.chart = {
+
+        this.chartInfo = {
             type: this.active.chartType,
             data: {
                 labels: [],
@@ -211,16 +221,18 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                     xAxes: [{
                         stacked: true,
                         ticks: {
-                            max: 100,
-                            beginAtZero: true
+                            // max: 100,
+                            beginAtZero: true,
+                            callback: this.xAxisTickCallback
                         }
                     }],
                     yAxes: [{
 
                         stacked: true,
                         ticks: {
-                            max: 100,
-                            beginAtZero: true
+                            // max: 100,
+                            beginAtZero: true,
+                            callback: this.yAxisTickCallback
                         }
                     }]
                 },
@@ -234,6 +246,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         };
+
         let tooltipTitleFunc = (tooltips, data) => {
             return this.active.dataField.prettyName + ': ' + tooltips[0].xLabel;
         };
@@ -243,8 +256,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             // Returning null removes the row from the tooltip
             return value === 0 ? null : tooltip.label + ': ' + value;
         };
-        this.chart.options.tooltips.callbacks.title = tooltipTitleFunc.bind(this);
-        this.chart.options.tooltips.callbacks.label = tooltipDataFunc.bind(this);
+        this.chartInfo.options.tooltips.callbacks.title = tooltipTitleFunc.bind(this);
+        this.chartInfo.options.tooltips.callbacks.label = tooltipDataFunc.bind(this);
         this.queryTitle = this.optionsFromConfig.title || 'Bar Chart';
     }
 
@@ -353,10 +366,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         // If there is a filter, highlight the bar
         if (this.filters[0] && this.filters[0].value) {
             let activeValue = this.filters[0].value;
-            let activeIndex = this.chart.data.labels.indexOf(activeValue);
+            let activeIndex = this.chartInfo.data.labels.indexOf(activeValue);
 
             // Set all but the selected bar inactive
-            for (let dataset of this.chart.data.datasets) {
+            for (let dataset of this.chartInfo.data.datasets) {
                 dataset.setAllInactive();
                 dataset.setActiveColor(activeIndex);
 
@@ -366,7 +379,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             }
         } else {
             // Set all bars active
-            for (let dataset of this.chart.data.datasets) {
+            for (let dataset of this.chartInfo.data.datasets) {
                 dataset.setAllActive();
             }
         }
@@ -380,9 +393,15 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         valid = (this.meta.database && this.meta.database.name && valid);
         valid = (this.meta.table && this.meta.table.name && valid);
         valid = (this.active.dataField && this.active.dataField.columnName && valid);
-        valid = (this.active.aggregation && this.active.aggregation && valid);
+        valid = (this.active.aggregation && this.active.aggregation && valid); // what?
         if (this.active.aggregation !== 'count') {
             valid = (this.active.aggregationField && this.active.aggregationField.columnName && valid);
+            //This would mwean though that if the data is just a number being represented by a string, it would simply fail.
+            //As opposed to first trying to parse it.
+            //This also makes it silently fail, without letting the user know that it failed or why. One could easily change the
+            //aggregation type, not notice that the chart didn't change, and
+            valid = ((this.active.aggregationField.type !== 'string') && valid);
+
         }
         // valid = (this.active.aggregation && valid);
         return valid;
@@ -448,7 +467,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let dataSets = new Map<string, BarDataSet>();
 
         let hasColor = this.hasColorField();
-
         // Use our seen values list to create dummy values for every category not returned this time.
         let valsToAdd = [];
         for (let value of this.active.seenValues) {
@@ -517,12 +535,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             }
 
             dataset.data[dataIndex] = row.value;
+
             // Set this to force the legend to update
             this.colorFieldNames = [this.meta.colorField.columnName];
         }
 
         chartData.datasets = Array.from(dataSets.values());
-        this.chart.data = chartData;
+        this.chartInfo.data = chartData;
         this.refreshVisualization();
         let title;
         switch (this.active.aggregation) {
@@ -536,13 +555,119 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 title = 'Sum'; // + this.active.aggregationField.prettyName;
                 break;
         }
-        title = this.optionsFromConfig.title || this.queryTitle + ' by ' + this.active.dataField.prettyName;
+        // I don't know what this code was supposed to do. It adds "by {whatever the text field is currently set to}" to the title,
+        // regardless of what you changed. So if I set the text field to "ID", the title will be "Bar Chart by ID".
+        // If I then set the aggregation to Average, and the corresponding aggregation field to anything, the title will
+        // be "Bar Chart by ID by ID". If I then change the text field to "Name", and then set the color field to '(None)',
+        // the title will be "Bar Chart by ID by ID by Name by Name".
+        // So any time a query is made, the value of the current text field is appended to the chart's title.
+        // I'd guess the intent was to have some record of what filters are currently applied to the chart?
+        // I'll leave in this comment and the old code, in case we want to make that change later.
+        // title = this.optionsFromConfig.title || this.queryTitle + ' by ' + this.active.dataField.prettyName;
+        title = this.optionsFromConfig.title || 'Bar Chart' + ' by ' + this.active.dataField.prettyName;
         this.queryTitle = title;
+    }
+
+    /*
+    Before changing the following two callback functinos, make a note of the following:
+          --These functions format the labels on the x/y axes, but they appear to also be the only place where a dynamic change
+            to the visible graph maximum actually takes effect and persists. Changing the exact same attribute in a different
+            function doesn't change the graph,
+          --A callback function must be given within the BarChartComponent constructor, when initializing the options 
+            for the chartjs Chart object.
+          --The callback is called by a Chart object, and must access members of the chartjs Chart class.
+          --The particular Chart object being access may vary from call to call - the current Chart object is destroyed and 
+            re-created when you switch from horizontal to vertical.
+          --The callback can't (it appears) be dynamically added as a property of the Chart class.
+          --If I simply define these callbacks outside of any class scope, they will work, but our pre-commit style checker throws
+            an error - someone could call the callbacks directly, and cause a failure because "this" wouldn't refer to anything.
+          --You can create an interface which implements these functions, and define your Chart object as using that interface 
+            when you initialize said Chart object, but I don't have access to the initialization of the first Chart object.
+          --You can define the callback within the BarChartComponent class (as done below), but you'll have to add casts within
+            the callback because the type checker will think "this" refers to a BarChartComponent object. I add the initial test,
+            just to ensure that no one calls either function directly from any context besides a Chart object.
+    */
+    xAxisTickCallback(value): string {
+        // if (! (this instanceof Chart)) {
+        //     return value;
+        // }
+        //Remember this is called by a Chartjs 'Chart' object.
+        if ((<any>this).chart.config.type === 'horizontalBar') {
+            if (useManualScale_global) {
+                (<any>this).chart.options.scales.xAxes[0].ticks.max = maxScale_global;
+            } else {
+                //
+                (<any>this).chart.config.options.scales.xAxes[0].ticks.max = undefined;
+            }
+            return String(Math.round(Number(value + 0.00001) * 100) / 100);
+        }
+        // must be a vertical barchart, so assume X (the domain) to be a string of characters, not a number.
+        return value;
+    }
+
+    yAxisTickCallback(value): string {
+        // if (! (this instanceof Chart)) {
+        //     return value;
+        // }
+        //Remember this is called by a Chartjs 'Chart' object.
+        if ((<any>this).chart.config.type === 'bar') {
+
+            if (useManualScale_global) {
+                (<any>this).chart.config.options.scales.yAxes[0].ticks.max = maxScale_global;
+            } else {
+                (<any>this).chart.config.options.scales.yAxes[0].ticks.max = undefined;
+            }
+            return String(Math.round(Number(value + 0.00001) * 100) / 100);
+        }
+        // must be a horizontal barchart, so assume Y (the domain) to be a string of characters, not a number.
+        return value;
     }
 
     handleChangeAggregation() {
         this.active.aggregationFieldHidden = (this.active.aggregation === 'count');
         this.executeQueryChain();
+    }
+
+    handleChangeChartType() {
+        let barData = this.chartInfo.data;
+        let barOptions = this.chartInfo.options;
+
+        let ctx = this.chartModule.chart.ctx;
+
+        this.chartModule.chart.destroy();
+
+        let clonedChart = new Chart(ctx, {
+            type: this.active.chartType,
+            data: barData,
+            options: barOptions
+        });
+
+        this.chartInfo = {
+            type: this.active.chartType,
+            data: barData,
+            options: barOptions
+        };
+        this.chartModule.chart = clonedChart;
+
+        this.refreshVisualization();
+
+    }
+
+    handleChangeMaxScale() {
+
+        useManualScale_global = this.active.scaleManually;
+
+        if (useManualScale_global) {
+            if (this.active.maxScale === undefined
+                || this.active.maxScale === ''
+                || isNaN(Number(this.active.maxScale))) {
+                maxScale_global = undefined; // not usable input, so default to automatic scaling
+            } else {
+                maxScale_global = Number(this.active.maxScale);
+            }
+        }
+
+        this.logChangeAndStartQueryChain();
     }
 
     setupFilters() {
@@ -602,7 +727,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     getButtonText() {
         let text = 'No Data';
-        let data = this.chart.data.datasets;
+        let data = this.chartInfo.data.datasets;
         if (!data || !data[0] || !data[0].data || !data[0].data.length) {
             return text;
         } else {

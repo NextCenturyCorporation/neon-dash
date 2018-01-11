@@ -488,6 +488,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
   // This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;
   // like if latFied holds 'JSONMapping.status.geolocation.latitude', but the actual latitude value is
   // saved at point['JSONMapping']['status']['geolocation']['latitude']
+  // It also will convert a string to a number, if the lat/lon fields are strings for some reason.
+  //    Note that this only solves the problem for this one widget, and does nothing to help the rest of the workspace.
+  //     even selecting a bunch of points on the map using shift-click/drag won't work if the lat/lon are stored as strings,
+  //     because the region query looks at the data in the database and expects numbers there.
   retrieveLocationField(point, locField) {
     let lngCoord = point[locField];
     let lngFieldParts = locField.split('.');
@@ -504,6 +508,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
           lngCoord = lngCoord[lngFieldParts[0]];
         }
         lngFieldParts.shift();
+      }
+    }
+    if (lngCoord.constructor.name === 'String') {
+      if (parseFloat(lngCoord) > -181 && parseFloat(lngCoord) < 181) {
+         lngCoord = parseFloat(lngCoord);
       }
     }
     return lngCoord;
