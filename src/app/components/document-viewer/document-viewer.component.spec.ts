@@ -16,14 +16,12 @@
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
-import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
-import { HttpModule, Response, ResponseOptions, XHRBackend } from '@angular/http';
-import { Injector, ReflectiveInjector } from '@angular/core';
+import { HttpModule } from '@angular/http';
+import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-
-import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
 
 import { DocumentViewerComponent } from './document-viewer.component';
@@ -548,7 +546,7 @@ describe('Component: DocumentViewer', () => {
         fixture.detectChanges();
 
         // Make sure we have a list of two items.
-        let selects = fixture.debugElement.queryAll(By.css('.document-viewer-list-item'));
+        let selects = fixture.debugElement.queryAll(By.css('.document-viewer-button-cell'));
         expect(selects.length).toBe(2);
         // Make sure each item has a single row of metadata.
         selects = fixture.debugElement.queryAll(By.css('.metadata-row'));
