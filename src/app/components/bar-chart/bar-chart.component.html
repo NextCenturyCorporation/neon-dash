@@ -69,32 +69,36 @@
                 </table>
                 <p></p>
 
-                <div class='radio-container' placeholder="Chart Scale" layout="row" mat-margin>
+                <label> Maximum Displayed Range </label>
+                <div class='radio-container' layout="row" mat-margin>
                     <mat-radio-group ngDefaultControl [(ngModel)]="active.scaleManually" (change)="handleChangeMaxScale()">
-                        <mat-radio-button ngDefaultControl [value]="false" [(ngModel)]="active.scaleManually">Scale View Automatically</mat-radio-button>
-                        <mat-radio-button ngDefaultControl [value]="true" [(ngModel)]="active.scaleManually" >Use Set Scale</mat-radio-button>
+                        <mat-radio-button ngDefaultControl [value]="false" [(ngModel)]="active.scaleManually">Auto-scale</mat-radio-button>
+                        <mat-radio-button ngDefaultControl [value]="true" [(ngModel)]="active.scaleManually" >Manual</mat-radio-button>
                     </mat-radio-group>
+
+                    <table *ngIf="active.scaleManually">
+                        <tr>
+                            <td>
+                                <mat-form-field *ngIf='active.chartType == "bar"'>
+                                    <input matInput placeholder="Y maximum" [(ngModel)]="active.maxScale" required="false">
+                                </mat-form-field>
+                                <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
+                                    <input matInput placeholder="X maximum" [(ngModel)]="active.maxScale" required="false">
+                                </mat-form-field>
+                            </td>
+                            <td>
+                                <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeMaxScale()">
+                                    <mat-icon class="mat-24">refresh</mat-icon>
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
 
+                <p> </p>
 
-                <table *ngIf="active.scaleManually">
-                    <tr>
-                        <td>
-                            <mat-form-field>
-                                <input matInput [(ngModel)]="active.maxScale" required="false">
-                            </mat-form-field>
-                        </td>
-                        <td>
-                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeMaxScale()">
-                                <mat-icon class="mat-24">refresh</mat-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-
-                <p></p>
-
-                <div class='radio-container' placeholder="Chart Type" layout="row" mat-margin>
+                <label> Chart Type </label>
+                <div class='radio-container' layout="row" mat-margin>
                     <mat-radio-group ngDefaultControl [(ngModel)]="active.chartType" (change)="handleChangeChartType()">
                         <mat-radio-button ngDefaultControl value="horizontalBar" [(ngModel)]="active.chartType">Horizontal</mat-radio-button>
                         <mat-radio-button ngDefaultControl value="bar" [(ngModel)]="active.chartType">Vertical</mat-radio-button>

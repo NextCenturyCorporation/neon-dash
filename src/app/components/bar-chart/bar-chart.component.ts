@@ -36,8 +36,6 @@ import { Chart } from 'chart.js';
 import { VisualizationService } from '../../services/visualization.service';
 import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 
-let maxScale_global;
-let useManualScale_global = false;
 /**
  * Data used to draw the bar chart
  */
@@ -190,7 +188,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             data: [],
             aggregation: 'count',
             chartType: this.optionsFromConfig.chartType || 'bar',
-            maxScale: maxScale_global,
+            maxScale: undefined,
             maxNum: 0,
             scaleManually: false,
             seenValues: []
@@ -223,7 +221,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                         ticks: {
                             // max: 100,
                             beginAtZero: true,
-                            callback: this.xAxisTickCallback
+                            callback: this.formatingCallback
                         }
                     }],
                     yAxes: [{
@@ -232,7 +230,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                         ticks: {
                             // max: 100,
                             beginAtZero: true,
-                            callback: this.yAxisTickCallback
+                            callback: this.formatingCallback
                         }
                     }]
                 },
@@ -254,7 +252,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             let tooltip = data.datasets[tooltipItem.datasetIndex];
             let value = tooltip.data[tooltipItem.index];
             // Returning null removes the row from the tooltip
-            return value === 0 ? null : tooltip.label + ': ' + value;
+            return value === 0 ? null : tooltip.label + ': ' + this.formatingCallback(value);
         };
         this.chartInfo.options.tooltips.callbacks.title = tooltipTitleFunc.bind(this);
         this.chartInfo.options.tooltips.callbacks.label = tooltipDataFunc.bind(this);
@@ -568,58 +566,16 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.queryTitle = title;
     }
 
-    /*
-    Before changing the following two callback functinos, make a note of the following:
-          --These functions format the labels on the x/y axes, but they appear to also be the only place where a dynamic change
-            to the visible graph maximum actually takes effect and persists. Changing the exact same attribute in a different
-            function doesn't change the graph,
-          --A callback function must be given within the BarChartComponent constructor, when initializing the options 
-            for the chartjs Chart object.
-          --The callback is called by a Chart object, and must access members of the chartjs Chart class.
-          --The particular Chart object being access may vary from call to call - the current Chart object is destroyed and 
-            re-created when you switch from horizontal to vertical.
-          --The callback can't (it appears) be dynamically added as a property of the Chart class.
-          --If I simply define these callbacks outside of any class scope, they will work, but our pre-commit style checker throws
-            an error - someone could call the callbacks directly, and cause a failure because "this" wouldn't refer to anything.
-          --You can create an interface which implements these functions, and define your Chart object as using that interface 
-            when you initialize said Chart object, but I don't have access to the initialization of the first Chart object.
-          --You can define the callback within the BarChartComponent class (as done below), but you'll have to add casts within
-            the callback because the type checker will think "this" refers to a BarChartComponent object. I add the initial test,
-            just to ensure that no one calls either function directly from any context besides a Chart object.
-    */
-    xAxisTickCallback(value): string {
-        // if (! (this instanceof Chart)) {
-        //     return value;
-        // }
-        //Remember this is called by a Chartjs 'Chart' object.
-        if ((<any>this).chart.config.type === 'horizontalBar') {
-            if (useManualScale_global) {
-                (<any>this).chart.options.scales.xAxes[0].ticks.max = maxScale_global;
-            } else {
-                //
-                (<any>this).chart.config.options.scales.xAxes[0].ticks.max = undefined;
-            }
-            return String(Math.round(Number(value + 0.00001) * 100) / 100);
-        }
-        // must be a vertical barchart, so assume X (the domain) to be a string of characters, not a number.
-        return value;
-    }
+    
 
-    yAxisTickCallback(value): string {
-        // if (! (this instanceof Chart)) {
-        //     return value;
-        // }
-        //Remember this is called by a Chartjs 'Chart' object.
-        if ((<any>this).chart.config.type === 'bar') {
+    formatingCallback(value): string {
 
-            if (useManualScale_global) {
-                (<any>this).chart.config.options.scales.yAxes[0].ticks.max = maxScale_global;
-            } else {
-                (<any>this).chart.config.options.scales.yAxes[0].ticks.max = undefined;
-            }
-            return String(Math.round(Number(value + 0.00001) * 100) / 100);
+        // This checks if value is a number, taken from https://stackoverflow.com/a/1421988/3015812
+        if ( !isNaN(parseFloat(value)) && !isNaN(value - 0) ) {
+            //round to at most 3 decimal places, so as to not display tiny floating-point errors
+            return String(Math.round((parseFloat(value) + 0.00001) * 1000) / 1000);
         }
-        // must be a horizontal barchart, so assume Y (the domain) to be a string of characters, not a number.
+        // can't be converted to a number, so just use it as-is.
         return value;
     }
 
@@ -649,22 +605,36 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         };
         this.chartModule.chart = clonedChart;
 
+        this.handleChangeMaxScale();
+
         this.refreshVisualization();
 
     }
 
+    setGraphMaximum(newMax) {
+        if (this.chartModule.chart.config.type === 'bar') {
+            this.chartModule.chart.config.options.scales.yAxes[0].ticks.max = newMax;
+        }
+        else if ('horizontalBar') {
+            this.chartModule.chart.config.options.scales.xAxes[0].ticks.max = newMax;
+        }
+        else {
+            //what
+        }
+    }
+
     handleChangeMaxScale() {
-
-        useManualScale_global = this.active.scaleManually;
-
-        if (useManualScale_global) {
+        if (this.active.scaleManually) {
             if (this.active.maxScale === undefined
                 || this.active.maxScale === ''
                 || isNaN(Number(this.active.maxScale))) {
-                maxScale_global = undefined; // not usable input, so default to automatic scaling
+                this.setGraphMaximum(undefined); // not usable input, so default to automatic scaling
             } else {
-                maxScale_global = Number(this.active.maxScale);
+                this.setGraphMaximum(Number(this.active.maxScale));
             }
+        }
+        else {
+            this.setGraphMaximum(undefined);
         }
 
         this.logChangeAndStartQueryChain();
@@ -732,9 +702,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             return text;
         } else {
             let total = data[0].data.reduce((sum, elem) => {
-                return sum + elem;
+                return sum + Math.round((elem + 0.00001) * 10000) / 10000;
             }, 0);
-            return 'Total ' + total;
+            return 'Total ' + this.formatingCallback(total);
         }
     }
 
