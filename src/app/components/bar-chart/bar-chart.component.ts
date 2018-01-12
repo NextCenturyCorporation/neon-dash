@@ -138,6 +138,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         aggregation: string,
         chartType: string,
         maxNum: number,
+        minScale: string,
         maxScale: string,
         scaleManually: boolean,
         seenValues: string[]
@@ -187,7 +188,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             layers: [],
             data: [],
             aggregation: 'count',
-            chartType: this.optionsFromConfig.chartType || 'bar',
+            chartType: this.optionsFromConfig.chartType || 'horizontalBar',
+            minScale: undefined,
             maxScale: undefined,
             maxNum: 0,
             scaleManually: false,
@@ -257,6 +259,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.chartInfo.options.tooltips.callbacks.title = tooltipTitleFunc.bind(this);
         this.chartInfo.options.tooltips.callbacks.label = tooltipDataFunc.bind(this);
         this.queryTitle = this.optionsFromConfig.title || 'Bar Chart';
+
     }
 
     subNgOnInit() {
@@ -265,6 +268,12 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     postInit() {
         this.executeQueryChain();
+
+        //This does nothing, but it is here to hide a bug: without it, if you open a barchart, and switch the type once, 
+        //then the chart will not resize with the widget. Resizing works again after any subsequent type-switch. So if we call
+        //this at the outset of the program, the chart should always resize correctly. I would think we'd need to call this
+        //method twice, but for some reason it appears it only needs one call to work.
+        this.handleChangeChartType();
 
         this.defaultActiveColor = this.getPrimaryThemeColor();
     }
@@ -541,6 +550,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         chartData.datasets = Array.from(dataSets.values());
         this.chartInfo.data = chartData;
         this.refreshVisualization();
+
         let title;
         switch (this.active.aggregation) {
             case 'count':
@@ -553,6 +563,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 title = 'Sum'; // + this.active.aggregationField.prettyName;
                 break;
         }
+
         // I don't know what this code was supposed to do. It adds "by {whatever the text field is currently set to}" to the title,
         // regardless of what you changed. So if I set the text field to "ID", the title will be "Bar Chart by ID".
         // If I then set the aggregation to Average, and the corresponding aggregation field to anything, the title will
@@ -566,12 +577,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.queryTitle = title;
     }
 
-    
-
     formatingCallback(value): string {
 
         // This checks if value is a number, taken from https://stackoverflow.com/a/1421988/3015812
-        if ( !isNaN(parseFloat(value)) && !isNaN(value - 0) ) {
+        if (!isNaN(parseFloat(value)) && !isNaN(value - 0)) {
             //round to at most 3 decimal places, so as to not display tiny floating-point errors
             return String(Math.round((parseFloat(value) + 0.00001) * 1000) / 1000);
         }
@@ -605,7 +614,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         };
         this.chartModule.chart = clonedChart;
 
-        this.handleChangeMaxScale();
+        this.handleChangeScale();
 
         this.refreshVisualization();
 
@@ -614,16 +623,24 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     setGraphMaximum(newMax) {
         if (this.chartModule.chart.config.type === 'bar') {
             this.chartModule.chart.config.options.scales.yAxes[0].ticks.max = newMax;
-        }
-        else if ('horizontalBar') {
+        } else if ('horizontalBar') {
             this.chartModule.chart.config.options.scales.xAxes[0].ticks.max = newMax;
-        }
-        else {
+        } else {
             //what
         }
     }
 
-    handleChangeMaxScale() {
+    setGraphMinimum(newMin) {
+        if (this.chartModule.chart.config.type === 'bar') {
+            this.chartModule.chart.config.options.scales.yAxes[0].ticks.min = newMin;
+        } else if ('horizontalBar') {
+            this.chartModule.chart.config.options.scales.xAxes[0].ticks.min = newMin;
+        } else {
+            //what
+        }
+    }
+
+    handleChangeScale() {
         if (this.active.scaleManually) {
             if (this.active.maxScale === undefined
                 || this.active.maxScale === ''
@@ -632,13 +649,22 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             } else {
                 this.setGraphMaximum(Number(this.active.maxScale));
             }
-        }
-        else {
+
+            if (this.active.minScale === undefined
+                || this.active.minScale === ''
+                || isNaN(Number(this.active.minScale))) {
+                this.setGraphMinimum(undefined); // not usable input, so default to automatic scaling
+            } else {
+                this.setGraphMinimum(Number(this.active.minScale));
+            }
+        } else {
             this.setGraphMaximum(undefined);
+            this.setGraphMinimum(undefined);
         }
 
         this.logChangeAndStartQueryChain();
     }
+
 
     setupFilters() {
         // Get neon filters

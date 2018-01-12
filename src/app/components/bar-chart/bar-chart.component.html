@@ -69,9 +69,9 @@
                 </table>
                 <p></p>
 
-                <label> Maximum Displayed Range </label>
+                <label> Displayed Range </label>
                 <div class='radio-container' layout="row" mat-margin>
-                    <mat-radio-group ngDefaultControl [(ngModel)]="active.scaleManually" (change)="handleChangeMaxScale()">
+                    <mat-radio-group ngDefaultControl [(ngModel)]="active.scaleManually" (change)="handleChangeScale()">
                         <mat-radio-button ngDefaultControl [value]="false" [(ngModel)]="active.scaleManually">Auto-scale</mat-radio-button>
                         <mat-radio-button ngDefaultControl [value]="true" [(ngModel)]="active.scaleManually" >Manual</mat-radio-button>
                     </mat-radio-group>
@@ -86,8 +86,18 @@
                                     <input matInput placeholder="X maximum" [(ngModel)]="active.maxScale" required="false">
                                 </mat-form-field>
                             </td>
+                        </tr>
+                        <tr>
                             <td>
-                                <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeMaxScale()">
+                                <mat-form-field *ngIf='active.chartType == "bar"'>
+                                    <input matInput placeholder="Y minimum" [(ngModel)]="active.minScale" required="false">
+                                </mat-form-field>
+                                <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
+                                    <input matInput placeholder="X minimum" [(ngModel)]="active.minScale" required="false">
+                                </mat-form-field>
+                            </td>
+                            <td>
+                                <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeScale()">
                                     <mat-icon class="mat-24">refresh</mat-icon>
                                 </button>
                             </td>
@@ -131,8 +141,10 @@
                 </button>
             </div>
         </div>
-        <div class="chart-container">
-            <chart class="chart" #myChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></chart>
+        <div class="constant-container">
+            <div class="chart-container-resizable" >
+                <chart class="chart" name="bar-chart" #myChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></chart>
+            </div>
         </div>
     </div>
     <!--<div class="text-cloud" mat-fill layout="col">
