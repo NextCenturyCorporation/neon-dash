@@ -25,27 +25,36 @@
         width: calc(100% - 2 * #{$item-margin});
     }
 
-    .document-viewer-button-table {
-        width: 100%;
+    .document-viewer-table {
+        border-spacing: 0 2px;
     }
 
     .document-viewer-button-cell {
-        width: 50%;
+        padding: 0;
+    }
+
+    .document-viewer-button-container {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .document-viewer-button-spacer {
+        flex: 0 0 2px;
     }
 
     .document-viewer-button {
+        flex: 1 0 0;
         background-color: mat-color($primary);
         color: mat-color($white);
         line-height: 20px;
         height: 20px;
-        width: 100%;
     }
 
     table.metadata-table {
         width: 100%;
     }
 
-    table.metadata-table tr.metadata-row:nth-child(even) {
+    .document-viewer-even-row {
         background: lightgray;
     }
 

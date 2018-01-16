@@ -33,6 +33,11 @@
         color: mat-color($header-text);
     }
 
+    .contained-scroll-box {
+    	overflow-y: auto;
+    	height: calc(100% - #{$vis-title-expected-height});
+    }
+
     .visualization-sidenav-options {
         min-width: 320px;
 
@@ -90,13 +95,14 @@
     margin-top: 0;
 }
 
+$text-container-height: 50px;
 .chart-container {
     top: 45px;
     bottom: 0;
     padding-left: 10px;
     padding-right: 10px;
     padding-bottom: 5px;
-    height: 80%;
+    height: calc(100% - #{$text-container-height});
 }
 
 .neon-green-dark-theme {

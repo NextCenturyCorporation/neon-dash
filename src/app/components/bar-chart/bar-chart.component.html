@@ -41,8 +41,7 @@
                 </mat-select>
                 <p></p>
 
-                <mat-select *ngIf="!active.aggregationFieldHidden" placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField"
-                    required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
+                <mat-select *ngIf="!active.aggregationFieldHidden" placeholder="Aggregation Field (Range)" [(ngModel)]="active.aggregationField" required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
                     <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                 </mat-select>
                 <p></p>
@@ -70,6 +69,54 @@
                 </table>
                 <p></p>
 
+                <label> Displayed Range </label>
+                <div class='radio-container' layout="row" mat-margin>
+                    <mat-radio-group ngDefaultControl [(ngModel)]="active.scaleManually" (change)="handleChangeScale()">
+                        <mat-radio-button ngDefaultControl [value]="false" [(ngModel)]="active.scaleManually">Auto-scale</mat-radio-button>
+                        <mat-radio-button ngDefaultControl [value]="true" [(ngModel)]="active.scaleManually" >Manual</mat-radio-button>
+                    </mat-radio-group>
+
+                    <table *ngIf="active.scaleManually">
+                        <tr>
+                            <td>
+                                <mat-form-field *ngIf='active.chartType == "bar"'>
+                                    <input matInput placeholder="Y maximum" [(ngModel)]="active.maxScale" required="false">
+                                </mat-form-field>
+                                <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
+                                    <input matInput placeholder="X maximum" [(ngModel)]="active.maxScale" required="false">
+                                </mat-form-field>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <mat-form-field *ngIf='active.chartType == "bar"'>
+                                    <input matInput placeholder="Y minimum" [(ngModel)]="active.minScale" required="false">
+                                </mat-form-field>
+                                <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
+                                    <input matInput placeholder="X minimum" [(ngModel)]="active.minScale" required="false">
+                                </mat-form-field>
+                            </td>
+                            <td>
+                                <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeScale()">
+                                    <mat-icon class="mat-24">refresh</mat-icon>
+                                </button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <p> </p>
+
+                <label> Chart Type </label>
+                <div class='radio-container' layout="row" mat-margin>
+                    <mat-radio-group ngDefaultControl [(ngModel)]="active.chartType" (change)="handleChangeChartType()">
+                        <mat-radio-button ngDefaultControl value="horizontalBar" [(ngModel)]="active.chartType">Horizontal</mat-radio-button>
+                        <mat-radio-button ngDefaultControl value="bar" [(ngModel)]="active.chartType">Vertical</mat-radio-button>
+                    </mat-radio-group>
+                </div>
+                <p></p>
+
+                
                 <app-unshared-filter [(meta)]="meta"
                                      (unsharedFilterChanged)="unsharedFilterChanged()"
                                      (unsharedFilterRemoved)="unsharedFilterRemoved()"></app-unshared-filter>
@@ -94,8 +141,10 @@
                 </button>
             </div>
         </div>
-        <div class="chart-container">
-            <chart class="chart" #myChart [type]="chart.type" [data]="chart.data" [options]="chart.options"></chart>
+        <div class="constant-container">
+            <div class="chart-container-resizable" >
+                <chart class="chart" name="bar-chart" #myChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></chart>
+            </div>
         </div>
     </div>
     <!--<div class="text-cloud" mat-fill layout="col">

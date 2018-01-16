@@ -1,24 +1,36 @@
 {
-	"datasets": [
-		{
+	"datasets": [{
 			"name": "LDC Uyghur Annotations",
 			"connectOnLoad": false,
 			"layout": "ils-layout",
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [{
-				"name": "ldc_uyghur_3",
-				"prettyName": "Ground Truth",
-				"tables": [{
-					"name": "ui_output",
-					"prettyName": "UI Output",
-					"mappings": {
-						"date": "createdAt",
-						"latitude": "geoLocations.lat",
-						"longitude": "geoLocations.lon"
-					}
-				}]
-			}],
+					"name": "ldc_uyghur_3",
+					"prettyName": "Ground Truth",
+					"tables": [{
+						"name": "ui_output",
+						"prettyName": "UI Output",
+						"mappings": {
+							"date": "createdAt",
+							"latitude": "geoLocations.lat",
+							"longitude": "geoLocations.lon"
+						}
+					}]
+				},
+				{
+					"name": "ldc_data_xy",
+					"prettyName": "XY Data DB",
+					"tables": [{
+						"name": "record",
+						"prettyName": "XY Data Table",
+						"mappings": {
+							"x": "Xcoordinate",
+							"y": "Ycoordinate"
+						}
+					}]
+				}
+			],
 			"options": {
 				"checkForCoordinateValidation": "null_values",
 				"colorMaps": {
@@ -29,11 +41,15 @@
 								"ORG": "#FF9896",
 								"PER": "#AEC7E8"
 							},
-							"types": {
-
-							}
+							"types": {}
 						}
 					}
+				},
+				"simpleFilter": {
+					"databaseName": "ldc_uyghur_3",
+					"tableName": "ui_output",
+					"fieldName": "translatedText",
+					"placeHolder": "Search"
 				}
 			}
 		},
@@ -44,7 +60,7 @@
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [{
-				"name": "elisa_uyghur_200",
+				"name": "elisa_uyghur_2",
 				"prettyName": "ELISA Uyghur",
 				"tables": [{
 					"name": "ui_output",
@@ -66,11 +82,15 @@
 								"ORG": "#FF9896",
 								"PER": "#AEC7E8"
 							},
-							"types": {
-
-							}
+							"types": {}
 						}
 					}
+				},
+				"simpleFilter": {
+					"databaseName": "elisa_uyghur_2",
+					"tableName": "ui_output",
+					"fieldName": "translatedText",
+					"placeHolder": "Search"
 				}
 			}
 		},
@@ -103,11 +123,15 @@
 								"ORG": "#FF9896",
 								"PER": "#AEC7E8"
 							},
-							"types": {
-
-							}
+							"types": {}
 						}
 					}
+				},
+				"simpleFilter": {
+					"databaseName": "grace_uyghur_3",
+					"tableName": "ui_output",
+					"fieldName": "translatedText",
+					"placeHolder": "Search"
 				}
 			}
 		},
@@ -140,11 +164,15 @@
 								"ORG": "#FF9896",
 								"PER": "#AEC7E8"
 							},
-							"types": {
-
-							}
+							"types": {}
 						}
 					}
+				},
+				"simpleFilter": {
+					"databaseName": "ariel_uyghur_1",
+					"tableName": "ui_output",
+					"fieldName": "translatedText",
+					"placeHolder": "Search"
 				}
 			}
 		},
@@ -155,7 +183,7 @@
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [{
-				"name": "ebola_1",
+				"name": "ebola_data_2",
 				"prettyName": "Ebola Data",
 				"tables": [{
 					"name": "ui_output",
@@ -170,18 +198,22 @@
 			"options": {
 				"checkForCoordinateValidation": "null_values",
 				"colorMaps": {
-					"ebola_1": {
+					"ebola_data_1": {
 						"ui_output": {
 							"entities.entityType": {
 								"LOC": "#98DF8A",
 								"ORG": "#FF9896",
 								"PER": "#AEC7E8"
 							},
-							"types": {
-
-							}
+							"types": {}
 						}
 					}
+				},
+				"simpleFilter": {
+					"databaseName": "ebola_data_2",
+					"tableName": "ui_output",
+					"fieldName": "translatedText",
+					"placeHolder": "Search"
 				}
 			}
 		},
@@ -214,16 +246,20 @@
 								"ORG": "#FF9896",
 								"PER": "#AEC7E8"
 							},
-							"types": {
-
-							}
+							"types": {}
 						}
 					}
+				},
+				"simpleFilter": {
+					"databaseName": "nepal_2",
+					"tableName": "ui_output",
+					"fieldName": "translatedText",
+					"placeHolder": "Search"
 				}
 			}
 		},
 		{
-			"name": "Haiti Earthquake",
+			"name": "Haiti Data",
 			"connectOnLoad": true,
 			"layout": "haiti-layout",
 			"datastore": "elasticsearch",
@@ -251,26 +287,49 @@
 								"ORG": "#FF9896",
 								"PER": "#AEC7E8"
 							},
-							"types": {
-
-							}
+							"types": {}
 						}
 					}
+				},
+				"simpleFilter": {
+					"databaseName": "haiti_4",
+					"tableName": "ui_output",
+					"fieldName": "translatedText",
+					"placeHolder": "Search"
 				}
 			}
 		}
 	],
 	"layouts": {
-		"ils-layout": [
+		"ils-layout": [{
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 12,
+				"sizey": 3,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Filter Builder",
+					"database": "ldc_uyghur_3",
+					"table": "ui_output"
+				},
+				"row": 0,
+				"col": 0
+			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:30",
 				"selected": true,
@@ -293,18 +352,18 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
+				"row": 4,
 				"col": 0
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:30",
 				"bindings": {
@@ -326,18 +385,18 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
-				"col": 6
+				"row": 8,
+				"col": 0
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -348,18 +407,18 @@
 					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 0
+				"row": 4,
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -370,18 +429,18 @@
 					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 6
+				"row": 4,
+				"col": 9
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -392,18 +451,18 @@
 					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 0
+				"row": 8,
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -414,14 +473,14 @@
 					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 6
+				"row": 8,
+				"col": 9
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 8,
+				"sizex": 7,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -477,7 +536,9 @@
 					"gradientColorCode4": "",
 					"gradientColorCode5": "",
 					"applyTransientDateFilter": false,
-					"popupFields": ["originalText"],
+					"popupFields": [
+						"originalText"
+					],
 					"layers": [{
 						"title": "LDC Uyghur Point Layer",
 						"database": "ldc_uyghur_3",
@@ -486,22 +547,28 @@
 						"longitudeField": "geoLocations.lon",
 						"dateField": "createdAt",
 						"colorField": "topics"
-					}]
+					}],
+					"geoServer": {
+						"offline": false,
+						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
+						"layer": "lorelei_workspace:MapCityLabel"
+					},
+					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 0,
-				"col": 11
+				"col": 13
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 8,
-				"sizey": 7,
+				"sizex": 7,
+				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
-				"minSizey": 5,
+				"minSizey": 3,
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
@@ -513,14 +580,14 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 11
+				"col": 13
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 6,
-				"sizey": 15,
+				"sizex": 5,
+				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
@@ -530,7 +597,10 @@
 					"database": "ldc_uyghur_3",
 					"table": "ui_output",
 					"dataField": "translatedText",
+					"dateField": "createdAt",
 					"idField": "id",
+					"showSelect": false,
+					"singleColor": true,
 					"metadataFields": [
 						[{
 							"name": "Date",
@@ -554,6 +624,10 @@
 							}
 						],
 						[{
+							"name": "Organizations",
+							"field": "ORG"
+						}],
+						[{
 							"name": "Sentiment",
 							"field": "sentimentString"
 						}]
@@ -561,16 +635,70 @@
 					"limit": 50
 				},
 				"row": 0,
-				"col": 19
+				"col": 20
+			},
+			{
+				"name": "Scatter Plot",
+				"type": "scatterPlot",
+				"icon": "ScatterPlot64",
+				"selected": true,
+				"id": "3f451b37-ac6c-4c4c-b227-2100d8cba466",
+				"gridItemConfig": {
+					"col": 1,
+					"row": 1,
+					"sizex": 10,
+					"sizey": 8,
+					"dragHandle": null,
+					"resizeHandle": null,
+					"fixed": false,
+					"draggable": true,
+					"resizable": true,
+					"borderSize": 25
+				},
+				"sizex": 10,
+				"sizey": 8,
+				"row": 12,
+				"col": 0,
+				"bindings": {
+					"title": "Scatter Plot",
+					"database": "ldc_data_xy",
+					"table": "record",
+					"unsharedFilterField": "",
+					"unsharedFilterValue": "",
+					"colorField": "",
+					"xField": "Xcoordinate",
+					"yField": "Ycoordinate",
+					"labelField": "uuid",
+					"limit": 200
+				}
 			}
 		],
-		"elisa_uig-layout": [
+		"elisa_uig-layout": [{
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 12,
+				"sizey": 3,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Filter Builder",
+					"database": "elisa_uyghur_2",
+					"table": "ui_output"
+				},
+				"row": 0,
+				"col": 0
+			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 4,
@@ -579,7 +707,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "topics",
 					"aggregation": "",
@@ -596,15 +724,15 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
+				"row": 4,
 				"col": 0
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 4,
@@ -612,7 +740,7 @@
 				"$$hashKey": "object:30",
 				"bindings": {
 					"title": "Sentiment",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "sentimentString",
 					"aggregation": "count",
@@ -629,128 +757,144 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
-				"col": 6
-			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 4,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "Location",
-					"database": "elisa_uyghur_200",
-					"table": "ui_output",
-					"dataField": "LOC"
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
+				"row": 8,
 				"col": 0
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Location",
+					"database": "elisa_uyghur_2",
+					"table": "ui_output",
+					"dataField": "LOC"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 4,
+				"col": 5
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 4,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
 					"title": "People",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"unsharedFilterField": "",
 					"unsharedFilterValue": "",
 					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 6
+				"row": 4,
+				"col": 9
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
 					"title": "Organizations",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 0
+				"row": 8,
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
 					"title": "GeoPolitical Entities",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 6
+				"row": 8,
+				"col": 9
 			},
 			{
 				"name": "Event Locations",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 8,
+				"sizex": 7,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 8,
-				"minSizey": 7,
+				"minSizex": 7,
+				"minSizey": 3,
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
 					"title": "Situation Map",
 					"config": [{
-						"database": "elisa_uyghur_200",
+						"database": "elisa_uyghur_2",
 						"filterable": true,
 						"name": "EVENTS",
 						"show": true,
 						"table": "ui_output",
 						"type": "cluster",
 						"limit": 1000,
-						"latitudeField": "geolocations.latitude",
-						"longitudeField": "geolocations.longitude",
+						"latitudeField": "geoLocations.lat",
+						"longitudeField": "geoLocations.lon",
 						"sourceLatitudeField": "",
 						"sourceLongitudeField": "",
 						"targetLatitudeField": "",
 						"targetLongitudeField": "",
 						"colorField": "",
+						"colorMapping": [{
+								"match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
+								"label": "Need",
+								"color": "rgb(0,255,0)"
+							},
+							{
+								"match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
+								"label": "Need and Issue",
+								"color": "rgb(255,255,0)"
+							},
+							{
+								"match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
+								"label": "Issue",
+								"color": "rgb(255,0,0)"
+							}
+						],
 						"dateField": "createdAt",
 						"sizeField": "",
 						"idField": "",
@@ -768,51 +912,60 @@
 						"gradientColorCode5": "",
 						"applyTransientDateFilter": false,
 						"popupFields": []
-					}]
+					}],
+					"geoServer": {
+						"offline": false,
+						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
+						"layer": "lorelei_workspace:MapCityLabel"
+					},
+					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 0,
-				"col": 11
+				"col": 13
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 8,
-				"sizey": 7,
+				"sizex": 7,
+				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
-				"minSizey": 5,
+				"minSizey": 3,
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
 					"title": "Timeline",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dateField": "createdAt",
 					"granularity": "month"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 11
+				"col": 13
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 6,
-				"sizey": 15,
+				"sizex": 5,
+				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
 					"title": "Situation Documents",
-					"database": "elisa_uyghur_200",
+					"database": "elisa_uyghur_2",
 					"table": "ui_output",
 					"dataField": "translatedText",
+					"dateField": "createdAt",
 					"idField": "id",
+					"showSelect": false,
+					"singleColor": true,
 					"metadataFields": [
 						[{
 								"name": "Date",
@@ -852,16 +1005,35 @@
 					"limit": 50
 				},
 				"row": 0,
-				"col": 19
+				"col": 20
 			}
 		],
-		"grace_uig-layout": [
+		"grace_uig-layout": [{
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 12,
+				"sizey": 3,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Filter Builder",
+					"database": "ebola_data_2",
+					"table": "ui_output"
+				},
+				"row": 0,
+				"col": 0
+			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 4,
@@ -887,18 +1059,18 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
+				"row": 4,
 				"col": 0
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:30",
 				"bindings": {
@@ -920,18 +1092,18 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
-				"col": 6
+				"row": 8,
+				"col": 0
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -942,18 +1114,18 @@
 					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 0
+				"row": 4,
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -964,18 +1136,18 @@
 					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 6
+				"row": 4,
+				"col": 9
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -986,18 +1158,18 @@
 					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 0
+				"row": 8,
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -1008,14 +1180,14 @@
 					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 6
+				"row": 8,
+				"col": 9
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 8,
+				"sizex": 7,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1080,22 +1252,28 @@
 						"longitudeField": "geoLocations.lon",
 						"dateField": "createdAt",
 						"colorField": "topics"
-					}]
+					}],
+					"geoServer": {
+						"offline": false,
+						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
+						"layer": "lorelei_workspace:MapCityLabel"
+					},
+					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 0,
-				"col": 11
+				"col": 13
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 8,
-				"sizey": 7,
+				"sizex": 7,
+				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
-				"minSizey": 5,
+				"minSizey": 3,
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
@@ -1107,14 +1285,14 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 11
+				"col": 13
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 6,
-				"sizey": 15,
+				"sizex": 5,
+				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
@@ -1124,7 +1302,10 @@
 					"database": "grace_uyghur_3",
 					"table": "ui_output",
 					"dataField": "originalText",
+					"dateField": "createdAt",
 					"idField": "id",
+					"showSelect": false,
+					"singleColor": true,
 					"metadataFields": [
 						[{
 							"name": "Date",
@@ -1155,19 +1336,38 @@
 					"limit": 50
 				},
 				"row": 0,
-				"col": 19
+				"col": 20
 			}
 		],
-		"ariel_uig-layout": [
+		"ariel_uig-layout": [{
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 12,
+				"sizey": 3,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Filter Builder",
+					"database": "ariel_uyghur_1",
+					"table": "ui_output"
+				},
+				"row": 0,
+				"col": 0
+			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:30",
 				"selected": true,
@@ -1190,18 +1390,18 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
+				"row": 4,
 				"col": 0
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:30",
 				"bindings": {
@@ -1223,18 +1423,18 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
-				"col": 6
+				"row": 8,
+				"col": 0
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -1245,18 +1445,18 @@
 					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 0
+				"row": 4,
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -1267,18 +1467,18 @@
 					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 6
+				"row": 4,
+				"col": 9
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -1289,18 +1489,18 @@
 					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 0
+				"row": 8,
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -1311,19 +1511,19 @@
 					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 6
+				"row": 8,
+				"col": 9
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 8,
+				"sizex": 7,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 7,
-				"minSizey": 5,
+				"minSizex": 6,
+				"minSizey": 3,
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
@@ -1383,22 +1583,28 @@
 						"longitudeField": "geoLocations.lon",
 						"dateField": "createdAt",
 						"colorField": "topics"
-					}]
+					}],
+					"geoServer": {
+						"offline": false,
+						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
+						"layer": "lorelei_workspace:MapCityLabel"
+					},
+					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 0,
-				"col": 11
+				"col": 13
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 8,
-				"sizey": 7,
+				"sizex": 7,
+				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
-				"minSizey": 5,
+				"minSizey": 3,
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
@@ -1410,14 +1616,14 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 11
+				"col": 13
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 6,
-				"sizey": 15,
+				"sizex": 5,
+				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
@@ -1427,7 +1633,10 @@
 					"database": "ariel_uyghur_1",
 					"table": "ui_output",
 					"dataField": "originalText",
+					"dateField": "createdAt",
 					"idField": "id",
+					"showSelect": false,
+					"singleColor": true,
 					"metadataFields": [
 						[{
 							"name": "Date",
@@ -1458,25 +1667,44 @@
 					"limit": 50
 				},
 				"row": 0,
-				"col": 19
+				"col": 20
 			}
 		],
-		"ebola-layout": [
+		"ebola-layout": [{
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 12,
+				"sizey": 3,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Filter Builder",
+					"database": "ebola_data_2",
+					"table": "ui_output"
+				},
+				"row": 0,
+				"col": 0
+			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
 					"title": "Situation",
-					"database": "ebola_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "topics",
 					"aggregation": "count",
@@ -1493,23 +1721,23 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
+				"row": 4,
 				"col": 0
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:30",
 				"bindings": {
 					"title": "Sentiment",
-					"database": "ebola_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "sentimentString",
 					"aggregation": "count",
@@ -1526,102 +1754,102 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
-				"col": 6
+				"row": 8,
+				"col": 0
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
 					"title": "Location",
-					"database": "ebola_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 0
+				"row": 4,
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
 					"title": "People",
-					"database": "ebola_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 6
+				"row": 4,
+				"col": 9
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
 					"title": "Organizations",
-					"database": "ebola_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 0
+				"row": 8,
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
 					"title": "GeoPolitical Entities",
-					"database": "ebola_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 6
+				"row": 8,
+				"col": 9
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 8,
+				"sizex": 7,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1631,7 +1859,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation Map",
-					"database": "ebola_1",
+					"database": "ebola_data_2",
 					"filterable": true,
 					"name": "EVENTS",
 					"show": true,
@@ -1644,7 +1872,7 @@
 					"sourceLongitudeField": "",
 					"targetLatitudeField": "",
 					"targetLongitudeField": "",
-					"colorField": "topics",
+					"colorField": "",
 					"colorMapping": [{
 							"match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
 							"label": "Need",
@@ -1680,57 +1908,66 @@
 					"popupFields": [],
 					"layers": [{
 						"title": "Ebola Point Layer",
-						"database": "ebola_1",
+						"database": "ebola_data_2",
 						"table": "ui_output",
 						"latitudeField": "geoLocations.lat",
 						"longitudeField": "geoLocations.lon",
 						"dateField": "createdAt",
 						"colorField": "topics"
-					}]
+					}],
+					"geoServer": {
+						"offline": false,
+						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
+						"layer": "lorelei_workspace:MapCityLabel"
+					},
+					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 0,
-				"col": 11
+				"col": 13
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 8,
-				"sizey": 7,
+				"sizex": 7,
+				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
-				"minSizey": 5,
+				"minSizey": 3,
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
 					"title": "Timeline",
-					"database": "ebola_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dateField": "createdAt",
 					"granularity": "month"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 11
+				"col": 13
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 6,
-				"sizey": 15,
+				"sizex": 5,
+				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
 				"selected": true,
 				"bindings": {
 					"title": "Situation Documents",
-					"database": "ebola_1",
+					"database": "ebola_data_2",
 					"table": "ui_output",
 					"dataField": "translatedText",
+					"dateField": "createdAt",
 					"idField": "id",
+					"showSelect": false,
+					"singleColor": true,
 					"metadataFields": [
 						[{
 							"name": "Date",
@@ -1761,19 +1998,38 @@
 					"limit": 50
 				},
 				"row": 0,
-				"col": 19
+				"col": 20
 			}
 		],
-		"nepal-layout": [
+		"nepal-layout": [{
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 12,
+				"sizey": 3,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Filter Builder",
+					"database": "nepal_2",
+					"table": "ui_output"
+				},
+				"row": 0,
+				"col": 0
+			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:30",
 				"selected": true,
@@ -1796,18 +2052,18 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
+				"row": 4,
 				"col": 0
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:30",
 				"bindings": {
@@ -1829,18 +2085,18 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
-				"col": 6
+				"row": 8,
+				"col": 0
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -1851,18 +2107,18 @@
 					"dataField": "LOC"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 0
+				"row": 4,
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -1873,18 +2129,18 @@
 					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 6
+				"row": 4,
+				"col": 9
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -1895,18 +2151,18 @@
 					"dataField": "ORG"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 0
+				"row": 8,
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -1917,14 +2173,14 @@
 					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 6
+				"row": 8,
+				"col": 9
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 8,
+				"sizex": 7,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -1988,22 +2244,28 @@
 						"latitudeField": "geoLocations.lat",
 						"longitudeField": "geoLocations.lon",
 						"dateField": "createdAt"
-					}]
+					}],
+					"geoServer": {
+						"offline": false,
+						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
+						"layer": "lorelei_workspace:MapCityLabel"
+					},
+					"mapType": "cesium"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 0,
-				"col": 11
+				"col": 13
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 8,
-				"sizey": 7,
+				"sizex": 7,
+				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
-				"minSizey": 5,
+				"minSizey": 3,
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
@@ -2015,14 +2277,14 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 9,
-				"col": 11
+				"col": 13
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"sizex": 6,
-				"sizey": 15,
+				"sizex": 5,
+				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
@@ -2032,7 +2294,10 @@
 					"database": "nepal_2",
 					"table": "ui_output",
 					"dataField": "originalText",
+					"dateField": "createdAt",
 					"idField": "id",
+					"showSelect": false,
+					"singleColor": true,
 					"metadataFields": [
 						[{
 							"name": "Date",
@@ -2063,21 +2328,38 @@
 					"limit": 50
 				},
 				"row": 0,
-				"col": 19
+				"col": 20
 			}
 		],
-		"haiti-layout": [
+		"haiti-layout": [{
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 12,
+				"sizey": 3,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Filter Builder",
+					"database": "haiti_4",
+					"table": "ui_output"
+				},
+				"row": 0,
+				"col": 0
+			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"col": 1,
-				"row": 1,
-				"sizex": 5,
-				"sizey": 6,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:30",
 				"selected": true,
@@ -2099,19 +2381,52 @@
 						}
 					]
 				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309"
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+				"row": 3,
+				"col": 0
+			},
+			{
+				"name": "Bar Chart",
+				"type": "barChart",
+				"icon": "BarChart64",
+				"sizex": 4,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:30",
+				"bindings": {
+					"title": "Sentiment",
+					"database": "haiti_4",
+					"table": "ui_output",
+					"dataField": "sentimentString",
+					"aggregation": "count",
+					"aggregationField": "",
+					"chartType": "horizontalBar",
+					"colors": [{
+							"value": "Activation|Positive|Positive, Activation",
+							"color": "77, 190, 194"
+						},
+						{
+							"value": "Negative|Negative, Activation",
+							"color": "39, 96, 126"
+						}
+					]
+				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+				"row": 8,
+				"col": 0
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"col": 6,
-				"row": 1,
-				"sizex": 5,
-				"sizey": 6,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -2119,22 +2434,21 @@
 					"title": "Location",
 					"database": "haiti_4",
 					"table": "ui_output",
-					"dataField": "LOC",
-					"limit": 60
+					"dataField": "LOC"
 				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7"
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 3,
+				"col": 5
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"col": 1,
-				"row": 7,
-				"sizex": 5,
-				"sizey": 6,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -2142,22 +2456,21 @@
 					"title": "People",
 					"database": "haiti_4",
 					"table": "ui_output",
-					"dataField": "PER",
-					"limit": 60
+					"dataField": "PER"
 				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7"
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 3,
+				"col": 9
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"col": 6,
-				"row": 7,
-				"sizex": 5,
-				"sizey": 6,
+				"sizex": 4,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
@@ -2165,18 +2478,39 @@
 					"title": "Organizations",
 					"database": "haiti_4",
 					"table": "ui_output",
-					"dataField": "ORG",
-					"limit": 60
+					"dataField": "ORG"
 				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7"
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 7,
+				"col": 5
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 4,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "GeoPolitical Entities",
+					"database": "haiti_4",
+					"table": "ui_output",
+					"dataField": "GPE"
+				},
+				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+				"row": 7,
+				"col": 9
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"col": 11,
-				"row": 1,
-				"sizex": 8,
+				"sizex": 7,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -2242,27 +2576,35 @@
 						"dateField": "createdAt",
 						"colorField": "topics"
 					}],
+					"west": -75.2674560547,
+					"east": -67.5438232422,
+					"north": 20.7218648877,
+					"south": 17.0139322219,
 					"geoServer": {
-						"useGeoserver":true,
-						"mapUrl": "http://localhost:8080/geoserver/Natural_Earth/wms",
-						"layer": "Natural_Earth:NE1_HR_LC_SR_W_DR"
+						"offline": false,
+						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
+						"layer": "lorelei_workspace:MapCityLabel"
 					},
-					"mapType": "cesium"
+					"mapType": "cesium",
+					"hoverSelect": {
+						"hoverTime": 300
+					},
+					"hoverPopupEnabled": true
 				},
-				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae"
+				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
+				"row": 0,
+				"col": 13
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"col": 11,
-				"row": 9,
-				"sizex": 8,
-				"sizey": 4,
+				"sizex": 7,
+				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
-				"minSizey": 5,
+				"minSizey": 4,
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
@@ -2272,16 +2614,16 @@
 					"dateField": "createdAt",
 					"granularity": "month"
 				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874"
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
+				"row": 9,
+				"col": 13
 			},
 			{
 				"name": "Document Viewer",
 				"type": "documentViewer",
 				"icon": "DocumentViewer64",
-				"row": 1,
-				"col": 19,
-				"sizex": 6,
-				"sizey": 12,
+				"sizex": 5,
+				"sizey": 11,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"$hashKey": "object:37",
@@ -2291,7 +2633,10 @@
 					"database": "haiti_4",
 					"table": "ui_output",
 					"dataField": "originalText",
+					"dateField": "createdAt",
 					"idField": "id",
+					"showSelect": false,
+					"singleColor": true,
 					"metadataFields": [
 						[{
 							"name": "Date",
@@ -2306,16 +2651,23 @@
 							"field": "PER"
 						}],
 						[{
-							"name": "Locations",
-							"field": "LOC"
-						}],
+								"name": "Locations",
+								"field": "LOC"
+							},
+							{
+								"name": "GeoPolitical Entities",
+								"field": "GPE"
+							}
+						],
 						[{
 							"name": "Sentiment",
 							"field": "sentimentString"
 						}]
 					],
 					"limit": 50
-				}
+				},
+				"row": 0,
+				"col": 20
 			}
 		]
 	},

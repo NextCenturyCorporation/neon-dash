@@ -41,6 +41,8 @@
 }
 
 .neon-gtd-content {
+	overflow-y: auto;
+	height: calc(100% - #{$vis-title-expected-height});
     margin-top: 10px;
 }
 

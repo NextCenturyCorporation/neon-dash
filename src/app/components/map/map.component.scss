@@ -16,7 +16,7 @@
 @import '../base-neon-component/base-neon.component.scss';
 
 .body-container {
-    height: 87%;
+    height: calc(100% - #{$vis-title-expected-height});
 }
 
 .map-container {
