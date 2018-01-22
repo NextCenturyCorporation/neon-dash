@@ -269,7 +269,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     postInit() {
         this.executeQueryChain();
 
-        //This does nothing, but it is here to hide a bug: without it, if you open a barchart, and switch the type once, 
+        //This does nothing, but it is here to hide a bug: without it, if you open a barchart, and switch the type once,
         //then the chart will not resize with the widget. Resizing works again after any subsequent type-switch. So if we call
         //this at the outset of the program, the chart should always resize correctly. I would think we'd need to call this
         //method twice, but for some reason it appears it only needs one call to work.
@@ -664,7 +664,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
         this.logChangeAndStartQueryChain();
     }
-
 
     setupFilters() {
         // Get neon filters

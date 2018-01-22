@@ -21,16 +21,28 @@ import { DatasetService } from './dataset.service';
 import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
 
+class ServiceFilter {
+    id: string;
+    ownerId: string;
+    database: string;
+    table: string;
+    filter: any; // This will be a neon.query.Filter object. It's only "any" to avoid the hassle of parsing JSON into a proper Filter.
+    children: string[] = []; // Array of the ids of any filters that are children of this one (e.g. due to relations).
+
+    constructor(id: string, ownerId: string, database: string, table: string, filter: any, children?: string[]) {
+        this.id = id;
+        this.ownerId = ownerId;
+        this.database = database;
+        this.table = table;
+        this.filter = filter;
+        this.children = children || [];
+    }
+}
+
 @Injectable()
 export class FilterService {
 
-    private filters: {
-        id: string,
-        ownerId: string,
-        database: string,
-        table: string,
-        filter: any // This will be a neon.query.Filter object. It's only "any" to avoid the hassle of parsing JSON into a proper Filter.
-    }[];
+    private filters: ServiceFilter[];
     private messenger: neon.eventing.Messenger;
 
     constructor(private errorNotificationService: ErrorNotificationService, private datasetService: DatasetService) {
@@ -44,7 +56,7 @@ export class FilterService {
      * @param {Function} [onError] Optional error callback
      * @method getFilterState
      */
-    getFilterState(onSuccess?: () => any, onError?: (resp: any) => any) {
+    public getFilterState(onSuccess?: () => any, onError?: (resp: any) => any) {
         neon.query.Filter.getFilterState('*', '*', (filters) => {
             this.filters = filters;
             if (onSuccess) {
@@ -66,7 +78,7 @@ export class FilterService {
      * @param {Object} [comparitor] The object to use as a filter for returning filters.
      * @return {List} The list of all filters that match the given object.
      */
-    getFilters(comparitor?: any): any[] {
+    public getFilters(comparitor?: any): ServiceFilter[] {
         let matches = [];
         // Check the obvious case first to avoid unnecessary comparisons.
         if (!comparitor) {
@@ -87,7 +99,7 @@ export class FilterService {
      * @return The filter with the given ID, or undefined if none exists.
      * @method getFilterById
      */
-    getFilterById(filterId: string): any {
+    public getFilterById(filterId: string): ServiceFilter {
         let matches = this.getFilters({ id: filterId });
         if (matches.length === 0) {
             return undefined;
@@ -102,11 +114,11 @@ export class FilterService {
      * @return {List} The filters belonging to the give nvisualization.
      * @method getFiltersByOwner
      */
-    getFiltersByOwner(ownerVisId: string): any[] {
+    public getFiltersByOwner(ownerVisId: string): ServiceFilter[] {
         return this.getFilters({ ownerId: ownerVisId });
     }
 
-    getFiltersForFields(database: string, table: string, fields: string[]) {
+    public getFiltersForFields(database: string, table: string, fields: string[]) {
         let checkClauses = (clause) => {
             if (clause.type === 'where' && fields.indexOf(clause.lhs) >= 0) {
                 return true;
@@ -129,7 +141,7 @@ export class FilterService {
         return matchingFilters;
     }
 
-    addFilter(messenger: neon.eventing.Messenger,
+    public addFilter(messenger: neon.eventing.Messenger,
         ownerId: string,
         database: string,
         table: string,
@@ -140,22 +152,22 @@ export class FilterService {
 
         let filter = this.createNeonFilter(database, table, whereClause, this.getFilterNameString(database, table, filterName));
         let id = database + '-' + table + '-' + uuid.v4();
+        // How do I know if a neon filter would require changing? Recursively go through where clauses and get a list of fields?
+        let fields = this.datasetService.findMentionedFields(filter);
+        // Looks like "yes" to that. Then use this.datasetService.getEquivalentFields(database, table, [each of fields]).
+        // Then make new filters for each of the returned equivalent fields and call them children of the first filter.
+        // Do this recursively? Seems like it would be possible for recursion to be a thing here.
+
         messenger.addFilter(id,
             filter,
             () => {
-                this.filters.push({
-                    id: id,
-                    ownerId: ownerId,
-                    database: database,
-                    table: table,
-                    filter: filter
-            });
+                this.filters.push(new ServiceFilter(id, ownerId, database, table, filter));
             onSuccess(id); // Return the ID of the created filter.
         },
         onError);
     }
 
-    replaceFilter(messenger: neon.eventing.Messenger,
+    public replaceFilter(messenger: neon.eventing.Messenger,
         id: string,
         ownerId: string,
         database: string,
@@ -170,19 +182,13 @@ export class FilterService {
             filter,
             () => {
                 let index = _.findIndex(this.filters, { id: id });
-                this.filters[index] = {
-                    id: id,
-                    ownerId: ownerId,
-                    database: database,
-                    table: table,
-                    filter: filter
-            };
-            onSuccess(id); // Return the ID of the replaced filter.
-        },
-        onError);
+                this.filters[index] = new ServiceFilter(id, ownerId, database, table, filter);
+                onSuccess(id); // Return the ID of the replaced filter.
+            },
+            onError);
     }
 
-    removeFilter(messenger: neon.eventing.Messenger,
+    public removeFilter(messenger: neon.eventing.Messenger,
         id: string,
         onSuccess?: (resp: any) => any,
         onError?: (resp: any) => any) {
@@ -198,7 +204,7 @@ export class FilterService {
             onError);
     }
 
-    removeFilters(messenger: neon.eventing.Messenger,
+    public removeFilters(messenger: neon.eventing.Messenger,
         ids: string[],
         onSuccess?: (resp: any) => any,
         onError?: (resp: any) => any) {
@@ -208,7 +214,7 @@ export class FilterService {
         }
     }
 
-    private getFilterNameString(database: string, table: string, filterName: string | {visName: string, text: string}) {
+    private getFilterNameString(database: string, table: string, filterName: string | {visName: string, text: string}): string {
         if (typeof filterName === 'object') {
             let nameString = filterName.visName ? filterName.visName + ' - ' : '';
             nameString += this.datasetService.getTableWithName(database, table).prettyName;
@@ -219,7 +225,7 @@ export class FilterService {
         }
     }
 
-    private createNeonFilter(database: string, table: string, whereClause: any, filterName: string) {
+    private createNeonFilter(database: string, table: string, whereClause: any, filterName: string): neon.query.Filter {
         let filter = new neon.query.Filter().selectFrom(database, table);
         filter.whereClause = whereClause;
         if (filterName) {
@@ -228,10 +234,42 @@ export class FilterService {
         return filter;
     }
 
-    /*modifyFilterForNewDataset(filter: any,
-        oldDataset: {database: string, table: string, fields: string[]},
-        newDataset: {database: string, table: string, fields: string[]}) {
-        // TODO Essentially recurse through the filter and replace all instances of oldDataset's values with newDataset's values.
-        // This isn't necessary for right now, but would be a way to re-implement relations. Also maybe move this to dataset service.
-    }*/
+    private createFilterId(database: string, table: string) {
+        return database + '-' + table + '-' + uuid.v4();
+    }
+
+    private adaptNeonFilterForNewDataset(oldFilter: any,
+        oldDB: string,
+        oldTable: string,
+        oldField: string,
+        newDB: string,
+        newTable: string,
+        newField: string): any {
+
+        let replaceValues = (object) => {
+            if (object instanceof Array) {
+                for (let i = object.length - 1; i >= 0; i--) {
+                    replaceValues(object[i]);
+                }
+            }
+            Object.keys(object).forEach((key) => {
+                if (object[key] === oldDB) {
+                    object[key] = newDB;
+                } else if (object[key] === oldTable) {
+                    object[key] = newTable;
+                } else if (object[key] === oldField) {
+                    object[key] = newField;
+                } else if (object[key] instanceof Array) {
+                    for (let i = object.length - 1; i >= 0; i--) {
+                        replaceValues(object[i]);
+                    }
+                } else {
+                    replaceValues(object[key]);
+                }
+            });
+        };
+        let newFilter = _.cloneDeep(oldFilter);
+        replaceValues(newFilter);
+        return newFilter;
+    }
 }

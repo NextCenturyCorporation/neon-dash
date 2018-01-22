@@ -599,6 +599,44 @@ export class DatasetService {
         return [result];
     }
 
+    public findMentionedFields(filter: neon.query.Filter): string[] {
+        let findMentionedFieldsHelper = (clause: neon.query.WherePredicate) => {
+            if (clause instanceof neon.query.WhereClause) {
+                return [clause.lhs];
+            } else if (clause instanceof neon.query.BooleanClause) {
+                let foundFields = [];
+                clause.whereClauses.forEach((innerClause) => {
+                    foundFields.concat(findMentionedFieldsHelper(innerClause));
+                });
+            }
+        };
+        let fields = findMentionedFieldsHelper(filter.whereClause);
+        let uniques = [];
+        for (let i = fields.length - 1; i >= 0; i--) {
+            if (uniques.indexOf(fields[i]) < 0) {
+                uniques.push(fields[i]);
+            }
+        }
+        return uniques;
+    }
+
+    public getEquivalentFields(database: string, table: string, field: string): any[] {
+        let toConsider = [];
+        this.dataset.relations.forEach((relation) => {
+            relation.members.forEach((member) => {
+                if (member.database === database && member.table === table && member.field === field) {
+                    toConsider.concat(relation.members);
+                }
+            });
+        });
+        for (let i = toConsider.length - 1; i >= 0; i--) {
+            if (toConsider[i].database === database && toConsider[i].table === table && toConsider[i].field === field) {
+                toConsider.splice(i, 1);
+            }
+        }
+        return toConsider;
+    }
+
     /**
      * Returns the initial configuration parameters for the map with the given name in the active dataset.
      * @param {String} name
