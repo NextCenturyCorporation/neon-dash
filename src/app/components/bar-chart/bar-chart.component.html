@@ -27,7 +27,7 @@
                 </mat-select>
                 <p></p>
 
-                <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeDataField()"
+                <mat-select placeholder="Group Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeDataField()"
                     [disabled]="meta.fields.length == 0">
                     <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                 </mat-select>
@@ -38,6 +38,8 @@
                     <mat-option value="count">Count</mat-option>
                     <mat-option value="sum">Sum</mat-option>
                     <mat-option value="average">Average</mat-option>
+                    <mat-option value="min">Min</mat-option>
+                    <mat-option value="max">Max</mat-option>
                 </mat-select>
                 <p></p>
 

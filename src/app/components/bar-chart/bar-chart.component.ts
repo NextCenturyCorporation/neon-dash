@@ -269,7 +269,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     postInit() {
         this.executeQueryChain();
 
-        //This does nothing, but it is here to hide a bug: without it, if you open a barchart, and switch the type once, 
+        //This does nothing, but it is here to hide a bug: without it, if you open a barchart, and switch the type once,
         //then the chart will not resize with the widget. Resizing works again after any subsequent type-switch. So if we call
         //this at the outset of the program, the chart should always resize correctly. I would think we'd need to call this
         //method twice, but for some reason it appears it only needs one call to work.
@@ -402,8 +402,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         valid = (this.active.dataField && this.active.dataField.columnName && valid);
         valid = (this.active.aggregation && this.active.aggregation && valid); // what?
         if (this.active.aggregation !== 'count') {
-            valid = (this.active.aggregationField && this.active.aggregationField.columnName && valid);
-            //This would mwean though that if the data is just a number being represented by a string, it would simply fail.
+            valid = (this.active.aggregationField !== undefined && this.active.aggregationField.columnName !== '' && valid);
+            //This would mean though that if the data is just a number being represented by a string, it would simply fail.
             //As opposed to first trying to parse it.
             //This also makes it silently fail, without letting the user know that it failed or why. One could easily change the
             //aggregation type, not notice that the chart didn't change, and
@@ -446,6 +446,12 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             case 'average':
                 return query.groupBy(groupBy).aggregate(neonVariables.AVG, yAxisField, 'value')
                     .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
+            case 'min':
+            return query.groupBy(groupBy).aggregate(neonVariables.MIN, yAxisField, 'value')
+            .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
+            case 'max':
+            return query.groupBy(groupBy).aggregate(neonVariables.MAX, yAxisField, 'value')
+            .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
         }
 
     }
@@ -664,7 +670,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
         this.logChangeAndStartQueryChain();
     }
-
 
     setupFilters() {
         // Get neon filters
