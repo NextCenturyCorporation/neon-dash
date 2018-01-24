@@ -16,7 +16,7 @@
 @import '../base-neon-component/base-neon.component.scss';
 
 .chart-container {
-    height: 95%;
+    height: calc(100% - #{$text-container-height});
     top: 15px;
 }
 

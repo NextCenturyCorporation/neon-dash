@@ -122,29 +122,28 @@
 
     <!-- View documents -->
     <mat-list class="document-viewer-list-container contained-scroll-box">
-        <div class="document-viewer-list-item" *ngFor="let item of active.data">
-            <div class="mat-list-item-text" layout="column">
-                <table class="metadata-table">
-                    <tr class="metadata-row" *ngFor="let metadataElement of active.metadataFields">
+        <div class="mat-list-item-text document-viewer-list-item" layout="column">
+            <table class="document-viewer-table">
+                <ng-template ngFor let-item [ngForOf]="active.data">
+                    <tr class="metadata-row" [ngClass]="{'document-viewer-even-row': i % 2 === 1}" *ngFor="let metadataElement of active.metadataFields; index as i">
                         <td class="metadata-bold">{{ metadataElement.name }}: </td>
                         <td>{{ formatMetadataEntry(item, metadataElement) }}</td>
                     </tr>
-                </table>
-                <div *ngIf="optionsFromConfig.showText" class="metadata-row metadata-text">
-                    {{ item[active.dataField.columnName] }}
-                </div>
-                <table cellspacing="0" class="document-viewer-button-table">
                     <tr>
-                        <td *ngIf="!optionsFromConfig.showText" class="document-viewer-button-cell">
-                            <button mat-button class="document-viewer-button" (click)="openSingleRecord(item)">View Source Text</button>
-                        </td>
-                        <td class="document-viewer-button-cell" *ngIf="optionsFromConfig.showSelect && active.idField.columnName">
-                            <button mat-button class="document-viewer-button" (click)="selectSingleRecord(item)">Select</button>
+                        <td class="document-viewer-button-cell" colspan="100%">
+                            <div *ngIf="optionsFromConfig.showText" class="metadata-row metadata-text">
+                                {{ item[active.dataField.columnName] }}
+                            </div>
+                            <div class="document-viewer-button-container">
+                                <button *ngIf="!optionsFromConfig.showText" mat-button class="document-viewer-button" (click)="openSingleRecord(item)">View Source Text</button>
+                                <span class="document-viewer-button-spacer" *ngIf="!optionsFromConfig.showText && optionsFromConfig.showSelect && active.idField.columnName"></span>
+                                <button *ngIf="optionsFromConfig.showSelect && active.idField.columnName" mat-button class="document-viewer-button" (click)="selectSingleRecord(item)">Select</button>
+                            </div>
+                            <hr/>
                         </td>
                     </tr>
-                </table>
-            </div>
-            <hr>
+                </ng-template>
+            </table>
         </div>
     </mat-list>
 </mat-sidenav-container>
