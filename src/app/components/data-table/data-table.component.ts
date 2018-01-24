@@ -195,6 +195,22 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.changeDetection.detectChanges();
     }
 
+    deactivateAllHeaders(){
+        this.active.activeHeaders = [];
+        for (let header of this.active.headers) {
+            header.active = false;
+        }
+        this.changeDetection.detectChanges();
+    }
+
+    activateAllHeaders(){
+        this.active.activeHeaders = this.active.headers;
+        for (let header of this.active.headers) {
+            header.active = true;
+        }
+        this.changeDetection.detectChanges();
+    }
+
     addLocalFilter(filter) {
         this.filters[0] = filter;
     }
