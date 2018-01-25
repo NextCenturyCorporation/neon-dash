@@ -8,7 +8,7 @@
     </mat-sidenav>
     <mat-sidenav #sidenavright class="neon-gtd-sidenav-about-neon" mat-fill align="end">
         <mat-toolbar color="primary">
-            <span class="mat-36">{{ (showAbout) ? 'About...' : 'Options...' }}</span>
+            <span class="mat-36">{{ (showAbout) ? 'About' : 'Options' }}</span>
         </mat-toolbar>
         <app-about-neon *ngIf="showAbout"></app-about-neon>
         <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout"></app-dashboard-options>
