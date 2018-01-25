@@ -93,6 +93,13 @@ class BarDataSet {
     setActiveColor(position: number) {
         this.backgroundColor[position] = this.color.toRgb();
     }
+    /**
+     * set the background color of a single bar to the inactive color
+     * @param {number} position
+     */
+    setInactiveColor(position: number) {
+        this.backgroundColor[position] = this.color.getInactiveRgba();
+    }
 }
 
 @Component({
@@ -161,7 +168,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
         exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
-                visualizationService: VisualizationService, private colorSchemeService: ColorSchemeService) {
+        visualizationService: VisualizationService, private colorSchemeService: ColorSchemeService) {
         super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
 
         this.optionsFromConfig = {
@@ -210,7 +217,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 events: ['mousemove', 'mouseout', 'click', 'touchstart', 'touchmove', 'touchend'],
                 onClick: this.onClick,
                 animation: {
-                  duration: 0 // general animation time
+                    duration: 0 // general animation time
                 },
                 hover: {
                     mode: 'point',
@@ -317,15 +324,39 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 value: value,
                 prettyKey: prettyKey
             };
+            /*
             if (this.filters.length > 0) {
                 filter.id = this.filters[0].id;
+            }//*/
+            if (_event.ctrlKey) {
+                //console.log('Control was pressed');
+                if (this.filterIsUnique(filter)) {
+                    this.addLocalFilter(filter);
+                    this.addNeonFilter(true, filter);
+                } else if (!this.filterIsUnique(filter)) {
+                    for (let f of this.filters) {
+                        if (f.key === filter.key && f.value === filter.value) {
+                            this.removeLocalFilterFromLocalAndNeon(f, true, true);
+                            break;
+                        }
+                    }
+                } else {
+                    this.removeAllFilter();
+                }
             }
-            this.addLocalFilter(filter);
-            if (filter.id === undefined) {
+/*
+            if (!_event.ctrlKey && filter.id === undefined && this.filterIsUnique(filter)) {
+                this.removeAllFilter();
                 this.addNeonFilter(false, filter);
+                this.addLocalFilter(filter);
+            } else if (this.filters.hasOwnProperty(filter.id)) {
+                this.removeLocalFilterFromLocalAndNeon(filter, true, true);
             } else {
-                this.replaceNeonFilter(false, filter);
+                //this.replaceNeonFilter(true, filter);
+                this.removeAllFilter();
             }
+
+//*/
             this.refreshVisualization();
         }
     }
@@ -340,7 +371,26 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     addLocalFilter(filter) {
-        this.filters[0] = filter;
+        //this.filters[0] = filter;
+        if (this.filterIsUnique(filter)) {
+            this.filters = this.updateArray(this.filters, filter);
+        }
+    }
+
+    updateArray(arr, add) {
+        let newArr = arr.slice();
+        newArr.push(add);
+        return newArr;
+
+    }
+
+    filterIsUnique(filter) {
+        for (let f of this.filters) {
+            if (f.value === filter.value && f.key === filter.key) {
+                return false;
+            }
+        }
+        return true;
     }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
@@ -369,9 +419,21 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     refreshVisualization() {
         let selectedLabels: string[] = [];
-
-        // If there is a filter, highlight the bar
-        if (this.filters[0] && this.filters[0].value) {
+/*
+        if (this.filters.length > 1) {
+            let activeValues = this.getActiveValues(this.filters);
+            for (let dataset of this.chartInfo.data.datasets) {
+                //dataset.setAllActive();
+                if (activeValues.hasOwnProperty(dataset.label)) {
+                    for (let value of activeValues) {
+                        dataset.setActiveColor(value);
+                    }
+                } else {
+                    dataset.setAllInactive();
+                }
+            }
+        } else*/ if (this.filters.length === 1 && this.filters[0] && this.filters[0].value) {
+            // If there is a filter, highlight the bar
             let activeValue = this.filters[0].value;
             let activeIndex = this.chartInfo.data.labels.indexOf(activeValue);
 
@@ -393,6 +455,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
         this.selectedLabels = selectedLabels;
         this.chartModule.chart.update();
+    }
+
+    getActiveValues(filter) {
+        let activeValues = [];
+        for (let values of filter) {
+            activeValues = this.updateArray(activeValues, values);
+        }
+        return activeValues;
     }
 
     isValidQuery() {
@@ -447,11 +517,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 return query.groupBy(groupBy).aggregate(neonVariables.AVG, yAxisField, 'value')
                     .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
             case 'min':
-            return query.groupBy(groupBy).aggregate(neonVariables.MIN, yAxisField, 'value')
-            .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
+                return query.groupBy(groupBy).aggregate(neonVariables.MIN, yAxisField, 'value')
+                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
             case 'max':
-            return query.groupBy(groupBy).aggregate(neonVariables.MAX, yAxisField, 'value')
-            .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
+                return query.groupBy(groupBy).aggregate(neonVariables.MAX, yAxisField, 'value')
+                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
         }
 
     }
@@ -756,7 +826,25 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         return 'Delete Filter ' + this.getFilterTitle(value);
     }
 
-    removeFilter(/*value: string*/) {
+    removeFilter(filter) {
+        let filterIndex = -1;
+        for (let index = this.filters.length - 1 ; index >= 0; index--) {
+            if (this.filters[index].id === filter.id) {
+                this.filters.splice(index, 1);
+            }
+        }
+    }
+
+    removeAllFilter() {
         this.filters = [];
+    }
+
+    removeSingleFilter(filter) {
+        let filterIndex = -1;
+        for (let index = this.filters.length - 1; index >= 0; index--) {
+            if (this.filters[index].id === filter.id) {
+                this.filters.splice(index, 1);
+            }
+        }
     }
 }
