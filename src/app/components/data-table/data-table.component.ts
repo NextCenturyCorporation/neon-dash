@@ -195,7 +195,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.changeDetection.detectChanges();
     }
 
-    deactivateAllHeaders(){
+    deactivateAllHeaders() {
         this.active.activeHeaders = [];
         for (let header of this.active.headers) {
             header.active = false;
@@ -203,7 +203,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.changeDetection.detectChanges();
     }
 
-    activateAllHeaders(){
+    activateAllHeaders() {
         this.active.activeHeaders = this.active.headers;
         for (let header of this.active.headers) {
             header.active = true;

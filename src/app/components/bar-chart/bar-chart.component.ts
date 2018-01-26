@@ -342,18 +342,30 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                     }
                 } else {
                     this.removeAllFilter();
+                    this.removeLocalFilterFromLocalAndNeon(filter, true, true);
                 }
             }
-/*
+
+            if (!_event.ctrlKey && this.filters.length > 0) {
+                filter.id = this.filters[0].id;
+            }
+///*
             if (!_event.ctrlKey && filter.id === undefined && this.filterIsUnique(filter)) {
                 this.removeAllFilter();
-                this.addNeonFilter(false, filter);
-                this.addLocalFilter(filter);
-            } else if (this.filters.hasOwnProperty(filter.id)) {
                 this.removeLocalFilterFromLocalAndNeon(filter, true, true);
-            } else {
+                this.addLocalFilter(filter);
+                this.addNeonFilter(true, filter);
+                //console.log('a');
+            } else if (!_event.ctrlKey && !this.filterIsUnique(filter)) {
                 //this.replaceNeonFilter(true, filter);
                 this.removeAllFilter();
+                this.removeLocalFilterFromLocalAndNeon(filter, true, true);
+                //console.log('b');
+            } else {
+                this.replaceNeonFilter(false, filter);
+                //console.log('c');
+                //this.removeAllFilter();
+                //this.removeLocalFilterFromLocalAndNeon(filter, true, true);
             }
 
 //*/
@@ -422,17 +434,28 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 /*
         if (this.filters.length > 1) {
             let activeValues = this.getActiveValues(this.filters);
+
+            for (let value of activeValues) {
+                let activeIndex = this.chartInfo.data.labels.indexOf(value);
+                for (let dataset of this.chartInfo.data.datasets) {
+                    dataset.setAllInactive();
+                    dataset.setActiveColor(value);
+                    //console.log('First ' + value);
+                }
+            }/*
             for (let dataset of this.chartInfo.data.datasets) {
                 //dataset.setAllActive();
                 if (activeValues.hasOwnProperty(dataset.label)) {
+                    console.log('Hi Hello this works');
                     for (let value of activeValues) {
+                        let activeIndex = this.chartInfo.data.labels.indexOf(value);
                         dataset.setActiveColor(value);
                     }
                 } else {
                     dataset.setAllInactive();
                 }
             }
-        } else*/ if (this.filters.length === 1 && this.filters[0] && this.filters[0].value) {
+    } else */if (this.filters.length === 1 && this.filters[0] && this.filters[0].value) {
             // If there is a filter, highlight the bar
             let activeValue = this.filters[0].value;
             let activeIndex = this.chartInfo.data.labels.indexOf(activeValue);
@@ -441,6 +464,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             for (let dataset of this.chartInfo.data.datasets) {
                 dataset.setAllInactive();
                 dataset.setActiveColor(activeIndex);
+                //console.log('The active index is:' + activeIndex);
 
                 if (dataset.data[activeIndex] > 0) {
                     selectedLabels.push(dataset.label);
@@ -459,8 +483,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     getActiveValues(filter) {
         let activeValues = [];
-        for (let values of filter) {
-            activeValues = this.updateArray(activeValues, values);
+        for (let value of filter) {
+                activeValues = this.updateArray(activeValues, value);
         }
         return activeValues;
     }
@@ -826,10 +850,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         return 'Delete Filter ' + this.getFilterTitle(value);
     }
 
+    //Would love to refactor this but cannot because it's called in base neon.
     removeFilter(filter) {
-        let filterIndex = -1;
-        for (let index = this.filters.length - 1 ; index >= 0; index--) {
-            if (this.filters[index].id === filter.id) {
+        for (let index = 0; index < this.filters.length; index++) {
+            if (this.filters[index].key === filter.key && this.filters[index].value === filter.value) {
                 this.filters.splice(index, 1);
             }
         }
@@ -840,9 +864,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     removeSingleFilter(filter) {
-        let filterIndex = -1;
-        for (let index = this.filters.length - 1; index >= 0; index--) {
-            if (this.filters[index].id === filter.id) {
+        this.removeLocalFilterFromLocalAndNeon(filter, true, true);
+        for (let index = 0; index < this.filters.length; index++) {
+            if (this.filters[index].key === filter.key && this.filters[index].value === filter.value) {
                 this.filters.splice(index, 1);
             }
         }
