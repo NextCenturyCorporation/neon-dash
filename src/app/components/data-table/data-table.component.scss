@@ -75,15 +75,6 @@
     user-select: none;
 }
 
-.select-all-button-container {
-    flex-direction: row;
-    overflow-x: hide;
-}
-
-mat-checkbox.mat-checked.checkbox-color .mat-icon {
-    color: rgba(0, 255, 0, 0.87);
-}
-
 .dragView {
     position: fixed;
 }
