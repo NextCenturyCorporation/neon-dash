@@ -394,7 +394,7 @@ export abstract class BaseNeonComponent implements OnInit,
      * @param {boolean} executeQueryChainOnSuccess
      * @param filter
      */
-    addNeonFilter(executeQueryChainOnSuccess: boolean, filter: any) {
+    addNeonFilter(executeQueryChainOnSuccess: boolean, filter: any, whereClause?: neon.query.WherePredicate) {
         let filterName = {
             visName: this.getVisualizationName(),
             text: this.getFilterText(filter)
@@ -412,7 +412,7 @@ export abstract class BaseNeonComponent implements OnInit,
             this.id,
             this.meta.database.name,
             this.meta.table.name,
-            this.createNeonFilterClauseEquals(
+            whereClause || this.createNeonFilterClauseEquals(
                 this.meta.database.name,
                 this.meta.table.name,
                 (filterFields.length === 1) ? filterFields[0] : filterFields),
@@ -429,7 +429,7 @@ export abstract class BaseNeonComponent implements OnInit,
      * @param {boolean} executeQueryChainOnSuccess
      * @param filter
      */
-    replaceNeonFilter(executeQueryChainOnSuccess: boolean, filter: any) {
+    replaceNeonFilter(executeQueryChainOnSuccess: boolean, filter: any, whereClause?: neon.query.WherePredicate) {
         let filterName = {
             visName: this.getVisualizationName(),
             text: this.getFilterText(filter)
@@ -445,7 +445,7 @@ export abstract class BaseNeonComponent implements OnInit,
             this.id,
             this.meta.database.name,
             this.meta.table.name,
-            this.createNeonFilterClauseEquals(
+            whereClause || this.createNeonFilterClauseEquals(
                 this.meta.database.name,
                 this.meta.table.name,
                 (filterFields.length === 1) ? filterFields[0] : filterFields),
@@ -668,7 +668,7 @@ export abstract class BaseNeonComponent implements OnInit,
 
     /**
      * Called when a filter has been removed
-     * @param value the filter name
+     * @param filter The filter to remove: either a neon filter as stored in the filter service, or a local filter.
      */
     abstract removeFilter(filter: any): void;
 
@@ -702,8 +702,13 @@ export abstract class BaseNeonComponent implements OnInit,
         this.filterService.removeFilter(
             this.messenger,
             filter.id,
-            () => {
-                this.removeFilter(filter.id);
+            (removedFilter) => {
+                if (removedFilter) {
+                    this.removeFilter(removedFilter);
+                } else {
+                    // No filter removed means undefined or old ID. Pass this back to remove itself.
+                    this.removeFilter(filter);
+                }
                 if (shouldRequery) {
                     this.executeQueryChain();
                 } else {

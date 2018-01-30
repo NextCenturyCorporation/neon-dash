@@ -574,7 +574,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.executeQueryChain();
     }
 
-    removeFilter(/*value: string*/) {
+    removeFilter() {
         this.filters = [];
         if (this.timelineChart) {
         this.timelineChart.clearBrush();

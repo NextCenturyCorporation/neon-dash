@@ -63,7 +63,7 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
     }
 
     removeFilter(filterIds: string[]) {
-        let onSuccess = () => {
+        let onSuccess = (removedFilter) => {
             this.onEventChanged();
         };
         this.filterService.removeFilters(this.messenger, filterIds, onSuccess.bind(this));

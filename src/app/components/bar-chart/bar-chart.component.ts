@@ -324,51 +324,34 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 value: value,
                 prettyKey: prettyKey
             };
-            /*
-            if (this.filters.length > 0) {
-                filter.id = this.filters[0].id;
-            }//*/
-            if (_event.ctrlKey) {
-                //console.log('Control was pressed');
+            if (_event.ctrlKey) { // If Ctrl is pressed...
                 if (this.filterIsUnique(filter)) {
                     this.addLocalFilter(filter);
-                    this.addNeonFilter(true, filter);
-                } else if (!this.filterIsUnique(filter)) {
+                    let whereClause = neon.query.where(filter.key, '=', filter.value);
+                    this.addNeonFilter(true, filter, whereClause);
+                } else {
                     for (let f of this.filters) {
                         if (f.key === filter.key && f.value === filter.value) {
                             this.removeLocalFilterFromLocalAndNeon(f, true, true);
                             break;
                         }
                     }
+                }
+            } else { // If Ctrl isn't pressed...
+                if (this.filters.length === 0) {
+                    this.addLocalFilter(filter);
+                    this.addNeonFilter(true, filter);
+                } else if (this.filters.length === 1 && this.filterIsUnique(filter)) {
+                    filter.id = this.filters[0].id;
+                    this.filters[0] = filter;
+                    this.replaceNeonFilter(true, filter);
                 } else {
-                    this.removeAllFilter();
-                    this.removeLocalFilterFromLocalAndNeon(filter, true, true);
+                    this.removeAllFilters(false, false);
+                    this.addLocalFilter(filter);
+                    this.addNeonFilter(true, filter);
                 }
             }
 
-            if (!_event.ctrlKey && this.filters.length > 0) {
-                filter.id = this.filters[0].id;
-            }
-///*
-            if (!_event.ctrlKey && filter.id === undefined && this.filterIsUnique(filter)) {
-                this.removeAllFilter();
-                this.removeLocalFilterFromLocalAndNeon(filter, true, true);
-                this.addLocalFilter(filter);
-                this.addNeonFilter(true, filter);
-                //console.log('a');
-            } else if (!_event.ctrlKey && !this.filterIsUnique(filter)) {
-                //this.replaceNeonFilter(true, filter);
-                this.removeAllFilter();
-                this.removeLocalFilterFromLocalAndNeon(filter, true, true);
-                //console.log('b');
-            } else {
-                this.replaceNeonFilter(false, filter);
-                //console.log('c');
-                //this.removeAllFilter();
-                //this.removeLocalFilterFromLocalAndNeon(filter, true, true);
-            }
-
-//*/
             this.refreshVisualization();
         }
     }
@@ -852,23 +835,23 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     //Would love to refactor this but cannot because it's called in base neon.
     removeFilter(filter) {
-        for (let index = 0; index < this.filters.length; index++) {
-            if (this.filters[index].key === filter.key && this.filters[index].value === filter.value) {
+        for (let index = this.filters.length - 1; index >= 0; index--) {
+            if (this.filters[index].id === filter.id) {
                 this.filters.splice(index, 1);
             }
         }
     }
 
-    removeAllFilter() {
-        this.filters = [];
-    }
-
-    removeSingleFilter(filter) {
-        this.removeLocalFilterFromLocalAndNeon(filter, true, true);
-        for (let index = 0; index < this.filters.length; index++) {
-            if (this.filters[index].key === filter.key && this.filters[index].value === filter.value) {
-                this.filters.splice(index, 1);
-            }
+    removeAllFilters(shouldRequery: boolean = true, shouldRefresh: boolean = true) {
+        for (let index = this.filters.length - 1; index >= 0; index--) {
+            this.removeLocalFilterFromLocalAndNeon(this.filters[index], false, false);
+        }
+        // Do these once we're finished removing all filters, rather than after each one.
+        if (shouldRequery) {
+            this.executeQueryChain();
+        }
+        if (shouldRefresh) {
+            this.refreshVisualization();
         }
     }
 }

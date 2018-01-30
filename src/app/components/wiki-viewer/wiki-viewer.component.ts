@@ -294,7 +294,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @arg {object} filter
      * @override
      */
-    removeFilter(filter: any) {
+    removeFilter() {
         // Do nothing.
     }
 
