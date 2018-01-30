@@ -324,7 +324,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 value: value,
                 prettyKey: prettyKey
             };
-            if (_event.ctrlKey) { // If Ctrl is pressed...
+            if (_event.ctrlKey || _event.metaKey) { // If Ctrl (or Command on Mac) is pressed...
                 if (this.filterIsUnique(filter)) {
                     this.addLocalFilter(filter);
                     let whereClause = neon.query.where(filter.key, '=', filter.value);
@@ -414,43 +414,23 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     refreshVisualization() {
         let selectedLabels: string[] = [];
-/*
-        if (this.filters.length > 1) {
-            let activeValues = this.getActiveValues(this.filters);
-
-            for (let value of activeValues) {
-                let activeIndex = this.chartInfo.data.labels.indexOf(value);
-                for (let dataset of this.chartInfo.data.datasets) {
-                    dataset.setAllInactive();
-                    dataset.setActiveColor(value);
-                    //console.log('First ' + value);
-                }
-            }/*
-            for (let dataset of this.chartInfo.data.datasets) {
-                //dataset.setAllActive();
-                if (activeValues.hasOwnProperty(dataset.label)) {
-                    console.log('Hi Hello this works');
-                    for (let value of activeValues) {
-                        let activeIndex = this.chartInfo.data.labels.indexOf(value);
-                        dataset.setActiveColor(value);
-                    }
-                } else {
-                    dataset.setAllInactive();
-                }
+        if (this.filters.length >= 1) {
+            let activeValues = this.filters.map((el) => el.value);
+            let activeIndeces = [];
+            for (let index = activeValues.length - 1; index >= 0; index--) {
+                activeIndeces.push(this.chartInfo.data.labels.indexOf(activeValues[index]));
             }
-    } else */if (this.filters.length === 1 && this.filters[0] && this.filters[0].value) {
-            // If there is a filter, highlight the bar
-            let activeValue = this.filters[0].value;
-            let activeIndex = this.chartInfo.data.labels.indexOf(activeValue);
 
-            // Set all but the selected bar inactive
             for (let dataset of this.chartInfo.data.datasets) {
                 dataset.setAllInactive();
-                dataset.setActiveColor(activeIndex);
-                //console.log('The active index is:' + activeIndex);
-
-                if (dataset.data[activeIndex] > 0) {
-                    selectedLabels.push(dataset.label);
+                for (let index = activeIndeces.length - 1; index >= 0; index--) {
+                    dataset.setActiveColor(activeIndeces[index]);
+                }
+                for (let index = activeIndeces.length - 1; index >= 0; index--) {
+                    if (dataset.data[activeIndeces[index]] > 0) {
+                        selectedLabels.push(dataset.label);
+                        continue;
+                    }
                 }
             }
         } else {
