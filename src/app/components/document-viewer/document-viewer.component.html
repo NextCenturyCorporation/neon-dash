@@ -117,7 +117,8 @@
     </mat-sidenav>
 
     <!-- View documents -->
-    <mat-list class="document-viewer-list-container contained-scroll-box">
+    <mat-list class="document-viewer-list-container document-viewer-scroll-box">
+
         <div class="mat-list-item-text document-viewer-list-item" layout="column">
             <table class="document-viewer-table">
                 <ng-template ngFor let-item [ngForOf]="active.data">
@@ -141,5 +142,15 @@
                 </ng-template>
             </table>
         </div>
+
     </mat-list>
+    <div class="document-viewer-footer">
+        <div class="footer-divider"></div>
+        <div class="document-viewer-footer-button-container">
+            <button mat-raised-button [disabled]="active.page == 1" class="document-viewer-prev-next-button" (click)="previousPage()">Previous</button>
+            <span class="document-viewer-button-prev-next-spacer"></span>
+            <button mat-raised-button [disabled]="active.page*active.limit >= active.docCount" class="document-viewer-prev-next-button" (click)="nextPage()">Next</button>
+        </div>
+    </div>
+
 </mat-sidenav-container>

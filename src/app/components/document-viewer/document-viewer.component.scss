@@ -19,6 +19,11 @@
 
     $item-margin: 10px;
 
+    .document-viewer-scroll-box {
+        overflow-y: auto;
+        height: calc(100% - #{$vis-title-expected-height} - 60px);
+    }
+
     .document-viewer-list-item {
         display: inline-block;
         margin: 0 $item-margin;
@@ -42,12 +47,48 @@
         flex: 0 0 2px;
     }
 
+    .document-viewer-footer-button-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 8px;
+        height: 41px;
+    }
+
     .document-viewer-button {
         flex: 1 0 0;
         background-color: mat-color($primary);
         color: mat-color($white);
         line-height: 20px;
         height: 20px;
+    }
+
+    .document-viewer-button-prev-next-spacer {
+        flex: 0 0 8px;
+    }
+
+    .document-viewer-prev-next-button {
+        flex: 1 0 0;
+        background-color: mat-color($primary);
+        color: mat-color($white);
+        line-height: 20px;
+        height: 40px;
+    }
+
+    .document-viewer-prev-next-button[disabled] {
+        @extend .document-viewer-prev-next-button;
+        background-color: #dcdcdc;
+        color: #adadad;
+    }
+
+    .document-viewer-footer {
+        height: 60px;
+        width: 100%;
+    }
+
+    .footer-divider {
+        background-color: $accent-bright;
+        height: 3px;
     }
 
     table.metadata-table {
