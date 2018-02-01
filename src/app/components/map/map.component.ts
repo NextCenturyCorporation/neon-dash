@@ -135,7 +135,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       east: this.injector.get('east', null),
       north: this.injector.get('north', null),
       south: this.injector.get('south', null),
-      geoServer: this.injector.get('geoServer', {}),
+      customServer: this.injector.get('customServer', {}),
       mapType: this.injector.get('mapType', MapType.leaflet),
       singleColor: this.injector.get('singleColor', false)
     };

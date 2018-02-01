@@ -850,7 +850,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         return 'Delete Filter ' + this.getFilterTitle(filter);
     }
 
-    removeFilter(/*value: string*/) {
+    removeFilter() {
         this.setupFilters();
     }
 }

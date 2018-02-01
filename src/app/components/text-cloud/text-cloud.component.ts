@@ -351,7 +351,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         };
         if (this.filterIsUnique(filter)) {
             this.addLocalFilter(filter);
-            this.addNeonFilter(true, filter);
+            let whereClause = neon.query.where(filter.key, '=', filter.value);
+            this.addNeonFilter(true, filter, whereClause);
         }
     }
 
@@ -421,13 +422,17 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Delete Filter ' + this.createFilterDesc(value);
     }
 
-    removeFilter(id: string) {
-        let filterIndex = -1;
+    // filter is a filter from the filter service that the filter to remove corresponds to.
+    removeFilter(filter: any) {
+        // We do it this way instead of using splice() because we have to replace filter array
+        // with a new object for Angular to recognize the change. It doesn't respond to mutation.
+        let newFilters = [];
         for (let index = this.filters.length - 1; index >= 0; index--) {
-            if (this.filters[index].id === id) {
-                this.filters.splice(index, 1);
+            if (this.filters[index].id !== filter.id) {
+                newFilters.push(this.filters[index]);
             }
         }
+        this.filters = newFilters;
     }
 
     // These methods must be present for AoT compile

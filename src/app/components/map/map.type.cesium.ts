@@ -63,12 +63,12 @@ export class CesiumNeonMap extends AbstractMap {
             infoBox: false
         };
 
-        let geoOptions = this.optionsFromConfig.geoServer;
-        if (geoOptions && geoOptions.useGeoserver) {
+        let customOptions = this.optionsFromConfig.customServer;
+        if (customOptions && customOptions.useCustomServer) {
             cesiumSettings.baseLayerPicker = false;
             cesiumSettings.imageryProvider = new Cesium.WebMapServiceImageryProvider({
-                url: this.optionsFromConfig.geoServer.mapUrl,
-                layers: this.optionsFromConfig.geoServer.layer,
+                url: this.optionsFromConfig.customServer.mapUrl,
+                layers: this.optionsFromConfig.customServer.layer,
                 parameters: {
                     transparent: true,
                     tiled: true,
