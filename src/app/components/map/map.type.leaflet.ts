@@ -32,11 +32,11 @@ export class LeafletNeonMap extends AbstractMap {
     private box: L.Rectangle;
 
     doCustomInitialization(mapContainer: ElementRef) {
-        let geoOption = this.optionsFromConfig.geoServer,
+        let customOption = this.optionsFromConfig.customServer,
             mOptions = this.mapOptions,
-            baseTileLayer = geoOption && geoOption.useGeoserver ?
-                L.tileLayer.wms(geoOption.mapUrl, {
-                    layers: geoOption.layer,
+            baseTileLayer = customOption && customOption.useCustomServer ?
+                L.tileLayer.wms(customOption.mapUrl, {
+                    layers: customOption.layer,
                     transparent: true,
                     minZoom: mOptions.minZoom
                 }) : new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

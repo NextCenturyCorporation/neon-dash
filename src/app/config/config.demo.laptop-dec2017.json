@@ -525,8 +525,8 @@
                 "colorField": "topics"
               }
             ],
-            "geoServer": {
-              "offline": true,
+            "customServer": {
+              "userCustomServer": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
               "layer": "lorelei_workspace:MapCityLabel"
             },
@@ -884,8 +884,8 @@
                 "popupFields": []
               }
             ],
-            "geoServer": {
-              "offline": true,
+            "customServer": {
+              "userCustomServer": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
               "layer": "lorelei_workspace:MapCityLabel"
             },
@@ -1235,8 +1235,8 @@
                 "colorField": "topics"
               }
             ],
-            "geoServer": {
-              "offline": true,
+            "customServer": {
+              "userCustomServer": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
               "layer": "lorelei_workspace:MapCityLabel"
             },
@@ -1581,8 +1581,8 @@
                 "colorField": "topics"
               }
             ],
-            "geoServer": {
-              "offline": true,
+            "customServer": {
+              "userCustomServer": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
               "layer": "lorelei_workspace:MapCityLabel"
             },
@@ -1927,8 +1927,8 @@
                 "colorField": "topics"
               }
             ],
-            "geoServer": {
-              "offline": true,
+            "customServer": {
+              "userCustomServer": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
               "layer": "lorelei_workspace:MapCityLabel"
             },
@@ -2272,8 +2272,8 @@
                 "dateField": "createdAt"
               }
             ],
-            "geoServer": {
-              "offline": true,
+            "customServer": {
+              "userCustomServer": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
               "layer": "lorelei_workspace:MapCityLabel"
             },
@@ -2622,8 +2622,8 @@
             "east": -67.5438232422,
             "north": 20.7218648877,
             "south": 17.0139322219,
-            "geoServer": {
-              "offline": true,
+            "customServer": {
+              "userCustomServer": true,
               "mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
               "layer": "lorelei_workspace:MapCityLabel"
             },
