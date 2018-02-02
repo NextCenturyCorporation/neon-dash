@@ -33,7 +33,6 @@ import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { VisualizationInjectorComponent } from './visualization-injector.component';
-import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -57,8 +56,7 @@ describe('Component: VisualizationInjector', () => {
                 TextCloudComponent,
                 TimelineComponent,
                 UnsharedFilterComponent,
-                VisualizationInjectorComponent,
-                WikiViewerComponent
+                VisualizationInjectorComponent
             ],
             providers: [ComponentFactoryResolver],
             imports: [

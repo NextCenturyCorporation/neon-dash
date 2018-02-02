@@ -186,10 +186,5 @@ export const neonVisualizations: any[] = [
         name: 'Timeline',
         type: 'timeline',
         icon: 'Timeline64'
-    },
-    {
-        name: 'Wiki Viewer',
-        type: 'wikiViewer',
-        icon: 'WikiViewer'
     }
 ];

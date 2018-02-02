@@ -39,7 +39,6 @@ import * as neon from 'neon-framework';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import * as _ from 'lodash';
 import * as geohash from 'geo-hash';
-import { CesiumNeonMap } from './map.type.cesium';
 import {
     AbstractMap,
     BoundingBoxByDegrees,
@@ -110,7 +109,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
     exportService: ExportService, injector: Injector, themesService: ThemesService,
     colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
     super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
-    (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
     this.colorSchemeService = colorSchemeSrv;
     this.FIELD_ID = '_id';
     this.optionsFromConfig = {
@@ -136,7 +134,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
       north: this.injector.get('north', null),
       south: this.injector.get('south', null),
       customServer: this.injector.get('customServer', {}),
-      mapType: this.injector.get('mapType', MapType.leaflet),
+      mapType: MapType.leaflet,
       singleColor: this.injector.get('singleColor', false)
     };
 
@@ -201,9 +199,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
           this.optionsFromConfig.mapType = type;
       }
       switch (type) {
-          case MapType.cesium:
-              this.mapObject = new CesiumNeonMap();
-              break;
           case MapType.leaflet:
           default:
               this.mapObject = new LeafletNeonMap();

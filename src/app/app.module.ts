@@ -66,7 +66,6 @@ import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
-import { WikiViewerComponent } from './components/wiki-viewer/wiki-viewer.component';
 
 import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
@@ -106,8 +105,7 @@ export function getAppConfig() {
         TimelineComponent,
         UnsharedFilterComponent,
         VisualizationContainerComponent,
-        VisualizationInjectorComponent,
-        WikiViewerComponent
+        VisualizationInjectorComponent
     ],
     imports: [
         BrowserModule,

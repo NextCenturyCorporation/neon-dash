@@ -31,7 +31,6 @@ import { TimelineComponent } from '../timeline/timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { VisualizationContainerComponent } from './visualization-container.component';
 import { VisualizationInjectorComponent } from '../visualization-injector/visualization-injector.component';
-import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { VisualizationService } from '../../services/visualization.service';
@@ -64,8 +63,7 @@ describe('Component: VisualizationContainer', () => {
                 TimelineComponent,
                 UnsharedFilterComponent,
                 VisualizationContainerComponent,
-                VisualizationInjectorComponent,
-                WikiViewerComponent
+                VisualizationInjectorComponent
             ],
             providers: [
                 ActiveGridService,

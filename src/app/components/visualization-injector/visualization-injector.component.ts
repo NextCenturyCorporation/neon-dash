@@ -25,7 +25,6 @@ import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
-import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 
 import { NeonGridItem } from '../../neon-grid-item';
 import { VisualizationService } from '../../services/visualization.service';
@@ -33,7 +32,7 @@ import { VisualizationService } from '../../services/visualization.service';
 @Component({
     selector: 'app-visualization-injector',
     entryComponents: [BarChartComponent, DataTableComponent, DocumentViewerComponent, FilterBuilderComponent, LineChartComponent,
-        MapComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent, TimelineComponent, WikiViewerComponent],
+        MapComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent, TimelineComponent],
     template: `<div #dynamicComponentContainer></div>`
 })
 export class VisualizationInjectorComponent {
@@ -99,7 +98,6 @@ export class VisualizationInjectorComponent {
             case 'stackedTimeline': return StackedTimelineComponent;
             case 'textCloud': return TextCloudComponent;
             case 'timeline': return TimelineComponent;
-            case 'wikiViewer': return WikiViewerComponent;
 
             default: return null;
         }
