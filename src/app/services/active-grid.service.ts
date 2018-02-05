@@ -234,4 +234,11 @@ export class ActiveGridService {
 
         return true;
     }
+
+    /**
+     * Tell the grid to trigger a resize event
+     */
+    triggerResize() {
+        this.grid.triggerResize();
+    }
 }
