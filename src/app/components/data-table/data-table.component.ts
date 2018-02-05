@@ -102,7 +102,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             idField: this.injector.get('idField', null),
             sortField: this.injector.get('sortField', null),
             limit: this.injector.get('limit', 100),
-            limitDisabled: this.injector.get('limitDisabled', false),
+            limitDisabled: this.injector.get('limitDisabled', true),
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };

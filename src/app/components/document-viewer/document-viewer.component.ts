@@ -90,7 +90,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             metadataFields: this.injector.get('metadataFields', null),
             popoutFields: this.injector.get('popoutFields', null),
             limit: this.injector.get('limit', null),
-            limitDisabled: this.injector.get('limitDisabled', false),
+            limitDisabled: this.injector.get('limitDisabled', true),
             showText: this.injector.get('showText', false),
             showSelect: this.injector.get('showSelect', true)
         };
