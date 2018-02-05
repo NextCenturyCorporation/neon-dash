@@ -45,6 +45,10 @@
     width: 100%;
 }
 
+.data-table-box {
+    height: calc(100% - #{$vis-title-expected-height} - 60px);
+}
+
 .column-selector-header {
     text-align: center;
     vertical-align: middle;
