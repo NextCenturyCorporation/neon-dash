@@ -566,7 +566,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         this.executeQueryChain();
     }
 
-    removeFilter(/*value: string*/) {
+    removeFilter() {
         this.filters = [];
         this.timelineChart.clearBrush();
     }

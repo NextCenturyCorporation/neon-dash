@@ -347,7 +347,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         return '';
     }
 
-    removeFilter(_value: string): void {
+    removeFilter(): void {
         // Do nothing, no filters
     }
 

@@ -797,7 +797,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return 'Delete Filter ' + this.getFilterTitle();
     }
 
-    removeFilter(/*value: string*/) {
+    removeFilter() {
         this.filters = [];
     }
 }

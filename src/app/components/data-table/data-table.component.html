@@ -97,7 +97,7 @@
                     </button>
 
                 </div>
-                <div  class="select-all-button-container  button-row">
+                <div  class="button-row">
                     <button mat-raised-button (click)="deactivateAllHeaders()">
                         <span class="mat-button-wrapper">Uncheck All</span>
                     </button> 
@@ -109,7 +109,7 @@
                     <mat-list-item *ngFor="let header of active.headers; let i = index" (mouseenter)="onMouseEnter(i)" (mouseup)="onMouseUp(i)"
                         (mouseleave)="onMouseLeaveItem(i)" [ngStyle]="{'border': header.style.border, 'background-color': header.style.backgroundColor, 'border-top': header.style.borderTop, 'border-bottom': header.style.borderBottom}">
                         <mat-icon (mousedown)="onMouseDown(i)">drag_handle</mat-icon>
-                        <mat-checkbox class="checkbox-color" [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{ header.name }}</mat-checkbox>
+                        <mat-checkbox color="primary" [(ngModel)]="header.active" (change)="recalculateActiveHeaders()">{{ header.name }}</mat-checkbox>
                     </mat-list-item>
                 </mat-list>
             </div>

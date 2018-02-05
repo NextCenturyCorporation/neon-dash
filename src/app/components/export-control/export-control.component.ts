@@ -117,8 +117,16 @@ export class ExportControlComponent implements OnInit {
           })
           .map((widget) => widget.callback());
         for (let widgetObject of widgetObjects) {
+            if (Array.isArray(widgetObject)) {
+                for (let widgetObjectIndx of widgetObject) {
+                     for (let widgetObjectItem of widgetObjectIndx.data) {
+                            data.data.push(widgetObjectItem);
+                        }
+                }
+            } else {
             for (let widgetObjectItem of widgetObject.data) {
                 data.data.push(widgetObjectItem);
+            }
             }
         }
 

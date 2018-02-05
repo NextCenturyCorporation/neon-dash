@@ -244,7 +244,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         this.executeQueryChain();
     }
 
-    removeFilter(value) {
+    removeFilter() {
         // Do nothing.
     }
 
