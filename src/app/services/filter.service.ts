@@ -196,9 +196,9 @@ export class FilterService {
         messenger.removeFilter(id,
             () => {
                 let index = _.findIndex(this.filters, { id: id });
-                this.filters.splice(index, 1);
+                let removedFilter = this.filters.splice(index, 1)[0];
                 if (onSuccess) {
-                    onSuccess(id); // Return the ID of the removed filter.
+                    onSuccess(removedFilter); // Return the removed filter.
                 }
             },
             onError);

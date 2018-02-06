@@ -71,6 +71,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         docCount: number,
         idField: FieldMetaData,
         limit: number,
+        page: number,
         metadataFields: any[]
     };
 
@@ -98,6 +99,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             docCount: 0,
             idField: new FieldMetaData(),
             limit: this.optionsFromConfig.limit || 50,
+            page: 1,
             metadataFields: []
         };
         this.queryTitle = this.optionsFromConfig.title || 'Document Viewer';
@@ -177,6 +179,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     createQuery() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
+        let limit = this.active.limit;
+        let offset = ((this.active.page)-1)*limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
         let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
@@ -189,7 +193,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (this.active.idField.columnName) {
             fields = fields.concat(this.active.idField.columnName);
         }
-        return query.where(whereClause).withFields(fields).limit(this.active.limit);
+        return query.where(whereClause).withFields(fields).limit(limit).offset(offset);
     }
 
     onQuerySuccess(response) {
@@ -233,18 +237,24 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     getButtonText() {
+        let min = ((this.active.page-1)*this.active.limit);
+        let max = min + this.active.limit;
+        if (max > this.active.docCount){
+            max = this.active.docCount;
+        }
         return !this.active.data.length ?
             'No Data' :
             this.active.data.length < this.active.docCount ?
-                'Top ' + this.active.data.length + ' of ' + this.active.docCount :
+                (min+1) + ' - ' + max + ' of ' + this.active.docCount :
                 'Total ' + this.active.data.length;
     }
 
     setupFilters() {
+        this.active.page = 1;
         this.executeQueryChain();
     }
 
-    removeFilter(value) {
+    removeFilter() {
         // Do nothing.
     }
 
@@ -331,5 +341,15 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (this.active.idField.columnName && item[this.active.idField.columnName]) {
             this.publishSelectId(item[this.active.idField.columnName]);
         }
+    }
+
+    nextPage(){
+        this.active.page += 1;
+        this.executeQueryChain();
+    }
+
+    previousPage(){
+        this.active.page -= 1;
+        this.executeQueryChain();
     }
 }

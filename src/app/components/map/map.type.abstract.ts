@@ -68,8 +68,8 @@ export interface OptionsFromConfig {
     north: number;
     south: number;
     mapType: MapType | string;
-    geoServer: {
-        useGeoserver: boolean,
+    customServer: {
+        useCustomServer: boolean,
         mapUrl: string,
         layer: string
     };

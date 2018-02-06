@@ -224,7 +224,7 @@
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [{
-				"name": "nepal_2",
+				"name": "nepal_3",
 				"prettyName": "Nepal Data",
 				"tables": [{
 					"name": "ui_output",
@@ -548,8 +548,8 @@
 						"dateField": "createdAt",
 						"colorField": "topics"
 					}],
-					"geoServer": {
-						"offline": false,
+					"customServer": {
+						"useCustomServer": false,
 						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
 						"layer": "lorelei_workspace:MapCityLabel"
 					},
@@ -913,8 +913,8 @@
 						"applyTransientDateFilter": false,
 						"popupFields": []
 					}],
-					"geoServer": {
-						"offline": false,
+					"customServer": {
+						"userCustomServer": false,
 						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
 						"layer": "lorelei_workspace:MapCityLabel"
 					},
@@ -1253,8 +1253,8 @@
 						"dateField": "createdAt",
 						"colorField": "topics"
 					}],
-					"geoServer": {
-						"offline": false,
+					"customServer": {
+						"userCustomServer": false,
 						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
 						"layer": "lorelei_workspace:MapCityLabel"
 					},
@@ -1584,8 +1584,8 @@
 						"dateField": "createdAt",
 						"colorField": "topics"
 					}],
-					"geoServer": {
-						"offline": false,
+					"customServer": {
+						"userCustomServer": false,
 						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
 						"layer": "lorelei_workspace:MapCityLabel"
 					},
@@ -1915,8 +1915,8 @@
 						"dateField": "createdAt",
 						"colorField": "topics"
 					}],
-					"geoServer": {
-						"offline": false,
+					"customServer": {
+						"userCustomServer": false,
 						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
 						"layer": "lorelei_workspace:MapCityLabel"
 					},
@@ -2015,7 +2015,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Filter Builder",
-					"database": "nepal_2",
+					"database": "nepal_3",
 					"table": "ui_output"
 				},
 				"row": 0,
@@ -2035,7 +2035,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation",
-					"database": "nepal_2",
+					"database": "nepal_3",
 					"table": "ui_output",
 					"dataField": "topics",
 					"aggregation": "count",
@@ -2068,7 +2068,7 @@
 				"$$hashKey": "object:30",
 				"bindings": {
 					"title": "Sentiment",
-					"database": "nepal_2",
+					"database": "nepal_3",
 					"table": "ui_output",
 					"dataField": "sentimentString",
 					"aggregation": "count",
@@ -2102,7 +2102,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Location",
-					"database": "nepal_2",
+					"database": "nepal_3",
 					"table": "ui_output",
 					"dataField": "LOC"
 				},
@@ -2124,7 +2124,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "People",
-					"database": "nepal_2",
+					"database": "nepal_3",
 					"table": "ui_output",
 					"dataField": "PER"
 				},
@@ -2146,7 +2146,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Organizations",
-					"database": "nepal_2",
+					"database": "nepal_3",
 					"table": "ui_output",
 					"dataField": "ORG"
 				},
@@ -2168,7 +2168,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "GeoPolitical Entities",
-					"database": "nepal_2",
+					"database": "nepal_3",
 					"table": "ui_output",
 					"dataField": "GPE"
 				},
@@ -2190,7 +2190,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation Map",
-					"database": "nepal_2",
+					"database": "nepal_3",
 					"filterable": true,
 					"name": "EVENTS",
 					"show": true,
@@ -2239,14 +2239,14 @@
 					"popupFields": [],
 					"layers": [{
 						"title": "Nepal Point Layer",
-						"database": "nepal_2",
+						"database": "nepal_3",
 						"table": "ui_output",
 						"latitudeField": "geoLocations.lat",
 						"longitudeField": "geoLocations.lon",
 						"dateField": "createdAt"
 					}],
-					"geoServer": {
-						"offline": false,
+					"customServer": {
+						"userCustomServer": false,
 						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
 						"layer": "lorelei_workspace:MapCityLabel"
 					},
@@ -2270,7 +2270,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Timeline",
-					"database": "nepal_2",
+					"database": "nepal_3",
 					"table": "ui_output",
 					"dateField": "createdAt",
 					"granularity": "month"
@@ -2291,7 +2291,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation Documents",
-					"database": "nepal_2",
+					"database": "nepal_3",
 					"table": "ui_output",
 					"dataField": "originalText",
 					"dateField": "createdAt",
@@ -2580,8 +2580,8 @@
 					"east": -67.5438232422,
 					"north": 20.7218648877,
 					"south": 17.0139322219,
-					"geoServer": {
-						"offline": false,
+					"customServer": {
+						"userCustomServer": false,
 						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
 						"layer": "lorelei_workspace:MapCityLabel"
 					},

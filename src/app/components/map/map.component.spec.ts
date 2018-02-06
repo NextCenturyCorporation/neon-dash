@@ -136,7 +136,7 @@ describe('Component: Map', () => {
         expect(component.getOptionFromConfig('minClusterSize')).toBe(5);
         expect(component.getOptionFromConfig('clusterPixelRange')).toBe(15);
         expect(component.getOptionFromConfig('hoverPopupEnabled')).toBe(false);
-        expect(component.getOptionFromConfig('geoServer')).toEqual({});
+        expect(component.getOptionFromConfig('customServer')).toEqual({});
         expect(component.getOptionFromConfig('mapType')).toBe(MapType.leaflet);
     });
 
