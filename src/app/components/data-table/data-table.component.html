@@ -38,7 +38,7 @@
                     <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                 </mat-select>
                 <p></p>
-
+            <!--
                 <table cellspacing="0">
                     <tr>
                         <td>
@@ -53,6 +53,7 @@
                         </td>
                     </tr>
                 </table>
+            -->
                 <p></p>
                 Column Selector:
                 <mat-button-toggle-group #showColumnSelector="matButtonToggleGroup" [(ngModel)]="active.showColumnSelector">
