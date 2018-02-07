@@ -72,6 +72,8 @@ import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { AppMaterialModule } from './app.material.module';
 import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
+import { NgxGraphModule } from '@swimlane/ngx-graph';
+import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -97,6 +99,7 @@ export function getAppConfig() {
         LegendComponent,
         LineChartComponent,
         MapComponent,
+        NetworkGraphComponent,
         ScatterPlotComponent,
         SimpleFilterComponent,
         SimpleSnackBarComponent,
@@ -119,7 +122,8 @@ export function getAppConfig() {
         ChartModule,
         NgxDatatableModule,
         BrowserAnimationsModule,
-        AppMaterialModule
+        AppMaterialModule,
+        NgxGraphModule
     ],
     providers: [
         ActiveGridService,
