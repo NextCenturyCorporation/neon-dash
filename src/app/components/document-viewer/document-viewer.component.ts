@@ -61,6 +61,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         metadataFields: any[], // Array of arrays. Each internal array is a row of metadata and contains {name, field} objects.
         popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
         limit: number,
+        limitDisabled: boolean,
         showText: boolean,
         showSelect: boolean
     };
@@ -92,6 +93,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             metadataFields: this.injector.get('metadataFields', null),
             popoutFields: this.injector.get('popoutFields', null),
             limit: this.injector.get('limit', null),
+            limitDisabled: this.injector.get('limitDisabled', true),
             showText: this.injector.get('showText', false),
             showSelect: this.injector.get('showSelect', true)
         };

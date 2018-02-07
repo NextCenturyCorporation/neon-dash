@@ -59,18 +59,20 @@
                 <p></p>
 
                 <!-- Limit selector -->
+                <!--
                 <table cellspacing="0">
                     <tr>
                         <td>
-                            <input matInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                            <input [disabled]="optionsFromConfig.limitDisabled" matInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
                         </td>
                         <td>
-                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeField()">
+                            <button [disabled]="optionsFromConfig.limitDisabled" mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeField()">
                                 <mat-icon class="mat-24">refresh</mat-icon>
                             </button>
                         </td>
                     </tr>
                 </table>
+                -->
                 <p></p>
 
                 <!-- Unshared filter -->
@@ -117,7 +119,7 @@
     </mat-sidenav>
 
     <!-- View documents -->
-    <mat-list class="document-viewer-list-container document-viewer-scroll-box">
+    <mat-list class="document-viewer-list-container contained-scroll-box-with-footer">
 
         <div class="mat-list-item-text document-viewer-list-item" layout="column">
             <table class="document-viewer-table">
@@ -144,12 +146,12 @@
         </div>
 
     </mat-list>
-    <div class="document-viewer-footer">
+    <div class="footer">
         <div class="footer-divider"></div>
-        <div class="document-viewer-footer-button-container">
-            <button mat-raised-button [disabled]="active.page == 1" class="document-viewer-prev-next-button" (click)="previousPage()">Previous</button>
-            <span class="document-viewer-button-prev-next-spacer"></span>
-            <button mat-raised-button [disabled]="active.page*active.limit >= active.docCount" class="document-viewer-prev-next-button" (click)="nextPage()">Next</button>
+        <div class="footer-button-container">
+            <button mat-raised-button [disabled]="active.page == 1" class="pagination-button" (click)="previousPage()">Previous</button>
+            <span class="pagination-button-spacer"></span>
+            <button mat-raised-button [disabled]="active.page*active.limit >= active.docCount" class="pagination-button" (click)="nextPage()">Next</button>
         </div>
     </div>
 

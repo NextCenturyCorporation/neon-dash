@@ -61,6 +61,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         idField: string,
         sortField: string,
         limit: number,
+        limitDisabled: boolean,
         unsharedFilterField: Object,
         unsharedFilterValue: string
     };
@@ -70,6 +71,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         sortField: FieldMetaData,
         andFilters: boolean,
         limit: number,
+        page: number,
+        docCount: number,
         filterable: boolean,
         layers: any[],
         data: Object[],
@@ -101,6 +104,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             idField: this.injector.get('idField', null),
             sortField: this.injector.get('sortField', null),
             limit: this.injector.get('limit', 100),
+            limitDisabled: this.injector.get('limitDisabled', true),
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
@@ -110,6 +114,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             sortField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
+            page: 1,
+            docCount: 0,
             filterable: true,
             layers: [],
             data: [],
@@ -260,6 +266,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
+        let limit = this.active.limit;
+        let offset = ((this.active.page)-1)*limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause: any = neon.query.where(this.active.sortField.columnName, '!=', null);
 
@@ -269,7 +277,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 this.meta.unsharedFilterValue));
         }
 
-        return query.where(whereClause).sortBy(this.active.sortField.columnName, neonVariables.DESCENDING).limit(this.active.limit);
+        return query.where(whereClause).sortBy(this.active.sortField.columnName, neonVariables.DESCENDING).limit(this.active.limit).offset(offset);
     }
 
     getFiltersToIgnore() {
@@ -310,6 +318,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onQuerySuccess(response): void {
+        if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
+            this.active.docCount = response.data[0]._docCount;
+            console.log(this.active.docCount);
+        } else {
         let data = response.data.map(function(d) {
             let row = {};
             for (let field of this.meta.fields)  {
@@ -320,12 +332,24 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             return row;
         }.bind(this));
         this.active.data = data;
+        this.getDocCount();
         this.refreshVisualization();
+    }
+    }
+
+    getDocCount() {
+        let databaseName = this.meta.database.name;
+        let tableName = this.meta.table.name;
+        let countQuery = new neon.query.Query()
+            .selectFrom(databaseName, tableName)
+            .aggregate(neonVariables.COUNT, '*', '_docCount');
+        this.executeQuery(countQuery);
     }
 
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
+        this.active.page = 1;
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = [this.active.sortField.columnName];
@@ -472,6 +496,29 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     removeFilter() {
         this.filters = [];
+    }
+
+    nextPage(){
+        this.active.page += 1;
+        this.executeQueryChain();
+    }
+
+    previousPage(){
+        this.active.page -= 1;
+        this.executeQueryChain();
+    }
+
+    getButtonText() {
+        let min = ((this.active.page-1)*this.active.limit);
+        let max = min + this.active.limit;
+        if (max > this.active.docCount){
+            max = this.active.docCount;
+        }
+        return !this.active.data.length ?
+            'No Data' :
+            this.active.data.length < this.active.docCount ?
+                (min+1) + ' - ' + max + ' of ' + this.active.docCount :
+                'Total ' + this.active.data.length;
     }
 
     /**

@@ -38,6 +38,49 @@
     	height: calc(100% - #{$vis-title-expected-height});
     }
 
+    .footer-button-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 8px;
+        height: 41px;
+    }
+
+    .pagination-button-spacer {
+        flex: 0 0 8px;
+    }
+
+    .pagination-button {
+        flex: 1 0 0;
+        background-color: mat-color($primary);
+        color: mat-color($white);
+        line-height: 20px;
+        height: 40px;
+    }
+
+    .pagination-button[disabled] {
+        @extend .pagination-button;
+        background-color: #dcdcdc;
+        color: #adadad;
+    }
+
+    .footer {
+        position: absolute;
+        bottom: 0;
+        height: 60px;
+        width: 100%;
+    }
+
+    .footer-divider {
+        background-color: $accent-bright;
+        height: 3px;
+    }
+
+    .contained-scroll-box-with-footer {
+        overflow-y: auto;
+        height: calc(100% - #{$vis-title-expected-height} - 60px);
+    }
+
     .visualization-sidenav-options {
         min-width: 320px;
 
