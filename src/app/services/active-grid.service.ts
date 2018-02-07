@@ -20,6 +20,8 @@ import { NeonGridItem } from '../neon-grid-item';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import * as _ from 'lodash';
 import * as uuid from 'node-uuid';
+import { BaseNeonComponent } from '../components/base-neon-component/base-neon.component';
+import { BaseLayeredNeonComponent } from '../components/base-neon-component/base-layered-neon.component';
 
 /*
  * This service manages the active grid on the current dashboard.  This service can be used to
@@ -39,13 +41,30 @@ export class ActiveGridService {
     private gridItems: NeonGridItem[] = [];
     private grid: NgGrid;
     private gridConfig: NgGridConfig;
+    private visualizations: Map<string, BaseNeonComponent | BaseLayeredNeonComponent> = new Map();
 
     constructor() {
         // Do nothing.
     }
 
     clear() {
+        // TODO - Wait, does this even work?
+        // How does setting an array's length to 0 clear the array?
         this.gridItems.length = 0;
+    }
+
+    register(id: string, self: BaseNeonComponent | BaseLayeredNeonComponent) {
+        if (this.visualizations.get(id) === undefined) {
+            this.visualizations.set(id, self);
+        }
+    }
+
+    unregister(id: string) {
+        this.visualizations.delete(id);
+    }
+
+    getVisualizationById(id: string): BaseNeonComponent | BaseLayeredNeonComponent {
+        return this.visualizations.get(id);
     }
 
     contractItem(item: NeonGridItem) {

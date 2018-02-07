@@ -23,6 +23,7 @@ import {
     ChangeDetectorRef,
     ViewContainerRef
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -75,10 +76,12 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         metadataFields: any[]
     };
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, public viewContainerRef: ViewContainerRef,
-        ref: ChangeDetectorRef, visualizationService: VisualizationService, public dialog: MatDialog) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+        public viewContainerRef: ViewContainerRef, ref: ChangeDetectorRef, visualizationService: VisualizationService,
+        public dialog: MatDialog) {
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -180,7 +183,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let limit = this.active.limit;
-        let offset = ((this.active.page)-1)*limit;
+        let offset = ((this.active.page) - 1) * limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
         let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
@@ -237,15 +240,15 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     getButtonText() {
-        let min = ((this.active.page-1)*this.active.limit);
+        let min = ((this.active.page - 1) * this.active.limit);
         let max = min + this.active.limit;
-        if (max > this.active.docCount){
+        if (max > this.active.docCount) {
             max = this.active.docCount;
         }
         return !this.active.data.length ?
             'No Data' :
             this.active.data.length < this.active.docCount ?
-                (min+1) + ' - ' + max + ' of ' + this.active.docCount :
+                (min + 1) + ' - ' + max + ' of ' + this.active.docCount :
                 'Total ' + this.active.data.length;
     }
 
@@ -343,12 +346,12 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         }
     }
 
-    nextPage(){
+    nextPage() {
         this.active.page += 1;
         this.executeQueryChain();
     }
 
-    previousPage(){
+    previousPage() {
         this.active.page -= 1;
         this.executeQueryChain();
     }

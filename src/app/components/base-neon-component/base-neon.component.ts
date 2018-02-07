@@ -19,6 +19,7 @@ import {
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -73,6 +74,7 @@ export abstract class BaseNeonComponent implements OnInit,
     public emptyField = new FieldMetaData();
 
     constructor(
+        private activeGridService: ActiveGridService,
         private connectionService: ConnectionService,
         private datasetService: DatasetService,
         protected filterService: FilterService,
@@ -126,6 +128,7 @@ export abstract class BaseNeonComponent implements OnInit,
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
         this.visualizationService.registerBindings(this.id, this);
+        this.activeGridService.register(this.id, this);
 
         this.outstandingDataQuery = {};
         for (let database of this.datasetService.getDatabases()) {
@@ -264,6 +267,7 @@ export abstract class BaseNeonComponent implements OnInit,
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
         this.visualizationService.unregister(this.id);
+        this.activeGridService.unregister(this.id);
         /* $scope.element.off('resize', resize);
         $scope.element.find('.headers-container').off('resize', resizeDisplay);
         $scope.element.find('.options-menu-button').off('resize', resizeTitle);

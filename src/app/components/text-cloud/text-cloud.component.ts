@@ -15,6 +15,7 @@
  */
 import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, Injector } from '@angular/core';
 import { TextCloud, TextCloudOptions, SizeOptions, ColorOptions } from './text-cloud-namespace';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -81,10 +82,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     // Average should be the default. It is loaded from the optionsFromConfig
     public sizeAggregation: string;
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
-                visualizationService: VisualizationService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+        ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),

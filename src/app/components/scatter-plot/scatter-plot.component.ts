@@ -23,6 +23,7 @@ import {
     ViewChild,
     ChangeDetectorRef, ElementRef
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -169,10 +170,11 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         y: 0
     };
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService,
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),

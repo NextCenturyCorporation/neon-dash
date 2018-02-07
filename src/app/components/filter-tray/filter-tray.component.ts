@@ -16,6 +16,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatDialogRef } from '@angular/material';
 
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ParameterService } from '../../services/parameter.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -35,8 +36,8 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
         formatted: any[]
     };
 
-    constructor(private filterService: FilterService, public themesService: ThemesService,
-        public dialogRef: MatDialogRef<FilterTrayComponent>) {
+    constructor(private activeGridService: ActiveGridService, private filterService: FilterService,
+        public themesService: ThemesService, public dialogRef: MatDialogRef<FilterTrayComponent>) {
         this.messenger = new neon.eventing.Messenger();
         this.themesService = themesService;
         this.filters = {
@@ -64,6 +65,8 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
 
     removeFilter(filterIds: string[]) {
         let onSuccess = (removedFilter) => {
+            let visualization = this.activeGridService.getVisualizationById(removedFilter.ownerId);
+            visualization.removeFilter(removedFilter);
             this.onEventChanged();
         };
         this.filterService.removeFilters(this.messenger, filterIds, onSuccess.bind(this));

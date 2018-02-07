@@ -19,6 +19,7 @@ import {
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -75,6 +76,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     public emptyField = new FieldMetaData();
 
     constructor(
+        private activeGridService: ActiveGridService,
         private connectionService: ConnectionService,
         private datasetService: DatasetService,
         protected filterService: FilterService,
@@ -129,6 +131,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
         this.visualizationService.registerBindings(this.id, this);
+        this.activeGridService.register(this.id, this);
 
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
@@ -329,6 +332,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
         this.visualizationService.unregister(this.id);
+        this.activeGridService.unregister(this.id);
         this.subNgOnDestroy();
     }
 
@@ -791,7 +795,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * Called when a filter has been removed
      * @param value the filter name
      */
-    abstract removeFilter(value: string): void;
+    abstract removeFilter(filter: any): void;
 
     /**
      * Remove a filter from neon, and optionally requery and/or refresh

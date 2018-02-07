@@ -16,6 +16,7 @@
 import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Injector, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Http } from '@angular/http';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
@@ -62,11 +63,12 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
 
     private isLoadingWikiPage: boolean;
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
-        visualizationService: VisualizationService, private http: Http, private sanitizer: DomSanitizer) {
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+        ref: ChangeDetectorRef, visualizationService: VisualizationService, private http: Http, private sanitizer: DomSanitizer) {
 
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+        super(activeGridService, connectionService, datasetService,
+            filterService, exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             database: this.injector.get('database', null),
             id: this.injector.get('id', null),
