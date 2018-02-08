@@ -567,14 +567,14 @@ describe('Component: TextCloud', () => {
     });
 
     it('has an isFilterSet method that properly checks for local filters', () => {
-        var filter1 = { 
+        let filter1 = {
             id: '1q2w-3e4r-5t6y-7u8i',
             key: 'testDataField',
             value: 'testValue',
             translated: '',
             prettyKey: 'testDataField'
         };
-        var filter2 = { 
+        let filter2 = {
             id: '0p9o-8i7u-6y5t-4r3e',
             key: 'testDataField',
             value: 'testValueTheSecond',

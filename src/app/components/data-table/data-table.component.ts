@@ -267,7 +267,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let limit = this.active.limit;
-        let offset = ((this.active.page)-1)*limit;
+        let offset = ((this.active.page) - 1) * limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause: any = neon.query.where(this.active.sortField.columnName, '!=', null);
 
@@ -277,7 +277,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 this.meta.unsharedFilterValue));
         }
 
-        return query.where(whereClause).sortBy(this.active.sortField.columnName, neonVariables.DESCENDING).limit(this.active.limit).offset(offset);
+        return query.where(whereClause)
+            .sortBy(this.active.sortField.columnName, neonVariables.DESCENDING)
+            .limit(this.active.limit)
+            .offset(offset);
     }
 
     getFiltersToIgnore() {
@@ -320,7 +323,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     onQuerySuccess(response): void {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.active.docCount = response.data[0]._docCount;
-            console.log(this.active.docCount);
         } else {
         let data = response.data.map(function(d) {
             let row = {};
@@ -498,26 +500,26 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.filters = [];
     }
 
-    nextPage(){
+    nextPage() {
         this.active.page += 1;
         this.executeQueryChain();
     }
 
-    previousPage(){
+    previousPage() {
         this.active.page -= 1;
         this.executeQueryChain();
     }
 
     getButtonText() {
-        let min = ((this.active.page-1)*this.active.limit);
+        let min = ((this.active.page - 1) * this.active.limit);
         let max = min + this.active.limit;
-        if (max > this.active.docCount){
+        if (max > this.active.docCount) {
             max = this.active.docCount;
         }
         return !this.active.data.length ?
             'No Data' :
             this.active.data.length < this.active.docCount ?
-                (min+1) + ' - ' + max + ' of ' + this.active.docCount :
+                (min + 1) + ' - ' + max + ' of ' + this.active.docCount :
                 'Total ' + this.active.data.length;
     }
 
