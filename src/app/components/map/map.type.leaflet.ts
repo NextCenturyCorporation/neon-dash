@@ -143,7 +143,7 @@ export class LeafletNeonMap extends AbstractMap {
             hiddenPoints = [];
         }
 
-        group.eachLayer((circle: L.Layer) => {
+        group.eachLayer((circle: any) => {
             if (circle.options.colorByValue === value) {
                 hiddenPoints.push(circle);
                 group.removeLayer(circle);
