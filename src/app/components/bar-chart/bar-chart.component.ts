@@ -659,6 +659,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeChartType() {
+        if (!this.chartModule.chart) {
+            return;
+        }
+
         let barData = this.chartInfo.data;
         let barOptions = this.chartInfo.options;
 

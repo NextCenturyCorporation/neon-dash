@@ -21,6 +21,7 @@ import { MapComponent } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { TranslationService } from '../../services/translation.service';
@@ -56,10 +57,10 @@ function webgl_support(): any {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 class TestMapComponent extends MapComponent {
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-                exportService: ExportService, injector: Injector, themesService: ThemesService,
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+                filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
                 colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
-        super(connectionService, datasetService, filterService, exportService, injector,
+        super(activeGridService, connectionService, datasetService, filterService, exportService, injector,
             themesService, colorSchemeSrv, ref, visualizationService);
     }
     getMapPoints(lngField: string, latField: string, colorField: string, data: any[]) {
@@ -102,6 +103,7 @@ describe('Component: Map', () => {
                 ExportControlComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 DatasetService,
                 { provide: FilterService, useClass: FilterMock },

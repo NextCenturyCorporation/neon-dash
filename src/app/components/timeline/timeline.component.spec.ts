@@ -23,6 +23,7 @@ import {} from 'jasmine-core';
 
 import { TimelineComponent } from './timeline.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -52,6 +53,7 @@ describe('Component: Timeline', () => {
         UnsharedFilterComponent
       ],
       providers: [
+        ActiveGridService,
         ConnectionService,
         DatasetService,
         FilterService,

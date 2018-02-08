@@ -23,6 +23,7 @@ import { ChartModule } from 'angular2-chartjs';
 
 import { TextCloudComponent } from './text-cloud.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -71,6 +72,7 @@ describe('Component: TextCloud', () => {
                 UnsharedFilterComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 {
                     provide: DatasetService,
@@ -565,26 +567,28 @@ describe('Component: TextCloud', () => {
     });
 
     it('has an isFilterSet method that properly checks for local filters', () => {
-        expect(component.isFilterSet()).toBeFalsy();
-        component.addLocalFilter({
+        var filter1 = { 
             id: '1q2w-3e4r-5t6y-7u8i',
             key: 'testDataField',
             value: 'testValue',
             translated: '',
             prettyKey: 'testDataField'
-        });
-        expect(component.isFilterSet()).toBeTruthy();
-        component.addLocalFilter({
+        };
+        var filter2 = { 
             id: '0p9o-8i7u-6y5t-4r3e',
             key: 'testDataField',
             value: 'testValueTheSecond',
             translated: '',
             prettyKey: 'testDataField'
-        });
+        };
+        expect(component.isFilterSet()).toBeFalsy();
+        component.addLocalFilter(filter1);
         expect(component.isFilterSet()).toBeTruthy();
-        component.removeFilter('1q2w-3e4r-5t6y-7u8i');
+        component.addLocalFilter(filter2);
         expect(component.isFilterSet()).toBeTruthy();
-        component.removeFilter('0p9o-8i7u-6y5t-4r3e');
+        component.removeFilter(filter1);
+        expect(component.isFilterSet()).toBeTruthy();
+        component.removeFilter(filter2);
         expect(component.isFilterSet()).toBeFalsy();
     });
 
@@ -740,12 +744,12 @@ describe('Component: TextCloud', () => {
         expect(component.getFilterData()).toEqual([filter1]);
         component.addLocalFilter(filter2);
         expect(component.getFilterData()).toEqual([filter1, filter2]);
-        component.removeFilter('12345');
+        component.removeFilter(filter1);
         expect(component.getFilterData()).toEqual([filter2]);
         component.addLocalFilter(filter1);
         expect(component.getFilterData()).toEqual([filter2, filter1]);
-        component.removeFilter('12345');
-        component.removeFilter('67890');
+        component.removeFilter(filter1);
+        component.removeFilter(filter2);
         expect(component.getFilterData()).toEqual([]);
     });
 
@@ -803,12 +807,12 @@ describe('Component: TextCloud', () => {
         expect(component.getFilterData()).toEqual([filter1]);
         component.addLocalFilter(filter2);
         expect(component.getFilterData()).toEqual([filter1, filter2]);
-        component.removeFilter('12345');
+        component.removeFilter(filter1);
         expect(component.getFilterData()).toEqual([filter2]);
         component.addLocalFilter(filter1);
         expect(component.getFilterData()).toEqual([filter2, filter1]);
-        component.removeFilter('12345');
-        component.removeFilter('67890');
+        component.removeFilter(filter1);
+        component.removeFilter(filter2);
         expect(component.getFilterData()).toEqual([]);
     });
 
@@ -847,6 +851,7 @@ describe('Component: Textcloud with config', () => {
                 UnsharedFilterComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 DatasetService,
                 FilterService,
@@ -923,6 +928,7 @@ describe('Component: Textcloud with config including configFilter', () => {
                 UnsharedFilterComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 DatasetService,
                 FilterService,

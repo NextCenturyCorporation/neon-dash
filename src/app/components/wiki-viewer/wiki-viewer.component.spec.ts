@@ -30,6 +30,7 @@ import * as neon from 'neon-framework';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { WikiViewerComponent } from './wiki-viewer.component';
 
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -65,6 +66,7 @@ describe('Component: WikiViewer', () => {
                 ExportControlComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 DatasetService,
                 ExportService,
@@ -588,6 +590,7 @@ describe('Component: WikiViewer with config', () => {
                 ExportControlComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 {
                     provide: DatasetService,
