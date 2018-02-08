@@ -17,43 +17,51 @@
                 </label>
                 <p></p>
 
-                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true"
+                                (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true"
+                                (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true" (ngModelChange)="handleChangeDateField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true"
+                                (ngModelChange)="handleChangeDateField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true" (ngModelChange)="handleChangeGroupField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true"
+                                (ngModelChange)="handleChangeGroupField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true" (ngModelChange)="handleChangeAggregation()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option value="count">Count</mat-option>
-                    <mat-option value="sum">Sum</mat-option>
-                    <mat-option value="average">Average</mat-option>
-                    <mat-option value="max">Maximum</mat-option>
-                    <mat-option value="min">Minimum</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true"
+                                (ngModelChange)="handleChangeAggregation()" [disabled]="meta.fields.length == 0">
+                        <mat-option value="count">Count</mat-option>
+                        <mat-option value="sum">Sum</mat-option>
+                        <mat-option value="average">Average</mat-option>
+                        <mat-option value="max">Maximum</mat-option>
+                        <mat-option value="min">Minimum</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select *ngIf="!active.aggregationFieldHidden" placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField"
-                    required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field *ngIf="!active.aggregationFieldHidden">
+                    <mat-select placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField"
+                            required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
                 <mat-button-toggle-group #hourGranularity="matButtonToggleGroup" [(ngModel)]="active.granularity" (ngModelChange)="handleChangeGranularity()">
                     <!--<mat-button-toggle value="year">
@@ -109,8 +117,7 @@
         </div>
         <div #chartContainer class="chart-container" (click)="stopEventPropagation($event)" (mousedown)="mouseDown($event)" (mouseleave)="mouseLeave($event)">
             <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x + selectionOffset.x, 'top.px':selection.y + selectionOffset.y}"></div>
-            <chart class="chart" #myChart [type]="chart.type" [data]="chart.data" [options]="chart.options">
-            </chart>
+            <app-chart class="chart" #myChart [type]="chart.type" [data]="chart.data" [options]="chart.options"></app-chart>
 
         </div>
     </div>

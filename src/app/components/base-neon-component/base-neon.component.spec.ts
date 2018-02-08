@@ -24,7 +24,6 @@ import {
     OnInit,
     ViewEncapsulation
 } from '@angular/core';
-import { ChartModule } from 'angular2-chartjs';
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
@@ -41,7 +40,6 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { neonMappings } from '../../neon-namespaces';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
-import { Set, Map } from 'hash-set-map';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { basename } from 'path';
 import * as neon from 'neon-framework';

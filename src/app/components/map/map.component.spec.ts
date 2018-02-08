@@ -137,7 +137,7 @@ describe('Component: Map', () => {
         expect(component.getOptionFromConfig('clusterPixelRange')).toBe(15);
         expect(component.getOptionFromConfig('hoverPopupEnabled')).toBe(false);
         expect(component.getOptionFromConfig('customServer')).toEqual({});
-        expect(component.getOptionFromConfig('mapType')).toBe(MapType.leaflet);
+        expect(component.getOptionFromConfig('mapType')).toBe(MapType.Leaflet);
     });
 
     it('should create the default map (Leaflet)', () => {
@@ -146,7 +146,7 @@ describe('Component: Map', () => {
 
     it('should change map type to Cesium', () => {
         if (webgl_support()) {
-            component.handleChangeMapType(MapType.cesium);
+            component.handleChangeMapType(MapType.Cesium);
             let mapElement = getDebug('.leaflet-container'),
                 el = mapElement && mapElement.nativeElement,
                 cesium = el && el.firstChild;
@@ -168,7 +168,8 @@ describe('Component: Map', () => {
                     expected: [
                         new MapPoint(
                             '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 4'
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 4',
+                            'category', 'a'
                         )
                     ]
                 },
@@ -182,19 +183,23 @@ describe('Component: Map', () => {
                     expected: [
                         new MapPoint(
                             '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1'
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
+                            'category', 'a'
                         ),
                         new MapPoint(
                             '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
-                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1'
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
+                            'category', 'b'
                         ),
                         new MapPoint(
                             '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
-                            colorService.getColorFor('category', 'c').toRgb(), 'Count: 1'
+                            colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
+                            'category', 'c'
                         ),
                         new MapPoint(
                             '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
-                            colorService.getColorFor('category', 'd').toRgb(), 'Count: 1'
+                            colorService.getColorFor('category', 'd').toRgb(), 'Count: 1',
+                            'category', 'd'
                         )
                     ]
                 },
@@ -206,7 +211,8 @@ describe('Component: Map', () => {
                     expected: [
                         new MapPoint(
                             '0.000\u00b0, 0.000\u00b0', 0, 0, 8,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 8'
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 8',
+                            'category', 'a'
                         )
                     ]
                 },
@@ -218,35 +224,43 @@ describe('Component: Map', () => {
                     expected: [
                         new MapPoint(
                             '0.000\u00b0, 3.000\u00b0', 0, 3, 1,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1'
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
+                            'category', 'a'
                         ),
                         new MapPoint(
                             '0.000\u00b0, 2.000\u00b0', 0, 2, 1,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1'
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
+                            'category', 'a'
                         ),
                         new MapPoint(
                             '0.000\u00b0, 1.000\u00b0', 0, 1, 1,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1'
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
+                            'category', 'a'
                         ),
                         new MapPoint(
                             '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1'
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
+                            'category', 'a'
                         ),
                         new MapPoint(
                             '0.000\u00b0, 7.000\u00b0', 0, 7, 1,
-                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1'
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
+                            'category', 'b'
                         ),
                         new MapPoint(
                             '0.000\u00b0, 6.000\u00b0', 0, 6, 1,
-                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1'
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
+                            'category', 'b'
                         ),
                         new MapPoint(
                             '0.000\u00b0, 5.000\u00b0', 0, 5, 1,
-                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1'
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
+                            'category', 'b'
                         ),
                         new MapPoint(
                             '0.000\u00b0, 4.000\u00b0', 0, 4, 1,
-                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1'
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
+                            'category', 'b'
                         )
                     ]
                 }

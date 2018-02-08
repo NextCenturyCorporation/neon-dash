@@ -19,8 +19,7 @@ import {
     MatCardModule, MatCheckboxModule, MatDialogModule, MatGridListModule, MatIconModule, MatInputModule,
     MatListModule, MatMenuModule, MatProgressBarModule, MatProgressSpinnerModule, MatRadioModule, MatRippleModule,
     MatSelectModule, MatSidenavModule, MatSliderModule, MatSlideToggleModule, MatSnackBarModule, MatTabsModule,
-    MatToolbarModule, MatTooltipModule,
-    MATERIAL_COMPATIBILITY_MODE
+    MatToolbarModule, MatTooltipModule
 } from '@angular/material';
 
 const MD_MODULES = [
@@ -52,12 +51,7 @@ const MD_MODULES = [
     declarations: [],
     imports: MD_MODULES,
     exports: MD_MODULES,
-    providers: [
-        {
-            provide: MATERIAL_COMPATIBILITY_MODE,
-            useValue: true
-        }
-    ],
+    providers: [],
     entryComponents: [],
     bootstrap: []
 })

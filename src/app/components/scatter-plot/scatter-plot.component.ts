@@ -34,7 +34,7 @@ import { FieldMetaData } from '../../dataset';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ChartModule } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 import { VisualizationService } from '../../services/visualization.service';
 
 /**
@@ -102,11 +102,11 @@ class ScatterDataSet {
 export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
 
-    @ViewChild('scatter') chartModule: ChartModule;
+    @ViewChild('scatter') chartModule: ChartComponent;
     @ViewChild('textContainer') textContainer: ElementRef;
     @ViewChild('chartContainer') chartContainer: ElementRef;
 
-    private filters: ScatterPlotFilter[];
+    filters: ScatterPlotFilter[];
 
     private defaultActiveColor;
 

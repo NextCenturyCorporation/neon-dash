@@ -5,7 +5,7 @@
 
     <mat-menu #menu="matMenu" [overlapTrigger]="false">
         <div *ngFor="let colorSet of colorSets">
-            <button mat-menu-item *ngFor="let key of colorSet.getAllKeys()" (click)="keySelected($event, key)">
+            <button mat-menu-item *ngFor="let key of colorSet.getAllKeys()" (click)="keySelected($event, colorSet.name, key)">
                 <mat-icon size="24" [ngStyle]="{'color': getColorFor(colorSet, key)}">{{ getIcon(key) }}</mat-icon>
                 <span [ngStyle]="{'color': getColorFor(colorSet, key)}" >{{ key }}</span>
             </button>

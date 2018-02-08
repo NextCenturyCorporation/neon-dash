@@ -10,15 +10,7 @@ Building the **neon-dash** application requires [Node.js][Node.js] (Version 6.9.
 
 		npm install -g @angular/cli
 
-The recommended package manager for the project is the [Yarn Package Manager][yarn]. To install yarn:
-
-		npm install -g yarn
-
 Now, install the dependencies:
-
-		yarn install
-		
-If you decide not to use, yarn, use npm to install the dependencies: 
 
 		npm install
 
@@ -26,7 +18,7 @@ If you decide not to use, yarn, use npm to install the dependencies:
 
 Start a [Neon server][neon] running on port 8080. As an alternate to building the server, you can use the [Neon Quickstart Docker Image][neon-quickstart].
 
-Run `npm start` or `yarn start` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Run `npm start` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
 ## Build for Deployment
 
@@ -34,7 +26,7 @@ If you need to deliver the application to someone else, so need the war file, ru
 
 ## Generating Documentation
 
-Run `npm run docs` or `yarn docs` to generate the documentation into the `docs/` directory.
+Run `npm run docs` to generate the documentation into the `docs/` directory.
 
 ## Running unit tests
 
@@ -82,9 +74,9 @@ Running the application requires a functioning Neon deployment.  Links to the Ne
         cp app/config/sample.config.yaml app/config/config.yaml
         cp app/config/sample.config.json app/config/config.json
 
-4. Use npm or yarn to download dependencies, then build the application:
+4. Use npm to download dependencies, then build the application:
 
-        npm install # OR 'yarn install'
+        npm install
         ng build --base-href /neon-dash/
 
 5. Deploy the built webapp to your container from step 1.
@@ -129,7 +121,6 @@ Copyright 2017 Next Century Corporation
 [ng-cli]: https://github.com/angular/angular-cli
 [Node.js]: https://nodejs.org/en/
 [tomcat]: http://tomcat.apache.org/
-[yarn]: https://yarnpkg.com/
 
 [1]: https://github.com/NextCenturyCorporation/neon/wiki
 [2]: https://github.com/NextCenturyCorporation/neon/wiki/Build-Instructions

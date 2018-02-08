@@ -28,25 +28,43 @@
                 <span class="clause-item"></span>
             </div>-->
             <div class="where-clause-container" *ngFor="let where of active.whereClausesAsList">
-                <mat-select class="clause-item" placeholder="Database" [(ngModel)]="where.database" required="true" (ngModelChange)="handleChangeDatabase(where)"
-                    [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
-                <mat-select class="clause-item" placeholder="Table" [(ngModel)]="where.table" required="true" (ngModelChange)="handleChangeTable(where)"
-                    [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
-                <mat-select class="clause-item" placeholder="Field" [(ngModel)]="where.field" required="true" (ngModelChange)="handleChangeField(where)"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <mat-select class="clause-item" placeholder="Operator" [(ngModel)]="where.operator" required="true" (ngModelChange)="handleChangeOperator(where)"
-                    [disabled]="active.operators.length == 0">
-                    <mat-option *ngFor="let operator of active.operators" [value]="operator">{{ operator.prettyName }}</mat-option>
-                </mat-select>
-                <mat-form-field class="clause-item">
-                    <input matInput placeholder="Value" [(ngModel)]="where.value" (change)="handleValueChange($event, where)">
+
+                <mat-form-field>
+                    <mat-select class="clause-item" placeholder="Database" [(ngModel)]="where.database"
+                                required="true" (ngModelChange)="handleChangeDatabase(where)"
+                                [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
                 </mat-form-field>
+
+                <mat-form-field>
+                    <mat-select class="clause-item" placeholder="Table" [(ngModel)]="where.table"
+                                required="true" (ngModelChange)="handleChangeTable(where)"
+                                [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-select class="clause-item" placeholder="Field" [(ngModel)]="where.field"
+                                required="true" (ngModelChange)="handleChangeField(where)"
+                                [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field>
+                    <mat-select class="clause-item" placeholder="Operator" [(ngModel)]="where.operator"
+                                required="true" (ngModelChange)="handleChangeOperator(where)"
+                                [disabled]="active.operators.length == 0">
+                        <mat-option *ngFor="let operator of active.operators" [value]="operator">{{ operator.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+                <mat-form-field class="clause-item">
+                    <input matInput placeholder="Value" [(ngModel)]="where.value" (change)="handleValueChange($event, i)">
+                </mat-form-field>
+
                 <div class="clause-item clause-button-container">
                     <button mat-mini-fab class="clause-button" (click)="addBlankWhereClause()" matTooltip="Add New Clause" tooltip-position="below"><mat-icon>add</mat-icon></button>
                     <button mat-mini-fab class="clause-button" (click)="refreshClause(where)" *ngIf="where.active" matTooltip="Refresh Clause" tooltip-position="below"><mat-icon>refresh</mat-icon></button>

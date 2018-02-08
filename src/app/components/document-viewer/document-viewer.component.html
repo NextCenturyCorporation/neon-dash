@@ -16,26 +16,28 @@
                     <mat-icon class="error-icon">error</mat-icon>
                     {{ getButtonText() }}
                 </label>
-                <p></p>
 
                 <!-- Database selector -->
-                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
                 <!-- Table selector -->
-                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
                 <!-- Text field selector -->
-                <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeField()"
+                        [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
                 <!-- Text toggle -->
                 <mat-button-toggle-group [(ngModel)]="optionsFromConfig.showText">
@@ -45,18 +47,20 @@
                 <p></p>
 
                 <!-- Date field selector -->
-                <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="false" (ngModelChange)="handleChangeField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="false" (ngModelChange)="handleChangeField()"
+                        [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
                 <!-- ID field selector -->
-                <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()"
+                        [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
                 <!-- Limit selector -->
                 <!--

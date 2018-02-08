@@ -17,8 +17,6 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { ChartModule } from 'angular2-chartjs';
-
 import {} from 'jasmine-core';
 
 import { LineChartComponent } from './line-chart.component';
@@ -36,6 +34,7 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { VisualizationService } from '../../services/visualization.service';
+import { ChartComponent } from '../chart/chart.component';
 
 describe('Component: LineChart', () => {
   let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -47,7 +46,8 @@ describe('Component: LineChart', () => {
       declarations: [
         LineChartComponent,
         LegendComponent,
-        ExportControlComponent
+        ExportControlComponent,
+        ChartComponent
       ],
       providers: [
         ConnectionService,
@@ -65,7 +65,6 @@ describe('Component: LineChart', () => {
       imports: [
         AppMaterialModule,
         FormsModule,
-        ChartModule,
         BrowserAnimationsModule
       ]
     });

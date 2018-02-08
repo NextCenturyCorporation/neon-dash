@@ -22,25 +22,29 @@
                     <div class="wiki-name text">Total {{ active.wikiName.length }}</div>
                 </div>
 
-                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length < 1">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length < 1">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length < 1">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
+                <mat-form-field>
+                    <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length < 1">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
             </mat-card-content>
