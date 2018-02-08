@@ -136,13 +136,15 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             active: false,
             id: ++this.counter
         };
-        let databaseTableKey = this.getDatabaseTableKey(clause.database.name, clause.table.name);
-        if (!this.active.whereClauses[databaseTableKey]) {
-            this.active.whereClauses.set(databaseTableKey, new FilterBuilderDatabaseTableMetadata());
-            this.active.whereClauses.get(databaseTableKey).clauses = [];
+        if (clause.database && clause.table) {
+            let databaseTableKey = this.getDatabaseTableKey(clause.database.name, clause.table.name);
+            if (!this.active.whereClauses[databaseTableKey]) {
+                this.active.whereClauses.set(databaseTableKey, new FilterBuilderDatabaseTableMetadata());
+                this.active.whereClauses.get(databaseTableKey).clauses = [];
+            }
+            this.active.whereClauses.get(databaseTableKey).clauses.push(clause);
+            this.active.whereClausesAsList.push(clause);
         }
-        this.active.whereClauses.get(databaseTableKey).clauses.push(clause);
-        this.active.whereClausesAsList.push(clause);
     }
 
     removeClause(where) {

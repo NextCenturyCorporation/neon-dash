@@ -125,7 +125,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         try {
             this.setupFilters();
         } catch (e) {
-            console.warn('Error while setting up filters duing init, ignoring');
+            // Fails in unit tests - ignore.
         }
 
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
@@ -838,7 +838,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             style: string;
         if (!elems.length) {
             style = 'rgb(255, 255, 255)';
-            console.error('Unable to retrieve primary theme without element with class "coloraccessor"');
         } else {
             style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
         }

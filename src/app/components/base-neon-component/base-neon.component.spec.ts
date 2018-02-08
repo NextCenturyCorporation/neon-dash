@@ -27,6 +27,7 @@ import {
 
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -55,6 +56,7 @@ import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     public filters = [];
     constructor(
+        activeGridService: ActiveGridService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -64,6 +66,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         changeDetection: ChangeDetectorRef,
         visualizationService: VisualizationService) {
         super(
+            activeGridService,
             connectionService,
             datasetService,
             filterService,
@@ -217,6 +220,7 @@ describe('Component: base-neon', () => {
                 FormsModule
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 {
                     provide: DatasetService,
