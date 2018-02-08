@@ -138,7 +138,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         };
         if (clause.database && clause.table) {
             let databaseTableKey = this.getDatabaseTableKey(clause.database.name, clause.table.name);
-            if (!this.active.whereClauses[databaseTableKey]) {
+            if (!this.active.whereClauses.get(databaseTableKey)) {
                 this.active.whereClauses.set(databaseTableKey, new FilterBuilderDatabaseTableMetadata());
                 this.active.whereClauses.get(databaseTableKey).clauses = [];
             }
@@ -162,13 +162,13 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 break;
             }
         }
+        if (this.active.whereClauses.get(databaseTableKey).filterId) {
+            this.filterService.removeFilter(
+                this.messenger,
+                this.active.whereClauses.get(databaseTableKey).filterId,
+                () => null);
+        }
         if (this.active.whereClauses.get(databaseTableKey).clauses.length === 0) {
-            if (this.active.whereClauses.get(databaseTableKey).filterId) {
-                this.filterService.removeFilter(
-                    this.messenger,
-                    this.active.whereClauses.get(databaseTableKey).filterId,
-                    () => null);
-            }
             this.active.whereClauses.delete(databaseTableKey);
         }
         if (this.active.whereClauses.size === 0) {
@@ -178,7 +178,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
     activateClause(where) {
         let databaseTableKey = this.getDatabaseTableKey(where.database.name, where.table.name);
-        for (let clause of this.active.whereClauses.get(databaseTableKey).clauses) {
+        let whereClauses = this.active.whereClauses.get(databaseTableKey).clauses;
+        for (let clause of whereClauses) {
             if (clause.id === where.id) {
                 clause.active = true;
                 break;
