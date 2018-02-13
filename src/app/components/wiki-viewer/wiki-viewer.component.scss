@@ -34,4 +34,8 @@
             display: inline-flex;
         }
     }
+
+    .mat-tab-group {
+      height: calc(100% - 56px);
+    }
 }

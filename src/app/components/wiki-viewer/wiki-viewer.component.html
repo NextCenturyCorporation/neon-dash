@@ -57,7 +57,7 @@
 
     <mat-tab-group>
         <mat-tab *ngFor="let text of active.wikiText; let i = index" [label]="getTabLabel(active.wikiName, i)">
-            <div class="wiki-text html contained-scroll-box" [innerHTML]="text"></div>
+            <div class="wiki-text html" [innerHTML]="text"></div>
         </mat-tab>
     </mat-tab-group>
 </mat-sidenav-container>
