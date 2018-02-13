@@ -22,7 +22,7 @@ export class LeafletNeonMap extends AbstractMap {
         minZoom: 2,
         zoom: 2,
         center: L.latLng([0, 0]),
-        zoomControl: false,
+        zoomControl: true,
         preferCanvas: true,
         worldCopyJump: true
     };
