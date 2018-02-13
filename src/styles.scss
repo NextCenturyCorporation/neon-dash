@@ -4,6 +4,10 @@
 @import '~@angular/material/_theming';
 @import 'themes/neon-green-theme.scss';
 
+body {
+    font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
 @font-face {
     font-family: 'Material Icons';
     font-style: normal;
