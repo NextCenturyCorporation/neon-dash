@@ -71,6 +71,12 @@ class GraphData {
 export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
 
+    private filters: {
+        id: string,
+        key: string,
+        value: string
+    }[];
+
     private optionsFromConfig: {
         title: string,
         database: string,
@@ -93,23 +99,20 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         chartType: string;
     };
 
-    public graphData: {
-        NgxGraphModule
-    };
+    public graphData;
 
     theme = 'dark';
     chartType = 'directed-graph';
     chartGroups: any;
     chart: any;
     realTimeData: boolean = false;
-    countries: any[];
     graph: { links: any[], nodes: any[] };
     hierarchialGraph: { nodes: any[], links: any[] };
 
     colors: ColorHelper;
     view: any[];
-    width: number = 400;
-    height: number = 300;
+    width: number = 200;
+    height: number = 100;
     fitContainer: boolean = true;
     autoZoom: boolean = false;
     // options
@@ -177,17 +180,19 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             links: []
         };
 
+        this.graphData = new GraphData();
+
         //this.getGraphData();
         this.updateData();
 
         //this.setColorScheme('picnic');
-        this.setInterpolationType('Bundle');
+        this.setInterpolationType('Catmull Rom');
     }
 
     ngOnInit() {
         this.selectChart(this.chartType);
-
-        setInterval(this.updateData.bind(this), 1000);
+        this.updateData();
+        //setInterval(this.updateData.bind(this), 2000);
 
         if (!this.fitContainer) {
             this.applyDimensions();
@@ -249,81 +254,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     getGraphData() {
-        this.hierarchialGraph.nodes = [
-            {
-                id: 'Haiti',
-                label: 'Haiti'
-            }, {
-                id: '1',
-                label: 'Needs'
-            }, {
-                id: '2',
-                label: 'Water'
-            }, {
-                id: '3',
-                label: 'Food'
-            }, {
-                id: '4',
-                label: 'Medical'
-            }, {
-                id: '5',
-                label: 'Internet'
-            }, {
-                id: '6',
-                label: 'Help Results'
-            }, {
-                id: '7',
-                label: 'People'
-            }, {
-                id: '8',
-                label: 'Location'
-            }
-        ];
-
-        this.hierarchialGraph.links = [
-            {
-                source: 'Haiti',
-                target: '1',
-                label: 'links to'
-            }, {
-                source: 'Haiti',
-                target: '7',
-                label: 'links to'
-            }, {
-                source: 'Haiti',
-                target: '8',
-                label: 'links to'
-            }, {
-                source: '1',
-                target: '2',
-                label: 'related to'
-            }, {
-                source: '1',
-                target: '3',
-                label: 'related to'
-            }, {
-                source: '1',
-                target: '4',
-                label: 'links to'
-            }, {
-                source: '1',
-                target: '5',
-                label: 'links to'
-            }, {
-                source: '2',
-                target: '6',
-                label: 'links to'
-            }, {
-                source: '1',
-                target: '5',
-                label: 'links to'
-            }, {
-                source: '3',
-                target: '5',
-                label: 'links to'
-            }
-        ];
-
         //return {nodes, links};
     }
 
@@ -427,20 +357,20 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     getLinks() {
         return this.hierarchialGraph.links;
     }
-/*
-    setColors(): void {
-        this.colors = new ColorHelper(this.colorScheme, 'ordinal', this.seriesDomain, this.customColors);
-    }
-*/
+    /*
+        setColors(): void {
+            this.colors = new ColorHelper(this.colorScheme, 'ordinal', this.seriesDomain, this.customColors);
+        }
+    */
     setColorScheme(name) {
         this.selectedColorScheme = name;
         this.colorScheme = this.colorSets.find((s) => s.name === name);
     }
-/*
-    getSeriesDomain(): any[] {
-        return this.results.map((d) => d.name);
-    }
-*/
+    /*
+        getSeriesDomain(): any[] {
+            return this.results.map((d) => d.name);
+        }
+    */
     updateData() {
         /*
               if (add) {
@@ -527,6 +457,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
                 source: '1',
                 target: '3',
                 label: 'related to'
+            }, {
+                source: '1',
+                target: '4',
+                label: 'links to'
+            }, {
+                source: '1',
+                target: '4',
+                label: 'links to'
             }, {
                 source: '1',
                 target: '4',
@@ -685,5 +623,49 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     unsharedFilterRemoved() {
         // Update the data
         this.executeQueryChain();
+    }
+
+    formatingCallback(value): string {
+        if (!isNaN(parseFloat(value)) && !isNaN(value - 0)) {
+            //round to at most 3 decimal places, so as to not display tiny floating-point errors
+            return String(Math.round((parseFloat(value) + 0.00001) * 1000) / 1000);
+        }
+        // can't be converted to a number, so just use it as-is.
+        return value;
+    }
+
+    getButtonText() {
+        let text = 'No Data';
+        let data = this.hierarchialGraph; //this.graphData.nodes;
+        if (!data || !data.nodes.length) {
+            return text;
+        } else {
+            let total = data.nodes.length;
+            return 'Total ' + this.formatingCallback(total);
+        }
+    }
+
+    createTitle() {
+        let title = '';
+        if (!this.optionsFromConfig) {
+            title = 'Network Graph';
+        } else {
+            title = this.optionsFromConfig.title;
+        }
+        return title;
+    }
+
+    resetData() {
+        this.graphData = [];
+    }
+
+    toNodes(datafield) {
+        let nodes = [];
+/*
+        datafield.array.forEach(element => {
+            if(nodes.indexOf(element.id) < 0) {
+                nodes.push(element.id, element.name)
+            }
+        });*/
     }
 }
