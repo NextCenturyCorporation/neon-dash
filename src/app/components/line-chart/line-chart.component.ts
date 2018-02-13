@@ -56,7 +56,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
 
     @ViewChild('myChart') chartModule: ChartComponent;
-    @ViewChild('textContainer') textContainer: ElementRef;
+    @ViewChild('filterContainer') filterContainer: ElementRef;
     @ViewChild('chartContainer') chartContainer: ElementRef;
 
     private optionsFromConfig: {
@@ -269,7 +269,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         // Do nothing.  An on change unfortunately kicks off the initial query.
         this.logChangeAndStartQueryChain();
 
-        this.selectionOffset.y = this.textContainer.nativeElement.scrollHeight;
+        this.selectionOffset.y = this.filterContainer.nativeElement.scrollHeight;
         this.selectionOffset.x = Number.parseInt(this.getComputedStyle(this.chartContainer.nativeElement).paddingLeft || '0');
     }
 

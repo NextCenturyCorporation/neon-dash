@@ -16,38 +16,31 @@
 
 @import '../themes/neon-green-theme';
 
-/* Rules for the Neon GTD App. */
-.neon-gtd-text-button {
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.neon-gtd-anchor-button {
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.neon-gtd-toolbar-menu {
-    padding: 0 14px 0 14px;
-    color: blue;
-}
-
-.neon-gtd-sidenav {
+.neon-sidenav {
     height: 100%;
 }
 
-.neon-gtd-sidenav-about-neon {
+.neon-sidenav-info {
     width: 450px;
 }
 
-.neon-gtd-content {
-	overflow-y: auto;
-	height: calc(100% - #{$vis-title-expected-height});
-    margin-top: 10px;
+.neon-link {
+    color: mat-color($white);
+    height: 30px;
+    margin: 0 5px;
+
+    .mat-icon {
+        vertical-align: unset !important;
+    }
+
+    &:hover {
+        color: $accent-bright;
+    }
 }
 
-.neon-gtd-sidenav-dashboard-options {
-    width: 450px;
+.neon-dash {
+    overflow-y: auto;
+    height: calc(100% - 50px);
 }
 
 .coloraccessor {

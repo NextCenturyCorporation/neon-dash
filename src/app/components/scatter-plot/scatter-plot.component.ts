@@ -103,7 +103,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
 
     @ViewChild('scatter') chartModule: ChartComponent;
-    @ViewChild('textContainer') textContainer: ElementRef;
+    @ViewChild('filterContainer') filterContainer: ElementRef;
     @ViewChild('chartContainer') chartContainer: ElementRef;
 
     filters: ScatterPlotFilter[];
@@ -317,7 +317,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
         this.chart.data.datasets.push(new ScatterDataSet(this.defaultActiveColor));
 
-        this.selectionOffset.y = this.textContainer.nativeElement.scrollHeight;
+        this.selectionOffset.y = this.filterContainer.nativeElement.scrollHeight;
         this.selectionOffset.x = Number.parseInt(this.getComputedStyle(this.chartContainer.nativeElement).paddingLeft || '0');
     }
 

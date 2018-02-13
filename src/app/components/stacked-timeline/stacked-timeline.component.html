@@ -1,32 +1,37 @@
 <mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="header" layout-align="space-between center" flex>
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
-        <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
+        <span class="info text">{{ getButtonText() }}</span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <mat-icon class="mat-24">settings</mat-icon>
+            <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <label style="display: inline;" *ngIf="getButtonText()">
-                    <mat-icon class="error-icon">error</mat-icon>
-                    {{ getButtonText() }}
-                </label>
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text">
+                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <div>{{ getButtonText() }}</div>
+                    </label>
+                    <p></p>
+                </div>
 
                 <mat-form-field>
                     <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
                         <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <p></p>
 
                 <mat-form-field>
                     <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
                         <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <p></p>
 
                 <mat-form-field>
                     <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true" (ngModelChange)="handleChangeDateField()"
@@ -34,6 +39,7 @@
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <p></p>
 
                 <mat-form-field>
                     <mat-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true" (ngModelChange)="handleChangeGroupField()"
@@ -41,6 +47,7 @@
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <p></p>
 
                 <mat-button-toggle-group #hourGranularity="matButtonToggleGroup" [(ngModel)]="active.granularity" (ngModelChange)="handleChangeGranularity()">
                     <mat-button-toggle value="year">
@@ -70,16 +77,17 @@
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
+
     <div class="body-container">
         <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
             <mat-spinner ></mat-spinner>
         </div>
-        <div class="text-container">
+        <div class="filter-container">
             <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
                 <span class="filter-label" [title]="getFilterTitle('Date Filter')">{{ 'Date Filter' }}</span>
-                <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveFilterTooltip('Date Filter')"
+                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" [matTooltip]="getRemoveFilterTooltip('Date Filter')"
                         tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, true)">
-                    <mat-icon class="mat-18">close</mat-icon>
+                    <mat-icon class="neon-icon-small">close</mat-icon>
                 </button>
             </div>
         </div>

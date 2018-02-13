@@ -15,17 +15,8 @@
  */
 @import '../base-neon-component/base-neon.component.scss';
 
-.fake-dropdown-span {
-    padding: 0px;
-    margin: 0px;
-}
-
 .fake-dropdown-arrow {
-    padding: 0px;
-    margin: 0px;
-    height: 1px;
-    width: 1px;
-    right: 24px;
+    right: 25px;
     position: relative;
 }
 
@@ -33,19 +24,23 @@
     width: 200px;
 }
 
+.add-margin-right {
+    margin-right: 25px;
+}
+
 .btn-open-config-edit {
-    margin: 10px 10px 10px 20px;
+    margin: 10px;
 }
 
 .radio-container > * > * {
-    margin: 0 5px 0 5px;
+    margin: 0 5px;
+}
+
+.option-row {
+    display: flex;
+    align-items: center;
 }
 
 input {
     width: 200px;
-}
-
-mat-toolbar {
-    margin-top: 5px;
-    margin-bottom: 5px;
 }

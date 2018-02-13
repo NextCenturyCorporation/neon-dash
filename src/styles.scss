@@ -3,6 +3,7 @@
 @import '~@angular/material/prebuilt-themes/purple-green.css';
 @import '~@angular/material/_theming';
 @import 'themes/neon-green-theme.scss';
+
 @font-face {
     font-family: 'Material Icons';
     font-style: normal;
@@ -11,7 +12,8 @@
     src: local('Material Icons'),
       local('MaterialIcons-Regular'),
       url(assets/Material/2fcrYFNaTjcS6g4U3t-Y5ZjZjT5FdEJ140U2DJYC3mY.woff2) format('woff2'),
-  }
+}
+
 .material-icons {
     font-family: 'Material Icons';
     font-weight: normal;
@@ -35,31 +37,8 @@
   
     /* Support for IE. */
     font-feature-settings: 'liga';
-  }
-/* Rules for sizing the icons. */
-.material-icons.mat-8 {
-    font-size: 8px;
 }
 
-.material-icons.mat-12 {
-    font-size: 12px;
-}
-
-.material-icons.mat-18 {
-    font-size: 18px;
-}
-
-.material-icons.mat-24 {
-    font-size: 24px;
-}
-
-.material-icons.mat-36 {
-    font-size: 36px;
-}
-
-.material-icons.mat-48 {
-    font-size: 48px;
-}
 /* Rules for using icons as black on a light background. */
 .material-icons.mat-dark {
     color: rgba(0, 0, 0, 0.54);
@@ -68,6 +47,7 @@
 .material-icons.mat-dark.mat-inactive {
     color: rgba(0, 0, 0, 0.26);
 }
+
 /* Rules for using icons as white on a dark background. */
 .material-icons.mat-light {
     color: rgba(255, 255, 255, 1);
@@ -76,29 +56,23 @@
 .material-icons.mat-light.mat-inactive {
     color: rgba(255, 255, 255, 0.3);
 }
+
 /* General layout styles. */
+.flex {
+    display: flex;
+}
+
 .fill-remaining {
     flex: 1 1 auto;
 }
 
-.rounded {
-    border-radius: 3px;
-}
-
-.rounded-left {
-    border-radius: 3px 0 0 3px;
-}
-
-.rounded-right {
-    border-radius: 0 3px 3px 0;
-}
 /* Angular2-Grid Overrides */
 .grid {
     position: relative;
 }
 
 .grid-item {
-    border-radius: 3px;
+    border-radius: 5px;
     position: absolute;
 }
 
@@ -116,11 +90,8 @@
     opacity: 0.3;
     z-index: 10;
 }
-/* Angular Material Overrides */
-.mat-dialog-container {
-    padding: 0;
-}
 
+/* Icons */
 .icon-BarChart64 {
     background-position: -192px -64px
 }
@@ -226,6 +197,7 @@
     height: 64px;
 }
 
+/* Loading Spinner */
 .loading-overlay {
     position: absolute;
     width: 100%;
@@ -242,34 +214,230 @@
     display: none;
 }
 
-.data-area {
-    position: relative;
-    top: 64px;
-    bottom: 0;
-    width: 100%;
+/* Angular Material Overrides */
+.mat-button,
+.mat-flat-button,
+.mat-raised-button,
+.mat-stroked-button {
+    border-radius: 5px !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    line-height: 20px !important;
+    height: 30px !important;
+    min-width: unset !important;
+    padding: 5px 10px !important;
+
+    > * {
+        vertical-align: bottom !important;
+    }
+
+    &.neon-button-large {
+        font-size: 24px !important;
+        line-height: 25px !important;
+        height: 35px !important;
+    }
+
+    &.neon-button-small {
+        font-size: 12px !important;
+        line-height: 15px !important;
+        height: 25px !important;
+    }
+
+    &:hover {
+        background-color: $accent-bright !important;
+    }
 }
 
-//TODO This is a hack
-.mat-toolbar{
-	min-height:56px !important;
-	border-style:solid;
-	border-color:  mat-color($header) mat-color($header) $accent-bright;
-	//background-color: mat-color($header);
+.mat-button-toggle-group {
+    border-radius: 10px !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+
+    .mat-button-toggle {
+        &:first-child {
+            border-radius: 10px 0 0 10px !important;
+        }
+
+        &:last-child {
+            border-radius: 0 10px 10px 0 !important;
+        }
+
+        &:hover:not(.mat-button-toggle-checked) {
+            background-color: $accent-bright !important;
+        }
+    }
+
+    .mat-button-toggle-label-content {
+        display: block !important;
+        height: 20px !important;
+        line-height: 20px !important;
+        padding: 5px 10px !important;
+    }
+
+    &.neon-button-toggle-group-large {
+        font-size: 24px !important;
+
+        .mat-button-toggle-label-content {
+            height: 25px !important;
+            line-height: 25px !important;
+            padding: 5px 10px !important;
+        }
+    }
+
+    &.neon-button-toggle-group-small {
+        font-size: 12px !important;
+
+        .mat-button-toggle-label-content {
+            height: 15px !important;
+            line-height: 15px !important;
+            padding: 5px 10px !important;
+        }
+    }
 }
 
-.mat-primary{
-	border-color: mat-color($primary) mat-color($primary) $accent-bright;
+.mat-dialog-container {
+    padding: 10px !important;
 }
 
-//This is also a hack
-.mat-toolbar-row{
-	height: 48px !important;
+.mat-form-field {
+  .mat-form-field-infix {
+      border-top: 15px solid transparent !important;
+      font-size: 14px;
+      height: 15px;
+      line-height: 15px;
+      padding: 5px 0 !important;
+  }
+
+  .mat-form-field-underline {
+      bottom: 0 !important;
+  }
+
+  .mat-form-field-wrapper {
+      padding: 0 !important;
+  }
+
+  &.neon-form-field-large {
+      .mat-form-field-infix {
+          font-size: 18px;
+          height: 20px;
+          line-height: 20px;
+      }
+  }
 }
 
-// Styling for the tabs in the Wiki Viewer.
+.mat-icon-button {
+    line-height: 20px !important;
+    height: 30px !important;
+    width: 30px !important;
+    margin: 0 !important;
+    padding: 5px !important;
+
+    &.neon-icon-button-large {
+        line-height: 30px !important;
+        height: 40px !important;
+        width: 40px !important;
+    }
+
+    &.neon-icon-button-small {
+        line-height: 16px !important;
+        height: 16px !important;
+        width: 16px !important;
+        margin: 0 5px !important;
+        padding: 0 !important;
+    }
+
+    &:hover {
+        color: $accent-bright !important;
+    }
+}
+
+.mat-icon {
+    font-size: 20px !important;
+    line-height: 20px !important;
+    height: 20px !important;
+    width: 20px !important;
+    vertical-align: bottom !important;
+
+    &.neon-icon-large {
+        font-size: 30px !important;
+        line-height: 30px !important;
+        height: 30px !important;
+        width: 30px !important;
+    }
+
+    &.neon-icon-small {
+        font-size: 16px !important;
+        line-height: 16px !important;
+        height: 16px !important;
+        width: 16px !important;
+    }
+}
+
+.mat-list,
+.mat-nav-list,
+.mat-selection-list {
+    padding-top: 0 !important;
+}
+
+.mat-list-item {
+    height: 40px !important;
+
+    &.mat-2-line {
+      height: 50px !important;
+    }
+}
+
+.mat-list-item-content {
+    padding: 5px 10px !important;
+}
+
+.mat-menu-content {
+    padding: 0 !important;
+}
+
+.mat-menu-item,
+.mat-option {
+    line-height: 20px !important;
+    height: 30px !important;
+    padding: 5px 10px !important;
+}
+
+.mat-nav-list .mat-list-item-content {
+    padding: 5px 20px !important;
+}
+
+.mat-sidenav {
+    > .mat-card {
+        padding: 20px !important;
+    }
+}
+
 .mat-tab-label {
     height: 30px !important;
     min-width: unset !important;
-    padding: 0 10px !important;
+    padding: 5px 10px !important;
+}
+
+.mat-toolbar {
+    font-weight: 600 !important;
+    line-height: 30px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 5px 10px !important;
+    border-bottom: 5px solid $accent-bright !important;
+
+    &.neon-toolbar-large {
+        height: 50px !important;
+        line-height: 40px !important;
+        min-height: 50px !important;
+    }
+
+    &.neon-toolbar-thin {
+        padding: 5px !important;
+    }
+
+    &.neon-toolbar-wide {
+        padding: 5px 20px !important;
+    }
 }
 

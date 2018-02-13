@@ -56,7 +56,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public gridConfig: NgGridConfig = {
         resizable: true,
-        margins: [0, 0, 10, 10],
+        margins: [10, 0, 0, 10],
         min_cols: 1,
         max_cols: 24,
         min_rows: 0,

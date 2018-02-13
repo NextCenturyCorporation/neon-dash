@@ -304,7 +304,7 @@ describe('Component: Map', () => {
 
         addFilter(box, dbName, tableName, latName, lngName);
 
-        let xEl = getDebug('.mat-18').parent.parent;
+        let xEl = getDebug('.filter-reset .mat-icon-button');
         xEl.triggerEventHandler('click', null);
         expect(getService(FilterService).getFilters().length).toBe(0);
     });
@@ -312,7 +312,7 @@ describe('Component: Map', () => {
     it('should add layer when new layer button is clicked', () => {
         let layerCount = component.active.layers.length;
 
-        let addEl = getDebug('a.mat-mini-fab.mat-accent').parent;
+        let addEl = getDebug('a');
         addEl.triggerEventHandler('click', null);
         fixture.detectChanges();
         expect(component.active.layers.length).toBe(layerCount + 1);

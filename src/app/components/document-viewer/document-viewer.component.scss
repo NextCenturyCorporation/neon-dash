@@ -39,15 +39,11 @@
     }
 
     .document-viewer-button-spacer {
-        flex: 0 0 2px;
+        flex: 0 0 5px;
     }
 
     .document-viewer-button {
         flex: 1 0 0;
-        background-color: mat-color($primary);
-        color: mat-color($white);
-        line-height: 20px;
-        height: 20px;
     }
 
     table.metadata-table {

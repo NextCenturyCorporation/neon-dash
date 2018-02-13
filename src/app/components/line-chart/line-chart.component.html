@@ -1,21 +1,23 @@
 <mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="header" layout-align="space-between center" flex>
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
-        <span class="text" title="Open/Close the Options Menu">{{ buttonText }}</span>
+        <span class="icon text">{{ buttonText }}</span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <mat-icon class="mat-24">settings</mat-icon>
+            <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <label style="display: inline;" *ngIf="getButtonText()">
-                    <mat-icon class="error-icon">error</mat-icon>
-                    {{ getButtonText() }}
-                </label>
-                <p></p>
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text">
+                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <div>{{ getButtonText() }}</div>
+                    </label>
+                    <p></p>
+                </div>
 
                 <mat-form-field>
                     <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true"
@@ -23,6 +25,7 @@
                         <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <p></p>
 
                 <mat-form-field>
                     <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true"
@@ -30,6 +33,7 @@
                         <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <p></p>
 
                 <mat-form-field>
                     <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true"
@@ -37,6 +41,7 @@
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <p></p>
 
                 <mat-form-field>
                     <mat-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true"
@@ -44,6 +49,7 @@
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <p></p>
 
                 <mat-form-field>
                     <mat-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true"
@@ -55,6 +61,7 @@
                         <mat-option value="min">Minimum</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <p></p>
 
                 <mat-form-field *ngIf="!active.aggregationFieldHidden">
                     <mat-select placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField"
@@ -62,6 +69,7 @@
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <p></p>
 
                 <mat-button-toggle-group #hourGranularity="matButtonToggleGroup" [(ngModel)]="active.granularity" (ngModelChange)="handleChangeGranularity()">
                     <!--<mat-button-toggle value="year">
@@ -88,12 +96,13 @@
                         </td>
                         <td>
                             <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <mat-icon class="mat-24">refresh</mat-icon>
+                                <mat-icon>refresh</mat-icon>
                             </button>
                         </td>
                     </tr>
                 </table>
                 <p></p>
+
                 <app-export-control [exportId]="exportId"></app-export-control>
             </mat-card-content>
         </mat-card>
@@ -102,7 +111,7 @@
         <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
             <mat-spinner ></mat-spinner>
         </div>
-        <div #textContainer class="text-container-for-linechart">
+        <div #filterContainer class="filter-container multi-element">
             <div>
                 <app-legend (itemSelected)="legendItemSelected($event)"
                     [fieldNames]="colorByFields"
@@ -110,8 +119,9 @@
             </div>
             <div class="filter-reset" *ngIf="active.filter">
                 <span class="filter-label" [title]="getFilterTitle(active.filter)">Date Filter</span>
-                <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveFilterTooltip(active.filter)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(active.filter, true)">
-                    <mat-icon class="mat-18">close</mat-icon>
+                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
+                        [matTooltip]="getRemoveFilterTooltip(active.filter)" (click)="removeLocalFilterFromLocalAndNeon(active.filter, true)">
+                    <mat-icon class="neon-icon-small">close</mat-icon>
                 </button>
             </div>
         </div>
