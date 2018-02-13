@@ -73,10 +73,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     public active: {
         dateField: FieldMetaData,
-        data: {
-            value: number,
-            date: Date
-        }[],
         granularity: string,
         ylabel: string,
         docCount: number
@@ -118,7 +114,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
         this.active = {
             dateField: new FieldMetaData(),
-            data: [],
             granularity: this.optionsFromConfig.granularity,
             ylabel: 'Count',
             docCount: 0
@@ -386,10 +381,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     getButtonText() {
-        if (!this.active.data) {
+        if (!this.queryData || !this.queryData.data) {
             return 'No Data';
         }
-        let shownCount = this.active.data.reduce((sum, element) => {
+        let shownCount = this.queryData.data.reduce((sum, element) => {
             return sum + element.value;
         }, 0);
         return !shownCount ?
