@@ -16,8 +16,7 @@
     "types": [
       "jasmine",
       "node",
-      "node-uuid",
-      "Cesium"
+      "node-uuid"
     ],
     "typeRoots": [
         "../node_modules/@types",

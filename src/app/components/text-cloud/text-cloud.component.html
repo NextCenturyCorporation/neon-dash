@@ -1,50 +1,65 @@
 <mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="header" layout-align="space-between center" flex>
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
-        <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
+        <span class="info text">{{ getButtonText() }}</span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <mat-icon class="mat-24">settings</mat-icon>
+            <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <label style="display: inline;">
-                    <mat-icon class="error-icon">error</mat-icon>
-                    {{ getButtonText() }}
-                </label>
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text">
+                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <div>{{ getButtonText() }}</div>
+                    </label>
+                    <p></p>
+                </div>
+
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true"
+                                (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases"
+                                    [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true"
+                                (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true"
+                                (ngModelChange)="handleChangeDataField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeDataField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Size Field" [(ngModel)]="active.sizeField"
+                               (ngModelChange)="handleChangeSizeField()" [disabled]="meta.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Size Field" [(ngModel)]="active.sizeField"
-                           (ngModelChange)="handleChangeSizeField()" [disabled]="meta.fields.length == 0">
-                    <mat-option [value]="emptyField">(None)</mat-option>
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
-
-                <mat-select placeholder="Size Aggregation" [(ngModel)]="sizeAggregation"
-                           (ngModelChange)="handleChangeSizeField()" [disabled]="meta.fields.length == 0"
-                            *ngIf="active.sizeField.columnName != ''">
-                    <mat-option *ngFor="let aggregation of sizeAggregationTypes" [value]="aggregation.value">{{ aggregation.name }}</mat-option>
-                </mat-select>
+                <mat-form-field *ngIf="active.sizeField.columnName != ''">
+                    <mat-select placeholder="Size Aggregation" [(ngModel)]="sizeAggregation"
+                               (ngModelChange)="handleChangeSizeField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let aggregation of sizeAggregationTypes"
+                                    [value]="aggregation.value">{{ aggregation.name }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <table cellspacing="0">
@@ -56,16 +71,18 @@
                         </td>
                         <td>
                             <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <mat-icon class="mat-24">refresh</mat-icon>
+                                <mat-icon>refresh</mat-icon>
                             </button>
                         </td>
                     </tr>
                 </table>
                 <p></p>
 
-                <mat-toolbar class="mat-primary">
+                <mat-toolbar color="primary">
                     <span>Show Records With</span>
                 </mat-toolbar>
+                <p></p>
+
                 <mat-button-toggle-group name="filters" [(ngModel)]="active.andFilters" (change)="handleChangeAndFilters()">
                     <mat-button-toggle [value]="true">All Filters</mat-button-toggle>
                     <mat-button-toggle [value]="false">Any Filters</mat-button-toggle>
@@ -75,18 +92,22 @@
                 <app-unshared-filter [(meta)]="meta"
                     (unsharedFilterChanged)="unsharedFilterChanged()"
                     (unsharedFilterRemoved)="unsharedFilterRemoved()"></app-unshared-filter>
+                <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
+
     <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
         <mat-spinner ></mat-spinner>
     </div>
+
     <div class="filter-reset" *ngFor="let filter of getFilterData()">
         <span class="filter-label" [title]="createFilterDesc(filter.value)">{{ createFilterText(filter.value) }}</span>
-        <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveDesc(filter.value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
-            <mat-icon class="mat-18">close</mat-icon>
+        <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
+                [matTooltip]="getRemoveDesc(filter.value)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+            <mat-icon class="neon-icon-small">close</mat-icon>
         </button>
     </div>
 

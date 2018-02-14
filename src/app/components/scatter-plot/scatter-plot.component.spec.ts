@@ -23,6 +23,7 @@ import { ScatterPlotComponent } from './scatter-plot.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { TranslationService } from '../../services/translation.service';
@@ -49,9 +50,11 @@ describe('Component: ScatterPlot', () => {
         ScatterPlotComponent,
         LegendComponent,
         ExportControlComponent,
-        UnsharedFilterComponent
+        UnsharedFilterComponent,
+        ChartComponent
       ],
       providers: [
+        ActiveGridService,
         ConnectionService,
         DatasetService,
         FilterService,

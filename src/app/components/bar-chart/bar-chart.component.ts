@@ -22,6 +22,7 @@ import {
     Injector, ViewChild,
     ChangeDetectorRef
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -31,7 +32,7 @@ import { FieldMetaData } from '../../dataset';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ChartComponent } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 import { Chart } from 'chart.js';
 import { VisualizationService } from '../../services/visualization.service';
 import { Color, ColorSchemeService } from '../../services/color-scheme.service';
@@ -166,10 +167,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     public colorFieldNames: string[] = [];
     private defaultActiveColor;
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
-        visualizationService: VisualizationService, private colorSchemeService: ColorSchemeService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+        ref: ChangeDetectorRef, visualizationService: VisualizationService, private colorSchemeService: ColorSchemeService) {
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
 
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
@@ -234,7 +236,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                         }
                     }],
                     yAxes: [{
-
                         stacked: true,
                         ticks: {
                             // max: 100,
@@ -574,7 +575,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 chartData.labels.push(key);
             }
         }
-        chartData.labels.sort();
 
         for (let row of response.data) {
             let key: string = row[colName];
@@ -657,6 +657,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeChartType() {
+        if (!this.chartModule.chart) {
+            return;
+        }
+
         let barData = this.chartInfo.data;
         let barOptions = this.chartInfo.options;
 
@@ -758,19 +762,19 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeDataField() {
         this.active.seenValues = [];
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeAggregationField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeColorField() {
-        this.logChangeAndStartQueryChain(); // ('colorField', this.active.colorField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+        this.logChangeAndStartQueryChain();
     }
 
     unsharedFilterChanged() {

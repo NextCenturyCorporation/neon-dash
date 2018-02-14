@@ -14,10 +14,9 @@
  *
  */
 @import '~@angular/material/_theming';
-@import 'src/themes/neon-green-theme.scss';
+@import '../../../themes/neon-green-theme.scss';
 
 .visualization-toolbar {
-    //background-color: mat-color($accent);
     position: absolute;
     z-index: 999;
     height: 0;
@@ -36,7 +35,6 @@
     background-color: mat-color($accent);
     flex-grow: 0;
     border-radius: 0 0 10px 10px;
-    color: mat-color($primary);
 }
 
 .border {
@@ -44,22 +42,15 @@
     border-radius: 40px;
 }
 
-.warn-text {
-    color: mat-color($warn);
-}
-
-.mat-toolbar {
-    min-height: 32px;
-}
-
 .above-icons {
     height: 10px;
     background-color: mat-color($accent);
     z-index: 1001;
     cursor: move;
-    margin-left: 2px;
-    margin-right: 6px;
-    border-radius: 0 0 20px 20px;
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: 5px;
 }
 
 .activation-toolbar {
@@ -70,9 +61,7 @@
 }
 
 .visualization-border {
-    padding-left: 8px;
-    padding-right: 8px;
-    padding-bottom: 8px;
+    padding: 5px;
     height: 100%;
     box-sizing: border-box;
     background-color: mat-color($white);

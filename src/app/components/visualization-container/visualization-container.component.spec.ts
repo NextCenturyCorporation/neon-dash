@@ -50,6 +50,7 @@ describe('Component: VisualizationContainer', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 BarChartComponent,
                 ChartComponent,
                 DataTableComponent,

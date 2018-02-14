@@ -2,5 +2,6 @@
     <mat-radio-group *ngIf="!hideFormats" [(ngModel)]="exportFormat" (change)="setExportFormat(exportFormat)">
         <mat-radio-button *ngFor="let format of exportService.getFileFormats()" [value]="format.value">{{ (format.name) ? format.name.toUpperCase() : 'Invalid Type' }}</mat-radio-button>
     </mat-radio-group>
-    <button mat-raised-button (click)="handleExportClick()">{{ buttonText }}</button>
+    <p></p>
+    <button mat-raised-button class="neon-button-small" (click)="handleExportClick()">{{ buttonText }}</button>
 </div>

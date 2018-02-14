@@ -1,48 +1,61 @@
-<mat-sidenav-container class="neon-gtd-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-sidenav #sidenav class="neon-gtd-sidenav" mat-fill align="start">
-        <mat-toolbar color="primary">
-            <span class="mat-36">Datasets</span>
+<mat-sidenav-container class="neon-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-sidenav #sidenav class="neon-sidenav neon-sidenav-datasets" mat-fill align="start">
+        <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary">
+            <span>Datasets</span>
         </mat-toolbar>
         <app-dataset-selector (activeDatasetChanged)="simpleFilter.setSimpleFilter(); sidenav.toggle()" >
         </app-dataset-selector>
     </mat-sidenav>
-    <mat-sidenav #sidenavright class="neon-gtd-sidenav-about-neon" mat-fill align="end">
-        <mat-toolbar color="primary">
-            <span class="mat-36">{{ (showAbout) ? 'About' : 'Options' }}</span>
+
+    <mat-sidenav #sidenavright class="neon-sidenav neon-sidenav-info" mat-fill align="end">
+        <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary">
+            <span>{{ (showAbout) ? 'About' : 'Options' }}</span>
         </mat-toolbar>
         <app-about-neon *ngIf="showAbout"></app-about-neon>
-        <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout"></app-dashboard-options>
-        <button mat-raised-button (click)="sidenavright.close()" class="mat-primary">Close</button>
+
+        <mat-card align="left">
+            <mat-card-content>
+              <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout"></app-dashboard-options>
+
+              <div mat-fill class="flex">
+                  <span class="fill-remaining"></span>
+                  <button mat-raised-button color="primary" (click)="sidenavright.close()">Close</button>
+              </div>
+            </mat-card-content>
+        </mat-card>
     </mat-sidenav>
-    <mat-toolbar color="primary" layout-align="space-between center" flex>
-        <button mat-button [attr.aria-label]="datasetService.getName() || 'Choose Data'" style="margin-right: 10px;" (click)="sidenav.toggle()"
-            matTooltip="Selects one of the available datasets." tooltip-position="below" class="neon-gtd-text-button">
-            <i class="material-icons mat-24" style="vertical-align: sub">menu</i>&nbsp;{{ datasetService.getName() || "Choose Data..." }}
+
+    <mat-toolbar class="neon-toolbar-large neon-toolbar-wide" color="primary" layout-align="space-between center" flex>
+        <button mat-icon-button class="neon-icon-button-large" [attr.aria-label]="datasetService.getName() || 'Choose Data'"
+                tooltip-position="below" matTooltip="Select a Dataset" (click)="sidenav.toggle()">
+            <mat-icon class="neon-icon-large">menu</mat-icon>
         </button>
-        <button mat-mini-fab aria-label="Add Visualization" matTooltip="Add a new visualization to the current dashboard." tooltip-position="below"
-            (click)="openAddVisualizationDialog()" *ngIf="showAddVisualizationButton">
-            <mat-icon class="mat-24">add</mat-icon>
-        </button>
+        <span>{{ datasetService.getName() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
+                matTooltip="Add a New Visualization" (click)="openAddVisualizationDialog()" *ngIf="showAddVisualizationButton">
+            <mat-icon class="neon-icon-large">add_circle</mat-icon>
+        </button>
         <app-simple-filter #simpleFilter></app-simple-filter>
-        <button mat-icon-button aria-label="Show Filters" matTooltip="Show Filters" tooltip-position="below" (click)="openFilterTrayDialog()"
-            *ngIf="showFilterTrayButton">
-            <mat-icon class="mat-24">notifications</mat-icon>
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" tooltip-position="below"
+                matTooltip="Show Filters" (click)="openFilterTrayDialog()" *ngIf="showFilterTrayButton">
+            <mat-icon class="neon-icon-large">notifications</mat-icon>
         </button>
-        <button mat-icon-button aria-label="Settings" (click)="toggleDashboardOptions(); sidenavright.toggle();" matTooltip="Change the settings for the dashboard."
-            tooltip-position="below">
-            <mat-icon class="mat-24">settings</mat-icon>
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Settings" tooltip-position="below"
+                matTooltip="Change the Settings" (click)="toggleDashboardOptions(); sidenavright.toggle();">
+            <mat-icon class="neon-icon-large">settings</mat-icon>
         </button>
-        <button mat-icon-button aria-label="About..." class="neon-gtd-text-button" (click)="showAbout = true; sidenavright.toggle()"
-            matTooltip="Display information about this application." tooltip-position="below">
-            i
+        <button mat-icon-button class="neon-icon-button-large" aria-label="About..." tooltip-position="below"
+                matTooltip="Show Application Information" (click)="showAbout = true; sidenavright.toggle()">
+            <mat-icon class="neon-icon-large">info</mat-icon>
         </button>
-        <a mat-icon-button href="https://github.com/NextCenturyCorporation/neon-gtd/wiki/Neon-Dashboard-User-Guide" target="_blank"
-            aria-label="Help" class="neon-gtd-anchor-button" matTooltip="Open the Users Guide" tooltip-position="below">
-            ?
+        <a class="neon-link" aria-label="Help" matTooltip="Open the User Guide" tooltip-position="below"
+                target="_blank" href="https://github.com/NextCenturyCorporation/neon-gtd/wiki/Neon-Dashboard-User-Guide" target="_blank">
+            <mat-icon class="neon-icon-large">help</mat-icon>
         </a>
     </mat-toolbar>
-    <div class="neon-gtd-content" mat-fill layout="col">
+
+    <div class="neon-dash" mat-fill layout="col">
         <div [ngGrid]="gridConfig" #grid >
             <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridItemConfig" (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)" name="item.id" id="item.id">
                 <app-visualization-container [visualization]="gridItems[i]"></app-visualization-container>

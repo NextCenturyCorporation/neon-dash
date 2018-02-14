@@ -49,6 +49,9 @@ const MAT_MODULES = [
 
 @NgModule({
     declarations: [],
+    imports: MD_MODULES,
+    exports: MD_MODULES,
+    providers: [],
     imports: MAT_MODULES,
     exports: MAT_MODULES,
     entryComponents: [],

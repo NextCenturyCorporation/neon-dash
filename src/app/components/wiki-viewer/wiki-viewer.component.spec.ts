@@ -30,6 +30,7 @@ import * as neon from 'neon-framework';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { WikiViewerComponent } from './wiki-viewer.component';
 
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -65,6 +66,7 @@ describe('Component: WikiViewer', () => {
                 ExportControlComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 DatasetService,
                 ExportService,
@@ -372,6 +374,7 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('shows toolbar and sidenav', (() => {
+        fixture.detectChanges();
         let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
         expect(container).not.toBeNull();
         let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
@@ -388,6 +391,7 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('hides error-message in toolbar and sidenav if active.errorMessage is undefined', (() => {
+        fixture.detectChanges();
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
 
@@ -416,6 +420,7 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('hides wiki-name in toolbar and sidenav if active.wikiName is empty', (() => {
+        fixture.detectChanges();
         let nameInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .wiki-name'));
         expect(nameInToolbar).toBeNull();
 
@@ -444,6 +449,7 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('shows settings icon button in toolbar', (() => {
+        fixture.detectChanges();
         let button = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar button'));
         expect(button.attributes.matTooltip).toBe('Open/Close the Options Menu');
 
@@ -462,16 +468,21 @@ describe('Component: WikiViewer', () => {
     it('shows selects in sidenav options menu that have no options', (() => {
         fixture.detectChanges();
 
-        let selects = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-select'));
+        let selects = fixture.debugElement.queryAll(
+            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
+        let placeholders = fixture.debugElement.queryAll(
+            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-form-field-placeholder-wrapper'));
         expect(selects.length).toBe(4);
+        expect(placeholders.length).toBe(4);
+
         expect(selects[0].componentInstance.disabled).toBe(true);
-        expect(selects[0].nativeElement.textContent).toBe('Database');
+        expect(placeholders[0].nativeElement.textContent).toContain('Database');
         expect(selects[1].componentInstance.disabled).toBe(true);
-        expect(selects[1].nativeElement.textContent).toBe('Table');
+        expect(placeholders[1].nativeElement.textContent).toContain('Table');
         expect(selects[2].componentInstance.disabled).toBe(true);
-        expect(selects[2].nativeElement.textContent).toBe('ID Field');
+        expect(placeholders[2].nativeElement.textContent).toContain('ID Field');
         expect(selects[3].componentInstance.disabled).toBe(true);
-        expect(selects[3].nativeElement.textContent).toBe('Link Field');
+        expect(placeholders[3].nativeElement.textContent).toContain('Link Field');
     }));
 
     it('shows export control in sidenav options menu', (() => {
@@ -546,6 +557,7 @@ describe('Component: WikiViewer', () => {
     })));
 
     it('hides wiki-text tabs if active.wikiText is empty', inject([DomSanitizer], (sanitizer) => {
+        fixture.detectChanges();
         let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(0);
 
@@ -588,6 +600,7 @@ describe('Component: WikiViewer with config', () => {
                 ExportControlComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 {
                     provide: DatasetService,
@@ -681,27 +694,31 @@ describe('Component: WikiViewer with config', () => {
 
         fixture.detectChanges();
 
-        let selects = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-select'));
+        let selects = fixture.debugElement.queryAll(
+            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
+        let placeholders = fixture.debugElement.queryAll(
+            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-form-field-placeholder-wrapper'));
         expect(selects.length).toBe(4);
+        expect(placeholders.length).toBe(4);
 
         expect(selects[0].componentInstance.disabled).toBe(true);
-        expect(selects[0].nativeElement.textContent).toBe('Database');
+        expect(placeholders[0].nativeElement.textContent).toContain('Database');
         expect(selects[0].componentInstance.options.toArray().length).toBe(1);
         expect(selects[0].componentInstance.options.toArray()[0].value).toEqual(testDatabase);
 
         expect(selects[1].componentInstance.disabled).toBe(true);
-        expect(selects[1].nativeElement.textContent).toBe('Table');
+        expect(placeholders[1].nativeElement.textContent).toContain('Table');
         expect(selects[1].componentInstance.options.toArray().length).toBe(1);
         expect(selects[1].componentInstance.options.toArray()[0].value).toEqual(testTable);
 
         expect(selects[2].componentInstance.disabled).toBe(false);
-        expect(selects[2].nativeElement.textContent).toBe('ID Field');
+        expect(placeholders[2].nativeElement.textContent).toContain('ID Field');
         expect(selects[2].componentInstance.options.toArray().length).toBe(2);
         expect(selects[2].componentInstance.options.toArray()[0].value).toEqual(testIdField);
         expect(selects[2].componentInstance.options.toArray()[1].value).toEqual(testLinkField);
 
         expect(selects[3].componentInstance.disabled).toBe(false);
-        expect(selects[3].nativeElement.textContent).toBe('Link Field');
+        expect(placeholders[3].nativeElement.textContent).toContain('Link Field');
         expect(selects[3].componentInstance.options.toArray().length).toBe(2);
         expect(selects[3].componentInstance.options.toArray()[0].value).toEqual(testIdField);
         expect(selects[3].componentInstance.options.toArray()[1].value).toEqual(testLinkField);

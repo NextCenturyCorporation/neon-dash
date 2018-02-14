@@ -1,74 +1,80 @@
-<mat-card align="left">
-    <mat-card-content>
-        <form #optionsForm="ngForm">
-            <mat-toolbar class="mat-primary">
-                <span>Export Format</span>
-            </mat-toolbar>
-            <!--<div class='radio-container' layout="row" mat-margin>
-                <mat-radio-group [(ngModel)]="formData.exportFormat" name="exportFormatGroup" (change)="setExportFormat(formData.exportFormat)">
-                    <mat-radio-button *ngFor="let format of exportService.getFileFormats()" [value]="format.value">{{ (format.name) ? format.name.toUpperCase() : 'Invalid Type'}}</mat-radio-button>
-                </mat-radio-group>
-                <button mat-raised-button (click)="exportAll()"> Export All Visualizations </button>
-            </div>-->
-            <app-export-control [exportTarget]="exportTarget"></app-export-control>
-            <p></p>
+<form #optionsForm="ngForm">
+    <mat-toolbar color="primary">
+        <span>Export Format</span>
+    </mat-toolbar>
+    <p></p>
+    <app-export-control [exportTarget]="exportTarget"></app-export-control>
+    <p></p>
 
-            <mat-toolbar class="mat-primary">
-                <span>Themes</span>
-            </mat-toolbar>
-            <div class='radio-container' layout="row" mat-margin>
-                <mat-radio-group [(ngModel)]="formData.currentTheme" name="currentThemeGroup" (change)="setCurrentTheme(formData.currentTheme)">
-                    <mat-radio-button *ngFor="let theme of themesService.getThemes()" [value]="theme.id">{{ theme.name }}</mat-radio-button>
-                </mat-radio-group>
-            </div>
-            <p></p>
+    <mat-toolbar color="primary">
+        <span>Themes</span>
+    </mat-toolbar>
+    <p></p>
+    <div class='radio-container' layout="row" mat-margin>
+        <mat-radio-group [(ngModel)]="formData.currentTheme" name="currentThemeGroup" (change)="setCurrentTheme(formData.currentTheme)">
+            <mat-radio-button *ngFor="let theme of themesService.getThemes()" [value]="theme.id">{{ theme.name }}</mat-radio-button>
+        </mat-radio-group>
+    </div>
+    <p></p>
 
-            <div mat-margin>
-              <mat-toolbar class="mat-primary">
-                  <span>Property Service Configuration</span>
-              </mat-toolbar>
-              <button mat-raised-button class="btn-open-config-edit mat-primary" title="Open configuration editor." (click)="openEditConfigDialog()"> Edit configuration</button>
-              <button mat-raised-button class="mat-warn" title="Removes any configuration saved in the Property Service.  Configuration will be loaded from yaml or json files."> Delete configuration</button>
-            </div>
+    <mat-toolbar color="primary">
+        <span>Property Service Configuration</span>
+    </mat-toolbar>
+    <p></p>
+    <button mat-raised-button class="neon-button-small btn-open-config-edit" color="primary" title="Open configuration editor."
+            (click)="openEditConfigDialog()">
+        Edit Configuration
+    </button>
+    <button mat-raised-button class="neon-button-small" color="warn"
+            title="Removes any configuration saved in the Property Service.  Configuration will be loaded from yaml or json files.">
+        Delete Configuration
+    </button>
+    <p></p>
 
-            <mat-toolbar class="mat-primary">
-                <span>Dashboard States</span>
-            </mat-toolbar>
+    <mat-toolbar color="primary">
+        <span>Dashboard States</span>
+    </mat-toolbar>
+    <p></p>
+
+    <div class="option-row">
+        <mat-form-field class="add-margin-right">
+            <input matInput placeholder="New State Name" maxlength="100" name="stateToSave" dividerColor="accent" [(ngModel)]="formData.stateToSave">
+        </mat-form-field>
+
+        <button mat-raised-button class="neon-button-small" color="accent" (click)="saveState(formData.stateToSave)">Save State</button>
+    </div>
+
+    <div class="option-row">
+        <span [mat-menu-trigger-for]="loadMenu" class="fake-dropdown-span">
             <mat-form-field>
-                <input matInput placeholder="New State Name" maxlength="100" name="stateToSave" dividerColor="accent" [(ngModel)]="formData.stateToSave">
+              <input matInput  placeholder="Select a State to Load" maxlength="100" name="stateToLoad"
+                [(ngModel)]="formData.stateToLoad">
             </mat-form-field>
 
-            <button mat-raised-button class="mat-accent" (click)="saveState(formData.stateToSave)"> Save State </button>
+            <mat-icon class="fake-dropdown-arrow">arrow_drop_down</mat-icon>
+            <mat-menu #loadMenu="matMenu" y-position="below" name="loadMenu" class="fake-dropdown-span">
+                <button mat-menu-item (click)="setStateToLoad('')"> None </button>
+                <button mat-menu-item *ngFor="let name of stateNames" (click)="setStateToLoad(name)"> {{ name }} </button>
+            </mat-menu>
+        </span>
 
-            <span [mat-menu-trigger-for]="loadMenu" class="fake-dropdown-span">
-                <mat-form-field>
-                  <input matInput  placeholder="Select a State to Load" maxlength="100" name="stateToLoad"
-                    [(ngModel)]="formData.stateToLoad">
-                </mat-form-field>
+        <button mat-raised-button (click)="loadState(formData.stateToLoad)" class="neon-button-small" color="primary">Load State</button>
+    </div>
 
-                <mat-icon class="fake-dropdown-arrow">arrow_drop_down</mat-icon>
-                <mat-menu #loadMenu="matMenu" y-position="below" name="loadMenu" class="fake-dropdown-span">
-                    <button mat-menu-item (click)="setStateToLoad('')"> None </button>
-                    <button mat-menu-item *ngFor="let name of stateNames" (click)="setStateToLoad(name)"> {{ name }} </button>
-                </mat-menu>
-            </span>
-            <button mat-raised-button (click)="loadState(formData.stateToLoad)" class="mat-primary"> Load State </button>
+    <div class="option-row">
+        <span [mat-menu-trigger-for]="deleteMenu" class="fake-dropdown-span">
+            <mat-form-field>
+            <input matInput  placeholder="Select a State to Delete" maxlength="100" name="stateToDelete"
+                [(ngModel)]="formData.stateToDelete">
+            </mat-form-field>
 
-            <span [mat-menu-trigger-for]="deleteMenu" class="fake-dropdown-span">
-                <mat-form-field>
-                <input matInput  placeholder="Select a State to Delete" maxlength="100" name="stateToDelete"
-                    [(ngModel)]="formData.stateToDelete">
-                </mat-form-field>
+            <mat-icon class="fake-dropdown-arrow">arrow_drop_down</mat-icon>
+            <mat-menu #deleteMenu="matMenu" y-position="below" name="deleteMenu" class="fake-dropdown-span">
+                <button mat-menu-item (click)="setStateToDelete('')"> None </button>
+                <button mat-menu-item *ngFor="let name of stateNames"  (click)="setStateToDelete(name)"> {{ name }} </button>
+            </mat-menu>
+        </span>
 
-                <mat-icon class="fake-dropdown-arrow">arrow_drop_down</mat-icon>
-                <mat-menu #deleteMenu="matMenu" y-position="below" name="deleteMenu" class="fake-dropdown-span">
-                    <button mat-menu-item (click)="setStateToDelete('')"> None </button>
-                    <button mat-menu-item *ngFor="let name of stateNames"  (click)="setStateToDelete(name)"> {{ name }} </button>
-                </mat-menu>
-            </span>
-
-            <button mat-raised-button (click)="deleteState(formData.stateToDelete)" class="mat-warn"> Delete State</button>
-
-        </form>
-    </mat-card-content>
-</mat-card>
+        <button mat-raised-button (click)="deleteState(formData.stateToDelete)" class="neon-button-small" color="warn">Delete State</button>
+    </div>
+</form>

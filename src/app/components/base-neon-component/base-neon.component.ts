@@ -19,6 +19,7 @@ import {
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -73,6 +74,7 @@ export abstract class BaseNeonComponent implements OnInit,
     public emptyField = new FieldMetaData();
 
     constructor(
+        private activeGridService: ActiveGridService,
         private connectionService: ConnectionService,
         private datasetService: DatasetService,
         protected filterService: FilterService,
@@ -126,6 +128,7 @@ export abstract class BaseNeonComponent implements OnInit,
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
         this.visualizationService.registerBindings(this.id, this);
+        this.activeGridService.register(this.id, this);
 
         this.outstandingDataQuery = {};
         for (let database of this.datasetService.getDatabases()) {
@@ -135,7 +138,7 @@ export abstract class BaseNeonComponent implements OnInit,
         try {
             this.setupFilters();
         } catch (e) {
-            console.warn('Error while setting up filters duing init, ignoring');
+            // Fails in unit tests - ignore.
         }
 
         this.subNgOnInit();
@@ -264,28 +267,7 @@ export abstract class BaseNeonComponent implements OnInit,
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
         this.visualizationService.unregister(this.id);
-        /* $scope.element.off('resize', resize);
-        $scope.element.find('.headers-container').off('resize', resizeDisplay);
-        $scope.element.find('.options-menu-button').off('resize', resizeTitle);
-        $scope.messenger.unsubscribeAll();
-
-        if($scope.functions.isFilterSet()) {
-            $scope.functions.removeNeonFilter({
-                fromSystem: true
-            });
-        }
-
-        exportService.unregister($scope.exportId);
-        linksPopupService.deleteLinks($scope.visualizationId);
-        $scope.getDataLayers().forEach(function(layer) {
-            linksPopupService.deleteLinks(createLayerLinksSource(layer));
-        });
-        themeService.unregisterListener($scope.visualizationId);
-        visualizationService.unregister($scope.stateId);
-
-        resizeListeners.forEach(function(element) {
-            $scope.element.find(element).off('resize', resize);
-        }); */
+        this.activeGridService.unregister(this.id);
         this.subNgOnDestroy();
     }
 
@@ -646,7 +628,7 @@ export abstract class BaseNeonComponent implements OnInit,
      */
     handleChangeDatabase() {
         this.initTables();
-        this.logChangeAndStartQueryChain(); // ('database', this.active.database.name);
+        this.logChangeAndStartQueryChain();
     }
 
     /**
@@ -654,13 +636,13 @@ export abstract class BaseNeonComponent implements OnInit,
      */
     handleChangeTable() {
         this.initFields();
-        this.logChangeAndStartQueryChain(); // ('table', this.active.table.name);
+        this.logChangeAndStartQueryChain();
     }
 
     /**
      * If not initializing, calls executeQueryChain();
      */
-    logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
+    logChangeAndStartQueryChain() {
         if (!this.initializing) {
             this.executeQueryChain();
         }
@@ -757,7 +739,6 @@ export abstract class BaseNeonComponent implements OnInit,
             style: string;
         if (!elems.length) {
             style = 'rgb(255, 255, 255)';
-            console.error('Unable to retrieve primary theme without element with class "coloraccessor"');
         } else {
             style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
         }

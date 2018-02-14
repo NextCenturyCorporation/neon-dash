@@ -19,6 +19,7 @@ import {
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -75,6 +76,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     public emptyField = new FieldMetaData();
 
     constructor(
+        private activeGridService: ActiveGridService,
         private connectionService: ConnectionService,
         private datasetService: DatasetService,
         protected filterService: FilterService,
@@ -123,12 +125,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         try {
             this.setupFilters();
         } catch (e) {
-            console.warn('Error while setting up filters duing init, ignoring');
+            // Fails in unit tests - ignore.
         }
 
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
         this.visualizationService.registerBindings(this.id, this);
+        this.activeGridService.register(this.id, this);
 
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
@@ -329,6 +332,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
         this.visualizationService.unregister(this.id);
+        this.activeGridService.unregister(this.id);
         this.subNgOnDestroy();
     }
 
@@ -758,7 +762,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      */
     handleChangeDatabase(layerIndex) {
         this.initTables(layerIndex);
-        this.logChangeAndStartQueryChain(layerIndex); // ('database', this.active.database.name);
+        this.logChangeAndStartQueryChain(layerIndex);
     }
 
     /**
@@ -766,7 +770,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      */
     handleChangeTable(layerIndex) {
         this.initFields(layerIndex);
-        this.logChangeAndStartQueryChain(layerIndex); // ('table', this.active.table.name);
+        this.logChangeAndStartQueryChain(layerIndex);
     }
 
     /**
@@ -781,7 +785,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     /**
      * If not initializing, calls executeQueryChain(index) for a layer
      */
-    logChangeAndStartQueryChain(layerIndex: number) { // (option: string, value: any, type?: string) {
+    logChangeAndStartQueryChain(layerIndex: number) {
         if (!this.initializing) {
             this.executeQueryChain(layerIndex);
         }
@@ -791,7 +795,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * Called when a filter has been removed
      * @param value the filter name
      */
-    abstract removeFilter(value: string): void;
+    abstract removeFilter(filter: any): void;
 
     /**
      * Remove a filter from neon, and optionally requery and/or refresh
@@ -834,7 +838,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             style: string;
         if (!elems.length) {
             style = 'rgb(255, 255, 255)';
-            console.error('Unable to retrieve primary theme without element with class "coloraccessor"');
         } else {
             style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
         }

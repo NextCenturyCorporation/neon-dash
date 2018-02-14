@@ -1,7 +1,8 @@
 <div [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar color="primary">
-        <span class="mat-36">Add Visualizations</span>
+        <span>Add Visualizations</span>
     </mat-toolbar>
+
     <div class="add-visualization-grid-container" mat-fill>
         <mat-grid-list cols="4" rowHeight="130px" gutterSize="5px">
             <mat-grid-tile *ngFor="let item of visualizations; let i = index;" [class.selected]="item.selected"
@@ -21,8 +22,9 @@
             </mat-grid-tile>
         </mat-grid-list>
     </div>
-    <mat-toolbar>
+
+    <div mat-fill class="flex">
         <span class="fill-remaining"></span>
-        <button mat-raised-button class="mat-primary" (click)="dialogRef.close('close')"> Close </button>
-    </mat-toolbar>
+        <button mat-raised-button color="primary" (click)="dialogRef.close('close')"> Close </button>
+    </div>
 </div>

@@ -22,6 +22,7 @@ import {
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -62,10 +63,11 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
     private counter: number;
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
-                visualizationService: VisualizationService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+        ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -134,13 +136,15 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             active: false,
             id: ++this.counter
         };
-        let databaseTableKey = this.getDatabaseTableKey(clause.database.name, clause.table.name);
-        if (!this.active.whereClauses[databaseTableKey]) {
-            this.active.whereClauses.set(databaseTableKey, new FilterBuilderDatabaseTableMetadata());
-            this.active.whereClauses.get(databaseTableKey).clauses = [];
+        if (clause.database && clause.table) {
+            let databaseTableKey = this.getDatabaseTableKey(clause.database.name, clause.table.name);
+            if (!this.active.whereClauses.get(databaseTableKey)) {
+                this.active.whereClauses.set(databaseTableKey, new FilterBuilderDatabaseTableMetadata());
+                this.active.whereClauses.get(databaseTableKey).clauses = [];
+            }
+            this.active.whereClauses.get(databaseTableKey).clauses.push(clause);
+            this.active.whereClausesAsList.push(clause);
         }
-        this.active.whereClauses.get(databaseTableKey).clauses.push(clause);
-        this.active.whereClausesAsList.push(clause);
     }
 
     removeClause(where) {
@@ -158,13 +162,13 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 break;
             }
         }
+        if (this.active.whereClauses.get(databaseTableKey).filterId) {
+            this.filterService.removeFilter(
+                this.messenger,
+                this.active.whereClauses.get(databaseTableKey).filterId,
+                () => null);
+        }
         if (this.active.whereClauses.get(databaseTableKey).clauses.length === 0) {
-            if (this.active.whereClauses.get(databaseTableKey).filterId) {
-                this.filterService.removeFilter(
-                    this.messenger,
-                    this.active.whereClauses.get(databaseTableKey).filterId,
-                    () => null);
-            }
             this.active.whereClauses.delete(databaseTableKey);
         }
         if (this.active.whereClauses.size === 0) {
@@ -174,7 +178,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
     activateClause(where) {
         let databaseTableKey = this.getDatabaseTableKey(where.database.name, where.table.name);
-        for (let clause of this.active.whereClauses.get(databaseTableKey).clauses) {
+        let whereClauses = this.active.whereClauses.get(databaseTableKey).clauses;
+        for (let clause of whereClauses) {
             if (clause.id === where.id) {
                 clause.active = true;
                 break;
@@ -369,11 +374,11 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeOperator() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 }
 

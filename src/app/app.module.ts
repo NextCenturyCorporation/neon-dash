@@ -46,6 +46,7 @@ import {
 } from './components/add-visualization/add-visualization.component';
 import { AppComponent } from './app.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
+import { ChartComponent } from './components/chart/chart.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
@@ -68,7 +69,6 @@ import { VisualizationContainerComponent } from './components/visualization-cont
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
 import { WikiViewerComponent } from './components/wiki-viewer/wiki-viewer.component';
 
-import { ChartModule } from 'angular2-chartjs';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { AppMaterialModule } from './app.material.module';
 import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
@@ -87,6 +87,7 @@ export function getAppConfig() {
         AddVisualizationComponent,
         AppComponent,
         BarChartComponent,
+        ChartComponent,
         ConfigEditorComponent,
         DashboardOptionsComponent,
         DatasetSelectorComponent,
@@ -119,7 +120,6 @@ export function getAppConfig() {
         HttpModule,
         HttpClientModule,
         NgGridModule,
-        ChartModule,
         NgxDatatableModule,
         BrowserAnimationsModule,
         AppMaterialModule,

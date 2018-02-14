@@ -72,6 +72,7 @@ describe('App: NeonGtd', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 AppComponent,
                 AboutNeonComponent,
                 BarChartComponent,

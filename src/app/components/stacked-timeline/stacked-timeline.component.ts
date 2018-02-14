@@ -23,6 +23,7 @@ import {
     Injector, ElementRef, ViewChild, HostListener,
     ChangeDetectorRef
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -89,10 +90,11 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     private timelineData: TimelineData;
     private defaultActiveColor;
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService,
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -440,12 +442,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             }
         }
 
-        /*if (series.focusData && series.focusData.length > 0) {
-            let extentStart = series.focusData[0].date;
-            let extentEnd = series.focusData[series.focusData.length - 1].date;
-            this.timelineData.extent = [extentStart, extentEnd];
-        }*/
-
         // Make sure to update both the data and primary series
         this.timelineData.data = [series];
         this.timelineData.primarySeries = series;
@@ -520,7 +516,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     }
 
     handleChangeDateField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeGroupField() {
@@ -528,7 +524,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     }
 
     handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+        this.logChangeAndStartQueryChain();
     }
 
     subGetBindings(bindings: any) {
@@ -537,7 +533,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         bindings.groupField = this.active.groupField.columnName;
     }
 
-    logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
+    logChangeAndStartQueryChain() {
         if (!this.initializing) {
             this.executeQueryChain();
         }

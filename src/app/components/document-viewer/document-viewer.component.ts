@@ -23,6 +23,7 @@ import {
     ChangeDetectorRef,
     ViewContainerRef
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -50,7 +51,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
 
-    private optionsFromConfig: {
+    public optionsFromConfig: {
         title: string,
         database: string,
         table: string,
@@ -60,6 +61,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         metadataFields: any[], // Array of arrays. Each internal array is a row of metadata and contains {name, field} objects.
         popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
         limit: number,
+        limitDisabled: boolean,
         showText: boolean,
         showSelect: boolean
     };
@@ -71,13 +73,16 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         docCount: number,
         idField: FieldMetaData,
         limit: number,
+        page: number,
         metadataFields: any[]
     };
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, public viewContainerRef: ViewContainerRef,
-        ref: ChangeDetectorRef, visualizationService: VisualizationService, public dialog: MatDialog) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+        public viewContainerRef: ViewContainerRef, ref: ChangeDetectorRef, visualizationService: VisualizationService,
+        public dialog: MatDialog) {
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -88,6 +93,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             metadataFields: this.injector.get('metadataFields', null),
             popoutFields: this.injector.get('popoutFields', null),
             limit: this.injector.get('limit', null),
+            limitDisabled: this.injector.get('limitDisabled', true),
             showText: this.injector.get('showText', false),
             showSelect: this.injector.get('showSelect', true)
         };
@@ -98,6 +104,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             docCount: 0,
             idField: new FieldMetaData(),
             limit: this.optionsFromConfig.limit || 50,
+            page: 1,
             metadataFields: []
         };
         this.queryTitle = this.optionsFromConfig.title || 'Document Viewer';
@@ -177,6 +184,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     createQuery() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
+        let limit = this.active.limit;
+        let offset = ((this.active.page) - 1) * limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
         let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
@@ -189,7 +198,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (this.active.idField.columnName) {
             fields = fields.concat(this.active.idField.columnName);
         }
-        return query.where(whereClause).withFields(fields).limit(this.active.limit);
+        return query.where(whereClause).withFields(fields).limit(limit).offset(offset);
     }
 
     onQuerySuccess(response) {
@@ -233,14 +242,20 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     getButtonText() {
+        let min = ((this.active.page - 1) * this.active.limit);
+        let max = min + this.active.limit;
+        if (max > this.active.docCount) {
+            max = this.active.docCount;
+        }
         return !this.active.data.length ?
             'No Data' :
             this.active.data.length < this.active.docCount ?
-                'Top ' + this.active.data.length + ' of ' + this.active.docCount :
+                (min + 1) + ' - ' + max + ' of ' + this.active.docCount :
                 'Total ' + this.active.data.length;
     }
 
     setupFilters() {
+        this.active.page = 1;
         this.executeQueryChain();
     }
 
@@ -251,7 +266,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     /**
      * Responds to changes in a field by starting a new query cycle.
      */
-    private handleChangeField() {
+    handleChangeField() {
         this.logChangeAndStartQueryChain();
     }
 
@@ -331,5 +346,15 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (this.active.idField.columnName && item[this.active.idField.columnName]) {
             this.publishSelectId(item[this.active.idField.columnName]);
         }
+    }
+
+    nextPage() {
+        this.active.page += 1;
+        this.executeQueryChain();
+    }
+
+    previousPage() {
+        this.active.page -= 1;
+        this.executeQueryChain();
     }
 }
