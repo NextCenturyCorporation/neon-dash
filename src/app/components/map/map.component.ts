@@ -749,26 +749,4 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         super.onResizeStop();
         return this.mapObject && this.mapObject.sizeChanged();
     }
-
-    /*removeLocalFilterFromLocalAndNeon(value: string) {
-      // If we are removing a filter, assume its both local and neon so it should be removed in both
-      let me = this;
-      let database = this.active.database.name;
-      let table = this.active.table.name;
-      let fields = [this.active.latitudeField.columnName, this.active.longitudeField.columnName];
-      this.filterService.removeFilter(database, table, fields,
-          () => {
-              me.filters = [];
-              this.removeFilterBox();
-              me.executeQueryChain();
-              console.log('remove filter' + value);
-          },
-          () => {
-              console.error('error removing filter');
-          }, this.messenger);
-      if (this.filters.length === 0) {
-          this.removeFilterBox();
-      }
-
-  };*/
 }

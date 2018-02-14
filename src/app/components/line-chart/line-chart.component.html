@@ -72,12 +72,6 @@
                 <p></p>
 
                 <mat-button-toggle-group #hourGranularity="matButtonToggleGroup" [(ngModel)]="active.granularity" (ngModelChange)="handleChangeGranularity()">
-                    <!--<mat-button-toggle value="year">
-                        Year
-                    </mat-button-toggle>
-                    <mat-button-toggle value="month">
-                        Month
-                    </mat-button-toggle>-->
                     <mat-button-toggle value="day">
                         Day
                     </mat-button-toggle>
@@ -131,12 +125,4 @@
 
         </div>
     </div>
-    <!--<div class="text-cloud" mat-fill layout="col">
-        <a (click)="addFilter(item.key, item.keyTranslated)" class="text" *ngFor="let item of active.data" [rel]="item.count"
-            [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
-                <div>
-                    {{ item.key }}
-                </div>
-            </a>
-    </div>-->
 </mat-sidenav-container>

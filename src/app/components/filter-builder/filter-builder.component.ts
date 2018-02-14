@@ -374,11 +374,11 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeOperator() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 }
 

@@ -3,12 +3,6 @@
         <span>Export Format</span>
     </mat-toolbar>
     <p></p>
-    <!--<div class='radio-container' layout="row" mat-margin>
-        <mat-radio-group [(ngModel)]="formData.exportFormat" name="exportFormatGroup" (change)="setExportFormat(formData.exportFormat)">
-            <mat-radio-button *ngFor="let format of exportService.getFileFormats()" [value]="format.value">{{ (format.name) ? format.name.toUpperCase() : 'Invalid Type'}}</mat-radio-button>
-        </mat-radio-group>
-        <button mat-raised-button (click)="exportAll()"> Export All Visualizations </button>
-    </div>-->
     <app-export-control [exportTarget]="exportTarget"></app-export-control>
     <p></p>
 

@@ -3,7 +3,6 @@
         <!-- *ngIf="!showToolbar" -->
         <div style="width:100%; position: absolute; z-index:999" (mouseleave)="showToolbar=false;">
             <div class="fill-remaining drag-handle" [ngClass]="{'above-icons': showToolbar, 'activation-toolbar': !showToolbar}" (mouseenter)="showToolbar=true;">
-                <!--  <span class="" style="padding-top: 21px; position: absolute;"></span>-->
             </div>
             <div class="visualization-toolbar" layout-align="space-between center" flex flex-direction="column">
                 <div class="icon-container" *ngIf="showToolbar">
@@ -29,7 +28,6 @@
                 </div>
             </div>
         </div>
-        <!-- <div *ngIf="!showToolbar" class="activation-toolbar drag-handle" [ngStyle]="{'height.px':(showToolbar ? 0 : 10)}" (mouseenter)="showToolbar=true;"></div>-->
     </div>
 
     <app-visualization-injector [componentData]="visualization" class="visualization-container"></app-visualization-injector>

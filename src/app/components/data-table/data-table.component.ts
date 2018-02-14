@@ -381,7 +381,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     handleChangeField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeSortField() {

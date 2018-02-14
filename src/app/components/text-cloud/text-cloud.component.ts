@@ -373,16 +373,16 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     handleChangeDataField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeLimit() {
         this.active.limit = this.active.limit || 1;
-        this.logChangeAndStartQueryChain(); // ('limit', this.active.limit, 'button');
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeSizeField() {

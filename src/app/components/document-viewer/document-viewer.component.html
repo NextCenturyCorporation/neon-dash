@@ -69,63 +69,6 @@
                     </mat-select>
                 </mat-form-field>
                 <p></p>
-
-                <!-- Limit selector -->
-                <!--
-                <table cellspacing="0">
-                    <tr>
-                        <td>
-                            <input [disabled]="optionsFromConfig.limitDisabled" matInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
-                        </td>
-                        <td>
-                            <button [disabled]="optionsFromConfig.limitDisabled" mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeField()">
-                                <mat-icon>refresh</mat-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-                <p></p>
-                -->
-
-                <!-- Unshared filter -->
-                <!--
-                <mat-toolbar color="primary">
-                    <span>Unshared Filter</span>
-                </mat-toolbar>
-                <mat-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField" required="false" [disabled]="meta.fields.length === 0"
-                    (ngModelChange)="handleChangeUnsharedFilterField()">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
-                <table cellspacing="0">
-                    <tr>
-                        <td>
-                            <input matInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue"
-                                [disabled]="!(meta.unsharedFilterField.columnName)">
-
-                        </td>
-                        <td>
-                            <button mat-icon-button class="neon-icon-button-small" matTooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()"
-                                [disabled]="(meta.unsharedFilterField.columnName == undefined || meta.unsharedFilterValue == '')">
-                                <mat-icon class="neon-icon-small">clear</mat-icon>
-                            </button>
-                        </td>
-                        <td>
-                            <button mat-icon-button class="neon-icon-button-small" matTooltip="Set Unshared Filter" tooltip-position="below" (click)="handleChangeUnsharedFilterValue()">
-                                <mat-icon class="neon-icon-small">refresh</mat-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-                <p></p>
-                -->
-
-                <!-- Export -->
-                <!--
-                <button mat-raised-button color="primary" class="export" (click)="requestExport()">
-                    Export to File
-                </button>
-                -->
             </mat-card-content>
         </mat-card>
     </mat-sidenav>

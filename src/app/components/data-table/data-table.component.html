@@ -44,24 +44,6 @@
                 </mat-form-field>
                 <p></p>
 
-            <!--
-                <table cellspacing="0">
-                    <tr>
-                        <td>
-                            <mat-form-field>
-                                <input [disabled]="optionsFromConfig.limitDisabled" matInput placeholder="Row Limit" [(ngModel)]="active.limit" required="true">
-                            </mat-form-field>
-                        </td>
-                        <td>
-                            <button [disabled]="optionsFromConfig.limitDisabled" mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <mat-icon>refresh</mat-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-                <p></p>
-            -->
-
                 Column Selector:
                 <mat-button-toggle-group #showColumnSelector="matButtonToggleGroup" [(ngModel)]="active.showColumnSelector">
                     <mat-button-toggle value="show">

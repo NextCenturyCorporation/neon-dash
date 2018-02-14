@@ -442,12 +442,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             }
         }
 
-        /*if (series.focusData && series.focusData.length > 0) {
-            let extentStart = series.focusData[0].date;
-            let extentEnd = series.focusData[series.focusData.length - 1].date;
-            this.timelineData.extent = [extentStart, extentEnd];
-        }*/
-
         // Make sure to update both the data and primary series
         this.timelineData.data = [series];
         this.timelineData.primarySeries = series;
@@ -522,7 +516,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     }
 
     handleChangeDateField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeGroupField() {
@@ -530,7 +524,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     }
 
     handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+        this.logChangeAndStartQueryChain();
     }
 
     subGetBindings(bindings: any) {
@@ -539,7 +533,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         bindings.groupField = this.active.groupField.columnName;
     }
 
-    logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
+    logChangeAndStartQueryChain() {
         if (!this.initializing) {
             this.executeQueryChain();
         }

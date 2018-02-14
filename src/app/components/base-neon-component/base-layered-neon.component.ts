@@ -762,7 +762,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      */
     handleChangeDatabase(layerIndex) {
         this.initTables(layerIndex);
-        this.logChangeAndStartQueryChain(layerIndex); // ('database', this.active.database.name);
+        this.logChangeAndStartQueryChain(layerIndex);
     }
 
     /**
@@ -770,7 +770,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      */
     handleChangeTable(layerIndex) {
         this.initFields(layerIndex);
-        this.logChangeAndStartQueryChain(layerIndex); // ('table', this.active.table.name);
+        this.logChangeAndStartQueryChain(layerIndex);
     }
 
     /**
@@ -785,7 +785,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     /**
      * If not initializing, calls executeQueryChain(index) for a layer
      */
-    logChangeAndStartQueryChain(layerIndex: number) { // (option: string, value: any, type?: string) {
+    logChangeAndStartQueryChain(layerIndex: number) {
         if (!this.initializing) {
             this.executeQueryChain(layerIndex);
         }

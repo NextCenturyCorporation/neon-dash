@@ -762,19 +762,19 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeDataField() {
         this.active.seenValues = [];
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeAggregationField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeColorField() {
-        this.logChangeAndStartQueryChain(); // ('colorField', this.active.colorField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+        this.logChangeAndStartQueryChain();
     }
 
     unsharedFilterChanged() {
