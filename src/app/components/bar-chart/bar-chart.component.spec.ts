@@ -17,8 +17,6 @@ import {  ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { ChartModule } from 'angular2-chartjs';
-
 import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
 
@@ -41,6 +39,7 @@ import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.comp
 import { VisualizationService } from '../../services/visualization.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { LegendComponent } from '../legend/legend.component';
+import { ChartComponent } from '../chart/chart.component';
 
 class TestDatasetService extends DatasetService {
     constructor() {
@@ -66,6 +65,7 @@ describe('Component: BarChart', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 LegendComponent,
                 BarChartComponent,
                 ExportControlComponent,
@@ -88,8 +88,7 @@ describe('Component: BarChart', () => {
             imports: [
                 BrowserAnimationsModule,
                 AppMaterialModule,
-                FormsModule,
-                ChartModule
+                FormsModule
             ]
         });
         fixture = TestBed.createComponent(BarChartComponent);

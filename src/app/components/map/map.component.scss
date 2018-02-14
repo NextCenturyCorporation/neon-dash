@@ -15,10 +15,6 @@
  */
 @import '../base-neon-component/base-neon.component.scss';
 
-.body-container {
-    height: calc(100% - #{$vis-title-expected-height});
-}
-
 .map-container {
     position: absolute;
     width: 100%;
@@ -32,7 +28,7 @@
     justify-content: space-between;
     position: absolute;
     top: 5px;
-    left: 5px;
+    left: 50px;
     z-index: 1000; //required to show above leaflet
 }
 

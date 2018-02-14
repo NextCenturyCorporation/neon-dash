@@ -1,45 +1,59 @@
 <mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="header" layout-align="space-between center" flex>
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
-        <span class="error-message text" *ngIf="active.errorMessage">{{ active.errorMessage }}</span>
-        <span class="wiki-name text" *ngIf="active.wikiName.length">Total {{ active.wikiName.length }}</span>
+        <span class="error-message info text" *ngIf="active.errorMessage">{{ active.errorMessage }}</span>
+        <span class="wiki-name info text" *ngIf="active.wikiName.length">Total {{ active.wikiName.length }}</span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <mat-icon class="mat-24">settings</mat-icon>
+            <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <div class="icon-with-text" *ngIf="active.errorMessage">
-                    <mat-icon class="error-message icon">error</mat-icon>
-                    <div class="error-message text">{{ active.errorMessage }}</div>
+                <div *ngIf="active.errorMessage">
+                    <label class="icon-with-text">
+                        <mat-icon class="neon-icon-small error-message icon">error</mat-icon>
+                        <div class="error-message text">{{ active.errorMessage }}</div>
+                    </label>
+                    <p></p>
                 </div>
 
-                <div class="icon-with-text" *ngIf="active.wikiName.length">
-                    <mat-icon class="wiki-name icon">web</mat-icon>
-                    <div class="wiki-name text">Total {{ active.wikiName.length }}</div>
+                <div *ngIf="active.wikiName.length">
+                    <label class="icon-with-text">
+                        <mat-icon class="neon-icon-small wiki-name icon">web</mat-icon>
+                        <div class="wiki-name text">Total {{ active.wikiName.length }}</div>
+                    </label>
+                    <p></p>
                 </div>
 
-                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length < 1">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length < 1">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length < 1">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length < 1">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
@@ -53,7 +67,7 @@
 
     <mat-tab-group>
         <mat-tab *ngFor="let text of active.wikiText; let i = index" [label]="getTabLabel(active.wikiName, i)">
-            <div class="wiki-text html contained-scroll-box" [innerHTML]="text"></div>
+            <div class="wiki-text html" [innerHTML]="text"></div>
         </mat-tab>
     </mat-tab-group>
 </mat-sidenav-container>

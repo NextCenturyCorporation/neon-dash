@@ -56,7 +56,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public gridConfig: NgGridConfig = {
         resizable: true,
-        margins: [0, 0, 10, 10],
+        margins: [10, 0, 0, 10],
         min_cols: 1,
         max_cols: 24,
         min_rows: 0,
@@ -67,7 +67,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         auto_style: true,
         auto_resize: true,
         cascade: 'up',
-        fix_to_grid: true
+        fix_to_grid: true,
+        limit_to_screen: true
     };
 
     /* A reference to the dialog for adding visualizations. */
@@ -137,6 +138,14 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     ngAfterViewInit() {
         // child is set
+        /* NOTE:
+         * There was an issue with Angular Material beta 12 and angular2-grid,
+         * where the grid would initially be multiple times larger than the rest of the page
+         * until the window has been resized.
+         * To work around this, trigger a resize event in the grid on page load so that it measures
+         * correctly
+         */
+        this.activeGridService.triggerResize();
     }
 
     ngOnInit(): void {

@@ -268,28 +268,6 @@ export abstract class BaseNeonComponent implements OnInit,
         this.exportService.unregister(this.exportId);
         this.visualizationService.unregister(this.id);
         this.activeGridService.unregister(this.id);
-        /* $scope.element.off('resize', resize);
-        $scope.element.find('.headers-container').off('resize', resizeDisplay);
-        $scope.element.find('.options-menu-button').off('resize', resizeTitle);
-        $scope.messenger.unsubscribeAll();
-
-        if($scope.functions.isFilterSet()) {
-            $scope.functions.removeNeonFilter({
-                fromSystem: true
-            });
-        }
-
-        exportService.unregister($scope.exportId);
-        linksPopupService.deleteLinks($scope.visualizationId);
-        $scope.getDataLayers().forEach(function(layer) {
-            linksPopupService.deleteLinks(createLayerLinksSource(layer));
-        });
-        themeService.unregisterListener($scope.visualizationId);
-        visualizationService.unregister($scope.stateId);
-
-        resizeListeners.forEach(function(element) {
-            $scope.element.find(element).off('resize', resize);
-        }); */
         this.subNgOnDestroy();
     }
 
@@ -650,7 +628,7 @@ export abstract class BaseNeonComponent implements OnInit,
      */
     handleChangeDatabase() {
         this.initTables();
-        this.logChangeAndStartQueryChain(); // ('database', this.active.database.name);
+        this.logChangeAndStartQueryChain();
     }
 
     /**
@@ -658,13 +636,13 @@ export abstract class BaseNeonComponent implements OnInit,
      */
     handleChangeTable() {
         this.initFields();
-        this.logChangeAndStartQueryChain(); // ('table', this.active.table.name);
+        this.logChangeAndStartQueryChain();
     }
 
     /**
      * If not initializing, calls executeQueryChain();
      */
-    logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
+    logChangeAndStartQueryChain() {
         if (!this.initializing) {
             this.executeQueryChain();
         }

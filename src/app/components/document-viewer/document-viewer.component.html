@@ -1,10 +1,10 @@
 <mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="header" layout-align="space-between center" flex>
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
-        <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
+        <span class="info text">{{ getButtonText() }}</span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <mat-icon class="mat-24">settings</mat-icon>
+            <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
@@ -12,29 +12,37 @@
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <label style="display: inline;" *ngIf="getButtonText()">
-                    <mat-icon class="error-icon">error</mat-icon>
-                    {{ getButtonText() }}
-                </label>
-                <p></p>
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text">
+                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <div>{{ getButtonText() }}</div>
+                    </label>
+                    <p></p>
+                </div>
 
                 <!-- Database selector -->
-                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <!-- Table selector -->
-                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <!-- Text field selector -->
-                <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeField()"
+                        [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <!-- Text toggle -->
@@ -45,82 +53,28 @@
                 <p></p>
 
                 <!-- Date field selector -->
-                <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="false" (ngModelChange)="handleChangeField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="false" (ngModelChange)="handleChangeField()"
+                        [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <!-- ID field selector -->
-                <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()"
+                        [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
-
-                <!-- Limit selector -->
-                <!--
-                <table cellspacing="0">
-                    <tr>
-                        <td>
-                            <input [disabled]="optionsFromConfig.limitDisabled" matInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
-                        </td>
-                        <td>
-                            <button [disabled]="optionsFromConfig.limitDisabled" mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeField()">
-                                <mat-icon class="mat-24">refresh</mat-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-                -->
-                <p></p>
-
-                <!-- Unshared filter -->
-                <!--
-                <mat-toolbar class="mat-primary">
-                    <span>Unshared Filter</span>
-                </mat-toolbar>
-                <mat-select placeholder="Filter Field" [(ngModel)]="meta.unsharedFilterField" required="false" [disabled]="meta.fields.length === 0"
-                    (ngModelChange)="handleChangeUnsharedFilterField()">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
-                <table cellspacing="0">
-                    <tr>
-                        <td>
-                            <input matInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue"
-                                [disabled]="!(meta.unsharedFilterField.columnName)">
-
-                        </td>
-                        <td>
-                            <button mat-icon-button matTooltip="Remove Unshared Filter" tooltip-position="below" (click)="handleRemoveUnsharedFilter()"
-                                [disabled]="(meta.unsharedFilterField.columnName == undefined || meta.unsharedFilterValue == '')">
-                                <mat-icon class="mat-16">clear</mat-icon>
-                            </button>
-                        </td>
-                        <td>
-                            <button mat-icon-button matTooltip="Set Unshared Filter" tooltip-position="below" (click)="handleChangeUnsharedFilterValue()">
-                                <mat-icon class="mat-16">refresh</mat-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
-                <p></p>
-                -->
-
-                <!-- Export -->
-                <!--
-                <button mat-raised-button color="primary" class="export" (click)="requestExport()">
-                    Export to File
-                </button>
-                -->
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
 
     <!-- View documents -->
-    <mat-list class="document-viewer-list-container contained-scroll-box-with-footer">
-
+    <mat-list class="document-viewer-list-container contained-scroll-box with-footer">
         <div class="mat-list-item-text document-viewer-list-item" layout="column">
             <table class="document-viewer-table">
                 <ng-template ngFor let-item [ngForOf]="active.data">
@@ -134,9 +88,14 @@
                                 {{ item[active.dataField.columnName] }}
                             </div>
                             <div class="document-viewer-button-container">
-                                <button *ngIf="!optionsFromConfig.showText" mat-button class="document-viewer-button" (click)="openSingleRecord(item)">View Source Text</button>
-                                <span class="document-viewer-button-spacer" *ngIf="!optionsFromConfig.showText && optionsFromConfig.showSelect && active.idField.columnName"></span>
-                                <button *ngIf="optionsFromConfig.showSelect && active.idField.columnName" mat-button class="document-viewer-button" (click)="selectSingleRecord(item)">Select</button>
+                                <button mat-raised-button class="neon-button-small document-viewer-button" color="primary"
+                                        *ngIf="!optionsFromConfig.showText" (click)="openSingleRecord(item)">View Source Text</button>
+                                <span class="document-viewer-button-spacer"
+                                        *ngIf="!optionsFromConfig.showText && optionsFromConfig.showSelect && active.idField.columnName"></span>
+                                <button mat-raised-button class="neon-button-small document-viewer-button" color="primary"
+                                        *ngIf="optionsFromConfig.showSelect && active.idField.columnName" (click)="selectSingleRecord(item)">
+                                    Select
+                                </button>
                             </div>
                             <hr/>
                         </td>
@@ -144,15 +103,18 @@
                 </ng-template>
             </table>
         </div>
-
     </mat-list>
+
     <div class="footer">
-        <div class="footer-divider"></div>
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="active.page == 1" class="pagination-button" (click)="previousPage()">Previous</button>
+            <button mat-raised-button [disabled]="active.page == 1" class="pagination-button" color="primary" (click)="previousPage()">
+                Previous
+            </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="active.page*active.limit >= active.docCount" class="pagination-button" (click)="nextPage()">Next</button>
+            <button mat-raised-button [disabled]="active.page*active.limit >= active.docCount" class="pagination-button" color="primary"
+                    (click)="nextPage()">
+                Next
+            </button>
         </div>
     </div>
-
 </mat-sidenav-container>

@@ -37,7 +37,7 @@ import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
 import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ChartModule } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 import * as moment from 'moment-timezone';
 import { VisualizationService } from '../../services/visualization.service';
 
@@ -55,8 +55,8 @@ class LocalFilter {
 export class LineChartComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
 
-    @ViewChild('myChart') chartModule: ChartModule;
-    @ViewChild('textContainer') textContainer: ElementRef;
+    @ViewChild('myChart') chartModule: ChartComponent;
+    @ViewChild('filterContainer') filterContainer: ElementRef;
     @ViewChild('chartContainer') chartContainer: ElementRef;
 
     private optionsFromConfig: {
@@ -269,7 +269,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         // Do nothing.  An on change unfortunately kicks off the initial query.
         this.logChangeAndStartQueryChain();
 
-        this.selectionOffset.y = this.textContainer.nativeElement.scrollHeight;
+        this.selectionOffset.y = this.filterContainer.nativeElement.scrollHeight;
         this.selectionOffset.x = Number.parseInt(this.getComputedStyle(this.chartContainer.nativeElement).paddingLeft || '0');
     }
 
@@ -695,7 +695,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                         break;
                 }
                 labels[i] = dateString;
-                //   labels[i] = date.toUTCString();
             }
         } else {
             this.buttonText = 'No Data';
@@ -713,16 +712,16 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 title = 'Count';
                 break;
             case 'average':
-                title = 'Average'; // + this.active.aggregationField.prettyName;
+                title = 'Average';
                 break;
             case 'sum':
-                title = 'Sum'; // + this.active.aggregationField.prettyName;
+                title = 'Sum';
                 break;
             case 'min':
-                title = 'Minimum'; // + this.active.aggregationField.prettyName;
+                title = 'Minimum';
                 break;
             case 'max':
-                title = 'Maximum'; // + this.active.aggregationField.prettyName;
+                title = 'Maximum';
                 break;
         }
         if (this.active.groupField && this.active.groupField.prettyName) {
@@ -819,22 +818,22 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeDateField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeGroupField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeAggregationField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+        this.logChangeAndStartQueryChain();
     }
 
-    logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
+    logChangeAndStartQueryChain() {
         if (!this.initializing) {
             this.executeQueryChain();
         }

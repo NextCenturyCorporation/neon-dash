@@ -36,11 +36,11 @@ import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import { ChartModule } from 'angular2-chartjs';
 import { FormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
+import { ChartComponent } from '../chart/chart.component';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -50,7 +50,9 @@ describe('Component: VisualizationContainer', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 BarChartComponent,
+                ChartComponent,
                 DataTableComponent,
                 DocumentViewerComponent,
                 ExportControlComponent,
@@ -75,7 +77,6 @@ describe('Component: VisualizationContainer', () => {
             imports: [
                 AppMaterialModule,
                 FormsModule,
-                ChartModule,
                 NgxDatatableModule,
                 BrowserAnimationsModule
             ]

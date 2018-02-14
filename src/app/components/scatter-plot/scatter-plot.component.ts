@@ -34,7 +34,7 @@ import { FieldMetaData } from '../../dataset';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ChartModule } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 import { VisualizationService } from '../../services/visualization.service';
 
 /**
@@ -102,11 +102,11 @@ class ScatterDataSet {
 export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     OnDestroy {
 
-    @ViewChild('scatter') chartModule: ChartModule;
-    @ViewChild('textContainer') textContainer: ElementRef;
+    @ViewChild('scatter') chartModule: ChartComponent;
+    @ViewChild('filterContainer') filterContainer: ElementRef;
     @ViewChild('chartContainer') chartContainer: ElementRef;
 
-    private filters: ScatterPlotFilter[];
+    filters: ScatterPlotFilter[];
 
     private defaultActiveColor;
 
@@ -317,7 +317,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
         this.chart.data.datasets.push(new ScatterDataSet(this.defaultActiveColor));
 
-        this.selectionOffset.y = this.textContainer.nativeElement.scrollHeight;
+        this.selectionOffset.y = this.filterContainer.nativeElement.scrollHeight;
         this.selectionOffset.x = Number.parseInt(this.getComputedStyle(this.chartContainer.nativeElement).paddingLeft || '0');
     }
 
@@ -537,17 +537,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     getFilterText() {
-        // I.E. test - earthquakes - time = 10/11/2015 to 5/1/2016"
-        /*let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let field = this.active.dateField.columnName;
-        let text = database + ' - ' + table + ' - ' + field + ' = ';
-        let date = this.selection.startDate;
-        text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
-        date = this.selection.endDate;
-        text += ' to ';
-        text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
-        return text;*/
         return '';
     }
 
@@ -748,23 +737,23 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeXField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeYField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeLabelField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeColorField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+        this.logChangeAndStartQueryChain();
     }
 
     unsharedFilterChanged() {
@@ -787,7 +776,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         }
     }
 
-    getFilterTitle(/*value: string*/) {
+    getFilterTitle() {
         return this.active.xField.columnName + ' vs ' + this.active.yField.columnName;
     }
 
@@ -795,7 +784,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return value;
     }
 
-    getRemoveFilterTooltip(/*value: string*/) {
+    getRemoveFilterTooltip() {
         return 'Delete Filter ' + this.getFilterTitle();
     }
 

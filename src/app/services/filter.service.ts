@@ -227,11 +227,4 @@ export class FilterService {
         }
         return filter;
     }
-
-    /*modifyFilterForNewDataset(filter: any,
-        oldDataset: {database: string, table: string, fields: string[]},
-        newDataset: {database: string, table: string, fields: string[]}) {
-        // TODO Essentially recurse through the filter and replace all instances of oldDataset's values with newDataset's values.
-        // This isn't necessary for right now, but would be a way to re-implement relations. Also maybe move this to dataset service.
-    }*/
 }

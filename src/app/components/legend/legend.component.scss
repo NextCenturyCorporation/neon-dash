@@ -16,8 +16,10 @@
  @import '../base-neon-component/base-neon.component.scss';
 
 .legend-container {
+    margin: 5px;
+
     button {
-        background-color: mat-color($accent);
+        background-color: mat-color($accent) !important;
     }
 }
 
@@ -26,8 +28,6 @@
 }
 
 .mat-menu-item {
-    height: 20px;
-    line-height: 20px;
     overflow: hidden;
 }
 

@@ -19,8 +19,6 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData, Dataset } from '../../d
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { ChartModule } from 'angular2-chartjs';
-
 import { TextCloudComponent } from './text-cloud.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { ActiveGridService } from '../../services/active-grid.service';
@@ -39,6 +37,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
+import { ChartComponent } from '../chart/chart.component';
 
 class TestDatasetService extends DatasetService {
     constructor() {
@@ -67,9 +66,11 @@ describe('Component: TextCloud', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 TextCloudComponent,
                 ExportControlComponent,
-                UnsharedFilterComponent
+                UnsharedFilterComponent,
+                ChartComponent
             ],
             providers: [
                 ActiveGridService,
@@ -90,7 +91,6 @@ describe('Component: TextCloud', () => {
             imports: [
                 AppMaterialModule,
                 FormsModule,
-                ChartModule,
                 BrowserAnimationsModule
             ]
         });
@@ -846,6 +846,7 @@ describe('Component: Textcloud with config', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 TextCloudComponent,
                 ExportControlComponent,
                 UnsharedFilterComponent
@@ -876,7 +877,6 @@ describe('Component: Textcloud with config', () => {
             imports: [
                 AppMaterialModule,
                 FormsModule,
-                ChartModule,
                 BrowserAnimationsModule
             ]
         });
@@ -923,6 +923,7 @@ describe('Component: Textcloud with config including configFilter', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 TextCloudComponent,
                 ExportControlComponent,
                 UnsharedFilterComponent
@@ -959,7 +960,6 @@ describe('Component: Textcloud with config including configFilter', () => {
             imports: [
                 AppMaterialModule,
                 FormsModule,
-                ChartModule,
                 BrowserAnimationsModule
             ]
         });

@@ -155,14 +155,28 @@ export class TimelineSelectorChart {
      * @param {boolean} showFocus Set to true to show the focus graph. False otherwise.
      */
     toggleFocus(showFocus: boolean): void {
-        this.marginFocus = {
-            top: 0,
-            bottom: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT)
-        };
-        this.marginContext = {
-            top: DEFAULT_MARGIN,
-            bottom: 0
-        };
+        if (showFocus) {
+            // Set the updated margins
+            this.marginFocus = {
+                top: DEFAULT_MARGIN,
+                bottom: 99
+            };
+
+            this.marginContext = {
+                top: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT) - 65,
+                bottom: 0
+            };
+        } else {
+            this.marginFocus = {
+                top: 0,
+                bottom: (this.data.collapsed ? this.determineHeight() : DEFAULT_HEIGHT)
+            };
+
+            this.marginContext = {
+                top: DEFAULT_MARGIN,
+                bottom: 0
+            };
+        }
     }
 
     determineWidth(): number {
@@ -258,6 +272,11 @@ export class TimelineSelectorChart {
             $(this.element.nativeElement[0]).css('height', svgHeight);
             this.heightFocus = Math.max(0, svgHeight - this.marginFocus.top - this.marginFocus.bottom);
             heightContext = Math.max(0, svgHeight - this.marginContext.top - this.marginContext.bottom);
+        } else {
+            svgHeight = DEFAULT_HEIGHT * this.data.data.length;
+            $(this.element.nativeElement[0]).css('height', svgHeight);
+            this.heightFocus = Math.max(0, DEFAULT_HEIGHT - this.marginFocus.top - this.marginFocus.bottom);
+            heightContext = Math.max(0, DEFAULT_HEIGHT - this.marginContext.top - this.marginContext.bottom);
         }
 
         // Setup the axes and their scales.
@@ -305,7 +324,8 @@ export class TimelineSelectorChart {
         } else {
             xFocusDomain = this.xDomain;
         }
-        this.xContext.domain(xFocusDomain);
+        this.xFocus.domain(xFocusDomain);
+        this.xContext.domain(this.xDomain);
 
         this.xAxisFocus = d3.svg.axis().scale(this.xFocus).orient('bottom');
         let xAxisContext = d3.svg.axis().scale(this.xContext).orient('bottom');
@@ -399,6 +419,26 @@ export class TimelineSelectorChart {
 
             focus.selectAll('.major line')
                 .attr('transform', 'translate(' + (this.approximateBarWidth / 2) + ',0)');
+
+            let focusContainer = focus.append('g')
+                .attr('class', series.name)
+                .attr('transform', 'translate(' + xOffset + ',' +
+                    ((this.heightFocus + (this.marginFocus.top * 2) + this.marginFocus.bottom) * seriesPos) + ')')
+                .on('mousemove', () => {
+                    let index = this.findHoverIndexInData(series.focusData, this.xFocus);
+                    if (index >= 0 && index < series.focusData.length) {
+                        this.onFocusHover(series.focusData[index]);
+                    }
+                })
+                .on('mouseout', () => {
+                    this.onHoverEnd();
+                })
+                .on('mousedown', () => {
+                    let index = this.findHoverIndexInData(series.focusData, this.xFocus);
+                    if (index >= 0 && index < series.focusData.length) {
+                        this.onFocusHover(series.focusData[index]);
+                    }
+                });
 
             // Calculate the max height based on the whole series
             let yFocus = this.data.logarithmic ? d3.scale.log().clamp(true).range([this.heightFocus, 0]) :
@@ -530,7 +570,7 @@ export class TimelineSelectorChart {
                     .attr('y', -1).attr('height', heightContext + 2)
                     .style('visibility', 'hidden');
             }
-            /*
+
             focusContainer.append('line')
                 .attr({
                     class: 'mini-axis',
@@ -539,7 +579,6 @@ export class TimelineSelectorChart {
                     y1: yFocus(MIN_VALUE),
                     y2: yFocus(MIN_VALUE)
                 });
-            //*/
 
             charts.push({
                 name: series.name,

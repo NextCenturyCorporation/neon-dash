@@ -73,13 +73,23 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
     public active: {
         dateField: FieldMetaData,
+        granularity: string,
+        ylabel: string,
+        docCount: number
+    };
+
+    private chartDefaults: {
+        activeColor: string,
+        inactiveColor: string
+    };
+
+    // Cache the data from the last query
+    private queryData: {
         data: {
             value: number,
             date: Date
         }[],
-        granularity: string,
-        ylabel: string,
-        docCount: number
+        granularity: string
     };
 
     private colorSchemeService: ColorSchemeService;
@@ -104,7 +114,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
 
         this.active = {
             dateField: new FieldMetaData(),
-            data: [],
             granularity: this.optionsFromConfig.granularity,
             ylabel: 'Count',
             docCount: 0
@@ -361,7 +370,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                 d.date = new Date(d.date);
             });
 
-            this.active.data = response.data;
+            this.queryData = {
+                data: response.data,
+                granularity: this.active.granularity
+            };
 
             this.filterAndRefreshData();
             this.getDocCount();
@@ -369,10 +381,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     getButtonText() {
-        if (!this.active.data) {
+        if (!this.queryData || !this.queryData.data) {
             return 'No Data';
         }
-        let shownCount = this.active.data.reduce((sum, element) => {
+        let shownCount = this.queryData.data.reduce((sum, element) => {
             return sum + element.value;
         }, 0);
         return !shownCount ?
@@ -397,11 +409,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             endDate: null
         };
 
-        if (this.active.data.length > 0) {
+        if (this.queryData.data.length > 0) {
             // The query includes a sort, so it *should* be sorted.
             // Start date will be the first entry, and the end date will be the last
-            series.startDate = this.active.data[0].date;
-            let lastDate = this.active.data[this.active.data.length - 1].date;
+            series.startDate = this.queryData.data[0].date;
+            let lastDate = this.queryData.data[this.queryData.data.length - 1].date;
             series.endDate = d3.time[this.active.granularity]
                 .utc.offset(lastDate, 1);
 
@@ -424,7 +436,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                     };
                 }
 
-                for (let row of this.active.data) {
+                for (let row of this.queryData.data) {
                     // Check if this should be in the focus data
                     // Focus data is not bucketized, just zeroed
                     if (filter) {
@@ -444,7 +456,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                 }
             } else {
                 // No bucketizer, just add the data
-                for (let row of this.active.data) {
+                for (let row of this.queryData.data) {
                     // Check if this should be in the focus data
                     if (filter) {
                         if (filter.startDate <= row.date && filter.endDate >= row.date) {
@@ -544,10 +556,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeDateField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
-    logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
+    logChangeAndStartQueryChain() {
         if (!this.initializing) {
             this.executeQueryChain();
         }

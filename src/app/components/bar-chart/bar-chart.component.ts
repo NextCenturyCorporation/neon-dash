@@ -32,7 +32,7 @@ import { FieldMetaData } from '../../dataset';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ChartComponent } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 import { Chart } from 'chart.js';
 import { VisualizationService } from '../../services/visualization.service';
 import { Color, ColorSchemeService } from '../../services/color-scheme.service';
@@ -236,7 +236,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                         }
                     }],
                     yAxes: [{
-
                         stacked: true,
                         ticks: {
                             // max: 100,
@@ -576,7 +575,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 chartData.labels.push(key);
             }
         }
-        chartData.labels.sort();
 
         for (let row of response.data) {
             let key: string = row[colName];
@@ -764,19 +762,19 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeDataField() {
         this.active.seenValues = [];
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeAggregationField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeColorField() {
-        this.logChangeAndStartQueryChain(); // ('colorField', this.active.colorField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+        this.logChangeAndStartQueryChain();
     }
 
     unsharedFilterChanged() {
