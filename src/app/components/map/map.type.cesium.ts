@@ -62,7 +62,8 @@ export class CesiumNeonMap extends AbstractMap {
             mapMode2D: Cesium.MapMode2D.ROTATE,
             sceneModePicker: false,
             navigationHelpButton: false,
-            infoBox: false
+            infoBox: false,
+            geocoder: false
         };
 
         let customOptions = this.optionsFromConfig.customServer;
