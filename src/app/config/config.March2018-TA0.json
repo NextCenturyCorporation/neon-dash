@@ -55,7 +55,7 @@
 					"prettyName": "TA1_ELISA",
 					"tables": [
 						{
-							"name": "ui_output",
+							"name": "ui_output_1",
 							"prettyName": "Tweets",
 							"mappings": {
 								"date": "createdAt"
@@ -80,7 +80,7 @@
 				},
 				"simpleFilter": {
 					"databaseName": "ll_nepal_cs_ta1",
-					"tableName": "ui_output",
+					"tableName": "ui_output_1",
 					"fieldName": "originalText",
 					"placeHolder": "Search"
 				}
@@ -339,7 +339,7 @@
 				"bindings": {
 					"title": "Filter Builder",
 					"database": "ll_nepal_cs_ta1",
-					"table": "ui_output"
+					"table": "ui_output_1"
 				},
 				"row": 0,
 				"col": 0
@@ -359,7 +359,7 @@
 				"bindings": {
 					"title": "Who",
 					"database": "ll_nepal_cs_ta1",
-					"table": "ui_output",
+					"table": "ui_output_1",
 					"dataField": "PER"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
@@ -381,7 +381,7 @@
 				"bindings": {
 					"title": "What",
 					"database": "ll_nepal_cs_ta1",
-					"table": "ui_output",
+					"table": "ui_output_1",
 					"dataField": "hashtagEntities.text"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
@@ -403,7 +403,7 @@
 				"bindings": {
 					"title": "How",
 					"database": "ll_nepal_cs_ta1",
-					"table": "ui_output",
+					"table": "ui_output_1",
 					"dataField": "topics",
 					"aggregation": "",
 					"aggregationField": "",
@@ -441,7 +441,7 @@
 					"filterable": true,
 					"name": "EVENTS",
 					"show": true,
-					"table": "ui_output",
+					"table": "ui_output_1",
 					"type": "cluster",
 					"limit": 5000,
 					"latitudeField": "geoLocations.lat",
@@ -491,7 +491,7 @@
 						{
 							"title": "LDC Uyghur Point Layer",
 							"database": "ll_nepal_cs_ta1",
-							"table": "ui_output",
+							"table": "ui_output_1",
 							"latitudeField": "geoLocations.lat",
 							"longitudeField": "geoLocations.lon",
 							"dateField": "createdAt",
@@ -524,7 +524,7 @@
 				"bindings": {
 					"title": "When",
 					"database": "ll_nepal_cs_ta1",
-					"table": "ui_output",
+					"table": "ui_output_1",
 					"dateField": "createdAt",
 					"granularity": "day"
 				},
@@ -545,7 +545,7 @@
 				"bindings": {
 					"title": "Text",
 					"database": "ll_nepal_cs_ta1",
-					"table": "ui_output",
+					"table": "ui_output_1",
 					"dataField": "originalText",
 					"dateField": "createdAt",
 					"idField": "id",
