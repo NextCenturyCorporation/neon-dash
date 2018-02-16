@@ -382,7 +382,7 @@
 					"title": "What",
 					"database": "ll_nepal_cs_out",
 					"table": "ui_output_1",
-					"dataField": "hashtagEntities.text"
+					"dataField": "GPE"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 4,
