@@ -22,7 +22,7 @@
 @import '../../../themes/neon-green-theme';
 
 $filter-container-height: 40px;
-$footer-height: 50px;
+$footer-height: 40px;
 
 .visualization-sidenav {
     height: 100%;
@@ -51,7 +51,7 @@ $footer-height: 50px;
       }
 
       &.with-footer {
-          height: calc(100% - #{$vis-title-expected-height} - #{$footer-height});
+          height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - 5px);
       }
     }
 
@@ -59,7 +59,7 @@ $footer-height: 50px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin: 10px;
+        margin: 5px;
     }
 
     .pagination-button-spacer {
@@ -115,12 +115,7 @@ $footer-height: 50px;
         display: inline;
 
         > mat-icon {
-            display: inline-flex;
             margin-right: 5px;
-        }
-
-        > div {
-            display: inline-flex;
         }
     }
 
