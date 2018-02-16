@@ -35,7 +35,7 @@ import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings } from '../../neon-namespaces';
+import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import * as _ from 'lodash';
@@ -101,7 +101,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         private colorSchemeService: ColorSchemeService;
 
         public optionsFromConfig: OptionsFromConfig;
-        private mapObject: AbstractMap;
+        protected mapObject: AbstractMap;
         private filterBoundingBox: BoundingBoxByDegrees;
 
         public disabledSet: [string[]] = [] as [string[]];
@@ -392,18 +392,20 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             return valid;
         }
 
-        createQuery(layerIndex): neon.query.Query {
-            let databaseName = this.meta.layers[layerIndex].database.name;
-            let tableName = this.meta.layers[layerIndex].table.name;
-            let query = new neon.query.Query().selectFrom(databaseName, tableName);
-            let whereClauses = [];
+        /**
+         * Creates and returns the query for the layer at the given index.
+         *
+         * @arg {number} layerIndex
+         * @return {neon.query.Query}
+         * @override
+         */
+        createQuery(layerIndex: number): neon.query.Query {
             let latitudeField = this.active.layers[layerIndex].latitudeField.columnName;
             let longitudeField = this.active.layers[layerIndex].longitudeField.columnName;
-            whereClauses.push(neon.query.where(latitudeField, '!=', null));
-            whereClauses.push(neon.query.where(longitudeField, '!=', null));
             let colorField = this.active.layers[layerIndex].colorField.columnName;
             let sizeField = this.active.layers[layerIndex].sizeField.columnName;
             let dateField = this.active.layers[layerIndex].dateField.columnName;
+
             let fields = [this.FIELD_ID, latitudeField, longitudeField];
             if (colorField) {
                 fields.push(colorField);
@@ -414,11 +416,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             if (dateField) {
                 fields.push(dateField);
             }
-            query = query.withFields(fields);
-            let whereClause = neon.query.and.apply(neon.query, whereClauses);
-            query = query.where(whereClause);
-            query = query.limit(this.active.limit);
-            return query;
+
+            return this.createBasicQuery(layerIndex).withFields(fields).limit(this.active.limit);
         }
 
         isNumeric(n) {
@@ -487,7 +486,19 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             return mapPoints;
         }
 
+        /**
+         * Handles the query results for the layer at the given index.
+         *
+         * @arg {number} layerIndex
+         * @arg {object} response
+         * @override
+         */
         onQuerySuccess(layerIndex, response) {
+            if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
+                this.meta.layers[layerIndex].docCount = response.data[0]._docCount;
+                return;
+            }
+
             // TODO Need to either preprocess data to get color, size scales OR see if neon aggregations can give ranges.
             // TODO break this function into smaller bits so it is more understandable.
 
@@ -513,6 +524,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             this.mapObject.addPoints(mapPoints, layer, this.active.clustering === 'clusters');
 
             this.updateLegend();
+            this.runDocumentCountQuery(layerIndex);
         }
 
         updateLegend() {
@@ -682,7 +694,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
 
         handleChangeAndFilters() {
-            this.logChangeAndStartAllQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+            this.logChangeAndStartAllQueryChain();
         }
 
         handleChangeClustering() {
@@ -749,5 +761,62 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         onResizeStop(): void {
             super.onResizeStop();
             return this.mapObject && this.mapObject.sizeChanged();
+        }
+
+        /**
+         * Creates and returns the basic query for the data aggregation query or the document count query for the layer at the given index.
+         *
+         * @arg {number} layerIndex
+         * @return {neon.query.Query}
+         */
+        createBasicQuery(layerIndex: number): neon.query.Query {
+            let databaseName = this.meta.layers[layerIndex].database.name;
+            let tableName = this.meta.layers[layerIndex].table.name;
+
+            let latitudeField = this.active.layers[layerIndex].latitudeField.columnName;
+            let longitudeField = this.active.layers[layerIndex].longitudeField.columnName;
+
+            let whereClauses = [];
+            whereClauses.push(neon.query.where(latitudeField, '!=', null));
+            whereClauses.push(neon.query.where(longitudeField, '!=', null));
+            let whereClause = neon.query.and.apply(neon.query, whereClauses);
+
+            return new neon.query.Query().selectFrom(databaseName, tableName).where(whereClause);
+        }
+
+        /**
+         * Creates and returns the text for the settings button.
+         *
+         * @return {string}
+         * @override
+         */
+        getButtonText(): string {
+            if (this.active.layers.length && this.meta.layers.length) {
+                if (this.meta.layers.length === 1) {
+                    return (this.active.limit < this.meta.layers[0].docCount ? this.active.limit + ' of ' : 'Total ') +
+                        this.meta.layers[0].docCount;
+                }
+                let self = this;
+                return this.meta.layers.map(function(layer, index) {
+                    if (self.active.layers.length >= index) {
+                        return self.active.layers[index].title + ' (' + (self.active.limit < layer.docCount ? self.active.limit + ' of ' :
+                            'Total ') + layer.docCount + ')';
+                    }
+                    return '';
+                }).filter(function(text) {
+                    return !!text;
+                }).join(', ');
+            }
+            return '';
+        }
+
+        /**
+         * Creates and executes the document count query for the layer at the given index.
+         *
+         * @arg {number} layerIndex
+         */
+        runDocumentCountQuery(layerIndex: number): void {
+            let query = this.createBasicQuery(layerIndex).aggregate(neonVariables.COUNT, '*', '_docCount');
+            this.executeQuery(layerIndex, query);
         }
     }

@@ -60,7 +60,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             fields: FieldMetaData[]
             unsharedFilterField: any,
             unsharedFilterValue: string,
-            colorField: FieldMetaData
+            docCount: number
         }[]
     };
 
@@ -206,7 +206,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
                 fields: [],
                 unsharedFilterField: layer.unsharedFilterField.columnName,
                 unsharedFilterValue: layer.unsharedFilterValue,
-                colorField: layer.colorField.columnName
+                docCount: 0
             };
             for (let field of layer.fields) {
                 layerBindings.fields.push(field.columnName);
@@ -234,7 +234,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             unsharedFilterField: {},
             unsharedFilterValue: '',
             fields: [],
-            colorField: new FieldMetaData()
+            docCount: 0
         };
         this.outstandingDataQueriesByLayer.push({});
         this.subAddEmptyLayer();
@@ -397,7 +397,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         });
         this.meta.layers[layerIndex].unsharedFilterField = this.findFieldObject(layerIndex, 'unsharedFilterField');
         this.meta.layers[layerIndex].unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
-        this.meta.layers[layerIndex].colorField = this.getOptionFromConfig('colorField') || new FieldMetaData();
 
         this.onUpdateFields(layerIndex);
     }

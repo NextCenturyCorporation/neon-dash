@@ -15,7 +15,7 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Injector, ViewEncapsulation } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
 
 import { MapComponent } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
@@ -34,7 +34,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { VisualizationService } from '../../services/visualization.service';
 import { By } from '@angular/platform-browser';
-import { BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
+import { AbstractMap, BoundingBoxByDegrees, MapLayer, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
@@ -56,6 +56,7 @@ function webgl_support(): any {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
+
 class TestMapComponent extends MapComponent {
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
                 filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -63,10 +64,47 @@ class TestMapComponent extends MapComponent {
         super(activeGridService, connectionService, datasetService, filterService, exportService, injector,
             themesService, colorSchemeSrv, ref, visualizationService);
     }
+
     getMapPoints(lngField: string, latField: string, colorField: string, data: any[]) {
         return super.getMapPoints(lngField, latField, colorField, data);
     }
+
+    setTestMap() {
+        this.mapObject = new TestMap();
+    }
 }
+
+/* tslint:disable:component-class-suffix */
+class TestMap extends AbstractMap {
+    addPoints(points: MapPoint[], layer?: MapLayer, cluster?: boolean) {
+        /* NO-OP */
+    }
+    clearLayer(layer: MapLayer) {
+        /* NO-OP */
+    }
+    destroy() {
+        /* NO-OP */
+    }
+    doCustomInitialization(mapContainer: ElementRef) {
+        /* NO-OP */
+    }
+    hidePoints(layer: MapLayer, value: string) {
+        /* NO-OP */
+    }
+    makeSelectionInexact() {
+        /* NO-OP */
+    }
+    removeFilterBox() {
+        /* NO-OP */
+    }
+    unhidePoints(layer: MapLayer, value: string) {
+        /* NO-OP */
+    }
+    unhideAllPoints(layer: MapLayer) {
+        /* NO-OP */
+    }
+}
+/* tslint:enable:component-class-suffix */
 
 describe('Component: Map', () => {
     let fixture: ComponentFixture<TestMapComponent>,
@@ -129,6 +167,17 @@ describe('Component: Map', () => {
 
     it('should create an instance', () => {
         expect(component).toBeTruthy();
+    });
+
+    it('creates an empty layer on init', () => {
+        expect(component.active.layers).toEqual([{
+            title: '',
+            latitudeField: new FieldMetaData(),
+            longitudeField: new FieldMetaData(),
+            colorField: new FieldMetaData(),
+            sizeField: new FieldMetaData(),
+            dateField: new FieldMetaData()
+        }]);
     });
 
     it('should set default configuration values', () => {
@@ -310,11 +359,249 @@ describe('Component: Map', () => {
     });
 
     it('should add layer when new layer button is clicked', () => {
-        let layerCount = component.active.layers.length;
-
         let addEl = getDebug('a');
         addEl.triggerEventHandler('click', null);
         fixture.detectChanges();
-        expect(component.active.layers.length).toBe(layerCount + 1);
+        expect(component.active.layers.length).toBe(2);
+    });
+
+    it('returns expected object from createBasicQuery', () => {
+        component.meta.layers[0] = {
+            database: new DatabaseMetaData('testDatabase'),
+            tables: [],
+            table: new TableMetaData('testTable'),
+            unsharedFilterField: {},
+            unsharedFilterValue: '',
+            fields: [],
+            docCount: 1234
+        };
+
+        component.active.layers[0] = {
+            title: 'Layer A',
+            latitudeField: new FieldMetaData('testLatitude'),
+            longitudeField: new FieldMetaData('testLongitude'),
+            colorField: new FieldMetaData('testColor'),
+            sizeField: new FieldMetaData('testSize'),
+            dateField: new FieldMetaData('testDate')
+        };
+
+        let whereClauses = [neon.query.where('testLatitude', '!=', null), neon.query.where('testLongitude', '!=', null)];
+        let query = new neon.query.Query().selectFrom('testDatabase', 'testTable').where(neon.query.and.apply(neon.query, whereClauses));
+
+        expect(component.createBasicQuery(0)).toEqual(query);
+    });
+
+    it('returns expected object from createQuery', () => {
+        component.meta.layers[0] = {
+            database: new DatabaseMetaData('testDatabase'),
+            tables: [],
+            table: new TableMetaData('testTable'),
+            unsharedFilterField: {},
+            unsharedFilterValue: '',
+            fields: [],
+            docCount: 1234
+        };
+
+        component.active.layers[0] = {
+            title: 'Layer A',
+            latitudeField: new FieldMetaData('testLatitude'),
+            longitudeField: new FieldMetaData('testLongitude'),
+            colorField: new FieldMetaData('testColor'),
+            sizeField: new FieldMetaData('testSize'),
+            dateField: new FieldMetaData('testDate')
+        };
+
+        component.active.limit = 5678;
+
+        let whereClauses = [neon.query.where('testLatitude', '!=', null), neon.query.where('testLongitude', '!=', null)];
+        let query = new neon.query.Query().selectFrom('testDatabase', 'testTable').where(neon.query.and.apply(neon.query, whereClauses))
+                .withFields(['_id', 'testLatitude', 'testLongitude', 'testColor', 'testSize', 'testDate']).limit(5678);
+
+        expect(component.createQuery(0)).toEqual(query);
+    });
+
+    it('returns expected string from getButtonText with one layer', () => {
+        component.meta.layers[0] = {
+            database: new DatabaseMetaData('testDatabase'),
+            tables: [],
+            table: new TableMetaData('testTable'),
+            unsharedFilterField: {},
+            unsharedFilterValue: '',
+            fields: [],
+            docCount: 1234
+        };
+
+        component.active.layers[0] = {
+            title: 'Layer A',
+            latitudeField: new FieldMetaData('testLatitude'),
+            longitudeField: new FieldMetaData('testLongitude'),
+            colorField: new FieldMetaData('testColor'),
+            sizeField: new FieldMetaData('testSize'),
+            dateField: new FieldMetaData('testDate')
+        };
+
+        expect(component.getButtonText()).toEqual('1000 of 1234');
+
+        component.active.limit = 2000;
+
+        expect(component.getButtonText()).toEqual('Total 1234');
+    });
+
+    it('returns expected string from getButtonText with multiple layers', () => {
+        component.meta.layers[0] = {
+            database: new DatabaseMetaData('testDatabase'),
+            tables: [],
+            table: new TableMetaData('testTable'),
+            unsharedFilterField: {},
+            unsharedFilterValue: '',
+            fields: [],
+            docCount: 1234
+        };
+
+        component.active.layers[0] = {
+            title: 'Layer A',
+            latitudeField: new FieldMetaData('testLatitude'),
+            longitudeField: new FieldMetaData('testLongitude'),
+            colorField: new FieldMetaData('testColor'),
+            sizeField: new FieldMetaData('testSize'),
+            dateField: new FieldMetaData('testDate')
+        };
+
+        component.meta.layers.push({
+            database: new DatabaseMetaData('testDatabase'),
+            tables: [],
+            table: new TableMetaData('testTable'),
+            unsharedFilterField: {},
+            unsharedFilterValue: '',
+            fields: [],
+            docCount: 5678
+        });
+
+        component.active.layers.push({
+            title: 'Layer B',
+            latitudeField: new FieldMetaData('testLatitude'),
+            longitudeField: new FieldMetaData('testLongitude'),
+            colorField: new FieldMetaData('testColor'),
+            sizeField: new FieldMetaData('testSize'),
+            dateField: new FieldMetaData('testDate')
+        });
+
+        expect(component.getButtonText()).toEqual('Layer A (1000 of 1234), Layer B (1000 of 5678)');
+
+        component.active.limit = 2000;
+
+        expect(component.getButtonText()).toEqual('Layer A (Total 1234), Layer B (2000 of 5678)');
+    });
+
+    it('onQuerySuccess does call runDocumentCountQuery if response is not a docCount', () => {
+        component.meta.layers[0] = {
+            database: new DatabaseMetaData('testDatabase'),
+            tables: [],
+            table: new TableMetaData('testTable'),
+            unsharedFilterField: {},
+            unsharedFilterValue: '',
+            fields: [],
+            docCount: 1234
+        };
+
+        component.active.layers[0] = {
+            title: 'Layer A',
+            latitudeField: new FieldMetaData('testLatitude'),
+            longitudeField: new FieldMetaData('testLongitude'),
+            colorField: new FieldMetaData('testColor'),
+            sizeField: new FieldMetaData('testSize'),
+            dateField: new FieldMetaData('testDate')
+        };
+
+        let indexArgs = [];
+        component.runDocumentCountQuery = function(layerIndex) {
+            indexArgs.push(layerIndex);
+        };
+
+        component.setTestMap();
+
+        component.onQuerySuccess(0, {
+            data: [{
+                testColor: 'testValue',
+                testDate: '2018-01-01T00:00:00',
+                testLatitude: 0,
+                testLongitude: 0,
+                testSize: 1
+            }]
+        });
+
+        expect(indexArgs).toEqual([0]);
+    });
+
+    it('onQuerySuccess does set layer docCount and does not call runDocumentCountQuery if response is a docCount', () => {
+        component.meta.layers[0] = {
+            database: new DatabaseMetaData('testDatabase'),
+            tables: [],
+            table: new TableMetaData('testTable'),
+            unsharedFilterField: {},
+            unsharedFilterValue: '',
+            fields: [],
+            docCount: 1234
+        };
+
+        component.active.layers[0] = {
+            title: 'Layer A',
+            latitudeField: new FieldMetaData('testLatitude'),
+            longitudeField: new FieldMetaData('testLongitude'),
+            colorField: new FieldMetaData('testColor'),
+            sizeField: new FieldMetaData('testSize'),
+            dateField: new FieldMetaData('testDate')
+        };
+
+        let indexArgs = [];
+        component.runDocumentCountQuery = function(layerIndex) {
+            indexArgs.push(layerIndex);
+        };
+
+        component.onQuerySuccess(0, {
+            data: [{
+                _docCount: 5678
+            }]
+        });
+
+        expect(indexArgs).toEqual([]);
+        expect(component.meta.layers[0].docCount).toEqual(5678);
+    });
+
+    it('runDocumentCountQuery does call executeQuery', () => {
+        component.meta.layers[0] = {
+            database: new DatabaseMetaData('testDatabase'),
+            tables: [],
+            table: new TableMetaData('testTable'),
+            unsharedFilterField: {},
+            unsharedFilterValue: '',
+            fields: [],
+            docCount: 1234
+        };
+
+        component.active.layers[0] = {
+            title: 'Layer A',
+            latitudeField: new FieldMetaData('testLatitude'),
+            longitudeField: new FieldMetaData('testLongitude'),
+            colorField: new FieldMetaData('testColor'),
+            sizeField: new FieldMetaData('testSize'),
+            dateField: new FieldMetaData('testDate')
+        };
+
+        let indexArgs = [];
+        let queryArgs = [];
+        component.executeQuery = function(layerIndex, queryInput) {
+            indexArgs.push(layerIndex);
+            queryArgs.push(queryInput);
+        };
+
+        component.runDocumentCountQuery(0);
+
+        let whereClauses = [neon.query.where('testLatitude', '!=', null), neon.query.where('testLongitude', '!=', null)];
+        let query = new neon.query.Query().selectFrom('testDatabase', 'testTable').where(neon.query.and.apply(neon.query, whereClauses))
+                .aggregate('count', '*', '_docCount');
+
+        expect(indexArgs).toEqual([0]);
+        expect(queryArgs).toEqual([query]);
     });
 });
