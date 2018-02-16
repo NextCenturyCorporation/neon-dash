@@ -8,7 +8,7 @@
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "ll_napal_cs_out",
+					"name": "ll_nepal_cs_out",
 					"prettyName": "Raw Data",
 					"tables": [
 						{
@@ -24,7 +24,7 @@
 			"options": {
 				"checkForCoordinateValidation": "null_values",
 				"colorMaps": {
-					"ll_napal_cs_out": {
+					"ll_nepal_cs_out": {
 						"mapping": {
 							"entities.entityType": {
 								"LOC": "#98DF8A",
@@ -36,7 +36,7 @@
 					}
 				},
 				"simpleFilter": {
-					"databaseName": "ll_napal_cs_out",
+					"databaseName": "ll_nepal_cs_out",
 					"tableName": "tweet",
 					"fieldName": "text",
 					"placeHolder": "Search"
@@ -51,7 +51,7 @@
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "ll_napal_cs_out",
+					"name": "ll_nepal_cs_out",
 					"prettyName": "TA1_ELISA",
 					"tables": [
 						{
@@ -67,7 +67,7 @@
 			"options": {
 				"checkForCoordinateValidation": "null_values",
 				"colorMaps": {
-					"ll_napal_cs_out": {
+					"ll_nepal_cs_out": {
 						"mapping": {
 							"entities.entityType": {
 								"LOC": "#98DF8A",
@@ -79,7 +79,7 @@
 					}
 				},
 				"simpleFilter": {
-					"databaseName": "ll_napal_cs_out",
+					"databaseName": "ll_nepal_cs_out",
 					"tableName": "ui_output_1",
 					"fieldName": "originalText",
 					"placeHolder": "Search"
@@ -103,7 +103,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Filter Builder",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"table": "tweet"
 				},
 				"row": 0,
@@ -123,7 +123,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Who",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"table": "tweet",
 					"dataField": "user.screenName"
 				},
@@ -145,7 +145,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "What",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"table": "tweet",
 					"dataField": "hashtagEntities.text"
 				},
@@ -167,7 +167,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "How",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"table": "tweet",
 					"dataField": ""
 				},
@@ -189,7 +189,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Where",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"filterable": true,
 					"name": "EVENTS",
 					"show": true,
@@ -242,7 +242,7 @@
 					"layers": [
 						{
 							"title": "LDC Uyghur Point Layer",
-							"database": "ll_napal_cs_out",
+							"database": "ll_nepal_cs_out",
 							"table": "tweet",
 							"latitudeField": "geoLocation.latitude",
 							"longitudeField": "geoLocation.longitude",
@@ -275,7 +275,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "When",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"table": "tweet",
 					"dateField": "createdAt",
 					"granularity": "day"
@@ -296,7 +296,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Tweets",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"table": "tweet",
 					"dataField": "text",
 					"dateField": "createdAt",
@@ -338,7 +338,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Filter Builder",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"table": "ui_output_1"
 				},
 				"row": 0,
@@ -358,7 +358,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Who",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"table": "ui_output_1",
 					"dataField": "PER"
 				},
@@ -380,7 +380,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "What",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"table": "ui_output_1",
 					"dataField": "hashtagEntities.text"
 				},
@@ -402,7 +402,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "How",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"table": "ui_output_1",
 					"dataField": "topics",
 					"aggregation": "",
@@ -437,7 +437,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Where",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"filterable": true,
 					"name": "EVENTS",
 					"show": true,
@@ -490,7 +490,7 @@
 					"layers": [
 						{
 							"title": "LDC Uyghur Point Layer",
-							"database": "ll_napal_cs_out",
+							"database": "ll_nepal_cs_out",
 							"table": "ui_output_1",
 							"latitudeField": "geoLocations.lat",
 							"longitudeField": "geoLocations.lon",
@@ -523,7 +523,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "When",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"table": "ui_output_1",
 					"dateField": "createdAt",
 					"granularity": "day"
@@ -544,7 +544,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Text",
-					"database": "ll_napal_cs_out",
+					"database": "ll_nepal_cs_out",
 					"table": "ui_output_1",
 					"dataField": "originalText",
 					"dateField": "createdAt",
@@ -573,7 +573,7 @@
 		]
 	},
 	"legends": {
-		"ll_napal_cs_out": {
+		"ll_nepal_cs_out": {
 			"tweet": [
 				{
 					"label": "Text",
