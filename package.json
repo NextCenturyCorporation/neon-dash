@@ -13,7 +13,7 @@
     "postbuild": "cd dist && zip -r lorelei.war * && cd .. && mv dist/lorelei.war target/lorelei.war",
     "prebuild-ux": "rm -f target/*.war && mkdir -p target && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
     "build-ux": "ng build --env=prod --deployUrl=/lorelei-ux/  --base-href /lorelei-ux/",
-    "postbuild-ux": "cd dist && zip -r lorelei.war * && cd .. && mv dist/lorelei.war target/lorelei.war",
+    "postbuild-ux": "cd dist && zip -r lorelei-ux.war * && cd .. && mv dist/lorelei-ux.war target/lorelei-ux.war",
     "prebuild-elisa": "rm -f target/*.war && mkdir -p target && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
     "build-elisa": "ng build --env=prod --deployUrl=/lorelei-elisa/  --base-href /lorelei-elisa/",
     "postbuild-elisa": "cd dist && zip -r lorelei-elisa.war * && cd .. && mv dist/lorelei-elisa.war target/lorelei-elisa.war",

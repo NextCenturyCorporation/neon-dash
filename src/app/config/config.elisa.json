@@ -6,19 +6,23 @@
 			"layout": "elisa_uig-layout",
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
-			"databases": [{
-				"name": "elisa_uyghur_2",
-				"prettyName": "ELISA Uyghur",
-				"tables": [{
-					"name": "ui_output",
-					"prettyName": "UI Output",
-					"mappings": {
-						"date": "createdAt",
-						"latitude": "geoLocations.lat",
-						"longitude": "geoLocations.lon"
-					}
-				}]
-			}],
+			"databases": [
+				{
+					"name": "elisa_uyghur_2",
+					"prettyName": "ELISA Uyghur",
+					"tables": [
+						{
+							"name": "ui_output",
+							"prettyName": "UI Output",
+							"mappings": {
+								"date": "createdAt",
+								"latitude": "geoLocations.lat",
+								"longitude": "geoLocations.lon"
+							}
+						}
+					]
+				}
+			],
 			"options": {
 				"checkForCoordinateValidation": "null_values",
 				"colorMaps": {
@@ -30,7 +34,7 @@
 								"PER": "#AEC7E8"
 							},
 							"types": {
-
+								
 							}
 						}
 					}
@@ -39,7 +43,8 @@
 		}
 	],
 	"layouts": {
-		"elisa_uig-layout": [{
+		"elisa_uig-layout": [
+			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
@@ -59,7 +64,8 @@
 					"aggregation": "",
 					"aggregationField": "",
 					"chartType": "horizontalBar",
-					"colors": [{
+					"colors": [
+						{
 							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
 							"color": "77, 190, 194"
 						},
@@ -92,7 +98,8 @@
 					"aggregation": "count",
 					"aggregationField": "",
 					"chartType": "horizontalBar",
-					"colors": [{
+					"colors": [
+						{
 							"value": "activation|positive",
 							"color": "77, 190, 194"
 						},
@@ -210,56 +217,58 @@
 				"selected": true,
 				"bindings": {
 					"title": "Situation Map",
-					"config": [{
-						"database": "elisa_uyghur_2",
-						"filterable": true,
-						"name": "EVENTS",
-						"show": true,
-						"table": "ui_output",
-						"type": "cluster",
-						"limit": 1000,
-						"latitudeField": "geoLocations.lat",
-						"longitudeField": "geoLocations.lon",
-						"sourceLatitudeField": "",
-						"sourceLongitudeField": "",
-						"targetLatitudeField": "",
-						"targetLongitudeField": "",
-"colorField": "",
-            "colorMapping": [
-              {
-                "match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
-                "label": "Need",
-                "color": "rgb(0,255,0)"
-              },
-              {
-                "match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
-                "label": "Need and Issue",
-                "color": "rgb(255,255,0)"
-              },
-              {
-                "match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
-                "label": "Issue",
-                "color": "rgb(255,0,0)"
-              }
-            ],
-            "dateField": "createdAt",
-						"sizeField": "",
-						"idField": "",
-						"colorCode": "",
-						"lineColorField": "",
-						"nodeColorField": "",
-						"lineSizeField": "",
-						"nodeSizeField": "",
-						"lineColorCode": "",
-						"nodeColorCode": "",
-						"gradientColorCode1": "",
-						"gradientColorCode2": "",
-						"gradientColorCode3": "",
-						"gradientColorCode4": "",
-						"gradientColorCode5": "",
-						"applyTransientDateFilter": false,
-						"popupFields": []
-					}]
+					"config": [
+						{
+							"database": "elisa_uyghur_2",
+							"filterable": true,
+							"name": "EVENTS",
+							"show": true,
+							"table": "ui_output",
+							"type": "cluster",
+							"limit": 1000,
+							"latitudeField": "geoLocations.lat",
+							"longitudeField": "geoLocations.lon",
+							"sourceLatitudeField": "",
+							"sourceLongitudeField": "",
+							"targetLatitudeField": "",
+							"targetLongitudeField": "",
+							"colorField": "",
+							"colorMapping": [
+								{
+									"match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
+									"label": "Need",
+									"color": "rgb(0,255,0)"
+								},
+								{
+									"match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
+									"label": "Need and Issue",
+									"color": "rgb(255,255,0)"
+								},
+								{
+									"match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
+									"label": "Issue",
+									"color": "rgb(255,0,0)"
+								}
+							],
+							"dateField": "createdAt",
+							"sizeField": "",
+							"idField": "",
+							"colorCode": "",
+							"lineColorField": "",
+							"nodeColorField": "",
+							"lineSizeField": "",
+							"nodeSizeField": "",
+							"lineColorCode": "",
+							"nodeColorCode": "",
+							"gradientColorCode1": "",
+							"gradientColorCode2": "",
+							"gradientColorCode3": "",
+							"gradientColorCode4": "",
+							"gradientColorCode5": "",
+							"applyTransientDateFilter": false,
+							"popupFields": []
+						}
+					]
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 0,
@@ -305,40 +314,30 @@
 					"dataField": "translatedText",
 					"idField": "id",
 					"metadataFields": [
-						[{
+						[
+							{
 								"name": "Date",
 								"field": "createdAt"
-							},
+							}
+						],
+						[
 							{
 								"name": "Topic",
 								"field": "type"
 							}
 						],
-						[{
-							"name": "People",
-							"field": "entities",
-							"arrayFilter": {
-								"filterOn": "entityType",
-								"filterType": "=",
-								"filterFor": [
-									"PER",
-									"ORG"
-								],
-								"show": "transliteration"
+						[
+							{
+								"name": "People",
+								"field": "PER"
 							}
-						}],
-						[{
-							"name": "Locations",
-							"field": "entities",
-							"arrayFilter": {
-								"filterOn": "entityType",
-								"filterType": "=",
-								"filterFor": [
-									"LOC"
-								],
-								"show": "transliteration"
+						],
+						[
+							{
+								"name": "Locations",
+								"field": "LOC"
 							}
-						}]
+						]
 					],
 					"limit": 50
 				},
@@ -346,17 +345,18 @@
 				"col": 19
 			}
 		]
-		
 	},
 	"legends": {
 		"elisa_uyghur": {
-			"ui_output": [{
+			"ui_output": [
+				{
 					"label": "Text",
 					"customized": {
 						"field": "translatedText",
 						"operator": "contains"
 					},
-					"items": [{
+					"items": [
+						{
 							"label": "Evacuation",
 							"field": "translatedText",
 							"operator": "contains",
@@ -384,7 +384,8 @@
 				},
 				{
 					"label": "Situation Frame Type",
-					"items": [{
+					"items": [
+						{
 							"label": "Any",
 							"field": "topics",
 							"operator": "!=",
@@ -460,10 +461,12 @@
 				},
 				{
 					"label": "SEC",
-					"items": [{
+					"items": [
+						{
 							"label": "Activation",
 							"field": "sentimentString",
-							"value": "Activation"
+							"value": "Activation",
+							"name": "People"
 						},
 						{
 							"label": "N/A",
@@ -494,7 +497,8 @@
 				},
 				{
 					"label": "Entity Type",
-					"items": [{
+					"items": [
+						{
 							"label": "Person",
 							"field": "entities.entityType",
 							"value": "PER"
