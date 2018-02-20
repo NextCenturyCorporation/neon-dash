@@ -34,13 +34,12 @@ h3 {
     bottom: 0;
     top: 40px;
     right: 0;
-    left: 0;
+    left: 15px;
 
     svg {
         font-size: 10px;
         width: 100%;
         display: block;
-        margin: auto;
 
         .invalid-record-count:hover {
             color: goldenrod;

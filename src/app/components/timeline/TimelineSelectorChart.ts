@@ -457,9 +457,11 @@ export class TimelineSelectorChart {
             maxY = maxY ? maxY : MIN_VALUE;
 
             yFocus.domain([minY, maxY]);
+
             let yAxis = d3.svg.axis().scale(yFocus).orient('right').ticks(2);
+
             // Draw the focus chart
-            this.drawFocusChart(series);
+            let focusChart = this.drawFocusChart(series);
 
             let yContext = this.data.logarithmic ?
                 d3.scale.log().clamp(true).range([heightContext, 0]) : d3.scale.linear().range([heightContext, 0]);
@@ -583,7 +585,7 @@ export class TimelineSelectorChart {
             charts.push({
                 name: series.name,
                 color: series.color,
-                yAxis: yAxis,
+                yAxis: focusChart.yAxis,
                 index: seriesPos
             });
 
@@ -660,9 +662,10 @@ export class TimelineSelectorChart {
         for (i = 0; i < charts.length; i++) {
             let focus = this.svg.select('.focus-' + charts[i].name);
 
+            // Set the ticks to x-position 0 by subtracting the margin and their default x-position (9).
             focus.append('g')
                 .attr('class', 'y axis series-y')
-                .attr('transform', 'translate(0,' + ((this.heightFocus +
+                .attr('transform', 'translate(-' + (DEFAULT_MARGIN + 9) + ',' + ((this.heightFocus +
                     (this.marginFocus.top * 2) + this.marginFocus.bottom) * charts[i].index) + ')')
                 .call(charts[i].yAxis);
 
