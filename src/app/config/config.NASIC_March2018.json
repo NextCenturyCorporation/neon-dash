@@ -535,7 +535,7 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Topics",
+					"title": "Tweets by topic",
 					"database": "ll_nepal_cs_out",
 					"table": "ui_output_1",
 					"dataField": "topics",
@@ -636,7 +636,7 @@
 				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
-					"title": "Times",
+					"title": "Tweets over Time",
 					"database": "ll_nepal_cs_out",
 					"table": "ui_output_1",
 					"dateField": "createdAt",
