@@ -317,7 +317,7 @@ export abstract class BaseNeonComponent implements OnInit,
      */
     initFields() {
         // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-        this.meta.fields = this.datasetService.getSortedFields(this.meta.database.name, this.meta.table.name).filter(function(field) {
+        this.meta.fields = this.datasetService.getSortedFields(this.meta.database.name, this.meta.table.name, true).filter(function(field) {
             return (field && field.columnName);
         });
         this.meta.unsharedFilterField = this.findFieldObject('unsharedFilterField');
