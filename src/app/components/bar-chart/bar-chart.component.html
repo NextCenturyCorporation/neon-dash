@@ -78,7 +78,7 @@
                     <tr>
                         <td>
                             <mat-form-field>
-                                <input matInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                                <input matInput placeholder="Group Limit" [(ngModel)]="active.newLimit" required="true">
                             </mat-form-field>
                         </td>
                         <td>
@@ -150,7 +150,7 @@
         <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
             <mat-spinner ></mat-spinner>
         </div>
-        <div class="filter-container">
+        <div class="filter-container multi-element">
             <div align="left">
                 <app-legend *ngIf="hasColorField()" [activeList]="selectedLabels"
                             [fieldNames]="colorFieldNames"></app-legend>

@@ -134,12 +134,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         limit: number,
         chartType: string // bar or horizontalBar
     };
+
     public active: {
         dataField: FieldMetaData,
         aggregationField: FieldMetaData,
         aggregationFieldHidden: boolean,
         andFilters: boolean,
         limit: number,
+        newLimit: number,
         filterable: boolean,
         layers: any[],
         data: any[],
@@ -181,7 +183,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             aggregation: this.injector.get('aggregation', null),
             aggregationField: this.injector.get('aggregationField', null),
             colorField: this.injector.get('colorField', null),
-            limit: this.injector.get('limit', 100),
+            limit: this.injector.get('limit', 10),
             unsharedFilterField: {},
             unsharedFilterValue: '',
             chartType: this.injector.get('chartType', 'bar')
@@ -193,6 +195,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             aggregationFieldHidden: true,
             andFilters: true,
             limit: this.optionsFromConfig.limit,
+            newLimit: this.optionsFromConfig.limit,
             filterable: true,
             layers: [],
             data: [],
@@ -493,25 +496,27 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                     this.meta.unsharedFilterValue));
         }
 
-        query.where(neon.query.and.apply(query, whereClauses));
+        query.where(neon.query.and.apply(query, whereClauses)).groupBy(groupBy);
+
         switch (this.active.aggregation) {
-            case 'count':
-                return query.groupBy(groupBy).aggregate(neonVariables.COUNT, '*', 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
-            case 'sum':
-                return query.groupBy(groupBy).aggregate(neonVariables.SUM, yAxisField, 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
             case 'average':
-                return query.groupBy(groupBy).aggregate(neonVariables.AVG, yAxisField, 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
+                query.aggregate(neonVariables.AVG, yAxisField, 'value');
+                break;
             case 'min':
-                return query.groupBy(groupBy).aggregate(neonVariables.MIN, yAxisField, 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
+                query.aggregate(neonVariables.MIN, yAxisField, 'value');
+                break;
             case 'max':
-                return query.groupBy(groupBy).aggregate(neonVariables.MAX, yAxisField, 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
+                query.aggregate(neonVariables.MAX, yAxisField, 'value');
+                break;
+            case 'sum':
+                query.aggregate(neonVariables.SUM, yAxisField, 'value');
+                break;
+            case 'count':
+            default:
+                query.aggregate(neonVariables.COUNT, '*', 'value');
         }
 
+        return query.sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
     }
 
     getFiltersToIgnore() {
@@ -757,6 +762,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeLimit() {
+        this.active.limit = this.active.newLimit;
+        this.active.seenValues = [];
         this.logChangeAndStartQueryChain();
     }
 
@@ -788,16 +795,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     }
 
     getButtonText() {
-        let text = 'No Data';
-        let data = this.chartInfo.data.datasets;
-        if (!data || !data[0] || !data[0].data || !data[0].data.length) {
-            return text;
-        } else {
-            let total = data[0].data.reduce((sum, elem) => {
-                return sum + Math.round((elem + 0.00001) * 10000) / 10000;
-            }, 0);
-            return 'Total ' + this.formatingCallback(total);
+        if (!this.chartInfo.data.labels || !this.chartInfo.data.labels.length) {
+            return 'No Data';
         }
+        let size = this.chartInfo.data.labels.length;
+        if (size < this.active.limit) {
+            return 'All ' + this.formatingCallback(size) + ' Group' + (size > 1 ? 's' : '');
+        }
+        return 'Top ' + this.formatingCallback(size) + ' Group' + (size > 1 ? 's' : '');
     }
 
     // Get filters and format for each call in HTML

@@ -103,7 +103,7 @@ describe('Component: BarChart', () => {
     it('Checks Active value', (() => {
         expect(component.active.aggregationFieldHidden).toBe(true);
         expect(component.active.andFilters).toBe(true);
-        expect(component.active.limit).toBe(100);
+        expect(component.active.limit).toBe(10);
         expect(component.active.filterable).toBe(true);
         expect(component.active.aggregation).toBe('count');
         expect(component.active.chartType).toBe('bar');
@@ -137,7 +137,7 @@ describe('Component: BarChart', () => {
         expect(component.getOptionFromConfig('aggregation')).toBeNull();
         expect(component.getOptionFromConfig('aggregationField')).toBeNull();
         expect(component.getOptionFromConfig('colorField')).toBeNull();
-        expect(component.getOptionFromConfig('limit')).toBe(100);
+        expect(component.getOptionFromConfig('limit')).toBe(10);
         expect(component.getOptionFromConfig('unsharedFilterField')).toEqual({});
         expect(component.getOptionFromConfig('unsharedFilterValue')).toBe('');
         expect(component.getOptionFromConfig('chartType')).toBe('bar');
@@ -147,10 +147,6 @@ describe('Component: BarChart', () => {
         let spyExecuteQueryChain = spyOn(component, 'executeQueryChain');
         component.handleChangeAggregation();
         expect(spyExecuteQueryChain.calls.count()).toBe(1);
-    }));
-
-    it('Checks getButtonText function', (() => {
-        expect(component.getButtonText()).toBe('No Data');
     }));
 
     it('checks return values', (() => {
@@ -212,13 +208,40 @@ describe('Component: BarChart', () => {
         expect(spyQuerySuccess.calls.count()).toBe(0);
     }));
 
-    it('Tests expected return from getButtonText', (() => {
-        expect(component.getButtonText()).toEqual('No Data');
-    }));
-
     it('Tests expects return from isValidQuery', (() => {
         expect(component.isValidQuery()).toEqual('');
     }));
+
+    it('getButtonText does return expected string', () => {
+        expect(component.getButtonText()).toBe('No Data');
+        component.chartInfo.data.labels = ['a'];
+        expect(component.getButtonText()).toBe('All 1 Group');
+        component.active.limit = 1;
+        expect(component.getButtonText()).toBe('Top 1 Group');
+
+        component.chartInfo.data.labels = ['a', 'b'];
+        component.active.limit = 10;
+        expect(component.getButtonText()).toBe('All 2 Groups');
+        component.active.limit = 2;
+        expect(component.getButtonText()).toBe('Top 2 Groups');
+
+        component.chartInfo.data.labels = ['a', 'b', 'c', 'd'];
+        component.active.limit = 10;
+        expect(component.getButtonText()).toBe('All 4 Groups');
+        component.active.limit = 4;
+        expect(component.getButtonText()).toBe('Top 4 Groups');
+    });
+
+    it('handleChangeLimit does update limit and seenValues and does call logChangeAndStartQueryChain', () => {
+        let spy = spyOn(component, 'logChangeAndStartQueryChain');
+        component.active.newLimit = 1234;
+        component.active.seenValues = ['a', 'b', 'c', 'd'];
+        component.handleChangeLimit();
+        expect(component.active.limit).toEqual(1234);
+        expect(component.active.seenValues).toEqual([]);
+        expect(spy.calls.count()).toBe(1);
+    });
+
 /*
     it('Checks for expected query from onQuerySuccess', (() => {
         let spyRefreshVisualization = spyOn(component, 'refreshVisualization');
