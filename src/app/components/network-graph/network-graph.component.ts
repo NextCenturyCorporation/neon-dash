@@ -14,13 +14,14 @@
  *
  */
 import {
+    AfterViewInit,
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
     Component,
     OnInit,
     OnDestroy,
     ViewEncapsulation,
-    ChangeDetectionStrategy,
-    Injector, ElementRef, ViewChild, HostListener,
-    ChangeDetectorRef
+    Injector, ElementRef, ViewChild, HostListener
 } from '@angular/core';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { Color, ColorSchemeService } from '../../services/color-scheme.service';
@@ -40,26 +41,10 @@ import 'd3-transition';
 import * as dagre from 'dagre';
 import { colorSets } from './color-sets';
 import * as neon from 'neon-framework';
-import { NgxGraphModule } from '@swimlane/ngx-graph';
 
 import { animate, style, transition as ngTransition, trigger } from '@angular/animations';
 
-import {
-    BaseChartComponent, ChartComponent, calculateViewDimensions, ViewDimensions, ColorHelper
-} from '@swimlane/ngx-charts';
-
-class GraphData {
-    nodes: [{
-        id: string;
-        label: string;
-    }];
-
-    links: [{
-        source: string;
-        target: string;
-        label: string;
-    }];
-}
+import { GraphData, AbstractGraph, OptionsFromConfig } from './ng.type.abstract';
 
 @Component({
     selector: 'app-network-graph',
@@ -68,9 +53,8 @@ class GraphData {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
-    OnDestroy {
+    OnDestroy, AfterViewInit {
 
     private filters: {
         id: string,
@@ -78,128 +62,84 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         value: string
     }[];
 
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        dataField: string,
-        chartType: string,
-        limit: number
-    };
-
     public active: {
         dataField: FieldMetaData,
+        nodeField: string, //any[] Future support for multiple node and link fields
+        linkField: string, //any[]
         aggregationField: FieldMetaData,
         aggregationFieldHidden: boolean,
         andFilters: boolean,
         limit: number,
         filterable: boolean,
-        layers: any[],
         data: any[],
         aggregation: string,
-        chartType: string;
+        graphType: string;
     };
 
-    public graphData;
+    public graphData: GraphData;
 
     theme = 'dark';
-    chartType = 'directed-graph';
-    chartGroups: any;
-    chart: any;
-    realTimeData: boolean = false;
-    graph: { links: any[], nodes: any[] };
-    hierarchialGraph: { nodes: any[], links: any[] };
+    graphType = 'Network Graph';
 
-    colors: ColorHelper;
-    view: any[];
-    width: number = 200;
-    height: number = 100;
-    fitContainer: boolean = true;
-    autoZoom: boolean = false;
-    // options
-    showLegend = false;
-    orientation: string = 'LR'; // LR, RL, TB, BT
-    orientations: any[] = [
-        {
-            label: 'Left to Right',
-            value: 'LR'
-        }, {
-            label: 'Right to Left',
-            value: 'RL'
-        }, {
-            label: 'Top to Bottom',
-            value: 'TB'
-        }, {
-            label: 'Bottom to Top',
-            value: 'BT'
-        }
-    ];
-
-    // line interpolation
-    curveType: string = 'Linear';
-    curve: any = shape.curveLinear;
-    interpolationTypes = [
-        'Bundle', 'Cardinal', 'Catmull Rom', 'Linear', 'Monotone X',
-        'Monotone Y', 'Natural', 'Step', 'Step After', 'Step Before'
-    ];
-
-    colorSets: any;
-    colorScheme: any;
-    schemeType: string = 'ordinal';
     selectedColorScheme: string;
 
     private colorSchemeService: ColorSchemeService;
     private defaultActiveColor;
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService,
-        datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService,
+    public optionsFromConfig: OptionsFromConfig;
+    private graphObject: AbstractGraph;
+
+    @ViewChild('graphElement') graphElement: ElementRef;
+
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
-        super(activeGridService, connectionService, datasetService, filterService, exportService,
-            injector, themesService, ref, visualizationService);
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
             table: this.injector.get('table', null),
+            nodeField: this.injector.get('nodeField', null),
+            linkField: this.injector.get('linkField', null),
             dataField: this.injector.get('dateField', null),
-            chartType: this.injector.get('chartType', null),
+            graphType: this.injector.get('graphType', null),
+            unsharedFilterField: this.injector.get('unsharedFilterField', null),
+            unsharedFilterValue: this.injector.get('unsharedFilterValue', null),
             limit: this.injector.get('limit', null)
         };
 
         this.active = {
             dataField: new FieldMetaData(),
+            nodeField: this.optionsFromConfig.nodeField,
+            linkField: this.optionsFromConfig.linkField,
             aggregationField: new FieldMetaData(),
             aggregationFieldHidden: true,
             andFilters: true,
             limit: this.optionsFromConfig.limit,
             filterable: true,
-            layers: [],
             data: [],
             aggregation: 'count',
-            chartType: this.optionsFromConfig.chartType || 'directed-graph'
+            graphType: this.optionsFromConfig.graphType || 'directed-graph'
         };
-        this.hierarchialGraph = {
-            nodes: [],
-            links: []
-        };
-
-        this.graphData = new GraphData();
 
         //this.getGraphData();
         this.updateData();
 
         //this.setColorScheme('picnic');
-        this.setInterpolationType('Catmull Rom');
+        //this.setInterpolationType('Catmull Rom');
+
+        this.queryTitle = this.optionsFromConfig.title || 'Network Graph';
+
+        //console.log('constructor ' + this.meta);
+        //console.log('constructor ' + this.meta.databases);
     }
 
     ngOnInit() {
-        this.selectChart(this.chartType);
+        this.selectGraph(this.graphType);
         this.updateData();
         //setInterval(this.updateData.bind(this), 2000);
-
-        if (!this.fitContainer) {
-            this.applyDimensions();
-        }
+        //console.log('ngOninit ' + this.meta.database);
 
     }
 
@@ -212,11 +152,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     subNgOnDestroy() {
+        return this.graphObject && this.graphObject.destroy();
+    }
+
+    subGetBindings(bindings: any) {
+        bindings.limit = this.active.limit;
         //
     }
 
-    subGetBindings() {
-        //
+    ngAfterViewInit() {
+        let type = this.optionsFromConfig.graphType;
     }
 
     getExportFields() {
@@ -233,7 +178,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     getOptionFromConfig(field) {
-        //
+        return this.optionsFromConfig[field];
     }
 
     addLocalFilter(filter) {
@@ -354,26 +299,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     getNodes() {
-        return this.hierarchialGraph.nodes;
+        return this.graphData.nodes;
     }
 
     getLinks() {
-        return this.hierarchialGraph.links;
+        return this.graphData.links;
     }
-    /*
-        setColors(): void {
-            this.colors = new ColorHelper(this.colorScheme, 'ordinal', this.seriesDomain, this.customColors);
-        }
-    */
-    setColorScheme(name) {
-        this.selectedColorScheme = name;
-        this.colorScheme = this.colorSets.find((s) => s.name === name);
-    }
-    /*
-        getSeriesDomain(): any[] {
-            return this.results.map((d) => d.name);
-        }
-    */
+
     updateData() {
         /*
               if (add) {
@@ -396,132 +328,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
               }//*/
         //this.getGraphData();
 
-        this.hierarchialGraph.nodes = [
-            {
-                id: 'Haiti',
-                label: 'Haiti'
-            }, {
-                id: '1',
-                label: 'Needs'
-            }, {
-                id: '2',
-                label: 'Water'
-            }, {
-                id: '3',
-                label: 'Food'
-            }, {
-                id: '4',
-                label: 'Medical'
-            }, {
-                id: '5',
-                label: 'Internet'
-            }, {
-                id: '6',
-                label: 'Help Results'
-            }, {
-                id: '7',
-                label: 'People'
-            }, {
-                id: '8',
-                label: 'Location'
-            }, {
-                id: '9',
-                label: 'Port-au-Prince'
-            }, {
-                id: '10',
-                label: 'Putin'
-            }, {
-                id: 'US',
-                label: 'US'
-            }, {
-                id: 'DC',
-                label: 'Washington DC'
-            }
-        ];
-
-        this.hierarchialGraph.links = [
-            {
-                source: 'Haiti',
-                target: '1',
-                label: 'links to'
-            }, {
-                source: 'Haiti',
-                target: '7',
-                label: 'links to'
-            }, {
-                source: 'Haiti',
-                target: '8',
-                label: 'links to'
-            }, {
-                source: '1',
-                target: '2',
-                label: 'related to'
-            }, {
-                source: '1',
-                target: '3',
-                label: 'related to'
-            }, {
-                source: '1',
-                target: '4',
-                label: 'links to'
-            }, {
-                source: '1',
-                target: '4',
-                label: 'links to'
-            }, {
-                source: '1',
-                target: '4',
-                label: 'links to'
-            }, {
-                source: '1',
-                target: '5',
-                label: 'links to'
-            }, {
-                source: '1',
-                target: '6',
-                label: 'links to'
-            }, {
-                source: '1',
-                target: '5',
-                label: 'links to'
-            }, {
-                source: '6',
-                target: '5',
-                label: 'links to'
-            }, {
-                source: '8',
-                target: '9',
-                label: 'links to'
-            }, {
-                source: '7',
-                target: '10'
-            }, {
-                source: 'US',
-                target: 'DC'
-            }, {
-                source: 'DC',
-                target: 'US'
-            }
-        ];
     }
 
-    applyDimensions() {
-        this.view = [this.width, this.height];
-    }
-
-    toggleFitContainer(fitContainer: boolean, autoZoom: boolean): void {
-        this.fitContainer = fitContainer;
-        this.autoZoom = autoZoom;
-
-        if (this.fitContainer) {
-            this.view = undefined;
-        } else {
-            this.applyDimensions();
-        }
-    }
-
-    selectChart(chartSelector) {
-        this.chartType = chartSelector;
+    selectGraph(graphSelector) {
+        this.graphType = graphSelector;
         /*
       for (const group of this.chartGroups) {
         for (const chart of group.charts) {
@@ -542,40 +352,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
           this.selectedColorScheme = name;
           this.colorScheme = this.colorSets.find(s => s.name === name);*/
     // }
-
-    setInterpolationType(curveType) {
-        this.curveType = curveType;
-        if (curveType === 'Bundle') {
-            this.curve = shape.curveBundle.beta(1);
-        }
-        if (curveType === 'Cardinal') {
-            this.curve = shape.curveCardinal;
-        }
-        if (curveType === 'Catmull Rom') {
-            this.curve = shape.curveCatmullRom;
-        }
-        if (curveType === 'Linear') {
-            this.curve = shape.curveLinear;
-        }
-        if (curveType === 'Monotone X') {
-            this.curve = shape.curveMonotoneX;
-        }
-        if (curveType === 'Monotone Y') {
-            this.curve = shape.curveMonotoneY;
-        }
-        if (curveType === 'Natural') {
-            this.curve = shape.curveNatural;
-        }
-        if (curveType === 'Step') {
-            this.curve = shape.curveStep;
-        }
-        if (curveType === 'Step After') {
-            this.curve = shape.curveStepAfter;
-        }
-        if (curveType === 'Step Before') {
-            this.curve = shape.curveStepBefore;
-        }
-    }
 
     onLegendLabelClick(entry) {
         //console.log('Legend clicked', entry);
@@ -639,7 +415,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     getButtonText() {
         let text = 'No Data';
-        let data = this.hierarchialGraph; //this.graphData.nodes;
+        let data = this.graphData; //this.graphData.nodes;
         if (!data || !data.nodes.length) {
             return text;
         } else {
@@ -659,16 +435,17 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     resetData() {
-        this.graphData = [];
+        this.graphData = new GraphData();
     }
 
     toNodes(datafield) {
         let nodes = [];
-/*
-        datafield.array.forEach(element => {
-            if(nodes.indexOf(element.id) < 0) {
-                nodes.push(element.id, element.name)
-            }
-        });*/
+
+        /*
+                datafield.array.forEach(element => {
+                    if(nodes.indexOf(element.id) < 0) {
+                        nodes.push(element.id, element.name)
+                    }
+                });*/
     }
 }

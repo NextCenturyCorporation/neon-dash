@@ -13,6 +13,7 @@
  * limitations under the License.
  *
  */
+//Color set for NGX-graph
 export let colorSets = [
     {
       name: 'vivid',
