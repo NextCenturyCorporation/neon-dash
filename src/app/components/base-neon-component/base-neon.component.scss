@@ -117,6 +117,10 @@ $footer-height: 40px;
         > mat-icon {
             margin-right: 5px;
         }
+
+        > div {
+            display: inline-block;
+        }
     }
 
     .tappable {
