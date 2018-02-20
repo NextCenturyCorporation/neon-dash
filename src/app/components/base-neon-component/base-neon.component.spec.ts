@@ -346,11 +346,6 @@ describe('Component: base-neon', () => {
     }));
 
     it('Tests default return from findFieldObject', (() => {
-        expect(component.findFieldObject('testField', null)).toEqual({
-                columnName: '',
-                prettyName: '',
-                hide: false
-            }
-        );
+        expect(component.findFieldObject('testField', null)).toEqual(new FieldMetaData());
     }));
 });

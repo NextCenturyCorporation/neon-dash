@@ -210,16 +210,8 @@ describe('Component: TextCloud', () => {
         component.meta.table = new TableMetaData('testTable', 'Test Table');
 
         component.onUpdateFields();
-        expect(component.active.dataField).toEqual({
-            columnName: '',
-            prettyName: '',
-            hide: false
-        });
-        expect(component.active.sizeField).toEqual({
-            columnName: '',
-            prettyName: '',
-            hide: false
-        });
+        expect(component.active.dataField).toEqual(new FieldMetaData());
+        expect(component.active.sizeField).toEqual(new FieldMetaData());
 
         component.meta.fields = [
             new FieldMetaData('testDataField'),

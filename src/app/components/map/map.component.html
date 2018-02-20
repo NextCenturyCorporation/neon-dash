@@ -60,7 +60,7 @@
 
                         <mat-form-field>
                             <mat-select placeholder="Latitude Field" [(ngModel)]="active.layers[i].latitudeField"
-                                        required="true" (ngModelChange)="handleChangeLatitudeField(i)"
+                                        required="true" (ngModelChange)="handleChangeMapLayer(i)"
                                         [disabled]="meta.layers[i].fields.length == 0">
                                 <mat-option *ngFor="let field of meta.layers[i].fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
@@ -70,7 +70,7 @@
 
                         <mat-form-field>
                             <mat-select placeholder="Longitude Field" [(ngModel)]="active.layers[i].longitudeField"
-                                        required="true" (ngModelChange)="handleChangeLongitudeField(i)"
+                                        required="true" (ngModelChange)="handleChangeMapLayer(i)"
                                         [disabled]="meta.layers[i].fields.length == 0">
                                 <mat-option *ngFor="let field of meta.layers[i].fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
@@ -80,7 +80,7 @@
 
                         <mat-form-field>
                             <mat-select placeholder="Color Field" [(ngModel)]="active.layers[i].colorField"
-                                        required="true" (ngModelChange)="handleChangeColorField(i)"
+                                        required="true" (ngModelChange)="handleChangeMapLayer(i)"
                                         [disabled]="meta.layers[i].fields.length == 0">
                                 <mat-option *ngFor="let field of meta.layers[i].fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
@@ -88,7 +88,7 @@
                         </mat-form-field>
                         <p></p>
 
-                        <mat-button-toggle-group #clustering="matButtonToggleGroup" [(ngModel)]="active.clustering" (ngModelChange)="handleChangeClustering()">
+                        <mat-button-toggle-group #clustering="matButtonToggleGroup" [(ngModel)]="active.clustering" (ngModelChange)="handleChangeAllMapLayers()">
                             <mat-button-toggle value="points">
                                 Points
                             </mat-button-toggle>
@@ -115,7 +115,7 @@
                             </mat-form-field>
                         </td>
                         <td>
-                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeAllMapLayers()">
                                 <mat-icon>refresh</mat-icon>
                             </button>
                         </td>

@@ -392,8 +392,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         // alphabetically.
         let fields = this.datasetService
             .getSortedFields(this.meta.layers[layerIndex].database.name, this.meta.layers[layerIndex].table.name);
-        this.meta.layers[layerIndex].fields = fields.filter(function(f) {
-            return (f && f.type);
+        this.meta.layers[layerIndex].fields = fields.filter(function(field) {
+            return !!field;
         });
         this.meta.layers[layerIndex].unsharedFilterField = this.findFieldObject(layerIndex, 'unsharedFilterField');
         this.meta.layers[layerIndex].unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';

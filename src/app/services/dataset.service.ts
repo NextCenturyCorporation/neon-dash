@@ -770,11 +770,7 @@ export class DatasetService {
      * @return {Object}
      */
     public createBlankField(): FieldMetaData {
-        return {
-            columnName: '',
-            prettyName: '',
-            hide: false
-        };
+        return new FieldMetaData();
     }
 
     /**

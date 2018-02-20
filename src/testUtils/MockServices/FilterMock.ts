@@ -31,9 +31,15 @@ export class FilterMock extends FilterService {
         return filter;
     }
 
-    addFilter(messenger: neon.eventing.Messenger, ownerId: string, database: string, table: string,
-              whereClause: any, filterName: string | { visName: string; text: string },
-              onSuccess: (resp: any) => any, onError: (resp: any) => any): void {
+    addFilter(messenger: neon.eventing.Messenger,
+        ownerId: string,
+        database: string,
+        table: string,
+        whereClause: any,
+        filterName: string | { visName: string; text: string },
+        onSuccess: (resp: any) => any,
+        onError: (resp: any) => any) {
+
         // avoid network call
         let id = database + '-' + table + '-' + uuid.v4(),
             filter = this.createMockFilter(database, table, whereClause, filterName);
@@ -48,15 +54,20 @@ export class FilterMock extends FilterService {
         // don't do success call to avoid calling query chain
     }
 
+    getLatestFilterId(): string {
+        let filters = this.getFilters();
+        return filters[filters.length - 1].id;
+    }
+
     replaceFilter(messenger: neon.eventing.Messenger,
-                  id: string,
-                  ownerId: string,
-                  database: string,
-                  table: string,
-                  whereClause: any,
-                  filterName: string | {visName: string, text: string},
-                  onSuccess: (resp: any) => any,
-                  onError: (resp: any) => any) {
+        id: string,
+        ownerId: string,
+        database: string,
+        table: string,
+        whereClause: any,
+        filterName: string | {visName: string, text: string},
+        onSuccess: (resp: any) => any,
+        onError: (resp: any) => any) {
 
         let filter = this.createMockFilter(database, table, whereClause, filterName);
         let filters = this.getFilters(),
@@ -72,7 +83,11 @@ export class FilterMock extends FilterService {
         // don't do success call to avoid calling query chain
     }
 
-    removeFilter(messenger: neon.eventing.Messenger, id: string, onSuccess?: (resp: any) => any, onError?: (resp: any) => any): void {
+    removeFilter(messenger: neon.eventing.Messenger,
+        id: string,
+        onSuccess?: (resp: any) => any,
+        onError?: (resp: any) => any) {
+
         let index = _.findIndex(this.getFilters(), {id: id});
         this.getFilters().splice(index, 1);
 

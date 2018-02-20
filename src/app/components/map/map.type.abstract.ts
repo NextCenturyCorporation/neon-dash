@@ -38,11 +38,6 @@ export interface OptionsFromConfig {
     title: string;
     database: string;
     table: string;
-    latitudeField: string;
-    longitudeField: string;
-    sizeField: string;
-    colorField: string;
-    dateField: string;
     limit: number;
     unsharedFilterField: Object;
     unsharedFilterValue: string;

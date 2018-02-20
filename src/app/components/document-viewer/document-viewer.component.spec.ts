@@ -172,21 +172,9 @@ describe('Component: DocumentViewer', () => {
 
     it('sets expected fields in onUpdateFields to empty strings because fields are empty', () => {
         component.onUpdateFields();
-        expect(component.active.dataField).toEqual({
-            columnName: '',
-            prettyName: '',
-            hide: false
-        });
-        expect(component.active.dataField).toEqual({
-            columnName: '',
-            prettyName: '',
-            hide: false
-        });
-        expect(component.active.dataField).toEqual({
-            columnName: '',
-            prettyName: '',
-            hide: false
-        });
+        expect(component.active.dataField).toEqual(new FieldMetaData());
+        expect(component.active.dataField).toEqual(new FieldMetaData());
+        expect(component.active.dataField).toEqual(new FieldMetaData());
     });
 
     it('returns an empty string from getFilterText', () => {
