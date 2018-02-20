@@ -1,30 +1,36 @@
 <mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="header" layout-align="space-between center" flex>
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
-        <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
+        <span class="text">{{ getButtonText() }}</span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <mat-icon class="mat-24">settings</mat-icon>
+            <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <label style="display: inline;" *ngIf="getButtonText()">
-                    <mat-icon class="error-icon">error</mat-icon>
-                    {{ getButtonText() }}
-                </label>
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text">
+                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <div>{{ getButtonText() }}</div>
+                    </label>
+                    <p></p>
+                </div>
+
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
-                <p></p>
-
-                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
@@ -36,8 +42,8 @@
                 <mat-form-field>
                         <mat-select placeholder="Link Field" [(ngModel)]="active.LinkField" required="true" (ngModelChange)="handleChangeLinkField(i)">
                         </mat-select>
-                    </mat-form-field>
-                    <p></p>
+                </mat-form-field>
+                <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
             </mat-card-content>
