@@ -44,8 +44,8 @@ import * as neon from 'neon-framework';
 
 import { animate, style, transition as ngTransition, trigger } from '@angular/animations';
 
-import { GraphData, AbstractGraph, OptionsFromConfig } from './ng.type.abstract';
-
+import { GraphData, graphType, AbstractGraph, OptionsFromConfig } from './ng.type.abstract';
+import { NgxGraph } from './ng.type.ngxgraph';
 @Component({
     selector: 'app-network-graph',
     templateUrl: './network-graph.component.html',
@@ -72,8 +72,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         limit: number,
         filterable: boolean,
         data: any[],
-        aggregation: string,
-        graphType: string;
+        aggregation: string
     };
 
     public graphData: GraphData;
@@ -103,10 +102,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             nodeField: this.injector.get('nodeField', null),
             linkField: this.injector.get('linkField', null),
             dataField: this.injector.get('dateField', null),
-            graphType: this.injector.get('graphType', null),
+            graphType: this.injector.get('graphType', graphType.ngxgraph),
             unsharedFilterField: this.injector.get('unsharedFilterField', null),
             unsharedFilterValue: this.injector.get('unsharedFilterValue', null),
-            limit: this.injector.get('limit', null)
+            limit: this.injector.get('limit', 500000)
         };
 
         this.active = {
@@ -119,32 +118,20 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             limit: this.optionsFromConfig.limit,
             filterable: true,
             data: [],
-            aggregation: 'count',
-            graphType: this.optionsFromConfig.graphType || 'directed-graph'
+            aggregation: 'count'
         };
 
         //this.getGraphData();
         this.updateData();
 
-        //this.setColorScheme('picnic');
-        //this.setInterpolationType('Catmull Rom');
-
         this.queryTitle = this.optionsFromConfig.title || 'Network Graph';
-
-        //console.log('constructor ' + this.meta);
-        //console.log('constructor ' + this.meta.databases);
-    }
-
-    ngOnInit() {
-        this.selectGraph(this.graphType);
-        this.updateData();
-        //setInterval(this.updateData.bind(this), 2000);
-        //console.log('ngOninit ' + this.meta.database);
-
     }
 
     subNgOnInit() {
         //
+        this.selectGraph(this.graphType);
+        this.updateData();
+        //setInterval(this.updateData.bind(this), 2000);
     }
 
     postInit() {
@@ -156,12 +143,21 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     subGetBindings(bindings: any) {
+        bindings.nodeField = this.active.nodeField;
+        bindings.linkField = this.active.linkField;
         bindings.limit = this.active.limit;
-        //
     }
 
     ngAfterViewInit() {
         let type = this.optionsFromConfig.graphType;
+
+        switch (type) {
+            case graphType.ngxgraph:
+                this.graphObject = new NgxGraph();
+                break;
+            default:
+                this.graphObject = new NgxGraph();
+        }
     }
 
     getExportFields() {

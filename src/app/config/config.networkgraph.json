@@ -2347,7 +2347,9 @@
 				"bindings": {
 					"title": "Network Graph",
 					"database": "haiti_4",
-					"table": "ui_output"
+					"table": "ui_output",
+					"nodeField": "_id",
+					"linkField": "topics"
 				},
 				"row": 0,
 				"col": 0
