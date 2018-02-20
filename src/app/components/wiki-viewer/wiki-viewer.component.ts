@@ -169,7 +169,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns the option for the given field from the wiki viewer config.
+     * Returns the option for the given property from the wiki viewer config.
      *
      * @arg {string} option
      * @return {object}
@@ -343,7 +343,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     /**
      * Sets the given bindings for the wiki viewer.
      *
-     * @arg {object} bindings
+     * @arg {any} bindings
      * @override
      */
     subGetBindings(bindings: any) {
