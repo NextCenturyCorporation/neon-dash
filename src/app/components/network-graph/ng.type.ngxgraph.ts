@@ -32,7 +32,7 @@ import {
 } from '@swimlane/ngx-charts';
 
 export class NgxGraph extends AbstractGraph {
-    private graphViewer: any;
+    public graphViewer: any;
     private graphData: any;
 
     graphGroups: any;
@@ -73,6 +73,7 @@ export class NgxGraph extends AbstractGraph {
             // options
             showLegend: false
         };
+
     }
 
     destroy() {

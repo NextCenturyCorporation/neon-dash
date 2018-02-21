@@ -24,6 +24,7 @@ export interface OptionsFromConfig {
     database: string;
     table: string;
     nodeField: string; //The field nodes are created from
+    //nameField: string; //pretty name for the nodefield
     linkField: string; //The field links are created from
     //sizeField: string; //
     //colorField: string;
@@ -34,20 +35,24 @@ export interface OptionsFromConfig {
     unsharedFilterValue: string;
 }
 
-export class GraphData {
-    nodes: [{
-        id: string;
-        label: string;
-        nodeType: string;
-        size: number;
-    }];
+export class Node {
+    id: string;
+    label: string;
+    nodeType: string;
+    size: number;
+    //DateField: string; //TODO
+}
 
-    links: [{
-        source: string;
-        target: string;
-        label: string;
-        count: number;
-    }];
+export class Link {
+    source: string;
+    target: string;
+    label: string;
+    count: number;
+}
+
+export class GraphData {
+    nodes: [Node];
+    links: [Link];
 }
 
 export abstract class AbstractGraph {

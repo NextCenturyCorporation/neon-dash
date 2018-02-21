@@ -44,6 +44,7 @@ import * as neon from 'neon-framework';
 
 import { animate, style, transition as ngTransition, trigger } from '@angular/animations';
 
+import { NetworkGraphMediator } from './network-graph-mediator';
 import { GraphData, graphType, AbstractGraph, OptionsFromConfig } from './ng.type.abstract';
 import { NgxGraph } from './ng.type.ngxgraph';
 @Component({
@@ -64,8 +65,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     public active: {
         dataField: FieldMetaData,
-        nodeField: string, //any[] Future support for multiple node and link fields
-        linkField: string, //any[]
+        nodeField: FieldMetaData, //any[] Future support for multiple node and link fields
+        linkField: FieldMetaData, //any[]
         aggregationField: FieldMetaData,
         aggregationFieldHidden: boolean,
         andFilters: boolean,
@@ -87,6 +88,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     public optionsFromConfig: OptionsFromConfig;
     private graphObject: AbstractGraph;
+    private graphMediator: NetworkGraphMediator;
 
     @ViewChild('graphElement') graphElement: ElementRef;
 
@@ -110,8 +112,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
         this.active = {
             dataField: new FieldMetaData(),
-            nodeField: this.optionsFromConfig.nodeField,
-            linkField: this.optionsFromConfig.linkField,
+            nodeField: new FieldMetaData(),
+            linkField: new FieldMetaData(),
             aggregationField: new FieldMetaData(),
             aggregationFieldHidden: true,
             andFilters: true,
@@ -125,6 +127,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         this.updateData();
 
         this.queryTitle = this.optionsFromConfig.title || 'Network Graph';
+
+        //console.log('Contstructor nodefield ' + this.active.nodeField);
     }
 
     subNgOnInit() {
@@ -143,8 +147,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     subGetBindings(bindings: any) {
-        bindings.nodeField = this.active.nodeField;
-        bindings.linkField = this.active.linkField;
+        bindings.nodeField = this.active.nodeField.columnName;
+        bindings.linkField = this.active.linkField.columnName;
         bindings.limit = this.active.limit;
     }
 
@@ -287,7 +291,15 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response): void {
-        //
+        let colName = this.active.nodeField.columnName;
+
+        let graphMediator = new NetworkGraphMediator();
+
+        graphMediator.evaluateDataAndUpdateGraph(response.data, this.optionsFromConfig);
+
+        let title;
+        title = this.optionsFromConfig.title || 'Network Graph' + ' by ' + this.active.nodeField.columnName;
+
     }
 
     setupFilters() {
@@ -379,7 +391,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeNodeField() {
+        //console.log('handle '+ this.active.nodeField);
         this.logChangeAndStartQueryChain();
+        //console.log('handle 2 '+ this.active.nodeField);
     }
 
     handleChangeLinkField() {

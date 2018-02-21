@@ -41,12 +41,28 @@ import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-ne
 import * as _ from 'lodash';
 import {
     AbstractGraph,
+    GraphData,
     graphType,
+    Link,
+    Node,
     OptionsFromConfig
 } from './ng.type.abstract';
 
 export class NetworkGraphMediator {
-    public graphData;
+    public graphData: GraphData;
+    public optionsFromConfig: OptionsFromConfig;
+    public node: Node;
+    public link: Link;
+
+    public active: {
+        node: Node;
+        link: Link;
+        totalNodes: number;
+        totalLinks: number;
+        total: number;
+        limit: number;
+        graphData: GraphData;
+    };
 
     /**
      * Creates, maintains, and updates a directed graph.
@@ -59,7 +75,7 @@ export class NetworkGraphMediator {
      * {function} redrawGraph (required) Calls DirectedGraphMediator.redrawGraph within an angular digest.
      * {function} updateSelectedNodeIds (required) Updates the selected nodes in the Neon network graph controller (and related behavior).
      */
-    DirectedGraphMediator(root, selector, callbacks) {
+    DirectedGraphMediator(graphViewer) {
         //
     }
 
@@ -85,9 +101,91 @@ export class NetworkGraphMediator {
      *          and replace all unlinked nodes with a single cluster node.
      */
     evaluateDataAndUpdateGraph(data, options) {
-        //
+        this.optionsFromConfig = options;
+
+        if (!options.nodeField) {
+            return;
+        }
+
+        let nodes = [];
+        let links = [];
+
+        //Maybe make this its own function?
+        //Nah
+        data.array.forEach((element) => {
+            let nodeId = data[options.nodeField];
+            let linkId = data[options.linkField];
+
+            //creates a new node for each unique nodeId
+            if (this.isUniqueNode(nodeId)) {
+                this.node.id = nodeId;
+                this.node.label = '';
+                this.node.nodeType = options.nodeField;
+                this.node.size = 1;
+                this.graphData.nodes.push(this.node);
+            } else {
+                //TODO: if node is not unique, find the existing node, and increase the size by 1;
+                //
+            }
+
+            //Creates a node for each unique linkfield
+            if (this.isUniqueNode(linkId)) {
+                this.node.id = linkId;
+                this.node.label = '';
+                this.node.nodeType = options.linkField;
+                this.node.size = 1;
+            } else {
+                //TODO: If node is not unique, find the existing node, and increase the size by 1;
+            }
+
+            let linkfield = options.linkField.columnName;
+
+            //Generating links
+            //If the linkField is an array, it'll generate a link for each linkfield
+            if (linkfield.isArray) {
+
+                element[linkfield].forEach((linkArrayLink) => {
+                    this.link.source = this.node.id;
+                    this.link.target = linkfield;
+                    this.link.label = '';
+                    this.link.count = 1;
+                    this.graphData.links.push(this.link);
+                });
+            } else {
+                this.link.source = this.node.id;
+                this.link.target = linkfield;
+                this.link.label = '';
+                this.link.count = 1;
+                this.graphData.links.push(this.link);
+            }
+            /*
+            for(linkfield of element) {
+
+                this.link.source = this.node.id;
+                this.link.target = linkfield;
+                this.link.label = '';
+                this.link.count = 1;
+                this.graphData.links.push(this.link);
+            }*/
+
+        });
+
+        //TODO Generate the graph
     }
 
+    isUniqueNode(nodeId) {
+        let isUnique = true;
+        if (this.graphData.nodes.includes(nodeId)) {
+            isUnique = false;
+        }
+
+        return isUnique;
+    }
+    /*
+        addNodeIfUnique() {
+
+        }
+    */
     /**
      * Saves the given nodes and links and updates the network graph using the data.
      * @arg {array} nodes (required) List of node objects with properties:
@@ -175,9 +273,9 @@ export class NetworkGraphMediator {
     /**
      * Returns the selected graph node IDs.
      */
-     getSelectedNodeIds() {
-         //
-     }
+    getSelectedNodeIds() {
+        //
+    }
 
     /**
      * Returns the full list of graph node IDs in the selected network (both the selected and unselected nodes).
@@ -201,6 +299,29 @@ export class NetworkGraphMediator {
      */
     createLegend(useNodeClusters, useFlag, flagLabel) {
         //
+    }
+
+    createLink(sourceId, targetId) {
+        let link: Link;
+
+        link.source = sourceId;
+        link.target = targetId;
+        return link;
+    }
+
+    getNodeTotal() {
+        this.active.totalNodes = this.active.graphData.nodes.length;
+        return this.active.totalNodes;
+    }
+
+    getLinkTotal() {
+        this.active.totalLinks = this.active.graphData.links.length;
+        return this.active.totalLinks;
+    }
+
+    getTotal() {
+        this.active.total = this.getNodeTotal() + this.getLinkTotal();
+        return this.active.total;
     }
 
 }
