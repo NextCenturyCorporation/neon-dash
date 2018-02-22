@@ -395,53 +395,34 @@
 		],
 		"TA1-ELISA-layout": [
 			{
-				"name": "Filter Builder",
-				"type": "filterBuilder",
-				"icon": "CreateFilter64",
-				"sizex": 19,
-				"sizey": 2,
+				"name": "Timeline",
+				"type": "timeline",
+				"icon": "Timeline64",
+				"sizex": 16,
+				"sizey": 7,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 2,
-				"minSizey": 2,
-				"$$hashKey": "object:31",
-				"selected": true,
-				"bindings": {
-					"title": "Filter Builder",
-					"database": "ll_nepal_cs_out",
-					"table": "ui_output_1"
-				},
-				"row": 0,
-				"col": 0
-			},
-			{
-				"name": "Data Table",
-				"type": "dataTable",
-				"icon": "ViewData64",
-				"sizex": 5,
-				"sizey": 16,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 7,
+				"minSizex": 6,
 				"minSizey": 3,
-				"$$hashKey": "object:43",
+				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
-					"title": "Tweets",
+					"title": "Tweets over Time",
 					"database": "ll_nepal_cs_out",
 					"table": "ui_output_1",
-					"sortField": "createdAt",
-					"limit": "100"
+					"dateField": "createdAt",
+					"granularity": "hour"
 				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 0,
-				"col": 20
+				"col": 9
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 12,
-				"sizey": 6,
+				"sizex": 16,
+				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -519,15 +500,15 @@
 					"mapType": "leaflet"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 9,
-				"col": 8
+				"row": 6,
+				"col": 9
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 5,
+				"sizex": 8,
+				"sizey": 6,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 4,
@@ -561,7 +542,7 @@
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 7,
+				"sizex": 8,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -570,20 +551,20 @@
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "Location",
+					"title": "Hashtags",
 					"database": "ll_nepal_cs_out",
-					"table": "ui_output_1",
-					"dataField": "LOC"
+					"table": "tweet",
+					"dataField": "hashtagEntities.text"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 9,
+				"row": 12,
 				"col": 0
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 7,
+				"sizex": 8,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -592,20 +573,20 @@
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "People",
+					"title": "Twitter Handles",
 					"database": "ll_nepal_cs_out",
-					"table": "ui_output_1",
-					"dataField": "PER"
+					"table": "tweet",
+					"dataField": "user.screenName"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 14,
+				"row": 15,
 				"col": 0
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 7,
+				"sizex": 8,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -624,71 +605,51 @@
 				"col": 0
 			},
 			{
-				"name": "Timeline",
-				"type": "timeline",
-				"icon": "Timeline64",
-				"sizex": 12,
-				"sizey": 5,
+				"name": "Data Table",
+				"type": "dataTable",
+				"icon": "ViewData64",
+				"sizex": 24,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 6,
+				"minSizex": 7,
 				"minSizey": 3,
-				"$$hashKey": "object:36",
+				"$$hashKey": "object:43",
 				"selected": true,
 				"bindings": {
-					"title": "Tweets over Time",
+					"title": "Tweets",
 					"database": "ll_nepal_cs_out",
 					"table": "ui_output_1",
-					"dateField": "createdAt",
-					"granularity": "hour"
+					"sortField": "createdAt",
+					"limit": "100",
+					"allColumnStatus": "hide",
+					"exceptionsToStatus": [
+						"createdAt",
+						"originalText"
+					]
 				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 8,
-				"col": 8
+				"row": 30,
+				"col": 0
 			},
 			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 6,
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 24,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 4,
-				"$$hashKey": "object:35",
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
 				"selected": true,
 				"bindings": {
-					"title": "Twitter Handles",
+					"title": "Filter Builder",
 					"database": "ll_nepal_cs_out",
-					"table": "tweet",
-					"dataField": "user.screenName"
+					"table": "ui_output_1"
 				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 20,
-				"col": 14
-			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 6,
-				"sizey": 3,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 4,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "Hashtags",
-					"database": "ll_nepal_cs_out",
-					"table": "tweet",
-					"dataField": "hashtagEntities.text"
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 20,
-				"col": 8
+				"row": 40,
+				"col": 0
 			}
 		]
 	},

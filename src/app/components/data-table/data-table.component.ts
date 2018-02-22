@@ -63,7 +63,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         limit: number,
         limitDisabled: boolean,
         unsharedFilterField: Object,
-        unsharedFilterValue: string
+        unsharedFilterValue: string,
+        allColumnStatus: string,
+        exceptionsToStatus: string[]
     };
 
     public active: {
@@ -106,7 +108,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             limit: this.injector.get('limit', 100),
             limitDisabled: this.injector.get('limitDisabled', true),
             unsharedFilterField: {},
-            unsharedFilterValue: ''
+            unsharedFilterValue: '',
+            allColumnStatus: this.injector.get('allColumnStatus', 'show'),
+            exceptionsToStatus: this.injector.get('exceptionsToStatus', [])
         };
         this.filters = [];
         this.active = {
@@ -162,11 +166,30 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.active.sortField = this.findFieldObject('sortField', neonMappings.TAGS);
         let initialHeaderLimit = 25;
         let numHeaders = 0;
+        let defaultShowValue = this.optionsFromConfig.allColumnStatus !== 'hide';
         for (let f of this.meta.fields) {
-            this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: numHeaders < initialHeaderLimit, style: {} });
-            numHeaders++;
+            let headerShowValue = numHeaders >= initialHeaderLimit ?
+                false :
+                this.headerIsInExceptions(f) ?
+                    !defaultShowValue :
+                    defaultShowValue;
+            this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: headerShowValue, style: {}});
+            if (headerShowValue) {
+                numHeaders++;
+            }
         }
         this.recalculateActiveHeaders();
+    }
+
+    headerIsInExceptions(header) {
+        let colName = header.columnName;
+        let pName = header.prettyName;
+        for (let name of this.optionsFromConfig.exceptionsToStatus) {
+            if (colName === name || pName === name) {
+                return true;
+            }
+        }
+        return false;
     }
 
     recalculateActiveHeaders() {
@@ -187,13 +210,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getExportFields() {
         return this.active.headers
-          .filter((header) => header.active)
-          .map((header) => {
-              return {
-                  columnName: header.prop,
-                  prettyName: header.name
-              };
-          });
+            .filter((header) => header.active)
+            .map((header) => {
+                return {
+                    columnName: header.prop,
+                    prettyName: header.name
+                };
+            });
     }
 
     closeColumnSelector() {
@@ -288,9 +311,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     arrayToString(arr) {
         let modArr = arr
-        .filter(function(el) {
-            return el;
-        })
+            .filter(function(el) {
+                return el;
+            })
             .map(function(base) {
                 if ((typeof base === 'object')) {
                     return this.objectToString(base);
@@ -299,7 +322,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 } else {
                     return base;
                 }
-        });
+            });
         return '[' + modArr + ']';
     }
 
@@ -323,19 +346,19 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.active.docCount = response.data[0]._docCount;
         } else {
-        let data = response.data.map(function(d) {
-            let row = {};
-            for (let field of this.meta.fields)  {
-                if (field.type) {
-                    row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
+            let data = response.data.map(function(d) {
+                let row = {};
+                for (let field of this.meta.fields) {
+                    if (field.type) {
+                        row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
+                    }
                 }
-            }
-            return row;
-        }.bind(this));
-        this.active.data = data;
-        this.getDocCount();
-        this.refreshVisualization();
-    }
+                return row;
+            }.bind(this));
+            this.active.data = data;
+            this.getDocCount();
+            this.refreshVisualization();
+        }
     }
 
     getDocCount() {
@@ -533,7 +556,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @fires select_id
      * @private
      */
-    onSelect({selected}) {
+    onSelect({ selected }) {
         if (selected && selected.length && this.active.idField.columnName && selected[0][this.active.idField.columnName]) {
             this.publishSelectId(selected[0][this.active.idField.columnName]);
         }
