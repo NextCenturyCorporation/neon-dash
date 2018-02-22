@@ -110,66 +110,69 @@ export class NetworkGraphMediator {
         let nodes = [];
         let links = [];
 
+        //console.log(data);
+
         //Maybe make this its own function?
         //Nah
-        data.array.forEach((element) => {
-            let nodeId = data[options.nodeField];
-            let linkId = data[options.linkField];
+        if (!data) {
+            data.array.forEach((element) => {
+                let nodeId = data[options.nodeField];
+                let linkId = data[options.linkField];
 
-            //creates a new node for each unique nodeId
-            if (this.isUniqueNode(nodeId)) {
-                this.node.id = nodeId;
-                this.node.label = '';
-                this.node.nodeType = options.nodeField;
-                this.node.size = 1;
-                this.graphData.nodes.push(this.node);
-            } else {
-                //TODO: if node is not unique, find the existing node, and increase the size by 1;
-                //
-            }
+                //creates a new node for each unique nodeId
+                if (this.isUniqueNode(nodeId)) {
+                    this.node.id = nodeId;
+                    this.node.label = '';
+                    this.node.nodeType = options.nodeField;
+                    this.node.size = 1;
+                    this.graphData.nodes.push(this.node);
+                } else {
+                    //TODO: if node is not unique, find the existing node, and increase the size by 1;
+                    //
+                }
 
-            //Creates a node for each unique linkfield
-            if (this.isUniqueNode(linkId)) {
-                this.node.id = linkId;
-                this.node.label = '';
-                this.node.nodeType = options.linkField;
-                this.node.size = 1;
-            } else {
-                //TODO: If node is not unique, find the existing node, and increase the size by 1;
-            }
+                //Creates a node for each unique linkfield
+                if (this.isUniqueNode(linkId)) {
+                    this.node.id = linkId;
+                    this.node.label = '';
+                    this.node.nodeType = options.linkField;
+                    this.node.size = 1;
+                } else {
+                    //TODO: If node is not unique, find the existing node, and increase the size by 1;
+                }
 
-            let linkfield = options.linkField.columnName;
+                let linkfield = options.linkField;
 
-            //Generating links
-            //If the linkField is an array, it'll generate a link for each linkfield
-            if (linkfield.isArray) {
+                //Generating links
+                //If the linkField is an array, it'll generate a link for each linkfield
+                if (linkfield.isArray) {
 
-                element[linkfield].forEach((linkArrayLink) => {
+                    element[linkfield].forEach((linkArrayLink) => {
+                        this.link.source = this.node.id;
+                        this.link.target = linkfield;
+                        this.link.label = '';
+                        this.link.count = 1;
+                        this.graphData.links.push(this.link);
+                    });
+                } else {
                     this.link.source = this.node.id;
                     this.link.target = linkfield;
                     this.link.label = '';
                     this.link.count = 1;
                     this.graphData.links.push(this.link);
-                });
-            } else {
-                this.link.source = this.node.id;
-                this.link.target = linkfield;
-                this.link.label = '';
-                this.link.count = 1;
-                this.graphData.links.push(this.link);
-            }
-            /*
-            for(linkfield of element) {
+                }
+                /*
+                for(linkfield of element) {
+    
+                    this.link.source = this.node.id;
+                    this.link.target = linkfield;
+                    this.link.label = '';
+                    this.link.count = 1;
+                    this.graphData.links.push(this.link);
+                }*/
 
-                this.link.source = this.node.id;
-                this.link.target = linkfield;
-                this.link.label = '';
-                this.link.count = 1;
-                this.graphData.links.push(this.link);
-            }*/
-
-        });
-
+            });
+        }
         //TODO Generate the graph
     }
 

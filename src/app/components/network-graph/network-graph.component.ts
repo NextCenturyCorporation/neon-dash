@@ -65,8 +65,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     public active: {
         dataField: FieldMetaData,
-        nodeField: FieldMetaData, //any[] Future support for multiple node and link fields
-        linkField: FieldMetaData, //any[]
+        nodeField: FieldMetaData, //[FieldMetaData] TODO Future support for multiple node and link fields
+        linkField: FieldMetaData, //[FieldMetaData]
         aggregationField: FieldMetaData,
         aggregationFieldHidden: boolean,
         andFilters: boolean,
@@ -147,6 +147,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     subGetBindings(bindings: any) {
+        //console.log('binding ' + this.active.nodeField.columnName);
         bindings.nodeField = this.active.nodeField.columnName;
         bindings.linkField = this.active.linkField.columnName;
         bindings.limit = this.active.limit;
@@ -192,7 +193,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     getFilterText(filter) {
         let database = this.meta.database.name;
         let table = this.meta.table.name;
-        let field = this.active.dataField.columnName;
+        let field = this.active.nodeField.columnName;
         let text = database + ' - ' + table + ' - ' + field + ' = ';
         return text;
     }
@@ -209,18 +210,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         let valid = true;
         valid = (this.meta.database && this.meta.database.name && valid);
         valid = (this.meta.table && this.meta.table.name && valid);
-        valid = (this.active.dataField && this.active.dataField.columnName && valid);
-        valid = (this.active.aggregation && this.active.aggregation && valid); // what?
-        if (this.active.aggregation !== 'count') {
-            valid = (this.active.aggregationField !== undefined && this.active.aggregationField.columnName !== '' && valid);
-            //This would mean though that if the data is just a number being represented by a string, it would simply fail.
-            //As opposed to first trying to parse it.
-            //This also makes it silently fail, without letting the user know that it failed or why. One could easily change the
-            //aggregation type, not notice that the chart didn't change, and
-            valid = ((this.active.aggregationField.type !== 'string') && valid);
+        valid = (this.active.nodeField && this.active.nodeField.columnName && valid);
+        valid = (this.active.linkField && this.active.linkField.columnName && valid);
 
-        }
-        // valid = (this.active.aggregation && valid);
         return valid;
     }
 
@@ -228,41 +220,18 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
+        let nodeField = this.active.nodeField.columnName;
+        let linkField = this.active.linkField.columnName;
         let whereClauses: neon.query.WherePredicate[] = [];
-        whereClauses.push(neon.query.where(this.active.dataField.columnName, '!=', null));
-        let yAxisField = this.active.aggregationField.columnName;
-        let groupBy: any[] = [this.active.dataField.columnName];
+        whereClauses.push(neon.query.where(this.active.nodeField.columnName, '!=', null));
+        let groupBy: any[] = [this.active.nodeField.columnName];
 
-        if (this.hasColorField()) {
-            whereClauses.push(neon.query.where(this.meta.colorField.columnName, '!=', null));
-            groupBy.push(this.meta.colorField.columnName);
-        }
+        let fields = [nodeField];
 
-        if (this.hasUnsharedFilter()) {
-            // Add the unshared filter
-            whereClauses.push(
-                neon.query.where(this.meta.unsharedFilterField.columnName, '=',
-                    this.meta.unsharedFilterValue));
-        }
-
+        query = query.withFields(fields);
         query.where(neon.query.and.apply(query, whereClauses));
-        switch (this.active.aggregation) {
-            case 'count':
-                return query.groupBy(groupBy).aggregate(neonVariables.COUNT, '*', 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
-            case 'sum':
-                return query.groupBy(groupBy).aggregate(neonVariables.SUM, yAxisField, 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
-            case 'average':
-                return query.groupBy(groupBy).aggregate(neonVariables.AVG, yAxisField, 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
-            case 'min':
-                return query.groupBy(groupBy).aggregate(neonVariables.MIN, yAxisField, 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
-            case 'max':
-                return query.groupBy(groupBy).aggregate(neonVariables.MAX, yAxisField, 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
-        }
+
+        return query;
     }
 
     getFiltersToIgnore() {
@@ -391,9 +360,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeNodeField() {
-        //console.log('handle '+ this.active.nodeField);
+        //console.log('handle '+ this.active.nodeField.columnName);
         this.logChangeAndStartQueryChain();
-        //console.log('handle 2 '+ this.active.nodeField);
+        //console.log('handle 2 '+ this.active.nodeField.columnName);
     }
 
     handleChangeLinkField() {
