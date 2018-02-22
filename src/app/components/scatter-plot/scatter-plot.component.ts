@@ -130,6 +130,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         labelField: FieldMetaData,
         andFilters: boolean,
         limit: number,
+        newLimit: number,
         filterable: boolean,
         layers: any[],
         xAxisIsNumeric: boolean,
@@ -198,6 +199,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             labelField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
+            newLimit: this.optionsFromConfig.limit,
             filterable: true,
             layers: [],
             xAxisIsNumeric: true,
@@ -589,7 +591,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         query = query.groupBy(groupBys);
         query = query.sortBy(xField, neonVariables.ASCENDING);
         query.where(neon.query.and.apply(query, whereClauses));
-        query = query.limit(this.active.limit);
         query = query.aggregate(neonVariables.COUNT, '*', 'value');
         return query;
     }
@@ -684,9 +685,26 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         }
-        this.chart.data.labels = this.chart.data.xLabels;
 
+        this.chart.data.labels = this.chart.data.xLabels;
         this.chart.data.datasets = allDataSets;
+
+        if (this.chart.data.labels.length > this.active.limit) {
+            let pointCount = 0;
+            let pointLimit = this.active.limit;
+            this.chart.data.datasets = this.chart.data.datasets.map(function(dataset) {
+                if (pointCount >= pointLimit) {
+                    dataset.data = [];
+                } else {
+                    if (pointCount + dataset.data.length > pointLimit) {
+                        dataset.data = dataset.data.slice(0, pointLimit - pointCount);
+                    }
+                    pointCount += dataset.data.length;
+                }
+                return dataset;
+            });
+        }
+
         this.active.xAxisIsNumeric = xAxisIsNumeric;
         this.active.yAxisIsNumeric = yAxisIsNumeric;
 
@@ -728,8 +746,22 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         // Do nothing
     }
 
+    /**
+     * Updates the limit, resets the seen bars, and reruns the bar chart query.
+     */
     handleChangeLimit() {
-        this.logChangeAndStartQueryChain();
+        if (super.isNumber(this.active.newLimit)) {
+            let newLimit = parseFloat('' + this.active.newLimit);
+            if (newLimit > 0) {
+                this.active.limit = newLimit;
+                // TODO THOR-526 Redraw the scatter plot but do not requery because we can use the same data from the original query.
+                this.logChangeAndStartQueryChain();
+            } else {
+                this.active.newLimit = this.active.limit;
+            }
+        } else {
+            this.active.newLimit = this.active.limit;
+        }
     }
 
     handleChangeXField() {
@@ -770,6 +802,22 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         } else {
             return [];
         }
+    }
+
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
+    getButtonText(): string {
+        if (!this.chart.data.labels || !this.chart.data.labels.length) {
+            return 'No Data';
+        }
+        if (this.chart.data.labels.length <= this.active.limit) {
+            return 'Total ' + super.prettifyInteger(this.chart.data.labels.length);
+        }
+        return super.prettifyInteger(this.active.limit) + ' of ' + super.prettifyInteger(this.chart.data.labels.length);
     }
 
     getFilterTitle() {

@@ -73,7 +73,7 @@
                     <tr>
                         <td>
                             <mat-form-field>
-                                <input matInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                                <input matInput placeholder="Point Limit" [(ngModel)]="active.newLimit" required="true">
                             </mat-form-field>
                         </td>
                         <td>
@@ -99,7 +99,7 @@
         <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
             <mat-spinner ></mat-spinner>
         </div>
-        <div #filterContainer class="filter-container">
+        <div #filterContainer class="filter-container multi-element">
             <div>
                 <app-legend *ngIf="hasColorField()"
                             (itemSelected)="legendItemSelected($event)"

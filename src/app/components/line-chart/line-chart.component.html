@@ -2,7 +2,7 @@
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
         <span class="fill-remaining"></span>
-        <span class="icon text">{{ buttonText }}</span>
+        <span class="info text">{{ getButtonText() }}</span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
         </button>
@@ -85,7 +85,7 @@
                     <tr>
                         <td>
                             <mat-form-field>
-                                <input matInput placeholder="Group Limit" [(ngModel)]="active.groupLimit" required="true">
+                                <input matInput placeholder="Group Limit" [(ngModel)]="active.newLimit" required="true">
                             </mat-form-field>
                         </td>
                         <td>

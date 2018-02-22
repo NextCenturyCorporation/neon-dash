@@ -38,44 +38,80 @@ import { VisualizationService } from '../../services/visualization.service';
 import { ChartComponent } from '../chart/chart.component';
 
 describe('Component: LineChart', () => {
-  let testConfig: NeonGTDConfig = new NeonGTDConfig();
-  let component: LineChartComponent;
-  let fixture: ComponentFixture<LineChartComponent>;
+    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let component: LineChartComponent;
+    let fixture: ComponentFixture<LineChartComponent>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [
-        LineChartComponent,
-        LegendComponent,
-        ExportControlComponent,
-        ChartComponent
-      ],
-      providers: [
-        ActiveGridService,
-        ConnectionService,
-        DatasetService,
-        FilterService,
-        ExportService,
-        TranslationService,
-        ErrorNotificationService,
-        ThemesService,
-        ColorSchemeService,
-        VisualizationService,
-        Injector,
-        { provide: 'config', useValue: testConfig }
-      ],
-      imports: [
-        AppMaterialModule,
-        FormsModule,
-        BrowserAnimationsModule
-      ]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [
+                LineChartComponent,
+                LegendComponent,
+                ExportControlComponent,
+                ChartComponent
+            ],
+            providers: [
+                ActiveGridService,
+                ConnectionService,
+                DatasetService,
+                FilterService,
+                ExportService,
+                TranslationService,
+                ErrorNotificationService,
+                ThemesService,
+                ColorSchemeService,
+                VisualizationService,
+                Injector,
+                { provide: 'config', useValue: testConfig }
+            ],
+            imports: [
+                AppMaterialModule,
+                FormsModule,
+                BrowserAnimationsModule
+            ]
+        });
+        fixture = TestBed.createComponent(LineChartComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
     });
-    fixture = TestBed.createComponent(LineChartComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
 
-  it('should create an instance', async(() => {
-    expect(component).toBeTruthy();
-  }));
+    it('should create an instance', async(() => {
+        expect(component).toBeTruthy();
+    }));
+
+    it('getButtonText does return expected string', () => {
+        expect(component.getButtonText()).toBe('No Data');
+
+        component.chart.data.labels = ['group1', 'group2'];
+        expect(component.getButtonText()).toBe('Total 2');
+
+        component.active.limit = 1;
+        expect(component.getButtonText()).toBe('1 of 2');
+
+        component.chart.data.labels = ['group1', 'group2', 'group3', 'group4'];
+        expect(component.getButtonText()).toBe('1 of 4');
+
+        component.active.limit = 2;
+        expect(component.getButtonText()).toBe('2 of 4');
+
+        component.active.limit = 4;
+        expect(component.getButtonText()).toBe('Total 4');
+    });
+
+    it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
+        let spy = spyOn(component, 'logChangeAndStartQueryChain');
+
+        component.active.newLimit = 1234;
+
+        component.handleChangeLimit();
+        expect(component.active.limit).toEqual(1234);
+        expect(spy.calls.count()).toBe(1);
+
+        component.active.newLimit = 0;
+
+        component.handleChangeLimit();
+        expect(component.active.limit).toEqual(1234);
+        expect(component.active.newLimit).toEqual(1234);
+        expect(spy.calls.count()).toBe(1);
+    });
 });

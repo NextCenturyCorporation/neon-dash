@@ -71,6 +71,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         unsharedFilterValue: string,
         limit: number
     };
+
     public active: {
         dateField: FieldMetaData,
         aggregationField: FieldMetaData,
@@ -78,9 +79,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         groupField: FieldMetaData,
         andFilters: boolean,
         limit: number,
-        groupLimit: number,
+        newLimit: number,
         filterable: boolean,
-        layers: any[],
         aggregation: string,
         dateBucketizer: any,
         granularity: string,
@@ -113,7 +113,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
     private mouseEventValid: boolean;
     public colorByFields: string[] = [];
     public disabledList: string[] = [];
-    public buttonText = '';
 
     private disabledDatasets: Map<string, any> = new Map<string, any>();
 
@@ -135,7 +134,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             groupField: this.injector.get('groupField', null),
             aggregation: this.injector.get('aggregation', null),
             aggregationField: this.injector.get('aggregationField', null),
-            limit: this.injector.get('limit', 10000),
+            limit: this.injector.get('limit', 10),
             unsharedFilterField: {},
             unsharedFilterValue: ''
         };
@@ -148,9 +147,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             groupField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
-            groupLimit: 10,
+            newLimit: this.optionsFromConfig.limit,
             filterable: true,
-            layers: [],
             aggregation: 'count',
             dateBucketizer: null,
             granularity: 'day',
@@ -577,7 +575,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         // we assume sorted by date later to get min and max date!
         query = query.sortBy('date', neonVariables.ASCENDING);
         query = query.where(whereClause);
-        query = query.limit(this.active.limit);
         switch (this.active.aggregation) {
             case 'count':
                 return query.aggregate(neonVariables.COUNT, '*', 'value');
@@ -606,7 +603,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.disabledList = [];
 
         // need to reset chart when data potentially changes type (or number of datasets)
-        let tmpLimit = this.active.groupLimit;
         let dataSetField = this.active.groupField.columnName;
         let myData = {};
         switch (this.active.granularity) {
@@ -630,8 +626,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             labels = this.chart.data.labels || []; // maintain previous labels in case no data was returned
 
         if (response.data.length > 0) {
-            delete this.buttonText;
-
             let bucketizer = this.active.dateBucketizer;
             bucketizer.setStartDate(new Date(response.data[0].date));
             bucketizer.setEndDate(new Date(response.data[response.data.length - 1].date));
@@ -673,8 +667,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
             datasets = datasets.sort((a, b) => {
                 return b.total - a.total;
             });
-            if (datasets.length > tmpLimit) {
-                datasets = datasets.slice(0, tmpLimit);
+            if (datasets.length > this.active.limit) {
+                datasets = datasets.slice(0, this.active.limit);
             }
             labels = new Array(length);
             for (let i = 0; i < length; i++) {
@@ -696,8 +690,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 }
                 labels[i] = dateString;
             }
-        } else {
-            this.buttonText = 'No Data';
         }
 
         this.chart.data = {
@@ -813,8 +805,22 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         this.active.filter = localFilters.length ? localFilters[0] : null;
     }
 
+    /**
+     * Updates the limit, resets the seen bars, and reruns the bar chart query.
+     */
     handleChangeLimit() {
-        this.logChangeAndStartQueryChain();
+        if (super.isNumber(this.active.newLimit)) {
+            let newLimit = parseFloat('' + this.active.newLimit);
+            if (newLimit > 0) {
+                this.active.limit = newLimit;
+                // TODO THOR-526 Redraw the line chart but do not requery because we can use the same data from the original query.
+                this.logChangeAndStartQueryChain();
+            } else {
+                this.active.newLimit = this.active.limit;
+            }
+        } else {
+            this.active.newLimit = this.active.limit;
+        }
     }
 
     handleChangeDateField() {
@@ -837,6 +843,22 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         if (!this.initializing) {
             this.executeQueryChain();
         }
+    }
+
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
+    getButtonText(): string {
+        if (!this.chart.data.labels || !this.chart.data.labels.length) {
+            return 'No Data';
+        }
+        if (this.chart.data.labels.length <= this.active.limit) {
+            return 'Total ' + super.prettifyInteger(this.chart.data.labels.length);
+        }
+        return super.prettifyInteger(this.active.limit) + ' of ' + super.prettifyInteger(this.chart.data.labels.length);
     }
 
     getFilterTitle(filter: LocalFilter) {
