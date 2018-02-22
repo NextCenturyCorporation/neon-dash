@@ -293,7 +293,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         };
-        this.queryTitle = 'Scatter Plot';
     }
 
     /**
@@ -709,7 +708,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         this.active.yAxisIsNumeric = yAxisIsNumeric;
 
         this.refreshVisualization();
-        this.queryTitle = 'Scatter Plot: ' + this.active.xField.prettyName + ' vs ' + this.active.yField.prettyName;
         // Force the legend to update
         this.colorByFields = [this.meta.colorField.columnName];
     }

@@ -91,7 +91,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         this.active.operators.push({ value: '<=', prettyName: '<=' });
         this.active.operators.push({ value: 'contains', prettyName: 'contains' });
         this.active.operators.push({ value: 'not contains', prettyName: 'not contains' });
-        this.queryTitle = 'Filter Builder';
         this.isExportable = false;
     }
 
@@ -312,7 +311,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     getVisualizationName(): string {
-        return 'Filter Builder';
+        return 'Custom Filters';
     }
 
     refreshVisualization() {

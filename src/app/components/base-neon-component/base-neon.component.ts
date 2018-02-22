@@ -40,7 +40,6 @@ export abstract class BaseNeonComponent implements OnInit,
     OnDestroy {
 
     public id: string;
-    protected queryTitle: string;
     protected messenger: neon.eventing.Messenger;
     protected outstandingDataQuery: any;
 
@@ -52,6 +51,7 @@ export abstract class BaseNeonComponent implements OnInit,
      * Common metadata about the database, table, and any unshared filters
      */
     public meta: {
+        title: string,
         databases: DatabaseMetaData[],
         database: DatabaseMetaData,
         tables: TableMetaData[],
@@ -94,7 +94,9 @@ export abstract class BaseNeonComponent implements OnInit,
         this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
         this.isLoading = false;
+
         this.meta = {
+            title: '',
             databases: [],
             database: new DatabaseMetaData(),
             tables: [],
@@ -104,6 +106,7 @@ export abstract class BaseNeonComponent implements OnInit,
             colorField: new FieldMetaData(),
             fields: []
         };
+
         this.isExportable = true;
         this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
@@ -141,6 +144,7 @@ export abstract class BaseNeonComponent implements OnInit,
             // Fails in unit tests - ignore.
         }
 
+        this.meta.title = this.getOptionFromConfig('title') || this.getVisualizationName();
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
@@ -188,7 +192,7 @@ export abstract class BaseNeonComponent implements OnInit,
      */
     getBindings(): any {
         let bindings = {
-            title: this.createTitle(),
+            title: this.meta.title,
             database: this.meta.database.name,
             table: this.meta.table.name,
             unsharedFilterField: this.meta.unsharedFilterField.columnName,
@@ -210,7 +214,7 @@ export abstract class BaseNeonComponent implements OnInit,
 
         let query = this.createQuery();
         if (query) {
-            let exportName = this.queryTitle;
+            let exportName = this.meta.title;
             if (exportName) {
                 // replaceAll
                 exportName = exportName.split(':').join(' ');
@@ -440,33 +444,6 @@ export abstract class BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Create a title for a query
-     * @param {boolean} resetQueryTitle
-     * @return {string}
-     */
-    createTitle(resetQueryTitle?: boolean): string {
-        if (resetQueryTitle) {
-            this.queryTitle = '';
-        }
-        if (this.queryTitle) {
-            return this.queryTitle;
-        }
-        let optionTitle = this.getOptionFromConfig('title');
-        if (optionTitle) {
-            return optionTitle;
-        }
-        let title = this.meta.unsharedFilterValue
-            ? this.meta.unsharedFilterValue + ' '
-            : '';
-        if (_.keys(this.meta).length) {
-            return title + (this.meta.table && this.meta.table.name
-                ? this.meta.table.prettyName
-                : '');
-        }
-        return title;
-    }
-
-    /**
      * Execute the Neon query chain.
      *
      * This is expected to get called whenever a query is expected to be run.
@@ -480,7 +457,6 @@ export abstract class BaseNeonComponent implements OnInit,
         }
         this.isLoading = true;
         this.changeDetection.detectChanges();
-        this.queryTitle = this.createTitle(false);
         let query = this.createQuery();
 
         let filtersToIgnore = this.getFiltersToIgnore();

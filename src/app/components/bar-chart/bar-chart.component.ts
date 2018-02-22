@@ -278,8 +278,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         };
         this.chartInfo.options.tooltips.callbacks.title = tooltipTitleFunc.bind(this);
         this.chartInfo.options.tooltips.callbacks.label = tooltipDataFunc.bind(this);
-        this.queryTitle = this.optionsFromConfig.title || 'Bar Chart';
-
     }
 
     /**

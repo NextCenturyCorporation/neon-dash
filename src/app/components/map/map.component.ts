@@ -155,8 +155,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 minClusterSize: this.optionsFromConfig.minClusterSize,
                 clusterPixelRange: this.optionsFromConfig.clusterPixelRange
             };
-
-            this.queryTitle = this.optionsFromConfig.title || 'Map';
         }
 
         /**

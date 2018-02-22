@@ -107,7 +107,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             page: 1,
             metadataFields: []
         };
-        this.queryTitle = this.optionsFromConfig.title || 'Document Viewer';
     }
 
     subNgOnInit() {

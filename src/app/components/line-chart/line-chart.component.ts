@@ -243,8 +243,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         };
-
-        this.queryTitle = 'Line Chart';
     }
 
     /**
@@ -719,7 +717,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
         if (this.active.groupField && this.active.groupField.prettyName) {
             title += ' by ' + this.active.groupField.prettyName;
         }
-        this.queryTitle = title;
         this.updateLegend();
 
         // THOR-252: only way to know if filter was applied is to wait for querySuccess. See #onHover

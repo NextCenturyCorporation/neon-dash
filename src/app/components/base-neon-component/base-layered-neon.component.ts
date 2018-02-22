@@ -40,7 +40,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     OnDestroy {
 
     public id: string;
-    protected queryTitle: string;
     protected messenger: neon.eventing.Messenger;
     protected outstandingDataQueriesByLayer: any[];
 
@@ -52,8 +51,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * Common metadata about the database, and the table and any unshared filter of the layers
      */
     public meta: {
+        title: string,
         databases: DatabaseMetaData[],
         layers: {
+            title: string,
             database: DatabaseMetaData,
             tables: TableMetaData[],
             table: TableMetaData,
@@ -96,10 +97,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
         this.isLoading = 0;
+
         this.meta = {
+            title: '',
             databases: [],
             layers: []
         };
+
         this.isExportable = true;
         this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
@@ -133,6 +137,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.visualizationService.registerBindings(this.id, this);
         this.activeGridService.register(this.id, this);
 
+        this.meta.title = this.getOptionFromConfig('title') || this.getVisualizationName();
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
@@ -191,7 +196,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      */
     getBindings(): any {
         let bindings = {
-            title: this.createTitle(),
+            title: this.meta.title,
             databases: [],
             layers: []
         };
@@ -200,6 +205,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         }
         for (let layer of this.meta.layers) {
             let layerBindings = {
+                title: layer.title,
                 database: layer.database.name,
                 tables: [],
                 table: layer.table.name,
@@ -228,6 +234,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      */
     addEmptyLayer() {
         let layer = {
+            title: '',
             database: new DatabaseMetaData(),
             tables: [],
             table: new TableMetaData(),
@@ -265,7 +272,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * @return {}
      */
     exportOneLayer(query: neon.query.Query, layerIndex: number) {
-        let exportName = this.queryTitle;
+        let exportName = this.meta.title;
         if (exportName) {
             // replaceAll
             exportName = exportName.split(':').join(' ');
@@ -516,57 +523,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     }
 
     /**
-     * Create a title for a query
-     * @param {boolean} resetQueryTitle
-     * @return {string}
-     */
-    createTitle(resetQueryTitle?: boolean): string {
-        if (resetQueryTitle) {
-            this.queryTitle = '';
-        }
-        if (this.queryTitle) {
-            return this.queryTitle;
-        }
-        let optionTitle = this.getOptionFromConfig('title');
-        if (optionTitle) {
-            return optionTitle;
-        }
-        if (this.meta.layers.length === 1) {
-            return this.createLayerTitle(1, resetQueryTitle);
-        } else {
-            return 'Multiple Layers - ' + this.getVisualizationName();
-        }
-    }
-
-    /**
-     * Create a title for a layer
-     * @param {number} layerIndex
-     * @param {boolean} resetQueryTitle
-     * @return {string}
-     */
-    createLayerTitle(layerIndex: number, resetQueryTitle?: boolean): string {
-        if (resetQueryTitle) {
-            this.queryTitle = '';
-        }
-        if (this.queryTitle) {
-            return this.queryTitle;
-        }
-        let optionTitle = this.getOptionFromConfig('title');
-        if (optionTitle) {
-            return optionTitle;
-        }
-        let title = this.meta.layers[layerIndex].unsharedFilterValue
-            ? this.meta.layers[layerIndex].unsharedFilterValue + ' '
-            : '';
-        if (_.keys(this.meta).length) {
-            return title + (this.meta.layers[layerIndex].table && this.meta.layers[layerIndex].table.name
-                ? this.meta.layers[layerIndex].table.prettyName
-                : '');
-        }
-        return title;
-    }
-
-    /**
      * This is expected to get called whenever a query is expected to be run.
      * This could be startup, user action to change field, relevant filter change
      * from another visualization
@@ -591,7 +547,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         }
         this.isLoading++;
         this.changeDetection.detectChanges();
-        this.queryTitle = this.createLayerTitle(layerIndex, false);
         let query = this.createQuery(layerIndex);
 
         let filtersToIgnore = this.getFiltersToIgnore();

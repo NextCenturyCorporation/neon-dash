@@ -457,21 +457,27 @@ describe('Component: WikiViewer', () => {
     it('does show selects in sidenav options menu that have no options', (() => {
         fixture.detectChanges();
 
+        let inputs = fixture.debugElement.queryAll(
+            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-input-element'));
         let selects = fixture.debugElement.queryAll(
-            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
+            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-select'));
         let placeholders = fixture.debugElement.queryAll(
             By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-form-field-placeholder-wrapper'));
+        expect(inputs.length).toBe(1);
         expect(selects.length).toBe(4);
-        expect(placeholders.length).toBe(4);
+        expect(placeholders.length).toBe(5);
 
+        expect(placeholders[0].nativeElement.textContent).toContain('Title');
         expect(selects[0].componentInstance.disabled).toBe(true);
-        expect(placeholders[0].nativeElement.textContent).toContain('Database');
+        expect(placeholders[1].nativeElement.textContent).toContain('Database');
         expect(selects[1].componentInstance.disabled).toBe(true);
-        expect(placeholders[1].nativeElement.textContent).toContain('Table');
+        expect(placeholders[2].nativeElement.textContent).toContain('Table');
         expect(selects[2].componentInstance.disabled).toBe(true);
-        expect(placeholders[2].nativeElement.textContent).toContain('ID Field');
+        expect(placeholders[3].nativeElement.textContent).toContain('ID Field');
         expect(selects[3].componentInstance.disabled).toBe(true);
-        expect(placeholders[3].nativeElement.textContent).toContain('Link Field');
+        expect(placeholders[4].nativeElement.textContent).toContain('Link Field');
+
+        // TODO How can we test the input model values?
     }));
 
     it('does show export control in sidenav options menu', (() => {
@@ -672,31 +678,36 @@ describe('Component: WikiViewer with config', () => {
 
         fixture.detectChanges();
 
+        let inputs = fixture.debugElement.queryAll(
+            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-input-element'));
         let selects = fixture.debugElement.queryAll(
-            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
+            By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-select'));
         let placeholders = fixture.debugElement.queryAll(
             By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field .mat-form-field-placeholder-wrapper'));
+        expect(inputs.length).toBe(1);
         expect(selects.length).toBe(4);
-        expect(placeholders.length).toBe(4);
+        expect(placeholders.length).toBe(5);
+
+        expect(placeholders[0].nativeElement.textContent).toContain('Title');
 
         expect(selects[0].componentInstance.disabled).toBe(true);
-        expect(placeholders[0].nativeElement.textContent).toContain('Database');
         expect(selects[0].componentInstance.options.toArray().length).toBe(1);
         expect(selects[0].componentInstance.options.toArray()[0].value).toEqual(testDatabase);
+        expect(placeholders[1].nativeElement.textContent).toContain('Database');
 
         expect(selects[1].componentInstance.disabled).toBe(true);
-        expect(placeholders[1].nativeElement.textContent).toContain('Table');
         expect(selects[1].componentInstance.options.toArray().length).toBe(1);
         expect(selects[1].componentInstance.options.toArray()[0].value).toEqual(testTable);
+        expect(placeholders[2].nativeElement.textContent).toContain('Table');
 
         expect(selects[2].componentInstance.disabled).toBe(false);
-        expect(placeholders[2].nativeElement.textContent).toContain('ID Field');
         expect(selects[2].componentInstance.options.toArray().length).toEqual(DatasetMock.FIELDS.length);
+        expect(placeholders[3].nativeElement.textContent).toContain('ID Field');
 
         expect(selects[3].componentInstance.disabled).toBe(false);
-        expect(placeholders[3].nativeElement.textContent).toContain('Link Field');
         expect(selects[3].componentInstance.options.toArray().length).toEqual(DatasetMock.FIELDS.length);
+        expect(placeholders[4].nativeElement.textContent).toContain('Link Field');
 
-        // TODO How can we test the selected values?
+        // TODO How can we test the input and select model values?
     }));
 });

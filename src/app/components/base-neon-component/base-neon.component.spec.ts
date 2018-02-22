@@ -250,7 +250,7 @@ describe('Component: base-neon', () => {
         component.meta.database = new DatabaseMetaData('testDatabase');
         component.meta.table = new TableMetaData('testTable');
         expect(component.getBindings()).toEqual({
-            title: component.createTitle(),
+            title: component.meta.title,
             database: component.meta.database.name,
             table: component.meta.table.name,
             unsharedFilterField: component.meta.unsharedFilterField.columnName,
@@ -259,15 +259,8 @@ describe('Component: base-neon', () => {
         });
     }));
 
-    it('returns expected value from createTitle', (() => {
-        expect(component.createTitle()).toEqual('');
-        expect(component.createTitle(true)).toEqual('');
-        expect(component.createTitle(false)).toEqual('');
-    }));
-
     it('Checks both export functions', (() => {
         let query = component.createQuery();
-        let queryTitle = component.createTitle();
 
         expect(component.export()).toBeDefined();
         expect(component.doExport()).toBeDefined();

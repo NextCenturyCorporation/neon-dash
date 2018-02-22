@@ -88,7 +88,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             wikiText: []
         };
         this.isLoadingWikiPage = false;
-        this.queryTitle = this.optionsFromConfig.title || 'Wiki Viewer';
         this.subscribeToSelectId(this.getSelectIdCallback());
     }
 

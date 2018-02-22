@@ -397,7 +397,6 @@ describe('Component: TextCloud', () => {
 
         expect(component.active.data).toEqual([]);
         expect(component.active.count).toBe(0);
-        expect(component.createTitle()).toEqual('Text Cloud by Test Data Field');
         expect(calledExecuteQuery).toBeFalsy(); // Don't query for doc count if we got no data.
 
         component.active.sizeField.columnName = 'testSizeField';
@@ -407,7 +406,6 @@ describe('Component: TextCloud', () => {
 
         expect(component.active.data).toEqual([]);
         expect(component.active.count).toBe(0);
-        expect(component.createTitle()).toEqual('Text Cloud by Test Data Field and Test Size Field');
         expect(calledExecuteQuery).toBeFalsy();
     });
 
@@ -483,7 +481,6 @@ describe('Component: TextCloud', () => {
             keyTranslated: 'Third'
         }]);
         expect(component.active.count).toBe(3);
-        expect(component.createTitle()).toEqual('Text Cloud by Test Data Field');
         expect(calledCreateTextCloud).toBeTruthy();
         expect(calledExecuteQuery).toBeTruthy();
 
@@ -516,7 +513,6 @@ describe('Component: TextCloud', () => {
             keyTranslated: 'Third'
         }]);
         expect(component.active.count).toBe(3);
-        expect(component.createTitle()).toEqual('Text Cloud by Test Data Field and Test Size Field');
         expect(calledCreateTextCloud).toBeTruthy();
         expect(calledExecuteQuery).toBeTruthy();
     });
