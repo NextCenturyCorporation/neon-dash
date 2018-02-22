@@ -362,8 +362,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             this.active.docCount = response.data[0]._docCount;
         } else {
             // Convert all the dates into Date objects
-            this.active.data = response.data.map((d) => {
-                d.date = new Date(d.date);
+            this.active.data = response.data.map((item) => {
+                item.date = new Date(item.date);
+                return item;
             });
 
             this.filterAndRefreshData();
