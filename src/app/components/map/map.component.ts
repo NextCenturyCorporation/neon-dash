@@ -220,7 +220,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
          */
         ngAfterViewInit() {
             let type = this.optionsFromConfig.mapType;
-            if (!this.isNumeric(type)) {
+            if (!super.isNumber(type)) {
                 type = MapType[type] || MapType.Leaflet;
                 this.optionsFromConfig.mapType = type;
             }
@@ -558,16 +558,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             return this.createBasicQuery(layerIndex).withFields(fields).limit(this.active.limit);
         }
 
-        /**
-         * Returns whether the given object is numeric.
-         *
-         * @arg {any} input
-         * @return {boolean}
-         */
-        isNumeric(input: any): boolean {
-            return !isNaN(parseFloat(input)) && isFinite(input);
-        }
-
         legendItemSelected(event: any) {
             let fieldName: string = event.fieldName;
             let value: string = event.value;
@@ -641,7 +631,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
 
         /**
-         * Handles the query results for the map layer at the given index.
+         * Handles the query results for the map layer at the given index and draws the map.
          *
          * @arg {number} layerIndex
          * @arg {any} response
@@ -728,7 +718,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
 
         addOrUpdateUniquePoint(map: Map<string, UniqueLocationPoint>, lat: number, lng: number, colorField: string, colorValue: string) {
-            if (!this.isNumeric(lat) || !this.isNumeric(lng)) {
+            if (!super.isNumber(lat) || !super.isNumber(lng)) {
                 return;
             }
 
@@ -813,7 +803,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
 
         /**
-         * Sets the filters for the map.
+         * Creates filters on init if needed.
          *
          * @override
          */

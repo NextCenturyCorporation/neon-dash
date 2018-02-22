@@ -748,4 +748,24 @@ export abstract class BaseNeonComponent implements OnInit,
     getComputedStyle(nativeElement: any) {
         return window.getComputedStyle(nativeElement, null);
     }
+
+    /**
+     * Returns whether the given item is a number.
+     *
+     * @arg {any} item
+     * @return {boolean}
+     */
+    isNumber(item: any): boolean {
+        return !isNaN(parseFloat(item)) && isFinite(item);
+    }
+
+    /**
+     * Returns the prettified string of the given integer (with commas).
+     *
+     * @arg {number} item
+     * @return {string}
+     */
+    prettifyInteger(item: number): string {
+        return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
 }

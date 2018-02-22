@@ -230,7 +230,7 @@ describe('Component: Map', () => {
         expect(component).toBeTruthy();
     });
 
-    it('does have expected active properties', () => {
+    it('does have expected active and public properties', () => {
         expect(component.active).toEqual({
             layers: [{
                 title: '',
@@ -250,9 +250,7 @@ describe('Component: Map', () => {
             minClusterSize: 5,
             clusterPixelRange: 15
         });
-    });
 
-    it('does have expected base properties', () => {
         expect(component.colorByFields).toEqual([]);
         expect(component.disabledSet).toEqual([]);
         expect(component.filterVisible).toEqual([true]);
@@ -784,22 +782,6 @@ describe('Component: Map', () => {
                 .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testColor2', 'testSize2', 'testDate2']).limit(5678);
 
         expect(component.createQuery(1)).toEqual(query2);
-    });
-
-    it('isNumeric does return expected boolean', () => {
-        expect(component.isNumeric(true)).toBe(false);
-        expect(component.isNumeric('a')).toBe(false);
-        expect(component.isNumeric([1, 2])).toBe(false);
-        expect(component.isNumeric({
-            value: 1
-        })).toBe(false);
-
-        expect(component.isNumeric(1)).toBe(true);
-        expect(component.isNumeric(12.34)).toBe(true);
-        expect(component.isNumeric(-12.34)).toBe(true);
-        expect(component.isNumeric('1')).toBe(true);
-        expect(component.isNumeric('12.34')).toBe(true);
-        expect(component.isNumeric('-12.34')).toBe(true);
     });
 
     it('onQuerySuccess does call runDocumentCountQuery if response is not a docCount', () => {

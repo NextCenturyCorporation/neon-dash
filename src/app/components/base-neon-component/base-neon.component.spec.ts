@@ -348,4 +348,29 @@ describe('Component: base-neon', () => {
     it('Tests default return from findFieldObject', (() => {
         expect(component.findFieldObject('testField', null)).toEqual(new FieldMetaData());
     }));
+
+    it('isNumber does return expected boolean', () => {
+        expect(component.isNumber(true)).toBe(false);
+        expect(component.isNumber('a')).toBe(false);
+        expect(component.isNumber([1, 2])).toBe(false);
+        expect(component.isNumber({
+            value: 1
+        })).toBe(false);
+
+        expect(component.isNumber(1)).toBe(true);
+        expect(component.isNumber(12.34)).toBe(true);
+        expect(component.isNumber(-12.34)).toBe(true);
+        expect(component.isNumber('1')).toBe(true);
+        expect(component.isNumber('12.34')).toBe(true);
+        expect(component.isNumber('-12.34')).toBe(true);
+    });
+
+    it('prettifyInteger does return expected string', () => {
+        expect(component.prettifyInteger(0)).toBe('0');
+        expect(component.prettifyInteger(1)).toBe('1');
+        expect(component.prettifyInteger(12)).toBe('12');
+        expect(component.prettifyInteger(123)).toBe('123');
+        expect(component.prettifyInteger(1234)).toBe('1,234');
+        expect(component.prettifyInteger(1234567890)).toBe('1,234,567,890');
+    });
 });
