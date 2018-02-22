@@ -35,15 +35,15 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Node Field" [(ngModel)]="active.nodeField" required="true" (ngModelChange)="handleChangeNodeField()" [disabled]="meta.fields.length == 0">
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }} </mat-option>
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                        <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeLinkField()" [disabled]="meta.fields.length == 0">
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }} </mat-option>
-                        </mat-select>
+                    <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeLinkField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
                 </mat-form-field>
                 <p></p>
 

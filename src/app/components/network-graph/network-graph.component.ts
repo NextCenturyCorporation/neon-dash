@@ -339,6 +339,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     onUpdateFields() {
+        this.active.nodeField = this.findFieldObject('nodeField', neonMappings.GRAPH_NODE);
+        this.active.linkField = this.findFieldObject('linkField', neonMappings.GRAPH_LINKED_NODE);
         this.updateData();
         //
     }
