@@ -72,6 +72,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     public active: {
+        data: {
+            value: number,
+            date: Date
+        }[],
         dateField: FieldMetaData,
         granularity: string,
         ylabel: string,
@@ -81,15 +85,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     private chartDefaults: {
         activeColor: string,
         inactiveColor: string
-    };
-
-    // Cache the data from the last query
-    private queryData: {
-        data: {
-            value: number,
-            date: Date
-        }[],
-        granularity: string
     };
 
     private colorSchemeService: ColorSchemeService;
@@ -113,6 +108,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.filters = [];
 
         this.active = {
+            data: [],
             dateField: new FieldMetaData(),
             granularity: this.optionsFromConfig.granularity,
             ylabel: 'Count',
@@ -366,32 +362,32 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             this.active.docCount = response.data[0]._docCount;
         } else {
             // Convert all the dates into Date objects
-            response.data.map((d) => {
+            this.active.data = response.data.map((d) => {
                 d.date = new Date(d.date);
             });
-
-            this.queryData = {
-                data: response.data,
-                granularity: this.active.granularity
-            };
 
             this.filterAndRefreshData();
             this.getDocCount();
         }
     }
 
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
     getButtonText() {
-        if (!this.queryData || !this.queryData.data) {
-            return 'No Data';
-        }
-        let shownCount = this.queryData.data.reduce((sum, element) => {
+        let shownCount = (this.active.data || []).reduce((sum, element) => {
             return sum + element.value;
         }, 0);
-        return !shownCount ?
-            'No Data' :
-            shownCount < this.active.docCount ?
-                'Top ' + shownCount + ' of ' + this.active.docCount :
-                'Total ' + shownCount;
+        if (!shownCount) {
+            return 'No Data';
+        }
+        if (this.active.docCount <= shownCount) {
+            return 'Total ' + super.prettifyInteger(shownCount);
+        }
+        return super.prettifyInteger(shownCount) + ' of ' + super.prettifyInteger(this.active.docCount);
     }
 
     /**
@@ -409,11 +405,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             endDate: null
         };
 
-        if (this.queryData.data.length > 0) {
+        if (this.active.data.length > 0) {
             // The query includes a sort, so it *should* be sorted.
             // Start date will be the first entry, and the end date will be the last
-            series.startDate = this.queryData.data[0].date;
-            let lastDate = this.queryData.data[this.queryData.data.length - 1].date;
+            series.startDate = this.active.data[0].date;
+            let lastDate = this.active.data[this.active.data.length - 1].date;
             series.endDate = d3.time[this.active.granularity]
                 .utc.offset(lastDate, 1);
 
@@ -436,7 +432,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                     };
                 }
 
-                for (let row of this.queryData.data) {
+                for (let row of this.active.data) {
                     // Check if this should be in the focus data
                     // Focus data is not bucketized, just zeroed
                     if (filter) {
@@ -456,7 +452,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
                 }
             } else {
                 // No bucketizer, just add the data
-                for (let row of this.queryData.data) {
+                for (let row of this.active.data) {
                     // Check if this should be in the focus data
                     if (filter) {
                         if (filter.startDate <= row.date && filter.endDate >= row.date) {

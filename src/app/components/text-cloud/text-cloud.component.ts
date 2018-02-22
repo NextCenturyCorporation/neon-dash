@@ -67,6 +67,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         sizeField: FieldMetaData,
         andFilters: boolean,
         limit: number,
+        newLimit: number,
         textColor: string,
         allowsTranslations: boolean,
         filterable: boolean,
@@ -106,6 +107,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             sizeField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
+            newLimit: this.optionsFromConfig.limit,
             textColor: '#111',
             allowsTranslations: true,
             filterable: true,
@@ -370,9 +372,21 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.logChangeAndStartQueryChain();
     }
 
+    /**
+     * Updates the limit, resets the seen bars, and reruns the bar chart query.
+     */
     handleChangeLimit() {
-        this.active.limit = this.active.limit || 1;
-        this.logChangeAndStartQueryChain();
+        if (super.isNumber(this.active.newLimit)) {
+            let newLimit = parseFloat('' + this.active.newLimit);
+            if (newLimit > 0) {
+                this.active.limit = newLimit;
+                this.logChangeAndStartQueryChain();
+            } else {
+                this.active.newLimit = this.active.limit;
+            }
+        } else {
+            this.active.newLimit = this.active.limit;
+        }
     }
 
     handleChangeAndFilters() {
@@ -383,12 +397,20 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.logChangeAndStartQueryChain();
     }
 
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
     getButtonText() {
-        return !this.isFilterSet() && !this.active.data.length ?
-            'No Data' :
-            this.active.data.length < this.active.count ?
-                'Top ' + this.active.data.length + ' of ' + this.active.count :
-                'Total ' + this.active.data.length;
+        if (!this.isFilterSet() && !this.active.data.length) {
+            return 'No Data';
+        }
+        if (this.active.count <= this.active.data.length) {
+            return 'Total ' + super.prettifyInteger(this.active.count);
+        }
+        return super.prettifyInteger(this.active.data.length) + ' of ' + super.prettifyInteger(this.active.count);
     }
 
     getFilterData() {

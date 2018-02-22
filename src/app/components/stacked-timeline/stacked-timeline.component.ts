@@ -345,18 +345,23 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         }
     }
 
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
     getButtonText() {
-        if (!this.active.data) {
-            return 'No Data';
-        }
-        let shownCount = this.active.data.reduce((sum, element) => {
+        let shownCount = (this.active.data || []).reduce((sum, element) => {
             return sum + element.value;
         }, 0);
-        return !shownCount ?
-            'No Data' :
-            shownCount < this.active.docCount ?
-                'Top ' + shownCount + ' of ' + this.active.docCount :
-                'Total: ' + shownCount;
+        if (!shownCount) {
+            return 'No Data';
+        }
+        if (this.active.docCount <= shownCount) {
+            return 'Total ' + super.prettifyInteger(shownCount);
+        }
+        return super.prettifyInteger(shownCount) + ' of ' + super.prettifyInteger(this.active.docCount);
     }
 
     /**

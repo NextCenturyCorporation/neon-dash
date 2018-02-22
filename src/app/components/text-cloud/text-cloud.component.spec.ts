@@ -108,6 +108,7 @@ describe('Component: TextCloud', () => {
             sizeField: new FieldMetaData(),
             andFilters: true,
             limit: 40,
+            newLimit: 40,
             textColor: '#111',
             allowsTranslations: true,
             filterable: true,
@@ -662,21 +663,21 @@ describe('Component: TextCloud', () => {
         expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
     });
 
-    it('ensures the limit is not zero and calls logChangeAndStartQueryChain in handleChangeLimit', () => {
-        let logChangeAndStartQueryChainWasCalled = false;
-        component.logChangeAndStartQueryChain = () => {
-            logChangeAndStartQueryChainWasCalled = true;
-        };
+    it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
+        let spy = spyOn(component, 'logChangeAndStartQueryChain');
+
+        component.active.newLimit = 1234;
 
         component.handleChangeLimit();
-        expect(component.active.limit).toBe(40);
-        expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
+        expect(component.active.limit).toBe(1234);
+        expect(spy.calls.count()).toBe(1);
 
-        component.active.limit = 0;
-        logChangeAndStartQueryChainWasCalled = false;
+        component.active.newLimit = 0;
+
         component.handleChangeLimit();
-        expect(component.active.limit).toBe(1);
-        expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
+        expect(component.active.limit).toBe(1234);
+        expect(component.active.newLimit).toBe(1234);
+        expect(spy.calls.count()).toBe(1);
     });
 
     it('calls logChangeAndStartQueryChain in handleChangeAndFilters', () => {
@@ -708,7 +709,7 @@ describe('Component: TextCloud', () => {
         component.active.count = 1;
         expect(component.getButtonText()).toEqual('Total 1');
         component.active.count = 5;
-        expect(component.getButtonText()).toEqual('Top 1 of 5');
+        expect(component.getButtonText()).toEqual('1 of 5');
     });
 
     it('properly returns the list of filters from getFilterData', () => {

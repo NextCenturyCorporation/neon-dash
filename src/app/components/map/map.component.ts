@@ -83,6 +83,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
             layers: MapLayer[],
             andFilters: boolean,
             limit: number,
+            newLimit: number,
             filterable: boolean,
             data: number[][],
             unusedColors: string[],
@@ -145,6 +146,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
                 layers: [],
                 andFilters: true,
                 limit: this.optionsFromConfig.limit,
+                newLimit: this.optionsFromConfig.limit,
                 filterable: true,
                 data: [],
                 nextColorIndex: 0,
@@ -839,6 +841,23 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         }
 
         /**
+         * Updates the limit, resets the seen bars, and reruns the bar chart query.
+         */
+        handleChangeLimit() {
+            if (super.isNumber(this.active.newLimit)) {
+                let newLimit = parseFloat('' + this.active.newLimit);
+                if (newLimit > 0) {
+                    this.active.limit = newLimit;
+                    this.logChangeAndStartAllQueryChain();
+                } else {
+                    this.active.newLimit = this.active.limit;
+                }
+            } else {
+                this.active.newLimit = this.active.limit;
+            }
+        }
+
+        /**
          * Reruns the queries for the map layer at the given index.
          *
          * @arg {number} layerIndex
@@ -980,16 +999,22 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
          * @override
          */
         getButtonText(): string {
+            let prettifyInteger = super.prettifyInteger;
+            let createButtonText = function(count, limit) {
+                if (!count) {
+                    return 'No Data';
+                }
+                return (limit < count ? prettifyInteger(limit) + ' of ' : 'Total ') + prettifyInteger(count);
+            };
+
             if (this.active.layers.length && this.meta.layers.length) {
                 if (this.meta.layers.length === 1) {
-                    return (this.active.limit < this.meta.layers[0].docCount ? this.active.limit + ' of ' : 'Total ') +
-                        this.meta.layers[0].docCount;
+                    return createButtonText(this.meta.layers[0].docCount, this.active.limit);
                 }
                 let self = this;
                 return this.meta.layers.map(function(layer, index) {
                     if (self.active.layers.length >= index) {
-                        return self.active.layers[index].title + ' (' + (self.active.limit < layer.docCount ? self.active.limit + ' of ' :
-                            'Total ') + layer.docCount + ')';
+                        return self.active.layers[index].title + ' (' + createButtonText(layer.docCount, self.active.limit) + ')';
                     }
                     return '';
                 }).filter(function(text) {

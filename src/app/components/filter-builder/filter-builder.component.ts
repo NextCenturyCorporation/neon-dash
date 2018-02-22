@@ -369,10 +369,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         }
     }
 
-    handleChangeLimit() {
-        this.logChangeAndStartQueryChain();
-    }
-
     handleChangeField() {
         this.logChangeAndStartQueryChain();
     }

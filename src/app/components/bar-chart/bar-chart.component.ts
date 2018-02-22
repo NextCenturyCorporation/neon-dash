@@ -877,9 +877,16 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
      */
     handleChangeLimit() {
         if (super.isNumber(this.active.newLimit)) {
-            this.active.limit = parseFloat('' + this.active.newLimit);
-            this.active.seenBars = [];
-            this.logChangeAndStartQueryChain();
+            let newLimit = parseFloat('' + this.active.newLimit);
+            if (newLimit > 0) {
+                this.active.limit = newLimit;
+                this.active.seenBars = [];
+                this.logChangeAndStartQueryChain();
+            } else {
+                this.active.newLimit = this.active.limit;
+            }
+        } else {
+            this.active.newLimit = this.active.limit;
         }
     }
 

@@ -242,6 +242,7 @@ describe('Component: Map', () => {
             }],
             andFilters: true,
             limit: 1000,
+            newLimit: 1000,
             filterable: true,
             data: [],
             nextColorIndex: 0,
@@ -932,6 +933,10 @@ describe('Component: Map', () => {
         }, 'outer')).toBe(-12.34);
     });
 
+    it('addOrUpdateUniquePoint does update data in given map object', () => {
+        // TODO
+    });
+
     it('doesLayerStillHaveFilter does return expected boolean', () => {
         updateMapLayer1(component);
         expect(component.doesLayerStillHaveFilter(0)).toBe(false);
@@ -962,6 +967,23 @@ describe('Component: Map', () => {
     it('handleChangeAllMapLayers does call logChangeAndStartAllQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartAllQueryChain');
         component.handleChangeAllMapLayers();
+        expect(spy.calls.count()).toBe(1);
+    });
+
+    it('handleChangeLimit does update limit and call logChangeAndStartAllQueryChain', () => {
+        let spy = spyOn(component, 'logChangeAndStartAllQueryChain');
+
+        component.active.newLimit = 1234;
+
+        component.handleChangeLimit();
+        expect(component.active.limit).toEqual(1234);
+        expect(spy.calls.count()).toBe(1);
+
+        component.active.newLimit = 0;
+
+        component.handleChangeLimit();
+        expect(component.active.limit).toEqual(1234);
+        expect(component.active.newLimit).toEqual(1234);
         expect(spy.calls.count()).toBe(1);
     });
 
@@ -1099,15 +1121,15 @@ describe('Component: Map', () => {
     it('getButtonText does return expected string', () => {
         updateMapLayer1(component);
 
-        expect(component.getButtonText()).toEqual('1000 of 1234');
+        expect(component.getButtonText()).toEqual('1,000 of 1,234');
 
         component.active.limit = 2000;
 
-        expect(component.getButtonText()).toEqual('Total 1234');
+        expect(component.getButtonText()).toEqual('Total 1,234');
 
         updateMapLayer2(component);
 
-        expect(component.getButtonText()).toEqual('Layer A (Total 1234), Layer B (2000 of 5678)');
+        expect(component.getButtonText()).toEqual('Layer A (Total 1,234), Layer B (2,000 of 5,678)');
     });
 
     it('runDocumentCountQuery does call executeQuery', () => {
@@ -1221,6 +1243,7 @@ describe('Component: Map with config', () => {
             }],
             andFilters: true,
             limit: 9999,
+            newLimit: 9999,
             filterable: true,
             data: [],
             nextColorIndex: 0,

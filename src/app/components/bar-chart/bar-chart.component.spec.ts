@@ -222,10 +222,20 @@ describe('Component: BarChart', () => {
 
     it('handleChangeLimit does update limit and seenBars and does call logChangeAndStartQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
+
         component.active.newLimit = 1234;
         component.active.seenBars = ['a', 'b', 'c', 'd'];
+
         component.handleChangeLimit();
         expect(component.active.limit).toEqual(1234);
+        expect(component.active.seenBars).toEqual([]);
+        expect(spy.calls.count()).toBe(1);
+
+        component.active.newLimit = 0;
+
+        component.handleChangeLimit();
+        expect(component.active.limit).toEqual(1234);
+        expect(component.active.newLimit).toEqual(1234);
         expect(component.active.seenBars).toEqual([]);
         expect(spy.calls.count()).toBe(1);
     });

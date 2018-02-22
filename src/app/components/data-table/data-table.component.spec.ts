@@ -75,4 +75,19 @@ describe('Component: DataTable', () => {
     it('exists', (() => {
         expect(component).toBeTruthy();
     }));
+
+    it('getButtonText does return expected string', () => {
+        component.active.limit = 10;
+        expect(component.getButtonText()).toBe('No Data');
+        component.active.docCount = 10;
+        expect(component.getButtonText()).toBe('Total 10');
+        component.active.docCount = 20;
+        expect(component.getButtonText()).toBe('1 - 10 of 20');
+        component.active.page = 2;
+        expect(component.getButtonText()).toBe('11 - 20 of 20');
+        component.active.limit = 5;
+        expect(component.getButtonText()).toBe('6 - 10 of 20');
+        component.active.docCount = 5;
+        expect(component.getButtonText()).toBe('Total 5');
+    });
 });

@@ -82,6 +82,7 @@
                             <mat-select placeholder="Color Field" [(ngModel)]="active.layers[i].colorField"
                                         required="true" (ngModelChange)="handleChangeMapLayer(i)"
                                         [disabled]="meta.layers[i].fields.length == 0">
+                                <mat-option [value]="emptyField">(None)</mat-option>
                                 <mat-option *ngFor="let field of meta.layers[i].fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
                             </mat-select>
@@ -111,11 +112,11 @@
                     <tr>
                         <td>
                             <mat-form-field>
-                                <input matInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                                <input matInput placeholder="Point Limit" [(ngModel)]="active.newLimit" required="true">
                             </mat-form-field>
                         </td>
                         <td>
-                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeAllMapLayers()">
+                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
                                 <mat-icon>refresh</mat-icon>
                             </button>
                         </td>

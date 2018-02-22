@@ -117,6 +117,16 @@ describe('Component: WikiViewer', () => {
         expect(component.createQuery()).toEqual(query);
     }));
 
+    it('getButtonText does return expected string', () => {
+        expect(component.getButtonText()).toBe('No Data');
+        component.active.wikiName = ['a'];
+        expect(component.getButtonText()).toBe('Total 1');
+        component.active.wikiName = ['a', 'b', 'c', 'd'];
+        expect(component.getButtonText()).toBe('Total 4');
+        component.active.wikiName = ['a', 'b'];
+        expect(component.getButtonText()).toBe('Total 2');
+    });
+
     it('getExportFields does return expected array', (() => {
         component.active.idField.columnName = 'testIdField';
         component.active.idField.prettyName = 'Test ID Field';

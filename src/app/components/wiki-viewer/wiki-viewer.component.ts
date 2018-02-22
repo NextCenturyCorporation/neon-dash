@@ -122,6 +122,19 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
+    getButtonText() {
+        if (!this.active.wikiName.length) {
+            return 'No Data';
+        }
+        return 'Total ' + super.prettifyInteger(this.active.wikiName.length);
+    }
+
+    /**
      * Returns the wiki viewer export fields.
      *
      * @return {array}

@@ -241,17 +241,22 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         // TODO STUB
     }
 
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
     getButtonText() {
-        let min = ((this.active.page - 1) * this.active.limit);
-        let max = min + this.active.limit;
-        if (max > this.active.docCount) {
-            max = this.active.docCount;
+        if (!this.active.data.length) {
+            return 'No Data';
         }
-        return !this.active.data.length ?
-            'No Data' :
-            this.active.data.length < this.active.docCount ?
-                (min + 1) + ' - ' + max + ' of ' + this.active.docCount :
-                'Total ' + this.active.data.length;
+        if (this.active.docCount <= this.active.data.length) {
+            return 'Total ' + super.prettifyInteger(this.active.data.length);
+        }
+        let begin = super.prettifyInteger((this.active.page - 1) * this.active.limit + 1);
+        let end = super.prettifyInteger(Math.min(this.active.page * this.active.limit, this.active.docCount));
+        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.active.docCount);
     }
 
     setupFilters() {
