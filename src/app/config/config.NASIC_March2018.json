@@ -551,10 +551,10 @@
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "Twitter Handles",
+					"title": "Hashtags",
 					"database": "ll_nepal_cs_out",
 					"table": "tweet",
-					"dataField": "user.screenName"
+					"dataField": "hashtagEntities.text"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 12,
@@ -573,10 +573,10 @@
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "Hashtags",
+					"title": "Twitter Handles",
 					"database": "ll_nepal_cs_out",
 					"table": "tweet",
-					"dataField": "hashtagEntities.text"
+					"dataField": "user.screenName"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 15,
