@@ -146,6 +146,11 @@ $footer-height: 40px;
     width: 100%;
 }
 
+.body-container-with-footer {
+    height: calc(100% - #{$vis-title-expected-height} - 10px - 60px);
+    bottom: 60px;
+}
+
 .filter-container {
     display: flex;
     flex-direction: row;

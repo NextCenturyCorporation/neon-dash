@@ -37,7 +37,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Group Field" [(ngModel)]="active.dataField"
-                                required="true" (ngModelChange)="handleChangeDataField()"
+                                required="true" (ngModelChange)="handleChangeField()"
                                 [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -59,15 +59,15 @@
 
                 <mat-form-field *ngIf="!active.aggregationFieldHidden">
                     <mat-select placeholder="Aggregation Field (Range)" [(ngModel)]="active.aggregationField"
-                                required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
+                                required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Color Field" [(ngModel)]="meta.colorField"
-                               (ngModelChange)="handleChangeColorField()" [disabled]="meta.fields.length == 0">
+                    <mat-select placeholder="Color Field" [(ngModel)]="active.colorField"
+                               (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -146,10 +146,11 @@
         </mat-card>
     </mat-sidenav>
 
-    <div class="body-container">
-        <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
-            <mat-spinner ></mat-spinner>
-        </div>
+    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+        <mat-spinner ></mat-spinner>
+    </div>
+
+    <div class="body-container-with-footer">
         <div class="filter-container multi-element">
             <div align="left">
                 <app-legend *ngIf="hasColorField()" [activeList]="selectedLabels"
@@ -163,10 +164,25 @@
                 </button>
             </div>
         </div>
+
         <div class="constant-container">
             <div class="chart-container-resizable" >
                 <app-chart class="chart" #myChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></app-chart>
             </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-button-container">
+            <button mat-raised-button [disabled]="active.page == 1" class="pagination-button previous-button" color="primary"
+                (click)="previousPage()">
+                Previous
+            </button>
+            <span class="pagination-button-spacer"></span>
+            <button mat-raised-button [disabled]="active.lastPage" class="pagination-button next-button" color="primary"
+                (click)="nextPage()">
+                Next
+            </button>
         </div>
     </div>
 </mat-sidenav-container>
