@@ -598,10 +598,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return null;
     }
 
-    isNumber(n) {
-        return !isNaN(parseFloat(n)) && isFinite(n);
-    }
-
     onQuerySuccess(response) {
         this.disabledList = [];
         this.disabledDatasets.clear();
@@ -649,8 +645,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
             xAxisLabels.push(x);
             yAxisLabels.push(y);
-            xAxisIsNumeric = xAxisIsNumeric && this.isNumber(x);
-            yAxisIsNumeric = yAxisIsNumeric && this.isNumber(y);
+            xAxisIsNumeric = xAxisIsNumeric && super.isNumber(x);
+            yAxisIsNumeric = yAxisIsNumeric && super.isNumber(y);
 
             dataSet.data.push(p);
             let label = '';

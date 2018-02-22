@@ -166,12 +166,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return obj;
     }
 
-    updateArray(arr, add) {
-        let newArr = arr.slice();
-        newArr.push(add);
-        return newArr;
-    }
-
     onUpdateFields() {
         let dataField = this.findFieldObject('dataField', neonMappings.TAGS);
         let sizeField = this.findFieldObject('sizeField', neonMappings.TAGS);
@@ -187,7 +181,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 return;
             }
         }
-        this.filters = this.updateArray(this.filters, filter);
+        this.filters = [].concat(this.filters).concat([filter]);
     }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {

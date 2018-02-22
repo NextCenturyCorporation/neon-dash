@@ -198,12 +198,6 @@ describe('Component: TextCloud', () => {
         });
     });
 
-    it('properly updates arrays in updateArray', () => {
-        let startingArray = component.updateArray([], 'first');
-        startingArray = component.updateArray(startingArray, 'second');
-        expect(startingArray).toEqual(['first', 'second']);
-    });
-
     it('sets expected fields in onUpdateFields to the correct values', () => {
         component.meta.database = new DatabaseMetaData('testDatabase', 'Test Database');
         component.meta.database.name = 'testName';

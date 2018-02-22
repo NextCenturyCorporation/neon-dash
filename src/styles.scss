@@ -205,7 +205,8 @@ body {
 .loading-overlay {
     position: absolute;
     width: 100%;
-    height: 100%;
+    /* Subtract the height of the visualization toolbar. */
+    height: calc(100% - 40px);
     display: flex;
     justify-content: center;
     align-items: center;
