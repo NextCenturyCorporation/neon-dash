@@ -1,7 +1,7 @@
 {
 	"datasets": [
 		{
-			"name": "TA0",
+			"name": "Documents",
 			"connectOnLoad": true,
 			"layout": "TA0-layout",
 			"datastore": "elasticsearch",
@@ -44,7 +44,7 @@
 			}
 		},
 		{
-			"name": "TA1-ELISA",
+			"name": "Annotations-ELISA",
 			"connectOnLoad": false,
 			"layout": "TA1-ELISA-layout",
 			"datastore": "elasticsearch",
@@ -392,8 +392,8 @@
 					"title": "Sentiment",
 					"database": "ll_nepal_cs_out",
 					"table": "ui_output_1",
-					"dataField": "sentiment",
-					"aggregation": "",
+					"dataField": "sentimentString",
+					"aggregation": "count",
 					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
@@ -477,12 +477,13 @@
 					],
 					"layers": [
 						{
-							"title": "LDC Uyghur Point Layer",
+							"title": "LL Nepal LOC/GPE Layer",
 							"database": "ll_nepal_cs_out",
 							"table": "ui_output_1",
 							"latitudeField": "geoLocations.lat",
 							"longitudeField": "geoLocations.lon",
 							"dateField": "createdAt",
+							"type": "cluster",
 							"colorField": "topics"
 						}
 					],
