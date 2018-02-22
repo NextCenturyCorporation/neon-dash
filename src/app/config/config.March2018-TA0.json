@@ -126,7 +126,12 @@
 					"database": "ll_nepal_cs_out",
 					"table": "tweet",
 					"sortField": "createdAt",
-					"limit": "100"
+					"limit": "100",
+					"allColumnStatus": "hide",
+					"exceptionsToStatus": [
+						"createdAt",
+						"text"
+					]
 				},
 				"row": 6,
 				"col": 0

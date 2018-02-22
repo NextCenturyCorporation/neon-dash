@@ -64,8 +64,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         limitDisabled: boolean,
         unsharedFilterField: Object,
         unsharedFilterValue: string,
-        hideOrShowAllColumns: string,
-        exceptionsToHideOrShow: string[]
+        allColumnStatus: string,
+        exceptionsToStatus: string[]
     };
 
     public active: {
@@ -109,8 +109,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             limitDisabled: this.injector.get('limitDisabled', true),
             unsharedFilterField: {},
             unsharedFilterValue: '',
-            hideOrShowAllColumns: this.injector.get('hideOrShowAllColumns', 'show'),
-            exceptionsToHideOrShow: this.injector.get('exceptionsToHideOrShow', [])
+            allColumnStatus: this.injector.get('allColumnStatus', 'show'),
+            exceptionsToStatus: this.injector.get('exceptionsToStatus', [])
         };
         this.filters = [];
         this.active = {
@@ -167,7 +167,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.active.sortField = this.findFieldObject('sortField', neonMappings.TAGS);
         let initialHeaderLimit = 25;
         let numHeaders = 0;
-        let defaultShowValue = this.optionsFromConfig.hideOrShowAllColumns !== 'hide';
+        let defaultShowValue = this.optionsFromConfig.allColumnStatus !== 'hide';
         for (let f of this.meta.fields) {
             let headerShowValue = numHeaders >= initialHeaderLimit ?
                 false :
@@ -185,8 +185,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     headerIsInExceptions(header) {
         let colName = header.columnName;
         let pName = header.prettyName;
-        for (let name of this.optionsFromConfig.exceptionsToHideOrShow) {
-            if (colName == name || pName == name) {
+        for (let name of this.optionsFromConfig.exceptionsToStatus) {
+            if (colName === name || pName === name) {
                 return true;
             }
         }
@@ -247,7 +247,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
-        let filterClauses = this.filters.map(function (filter) {
+        let filterClauses = this.filters.map(function(filter) {
             return neon.query.where(fieldName, '=', filter.value);
         });
         if (filterClauses.length === 1) {
@@ -312,10 +312,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     arrayToString(arr) {
         let modArr = arr
-            .filter(function (el) {
+            .filter(function(el) {
                 return el;
             })
-            .map(function (base) {
+            .map(function(base) {
                 if ((typeof base === 'object')) {
                     return this.objectToString(base);
                 } else if (Array.isArray(base)) {
@@ -347,7 +347,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.active.docCount = response.data[0]._docCount;
         } else {
-            let data = response.data.map(function (d) {
+            let data = response.data.map(function(d) {
                 let row = {};
                 for (let field of this.meta.fields) {
                     if (field.type) {
