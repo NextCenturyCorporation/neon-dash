@@ -8,12 +8,12 @@
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "ll_nepal_cs_out",
+					"name": "ll_nepal_simplified",
 					"prettyName": "Raw Data",
 					"tables": [
 						{
-							"name": "tweet",
-							"prettyName": "Tweets",
+							"name": "documents",
+							"prettyName": "Documents",
 							"mappings": {
 								"date": "createdAt"
 							}
@@ -24,7 +24,7 @@
 			"options": {
 				"checkForCoordinateValidation": "null_values",
 				"colorMaps": {
-					"ll_nepal_cs_out": {
+					"ll_nepal_simplified": {
 						"mapping": {
 							"entities.entityType": {
 								"LOC": "#98DF8A",
@@ -36,8 +36,8 @@
 					}
 				},
 				"simpleFilter": {
-					"databaseName": "ll_nepal_cs_out",
-					"tableName": "tweet",
+					"databaseName": "ll_nepal_simplified",
+					"tableName": "documents",
 					"fieldName": "text",
 					"placeHolder": "Search"
 				}
@@ -51,12 +51,19 @@
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "ll_nepal_cs_out",
+					"name": "ll_nepal_simplified",
 					"prettyName": "TA1_ELISA",
 					"tables": [
 						{
-							"name": "ui_output_1",
-							"prettyName": "Tweets",
+							"name": "annotations",
+							"prettyName": "Annotations",
+							"mappings": {
+								"date": "createdAt"
+							}
+						},
+						{
+							"name": "documents",
+							"prettyName": "Documents",
 							"mappings": {
 								"date": "createdAt"
 							}
@@ -67,7 +74,7 @@
 			"options": {
 				"checkForCoordinateValidation": "null_values",
 				"colorMaps": {
-					"ll_nepal_cs_out": {
+					"ll_nepal_simplified": {
 						"mapping": {
 							"entities.entityType": {
 								"LOC": "#98DF8A",
@@ -79,8 +86,8 @@
 					}
 				},
 				"simpleFilter": {
-					"databaseName": "ll_nepal_cs_out",
-					"tableName": "ui_output_1",
+					"databaseName": "ll_nepal_simplified",
+					"tableName": "annotations",
 					"fieldName": "originalText",
 					"placeHolder": "Search"
 				}
@@ -93,7 +100,7 @@
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 24,
+				"sizex": 16,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -103,8 +110,8 @@
 				"selected": true,
 				"bindings": {
 					"title": "Filter Builder",
-					"database": "ll_nepal_cs_out",
-					"table": "tweet"
+					"database": "ll_nepal_simplified",
+					"table": "documents"
 				},
 				"row": 0,
 				"col": 0
@@ -113,8 +120,8 @@
 				"name": "Data Table",
 				"type": "dataTable",
 				"icon": "ViewData64",
-				"sizex": 15,
-				"sizey": 4,
+				"sizex": 8,
+				"sizey": 15,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 7,
@@ -122,61 +129,24 @@
 				"$$hashKey": "object:43",
 				"selected": true,
 				"bindings": {
-					"title": "Raw Data",
-					"database": "ll_nepal_cs_out",
-					"table": "tweet",
+					"title": "Documents",
+					"database": "ll_nepal_simplified",
+					"table": "documents",
 					"sortField": "createdAt",
 					"limit": "100",
-					"allColumnStatus": "hide",
+					"allColumnStatus": "show",
 					"exceptionsToStatus": [
-						"createdAt",
-						"text"
 					]
 				},
-				"row": 6,
-				"col": 0
-			},
-			{
-				"name": "Bar Chart",
-				"type": "barChart",
-				"icon": "BarChart64",
-				"sizex": 9,
-				"sizey": 4,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 4,
-				"$$hashKey": "object:30",
-				"selected": true,
-				"bindings": {
-					"title": "Sentiment",
-					"database": "ll_nepal_cs_out",
-					"table": "tweet",
-					"dataField": "sentiment",
-					"aggregation": "",
-					"aggregationField": "",
-					"chartType": "bar",
-					"colors": [
-						{
-							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
-							"color": "77, 190, 194"
-						},
-						{
-							"value": "regimechange|crimeviolence|terrorism|earthquake",
-							"color": "39, 96, 126"
-						}
-					]
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 4,
-				"col": 16
+				"row": 0,
+				"col": 17
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 13,
-				"sizey": 5,
+				"sizex": 11,
+				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -185,11 +155,11 @@
 				"selected": true,
 				"bindings": {
 					"title": "Locations",
-					"database": "ll_nepal_cs_out",
+					"database": "ll_nepal_simplified",
 					"filterable": true,
 					"name": "EVENTS",
 					"show": true,
-					"table": "tweet",
+					"table": "documents",
 					"type": "cluster",
 					"limit": 5000,
 					"latitudeField": "geoLocation.latitude",
@@ -238,8 +208,8 @@
 					"layers": [
 						{
 							"title": "LDC Uyghur Point Layer",
-							"database": "ll_nepal_cs_out",
-							"table": "tweet",
+							"database": "ll_nepal_simplified",
+							"table": "documents",
 							"latitudeField": "geoLocation.latitude",
 							"longitudeField": "geoLocation.longitude",
 							"dateField": "createdAt",
@@ -254,14 +224,14 @@
 					"mapType": "leaflet"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 9,
-				"col": 12
+				"row": 4,
+				"col": 0
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 11,
+				"sizex": 5,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -271,9 +241,9 @@
 				"selected": true,
 				"bindings": {
 					"title": "Topics",
-					"database": "ll_nepal_cs_out",
-					"table": "tweet",
-					"dataField": "hashtagEntities.text",
+					"database": "ll_nepal_simplified",
+					"table": "documents",
+					"dataField": "hashtags.text",
 					"aggregation": "",
 					"aggregationField": "",
 					"chartType": "horizontalBar",
@@ -289,15 +259,15 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 13,
-				"col": 0
+				"row": 4,
+				"col": 12
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 11,
-				"sizey": 5,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 4,
@@ -306,19 +276,19 @@
 				"selected": true,
 				"bindings": {
 					"title": "People/Groups",
-					"database": "ll_nepal_cs_out",
-					"table": "tweet",
-					"dataField": "user.screenName"
+					"database": "ll_nepal_simplified",
+					"table": "documents",
+					"dataField": "author"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 14,
-				"col": 0
+				"row": 9,
+				"col": 12
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 13,
+				"sizex": 11,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -328,64 +298,20 @@
 				"selected": true,
 				"bindings": {
 					"title": "Times",
-					"database": "ll_nepal_cs_out",
-					"table": "tweet",
+					"database": "ll_nepal_simplified",
+					"table": "documents",
 					"dateField": "createdAt",
 					"granularity": "hour"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 8,
-				"col": 12
-			}
-		],
-		"TA1-ELISA-layout": [
-			{
-				"name": "Filter Builder",
-				"type": "filterBuilder",
-				"icon": "CreateFilter64",
-				"sizex": 24,
-				"sizey": 3,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 2,
-				"minSizey": 2,
-				"$$hashKey": "object:31",
-				"selected": true,
-				"bindings": {
-					"title": "Filter Builder",
-					"database": "ll_nepal_cs_out",
-					"table": "ui_output_1"
-				},
-				"row": 0,
-				"col": 0
-			},
-			{
-				"name": "Data Table",
-				"type": "dataTable",
-				"icon": "ViewData64",
-				"sizex": 15,
-				"sizey": 4,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 7,
-				"minSizey": 3,
-				"$$hashKey": "object:43",
-				"selected": true,
-				"bindings": {
-					"title": "Raw Data",
-					"database": "ll_nepal_cs_out",
-					"table": "ui_output_1",
-					"sortField": "createdAt",
-					"limit": "100"
-				},
-				"row": 6,
+				"row": 12,
 				"col": 0
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 9,
+				"sizex": 5,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -395,10 +321,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "Sentiment",
-					"database": "ll_nepal_cs_out",
-					"table": "ui_output_1",
+					"database": "ll_nepal_simplified",
+					"table": "documents",
 					"dataField": "sentimentString",
-					"aggregation": "count",
+					"aggregation": "",
 					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
@@ -413,15 +339,69 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 4,
-				"col": 16
+				"row": 13,
+				"col": 12
+			}
+		],
+		"TA1-ELISA-layout": [
+			{
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 16,
+				"sizey": 3,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Filter Builder",
+					"database": "ll_nepal_simplified",
+					"table": "annotations"
+				},
+				"row": 0,
+				"col": 0
+			},
+			{
+				"name": "Data Table",
+				"type": "dataTable",
+				"icon": "ViewData64",
+				"sizex": 8,
+				"sizey": 15,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 7,
+				"minSizey": 3,
+				"$$hashKey": "object:43",
+				"selected": true,
+				"bindings": {
+					"title": "Raw Data",
+					"database": "ll_nepal_simplified",
+					"table": "annotations",
+					"sortField": "createdAt",
+					"limit": "100",
+					"allColumnStatus": "hide",
+					"exceptionsToStatus": [
+						"createdAt",
+						"text",
+						"topics",
+						"GPE",
+						"LOC",
+						"PER",
+						"ORG"
+					]
+				},
+				"row": 0,
+				"col": 17
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 13,
-				"sizey": 5,
+				"sizex": 11,
+				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -430,15 +410,15 @@
 				"selected": true,
 				"bindings": {
 					"title": "Locations",
-					"database": "ll_nepal_cs_out",
+					"database": "ll_nepal_simplified",
 					"filterable": true,
 					"name": "EVENTS",
 					"show": true,
-					"table": "ui_output_1",
+					"table": "documents",
 					"type": "cluster",
 					"limit": 5000,
-					"latitudeField": "geoLocations.lat",
-					"longitudeField": "geoLocations.lon",
+					"latitudeField": "geoLocation.latitude",
+					"longitudeField": "geoLocation.longitude",
 					"sourceLatitudeField": "",
 					"sourceLongitudeField": "",
 					"targetLatitudeField": "",
@@ -482,13 +462,12 @@
 					],
 					"layers": [
 						{
-							"title": "LL Nepal LOC/GPE Layer",
-							"database": "ll_nepal_cs_out",
-							"table": "ui_output_1",
-							"latitudeField": "geoLocations.lat",
-							"longitudeField": "geoLocations.lon",
+							"title": "LDC Uyghur Point Layer",
+							"database": "ll_nepal_simplified",
+							"table": "documents",
+							"latitudeField": "geoLocation.latitude",
+							"longitudeField": "geoLocation.longitude",
 							"dateField": "createdAt",
-							"type": "cluster",
 							"colorField": "topics"
 						}
 					],
@@ -500,14 +479,14 @@
 					"mapType": "leaflet"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 9,
-				"col": 12
+				"row": 4,
+				"col": 0
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 11,
+				"sizex": 5,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -517,8 +496,8 @@
 				"selected": true,
 				"bindings": {
 					"title": "Topics",
-					"database": "ll_nepal_cs_out",
-					"table": "ui_output_1",
+					"database": "ll_nepal_simplified",
+					"table": "annotations",
 					"dataField": "topics",
 					"aggregation": "",
 					"aggregationField": "",
@@ -535,15 +514,15 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 13,
-				"col": 0
+				"row": 4,
+				"col": 12
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 11,
-				"sizey": 5,
+				"sizex": 5,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 4,
@@ -552,19 +531,19 @@
 				"selected": true,
 				"bindings": {
 					"title": "People/Groups",
-					"database": "ll_nepal_cs_out",
-					"table": "ui_output_1",
-					"dataField": "PER"
+					"database": "ll_nepal_simplified",
+					"table": "annotations",
+					"dataField": "entities"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 14,
-				"col": 0
+				"row": 9,
+				"col": 12
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 13,
+				"sizex": 11,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -574,20 +553,55 @@
 				"selected": true,
 				"bindings": {
 					"title": "Times",
-					"database": "ll_nepal_cs_out",
-					"table": "ui_output_1",
+					"database": "ll_nepal_simplified",
+					"table": "annotations",
 					"dateField": "createdAt",
 					"granularity": "hour"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 8,
+				"row": 12,
+				"col": 0
+			},
+			{
+				"name": "Bar Chart",
+				"type": "barChart",
+				"icon": "BarChart64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:30",
+				"selected": true,
+				"bindings": {
+					"title": "Sentiment",
+					"database": "ll_nepal_simplified",
+					"table": "annotations",
+					"dataField": "sentimentString",
+					"aggregation": "",
+					"aggregationField": "",
+					"chartType": "bar",
+					"colors": [
+						{
+							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
+							"color": "77, 190, 194"
+						},
+						{
+							"value": "regimechange|crimeviolence|terrorism|earthquake",
+							"color": "39, 96, 126"
+						}
+					]
+				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+				"row": 13,
 				"col": 12
 			}
 		]
 	},
 	"legends": {
-		"ll_nepal_cs_out": {
-			"tweet": [
+		"ll_nepal_simplified": {
+			"annotations": [
 				{
 					"label": "Text",
 					"customized": {
