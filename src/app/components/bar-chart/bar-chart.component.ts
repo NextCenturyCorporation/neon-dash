@@ -219,6 +219,50 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
 
         this.onClick = this.onClick.bind(this);
 
+        // Arbitrary size in pixels of a character in a chart label.  (Obviously real characters are varied in size.)
+        let CHAR_SIZE = 6.0;
+        // Arbitrary margin for the labels.  (Not sure about the size of the real margin but this value looks fine.)
+        let LABELS_MARGIN = 30;
+        // Percentage of the chart for the labels specified by UX.
+        let LABELS_PERCENTAGE = 0.2;
+
+        let resizeChartLabelX = (scaleInstance) => {
+            // Set the label height to either its minimum needed height or a percentage of the chart height (whatever is lower).
+            let height = Math.round(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientHeight);
+            scaleInstance.height = Math.min(scaleInstance.minSize.height, height);
+        };
+
+        let resizeChartLabelY = (scaleInstance) => {
+            // Set the label width to either its minimum needed width or a percentage of the chart width (whatever is lower).
+            let width = Math.round(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth);
+            // If the bar chart has multiple pages, always return a consistent width.
+            scaleInstance.width = this.active.limit < this.active.bars.length ? width : Math.min(scaleInstance.minSize.width, width);
+        };
+
+        let truncateText = (length, text) => {
+            let output = this.formatNumber(text).trim();
+            return output.length > (length + 1) ? (output.substring(0, length).trim() + '...') : output;
+        };
+
+        let truncateBarLabelTextX = (text) => {
+            // Fit the number of characters to the bar width (bar width = chart width / number of bars - margin).
+            let length = Math.round((this.chartModule.getNativeElement().clientWidth / this.chartInfo.data.labels.length - LABELS_MARGIN) /
+                CHAR_SIZE);
+            return truncateText(length, text);
+        };
+
+        let truncateBarLabelTextY = (text) => {
+            // Fit the number of characters to the label width (label width = a percentage of chart width - margin).
+            let length = Math.round((LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth - LABELS_MARGIN) / CHAR_SIZE);
+            return truncateText(length, text);
+        };
+
+        let truncateTooltipLabelText = (text) => {
+            // Fit the number of characters to the chart width.
+            let length = Math.round(this.chartModule.getNativeElement().clientWidth / CHAR_SIZE);
+            return truncateText(length, text);
+        };
+
         this.chartInfo = {
             type: this.active.chartType,
             data: {
@@ -236,23 +280,24 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 hover: {
                     mode: 'point',
                     onHover: null
-
                 },
                 scales: {
                     xAxes: [{
+                        afterFit: resizeChartLabelX,
                         stacked: true,
                         ticks: {
-                            // max: 100,
+                            maxRotation: 0,
+                            minRotation: 0,
                             beginAtZero: true,
-                            callback: this.formatNumber
+                            callback: truncateBarLabelTextX
                         }
                     }],
                     yAxes: [{
+                        afterFit: resizeChartLabelY,
                         stacked: true,
                         ticks: {
-                            // max: 100,
                             beginAtZero: true,
-                            callback: this.formatNumber
+                            callback: truncateBarLabelTextY
                         }
                     }]
                 },
@@ -267,17 +312,24 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             }
         };
 
-        let tooltipTitleFunc = (tooltips, data) => {
-            return this.active.dataField.prettyName + ': ' + tooltips[0].xLabel;
+        let createTooltipTitle = (tooltipList, data) => {
+            let count = tooltipList.reduce(function(sum, tooltipItem) {
+                let dataset = data.datasets[tooltipItem.datasetIndex];
+                return sum + dataset.data[tooltipItem.index];
+            }, 0);
+            return truncateTooltipLabelText(data.labels[tooltipList[0].index]) + ': ' + this.formatNumber(count);
         };
-        let tooltipDataFunc = (tooltipItem, data) => {
-            let tooltip = data.datasets[tooltipItem.datasetIndex];
-            let value = tooltip.data[tooltipItem.index];
+
+        let createTooltipLabel = (tooltipItem, data) => {
+            let dataset = data.datasets[tooltipItem.datasetIndex];
+            let count = dataset.data[tooltipItem.index];
             // Returning null removes the row from the tooltip
-            return value === 0 ? null : tooltip.label + ': ' + this.formatNumber(value);
+            return data.datasets.length === 1 || count === 0 ? null : truncateTooltipLabelText(dataset.label) + ': ' +
+                this.formatNumber(count);
         };
-        this.chartInfo.options.tooltips.callbacks.title = tooltipTitleFunc.bind(this);
-        this.chartInfo.options.tooltips.callbacks.label = tooltipDataFunc.bind(this);
+
+        this.chartInfo.options.tooltips.callbacks.title = createTooltipTitle.bind(this);
+        this.chartInfo.options.tooltips.callbacks.label = createTooltipLabel.bind(this);
     }
 
     /**
@@ -745,10 +797,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     formatNumber(item: any): string {
         if (super.isNumber(item)) {
             //round to at most 3 decimal places, so as to not display tiny floating-point errors
-            return String(Math.round((parseFloat(item) + 0.00001) * 1000) / 1000);
+            let output = Math.round((parseFloat(item) + 0.00001) * 1000) / 1000;
+            if (output > 999) {
+                return super.prettifyInteger(Math.trunc(output));
+            }
+            return '' + output;
         }
         // can't be converted to a number, so just use it as-is.
-        return item;
+        return '' + item;
     }
 
     /**

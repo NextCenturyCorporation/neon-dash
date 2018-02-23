@@ -53,6 +53,10 @@ export class ChartComponent implements OnInit, OnChanges  {
         }
     }
 
+    getNativeElement() {
+        return this.elementRef.nativeElement;
+    }
+
     private create() {
         if (!this.canvas) {
             this.canvas = document.createElement('canvas');
