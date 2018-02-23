@@ -13,7 +13,17 @@
  * limitations under the License.
  *
  */
-import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Injector, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    Injector,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
+} from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Http } from '@angular/http';
 import { ActiveGridService } from '../../services/active-grid.service';
@@ -40,6 +50,10 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 })
 export class WikiViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     static WIKI_LINK_PREFIX: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
+
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
 
     public active: {
         allowsTranslations: boolean,
@@ -131,6 +145,20 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             return 'No Data';
         }
         return 'Total ' + super.prettifyInteger(this.active.wikiName.length);
+    }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
     }
 
     /**

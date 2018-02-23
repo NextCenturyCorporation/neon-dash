@@ -90,4 +90,11 @@ describe('Component: DataTable', () => {
         component.active.docCount = 5;
         expect(component.getButtonText()).toBe('Total 5');
     });
+
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.infoText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
 });

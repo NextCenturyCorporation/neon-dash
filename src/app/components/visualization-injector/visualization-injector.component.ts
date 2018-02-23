@@ -105,10 +105,15 @@ export class VisualizationInjectorComponent {
         }
     }
 
+    onResizeStart() {
+        if (this.currentComponent) {
+            this.currentComponent.instance.onResizeStart();
+        }
+    }
+
     onResizeStop() {
         if (this.currentComponent) {
             this.currentComponent.instance.onResizeStop();
         }
     }
-
 }

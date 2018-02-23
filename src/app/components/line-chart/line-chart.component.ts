@@ -16,7 +16,8 @@
 import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
-    Component, ElementRef,
+    Component,
+    ElementRef,
     Injector,
     OnDestroy,
     OnInit,
@@ -52,8 +53,10 @@ class LocalFilter {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class LineChartComponent extends BaseNeonComponent implements OnInit,
-    OnDestroy {
+export class LineChartComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
 
     @ViewChild('myChart') chartModule: ChartComponent;
     @ViewChild('filterContainer') filterContainer: ElementRef;
@@ -872,5 +875,19 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit,
 
     removeFilter() {
         this.setupFilters();
+    }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
     }
 }

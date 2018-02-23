@@ -14,14 +14,16 @@
  *
  */
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewEncapsulation,
     ChangeDetectionStrategy,
-    Injector,
     ChangeDetectorRef,
-    ViewContainerRef
+    Component,
+    ElementRef,
+    Injector,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewContainerRef,
+    ViewEncapsulation
 } from '@angular/core';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -48,6 +50,9 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DocumentViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
 
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
 
@@ -360,5 +365,19 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     previousPage() {
         this.active.page -= 1;
         this.executeQueryChain();
+    }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
     }
 }

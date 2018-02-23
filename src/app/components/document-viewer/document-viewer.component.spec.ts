@@ -690,4 +690,11 @@ describe('Component: Document Viewer with Config', () => {
         expect(component.active.dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field'));
         expect(component.active.idField).toEqual(new FieldMetaData('testIDField', 'Test ID Field'));
     });
+
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.infoText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
 });

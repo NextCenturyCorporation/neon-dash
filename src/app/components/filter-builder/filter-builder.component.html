@@ -1,6 +1,6 @@
-<mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div class="header text pull-left" [title]="meta.title">{{ meta.title }}</div>
+        <div #headerText class="header text pull-left" [title]="meta.title">{{ meta.title }}</div>
 
         <span class="fill-remaining"></span>
 

@@ -14,14 +14,15 @@
  *
  */
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewEncapsulation,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
     Injector,
+    OnDestroy,
+    OnInit,
     ViewChild,
-    ChangeDetectorRef, ElementRef
+    ViewEncapsulation
 } from '@angular/core';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -99,8 +100,10 @@ class ScatterDataSet {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
-    OnDestroy {
+export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
 
     @ViewChild('scatter') chartModule: ChartComponent;
     @ViewChild('filterContainer') filterContainer: ElementRef;
@@ -832,6 +835,20 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
     removeFilter() {
         this.filters = [];
+    }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
     }
 }
 

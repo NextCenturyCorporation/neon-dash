@@ -34,11 +34,17 @@ $footer-height: 40px;
         font-weight: bold;
         line-height: 20px;
         margin: 0 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
         color: mat-color($header-text);
     }
 
     .info.text {
         margin: 0 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .contained-scroll-box {

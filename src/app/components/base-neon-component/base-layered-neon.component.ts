@@ -36,8 +36,11 @@ import { Color } from '../../services/color-scheme.service';
  * Base component for all non-layered Neon visualizations.
  * This manages some of the lifecycle and query logic.
  */
-export abstract class BaseLayeredNeonComponent implements OnInit,
-    OnDestroy {
+export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
+    private SETTINGS_BUTTON_WIDTH: number = 30;
+    private TEXT_MARGIN_WIDTH: number = 10;
+    private TOOLBAR_PADDING_WIDTH: number = 20;
+    private TOOLBAR_EXTRA_WIDTH: number = this.SETTINGS_BUTTON_WIDTH + this.TEXT_MARGIN_WIDTH + this.TOOLBAR_PADDING_WIDTH;
 
     public id: string;
     protected messenger: neon.eventing.Messenger;
@@ -323,7 +326,31 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.redrawAfterResize = enable;
     }
 
+    /**
+     * Initializes sub-component styles as needed.
+     */
+    onResizeStart() {
+        // Update info text width.
+        let refs = this.getElementRefs();
+        if (refs.infoText && refs.visualization) {
+            if (refs.visualization.nativeElement.clientWidth > (refs.infoText.nativeElement.clientWidth - this.TOOLBAR_EXTRA_WIDTH)) {
+                refs.infoText.nativeElement.style.minWidth = (Math.round(refs.infoText.nativeElement.clientWidth) + 1) + 'px';
+            }
+        }
+
+    }
+
+    /**
+     * Resizes sub-components as needed.
+     */
     onResizeStop() {
+        // Update header text width.
+        let refs = this.getElementRefs();
+        if (refs.headerText && refs.infoText && refs.visualization) {
+            refs.headerText.nativeElement.style.maxWidth = Math.round(refs.visualization.nativeElement.clientWidth -
+                refs.infoText.nativeElement.clientWidth - this.TOOLBAR_EXTRA_WIDTH) + 'px';
+        }
+
         if (this.redrawAfterResize) {
             // This event fires as soon as the user releases the mouse, but NgGrid animates the resize,
             // so the current width and height are not the new width and height.  NgGrid uses a 0.25
@@ -331,6 +358,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             setTimeout(() => { this.refreshVisualization(); }, 300);
         }
     }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     */
+    abstract getElementRefs(): any;
 
     /**
      * Clean up everything
@@ -602,6 +636,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.onQuerySuccess(layerIndex, response);
         this.isLoading--;
         this.changeDetection.detectChanges();
+        // Initialize the header styles.
+        this.onResizeStart();
     }
 
     /**

@@ -118,4 +118,11 @@ describe('Component: Timeline', () => {
         }];
         expect(component.getButtonText()).toBe('Total 6');
     });
+
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.infoText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
 });

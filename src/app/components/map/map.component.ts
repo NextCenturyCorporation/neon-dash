@@ -66,8 +66,12 @@ class UniqueLocationPoint {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
-    OnDestroy, AfterViewInit, FilterListener {
+export class MapComponent extends BaseLayeredNeonComponent implements OnInit, OnDestroy, AfterViewInit, FilterListener {
+        @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+        @ViewChild('headerText') headerText: ElementRef;
+        @ViewChild('infoText') infoText: ElementRef;
+
+        @ViewChild('mapElement') mapElement: ElementRef;
 
         protected FIELD_ID: string;
         protected filters: {
@@ -107,8 +111,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
 
         public disabledSet: [string[]] = [] as [string[]];
         protected defaultActiveColor: Color;
-
-        @ViewChild('mapElement') mapElement: ElementRef;
 
         constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
             filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -1030,5 +1032,19 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit,
         runDocumentCountQuery(layerIndex: number): void {
             let query = this.createBasicQuery(layerIndex).aggregate(neonVariables.COUNT, '*', '_docCount');
             this.executeQuery(layerIndex, query);
+        }
+
+        /**
+         * Returns an object containing the ElementRef objects for the visualization.
+         *
+         * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+         * @override
+         */
+        getElementRefs() {
+            return {
+                visualization: this.visualization,
+                headerText: this.headerText,
+                infoText: this.infoText
+            };
         }
     }

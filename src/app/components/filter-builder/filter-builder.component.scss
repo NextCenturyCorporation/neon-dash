@@ -17,6 +17,10 @@
  
 .mat-button-toggle-group {
     margin: 0 5px;
+
+    .mat-button-toggle {
+        min-width: 45px;
+    }
 }
 
 .clause-container {

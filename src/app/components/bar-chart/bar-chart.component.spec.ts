@@ -854,6 +854,13 @@ describe('Component: BarChart', () => {
         expect(spy.calls.argsFor(3)).toEqual([8, 4]);
     });
 
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.infoText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
+
     it('does have previous page button', async(() => {
         fixture.detectChanges();
         let button = fixture.debugElement.query(By.css('.previous-button'));

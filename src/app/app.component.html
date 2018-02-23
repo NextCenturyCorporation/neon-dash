@@ -57,7 +57,10 @@
 
     <div class="neon-dash" mat-fill layout="col">
         <div [ngGrid]="gridConfig" #grid >
-            <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridItemConfig" (onResizeStop)="onResizeStop(i, $event)" (onDragStop)="onDragStop(i, $event)" name="item.id" id="item.id">
+            <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridItemConfig" name="item.id" id="item.id"
+                (onResizeStart)="onResizeStart(i, $event)"
+                (onResizeStop)="onResizeStop(i, $event)"
+                (onDragStop)="onDragStop(i, $event)">
                 <app-visualization-container [visualization]="gridItems[i]"></app-visualization-container>
                 <ng-content></ng-content>
             </div>
