@@ -127,6 +127,13 @@ describe('Component: WikiViewer', () => {
         expect(component.getButtonText()).toBe('Total 2');
     });
 
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.infoText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
+
     it('getExportFields does return expected array', (() => {
         component.active.idField.columnName = 'testIdField';
         component.active.idField.prettyName = 'Test ID Field';
@@ -406,35 +413,6 @@ describe('Component: WikiViewer', () => {
         let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message.text'));
         expect(errorMessageInSidenav).not.toBeNull();
         expect(errorMessageInSidenav.nativeElement.textContent).toBe('Test Error Message');
-    }));
-
-    it('does hide wiki-name in toolbar and sidenav if active.wikiName is empty', (() => {
-        fixture.detectChanges();
-        let nameInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .wiki-name'));
-        expect(nameInToolbar).toBeNull();
-
-        let iconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .wiki-name mat-icon'));
-        expect(iconInSidenav).toBeNull();
-
-        let nameInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .wiki-name > div'));
-        expect(nameInSidenav).toBeNull();
-    }));
-
-    it('does show wiki-name in toolbar and sidenav if active.wikiName is not empty', (() => {
-        component.active.wikiName = ['Test Name'];
-        fixture.detectChanges();
-
-        let nameInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .wiki-name'));
-        expect(nameInToolbar).not.toBeNull();
-        expect(nameInToolbar.nativeElement.textContent).toBe('Total 1');
-
-        let iconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .wiki-name.icon'));
-        expect(iconInSidenav).not.toBeNull();
-        expect(iconInSidenav.nativeElement.textContent).toBe('web');
-
-        let nameInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .wiki-name.text'));
-        expect(nameInSidenav).not.toBeNull();
-        expect(nameInSidenav.nativeElement.textContent).toBe('Total 1');
     }));
 
     it('does show settings icon button in toolbar', (() => {

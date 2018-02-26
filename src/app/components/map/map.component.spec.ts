@@ -564,6 +564,13 @@ describe('Component: Map', () => {
         expect(component.filterVisible).toEqual([true, true]);
     });
 
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.infoText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
+
     it('getExportFields does return expected array', () => {
         expect(component.getExportFields(0)).toEqual([]);
 

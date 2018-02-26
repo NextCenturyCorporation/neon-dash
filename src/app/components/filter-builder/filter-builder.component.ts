@@ -14,13 +14,15 @@
  *
  */
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewEncapsulation,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
     Injector,
-    ChangeDetectorRef
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
 } from '@angular/core';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -45,8 +47,10 @@ class FilterBuilderDatabaseTableMetadata {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
-    OnDestroy {
+export class FilterBuilderComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
 
     private optionsFromConfig: {
         title: string,
@@ -374,6 +378,20 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeOperator() {
         this.logChangeAndStartQueryChain();
+    }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
     }
 }
 

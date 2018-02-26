@@ -73,4 +73,10 @@ describe('Component: Filter Builder', () => {
     it('should create an instance', (() => {
         expect(component).toBeTruthy();
     }));
+
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
 });

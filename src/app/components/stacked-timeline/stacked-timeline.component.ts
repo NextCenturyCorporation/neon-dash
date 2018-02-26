@@ -15,13 +15,16 @@
  */
 /// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewEncapsulation,
     ChangeDetectionStrategy,
-    Injector, ElementRef, ViewChild, HostListener,
-    ChangeDetectorRef
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    HostListener,
+    Injector,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
 } from '@angular/core';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -51,8 +54,11 @@ declare let d3;
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StackedTimelineComponent extends BaseNeonComponent implements OnInit,
-        OnDestroy {
+export class StackedTimelineComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
+
     @ViewChild('svg') svg: ElementRef;
 
     private filters: {
@@ -570,5 +576,19 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     removeFilter() {
         this.filters = [];
         this.timelineChart.clearBrush();
+    }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
     }
 }

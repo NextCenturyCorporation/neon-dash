@@ -13,7 +13,17 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, Injector } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    Injector,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
+} from '@angular/core';
 import { TextCloud, TextCloudOptions, SizeOptions, ColorOptions } from './text-cloud-namespace';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -36,6 +46,10 @@ import { Color, ColorSchemeService } from '../../services/color-scheme.service';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
+
     private textCloud: TextCloud;
     private filters: {
         id: string,
@@ -463,4 +477,17 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.executeQueryChain();
     }
 
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
+    }
 }

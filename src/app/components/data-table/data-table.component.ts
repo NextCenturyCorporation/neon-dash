@@ -14,15 +14,15 @@
  *
  */
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewEncapsulation,
     ChangeDetectionStrategy,
-    Injector,
-    ViewChild,
+    ChangeDetectorRef,
+    Component,
     ElementRef,
-    ChangeDetectorRef
+    Injector,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
 } from '@angular/core';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -44,6 +44,10 @@ import { VisualizationService } from '../../services/visualization.service';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
+
     @ViewChild('table') table: any;
     @ViewChild('dragView') dragView: ElementRef;
 
@@ -576,5 +580,19 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     private setStyle(index: number, style: string, value: string) {
         this.active.headers[index].style[style] = value;
+    }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
     }
 }

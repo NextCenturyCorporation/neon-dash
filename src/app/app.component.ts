@@ -127,6 +127,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         });
     }
 
+    onResizeStart(i, event) {
+        this.visualizations.toArray()[i].onResizeStart();
+    }
+
     onResizeStop(i, event) {
         this.showItemLocation(event);
         this.visualizations.toArray()[i].onResizeStop();

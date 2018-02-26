@@ -63,6 +63,10 @@ export class VisualizationContainerComponent implements OnInit {
         this.activeGridService.moveItemToBottom(this.visualization);
     }
 
+    onResizeStart() {
+        this.injector.onResizeStart();
+    }
+
     onResizeStop() {
         this.injector.onResizeStop();
     }

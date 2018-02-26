@@ -98,6 +98,13 @@ describe('Component: LineChart', () => {
         expect(component.getButtonText()).toBe('Total 4');
     });
 
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.infoText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
+
     it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
 

@@ -41,15 +41,15 @@
 		}
 	}],
 	"layouts": {
-		"ldc-layout": [{
+		"ldc-layout":[{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 10,
+				"sizex": 5,
 				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:30",
 				"selected": true,
@@ -75,6 +75,7 @@
 				"row": 0,
 				"col": 0
 			},
+
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
@@ -171,7 +172,7 @@
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 6,
+				"minSizex": 7,
 				"minSizey": 5,
 				"$$hashKey": "object:29",
 				"selected": true,
@@ -223,24 +224,16 @@
 					"gradientColorCode4": "",
 					"gradientColorCode5": "",
 					"applyTransientDateFilter": false,
-					"popupFields": [
-						"originalText"
-					],
+					"popupFields": [],
 					"layers": [{
-						"title": "LDC Uyghur Point Layer",
+						"title": "Grace Point Layer",
 						"database": "ldc_uyghur_4",
 						"table": "ui_output",
 						"latitudeField": "geoLocations.lat",
 						"longitudeField": "geoLocations.lon",
 						"dateField": "createdAt",
 						"colorField": "topics"
-					}],
-					"hoverPopupEnabled": true,
-					"customServer": {
-						"useCustomServer": false,
-						"mapUrl": "http://pc-2289-kb:8080/geoserver/Natural_Earth/wms",
-						"layer": "Natural_Earth:NE1_HR_LC_SR_W_DR"
-					}
+					}]
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 0,
@@ -283,9 +276,8 @@
 					"title": "Situation Documents",
 					"database": "ldc_uyghur_4",
 					"table": "ui_output",
-					"dataField": "translatedText",
+					"dataField": "originalText",
 					"idField": "id",
-					"showSelected": false,
 					"metadataFields": [
 						[{
 							"name": "Date",
@@ -307,162 +299,12 @@
 								"name": "GeoPolitical Entities",
 								"field": "GPE"
 							}
-						],
-						[{
-							"name": "Organizations",
-							"field": "ORG"
-						}],
-						[{
-							"name": "Sentiment",
-							"field": "sentimentString"
-						}]
+						]
 					],
 					"limit": 50
 				},
 				"row": 0,
 				"col": 19
-			},
-			{
-				"name": "Scatter Plot",
-				"type": "scatterPlot",
-				"icon": "ScatterPlot64",
-				"selected": true,
-				"id": "3f451b37-ac6c-4c4c-b227-2100d8cba466",
-				"gridConfig": {
-					"col": 1,
-					"row": 1,
-					"sizex": 10,
-					"sizey": 8,
-					"dragHandle": null,
-					"resizeHandle": null,
-					"fixed": false,
-					"draggable": true,
-					"resizable": true,
-					"borderSize": 25
-				},
-				"sizex": 10,
-				"sizey": 8,
-				"row": 16,
-				"col": 0,
-				"bindings": {
-					"title": "Scatter Plot",
-					"database": "ldc_uyghur_4",
-					"table": "ui_output",
-					"unsharedFilterField": "",
-					"unsharedFilterValue": "",
-					"colorField": "",
-					"xField": "Xcoordinate",
-					"yField": "Ycoordinate",
-					"labelField": "translatedText",
-					"limit": 2500,
-					"displayGridLines": false,
-					"displayTicks": false
-				}
-			},
-			{
-				"name": "Line Chart",
-				"type": "lineChart",
-				"icon": "LineChart64",
-				"selected": true,
-				"id": "139694d1-edb5-4648-a889-f25c6d7ae5a0",
-				"gridItemConfig": {
-					"col": 11,
-					"row": 16,
-					"sizex": 10,
-					"sizey": 8,
-					"dragHandle": ".drag-handle",
-					"resizeHandle": null,
-					"fixed": false,
-					"draggable": true,
-					"resizable": true,
-					"borderSize": 25
-				},
-				"sizex": 10,
-				"sizey": 8,
-				"row": 16,
-				"col": 11,
-				"bindings": {
-					"title": "Count by topics",
-					"database": "ldc_uyghur_4",
-					"table": "ui_output",
-					"unsharedFilterField": "",
-					"unsharedFilterValue": "",
-					"colorField": "",
-					"dateField": "createdAt",
-					"groupField": "topics",
-					"aggregation": "count",
-					"aggregationField": "",
-					"limit": 10000
-				}
-			},
-			{
-				"name": "Bar Chart",
-				"type": "barChart",
-				"icon": "BarChart64",
-				"sizex": 10,
-				"sizey": 10,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 4,
-				"$$hashKey": "object:30",
-				"selected": true,
-				"bindings": {
-					"title": "Entities",
-					"database": "ldc_uyghur_4",
-					"table": "ui_output",
-					"dataField": "preferredNames",
-					"aggregation": "count",
-					"aggregationField": "",
-					"chartType": "horizontalBar"
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95310",
-				"row": 20,
-				"col": 0
-			},
-			{
-				"name": "Bar Chart",
-				"type": "barChart",
-				"icon": "BarChart64",
-				"sizex": 7,
-				"sizey": 15,
-				"$$hashKey": "object:30",
-				"selected": true,
-				"bindings": {
-					"title": "Cluster",
-					"database": "ldc_uyghur_clustering",
-					"table": "ui_output",
-					"dataField": "cluster",
-					"aggregation": "count",
-					"aggregationField": "",
-					"chartType": "horizontalBar"
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 0,
-				"col": 0
-			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 11,
-				"sizey": 15,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 4,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "IDs in Cluster",
-					"database": "ldc_uyghur_clustering",
-					"table": "ui_output",
-					"dataField": "id",
-					"limit": "100"
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 0,
-				"col": 8
 			}
 		]
 	},

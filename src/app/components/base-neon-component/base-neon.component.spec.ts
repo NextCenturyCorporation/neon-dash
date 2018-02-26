@@ -126,7 +126,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             return 'Test Filter';
         }
     }
-///*
+
     getExportFields() {
         let fields = [{
             columnName: 'value',
@@ -134,7 +134,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         }];
         return fields;
     }
-//*/
+
     getNeonFilterFields() {
         return null;
     }
@@ -184,6 +184,10 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
 
     removeFilter() {
         //
+    }
+
+    getElementRefs() {
+        return {};
     }
 }
 

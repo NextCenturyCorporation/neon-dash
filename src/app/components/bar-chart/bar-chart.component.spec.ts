@@ -786,10 +786,14 @@ describe('Component: BarChart', () => {
     });
 
     it('formatNumber does round numbers and return strings', () => {
-        expect(component.formatNumber(123456789)).toBe('123456789');
+        expect(component.formatNumber('foobar')).toBe('foobar');
+        expect(component.formatNumber(1)).toBe('1');
         expect(component.formatNumber(1.23456789)).toBe('1.235');
         expect(component.formatNumber('1.23456789')).toBe('1.235');
-        expect(component.formatNumber('foobar')).toBe('foobar');
+        expect(component.formatNumber(1234567890)).toBe('1,234,567,890');
+        expect(component.formatNumber('1234567890')).toBe('1,234,567,890');
+        expect(component.formatNumber(1234.5678)).toBe('1,234');
+        expect(component.formatNumber('1234.5678')).toBe('1,234');
     });
 
     it('nextPage does increase page and does call updatePageData', () => {
@@ -848,6 +852,13 @@ describe('Component: BarChart', () => {
         expect(component.active.lastPage).toBe(true);
         expect(spy.calls.count()).toBe(4);
         expect(spy.calls.argsFor(3)).toEqual([8, 4]);
+    });
+
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.infoText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
     });
 
     it('does have previous page button', async(() => {
