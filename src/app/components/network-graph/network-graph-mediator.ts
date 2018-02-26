@@ -49,7 +49,6 @@ import {
 } from './ng.type.abstract';
 
 export class NetworkGraphMediator {
-    public graphData: GraphData;
     public optionsFromConfig: OptionsFromConfig;
     public node: Node;
     public link: Link;
@@ -57,6 +56,8 @@ export class NetworkGraphMediator {
     public active: {
         node: Node;
         link: Link;
+        nodeField: string;
+        linkField: string;
         totalNodes: number;
         totalLinks: number;
         total: number;
@@ -75,8 +76,19 @@ export class NetworkGraphMediator {
      * {function} redrawGraph (required) Calls DirectedGraphMediator.redrawGraph within an angular digest.
      * {function} updateSelectedNodeIds (required) Updates the selected nodes in the Neon network graph controller (and related behavior).
      */
-    DirectedGraphMediator(graphViewer) {
+    constructor() {
         //
+        this.active = {
+            node: new Node(),
+            link: new Link(),
+            nodeField: '',
+            linkField: '',
+            totalNodes: 0,
+            totalLinks: 0,
+            total: 0,
+            limit: 0,
+            graphData: new GraphData()
+        };
     }
 
     /**
@@ -102,93 +114,124 @@ export class NetworkGraphMediator {
      */
     evaluateDataAndUpdateGraph(data, options) {
         this.optionsFromConfig = options;
+        let response = data;
+
+        let me = this;
 
         if (!options.nodeField) {
             return;
         }
 
-        let nodes = [];
-        let links = [];
-
-        //console.log(data);
-
         //Maybe make this its own function?
         //Nah
-        if (!data) {
-            data.array.forEach((element) => {
-                let nodeId = data[options.nodeField];
-                let linkId = data[options.linkField];
+        //if (data) {
+        for (let entry of data) {
+            //for (let i = 0; i < data.length; i++) {
+            me.active.nodeField = entry[options.nodeField];
+            me.active.linkField = entry[options.linkField];
 
-                //creates a new node for each unique nodeId
-                if (this.isUniqueNode(nodeId)) {
-                    this.node.id = nodeId;
-                    this.node.label = '';
-                    this.node.nodeType = options.nodeField;
-                    this.node.size = 1;
-                    this.graphData.nodes.push(this.node);
-                } else {
-                    //TODO: if node is not unique, find the existing node, and increase the size by 1;
-                    //
-                }
+            //creates a new node for each unique nodeId
+            if (me.isUniqueNode(me.active.nodeField)) {
+                let node = new Node();
+                node.id = me.active.nodeField;
+                node.label = '';
+                node.nodeType = options.nodeField;
+                node.size = 1;
+                me.active.graphData.addNode(node);
+            } else {
+                //TODO: if node is not unique, find the existing node, and increase the size by 1;
+                //
+            }
+            //Maybe make checking if its unique and adding it a function.
+            //Creates a node for each unique linkfield
+            if (me.active.linkField && me.isUniqueNode(me.active.linkField)) {
+                let node = new Node();
+                node.id = me.active.linkField;
+                node.label = '';
+                node.nodeType = options.linkField;
+                node.size = 1;
+                me.active.graphData.addNode(node);
+            } else {
+                //TODO: If node is not unique, find the existing node, and increase the size by 1;
+            }
 
-                //Creates a node for each unique linkfield
-                if (this.isUniqueNode(linkId)) {
-                    this.node.id = linkId;
-                    this.node.label = '';
-                    this.node.nodeType = options.linkField;
-                    this.node.size = 1;
-                } else {
-                    //TODO: If node is not unique, find the existing node, and increase the size by 1;
-                }
+            let linkfield = options.linkField;
 
-                let linkfield = options.linkField;
+            //Generating links
+            //If the linkField is an array, it'll generate a link for each linkfield
+            if (me.active.linkField && Array.isArray(me.active.linkField)) {
+                me.active.linkField.forEach((linkArrayLink) => {
+                    me.active.linkField = linkArrayLink;
+                    let link = new Link();
+                    link.source = me.active.nodeField;
+                    link.target = me.active.linkField;
+                    link.label = '';
+                    link.count = 1;
+                    me.active.graphData.addLink(link);
+                });
+            } else {
+                let link = new Link();
+                link.source = me.active.nodeField;
+                link.target = me.active.linkField;
+                link.label = '';
+                link.count = 1;
+                me.active.graphData.addLink(link);
+            }
+            /*
+            for(linkfield of element) {
 
-                //Generating links
-                //If the linkField is an array, it'll generate a link for each linkfield
-                if (linkfield.isArray) {
+                this.link.source = this.node.id;
+                this.link.target = linkfield;
+                this.link.label = '';
+                this.link.count = 1;
+                this.graphData.links.push(this.link);
+            }*/
 
-                    element[linkfield].forEach((linkArrayLink) => {
-                        this.link.source = this.node.id;
-                        this.link.target = linkfield;
-                        this.link.label = '';
-                        this.link.count = 1;
-                        this.graphData.links.push(this.link);
-                    });
-                } else {
-                    this.link.source = this.node.id;
-                    this.link.target = linkfield;
-                    this.link.label = '';
-                    this.link.count = 1;
-                    this.graphData.links.push(this.link);
-                }
-                /*
-                for(linkfield of element) {
-    
-                    this.link.source = this.node.id;
-                    this.link.target = linkfield;
-                    this.link.label = '';
-                    this.link.count = 1;
-                    this.graphData.links.push(this.link);
-                }*/
-
-            });
         }
         //TODO Generate the graph
+        //
+
     }
 
     isUniqueNode(nodeId) {
         let isUnique = true;
-        if (this.graphData.nodes.includes(nodeId)) {
+        let node = new Node();
+        node.id = nodeId;
+        if (nodeId) {
+            //console.log(this.active.graphData.nodes.find(x => x.id === nodeId));
+            if (this.active.graphData.nodes.includes(node)) {
+                isUnique = false;
+            }//*/
+            if (this.active.graphData.nodes.length > 0) {
+                for (let entry of this.active.graphData.nodes) {
+                    //for (let i = 0; i < this.active.graphData.nodes.length; i++) {
+                    if (entry.id === nodeId) {
+                        this.active.graphData.incrementNodeSize(nodeId);
+                        return false;
+                    }
+                }
+            }
+        } else {
             isUnique = false;
-        }
+        } ///*
 
         return isUnique;
     }
     /*
-        addNodeIfUnique() {
+        addNodeIfUnique(nodeId) {
+            let newNode = new Node();
+            newNode.id = nodeId;
+
+            let uniqueNode = _.find(this.active.graphData.nodes, function(uniqueNode) {
+                return uniqueNode.id === nodeId;
+            });
+
+            if (!uniqueNode) {
+                this.active.graphData.nodes.push(uniqueNode);
+            }
 
         }
-    */
+    //*/
     /**
      * Saves the given nodes and links and updates the network graph using the data.
      * @arg {array} nodes (required) List of node objects with properties:
@@ -325,6 +368,14 @@ export class NetworkGraphMediator {
     getTotal() {
         this.active.total = this.getNodeTotal() + this.getLinkTotal();
         return this.active.total;
+    }
+
+    increaseNodeCount(nodeId) {
+        //
+    }
+
+    increaseLinkCount(linkSource, linkTarget) {
+        //
     }
 
 }

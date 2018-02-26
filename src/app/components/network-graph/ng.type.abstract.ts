@@ -23,9 +23,9 @@ export interface OptionsFromConfig {
     title: string;
     database: string;
     table: string;
-    nodeField: string; //The field nodes are created from
+    nodeField: FieldMetaData; //The field nodes are created from
     //nameField: string; //pretty name for the nodefield
-    linkField: string; //The field links are created from
+    linkField: FieldMetaData; //The field links are created from
     //sizeField: string; //
     //colorField: string;
     dataField: string; //
@@ -36,23 +36,63 @@ export interface OptionsFromConfig {
 }
 
 export class Node {
-    id: string;
-    label: string;
-    nodeType: string;
-    size: number;
+    id: string = '';
+    label: string = '';
+    nodeType: string = '';
+    size: number = 0;
     //DateField: string; //TODO
+
+    resetSize() {
+        this.size = 1;
+    }
+
+    resetLabel() {
+        this.label = '';
+    }
+
+    incrementSize() {
+        this.size++;
+    }
 }
 
 export class Link {
-    source: string;
-    target: string;
-    label: string;
-    count: number;
+    source: string = '';
+    target: string = '';
+    label: string = '';
+    count: number = 0;
+
+    incrementCount() {
+        this.count++;
+    }
 }
 
 export class GraphData {
-    nodes: [Node];
-    links: [Link];
+    nodes: Node[] = [];
+    links: Link[] = [];
+
+    addNode(node) {
+        this.nodes.push(node);
+    }
+
+    addLink(link) {
+        this.links.push(link);
+    }
+
+    incrementNodeSize(nodeId) {
+        for (let node of this.nodes) {
+            if (node.id === nodeId) {
+                node.incrementSize();
+            }
+        }
+    }
+
+    incrementLinkCount(linkSource, linkTarget) {
+        for (let link of this.links) {
+            if (link.source === linkSource && link.target === linkTarget) {
+                link.incrementCount();
+            }
+        }
+    }
 }
 
 export abstract class AbstractGraph {

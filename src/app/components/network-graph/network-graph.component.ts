@@ -64,7 +64,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }[];
 
     public active: {
-        dataField: FieldMetaData,
         nodeField: FieldMetaData, //[FieldMetaData] TODO Future support for multiple node and link fields
         linkField: FieldMetaData, //[FieldMetaData]
         aggregationField: FieldMetaData,
@@ -111,7 +110,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         };
 
         this.active = {
-            dataField: new FieldMetaData(),
             nodeField: new FieldMetaData(),
             linkField: new FieldMetaData(),
             aggregationField: new FieldMetaData(),
@@ -170,8 +168,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             (this.active.aggregationFieldHidden ? '' : '-' + this.active.aggregationField.prettyName);
         valuePrettyName = valuePrettyName.charAt(0).toUpperCase() + valuePrettyName.slice(1);
         return [{
-            columnName: this.active.dataField.columnName,
-            prettyName: this.active.dataField.prettyName
+            columnName: this.active.nodeField.columnName,
+            prettyName: this.active.nodeField.prettyName
         }, {
             columnName: 'value',
             prettyName: valuePrettyName
@@ -223,13 +221,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         let nodeField = this.active.nodeField.columnName;
         let linkField = this.active.linkField.columnName;
         let whereClauses: neon.query.WherePredicate[] = [];
-        whereClauses.push(neon.query.where(this.active.nodeField.columnName, '!=', null));
+        //whereClauses.push(neon.query.where(this.active.nodeField.columnName, '!=', null));
+        //whereClauses.push(neon.query.where(this.active.linkField.columnName, '!=', null));
         let groupBy: any[] = [this.active.nodeField.columnName];
 
-        let fields = [nodeField];
+        let fields = [nodeField, linkField];
 
         query = query.withFields(fields);
-        query.where(neon.query.and.apply(query, whereClauses));
+        let whereClause = neon.query.and.apply(neon.query, whereClauses);
+
+        query.where(whereClause);
 
         return query;
     }
@@ -252,7 +253,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     getNeonFilterFields(): string[] {
-        return [this.active.dataField.columnName];
+        return [this.active.nodeField.columnName];
     }
 
     removeFilter() {
@@ -263,9 +264,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         let colName = this.active.nodeField.columnName;
 
         let graphMediator = new NetworkGraphMediator();
-
         graphMediator.evaluateDataAndUpdateGraph(response.data, this.optionsFromConfig);
 
+        this.graphMediator = graphMediator;
         let title;
         title = this.optionsFromConfig.title || 'Network Graph' + ' by ' + this.active.nodeField.columnName;
 
