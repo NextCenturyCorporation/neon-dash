@@ -115,7 +115,7 @@
 
  ::ng-deep datatable-body-cell[ng-reflect-is-selected="true"] {
    background: mat-color($primary);
-   color: white;
+   color: mat-color($white);
  }
 
 /deep/ .icon-up:before {
