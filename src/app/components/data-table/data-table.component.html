@@ -86,7 +86,7 @@
         </div>
         <div class="table-container">
             <ngx-datatable #table class="material table" [rows]="active.data" [columns]="active.activeHeaders" [headerHeight]="30" [footerHeight]="0"
-                [rowHeight]="25" [scrollbarH]="true" [scrollbarV]="true" [reorderable]="false" [selectionType]="'single'" (select)="onSelect($event)">
+                [rowHeight]="25" [scrollbarH]="true" [scrollbarV]="true" [reorderable]="false" [selected]="selected" [selectionType]="'multi'" (select)="onSelect($event)">
             </ngx-datatable>
             <div *ngIf="active.showColumnSelector=='show'" class="column-selector">
                 <div class="column-selector-header"><span> Columns </span>
@@ -98,7 +98,7 @@
                 <div  class="button-row">
                     <button mat-raised-button class="neon-button-small" (click)="deactivateAllHeaders()">
                         <span class="mat-button-wrapper">Uncheck All</span>
-                    </button> 
+                    </button>
                     <button mat-raised-button class="neon-button-small" (click)="activateAllHeaders()">
                         <span class="mat-button-wrapper">Check All</span>
                     </button>

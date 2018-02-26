@@ -113,6 +113,11 @@
     padding: 2px;
 }
 
+ ::ng-deep datatable-body-cell[ng-reflect-is-selected="true"] {
+   background: mat-color($primary);
+   color: white;
+ }
+
 /deep/ .icon-up:before {
     font-family: 'Material Icons';
     content: "keyboard_arrow_up";
