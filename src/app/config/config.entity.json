@@ -51,7 +51,7 @@
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
 				"sizex": 16,
-				"sizey":3,
+				"sizey":4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 2,
@@ -79,13 +79,13 @@
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "Preferred Names",
+					"title": "Names",
 					"database": "ll_nepal_simplified",
 					"table": "entity_res",
-					"dataField": "preferredName"
+					"dataField": "preferredNames"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 4,
+				"row": 5,
 				"col": 0
 			},
 		{
@@ -107,7 +107,7 @@
 					"dataField": "names"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 4,
+				"row": 11,
 				"col": 6
 			},		{
 				"name": "Text Cloud",
@@ -124,12 +124,12 @@
 				"bindings": {
 					"title": "Documents",
 					"database": "ll_nepal_simplified",
-					"table": "entity_res",
-					"dataField": "docs"
+					"table": "docs",
+					"dataField": "names"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 9,
-				"col": 9
+				"row": 11,
+				"col": 6
 			},
 			{
 				"name": "Bar Chart",
@@ -147,13 +147,13 @@
 					"title": "Entity Types",
 					"database": "ll_nepal_simplified",
 					"table": "entity_res",
-					"dataField": "type",
+					"dataField": "types",
 					"aggregation": "",
 					"aggregationField": "",
 					"chartType": "horizontalBar"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 9,
+				"row": 13,
 				"col": 0
 			}
 		]
