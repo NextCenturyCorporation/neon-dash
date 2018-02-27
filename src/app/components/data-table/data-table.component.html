@@ -85,7 +85,7 @@
             </div>
         </div>
         <div class="table-container">
-            <ngx-datatable #table class="material table" [rows]="active.data" [columns]="active.activeHeaders" [headerHeight]="30" [footerHeight]="0"
+            <ngx-datatable #table class="material table" [rows]="active.data" [columnMode]="'force'" [columns]="active.activeHeaders" [headerHeight]="30" [footerHeight]="0"
                 [rowHeight]="25" [scrollbarH]="true" [scrollbarV]="true" [reorderable]="false" [selected]="selected" [selectionType]="'multi'" (select)="onSelect($event)">
             </ngx-datatable>
             <div *ngIf="active.showColumnSelector=='show'" class="column-selector">
