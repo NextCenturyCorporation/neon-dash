@@ -46,10 +46,10 @@ export class DatabaseMetaData {
     prettyName: string = '';
     tables: TableMetaData[];
 
-    constructor(name?: string, prettyName?: string) {
+    constructor(name?: string, prettyName?: string, tables?: TableMetaData[]) {
         this.name = name || '';
         this.prettyName = prettyName || '';
-        this.tables = [];
+        this.tables = tables || [];
     }
 }
 

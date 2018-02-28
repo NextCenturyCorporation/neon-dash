@@ -127,6 +127,8 @@ class TestMap extends AbstractMap {
 
 function updateMapLayer1(component) {
     component.meta.layers[0] = {
+        index: 0,
+        databases: [],
         database: new DatabaseMetaData('testDatabase1'),
         tables: [],
         table: new TableMetaData('testTable1'),
@@ -148,6 +150,8 @@ function updateMapLayer1(component) {
 
 function updateMapLayer2(component) {
     component.meta.layers.push({
+        index: 1,
+        databases: [],
         database: new DatabaseMetaData('testDatabase2'),
         tables: [],
         table: new TableMetaData('testTable2'),
@@ -188,7 +192,7 @@ describe('Component: Map', () => {
             active.latitudeField = latfield;
             active.longitudeField = lngfield;
 
-            meta.databases[layerIndex] = layer.database = database;
+            layer.database = database;
             layer.table = table;
 
             component.filterByLocation(box);
@@ -230,7 +234,7 @@ describe('Component: Map', () => {
         expect(component).toBeTruthy();
     });
 
-    it('does have expected active and public properties', () => {
+    it('does have expected active properties', () => {
         expect(component.active).toEqual({
             layers: [{
                 title: '',
@@ -251,11 +255,21 @@ describe('Component: Map', () => {
             minClusterSize: 5,
             clusterPixelRange: 15
         });
+    });
 
+    it('does have expected public properties', () => {
         expect(component.colorByFields).toEqual([]);
         expect(component.disabledSet).toEqual([]);
         expect(component.filterVisible).toEqual([true]);
     });
+
+    it('does have expected meta properties', (() => {
+        expect(component.meta.layers[0].databases).toEqual([]);
+        expect(component.meta.layers[0].database).toEqual(new DatabaseMetaData());
+        expect(component.meta.layers[0].tables).toEqual([]);
+        expect(component.meta.layers[0].table).toEqual(new TableMetaData());
+        expect(component.meta.layers[0].fields).toEqual([]);
+    }));
 
     it('getOptionFromConfig does return expected options', () => {
         expect(component.getOptionFromConfig('title')).toBeNull();
@@ -280,7 +294,7 @@ describe('Component: Map', () => {
     });
 
     it('onUpdateFields does set expected fields to empty strings because layers config is empty', () => {
-        component.onUpdateFields(0);
+        component.onUpdateFields(component.meta.layers[0]);
         expect(component.active.layers[0]).toEqual({
             title: 'New Layer',
             latitudeField: new FieldMetaData(),
@@ -1190,8 +1204,8 @@ describe('Component: Map with config', () => {
                 Injector,
                 ColorSchemeService,
                 { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: 'database', useValue: 'testDatabase' },
-                { provide: 'table', useValue: 'testTable' },
+                { provide: 'database', useValue: 'testDatabase1' },
+                { provide: 'table', useValue: 'testTable1' },
                 { provide: 'layers', useValue: [{
                     colorField: 'testColorField',
                     dateField: 'testDateField',
@@ -1226,17 +1240,13 @@ describe('Component: Map with config', () => {
         fixture.detectChanges();
     });
 
-    it('does have expected meta properties', () => {
-        let testTable = new TableMetaData('testTable', 'Test Table', DatasetMock.FIELDS);
-        let testDatabase = new DatabaseMetaData('testDatabase', 'Test Database');
-        testDatabase.tables = [testTable];
-
-        expect(component.meta.databases).toEqual([testDatabase]);
-        expect(component.meta.layers[0].database).toEqual(testDatabase);
-        expect(component.meta.layers[0].table).toEqual(testTable);
-        expect(component.meta.layers[0].tables).toEqual([testTable]);
+    it('does set expected meta properties', (() => {
+        expect(component.meta.layers[0].databases).toEqual(DatasetMock.DATABASES);
+        expect(component.meta.layers[0].database).toEqual(DatasetMock.DATABASES[0]);
+        expect(component.meta.layers[0].tables).toEqual(DatasetMock.TABLES);
+        expect(component.meta.layers[0].table).toEqual(DatasetMock.TABLES[0]);
         expect(component.meta.layers[0].fields).toEqual(DatasetMock.FIELDS);
-    });
+    }));
 
     it('does have expected active properties', () => {
         expect(component.active).toEqual({
@@ -1263,8 +1273,8 @@ describe('Component: Map with config', () => {
 
     it('getOptionFromConfig does return expected options', () => {
         expect(component.getOptionFromConfig('title')).toBe('Test Title');
-        expect(component.getOptionFromConfig('database')).toBe('testDatabase');
-        expect(component.getOptionFromConfig('table')).toBe('testTable');
+        expect(component.getOptionFromConfig('database')).toBe('testDatabase1');
+        expect(component.getOptionFromConfig('table')).toBe('testTable1');
         expect(component.getOptionFromConfig('limit')).toBe(9999);
         expect(component.getOptionFromConfig('unsharedFilterField')).toEqual({});
         expect(component.getOptionFromConfig('unsharedFilterValue')).toEqual('');
@@ -1305,7 +1315,7 @@ describe('Component: Map with config', () => {
             dateField: new FieldMetaData()
         };
 
-        component.onUpdateFields(0);
+        component.onUpdateFields(component.meta.layers[0]);
         expect(component.active.layers[0]).toEqual({
             title: 'Test Layer Title',
             latitudeField: new FieldMetaData('testLatitudeField', 'Test Latitude Field'),

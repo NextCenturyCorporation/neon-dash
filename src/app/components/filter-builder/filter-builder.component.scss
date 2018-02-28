@@ -14,7 +14,7 @@
  *
  */
 @import '../base-neon-component/base-neon.component.scss';
- 
+
 .mat-button-toggle-group {
     margin: 0 5px;
 
@@ -30,14 +30,18 @@
     align-items: center
 }
 
-.clause-item {
-    padding: 0 5px;
+.clause-form-container {
+    display: flex;
+    flex-direction: row;
+    min-width: 300px;
+    // Subtract the width of the button container plus margins.
+    width: calc(100% - 80px);
 }
 
 .clause-button-container {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    width: 80px;
 }
 
 .clause-button {

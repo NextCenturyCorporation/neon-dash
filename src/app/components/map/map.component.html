@@ -47,8 +47,8 @@
 
                         <mat-form-field>
                             <mat-select placeholder="Database" [(ngModel)]="meta.layers[i].database" required="true"
-                                        (ngModelChange)="handleChangeDatabase(i)" [disabled]="meta.databases.length < 2">
-                                <mat-option *ngFor="let database of meta.databases"
+                                        (ngModelChange)="handleChangeDatabase(i)" [disabled]="meta.layers[i].databases.length < 2">
+                                <mat-option *ngFor="let database of meta.layers[i].databases"
                                             [value]="database">{{ database.prettyName }}</mat-option>
                             </mat-select>
                         </mat-form-field>

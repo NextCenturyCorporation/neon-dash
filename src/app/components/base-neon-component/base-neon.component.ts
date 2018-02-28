@@ -140,7 +140,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         for (let database of this.datasetService.getDatabases()) {
             this.outstandingDataQuery[database.name] = {};
         }
-        this.initDatabases();
+        this.initDatabases(this.meta);
         try {
             this.setupFilters();
         } catch (e) {
@@ -311,55 +311,61 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     /**
      * Load all the database metadata, then call initTables()
+     *
+     * @arg {object} metaObject
      */
-    initDatabases() {
-        this.meta.databases = this.datasetService.getDatabases();
-        this.meta.database = this.meta.databases[0];
+    initDatabases(metaObject: any) {
+        metaObject.databases = this.datasetService.getDatabases();
+        metaObject.database = metaObject.databases[0] || new DatabaseMetaData();
 
-        if (this.meta.databases.length > 0) {
+        if (metaObject.databases.length > 0) {
             if (this.getOptionFromConfig('database')) {
-                for (let database of this.meta.databases) {
+                for (let database of metaObject.databases) {
                     if (this.getOptionFromConfig('database') === database.name) {
-                        this.meta.database = database;
+                        metaObject.database = database;
                         break;
                     }
                 }
             }
 
-            this.initTables();
+            this.initTables(metaObject);
         }
     }
 
     /**
      * Load all the table metadata, then call initFields()
+     *
+     * @arg {object} metaObject
      */
-    initTables() {
-        this.meta.tables = this.datasetService.getTables(this.meta.database.name);
-        this.meta.table = this.meta.tables[0];
+    initTables(metaObject: any) {
+        metaObject.tables = this.datasetService.getTables(metaObject.database.name);
+        metaObject.table = metaObject.tables[0] || new TableMetaData();
 
-        if (this.meta.tables.length > 0) {
+        if (metaObject.tables.length > 0) {
             if (this.getOptionFromConfig('table')) {
-                for (let table of this.meta.tables) {
+                for (let table of metaObject.tables) {
                     if (this.getOptionFromConfig('table') === table.name) {
-                        this.meta.table = table;
+                        metaObject.table = table;
                         break;
                     }
                 }
             }
-            this.initFields();
+            this.initFields(metaObject);
         }
     }
 
     /**
      * Initialize all the field metadata
+     *
+     * @arg {object} metaObject
      */
-    initFields() {
+    initFields(metaObject: any) {
         // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-        this.meta.fields = this.datasetService.getSortedFields(this.meta.database.name, this.meta.table.name, true).filter(function(field) {
+        metaObject.fields = this.datasetService.getSortedFields(metaObject.database.name, metaObject.table.name, true).filter((field) => {
             return (field && field.columnName);
         });
-        this.meta.unsharedFilterField = this.findFieldObject('unsharedFilterField');
-        this.meta.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
+        metaObject.unsharedFilterField = this.findFieldObject('unsharedFilterField');
+        metaObject.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
 
         this.onUpdateFields();
     }
@@ -639,7 +645,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Handles changes in the active database
      */
     handleChangeDatabase() {
-        this.initTables();
+        this.initTables(this.meta);
         this.logChangeAndStartQueryChain();
     }
 
@@ -647,7 +653,14 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Handles changes in the active table
      */
     handleChangeTable() {
-        this.initFields();
+        this.initFields(this.meta);
+        this.logChangeAndStartQueryChain();
+    }
+
+    /**
+     * Handles changes in the active data
+     */
+    handleChangeData() {
         this.logChangeAndStartQueryChain();
     }
 

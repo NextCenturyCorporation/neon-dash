@@ -316,25 +316,25 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
 
         /**
-         * Updates the fields for the map layer at the given index.
+         * Updates the fields for the map layer contained within the given object.
          *
-         * @arg {number} layerIndex
+         * @arg {any} metaObject
          * @override
          */
-        onUpdateFields(layerIndex: number) {
-            let layer = this.active.layers[layerIndex];
-            layer.latitudeField = this.findFieldObject(layerIndex, 'latitudeField', neonMappings.LATITUDE);
-            layer.longitudeField = this.findFieldObject(layerIndex, 'longitudeField', neonMappings.LONGITUDE);
-            layer.sizeField = this.findFieldObject(layerIndex, 'sizeField', neonMappings.SIZE);
-            layer.colorField = this.findFieldObject(layerIndex, 'colorField', neonMappings.COLOR);
-            layer.dateField = this.findFieldObject(layerIndex, 'dateField', neonMappings.DATE);
+        onUpdateFields(metaObject: any) {
+            let layer = this.active.layers[metaObject.index];
+            layer.latitudeField = this.findFieldObject(metaObject.index, 'latitudeField', neonMappings.LATITUDE);
+            layer.longitudeField = this.findFieldObject(metaObject.index, 'longitudeField', neonMappings.LONGITUDE);
+            layer.sizeField = this.findFieldObject(metaObject.index, 'sizeField', neonMappings.SIZE);
+            layer.colorField = this.findFieldObject(metaObject.index, 'colorField', neonMappings.COLOR);
+            layer.dateField = this.findFieldObject(metaObject.index, 'dateField', neonMappings.DATE);
 
             // Get the title from the options, if it exists
-            if (layerIndex >= this.optionsFromConfig.layers.length ||
-                !this.optionsFromConfig.layers[layerIndex] || !this.optionsFromConfig.layers[layerIndex].title) {
+            if (metaObject.index >= this.optionsFromConfig.layers.length ||
+                !this.optionsFromConfig.layers[metaObject.index] || !this.optionsFromConfig.layers[metaObject.index].title) {
                 layer.title = this.optionsFromConfig.title;
             } else {
-                layer.title = this.optionsFromConfig.layers[layerIndex].title;
+                layer.title = this.optionsFromConfig.layers[metaObject.index].title;
             }
             if (!layer.title || layer.title === '') {
                 layer.title = 'New Layer';
