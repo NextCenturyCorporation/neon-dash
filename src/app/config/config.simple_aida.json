@@ -139,7 +139,7 @@
 				"bindings": {
 					"title": "Wiki Viewer",
 					"database": "aida",
-					"table": "reified"
+					"table": "normal"
 				},
 				"row": 13,
 				"col": 0
