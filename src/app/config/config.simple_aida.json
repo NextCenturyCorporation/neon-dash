@@ -10,8 +10,12 @@
 				"name": "aida",
 				"prettyName": "AIDA",
 				"tables": [{
-					"name": "test",
-					"prettyName": "Test"
+					"name": "normal",
+					"prettyName": "Normal"
+				},
+				{
+					"name": "reified",
+					"prettyName": "Reified"
 				}]
 			}]
 		}
@@ -30,13 +34,17 @@
 				"$$hashKey": "object:31",
 				"selected": true,
 				"bindings": {
-					"title": "Raw Data",
+					"title": "Document",
 					"database": "aida",
-					"table": "test",
-					"sortField": "provenance",
+					"table": "normal",
+					"sortField": "author",
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
-						"provenance"
+                        "@id",
+                        "author",
+                        "date",
+                        "docLocation",
+                        "title"
 					]
 				},
 				"row": 0,
@@ -57,7 +65,7 @@
 				"bindings": {
 					"title": "Subject",
 					"database": "aida",
-					"table": "test",
+					"table": "reified",
 					"sortField": "subject",
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
@@ -81,7 +89,7 @@
 				"bindings": {
 					"title": "Predicate",
 					"database": "aida",
-					"table": "test",
+					"table": "reified",
 					"sortField": "predicate",
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
@@ -106,7 +114,7 @@
 				"bindings": {
 					"title": "Object",
 					"database": "aida",
-					"table": "test",
+					"table": "reified",
 					"sortField": "object",
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
@@ -131,7 +139,7 @@
 				"bindings": {
 					"title": "Wiki Viewer",
 					"database": "aida",
-					"table": "test"
+					"table": "normal"
 				},
 				"row": 13,
 				"col": 0
@@ -151,7 +159,7 @@
 				"bindings": {
 					"title": "Graph",
 					"database": "aida",
-					"table": "test"
+					"table": "reified"
 				},
 				"row": 13,
 				"col": 13
@@ -171,7 +179,7 @@
 				"bindings": {
 					"title": "Filter Builder",
 					"database": "aida",
-					"table": "test"
+					"table": "reified"
 				},
 				"row": 22,
 				"col": 0
