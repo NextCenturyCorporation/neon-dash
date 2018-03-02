@@ -92,7 +92,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     public graphData: GraphData;
 
-    theme = 'dark';
     graphType = 'Network Graph';
 
     view: any[];
@@ -163,20 +162,15 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             aggregation: 'count'
         };
 
-        //this.graphMediator = new NetworkGraphMediator();
         this.graphData = new GraphData();
-
-        //this.getGraphData();
-        this.updateData();
 
         this.queryTitle = this.optionsFromConfig.title || 'Network Graph';
 
-        //this.setInterpolationType('Bundle');
+        this.setInterpolationType('Bundle');
 
     }
 
     subNgOnInit() {
-        //
         this.createQuery();
         //this.updateData();
         //setInterval(this.updateData.bind(this), 2000);
@@ -206,11 +200,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     subNgOnDestroy() {
-        //
+        this.createQuery();
     }
 
     subGetBindings(bindings: any) {
-        //console.log('binding ' + this.active.nodeField.columnName);
         bindings.nodeField = this.active.nodeField.columnName;
         bindings.linkField = this.active.linkField.columnName;
         bindings.limit = this.active.limit;
@@ -218,6 +211,40 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     ngAfterViewInit() {
         //
+    }
+
+    setInterpolationType(curveType) {
+        this.curveType = curveType;
+        if (curveType === 'Bundle') {
+            this.curve = shape.curveBundle.beta(1);
+        }
+        if (curveType === 'Cardinal') {
+            this.curve = shape.curveCardinal;
+        }
+        if (curveType === 'Catmull Rom') {
+            this.curve = shape.curveCatmullRom;
+        }
+        if (curveType === 'Linear') {
+            this.curve = shape.curveLinear;
+        }
+        if (curveType === 'Monotone X') {
+            this.curve = shape.curveMonotoneX;
+        }
+        if (curveType === 'Monotone Y') {
+            this.curve = shape.curveMonotoneY;
+        }
+        if (curveType === 'Natural') {
+            this.curve = shape.curveNatural;
+        }
+        if (curveType === 'Step') {
+            this.curve = shape.curveStep;
+        }
+        if (curveType === 'Step After') {
+            this.curve = shape.curveStepAfter;
+        }
+        if (curveType === 'Step Before') {
+            this.curve = shape.curveStepBefore;
+        }
     }
 
     getExportFields() {
@@ -258,7 +285,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     getGraphData() {
-        //return {nodes, links};
+        return this.graphData;
     }
 
     isValidQuery() {
@@ -323,8 +350,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
         let title;
         title = this.optionsFromConfig.title || 'Network Graph' + ' by ' + this.active.nodeField.columnName;
-
-        //console.log(this.graphData);
     }
 
     setupFilters() {
@@ -340,28 +365,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     updateData() {
-        /*
-              if (add) {
-                // directed graph
-                const hNode = {
-                  id: id(),
-                  label: country
-                };
-
-                this.hierarchialGraph.nodes.push(hNode);
-
-                this.hierarchialGraph.links.push({
-                  source: this.hierarchialGraph.nodes[Math.floor(Math.random() * (this.hierarchialGraph.nodes.length - 1))].id,
-                  target: hNode.id,
-                  label: 'on success'
-                });
-
-                this.hierarchialGraph.links = [...this.hierarchialGraph.links];
-                this.hierarchialGraph.nodes = [...this.hierarchialGraph.nodes];
-              }//*/
-        //this.getGraphData();
-        //this.createQuery();
-
+        //
     }
 
     selectGraph(graphSelector) {
@@ -419,10 +423,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeNodeField() {
-        //console.log('handle '+ this.active.nodeField.columnName);
         //this.graphData = new GraphData();
         this.logChangeAndStartQueryChain();
-        //console.log('handle 2 '+ this.active.nodeField.columnName);
     }
 
     handleChangeLinkField() {
@@ -468,9 +470,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             return text;
         } else {
             let total = data.nodes.length;
-            return 'Total ' + this.formatingCallback(total);
+            return 'Total Nodes: ' + this.formatingCallback(total);
         }
-        return text;
     }
 
     createTitle() {
@@ -489,7 +490,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     toNodes(datafield) {
         let nodes = [];
-
         /*
                 datafield.array.forEach(element => {
                     if(nodes.indexOf(element.id) < 0) {
@@ -508,7 +508,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         ///*
         for (let entry of data) {
             //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
-            //Make this its own function?
+            //TODO: Make this its own function
             linkFieldArray = entry[this.active.linkField.columnName];
             if (Array.isArray(entry[this.active.linkField.columnName])) {
                 linkFieldArray = entry[this.active.linkField.columnName];
@@ -530,7 +530,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
                         this.graphData.nodes = [...this.graphData.nodes];
                     }
-                } //linkField is not an array
+                } //When linkField is not an array
             } else if (entry[this.active.linkField.columnName]) {
                 ///*
                 linkField = entry[this.active.linkField.columnName];
@@ -554,7 +554,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             }
             //creates a new node for each unique nodeId
             //nodeField is an array
-            ///*
             if (Array.isArray(entry[this.active.nodeField.columnName])) {
                 nodeFieldArray = entry[this.active.nodeField.columnName];
                 for (const nodeEntry of nodeFieldArray) {
@@ -581,7 +580,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
                                 const link = {
                                     source: id,
                                     target: linkEntry,
-                                    label: 'relates to',
+                                    label: '',
                                     count: 1
                                 };
 
@@ -594,7 +593,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
                             const link = {
                                 source: id,
                                 target: linkField,
-                                label: 'relates to',
+                                label: '',
                                 count: 1
                             };
 
@@ -619,126 +618,35 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
                 };
 
                 this.graphData.nodes.push(node);
-                //
-
                 this.graphData.nodes = [...this.graphData.nodes];
-                //this.active.linkField = entry[options.linkField];//*/
+                //TODO: Make this its own method
+                if (Array.isArray(entry[this.active.linkField.columnName])) {
+                    linkFieldArray = entry[this.active.linkField.columnName];
+                    for (const linkEntry of linkFieldArray) {
+                        const link = {
+                            source: id,
+                            target: linkEntry,
+                            label: '',
+                            count: 1
+                        };
+
+                        this.graphData.links.push(link);
+                        this.graphData.links = [...this.graphData.links];
+                    }
+                } else if (entry[this.active.linkField.columnName]) {
+                    linkField = entry[this.active.linkField.columnName];
+                    const link = {
+                        source: id,
+                        target: linkField,
+                        label: '',
+                        count: 1
+                    };
+
+                    this.graphData.links.push(link);
+                    this.graphData.links = [...this.graphData.links];
+                }
             }
-
-            //Generate Links
-
-            //*/
-        } //*/
-        /* dummy data
-        this.graphData.nodes = [
-            {
-                id: 'Haiti',
-                label: 'Haiti',
-                nodeType: 'LOC',
-                size: 1
-            }, {
-                id: '1',
-                label: 'Needs',
-                nodeType: 'Needs',
-                size: 1
-            }, {
-                id: '2',
-                label: 'Water',
-                nodeType: 'Needs',
-                size: 1
-            }, {
-                id: '3',
-                label: 'Food',
-                nodeType: 'Needs',
-                size: 1
-            }, {
-                id: '4',
-                label: 'Medical',
-                nodeType: 'Needs',
-                size: 1
-            }, {
-                id: '5',
-                label: 'Internet',
-                nodeType: 'Needs',
-                size: 1
-            }, {
-                id: '6',
-                label: 'Help Results',
-                nodeType: 'Needs',
-                size: 1
-            }, {
-                id: '7',
-                label: 'People',
-                nodeType: 'Needs',
-                size: 1
-            }, {
-                id: '8',
-                label: 'Location',
-                nodeType: 'Needs',
-                size: 1
-            }, {
-                id: '9',
-                label: 'People',
-                nodeType: 'PER',
-                size: 1
-            }
-        ];
-
-        this.graphData.links = [
-            {
-                source: 'Haiti',
-                target: '1',
-                label: 'links to',
-                count: 1
-            }, {
-                source: 'Haiti',
-                target: '7',
-                label: 'links to',
-                count: 1
-            }, {
-                source: 'Haiti',
-                target: '8',
-                label: 'links to',
-                count: 1
-            }, {
-                source: '1',
-                target: '2',
-                label: 'related to',
-                count: 1
-            }, {
-                source: '1',
-                target: '3',
-                label: 'related to',
-                count: 1
-            }, {
-                source: '1',
-                target: '4',
-                label: 'links to',
-                count: 1
-            }, {
-                source: '1',
-                target: '5',
-                label: 'links to',
-                count: 1
-            }, {
-                source: '2',
-                target: '6',
-                label: 'links to',
-                count: 1
-            }, {
-                source: '1',
-                target: '5',
-                label: 'links to',
-                count: 1
-            }, {
-                source: '3',
-                target: '5',
-                label: 'links to',
-                count: 1
-            }
-        ]; //*/
-        //console.log(this.graphData);
-
+        }
     }
 
     isUniqueNode(nodeId) {
@@ -759,11 +667,5 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     generateLinks() {
         //
     }
-    /*
-        getNodeCount() {
-            let count = 0;
-            this.graphData.nodes.forEach(function(node) {
-                if()
-            })
-        }//*/
+
 }
