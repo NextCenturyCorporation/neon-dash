@@ -21,21 +21,21 @@ import { DatasetService } from './dataset.service';
 import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
 
-class ServiceFilter {
+export class ServiceFilter {
     id: string;
     ownerId: string;
     database: string;
     table: string;
     filter: any; // This will be a neon.query.Filter object. It's only "any" to avoid the hassle of parsing JSON into a proper Filter.
-    children: string[] = []; // Array of the ids of any filters that are children of this one (e.g. due to relations).
+    siblings: string[] = []; // Array of the ids of any filters that are children of this one (e.g. due to relations).
 
-    constructor(id: string, ownerId: string, database: string, table: string, filter: any, children?: string[]) {
+    constructor(id: string, ownerId: string, database: string, table: string, filter: any, siblings?: string[]) {
         this.id = id;
         this.ownerId = ownerId;
         this.database = database;
         this.table = table;
         this.filter = filter;
-        this.children = children || [];
+        this.siblings = siblings || [];
     }
 }
 
@@ -152,19 +152,27 @@ export class FilterService {
 
         let filter = this.createNeonFilter(database, table, whereClause, this.getFilterNameString(database, table, filterName));
         let id = database + '-' + table + '-' + uuid.v4();
-        // How do I know if a neon filter would require changing? Recursively go through where clauses and get a list of fields?
-        let fields = this.datasetService.findMentionedFields(filter);
-        // Looks like "yes" to that. Then use this.datasetService.getEquivalentFields(database, table, [each of fields]).
-        // Then make new filters for each of the returned equivalent fields and call them children of the first filter.
-        // Do this recursively? Seems like it would be possible for recursion to be a thing here.
-
-        messenger.addFilter(id,
-            filter,
+        let serviceFilters = [new ServiceFilter(id, ownerId, database, table, filter)];
+        this.createChildrenFromRelations(filter).forEach((sibling) => {
+            let sibId = sibling.databaseName + '-' + sibling.tableName + '-' + uuid.v4();
+            serviceFilters.push(new ServiceFilter(sibId, undefined, sibling.databaseName, sibling.tableName, sibling));
+        });
+        for (let sib = serviceFilters.length - 1; sib >= 0; sib--) {
+            for (let i = serviceFilters.length - 1; i >= 0; i--) {
+                if (sib !== i) {
+                    serviceFilters[sib].siblings.push(serviceFilters[i].id);
+                }
+            }
+        }
+        messenger.addFilters(
+            serviceFilters.map((sFilter) => [sFilter.id, sFilter.filter]),
             () => {
-                this.filters.push(new ServiceFilter(id, ownerId, database, table, filter));
-            onSuccess(id); // Return the ID of the created filter.
-        },
-        onError);
+                for (let i = serviceFilters.length - 1; i >= 0; i--) {
+                    this.filters.push(serviceFilters[i]);
+                }
+                onSuccess(id); // Return the ID of the primary created filter.
+            },
+            onError);
     }
 
     public replaceFilter(messenger: neon.eventing.Messenger,
@@ -178,11 +186,41 @@ export class FilterService {
         onError: (resp: any) => any) {
 
         let filter = this.createNeonFilter(database, table, whereClause, this.getFilterNameString(database, table, filterName));
-        messenger.replaceFilter(id,
-            filter,
+        let siblingIds = this.filters[id].siblings;
+        let newFilters = this.createChildrenFromRelations(filter);
+        let newSiblings = [];
+        let idAndFilterList = [[id, this.filters[id]]];
+
+        // For each sibling, find a new filter with the same database and table (the particular field is irrelevant),
+        // and make a replacement for that sibling with the new filter so that on success we can easily replace it.
+        // Also add that sibling's id and the new filter to idAndFilterList.
+        for (let i = siblingIds.length - 1; i >= 0; i--) {
+            let oldSib = this.filters.find((fil) => fil.id === siblingIds[i]);
+            for (let i2 = newFilters.length - 1; i2 >= 0; i2--) {
+                if (newFilters[i2].databaseName === oldSib.database && newFilters[i2].tableName === oldSib.table) {
+                    let newNeonFilter = newFilters.splice(i2, 1)[0];
+                    idAndFilterList.push([oldSib.id, newNeonFilter]);
+                    newSiblings.push(new ServiceFilter(
+                        oldSib.id,
+                        oldSib.ownerId,
+                        oldSib.database,
+                        oldSib.table,
+                        newNeonFilter,
+                        oldSib.siblings
+                    ));
+                    continue;
+                }
+            }
+        }
+        messenger.replaceFilters(
+            idAndFilterList,
             () => {
                 let index = _.findIndex(this.filters, { id: id });
-                this.filters[index] = new ServiceFilter(id, ownerId, database, table, filter);
+                this.filters[index] = new ServiceFilter(id, ownerId, database, table, filter, this.filters[index].siblings);
+                for (let i = newSiblings.length - 1; i >= 0; i--) {
+                    index = _.findIndex(this.filters, { id: newSiblings[i].id});
+                    this.filters[index] = newSiblings[i];
+                }
                 onSuccess(id); // Return the ID of the replaced filter.
             },
             onError);
@@ -193,12 +231,20 @@ export class FilterService {
         onSuccess?: (resp: any) => any,
         onError?: (resp: any) => any) {
 
-        messenger.removeFilter(id,
-            () => {
-                let index = _.findIndex(this.filters, { id: id });
-                let removedFilter = this.filters.splice(index, 1)[0];
+        let baseFilter = this.filters.find((filter) => filter.id === id);
+        let siblings = baseFilter.siblings.concat(id);
+        messenger.removeFilters(siblings,
+            () => { // TODO - Actually care about what's returned here: a list of successfully removed filters.
+                    // Filters not included weren't successfully removed.
+                siblings.forEach((sibling) => {
+                    for (let index = this.filters.length - 1; index >= 0; index--) {
+                        if (this.filters[index].id === sibling) {
+                            this.filters.splice(index, 1);
+                        }
+                    }
+                });
                 if (onSuccess) {
-                    onSuccess(removedFilter); // Return the removed filter.
+                    onSuccess(baseFilter); // Return the removed filter.
                 }
             },
             onError);
@@ -238,38 +284,91 @@ export class FilterService {
         return database + '-' + table + '-' + uuid.v4();
     }
 
-    private adaptNeonFilterForNewDataset(oldFilter: any,
-        oldDB: string,
-        oldTable: string,
-        oldField: string,
-        newDB: string,
-        newTable: string,
-        newField: string): any {
+    private createChildrenFromRelations(filter: neon.query.Filter): neon.query.Filter[] {
+        let mentionedFields = this.datasetService.findMentionedFields(filter);
+        let relatedFieldMapping: any = new Map<string, any>();
+        mentionedFields.forEach((field) => {
+            this.datasetService.getEquivalentFields(field.database, field.table, field.field, relatedFieldMapping);
+        });
 
-        let replaceValues = (object) => {
-            if (object instanceof Array) {
-                for (let i = object.length - 1; i >= 0; i--) {
-                    replaceValues(object[i]);
-                }
+        let childFilters = [];
+        relatedFieldMapping.forEach((value, dbAndTableKey) => {
+            let numFieldsInFilter = mentionedFields.length;
+            let numFieldsWithRelatedValuesInDBPair = Array.from(value.keys()).length;
+            if (numFieldsWithRelatedValuesInDBPair < numFieldsInFilter) {
+                return;
+            } else if (numFieldsWithRelatedValuesInDBPair > numFieldsInFilter) {
+                throw new Error('More fields with related values than there are fields. How did this even happen?');
+            } else {
+                let permutations = this.getPermutations(filter.databaseName, filter.tableName, value);
+                permutations.forEach((permutation) => {
+                    childFilters.push(this.adaptNeonFilterForNewDataset(filter, permutation));
+                });
             }
-            Object.keys(object).forEach((key) => {
-                if (object[key] === oldDB) {
-                    object[key] = newDB;
-                } else if (object[key] === oldTable) {
-                    object[key] = newTable;
-                } else if (object[key] === oldField) {
-                    object[key] = newField;
-                } else if (object[key] instanceof Array) {
-                    for (let i = object.length - 1; i >= 0; i--) {
-                        replaceValues(object[i]);
+        });
+        return childFilters;
+    }
+
+    private getPermutations(originalDb: string,
+                            originalTable: string,
+                            relatedFieldMapping: Map<string, { database: string, table: string, field: string }[]>):
+                            Map<{ database: string, table: string, field: string }, { database: string, table: string, field: string }>[] {
+
+            let getPermutationHelper = (fields: any[], permutationToDate: Map<any, any>) => {
+                let currentPermutation = permutationToDate || new Map<any, any>();
+                if (fields.length > 0) {
+                    let currentField = fields[0];
+                    for (let option of currentField[1]) {
+                        let current = _.cloneDeep(currentPermutation);
+                        current.set({
+                            database: originalDb,
+                            table: originalTable,
+                            field: currentField[0]
+                        }, {
+                            database: option.database,
+                            table: option.table,
+                            field: option.field
+                        });
+                        getPermutationHelper(fields.slice(1), current);
                     }
                 } else {
-                    replaceValues(object[key]);
+                    permutations.push(permutationToDate);
                 }
-            });
+            };
+            let permutations = []; // List of maps from original field to new field.
+            let fieldList = Array.from(relatedFieldMapping.entries());
+            getPermutationHelper(fieldList, undefined);
+            return permutations;
+    }
+
+    private adaptNeonFilterForNewDataset(filter: any,
+        changeMap: Map<{ database: string, table: string, field: string }, { database: string, table: string, field: string }>): any {
+
+        let replaceValues = (object, oldDb, oldTable, oldField, newDb, newTable, newField) => {
+            if (typeof object === 'string' || typeof object === 'number' || object === undefined || object === null) {
+                return; // We can't do anything with these. Just return to the parent method.
+            } else if (object instanceof Array) {
+                for (let i = object.length - 1; i >= 0; i--) {
+                    replaceValues(object[i], oldDb, oldTable, oldField, newDb, newTable, newField);
+                }
+            } else {
+                Object.keys(object).forEach((key) => {
+                    if (typeof object[key] === 'string') {
+                        object[key] = object[key].replace(oldDb, newDb).replace(oldTable, newTable).replace(oldField, newField);
+                    } else if (object[key] instanceof Array) {
+                        for (let i = object[key].length - 1; i >= 0; i--) {
+                            replaceValues(object[key][i], oldDb, oldTable, oldField, newDb, newTable, newField);
+                        }
+                    } else {
+                        replaceValues(object[key], oldDb, oldTable, oldField, newDb, newTable, newField);
+                    }
+                });
+            }
         };
-        let newFilter = _.cloneDeep(oldFilter);
-        replaceValues(newFilter);
+        let newFilter = _.cloneDeep(filter);
+        for (let kv of Array.from(changeMap.entries())) {
+            replaceValues(newFilter, kv[0].database, kv[0].table, kv[0].field, kv[1].database, kv[1].table, kv[1].field);
+        }
         return newFilter;
     }
 }
