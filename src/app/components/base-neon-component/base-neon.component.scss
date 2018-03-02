@@ -144,7 +144,7 @@ $footer-height: 40px;
 }
 
 .body-container {
-    height: calc(100% - #{$vis-title-expected-height} - 10px);
+    height: calc(100% - #{$vis-title-expected-height} - 5px);
     position: absolute;
     top: #{$vis-title-expected-height};
     bottom: 0;
@@ -152,8 +152,8 @@ $footer-height: 40px;
 }
 
 .body-container-with-footer {
-    height: calc(100% - #{$vis-title-expected-height} - 10px - 60px);
-    bottom: 60px;
+    height: calc(100% - #{$vis-title-expected-height} - 5px - #{$footer-height});
+    bottom: #{$footer-height};
 }
 
 .filter-container {

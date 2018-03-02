@@ -119,7 +119,6 @@ describe('Component: BarChart', () => {
         component.active.filterable = false;
         component.active.aggregation = 'test';
         component.active.chartType = 'testChart';
-        component.active.maxNum = 9001;
 
         expect(component.active.aggregationFieldHidden).toBe(false);
         expect(component.active.andFilters).toBe(false);
@@ -127,7 +126,6 @@ describe('Component: BarChart', () => {
         expect(component.active.filterable).toBe(false);
         expect(component.active.aggregation).toBe('test');
         expect(component.active.chartType).toBe('testChart');
-        expect(component.active.maxNum).toBe(9001);
     }));
 
     it('Checks optionsFromConfig default value', (() => {

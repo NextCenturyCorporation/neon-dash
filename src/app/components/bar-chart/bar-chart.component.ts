@@ -119,6 +119,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild('infoText') infoText: ElementRef;
 
     @ViewChild('myChart') chartModule: ChartComponent;
+    @ViewChild('hiddenCanvas') hiddenCanvas: ElementRef;
 
     private filters: {
         id: string,
@@ -156,7 +157,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         data: any[],
         aggregation: string,
         chartType: string,
-        maxNum: number,
+        maxCount: number,
         minScale: string,
         maxScale: string,
         scaleManually: boolean,
@@ -179,9 +180,17 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     public colorFieldNames: string[] = [];
     private defaultActiveColor;
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        ref: ChangeDetectorRef, visualizationService: VisualizationService, private colorSchemeService: ColorSchemeService) {
+    constructor(activeGridService: ActiveGridService,
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        exportService: ExportService,
+        injector: Injector,
+        themesService: ThemesService,
+        ref: ChangeDetectorRef,
+        visualizationService: VisualizationService,
+        private colorSchemeService: ColorSchemeService) {
+
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
 
@@ -214,9 +223,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             data: [],
             aggregation: 'count',
             chartType: this.optionsFromConfig.chartType || 'horizontalBar',
+            maxCount: 0,
             minScale: undefined,
             maxScale: undefined,
-            maxNum: 0,
             scaleManually: false,
             bars: [],
             seenBars: []
@@ -224,48 +233,77 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         this.onClick = this.onClick.bind(this);
 
-        // Arbitrary size in pixels of a character in a chart label.  (Obviously real characters are varied in size.)
-        let CHAR_SIZE = 6.0;
-        // Arbitrary margin for the labels.  (Not sure about the size of the real margin but this value looks fine.)
-        let LABELS_MARGIN = 30;
-        // Percentage of the chart for the labels specified by UX.
+        // Margin for the y-axis labels.
+        let LABELS_MARGIN = 20;
+        // Percentage of the chart for the y-axis labels specified by the UX team.
         let LABELS_PERCENTAGE = 0.2;
+        // Margin for the tooltip labels.
+        let TOOLTIPS_MARGIN = 20;
 
-        let resizeChartLabelX = (scaleInstance) => {
-            // Set the label height to either its minimum needed height or a percentage of the chart height (whatever is lower).
-            let height = Math.round(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientHeight);
-            scaleInstance.height = Math.min(scaleInstance.minSize.height, height);
+        let calculateTextWidth = (text) => {
+            if (!text) {
+                return 0;
+            }
+            let element = this.hiddenCanvas.nativeElement;
+            let context = element.getContext('2d');
+            context.font = '10px sans-serif';
+            return context.measureText(text).width;
         };
 
         let resizeChartLabelY = (scaleInstance) => {
             // Set the label width to either its minimum needed width or a percentage of the chart width (whatever is lower).
-            let width = Math.round(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth);
-            // If the bar chart has multiple pages, always return a consistent width.
-            scaleInstance.width = this.active.limit < this.active.bars.length ? width : Math.min(scaleInstance.minSize.width, width);
+            let containerWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth);
+            // If the bar chart has multiple pages, always return a consistent width (based on the Y-label width if possible).
+            if (this.active.limit < this.active.bars.length) {
+                let yLabels: any[] = (this.active.chartType === 'bar' ? [this.active.maxCount] : this.active.bars);
+                let yLabelsMaxWidth = yLabels.reduce((max, yLabel) => {
+                    return Math.max(max, calculateTextWidth(yLabel));
+                }, 0);
+                scaleInstance.width = Math.min(containerWidth, yLabelsMaxWidth);
+            } else {
+                scaleInstance.width = Math.min(containerWidth, scaleInstance.minSize.width);
+            }
+            scaleInstance.width = Math.floor(scaleInstance.width);
         };
 
-        let truncateText = (length, text) => {
-            let output = this.formatNumber(text).trim();
-            return output.length > (length + 1) ? (output.substring(0, length).trim() + '...') : output;
+        let truncateText = (containerWidth, text, suffix = '') => {
+            // Format number strings first.
+            let formatted = this.formatNumber(text);
+            // Subtract three characters for the ellipsis.
+            let truncated = ('' + text).substring(0, ('' + text).length - 3);
+            let elementWidth = calculateTextWidth(formatted + suffix);
+
+            if (!elementWidth || elementWidth < 0 || !containerWidth || containerWidth < 0 || elementWidth < containerWidth) {
+                return (formatted || '') + suffix;
+            }
+
+            while (elementWidth > containerWidth) {
+                // Truncate multiple characters of long text to increase speed performance.
+                let chars = Math.ceil(truncated.length / 20.0);
+                truncated = truncated.substring(0, truncated.length - chars);
+                if (!truncated) {
+                    return '...' + suffix;
+                }
+                elementWidth = calculateTextWidth(truncated + '...' + suffix);
+            }
+
+            return truncated.trim() + '...' + suffix;
         };
 
         let truncateBarLabelTextX = (text) => {
-            // Fit the number of characters to the bar width (bar width = chart width / number of bars - margin).
-            let length = Math.round((this.chartModule.getNativeElement().clientWidth / this.chartInfo.data.labels.length - LABELS_MARGIN) /
-                CHAR_SIZE);
-            return truncateText(length, text);
+            let containerWidth = Math.floor((1 - LABELS_PERCENTAGE) * this.chartModule.getNativeElement().clientWidth /
+                this.chartInfo.data.labels.length);
+            return truncateText(containerWidth, text);
         };
 
         let truncateBarLabelTextY = (text) => {
-            // Fit the number of characters to the label width (label width = a percentage of chart width - margin).
-            let length = Math.round((LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth - LABELS_MARGIN) / CHAR_SIZE);
-            return truncateText(length, text);
+            let containerWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth - LABELS_MARGIN);
+            return truncateText(containerWidth, text);
         };
 
-        let truncateTooltipLabelText = (text) => {
-            // Fit the number of characters to the chart width.
-            let length = Math.round(this.chartModule.getNativeElement().clientWidth / CHAR_SIZE);
-            return truncateText(length, text);
+        let truncateTooltipLabelText = (text, suffix) => {
+            let containerWidth = this.chartModule.getNativeElement().clientWidth - TOOLTIPS_MARGIN;
+            return truncateText(containerWidth, text, suffix);
         };
 
         this.chartInfo = {
@@ -288,7 +326,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 },
                 scales: {
                     xAxes: [{
-                        afterFit: resizeChartLabelX,
+                        barPercentage: 0.9,
+                        categoryPercentage: 0.9,
                         stacked: true,
                         ticks: {
                             maxRotation: 0,
@@ -299,6 +338,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                     }],
                     yAxes: [{
                         afterFit: resizeChartLabelY,
+                        barPercentage: 0.9,
+                        categoryPercentage: 0.9,
                         stacked: true,
                         ticks: {
                             beginAtZero: true,
@@ -312,7 +353,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 tooltips: {
                     mode: 'index',
                     intersect: false,
-                    callbacks: {}
+                    callbacks: {},
+                    position: 'neonCenter'
                 }
             }
         };
@@ -322,15 +364,18 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 let dataset = data.datasets[tooltipItem.datasetIndex];
                 return sum + dataset.data[tooltipItem.index];
             }, 0);
-            return truncateTooltipLabelText(data.labels[tooltipList[0].index]) + ': ' + this.formatNumber(count);
+            return [
+                truncateTooltipLabelText(data.labels[tooltipList[0].index]),
+                this.active.aggregation + ': ' + this.formatNumber(count)
+            ];
         };
 
         let createTooltipLabel = (tooltipItem, data) => {
             let dataset = data.datasets[tooltipItem.datasetIndex];
             let count = dataset.data[tooltipItem.index];
             // Returning null removes the row from the tooltip
-            return data.datasets.length === 1 || count === 0 ? null : truncateTooltipLabelText(dataset.label) + ': ' +
-                this.formatNumber(count);
+            return data.datasets.length === 1 || count === 0 ? null : truncateTooltipLabelText(dataset.label, ': ' +
+                this.formatNumber(count));
         };
 
         this.chartInfo.options.tooltips.callbacks.title = createTooltipTitle.bind(this);
@@ -765,6 +810,36 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         this.active.data = Array.from(groupsToDatasets.values());
         this.active.page = 1;
         this.active.lastPage = (this.active.bars.length <= this.active.limit);
+
+        let counts = !this.active.data.length ? [] : this.active.data.slice(1).reduce((array, dataset) => {
+            return dataset.data.map((value, index) => {
+                return array[index] + value;
+            });
+        }, this.active.data[0].data);
+
+        this.active.maxCount = counts.reduce((a, b) => {
+            return Math.max(a, b);
+        }) || 0;
+
+        if (!this.active.scaleManually) {
+            let maxCountLength = ('' + Math.ceil(this.active.maxCount)).length;
+            let stepSize = Math.pow(10, maxCountLength - 1);
+            let nextStepSize = Math.pow(10, maxCountLength);
+            if (nextStepSize / 2.0 > this.active.maxCount) {
+                stepSize /= 2.0;
+            }
+            if (this.active.chartType === 'horizontalBar') {
+                this.chartModule.chart.config.options.scales.xAxes[0].ticks.min = 0;
+                this.chartModule.chart.config.options.scales.xAxes[0].ticks.max = Math.ceil(this.active.maxCount / stepSize) * stepSize;
+                this.chartModule.chart.config.options.scales.xAxes[0].ticks.stepSize = stepSize;
+            }
+            if (this.active.chartType === 'bar') {
+                this.chartModule.chart.config.options.scales.yAxes[0].ticks.min = 0;
+                this.chartModule.chart.config.options.scales.yAxes[0].ticks.max = Math.ceil(this.active.maxCount / stepSize) * stepSize;
+                this.chartModule.chart.config.options.scales.yAxes[0].ticks.stepSize = stepSize;
+            }
+        }
+
         this.updateBarChart(0, this.active.limit);
     }
 
@@ -859,8 +934,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             this.chartModule.chart.config.options.scales.yAxes[0].ticks.max = newMax;
         } else if ('horizontalBar') {
             this.chartModule.chart.config.options.scales.xAxes[0].ticks.max = newMax;
-        } else {
-            //what
         }
     }
 
@@ -869,8 +942,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             this.chartModule.chart.config.options.scales.yAxes[0].ticks.min = newMin;
         } else if ('horizontalBar') {
             this.chartModule.chart.config.options.scales.xAxes[0].ticks.min = newMin;
-        } else {
-            //what
         }
     }
 
@@ -894,9 +965,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             } else {
                 this.setGraphMinimum(Number(this.active.minScale));
             }
-        } else {
-            this.setGraphMaximum(undefined);
-            this.setGraphMinimum(undefined);
         }
 
         this.logChangeAndStartQueryChain();
