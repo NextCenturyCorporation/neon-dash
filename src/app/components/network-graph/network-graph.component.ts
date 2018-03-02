@@ -134,6 +134,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     private colorSchemeService: ColorSchemeService;
     private defaultActiveColor;
 
+    queryTitle;
+
     @ViewChild('graphElement') graphElement: ElementRef;
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -666,6 +668,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     generateLinks() {
         //
+    }
+
+    getElementRefs() {
+        return {
+            //
+        };
     }
 
 }
