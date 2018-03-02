@@ -51,6 +51,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     @ViewChild('table') table: any;
     @ViewChild('dragView') dragView: ElementRef;
 
+    selected = [];
+
     private filters: {
         id: string,
         key: string,
@@ -564,6 +566,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (selected && selected.length && this.active.idField.columnName && selected[0][this.active.idField.columnName]) {
             this.publishSelectId(selected[0][this.active.idField.columnName]);
         }
+        this.selected.splice(0, this.selected.length);
+        this.selected.push(...selected);
     }
 
     /**

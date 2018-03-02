@@ -1,19 +1,19 @@
 {
 	"datasets": [
 		{
-			"name": "Entity Resolution",
+			"name": "Lincoln Labs Nepal Annotation Compare",
 			"connectOnLoad": true,
 			"layout": "TA0-layout",
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "ll_nepal_simplified",
-					"prettyName": "Lincoln Lab Entity",
+					"name": "ll_nepal_cs_out",
+					"prettyName": "TA1_ELISA",
 					"tables": [
 						{
-							"name": "entity_res",
-							"prettyName": "Entities",
+							"name": "ui_output_1",
+							"prettyName": "Tweets",
 							"mappings": {
 								"date": "createdAt"
 							}
@@ -36,9 +36,9 @@
 					}
 				},
 				"simpleFilter": {
-					"databaseName": "ll_nepal_simplified",
-					"tableName": "entity_res",
-					"fieldName": "preferredName",
+					"databaseName": "ll_nepal_cs_out",
+					"tableName": "ui_output_1",
+					"fieldName": "text",
 					"placeHolder": "Search"
 				}
 			}
@@ -50,8 +50,8 @@
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 16,
-				"sizey":3,
+				"sizex": 24,
+				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 2,
@@ -60,101 +60,135 @@
 				"selected": true,
 				"bindings": {
 					"title": "Filter Builder",
-					"database": "ll_nepal_simplified",
-					"table": "entity_res"
+					"database": "ll_nepal_cs_out",
+					"table": "ui_output_1"
 				},
 				"row": 0,
 				"col": 0
 			},
-					{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+			{
+				"name": "Data Table",
+				"type": "dataTable",
+				"icon": "ViewData64",
+				"sizex": 15,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 4,
-				"$$hashKey": "object:35",
+				"minSizex": 7,
+				"minSizey": 3,
+				"$$hashKey": "object:43",
 				"selected": true,
 				"bindings": {
-					"title": "Preferred Names",
-					"database": "ll_nepal_simplified",
-					"table": "entity_res",
-					"dataField": "preferredName"
+					"title": "Raw Data",
+					"database": "ll_nepal_cs_out",
+					"table": "tweet",
+					"sortField": "createdAt",
+					"limit": "100",
+					"allColumnStatus": "hide",
+					"exceptionsToStatus": [
+						"createdAt",
+						"originalText",
+						"llAnnotation.Type",
+						"llAnnotation.TypeConfidence",
+						"llAnnotation.Status",
+						"topics"
+					]
 				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 4,
+				"row": 6,
 				"col": 0
-			},
-		{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 4,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "Names",
-					"database": "ll_nepal_simplified",
-					"table": "entity_res",
-					"dataField": "names"
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 4,
-				"col": 6
-			},		{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 4,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "Documents",
-					"database": "ll_nepal_simplified",
-					"table": "entity_res",
-					"dataField": "docs"
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 9,
-				"col": 9
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 8,
-				"sizey": 6,
+				"sizex": 11,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 4,
-				"minSizey": 6,
+				"minSizey": 4,
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Entity Types",
-					"database": "ll_nepal_simplified",
-					"table": "entity_res",
-					"dataField": "type",
+					"title": "Lincoln Labs Topics",
+					"database": "ll_nepal_cs_out",
+					"table": "ui_output_1",
+					"dataField": "llAnnotation.Type",
 					"aggregation": "",
 					"aggregationField": "",
-					"chartType": "horizontalBar"
+					"chartType": "horizontalBar",
+					"colors": [
+						{
+							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
+							"color": "77, 190, 194"
+						},
+						{
+							"value": "regimechange|crimeviolence|terrorism|earthquake",
+							"color": "39, 96, 126"
+						}
+					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 9,
+				"row": 13,
 				"col": 0
+			},
+			{
+				"name": "Bar Chart",
+				"type": "barChart",
+				"icon": "BarChart64",
+				"sizex": 11,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:30",
+				"selected": true,
+				"bindings": {
+					"title": "ELISA Topics",
+					"database": "ll_nepal_cs_out",
+					"table": "ui_output_1",
+					"dataField": "topics",
+					"aggregation": "",
+					"aggregationField": "",
+					"chartType": "horizontalBar",
+					"colors": [
+						{
+							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
+							"color": "77, 190, 194"
+						},
+						{
+							"value": "regimechange|crimeviolence|terrorism|earthquake",
+							"color": "39, 96, 126"
+						}
+					]
+				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+				"row": 13,
+				"col": 0
+			},
+			{
+				"name": "Timeline",
+				"type": "timeline",
+				"icon": "Timeline64",
+				"sizex": 13,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 6,
+				"minSizey": 3,
+				"$$hashKey": "object:36",
+				"selected": true,
+				"bindings": {
+					"title": "Times",
+					"database": "ll_nepal_cs_out",
+					"table": "ui_output_1",
+					"dateField": "createdAt",
+					"granularity": "hour"
+				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
+				"row": 8,
+				"col": 12
 			}
 		]
 	},
