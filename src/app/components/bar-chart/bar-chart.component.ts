@@ -301,7 +301,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             return truncateText(containerWidth, text);
         };
 
-        let truncateTooltipLabelText = (text, suffix) => {
+        let truncateTooltipLabelText = (text, suffix = '') => {
             let containerWidth = this.chartModule.getNativeElement().clientWidth - TOOLTIPS_MARGIN;
             return truncateText(containerWidth, text, suffix);
         };
