@@ -34,10 +34,10 @@ export class TableMetaData {
     mappings: TableMappings;
 
     constructor(name?: string, prettyName?: string, fields?: FieldMetaData[], mappings?: TableMappings) {
-        this.name = name;
-        this.prettyName = prettyName;
-        this.fields = fields;
-        this.mappings = mappings;
+        this.name = name || '';
+        this.prettyName = prettyName || '';
+        this.fields = fields || [];
+        this.mappings = mappings || {};
     }
 }
 
@@ -46,10 +46,10 @@ export class DatabaseMetaData {
     prettyName: string = '';
     tables: TableMetaData[];
 
-    constructor(name?: string, prettyName?: string) {
-        this.name = name;
-        this.prettyName = prettyName;
-        this.tables = [];
+    constructor(name?: string, prettyName?: string, tables?: TableMetaData[]) {
+        this.name = name || '';
+        this.prettyName = prettyName || '';
+        this.tables = tables || [];
     }
 }
 

@@ -27,6 +27,7 @@ import { DataTableComponent } from './data-table.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
@@ -48,6 +49,7 @@ describe('Component: DataTable', () => {
                 UnsharedFilterComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 DatasetService,
                 FilterService,
@@ -73,4 +75,26 @@ describe('Component: DataTable', () => {
     it('exists', (() => {
         expect(component).toBeTruthy();
     }));
+
+    it('getButtonText does return expected string', () => {
+        component.active.limit = 10;
+        expect(component.getButtonText()).toBe('No Data');
+        component.active.docCount = 10;
+        expect(component.getButtonText()).toBe('Total 10');
+        component.active.docCount = 20;
+        expect(component.getButtonText()).toBe('1 - 10 of 20');
+        component.active.page = 2;
+        expect(component.getButtonText()).toBe('11 - 20 of 20');
+        component.active.limit = 5;
+        expect(component.getButtonText()).toBe('6 - 10 of 20');
+        component.active.docCount = 5;
+        expect(component.getButtonText()).toBe('Total 5');
+    });
+
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.infoText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
 });

@@ -14,15 +14,17 @@
  *
  */
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewEncapsulation,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
     Injector,
+    OnDestroy,
+    OnInit,
     ViewChild,
-    ChangeDetectorRef, ElementRef
+    ViewEncapsulation
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -33,7 +35,7 @@ import { FieldMetaData } from '../../dataset';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ChartModule } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 import { VisualizationService } from '../../services/visualization.service';
 
 /**
@@ -98,14 +100,16 @@ class ScatterDataSet {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
-    OnDestroy {
+export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
 
-    @ViewChild('scatter') chartModule: ChartModule;
-    @ViewChild('textContainer') textContainer: ElementRef;
+    @ViewChild('scatter') chartModule: ChartComponent;
+    @ViewChild('filterContainer') filterContainer: ElementRef;
     @ViewChild('chartContainer') chartContainer: ElementRef;
 
-    private filters: ScatterPlotFilter[];
+    filters: ScatterPlotFilter[];
 
     private defaultActiveColor;
 
@@ -129,6 +133,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         labelField: FieldMetaData,
         andFilters: boolean,
         limit: number,
+        newLimit: number,
         filterable: boolean,
         layers: any[],
         xAxisIsNumeric: boolean,
@@ -169,10 +174,11 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         y: 0
     };
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService,
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -196,6 +202,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
             labelField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
+            newLimit: this.optionsFromConfig.limit,
             filterable: true,
             layers: [],
             xAxisIsNumeric: true,
@@ -289,7 +296,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         };
-        this.queryTitle = 'Scatter Plot';
     }
 
     /**
@@ -315,7 +321,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
         this.chart.data.datasets.push(new ScatterDataSet(this.defaultActiveColor));
 
-        this.selectionOffset.y = this.textContainer.nativeElement.scrollHeight;
+        this.selectionOffset.y = this.filterContainer.nativeElement.scrollHeight;
         this.selectionOffset.x = Number.parseInt(this.getComputedStyle(this.chartContainer.nativeElement).paddingLeft || '0');
     }
 
@@ -535,17 +541,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
     }
 
     getFilterText() {
-        // I.E. test - earthquakes - time = 10/11/2015 to 5/1/2016"
-        /*let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let field = this.active.dateField.columnName;
-        let text = database + ' - ' + table + ' - ' + field + ' = ';
-        let date = this.selection.startDate;
-        text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
-        date = this.selection.endDate;
-        text += ' to ';
-        text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
-        return text;*/
         return '';
     }
 
@@ -598,17 +593,12 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         query = query.groupBy(groupBys);
         query = query.sortBy(xField, neonVariables.ASCENDING);
         query.where(neon.query.and.apply(query, whereClauses));
-        query = query.limit(this.active.limit);
         query = query.aggregate(neonVariables.COUNT, '*', 'value');
         return query;
     }
 
     getFiltersToIgnore() {
         return null;
-    }
-
-    isNumber(n) {
-        return !isNaN(parseFloat(n)) && isFinite(n);
     }
 
     onQuerySuccess(response) {
@@ -658,8 +648,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
 
             xAxisLabels.push(x);
             yAxisLabels.push(y);
-            xAxisIsNumeric = xAxisIsNumeric && this.isNumber(x);
-            yAxisIsNumeric = yAxisIsNumeric && this.isNumber(y);
+            xAxisIsNumeric = xAxisIsNumeric && super.isNumber(x);
+            yAxisIsNumeric = yAxisIsNumeric && super.isNumber(y);
 
             dataSet.data.push(p);
             let label = '';
@@ -697,14 +687,30 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
                 }
             }
         }
-        this.chart.data.labels = this.chart.data.xLabels;
 
+        this.chart.data.labels = this.chart.data.xLabels;
         this.chart.data.datasets = allDataSets;
+
+        if (this.chart.data.labels.length > this.active.limit) {
+            let pointCount = 0;
+            let pointLimit = this.active.limit;
+            this.chart.data.datasets = this.chart.data.datasets.map(function(dataset) {
+                if (pointCount >= pointLimit) {
+                    dataset.data = [];
+                } else {
+                    if (pointCount + dataset.data.length > pointLimit) {
+                        dataset.data = dataset.data.slice(0, pointLimit - pointCount);
+                    }
+                    pointCount += dataset.data.length;
+                }
+                return dataset;
+            });
+        }
+
         this.active.xAxisIsNumeric = xAxisIsNumeric;
         this.active.yAxisIsNumeric = yAxisIsNumeric;
 
         this.refreshVisualization();
-        this.queryTitle = 'Scatter Plot: ' + this.active.xField.prettyName + ' vs ' + this.active.yField.prettyName;
         // Force the legend to update
         this.colorByFields = [this.meta.colorField.columnName];
     }
@@ -741,28 +747,42 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         // Do nothing
     }
 
+    /**
+     * Updates the limit, resets the seen bars, and reruns the bar chart query.
+     */
     handleChangeLimit() {
-        this.logChangeAndStartQueryChain();
+        if (super.isNumber(this.active.newLimit)) {
+            let newLimit = parseFloat('' + this.active.newLimit);
+            if (newLimit > 0) {
+                this.active.limit = newLimit;
+                // TODO THOR-526 Redraw the scatter plot but do not requery because we can use the same data from the original query.
+                this.logChangeAndStartQueryChain();
+            } else {
+                this.active.newLimit = this.active.limit;
+            }
+        } else {
+            this.active.newLimit = this.active.limit;
+        }
     }
 
     handleChangeXField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeYField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeLabelField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeColorField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+        this.logChangeAndStartQueryChain();
     }
 
     unsharedFilterChanged() {
@@ -785,7 +805,23 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         }
     }
 
-    getFilterTitle(/*value: string*/) {
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
+    getButtonText(): string {
+        if (!this.chart.data.labels || !this.chart.data.labels.length) {
+            return 'No Data';
+        }
+        if (this.chart.data.labels.length <= this.active.limit) {
+            return 'Total ' + super.prettifyInteger(this.chart.data.labels.length);
+        }
+        return super.prettifyInteger(this.active.limit) + ' of ' + super.prettifyInteger(this.chart.data.labels.length);
+    }
+
+    getFilterTitle() {
         return this.active.xField.columnName + ' vs ' + this.active.yField.columnName;
     }
 
@@ -793,12 +829,26 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit,
         return value;
     }
 
-    getRemoveFilterTooltip(/*value: string*/) {
+    getRemoveFilterTooltip() {
         return 'Delete Filter ' + this.getFilterTitle();
     }
 
     removeFilter() {
         this.filters = [];
+    }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
     }
 }
 

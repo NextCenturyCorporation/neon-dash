@@ -1,67 +1,89 @@
-<mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="header" layout-align="space-between center" flex>
-        <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
+<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+        <div #headerText class="header text pull-left" [title]="meta.title">{{ meta.title }}</div>
         <span class="fill-remaining"></span>
-        <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
+        <span #infoText class="info text">{{ getButtonText() }}</span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <mat-icon class="mat-24">settings</mat-icon>
+            <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <label style="display: inline;" *ngIf="getButtonText()">
-                    <mat-icon class="error-icon">error</mat-icon>
-                    {{ getButtonText() }}
-                </label>
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text">
+                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <div>{{ getButtonText() }}</div>
+                    </label>
+                    <p></p>
+                </div>
+
+                <mat-form-field>
+                    <input matInput placeholder="Title" [(ngModel)]="meta.title" required="false">
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true"
+                                (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases"
+                                    [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true"
+                                (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="X Axis Field" [(ngModel)]="active.xField" required="true" (ngModelChange)="handleChangeXField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="X Axis Field" [(ngModel)]="active.xField" required="true"
+                                (ngModelChange)="handleChangeXField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Y Axis Field" [(ngModel)]="active.yField" required="true" (ngModelChange)="handleChangeYField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Y Axis Field" [(ngModel)]="active.yField" required="true"
+                                (ngModelChange)="handleChangeYField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Label Field" [(ngModel)]="active.labelField" required="true" (ngModelChange)="handleChangeLabelField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Label Field" [(ngModel)]="active.labelField" required="true"
+                                (ngModelChange)="handleChangeLabelField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Color Field" [(ngModel)]="meta.colorField"
-                           (ngModelChange)="handleChangeColorField()" [disabled]="meta.fields.length == 0">
-                    <mat-option [value]="emptyField">(None)</mat-option>
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Color Field" [(ngModel)]="meta.colorField"
+                               (ngModelChange)="handleChangeColorField()" [disabled]="meta.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <table cellspacing="0">
                     <tr>
                         <td>
                             <mat-form-field>
-                                <input matInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                                <input matInput placeholder="Point Limit" [(ngModel)]="active.newLimit" required="true">
                             </mat-form-field>
                         </td>
                         <td>
                             <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <mat-icon class="mat-24">refresh</mat-icon>
+                                <mat-icon>refresh</mat-icon>
                             </button>
                         </td>
                     </tr>
@@ -74,33 +96,32 @@
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
-
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
+
     <div class="body-container">
         <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
             <mat-spinner ></mat-spinner>
         </div>
-        <div #textContainer class="text-container">
+        <div #filterContainer class="filter-container multi-element">
             <div>
                 <app-legend *ngIf="hasColorField()"
                             (itemSelected)="legendItemSelected($event)"
-                            [disabledList]="disabledList"
+                            [disabledList]="disabledSet"
                             [fieldNames]="colorByFields"></app-legend>
             </div>
             <div class="filter-reset" *ngIf="filters[0]">
                 <span class="filter-label" [title]="getFilterTitle()">Scatter Filter</span>
-                <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveFilterTooltip()" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filters[0], true)">
-                    <mat-icon class="mat-18">close</mat-icon>
+                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
+                        [matTooltip]="getRemoveFilterTooltip()" (click)="removeLocalFilterFromLocalAndNeon(filters[0], true)">
+                    <mat-icon class="neon-icon-small">close</mat-icon>
                 </button>
             </div>
         </div>
         <div class="chart-container" #chartContainer (click)="stopEventPropagation($event)" (mousedown)="mouseDown($event)" (mouseleave)="mouseLeave($event)" (mouseup)="mouseUp($event)">
             <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x + selectionOffset.x, 'top.px':selection.y + selectionOffset.y}"></div>
-            <chart class="chart" #scatter [type]="chart.type" [data]="chart.data" [options]="chart.options">
-            </chart>
-
+            <app-chart class="chart" #scatter [type]="chart.type" [data]="chart.data" [options]="chart.options"></app-chart>
         </div>
     </div>
 </mat-sidenav-container>

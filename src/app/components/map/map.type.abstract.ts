@@ -19,7 +19,7 @@ import { ElementRef } from '@angular/core';
 
 export const whiteString = new Color(255, 255, 255).toRgb();
 
-export enum MapType {leaflet, cesium}
+export enum MapType {Leaflet, Cesium}
 
 // create array of name/value pairs for map types
 export const MapTypePairs: {name: string, value: number}[] =
@@ -38,11 +38,6 @@ export interface OptionsFromConfig {
     title: string;
     database: string;
     table: string;
-    latitudeField: string;
-    longitudeField: string;
-    sizeField: string;
-    colorField: string;
-    dateField: string;
     limit: number;
     unsharedFilterField: Object;
     unsharedFilterValue: string;
@@ -92,7 +87,9 @@ export class MapPoint {
         public lng: number,
         public count: number,
         public cssColorString: string,
-        public description: string
+        public description: string,
+        public colorByField: string,
+        public colorByValue: string
     ) {}
 }
 
@@ -129,6 +126,26 @@ export abstract class AbstractMap {
     sizeChanged() {
         // Do nothing for most cases
     }
+
+    /**
+     * Hide points from the map by layer and value
+     * @param layer the layer of the points to hide
+     * @param value the value to hide
+     */
+    abstract hidePoints(layer: MapLayer, value: string);
+
+    /**
+     * Unhide points from the map by layer and value
+     * @param layer the layer of the points to unhide
+     * @param value the value to unhide
+     */
+    abstract unhidePoints(layer: MapLayer, value: string);
+
+    /**
+     * Unhide all points for a layer
+     * @param layer the layer
+     */
+    abstract unhideAllPoints(layer: MapLayer);
 
     abstract destroy();
 

@@ -1,67 +1,82 @@
-<mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="header" layout-align="space-between center" flex>
-        <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
+<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+        <div #headerText class="header text pull-left" [title]="meta.title">{{ meta.title }}</div>
         <span class="fill-remaining"></span>
-        <span class="text" title="Open/Close the Options Menu">{{ buttonText }}</span>
+        <span #infoText class="info text">{{ getButtonText() }}</span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <mat-icon class="mat-24">settings</mat-icon>
+            <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <label style="display: inline;" *ngIf="getButtonText()">
-                    <mat-icon class="error-icon">error</mat-icon>
-                    {{ getButtonText() }}
-                </label>
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text">
+                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <div>{{ getButtonText() }}</div>
+                    </label>
+                    <p></p>
+                </div>
+
+                <mat-form-field>
+                    <input matInput placeholder="Title" [(ngModel)]="meta.title" required="false">
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true"
+                                (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true"
+                                (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true" (ngModelChange)="handleChangeDateField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true"
+                                (ngModelChange)="handleChangeDateField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true" (ngModelChange)="handleChangeGroupField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true"
+                                (ngModelChange)="handleChangeGroupField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true" (ngModelChange)="handleChangeAggregation()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option value="count">Count</mat-option>
-                    <mat-option value="sum">Sum</mat-option>
-                    <mat-option value="average">Average</mat-option>
-                    <mat-option value="max">Maximum</mat-option>
-                    <mat-option value="min">Minimum</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true"
+                                (ngModelChange)="handleChangeAggregation()" [disabled]="meta.fields.length == 0">
+                        <mat-option value="count">Count</mat-option>
+                        <mat-option value="sum">Sum</mat-option>
+                        <mat-option value="average">Average</mat-option>
+                        <mat-option value="max">Maximum</mat-option>
+                        <mat-option value="min">Minimum</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select *ngIf="!active.aggregationFieldHidden" placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField"
-                    required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field *ngIf="!active.aggregationFieldHidden">
+                    <mat-select placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField"
+                            required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <mat-button-toggle-group #hourGranularity="matButtonToggleGroup" [(ngModel)]="active.granularity" (ngModelChange)="handleChangeGranularity()">
-                    <!--<mat-button-toggle value="year">
-                        Year
-                    </mat-button-toggle>
-                    <mat-button-toggle value="month">
-                        Month
-                    </mat-button-toggle>-->
                     <mat-button-toggle value="day">
                         Day
                     </mat-button-toggle>
@@ -75,26 +90,29 @@
                     <tr>
                         <td>
                             <mat-form-field>
-                                <input matInput placeholder="Group Limit" [(ngModel)]="active.groupLimit" required="true">
+                                <input matInput placeholder="Group Limit" [(ngModel)]="active.newLimit" required="true">
                             </mat-form-field>
                         </td>
                         <td>
                             <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <mat-icon class="mat-24">refresh</mat-icon>
+                                <mat-icon>refresh</mat-icon>
                             </button>
                         </td>
                     </tr>
                 </table>
                 <p></p>
+
                 <app-export-control [exportId]="exportId"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
+
+    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+        <mat-spinner ></mat-spinner>
+    </div>
+
     <div class="body-container">
-        <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
-            <mat-spinner ></mat-spinner>
-        </div>
-        <div #textContainer class="text-container-for-linechart">
+        <div #filterContainer class="filter-container multi-element">
             <div>
                 <app-legend (itemSelected)="legendItemSelected($event)"
                     [fieldNames]="colorByFields"
@@ -102,24 +120,16 @@
             </div>
             <div class="filter-reset" *ngIf="active.filter">
                 <span class="filter-label" [title]="getFilterTitle(active.filter)">Date Filter</span>
-                <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveFilterTooltip(active.filter)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(active.filter, true)">
-                    <mat-icon class="mat-18">close</mat-icon>
+                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
+                        [matTooltip]="getRemoveFilterTooltip(active.filter)" (click)="removeLocalFilterFromLocalAndNeon(active.filter, true)">
+                    <mat-icon class="neon-icon-small">close</mat-icon>
                 </button>
             </div>
         </div>
         <div #chartContainer class="chart-container" (click)="stopEventPropagation($event)" (mousedown)="mouseDown($event)" (mouseleave)="mouseLeave($event)">
             <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x + selectionOffset.x, 'top.px':selection.y + selectionOffset.y}"></div>
-            <chart class="chart" #myChart [type]="chart.type" [data]="chart.data" [options]="chart.options">
-            </chart>
+            <app-chart class="chart" #myChart [type]="chart.type" [data]="chart.data" [options]="chart.options"></app-chart>
 
         </div>
     </div>
-    <!--<div class="text-cloud" mat-fill layout="col">
-        <a (click)="addFilter(item.key, item.keyTranslated)" class="text" *ngFor="let item of active.data" [rel]="item.count"
-            [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
-                <div>
-                    {{ item.key }}
-                </div>
-            </a>
-    </div>-->
 </mat-sidenav-container>

@@ -13,8 +13,19 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, OnDestroy, ViewEncapsulation, ChangeDetectionStrategy, ChangeDetectorRef, Injector } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    Injector,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
+} from '@angular/core';
 import { TextCloud, TextCloudOptions, SizeOptions, ColorOptions } from './text-cloud-namespace';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -35,6 +46,10 @@ import { Color, ColorSchemeService } from '../../services/color-scheme.service';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
+
     private textCloud: TextCloud;
     private filters: {
         id: string,
@@ -66,6 +81,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         sizeField: FieldMetaData,
         andFilters: boolean,
         limit: number,
+        newLimit: number,
         textColor: string,
         allowsTranslations: boolean,
         filterable: boolean,
@@ -81,10 +97,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     // Average should be the default. It is loaded from the optionsFromConfig
     public sizeAggregation: string;
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
-                visualizationService: VisualizationService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+        ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -104,13 +121,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             sizeField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
+            newLimit: this.optionsFromConfig.limit,
             textColor: '#111',
             allowsTranslations: true,
             filterable: true,
             data: [],
             count: 0
         };
-        this.queryTitle = this.optionsFromConfig.title || 'Text Cloud';
     }
 
     subNgOnInit() {
@@ -164,12 +181,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return obj;
     }
 
-    updateArray(arr, add) {
-        let newArr = arr.slice();
-        newArr.push(add);
-        return newArr;
-    }
-
     onUpdateFields() {
         let dataField = this.findFieldObject('dataField', neonMappings.TAGS);
         let sizeField = this.findFieldObject('sizeField', neonMappings.TAGS);
@@ -185,7 +196,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 return;
             }
         }
-        this.filters = this.updateArray(this.filters, filter);
+        this.filters = [].concat(this.filters).concat([filter]);
     }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
@@ -294,10 +305,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 });
                 this.active = this.updateObject(this.active, 'data', activeData);
                 this.refreshVisualization();
-                this.queryTitle = this.optionsFromConfig.title || 'Text Cloud by ' + this.active.dataField.prettyName;
-                if (useSizeField && this.queryTitle !== this.optionsFromConfig.title) {
-                    this.queryTitle += ' and ' + this.active.sizeField.prettyName;
-                }
                 if (cloudData.length === 0) {
                     this.active.count = 0;
                 } else {
@@ -371,28 +378,48 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     handleChangeDataField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
+    /**
+     * Updates the limit, resets the seen bars, and reruns the bar chart query.
+     */
     handleChangeLimit() {
-        this.active.limit = this.active.limit || 1;
-        this.logChangeAndStartQueryChain(); // ('limit', this.active.limit, 'button');
+        if (super.isNumber(this.active.newLimit)) {
+            let newLimit = parseFloat('' + this.active.newLimit);
+            if (newLimit > 0) {
+                this.active.limit = newLimit;
+                this.logChangeAndStartQueryChain();
+            } else {
+                this.active.newLimit = this.active.limit;
+            }
+        } else {
+            this.active.newLimit = this.active.limit;
+        }
     }
 
     handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
+        this.logChangeAndStartQueryChain();
     }
 
     handleChangeSizeField() {
         this.logChangeAndStartQueryChain();
     }
 
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
     getButtonText() {
-        return !this.isFilterSet() && !this.active.data.length ?
-            'No Data' :
-            this.active.data.length < this.active.count ?
-                'Top ' + this.active.data.length + ' of ' + this.active.count :
-                'Total ' + this.active.data.length;
+        if (!this.isFilterSet() && !this.active.data.length) {
+            return 'No Data';
+        }
+        if (this.active.count <= this.active.data.length) {
+            return 'Total ' + super.prettifyInteger(this.active.count);
+        }
+        return super.prettifyInteger(this.active.data.length) + ' of ' + super.prettifyInteger(this.active.count);
     }
 
     getFilterData() {
@@ -450,4 +477,17 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.executeQueryChain();
     }
 
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
+    }
 }

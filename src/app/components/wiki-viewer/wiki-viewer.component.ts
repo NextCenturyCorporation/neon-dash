@@ -13,9 +13,20 @@
  * limitations under the License.
  *
  */
-import { ChangeDetectorRef, ChangeDetectionStrategy, Component, Injector, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    Injector,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
+} from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Http } from '@angular/http';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ExportService } from '../../services/export.service';
@@ -40,6 +51,10 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 export class WikiViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     static WIKI_LINK_PREFIX: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
 
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
+
     public active: {
         allowsTranslations: boolean,
         errorMessage: string,
@@ -60,13 +75,14 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         title: string
     };
 
-    private isLoadingWikiPage: boolean;
+    isLoadingWikiPage: boolean;
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
-        visualizationService: VisualizationService, private http: Http, private sanitizer: DomSanitizer) {
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+        ref: ChangeDetectorRef, visualizationService: VisualizationService, private http: Http, private sanitizer: DomSanitizer) {
 
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+        super(activeGridService, connectionService, datasetService,
+            filterService, exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             database: this.injector.get('database', null),
             id: this.injector.get('id', null),
@@ -86,7 +102,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             wikiText: []
         };
         this.isLoadingWikiPage = false;
-        this.queryTitle = this.optionsFromConfig.title || 'Wiki Viewer';
         this.subscribeToSelectId(this.getSelectIdCallback());
     }
 
@@ -117,6 +132,33 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         ];
 
         return query.where(neon.query.and.apply(query, whereClauses));
+    }
+
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
+    getButtonText() {
+        if (!this.active.wikiName.length) {
+            return 'No Data';
+        }
+        return 'Total ' + super.prettifyInteger(this.active.wikiName.length);
+    }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
     }
 
     /**
@@ -167,7 +209,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns the option for the given field from the wiki viewer config.
+     * Returns the option for the given property from the wiki viewer config.
      *
      * @arg {string} option
      * @return {object}
@@ -219,7 +261,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      *
      * @private
      */
-    private handleChangeField() {
+    handleChangeField() {
         this.logChangeAndStartQueryChain();
     }
 
@@ -341,7 +383,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     /**
      * Sets the given bindings for the wiki viewer.
      *
-     * @arg {object} bindings
+     * @arg {any} bindings
      * @override
      */
     subGetBindings(bindings: any) {

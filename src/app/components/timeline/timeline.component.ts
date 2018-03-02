@@ -15,14 +15,18 @@
  */
 /// <reference path="../../../../node_modules/@types/d3/index.d.ts" />
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewEncapsulation,
     ChangeDetectionStrategy,
-    Injector, ElementRef, ViewChild, HostListener,
-    ChangeDetectorRef
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    HostListener,
+    Injector,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -50,8 +54,11 @@ declare let d3;
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TimelineComponent extends BaseNeonComponent implements OnInit,
-        OnDestroy {
+export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
+
     @ViewChild('svg') svg: ElementRef;
 
     private filters: {
@@ -71,14 +78,19 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     };
 
     public active: {
-        dateField: FieldMetaData,
         data: {
             value: number,
             date: Date
         }[],
+        dateField: FieldMetaData,
         granularity: string,
         ylabel: string,
         docCount: number
+    };
+
+    private chartDefaults: {
+        activeColor: string,
+        inactiveColor: string
     };
 
     private colorSchemeService: ColorSchemeService;
@@ -86,10 +98,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     private timelineData: TimelineData;
     private defaultActiveColor;
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService,
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -101,8 +114,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
         this.filters = [];
 
         this.active = {
-            dateField: new FieldMetaData(),
             data: [],
+            dateField: new FieldMetaData(),
             granularity: this.optionsFromConfig.granularity,
             ylabel: 'Count',
             docCount: 0
@@ -355,29 +368,33 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
             this.active.docCount = response.data[0]._docCount;
         } else {
             // Convert all the dates into Date objects
-            response.data.map((d) => {
-                d.date = new Date(d.date);
+            this.active.data = response.data.map((item) => {
+                item.date = new Date(item.date);
+                return item;
             });
-
-            this.active.data = response.data;
 
             this.filterAndRefreshData();
             this.getDocCount();
         }
     }
 
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
     getButtonText() {
-        if (!this.active.data) {
-            return 'No Data';
-        }
-        let shownCount = this.active.data.reduce((sum, element) => {
+        let shownCount = (this.active.data || []).reduce((sum, element) => {
             return sum + element.value;
         }, 0);
-        return !shownCount ?
-            'No Data' :
-            shownCount < this.active.docCount ?
-                'Top ' + shownCount + ' of ' + this.active.docCount :
-                'Total ' + shownCount;
+        if (!shownCount) {
+            return 'No Data';
+        }
+        if (this.active.docCount <= shownCount) {
+            return 'Total ' + super.prettifyInteger(shownCount);
+        }
+        return super.prettifyInteger(shownCount) + ' of ' + super.prettifyInteger(this.active.docCount);
     }
 
     /**
@@ -542,10 +559,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     }
 
     handleChangeDateField() {
-        this.logChangeAndStartQueryChain(); // ('dateField', this.active.dateField.columnName);
+        this.logChangeAndStartQueryChain();
     }
 
-    logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
+    logChangeAndStartQueryChain() {
         if (!this.initializing) {
             this.executeQueryChain();
         }
@@ -577,7 +594,21 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit,
     removeFilter() {
         this.filters = [];
         if (this.timelineChart) {
-        this.timelineChart.clearBrush();
+            this.timelineChart.clearBrush();
+        }
     }
-}
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
+    }
 }

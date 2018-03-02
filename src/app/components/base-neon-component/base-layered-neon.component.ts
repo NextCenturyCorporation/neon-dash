@@ -19,6 +19,7 @@ import {
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -35,11 +36,13 @@ import { Color } from '../../services/color-scheme.service';
  * Base component for all non-layered Neon visualizations.
  * This manages some of the lifecycle and query logic.
  */
-export abstract class BaseLayeredNeonComponent implements OnInit,
-    OnDestroy {
+export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
+    private SETTINGS_BUTTON_WIDTH: number = 30;
+    private TEXT_MARGIN_WIDTH: number = 10;
+    private TOOLBAR_PADDING_WIDTH: number = 20;
+    private TOOLBAR_EXTRA_WIDTH: number = this.SETTINGS_BUTTON_WIDTH + this.TEXT_MARGIN_WIDTH + this.TOOLBAR_PADDING_WIDTH;
 
     public id: string;
-    protected queryTitle: string;
     protected messenger: neon.eventing.Messenger;
     protected outstandingDataQueriesByLayer: any[];
 
@@ -51,15 +54,18 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * Common metadata about the database, and the table and any unshared filter of the layers
      */
     public meta: {
-        databases: DatabaseMetaData[],
+        title: string,
         layers: {
+            index: number,
+            title: string,
+            databases: DatabaseMetaData[],
             database: DatabaseMetaData,
             tables: TableMetaData[],
             table: TableMetaData,
             fields: FieldMetaData[]
             unsharedFilterField: any,
             unsharedFilterValue: string,
-            colorField: FieldMetaData
+            docCount: number
         }[]
     };
 
@@ -75,6 +81,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     public emptyField = new FieldMetaData();
 
     constructor(
+        private activeGridService: ActiveGridService,
         private connectionService: ConnectionService,
         private datasetService: DatasetService,
         protected filterService: FilterService,
@@ -94,10 +101,12 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
         this.isLoading = 0;
+
         this.meta = {
-            databases: [],
+            title: '',
             layers: []
         };
+
         this.isExportable = true;
         this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
@@ -123,13 +132,15 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         try {
             this.setupFilters();
         } catch (e) {
-            console.warn('Error while setting up filters duing init, ignoring');
+            // Fails in unit tests - ignore.
         }
 
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
         this.visualizationService.registerBindings(this.id, this);
+        this.activeGridService.register(this.id, this);
 
+        this.meta.title = this.getOptionFromConfig('title') || this.getVisualizationName();
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
@@ -188,28 +199,29 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      */
     getBindings(): any {
         let bindings = {
-            title: this.createTitle(),
-            databases: [],
+            title: this.meta.title,
             layers: []
         };
-        for (let database of this.meta.databases) {
-            bindings.databases.push(database.name);
-        }
         for (let layer of this.meta.layers) {
             let layerBindings = {
+                title: layer.title,
+                databases: [],
                 database: layer.database.name,
                 tables: [],
                 table: layer.table.name,
                 fields: [],
                 unsharedFilterField: layer.unsharedFilterField.columnName,
                 unsharedFilterValue: layer.unsharedFilterValue,
-                colorField: layer.colorField.columnName
+                docCount: 0
             };
             for (let field of layer.fields) {
                 layerBindings.fields.push(field.columnName);
             }
             for (let table of layer.tables) {
                 layerBindings.tables.push(table.name);
+            }
+            for (let database of layer.databases) {
+                layerBindings.databases.push(database.name);
             }
             bindings.layers.push(layerBindings);
         }
@@ -224,19 +236,23 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * Add a new empty layer
      */
     addEmptyLayer() {
+        let index = this.meta.layers.length;
         let layer = {
+            index: index,
+            title: '',
+            databases: [],
             database: new DatabaseMetaData(),
             tables: [],
             table: new TableMetaData(),
             unsharedFilterField: {},
             unsharedFilterValue: '',
             fields: [],
-            colorField: new FieldMetaData()
+            docCount: 0
         };
         this.outstandingDataQueriesByLayer.push({});
         this.subAddEmptyLayer();
         this.meta.layers.push(layer);
-        this.initDatabases(this.meta.layers.length - 1);
+        this.initDatabases(layer);
     }
 
     /**
@@ -262,7 +278,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * @return {}
      */
     exportOneLayer(query: neon.query.Query, layerIndex: number) {
-        let exportName = this.queryTitle;
+        let exportName = this.meta.title;
         if (exportName) {
             // replaceAll
             exportName = exportName.split(':').join(' ');
@@ -313,7 +329,31 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.redrawAfterResize = enable;
     }
 
+    /**
+     * Initializes sub-component styles as needed.
+     */
+    onResizeStart() {
+        // Update info text width.
+        let refs = this.getElementRefs();
+        if (refs.infoText && refs.visualization) {
+            if (refs.visualization.nativeElement.clientWidth > (refs.infoText.nativeElement.clientWidth - this.TOOLBAR_EXTRA_WIDTH)) {
+                refs.infoText.nativeElement.style.minWidth = (Math.round(refs.infoText.nativeElement.clientWidth) + 1) + 'px';
+            }
+        }
+
+    }
+
+    /**
+     * Resizes sub-components as needed.
+     */
     onResizeStop() {
+        // Update header text width.
+        let refs = this.getElementRefs();
+        if (refs.headerText && refs.infoText && refs.visualization) {
+            refs.headerText.nativeElement.style.maxWidth = Math.round(refs.visualization.nativeElement.clientWidth -
+                refs.infoText.nativeElement.clientWidth - this.TOOLBAR_EXTRA_WIDTH) + 'px';
+        }
+
         if (this.redrawAfterResize) {
             // This event fires as soon as the user releases the mouse, but NgGrid animates the resize,
             // so the current width and height are not the new width and height.  NgGrid uses a 0.25
@@ -323,12 +363,20 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     }
 
     /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     */
+    abstract getElementRefs(): any;
+
+    /**
      * Clean up everything
      */
     ngOnDestroy() {
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
         this.visualizationService.unregister(this.id);
+        this.activeGridService.unregister(this.id);
         this.subNgOnDestroy();
     }
 
@@ -337,72 +385,73 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     }
 
     /**
-     * Initialize the database metadata for a layer
-     * @param layerIndex
+     * Load all the database metadata, then call initTables()
+     *
+     * @arg {object} metaObject
      */
-    initDatabases(layerIndex) {
-        this.meta.databases = this.datasetService.getDatabases();
-        this.meta.layers[layerIndex].database = this.meta.databases[0] || this.meta.layers[layerIndex].database;
+    initDatabases(metaObject: any) {
+        metaObject.databases = this.datasetService.getDatabases();
+        metaObject.database = metaObject.databases[0] || new DatabaseMetaData();
 
-        if (this.meta.databases.length > 0) {
+        if (metaObject.databases.length > 0) {
             if (this.getOptionFromConfig('database')) {
-                for (let database of this.meta.databases) {
+                for (let database of metaObject.databases) {
                     if (this.getOptionFromConfig('database') === database.name) {
-                        this.meta.layers[layerIndex].database = database;
+                        metaObject.database = database;
                         break;
                     }
                 }
             }
 
-            this.initTables(layerIndex);
+            this.initTables(metaObject);
         }
     }
 
     /**
-     * Initialize the table metadata for a layer
-     * @param layerIndex
+     * Load all the table metadata, then call initFields()
+     *
+     * @arg {object} metaObject
      */
-    initTables(layerIndex) {
-        this.meta.layers[layerIndex].tables = this.datasetService.getTables(this.meta.layers[layerIndex].database.name);
-        this.meta.layers[layerIndex].table = this.meta.layers[layerIndex].tables[0];
+    initTables(metaObject: any) {
+        metaObject.tables = this.datasetService.getTables(metaObject.database.name);
+        metaObject.table = metaObject.tables[0] || new TableMetaData();
 
-        if (this.meta.layers[layerIndex].tables.length > 0) {
+        if (metaObject.tables.length > 0) {
             if (this.getOptionFromConfig('table')) {
-                for (let table of this.meta.layers[layerIndex].tables) {
+                for (let table of metaObject.tables) {
                     if (this.getOptionFromConfig('table') === table.name) {
-                        this.meta.layers[layerIndex].table = table;
+                        metaObject.table = table;
                         break;
                     }
                 }
             }
-            this.initFields(layerIndex);
+            this.initFields(metaObject);
         }
     }
 
     /**
-     * Initialize the field metadata for a layer
-     * @param layerIndex
+     * Initialize all the field metadata
+     *
+     * @arg {object} metaObject
      */
-    initFields(layerIndex) {
-        // Sort the fields that are displayed in the dropdowns in the options menus
-        // alphabetically.
-        let fields = this.datasetService
-            .getSortedFields(this.meta.layers[layerIndex].database.name, this.meta.layers[layerIndex].table.name);
-        this.meta.layers[layerIndex].fields = fields.filter(function(f) {
-            return (f && f.type);
+    initFields(metaObject: any) {
+        // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
+        metaObject.fields = this.datasetService.getSortedFields(metaObject.database.name, metaObject.table.name, true).filter((field) => {
+            return (field && field.columnName);
         });
-        this.meta.layers[layerIndex].unsharedFilterField = this.findFieldObject(layerIndex, 'unsharedFilterField');
-        this.meta.layers[layerIndex].unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
-        this.meta.layers[layerIndex].colorField = this.getOptionFromConfig('colorField') || new FieldMetaData();
+        metaObject.unsharedFilterField = this.findFieldObject(metaObject.index, 'unsharedFilterField');
+        metaObject.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
 
-        this.onUpdateFields(layerIndex);
+        this.onUpdateFields(metaObject);
     }
 
     /**
      * Called when any field metadata changes.
      * This will be called once before initialization is complete
+     *
+     * @arg {object} metaObject
      */
-    abstract onUpdateFields(layerIndex);
+    abstract onUpdateFields(metaObject: any);
 
     stopEventPropagation(event) {
         if (event.stopPropagation) {
@@ -513,57 +562,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     }
 
     /**
-     * Create a title for a query
-     * @param {boolean} resetQueryTitle
-     * @return {string}
-     */
-    createTitle(resetQueryTitle?: boolean): string {
-        if (resetQueryTitle) {
-            this.queryTitle = '';
-        }
-        if (this.queryTitle) {
-            return this.queryTitle;
-        }
-        let optionTitle = this.getOptionFromConfig('title');
-        if (optionTitle) {
-            return optionTitle;
-        }
-        if (this.meta.layers.length === 1) {
-            return this.createLayerTitle(1, resetQueryTitle);
-        } else {
-            return 'Multiple Layers - ' + this.getVisualizationName();
-        }
-    }
-
-    /**
-     * Create a title for a layer
-     * @param {number} layerIndex
-     * @param {boolean} resetQueryTitle
-     * @return {string}
-     */
-    createLayerTitle(layerIndex: number, resetQueryTitle?: boolean): string {
-        if (resetQueryTitle) {
-            this.queryTitle = '';
-        }
-        if (this.queryTitle) {
-            return this.queryTitle;
-        }
-        let optionTitle = this.getOptionFromConfig('title');
-        if (optionTitle) {
-            return optionTitle;
-        }
-        let title = this.meta.layers[layerIndex].unsharedFilterValue
-            ? this.meta.layers[layerIndex].unsharedFilterValue + ' '
-            : '';
-        if (_.keys(this.meta).length) {
-            return title + (this.meta.layers[layerIndex].table && this.meta.layers[layerIndex].table.name
-                ? this.meta.layers[layerIndex].table.prettyName
-                : '');
-        }
-        return title;
-    }
-
-    /**
      * This is expected to get called whenever a query is expected to be run.
      * This could be startup, user action to change field, relevant filter change
      * from another visualization
@@ -588,7 +586,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         }
         this.isLoading++;
         this.changeDetection.detectChanges();
-        this.queryTitle = this.createLayerTitle(layerIndex, false);
         let query = this.createQuery(layerIndex);
 
         let filtersToIgnore = this.getFiltersToIgnore();
@@ -644,6 +641,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
         this.onQuerySuccess(layerIndex, response);
         this.isLoading--;
         this.changeDetection.detectChanges();
+        // Initialize the header styles.
+        this.onResizeStart();
     }
 
     /**
@@ -757,16 +756,16 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * Handles changes in the active database
      */
     handleChangeDatabase(layerIndex) {
-        this.initTables(layerIndex);
-        this.logChangeAndStartQueryChain(layerIndex); // ('database', this.active.database.name);
+        this.initTables(this.meta.layers[layerIndex]);
+        this.logChangeAndStartQueryChain(layerIndex);
     }
 
     /**
      * Handles changes in the active table
      */
     handleChangeTable(layerIndex) {
-        this.initFields(layerIndex);
-        this.logChangeAndStartQueryChain(layerIndex); // ('table', this.active.table.name);
+        this.initFields(this.meta.layers[layerIndex]);
+        this.logChangeAndStartQueryChain(layerIndex);
     }
 
     /**
@@ -781,7 +780,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
     /**
      * If not initializing, calls executeQueryChain(index) for a layer
      */
-    logChangeAndStartQueryChain(layerIndex: number) { // (option: string, value: any, type?: string) {
+    logChangeAndStartQueryChain(layerIndex: number) {
         if (!this.initializing) {
             this.executeQueryChain(layerIndex);
         }
@@ -791,7 +790,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
      * Called when a filter has been removed
      * @param value the filter name
      */
-    abstract removeFilter(value: string): void;
+    abstract removeFilter(filter: any): void;
 
     /**
      * Remove a filter from neon, and optionally requery and/or refresh
@@ -834,10 +833,29 @@ export abstract class BaseLayeredNeonComponent implements OnInit,
             style: string;
         if (!elems.length) {
             style = 'rgb(255, 255, 255)';
-            console.error('Unable to retrieve primary theme without element with class "coloraccessor"');
         } else {
             style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
         }
         return style && Color.fromRgbString(style);
+    }
+
+    /**
+     * Returns whether the given item is a number.
+     *
+     * @arg {any} item
+     * @return {boolean}
+     */
+    isNumber(item: any): boolean {
+        return !isNaN(parseFloat(item)) && isFinite(item);
+    }
+
+    /**
+     * Returns the prettified string of the given integer (with commas).
+     *
+     * @arg {number} item
+     * @return {string}
+     */
+    prettifyInteger(item: number): string {
+        return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 }

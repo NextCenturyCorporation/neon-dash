@@ -1,51 +1,76 @@
 {
-	"datasets": [{
-		"name": "LDC Uyghur Annotations",
-		"connectOnLoad": true,
-		"layout": "ldc-layout",
-		"datastore": "elasticsearch",
-		"hostname": "localhost",
-		"databases": [{
-			"name": "ldc_uyghur_4",
-			"prettyName": "Ground Truth",
-			"tables": [{
-				"name": "ui_output",
-				"prettyName": "UI Output",
-				"mappings": {
-					"date": "createdAt",
-					"latitude": "geoLocations.lat",
-					"longitude": "geoLocations.lon"
+	"datasets": [
+		{
+			"name": "Nepal Earthquake 2015 Documents",
+			"connectOnLoad": true,
+			"layout": "TA0-layout",
+			"datastore": "elasticsearch",
+			"hostname": "localhost",
+			"databases": [
+				{
+					"name": "ll_nepal_cs_out",
+					"prettyName": "Nepal Earthquake 2015 Documents",
+					"tables": [
+						{
+							"name": "ui_output_1",
+							"prettyName": "Documents",
+							"mappings": {
+								"date": "createdAt"
+							}
+						}
+					]
 				}
-			}]
-		}],
-		"options": {
-			"checkForCoordinateValidation": "null_values",
-			"colorMaps": {
-				"ldc_uyghur_1": {
-					"ui_output": {
-						"entities.entityType": {
-							"LOC": "#98DF8A",
-							"ORG": "#FF9896",
-							"PER": "#AEC7E8"
-						},
-						"types": {}
+			],
+			"options": {
+				"checkForCoordinateValidation": "null_values",
+				"colorMaps": {
+					"ll_nepal_simplified": {
+						"mapping": {
+							"entities.entityType": {
+								"LOC": "#98DF8A",
+								"ORG": "#FF9896",
+								"PER": "#AEC7E8"
+							},
+							"types": {}
+						}
 					}
+				},
+				"simpleFilter": {
+					"databaseName": "ll_nepal_cs_out",
+					"tableName": "ui_output_1",
+					"fieldName": "text",
+					"placeHolder": "Search"
 				}
-			},
-			"simpleFilter": {
-				"databaseName": "ldc_uyghur_4",
-				"tableName": "ui_output",
-				"fieldName": "translatedText",
-				"placeHolder": "Search"
 			}
 		}
-	}],
+	],
 	"layouts": {
-		"ldc-layout":[{
+		"TA0-layout": [
+			{
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 24,
+				"sizey": 3,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Filter Builder",
+					"database": "ll_nepal_cs_out",
+					"table": "ui_ouput_1"
+				},
+				"row": 0,
+				"col": 0
+			},
+			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
+				"sizex": 9,
 				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -54,14 +79,15 @@
 				"$$hashKey": "object:30",
 				"selected": true,
 				"bindings": {
-					"title": "Situation",
-					"database": "ldc_uyghur_4",
-					"table": "ui_output",
-					"dataField": "topics",
-					"aggregation": "count",
+					"title": "Topics",
+					"database": "ll_nepal_cs_out",
+					"table": "ui_output_1",
+					"dataField": "llAnnotation.Type",
+					"aggregation": "",
 					"aggregationField": "",
 					"chartType": "horizontalBar",
-					"colors": [{
+					"colors": [
+						{
 							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
 							"color": "77, 190, 194"
 						},
@@ -75,114 +101,95 @@
 				"row": 0,
 				"col": 0
 			},
-
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
+				"sizex": 11,
+				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
+				"minSizex": 4,
 				"minSizey": 4,
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
-					"title": "Location",
-					"database": "ldc_uyghur_4",
-					"table": "ui_output",
-					"dataField": "LOC"
+					"title": "Place Mentions",
+					"database": "ll_nepal_cs_out",
+					"table": "ui_output_1",
+					"dataField": "PlaceMention"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
+				"row": 4,
 				"col": 0
 			},
 			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 5,
+				"name": "Timeline",
+				"type": "timeline",
+				"icon": "Timeline64",
+				"sizex": 11,
 				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 4,
-				"$$hashKey": "object:35",
+				"minSizex": 6,
+				"minSizey": 3,
+				"$$hashKey": "object:36",
 				"selected": true,
 				"bindings": {
-					"title": "People",
-					"database": "ldc_uyghur_4",
-					"table": "ui_output",
-					"dataField": "PER"
+					"title": "Times",
+					"database": "ll_nepal_cs_out",
+					"table": "ui_output_1",
+					"dateField": "createdAt",
+					"granularity": "hour"
 				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 6
-			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 5,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 4,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "Organizations",
-					"database": "ldc_uyghur_4",
-					"table": "ui_output",
-					"dataField": "ORG"
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
+				"row": 12,
 				"col": 0
 			},
 			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 5,
+				"name": "Data Table",
+				"type": "dataTable",
+				"icon": "ViewData64",
+				"sizex": 15,
 				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 5,
-				"minSizey": 4,
-				"$$hashKey": "object:35",
+				"minSizex": 7,
+				"minSizey": 3,
+				"$$hashKey": "object:43",
 				"selected": true,
 				"bindings": {
-					"title": "GeoPolitical Entities",
-					"database": "ldc_uyghur_4",
-					"table": "ui_output",
-					"dataField": "GPE"
+					"title": "Documents",
+					"database": "ll_nepal_cs_out",
+					"table": "ui_output_1",
+					"sortField": "createdAt",
+					"limit": "100",
+					"allColumnStatus": "show",
+					"exceptionsToStatus": [
+					]
 				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 11,
-				"col": 6
+				"row": 0,
+				"col": 10
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 8,
+				"sizex": 13,
 				"sizey": 8,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 7,
+				"minSizex": 6,
 				"minSizey": 5,
 				"$$hashKey": "object:29",
 				"selected": true,
 				"bindings": {
-					"title": "Situation Map",
-					"database": "ldc_uyghur_4",
+					"title": "Locations",
+					"database": "ll_nepal_cs_out",
 					"filterable": true,
 					"name": "EVENTS",
 					"show": true,
-					"table": "ui_output",
+					"table": "ui_output_1",
 					"type": "cluster",
 					"limit": 5000,
 					"latitudeField": "geoLocations.lat",
@@ -192,7 +199,8 @@
 					"targetLatitudeField": "",
 					"targetLongitudeField": "",
 					"colorField": "",
-					"colorMapping": [{
+					"colorMapping": [
+						{
 							"match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
 							"label": "Need",
 							"color": "rgb(0,255,0)"
@@ -224,99 +232,44 @@
 					"gradientColorCode4": "",
 					"gradientColorCode5": "",
 					"applyTransientDateFilter": false,
-					"popupFields": [],
-					"layers": [{
-						"title": "Grace Point Layer",
-						"database": "ldc_uyghur_4",
-						"table": "ui_output",
-						"latitudeField": "geoLocations.lat",
-						"longitudeField": "geoLocations.lon",
-						"dateField": "createdAt",
-						"colorField": "topics"
-					}]
+					"popupFields": [
+						"originalText"
+					],
+					"layers": [
+						{
+							"title": "NepalEarthquake 2015 Documents Point Layer",
+							"database": "ll_nepal_cs_out",
+							"table": "ui_output_1",
+							"latitudeField": "geoLocations.lat",
+							"longitudeField": "geoLocations.lon",
+							"dateField": "createdAt",
+							"colorField": "sentimentString"
+						}
+					],
+					"geoServer": {
+						"offline": false,
+						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
+						"layer": "lorelei_workspace:MapCityLabel"
+					},
+					"mapType": "leaflet"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 0,
-				"col": 11
-			},
-			{
-				"name": "Timeline",
-				"type": "timeline",
-				"icon": "Timeline64",
-				"sizex": 8,
-				"sizey": 7,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 6,
-				"minSizey": 5,
-				"$$hashKey": "object:36",
-				"selected": true,
-				"bindings": {
-					"title": "Timeline",
-					"database": "ldc_uyghur_4",
-					"table": "ui_output",
-					"dateField": "createdAt",
-					"granularity": "month"
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 9,
-				"col": 11
-			},
-			{
-				"name": "Document Viewer",
-				"type": "documentViewer",
-				"icon": "DocumentViewer64",
-				"sizex": 6,
-				"sizey": 15,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"$hashKey": "object:37",
-				"selected": true,
-				"bindings": {
-					"title": "Situation Documents",
-					"database": "ldc_uyghur_4",
-					"table": "ui_output",
-					"dataField": "originalText",
-					"idField": "id",
-					"metadataFields": [
-						[{
-							"name": "Date",
-							"field": "createdAt"
-						}],
-						[{
-							"name": "Topic",
-							"field": "topics"
-						}],
-						[{
-							"name": "People",
-							"field": "PER"
-						}],
-						[{
-								"name": "Locations",
-								"field": "LOC"
-							},
-							{
-								"name": "GeoPolitical Entities",
-								"field": "GPE"
-							}
-						]
-					],
-					"limit": 50
-				},
-				"row": 0,
-				"col": 19
+				"row": 3,
+				"col": 12
 			}
 		]
 	},
 	"legends": {
-		"ldc_uyghur_1": {
-			"ui_output": [{
+		"ll_nepal_simplified": {
+			"annotations": [
+				{
 					"label": "Text",
 					"customized": {
 						"field": "translatedText",
 						"operator": "contains"
 					},
-					"items": [{
+					"items": [
+						{
 							"label": "Evacuation",
 							"field": "translatedText",
 							"operator": "contains",
@@ -344,7 +297,8 @@
 				},
 				{
 					"label": "Situation Frame Type",
-					"items": [{
+					"items": [
+						{
 							"label": "Any",
 							"field": "topics",
 							"operator": "!=",
@@ -420,7 +374,8 @@
 				},
 				{
 					"label": "SEC",
-					"items": [{
+					"items": [
+						{
 							"label": "Activation",
 							"field": "sentimentString",
 							"value": "Activation"
@@ -454,7 +409,8 @@
 				},
 				{
 					"label": "Entity Type",
-					"items": [{
+					"items": [
+						{
 							"label": "Person",
 							"field": "entities.entityType",
 							"value": "PER"
@@ -500,9 +456,6 @@
 		"showExport": true,
 		"translationKeys": {
 			"google": "AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8"
-		},
-		"simpleFilter": {
-
 		}
 	}
 }

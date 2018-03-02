@@ -19,10 +19,9 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData, Dataset } from '../../d
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { ChartModule } from 'angular2-chartjs';
-
 import { TextCloudComponent } from './text-cloud.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -38,6 +37,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
+import { ChartComponent } from '../chart/chart.component';
 
 class TestDatasetService extends DatasetService {
     constructor() {
@@ -66,11 +66,14 @@ describe('Component: TextCloud', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 TextCloudComponent,
                 ExportControlComponent,
-                UnsharedFilterComponent
+                UnsharedFilterComponent,
+                ChartComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 {
                     provide: DatasetService,
@@ -88,7 +91,6 @@ describe('Component: TextCloud', () => {
             imports: [
                 AppMaterialModule,
                 FormsModule,
-                ChartModule,
                 BrowserAnimationsModule
             ]
         });
@@ -106,6 +108,7 @@ describe('Component: TextCloud', () => {
             sizeField: new FieldMetaData(),
             andFilters: true,
             limit: 40,
+            newLimit: 40,
             textColor: '#111',
             allowsTranslations: true,
             filterable: true,
@@ -196,28 +199,14 @@ describe('Component: TextCloud', () => {
         });
     });
 
-    it('properly updates arrays in updateArray', () => {
-        let startingArray = component.updateArray([], 'first');
-        startingArray = component.updateArray(startingArray, 'second');
-        expect(startingArray).toEqual(['first', 'second']);
-    });
-
     it('sets expected fields in onUpdateFields to the correct values', () => {
         component.meta.database = new DatabaseMetaData('testDatabase', 'Test Database');
         component.meta.database.name = 'testName';
         component.meta.table = new TableMetaData('testTable', 'Test Table');
 
         component.onUpdateFields();
-        expect(component.active.dataField).toEqual({
-            columnName: '',
-            prettyName: '',
-            hide: false
-        });
-        expect(component.active.sizeField).toEqual({
-            columnName: '',
-            prettyName: '',
-            hide: false
-        });
+        expect(component.active.dataField).toEqual(new FieldMetaData());
+        expect(component.active.sizeField).toEqual(new FieldMetaData());
 
         component.meta.fields = [
             new FieldMetaData('testDataField'),
@@ -408,7 +397,6 @@ describe('Component: TextCloud', () => {
 
         expect(component.active.data).toEqual([]);
         expect(component.active.count).toBe(0);
-        expect(component.createTitle()).toEqual('Text Cloud by Test Data Field');
         expect(calledExecuteQuery).toBeFalsy(); // Don't query for doc count if we got no data.
 
         component.active.sizeField.columnName = 'testSizeField';
@@ -418,7 +406,6 @@ describe('Component: TextCloud', () => {
 
         expect(component.active.data).toEqual([]);
         expect(component.active.count).toBe(0);
-        expect(component.createTitle()).toEqual('Text Cloud by Test Data Field and Test Size Field');
         expect(calledExecuteQuery).toBeFalsy();
     });
 
@@ -494,7 +481,6 @@ describe('Component: TextCloud', () => {
             keyTranslated: 'Third'
         }]);
         expect(component.active.count).toBe(3);
-        expect(component.createTitle()).toEqual('Text Cloud by Test Data Field');
         expect(calledCreateTextCloud).toBeTruthy();
         expect(calledExecuteQuery).toBeTruthy();
 
@@ -527,7 +513,6 @@ describe('Component: TextCloud', () => {
             keyTranslated: 'Third'
         }]);
         expect(component.active.count).toBe(3);
-        expect(component.createTitle()).toEqual('Text Cloud by Test Data Field and Test Size Field');
         expect(calledCreateTextCloud).toBeTruthy();
         expect(calledExecuteQuery).toBeTruthy();
     });
@@ -565,26 +550,28 @@ describe('Component: TextCloud', () => {
     });
 
     it('has an isFilterSet method that properly checks for local filters', () => {
-        expect(component.isFilterSet()).toBeFalsy();
-        component.addLocalFilter({
+        let filter1 = {
             id: '1q2w-3e4r-5t6y-7u8i',
             key: 'testDataField',
             value: 'testValue',
             translated: '',
             prettyKey: 'testDataField'
-        });
-        expect(component.isFilterSet()).toBeTruthy();
-        component.addLocalFilter({
+        };
+        let filter2 = {
             id: '0p9o-8i7u-6y5t-4r3e',
             key: 'testDataField',
             value: 'testValueTheSecond',
             translated: '',
             prettyKey: 'testDataField'
-        });
+        };
+        expect(component.isFilterSet()).toBeFalsy();
+        component.addLocalFilter(filter1);
         expect(component.isFilterSet()).toBeTruthy();
-        component.removeFilter('1q2w-3e4r-5t6y-7u8i');
+        component.addLocalFilter(filter2);
         expect(component.isFilterSet()).toBeTruthy();
-        component.removeFilter('0p9o-8i7u-6y5t-4r3e');
+        component.removeFilter(filter1);
+        expect(component.isFilterSet()).toBeTruthy();
+        component.removeFilter(filter2);
         expect(component.isFilterSet()).toBeFalsy();
     });
 
@@ -672,21 +659,21 @@ describe('Component: TextCloud', () => {
         expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
     });
 
-    it('ensures the limit is not zero and calls logChangeAndStartQueryChain in handleChangeLimit', () => {
-        let logChangeAndStartQueryChainWasCalled = false;
-        component.logChangeAndStartQueryChain = () => {
-            logChangeAndStartQueryChainWasCalled = true;
-        };
+    it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
+        let spy = spyOn(component, 'logChangeAndStartQueryChain');
+
+        component.active.newLimit = 1234;
 
         component.handleChangeLimit();
-        expect(component.active.limit).toBe(40);
-        expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
+        expect(component.active.limit).toBe(1234);
+        expect(spy.calls.count()).toBe(1);
 
-        component.active.limit = 0;
-        logChangeAndStartQueryChainWasCalled = false;
+        component.active.newLimit = 0;
+
         component.handleChangeLimit();
-        expect(component.active.limit).toBe(1);
-        expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
+        expect(component.active.limit).toBe(1234);
+        expect(component.active.newLimit).toBe(1234);
+        expect(spy.calls.count()).toBe(1);
     });
 
     it('calls logChangeAndStartQueryChain in handleChangeAndFilters', () => {
@@ -718,7 +705,7 @@ describe('Component: TextCloud', () => {
         component.active.count = 1;
         expect(component.getButtonText()).toEqual('Total 1');
         component.active.count = 5;
-        expect(component.getButtonText()).toEqual('Top 1 of 5');
+        expect(component.getButtonText()).toEqual('1 of 5');
     });
 
     it('properly returns the list of filters from getFilterData', () => {
@@ -740,12 +727,12 @@ describe('Component: TextCloud', () => {
         expect(component.getFilterData()).toEqual([filter1]);
         component.addLocalFilter(filter2);
         expect(component.getFilterData()).toEqual([filter1, filter2]);
-        component.removeFilter('12345');
+        component.removeFilter(filter1);
         expect(component.getFilterData()).toEqual([filter2]);
         component.addLocalFilter(filter1);
         expect(component.getFilterData()).toEqual([filter2, filter1]);
-        component.removeFilter('12345');
-        component.removeFilter('67890');
+        component.removeFilter(filter1);
+        component.removeFilter(filter2);
         expect(component.getFilterData()).toEqual([]);
     });
 
@@ -803,12 +790,12 @@ describe('Component: TextCloud', () => {
         expect(component.getFilterData()).toEqual([filter1]);
         component.addLocalFilter(filter2);
         expect(component.getFilterData()).toEqual([filter1, filter2]);
-        component.removeFilter('12345');
+        component.removeFilter(filter1);
         expect(component.getFilterData()).toEqual([filter2]);
         component.addLocalFilter(filter1);
         expect(component.getFilterData()).toEqual([filter2, filter1]);
-        component.removeFilter('12345');
-        component.removeFilter('67890');
+        component.removeFilter(filter1);
+        component.removeFilter(filter2);
         expect(component.getFilterData()).toEqual([]);
     });
 
@@ -842,11 +829,13 @@ describe('Component: Textcloud with config', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 TextCloudComponent,
                 ExportControlComponent,
                 UnsharedFilterComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 DatasetService,
                 FilterService,
@@ -871,7 +860,6 @@ describe('Component: Textcloud with config', () => {
             imports: [
                 AppMaterialModule,
                 FormsModule,
-                ChartModule,
                 BrowserAnimationsModule
             ]
         });
@@ -918,11 +906,13 @@ describe('Component: Textcloud with config including configFilter', () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             declarations: [
+                ChartComponent,
                 TextCloudComponent,
                 ExportControlComponent,
                 UnsharedFilterComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 DatasetService,
                 FilterService,
@@ -953,7 +943,6 @@ describe('Component: Textcloud with config including configFilter', () => {
             imports: [
                 AppMaterialModule,
                 FormsModule,
-                ChartModule,
                 BrowserAnimationsModule
             ]
         });

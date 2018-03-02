@@ -1,58 +1,85 @@
-<mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="header" layout-align="space-between center" flex>
-        <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
+<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+        <div #headerText class="header text pull-left" [title]="meta.title">{{ meta.title }}</div>
+
         <span class="fill-remaining"></span>
-        <!--<span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>-->
-        <mat-button-toggle-group #showColumnSelector="matButtonToggleGroup" [(ngModel)]="active.andor" (change)="andOrChanged()" class="rounded"
-            style="margin-right: 5px;">
-            <mat-button-toggle class="rounded-left" value="and">
-                and
+
+        <button mat-icon-button aria-label="Add" matTooltip="Add New Clause" tooltip-position="below" (click)="addBlankWhereClause()">
+            <mat-icon>add_circle</mat-icon>
+        </button>
+
+        <button mat-icon-button aria-label="Reset" matTooltip="Reset Filter Builder" tooltip-position="below"
+                (click)="resetFilterBuilder()">
+            <mat-icon>delete_sweep</mat-icon>
+        </button>
+
+        <mat-button-toggle-group #showColumnSelector="matButtonToggleGroup" [(ngModel)]="active.andor" (change)="updateFilters()"
+                class="neon-button-toggle-group-small">
+            <mat-button-toggle value="and">
+                AND
             </mat-button-toggle>
-            <mat-button-toggle class="rounded-right" value="or">
-                or
+            <mat-button-toggle value="or">
+                OR
             </mat-button-toggle>
         </mat-button-toggle-group>
-        <button mat-icon-button aria-label="Reset" matTooltip="Reset Filter Builder" tooltip-position="below" (click)="resetFilterBuilder()">
-            <mat-icon class="mat-24">replay</mat-icon>
-        </button>
     </mat-toolbar>
 
     <div class="body-container contained-scroll-box">
         <div class="main-container">
-            <!--<div class="where-clause-container where-clause-header-container">
-                <span class="clause-item">Database</span>
-                <span class="clause-item">Table</span>
-                <span class="clause-item">Field</span>
-                <span class="clause-item">Operator</span>
-                <span class="clause-item">Value</span>
-                <span class="clause-item"></span>
-            </div>-->
-            <div class="where-clause-container" *ngFor="let where of active.whereClausesAsList">
-                <mat-select class="clause-item" placeholder="Database" [(ngModel)]="where.database" required="true" (ngModelChange)="handleChangeDatabase(where)"
-                    [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
-                <mat-select class="clause-item" placeholder="Table" [(ngModel)]="where.table" required="true" (ngModelChange)="handleChangeTable(where)"
-                    [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
-                <mat-select class="clause-item" placeholder="Field" [(ngModel)]="where.field" required="true" (ngModelChange)="handleChangeField(where)"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
-                <mat-select class="clause-item" placeholder="Operator" [(ngModel)]="where.operator" required="true" (ngModelChange)="handleChangeOperator(where)"
-                    [disabled]="active.operators.length == 0">
-                    <mat-option *ngFor="let operator of active.operators" [value]="operator">{{ operator.prettyName }}</mat-option>
-                </mat-select>
-                <mat-form-field class="clause-item">
-                    <input matInput placeholder="Value" [(ngModel)]="where.value" (change)="handleValueChange($event, where)">
-                </mat-form-field>
-                <div class="clause-item clause-button-container">
-                    <button mat-mini-fab class="clause-button" (click)="addBlankWhereClause()" matTooltip="Add New Clause" tooltip-position="below"><mat-icon>add</mat-icon></button>
-                    <button mat-mini-fab class="clause-button" (click)="refreshClause(where)" *ngIf="where.active" matTooltip="Refresh Clause" tooltip-position="below"><mat-icon>refresh</mat-icon></button>
-                    <button mat-mini-fab class="clause-button" (click)="activateClause(where)" *ngIf="!where.active" matTooltip="Activate Clause"
-                        tooltip-position="below"><mat-icon>check</mat-icon></button>
-                    <button mat-mini-fab class="clause-button" (click)="removeClause(where)" matTooltip="Remove Clause" tooltip-position="below"><mat-icon>close</mat-icon></button>
+            <div class="clause-container" *ngFor="let clause of active.clauses">
+                <div class="clause-form-container">
+                    <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
+                        <mat-select placeholder="Database" [(ngModel)]="clause.changeDatabase"
+                                    required="true" (ngModelChange)="handleChangeDatabaseOfClause(clause)"
+                                    [disabled]="clause.databases.length < 2">
+                            <mat-option *ngFor="let database of clause.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
+                        <mat-select placeholder="Table" [(ngModel)]="clause.changeTable"
+                                    required="true" (ngModelChange)="handleChangeTableOfClause(clause)"
+                                    [disabled]="clause.tables.length < 2">
+                            <mat-option *ngFor="let table of clause.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
+                        <mat-select placeholder="Field" [(ngModel)]="clause.field"
+                                    required="true" (ngModelChange)="handleChangeDataOfClause(clause)"
+                                    [disabled]="clause.fields.length == 0">
+                            <mat-option *ngFor="let field of clause.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
+                        <mat-select placeholder="Operator" [(ngModel)]="clause.operator"
+                                    required="true" (ngModelChange)="handleChangeDataOfClause(clause)"
+                                    [disabled]="active.operators.length == 0">
+                            <mat-option *ngFor="let operator of active.operators" [value]="operator">{{ operator.prettyName }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
+                        <input matInput placeholder="Value" [(ngModel)]="clause.value" (input)="handleChangeDataOfClause(clause)">
+                    </mat-form-field>
+                </div>
+
+                <div class="clause-button-container">
+                    <button mat-icon-button class="neon-icon-button-large clause-button" (click)="activateClause(clause)"
+                            [disabled]="!validateClause(clause)" matTooltip="Update Filter" tooltip-position="below" *ngIf="!clause.active">
+                        <mat-icon class="neon-icon-large">refresh</mat-icon>
+                    </button>
+
+                    <button mat-icon-button class="neon-icon-button-large clause-button active" (click)="activateClause(clause)"
+                            matTooltip="Filter is Active" tooltip-position="below" *ngIf="clause.active">
+                        <mat-icon class="neon-icon-large">check_circle</mat-icon>
+                    </button>
+
+                    <button mat-icon-button class="neon-icon-button-large clause-button" (click)="removeClause(clause)"
+                            matTooltip="Remove Filter" tooltip-position="below">
+                        <mat-icon class="neon-icon-large">delete</mat-icon>
+                    </button>
                 </div>
             </div>
         </div>

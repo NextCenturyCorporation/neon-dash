@@ -6,12 +6,10 @@ module.exports = function (config) {
         basePath: '',
         frameworks: ['jasmine', '@angular/cli'],
         plugins: [
-            require('phantomjs-prebuilt'),
             require('karma-jasmine'),
             require('karma-chrome-launcher'),
             require('karma-firefox-launcher'),
             require('karma-jasmine-html-reporter'),
-            require('karma-phantomjs-launcher'),
             require('karma-remap-istanbul'),
             require('karma-junit-reporter'),
             require('@angular/cli/plugins/karma')
@@ -48,12 +46,12 @@ module.exports = function (config) {
         reporters: ['progress', 'karma-remap-istanbul', 'junit'],
         browserDisconnectTimeout: 60000,
         browserDisconnectTolerance: 3,
-        browserNoActivityTimeout: 60000,
+        browserNoActivityTimeout: 100000,
         port: 9876,
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: false,
-        browsers: ['Chrome', 'Firefox', 'PhantomJS'],
+        browsers: ['ChromeHeadless', 'Firefox'],
         singleRun: true,
         client: {
             captureConsole: true,

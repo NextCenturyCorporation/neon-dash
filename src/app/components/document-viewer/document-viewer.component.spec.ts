@@ -28,6 +28,7 @@ import { DocumentViewerComponent } from './document-viewer.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 
 import { neonVariables } from '../../neon-namespaces';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
@@ -77,6 +78,7 @@ describe('Component: DocumentViewer', () => {
                 ExportControlComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 DatasetService,
                 ErrorNotificationService,
@@ -111,6 +113,7 @@ describe('Component: DocumentViewer', () => {
             docCount: 0,
             idField: new FieldMetaData(),
             limit: 50,
+            page: 1,
             metadataFields: []
         });
     });
@@ -169,21 +172,9 @@ describe('Component: DocumentViewer', () => {
 
     it('sets expected fields in onUpdateFields to empty strings because fields are empty', () => {
         component.onUpdateFields();
-        expect(component.active.dataField).toEqual({
-            columnName: '',
-            prettyName: '',
-            hide: false
-        });
-        expect(component.active.dataField).toEqual({
-            columnName: '',
-            prettyName: '',
-            hide: false
-        });
-        expect(component.active.dataField).toEqual({
-            columnName: '',
-            prettyName: '',
-            hide: false
-        });
+        expect(component.active.dataField).toEqual(new FieldMetaData());
+        expect(component.active.dataField).toEqual(new FieldMetaData());
+        expect(component.active.dataField).toEqual(new FieldMetaData());
     });
 
     it('returns an empty string from getFilterText', () => {
@@ -228,7 +219,8 @@ describe('Component: DocumentViewer', () => {
                 'testDataField',
                 'testIDField'
             ])
-            .limit(50);
+            .limit(50)
+            .offset(0);
         expect(component.createQuery()).toEqual(query);
 
         // Then add a date field and ensure the result is properly sorting.
@@ -364,6 +356,7 @@ describe('Component: DocumentViewer', () => {
             docCount: 0,
             idField: component.active.idField,
             limit: 50,
+            page: 1,
             metadataFields: []
         };
 
@@ -379,7 +372,7 @@ describe('Component: DocumentViewer', () => {
         // When active.data.langth < active.data.docCount
         component.active.data = ['value1', 'value2'];
         component.active.docCount = 50;
-        expect(component.getButtonText()).toBe('Top 2 of 50');
+        expect(component.getButtonText()).toBe('1 - 50 of 50');
 
         // When active.data.length >= active.data.docCount
         component.active.data = ['value1', 'value2'];
@@ -573,6 +566,7 @@ describe('Component: Document Viewer with Config', () => {
                 ExportControlComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 {
                     provide: DatasetService,
@@ -653,6 +647,7 @@ describe('Component: Document Viewer with Config', () => {
             docCount: 0,
             idField: new FieldMetaData('testIDField', 'Test ID Field'),
             limit: 25,
+            page: 1,
             metadataFields: [
                 {
                     name: 'Single Item Metadata Row',
@@ -694,5 +689,12 @@ describe('Component: Document Viewer with Config', () => {
         expect(component.active.dataField).toEqual(new FieldMetaData('testDataField', 'Test Data Field'));
         expect(component.active.dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field'));
         expect(component.active.idField).toEqual(new FieldMetaData('testIDField', 'Test ID Field'));
+    });
+
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.infoText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
     });
 });

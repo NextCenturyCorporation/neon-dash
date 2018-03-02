@@ -22,6 +22,7 @@ import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import {} from 'jasmine-core';
 
 import { FilterBuilderComponent } from './filter-builder.component';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -45,6 +46,7 @@ describe('Component: Filter Builder', () => {
                 FilterBuilderComponent
             ],
             providers: [
+                ActiveGridService,
                 ConnectionService,
                 DatasetService,
                 FilterService,
@@ -71,4 +73,10 @@ describe('Component: Filter Builder', () => {
     it('should create an instance', (() => {
         expect(component).toBeTruthy();
     }));
+
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
 });

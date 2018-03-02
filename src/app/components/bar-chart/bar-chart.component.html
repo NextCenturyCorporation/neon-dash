@@ -1,70 +1,94 @@
-<mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
-    <mat-toolbar color="header" layout-align="space-between center" flex>
-        <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
+<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+        <div #headerText class="header text pull-left" [title]="meta.title">{{ meta.title }}</div>
         <span class="fill-remaining"></span>
-        <span class="text" title="Open/Close the Options Menu">{{ getButtonText() }}</span>
+        <span #infoText class="info text">{{ getButtonText() }}</span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
-            <mat-icon class="mat-24">settings</mat-icon>
+            <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
 
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <label style="display: inline;" *ngIf="getButtonText()">
-                    <mat-icon class="error-icon">error</mat-icon>
-                    {{ getButtonText() }}
-                </label>
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text">
+                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <div>{{ getButtonText() }}</div>
+                    </label>
+                    <p></p>
+                </div>
+
+                <mat-form-field>
+                    <input matInput placeholder="Title" [(ngModel)]="meta.title" required="false">
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                    <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database"
+                                required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                    <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true"
+                                (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Group Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeDataField()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Group Field" [(ngModel)]="active.dataField"
+                                required="true" (ngModelChange)="handleChangeField()"
+                                [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Aggregation" [(ngModel)]="active.aggregation" required="true" (ngModelChange)="handleChangeAggregation()"
-                    [disabled]="meta.fields.length == 0">
-                    <mat-option value="count">Count</mat-option>
-                    <mat-option value="sum">Sum</mat-option>
-                    <mat-option value="average">Average</mat-option>
-                    <mat-option value="min">Min</mat-option>
-                    <mat-option value="max">Max</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Aggregation" [(ngModel)]="active.aggregation"
+                                required="true" (ngModelChange)="handleChangeAggregation()"
+                                [disabled]="meta.fields.length == 0">
+                        <mat-option value="count">Count</mat-option>
+                        <mat-option value="sum">Sum</mat-option>
+                        <mat-option value="average">Average</mat-option>
+                        <mat-option value="min">Min</mat-option>
+                        <mat-option value="max">Max</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select *ngIf="!active.aggregationFieldHidden" placeholder="Aggregation Field (Range)" [(ngModel)]="active.aggregationField" required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field *ngIf="!active.aggregationFieldHidden">
+                    <mat-select placeholder="Aggregation Field (Range)" [(ngModel)]="active.aggregationField"
+                                required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
-                <mat-select placeholder="Color Field" [(ngModel)]="meta.colorField"
-                           (ngModelChange)="handleChangeColorField()" [disabled]="meta.fields.length == 0">
-                    <mat-option [value]="emptyField">(None)</mat-option>
-                    <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                </mat-select>
+                <mat-form-field>
+                    <mat-select placeholder="Color Field" [(ngModel)]="active.colorField"
+                               (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <table cellspacing="0">
                     <tr>
                         <td>
                             <mat-form-field>
-                                <input matInput placeholder="Text Limit" [(ngModel)]="active.limit" required="true">
+                                <input matInput placeholder="Group Limit" [(ngModel)]="active.newLimit" required="true">
                             </mat-form-field>
                         </td>
                         <td>
                             <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <mat-icon class="mat-24">refresh</mat-icon>
+                                <mat-icon>refresh</mat-icon>
                             </button>
                         </td>
                     </tr>
@@ -100,14 +124,13 @@
                             </td>
                             <td>
                                 <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeScale()">
-                                    <mat-icon class="mat-24">refresh</mat-icon>
+                                    <mat-icon>refresh</mat-icon>
                                 </button>
                             </td>
                         </tr>
                     </table>
                 </div>
-
-                <p> </p>
+                <p></p>
 
                 <label> Chart Type </label>
                 <div class='radio-container' layout="row" mat-margin>
@@ -117,44 +140,56 @@
                     </mat-radio-group>
                 </div>
                 <p></p>
-
                 
                 <app-unshared-filter [(meta)]="meta"
                                      (unsharedFilterChanged)="unsharedFilterChanged()"
                                      (unsharedFilterRemoved)="unsharedFilterRemoved()"></app-unshared-filter>
                 <p></p>
+
                 <app-export-control [exportId]="exportId"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
-    <div class="body-container">
-        <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
-            <mat-spinner ></mat-spinner>
-        </div>
-        <div class="text-container">
+
+    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+        <mat-spinner ></mat-spinner>
+    </div>
+
+    <div class="body-container-with-footer">
+        <div class="filter-container multi-element">
             <div align="left">
                 <app-legend *ngIf="hasColorField()" [activeList]="selectedLabels"
                             [fieldNames]="colorFieldNames"></app-legend>
             </div>
             <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
                 <span class="filter-label" [title]="getFilterTitle(filter.value)">{{ getFilterCloseText(filter.value) }}</span>
-                <button mat-icon-button aria-label="Close" [matTooltip]="getRemoveFilterTooltip(filter.value)" tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
-                  <mat-icon class="mat-18">close</mat-icon>
+                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
+                        [matTooltip]="getRemoveFilterTooltip(filter.value)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                    <mat-icon class="neon-icon-small">close</mat-icon>
                 </button>
             </div>
         </div>
+
         <div class="constant-container">
             <div class="chart-container-resizable" >
-                <chart class="chart" name="bar-chart" #myChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></chart>
+                <app-chart class="chart" #myChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></app-chart>
             </div>
         </div>
     </div>
-    <!--<div class="text-cloud" mat-fill layout="col">
-        <a (click)="addFilter(item.key, item.keyTranslated)" class="text" *ngFor="let item of active.data" [revarl]="item.count"
-            [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
-                <div>
-                    {{ item.key }}
-                </div>
-            </a>
-    </div>-->
+
+    <div class="footer">
+        <div class="footer-button-container">
+            <button mat-raised-button [disabled]="active.page == 1" class="pagination-button previous-button" color="primary"
+                (click)="previousPage()">
+                Previous
+            </button>
+            <span class="pagination-button-spacer"></span>
+            <button mat-raised-button [disabled]="active.lastPage" class="pagination-button next-button" color="primary"
+                (click)="nextPage()">
+                Next
+            </button>
+        </div>
+    </div>
+
+    <canvas #hiddenCanvas class="hidden-canvas"></canvas>
 </mat-sidenav-container>

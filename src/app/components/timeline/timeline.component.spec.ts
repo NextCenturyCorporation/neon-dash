@@ -17,12 +17,11 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 
-import { ChartModule } from 'angular2-chartjs';
-
 import {} from 'jasmine-core';
 
 import { TimelineComponent } from './timeline.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ExportService } from '../../services/export.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -36,47 +35,94 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { VisualizationService } from '../../services/visualization.service';
+import { ChartComponent } from '../chart/chart.component';
 
 let d3 = require('../../../assets/d3.min.js');
 
 describe('Component: Timeline', () => {
-  let testConfig: NeonGTDConfig = new NeonGTDConfig();
-  let component: TimelineComponent;
-  let fixture: ComponentFixture<TimelineComponent>;
+    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let component: TimelineComponent;
+    let fixture: ComponentFixture<TimelineComponent>;
 
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [
-        TimelineComponent,
-        ExportControlComponent,
-        UnsharedFilterComponent
-      ],
-      providers: [
-        ConnectionService,
-        DatasetService,
-        FilterService,
-        ExportService,
-        TranslationService,
-        ErrorNotificationService,
-        VisualizationService,
-        ThemesService,
-        ColorSchemeService,
-        Injector,
-        { provide: 'config', useValue: testConfig }
-      ],
-      imports: [
-        AppMaterialModule,
-        FormsModule,
-        ChartModule,
-        BrowserAnimationsModule
-      ]
+    beforeEach(() => {
+        TestBed.configureTestingModule({
+            declarations: [
+                ChartComponent,
+                TimelineComponent,
+                ExportControlComponent,
+                UnsharedFilterComponent
+            ],
+            providers: [
+                ActiveGridService,
+                ConnectionService,
+                DatasetService,
+                FilterService,
+                ExportService,
+                TranslationService,
+                ErrorNotificationService,
+                VisualizationService,
+                ThemesService,
+                ColorSchemeService,
+                Injector,
+                { provide: 'config', useValue: testConfig }
+            ],
+            imports: [
+                AppMaterialModule,
+                FormsModule,
+                BrowserAnimationsModule
+            ]
+        });
+        fixture = TestBed.createComponent(TimelineComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
     });
-    fixture = TestBed.createComponent(TimelineComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
 
-  it('should create an instance', () => {
-    expect(component).toBeTruthy();
-  });
+    it('should create an instance', () => {
+        expect(component).toBeTruthy();
+    });
+
+    it('getButtonText does return expected string', () => {
+        expect(component.getButtonText()).toBe('No Data');
+
+        component.active.data = [{
+            date: new Date(),
+            value: 0
+        }];
+        expect(component.getButtonText()).toBe('No Data');
+
+        component.active.docCount = 2;
+        component.active.data = [{
+            date: new Date(),
+            value: 1
+        }, {
+            date: new Date(),
+            value: 1
+        }];
+        expect(component.getButtonText()).toBe('Total 2');
+
+        component.active.docCount = 6;
+        expect(component.getButtonText()).toBe('2 of 6');
+
+        component.active.data = [{
+            date: new Date(),
+            value: 3
+        }, {
+            date: new Date(),
+            value: 2
+        }, {
+            date: new Date(),
+            value: 1
+        }, {
+            date: new Date(),
+            value: 0
+        }];
+        expect(component.getButtonText()).toBe('Total 6');
+    });
+
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.infoText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
 });

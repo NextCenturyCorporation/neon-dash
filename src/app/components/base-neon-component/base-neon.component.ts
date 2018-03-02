@@ -19,6 +19,7 @@ import {
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -35,11 +36,13 @@ import { Color } from '../../services/color-scheme.service';
  * Base component for all non-layered Neon visualizations.
  * This manages some of the lifecycle and query logic.
  */
-export abstract class BaseNeonComponent implements OnInit,
-    OnDestroy {
+export abstract class BaseNeonComponent implements OnInit, OnDestroy {
+    private SETTINGS_BUTTON_WIDTH: number = 30;
+    private TEXT_MARGIN_WIDTH: number = 10;
+    private TOOLBAR_PADDING_WIDTH: number = 20;
+    private TOOLBAR_EXTRA_WIDTH: number = this.SETTINGS_BUTTON_WIDTH + this.TEXT_MARGIN_WIDTH + this.TOOLBAR_PADDING_WIDTH;
 
     public id: string;
-    protected queryTitle: string;
     protected messenger: neon.eventing.Messenger;
     protected outstandingDataQuery: any;
 
@@ -51,6 +54,7 @@ export abstract class BaseNeonComponent implements OnInit,
      * Common metadata about the database, table, and any unshared filters
      */
     public meta: {
+        title: string,
         databases: DatabaseMetaData[],
         database: DatabaseMetaData,
         tables: TableMetaData[],
@@ -73,6 +77,7 @@ export abstract class BaseNeonComponent implements OnInit,
     public emptyField = new FieldMetaData();
 
     constructor(
+        private activeGridService: ActiveGridService,
         private connectionService: ConnectionService,
         private datasetService: DatasetService,
         protected filterService: FilterService,
@@ -92,7 +97,9 @@ export abstract class BaseNeonComponent implements OnInit,
         this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
         this.isLoading = false;
+
         this.meta = {
+            title: '',
             databases: [],
             database: new DatabaseMetaData(),
             tables: [],
@@ -102,6 +109,7 @@ export abstract class BaseNeonComponent implements OnInit,
             colorField: new FieldMetaData(),
             fields: []
         };
+
         this.isExportable = true;
         this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
@@ -126,18 +134,20 @@ export abstract class BaseNeonComponent implements OnInit,
         this.messenger.subscribe(DatasetService.UPDATE_DATA_CHANNEL, this.onUpdateDataChannelEvent.bind(this));
         this.messenger.events({ filtersChanged: this.handleFiltersChangedEvent.bind(this) });
         this.visualizationService.registerBindings(this.id, this);
+        this.activeGridService.register(this.id, this);
 
         this.outstandingDataQuery = {};
         for (let database of this.datasetService.getDatabases()) {
             this.outstandingDataQuery[database.name] = {};
         }
-        this.initDatabases();
+        this.initDatabases(this.meta);
         try {
             this.setupFilters();
         } catch (e) {
-            console.warn('Error while setting up filters duing init, ignoring');
+            // Fails in unit tests - ignore.
         }
 
+        this.meta.title = this.getOptionFromConfig('title') || this.getVisualizationName();
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
@@ -185,7 +195,7 @@ export abstract class BaseNeonComponent implements OnInit,
      */
     getBindings(): any {
         let bindings = {
-            title: this.createTitle(),
+            title: this.meta.title,
             database: this.meta.database.name,
             table: this.meta.table.name,
             unsharedFilterField: this.meta.unsharedFilterField.columnName,
@@ -207,7 +217,7 @@ export abstract class BaseNeonComponent implements OnInit,
 
         let query = this.createQuery();
         if (query) {
-            let exportName = this.queryTitle;
+            let exportName = this.meta.title;
             if (exportName) {
                 // replaceAll
                 exportName = exportName.split(':').join(' ');
@@ -248,7 +258,38 @@ export abstract class BaseNeonComponent implements OnInit,
         this.redrawAfterResize = enable;
     }
 
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     */
+    abstract getElementRefs(): any;
+
+    /**
+     * Initializes sub-component styles as needed.
+     */
+    onResizeStart() {
+        // Update info text width.
+        let refs = this.getElementRefs();
+        if (refs.infoText && refs.visualization) {
+            if (refs.visualization.nativeElement.clientWidth > (refs.infoText.nativeElement.clientWidth - this.TOOLBAR_EXTRA_WIDTH)) {
+                refs.infoText.nativeElement.style.minWidth = (Math.round(refs.infoText.nativeElement.clientWidth) + 1) + 'px';
+            }
+        }
+
+    }
+
+    /**
+     * Resizes sub-components as needed.
+     */
     onResizeStop() {
+        // Update header text width.
+        let refs = this.getElementRefs();
+        if (refs.headerText && refs.infoText && refs.visualization) {
+            refs.headerText.nativeElement.style.maxWidth = Math.round(refs.visualization.nativeElement.clientWidth -
+                refs.infoText.nativeElement.clientWidth - this.TOOLBAR_EXTRA_WIDTH) + 'px';
+        }
+
         if (this.redrawAfterResize) {
             // This event fires as soon as the user releases the mouse, but NgGrid animates the resize,
             // so the current width and height are not the new width and height.  NgGrid uses a 0.25
@@ -264,82 +305,67 @@ export abstract class BaseNeonComponent implements OnInit,
         this.messenger.unsubscribeAll();
         this.exportService.unregister(this.exportId);
         this.visualizationService.unregister(this.id);
-        /* $scope.element.off('resize', resize);
-        $scope.element.find('.headers-container').off('resize', resizeDisplay);
-        $scope.element.find('.options-menu-button').off('resize', resizeTitle);
-        $scope.messenger.unsubscribeAll();
-
-        if($scope.functions.isFilterSet()) {
-            $scope.functions.removeNeonFilter({
-                fromSystem: true
-            });
-        }
-
-        exportService.unregister($scope.exportId);
-        linksPopupService.deleteLinks($scope.visualizationId);
-        $scope.getDataLayers().forEach(function(layer) {
-            linksPopupService.deleteLinks(createLayerLinksSource(layer));
-        });
-        themeService.unregisterListener($scope.visualizationId);
-        visualizationService.unregister($scope.stateId);
-
-        resizeListeners.forEach(function(element) {
-            $scope.element.find(element).off('resize', resize);
-        }); */
+        this.activeGridService.unregister(this.id);
         this.subNgOnDestroy();
     }
 
     /**
      * Load all the database metadata, then call initTables()
+     *
+     * @arg {object} metaObject
      */
-    initDatabases() {
-        this.meta.databases = this.datasetService.getDatabases();
-        this.meta.database = this.meta.databases[0];
+    initDatabases(metaObject: any) {
+        metaObject.databases = this.datasetService.getDatabases();
+        metaObject.database = metaObject.databases[0] || new DatabaseMetaData();
 
-        if (this.meta.databases.length > 0) {
+        if (metaObject.databases.length > 0) {
             if (this.getOptionFromConfig('database')) {
-                for (let database of this.meta.databases) {
+                for (let database of metaObject.databases) {
                     if (this.getOptionFromConfig('database') === database.name) {
-                        this.meta.database = database;
+                        metaObject.database = database;
                         break;
                     }
                 }
             }
 
-            this.initTables();
+            this.initTables(metaObject);
         }
     }
 
     /**
      * Load all the table metadata, then call initFields()
+     *
+     * @arg {object} metaObject
      */
-    initTables() {
-        this.meta.tables = this.datasetService.getTables(this.meta.database.name);
-        this.meta.table = this.meta.tables[0];
+    initTables(metaObject: any) {
+        metaObject.tables = this.datasetService.getTables(metaObject.database.name);
+        metaObject.table = metaObject.tables[0] || new TableMetaData();
 
-        if (this.meta.tables.length > 0) {
+        if (metaObject.tables.length > 0) {
             if (this.getOptionFromConfig('table')) {
-                for (let table of this.meta.tables) {
+                for (let table of metaObject.tables) {
                     if (this.getOptionFromConfig('table') === table.name) {
-                        this.meta.table = table;
+                        metaObject.table = table;
                         break;
                     }
                 }
             }
-            this.initFields();
+            this.initFields(metaObject);
         }
     }
 
     /**
      * Initialize all the field metadata
+     *
+     * @arg {object} metaObject
      */
-    initFields() {
+    initFields(metaObject: any) {
         // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-        this.meta.fields = this.datasetService.getSortedFields(this.meta.database.name, this.meta.table.name).filter(function(field) {
+        metaObject.fields = this.datasetService.getSortedFields(metaObject.database.name, metaObject.table.name, true).filter((field) => {
             return (field && field.columnName);
         });
-        this.meta.unsharedFilterField = this.findFieldObject('unsharedFilterField');
-        this.meta.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
+        metaObject.unsharedFilterField = this.findFieldObject('unsharedFilterField');
+        metaObject.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
 
         this.onUpdateFields();
     }
@@ -458,33 +484,6 @@ export abstract class BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Create a title for a query
-     * @param {boolean} resetQueryTitle
-     * @return {string}
-     */
-    createTitle(resetQueryTitle?: boolean): string {
-        if (resetQueryTitle) {
-            this.queryTitle = '';
-        }
-        if (this.queryTitle) {
-            return this.queryTitle;
-        }
-        let optionTitle = this.getOptionFromConfig('title');
-        if (optionTitle) {
-            return optionTitle;
-        }
-        let title = this.meta.unsharedFilterValue
-            ? this.meta.unsharedFilterValue + ' '
-            : '';
-        if (_.keys(this.meta).length) {
-            return title + (this.meta.table && this.meta.table.name
-                ? this.meta.table.prettyName
-                : '');
-        }
-        return title;
-    }
-
-    /**
      * Execute the Neon query chain.
      *
      * This is expected to get called whenever a query is expected to be run.
@@ -498,7 +497,6 @@ export abstract class BaseNeonComponent implements OnInit,
         }
         this.isLoading = true;
         this.changeDetection.detectChanges();
-        this.queryTitle = this.createTitle(false);
         let query = this.createQuery();
 
         let filtersToIgnore = this.getFiltersToIgnore();
@@ -538,6 +536,8 @@ export abstract class BaseNeonComponent implements OnInit,
         this.onQuerySuccess(response);
         this.isLoading = false;
         this.changeDetection.detectChanges();
+        // Initialize the header styles.
+        this.onResizeStart();
     }
 
     /**
@@ -645,22 +645,29 @@ export abstract class BaseNeonComponent implements OnInit,
      * Handles changes in the active database
      */
     handleChangeDatabase() {
-        this.initTables();
-        this.logChangeAndStartQueryChain(); // ('database', this.active.database.name);
+        this.initTables(this.meta);
+        this.logChangeAndStartQueryChain();
     }
 
     /**
      * Handles changes in the active table
      */
     handleChangeTable() {
-        this.initFields();
-        this.logChangeAndStartQueryChain(); // ('table', this.active.table.name);
+        this.initFields(this.meta);
+        this.logChangeAndStartQueryChain();
+    }
+
+    /**
+     * Handles changes in the active data
+     */
+    handleChangeData() {
+        this.logChangeAndStartQueryChain();
     }
 
     /**
      * If not initializing, calls executeQueryChain();
      */
-    logChangeAndStartQueryChain() { // (option: string, value: any, type?: string) {
+    logChangeAndStartQueryChain() {
         if (!this.initializing) {
             this.executeQueryChain();
         }
@@ -757,7 +764,6 @@ export abstract class BaseNeonComponent implements OnInit,
             style: string;
         if (!elems.length) {
             style = 'rgb(255, 255, 255)';
-            console.error('Unable to retrieve primary theme without element with class "coloraccessor"');
         } else {
             style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
         }
@@ -766,5 +772,25 @@ export abstract class BaseNeonComponent implements OnInit,
 
     getComputedStyle(nativeElement: any) {
         return window.getComputedStyle(nativeElement, null);
+    }
+
+    /**
+     * Returns whether the given item is a number.
+     *
+     * @arg {any} item
+     * @return {boolean}
+     */
+    isNumber(item: any): boolean {
+        return !isNaN(parseFloat(item)) && isFinite(item);
+    }
+
+    /**
+     * Returns the prettified string of the given integer (with commas).
+     *
+     * @arg {number} item
+     * @return {string}
+     */
+    prettifyInteger(item: number): string {
+        return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
 }

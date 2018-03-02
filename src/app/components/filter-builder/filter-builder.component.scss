@@ -14,136 +14,38 @@
  *
  */
 @import '../base-neon-component/base-neon.component.scss';
- 
-// FIXME:  Replace hard-coded colors with theme
 
-.text-container {
-    height: 0;
+.mat-button-toggle-group {
+    margin: 0 5px;
+
+    .mat-button-toggle {
+        min-width: 45px;
+    }
 }
 
-.main-container {
-    position: absolute;
-    top: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.where-clause-header-container {
-    font-size: 1.4em;
-    text-align: center;
-}
-
-.where-clause-container {
+.clause-container {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
-    height: 40px;
-    width: 100%;
-    margin-top: 20px;
+    margin-top: 15px;
     align-items: center
 }
 
-.clause-item {
-    //width: 16.66%;
-    padding: 0 5px;
+.clause-form-container {
+    display: flex;
+    flex-direction: row;
+    min-width: 300px;
+    // Subtract the width of the button container plus margins.
+    width: calc(100% - 80px);
 }
 
 .clause-button-container {
     display: flex;
     flex-direction: row;
-    justify-content: center;
+    width: 80px;
 }
 
 .clause-button {
     flex-grow: 0;
     flex-shrink: 0;
-    margin: 0 3px;
-}
-
-.table {
-    position: relative;
-    overflow: hidden;
-    height: 100%;
-    width: 100%;
-}
-
-.column-selector-header {
-    text-align: center;
-    vertical-align: middle;
-    font-size: 1.4em;
-    border: 1px solid lightgrey;
-}
-
-.column-selector-close {
-    font-size: 12px;
-}
-
-.column-selector {
-    position: relative;
-    height: 100%;
-    width: 300px;
-    bottom: 0;
-    top: 0;
-    overflow-y: hidden;
-    box-shadow: 1px 1px 1px 1px #888888;
-    display: flex;
-    flex-direction: column;
-}
-
-.column-selector-list {
-    position: relative;
-    bottom: 0;
-    overflow-y: scroll;
-    user-select: none;
-}
-
-.dragView {
-    position: fixed;
-}
-
-/deep/ .datatable-row-even {
-    background-color: rgb(240,240,240);
-}
-
-/deep/ .sort-asc {}
-
-/deep/ .sort-desc {}
-
-/deep/ .datatable-header-inner {
-    border-right-width: 1px;
-    border-right-color: grey;
-    border-right-style: solid;
-}
-
-/deep/ .datatable-header-cell {
-    background: linear-gradient(#fff,#d3d3d3);
-    border-bottom: 1px solid grey;
-    text-align: center;
-    border-right-width: 1px;
-    border-right-color: grey;
-    border-right-style: solid;
-}
-
-/deep/ .datatable-header-cell.longpress {
-    background: linear-gradient(#ddd,#b3b3b3);
-    border: 1px dashed grey;
-    z-index: 100;
-}
-
-/deep/ .datatable-body-cell {
-    border-right-width: 1px;
-    border-right-color: darkgrey;
-    border-right-style: dotted;
-    padding: 2px;
-}
-
-/deep/ .icon-up:before {
-    font-family: 'Material Icons';
-    content: "keyboard_arrow_up";
-}
-
-/deep/ .icon-down:before {
-    font-family: 'Material Icons';
-    content: "keyboard_arrow_down";
+    margin: 0 5px;
 }

@@ -14,16 +14,17 @@
  *
  */
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewEncapsulation,
     ChangeDetectionStrategy,
-    Injector,
-    ViewChild,
+    ChangeDetectorRef,
+    Component,
     ElementRef,
-    ChangeDetectorRef
+    Injector,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -43,8 +44,14 @@ import { VisualizationService } from '../../services/visualization.service';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DataTableComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
+
     @ViewChild('table') table: any;
     @ViewChild('dragView') dragView: ElementRef;
+
+    selected = [];
 
     private filters: {
         id: string,
@@ -60,8 +67,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         idField: string,
         sortField: string,
         limit: number,
+        limitDisabled: boolean,
         unsharedFilterField: Object,
-        unsharedFilterValue: string
+        unsharedFilterValue: string,
+        allColumnStatus: string,
+        exceptionsToStatus: string[]
     };
 
     public active: {
@@ -69,6 +79,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         sortField: FieldMetaData,
         andFilters: boolean,
         limit: number,
+        page: number,
+        docCount: number,
         filterable: boolean,
         layers: any[],
         data: Object[],
@@ -88,10 +100,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     public changeDetection: ChangeDetectorRef;
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
-                visualizationService: VisualizationService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+        ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -99,8 +112,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             idField: this.injector.get('idField', null),
             sortField: this.injector.get('sortField', null),
             limit: this.injector.get('limit', 100),
+            limitDisabled: this.injector.get('limitDisabled', true),
             unsharedFilterField: {},
-            unsharedFilterValue: ''
+            unsharedFilterValue: '',
+            allColumnStatus: this.injector.get('allColumnStatus', 'show'),
+            exceptionsToStatus: this.injector.get('exceptionsToStatus', [])
         };
         this.filters = [];
         this.active = {
@@ -108,6 +124,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             sortField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
+            page: 1,
+            docCount: 0,
             filterable: true,
             layers: [],
             data: [],
@@ -124,7 +142,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             x: 0,
             y: 0
         };
-        this.queryTitle = this.optionsFromConfig.title || 'Raw Data';
         this.enableRedrawAfterResize(true);
     }
 
@@ -155,11 +172,30 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.active.sortField = this.findFieldObject('sortField', neonMappings.TAGS);
         let initialHeaderLimit = 25;
         let numHeaders = 0;
+        let defaultShowValue = this.optionsFromConfig.allColumnStatus !== 'hide';
         for (let f of this.meta.fields) {
-            this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: numHeaders < initialHeaderLimit, style: {} });
-            numHeaders++;
+            let headerShowValue = numHeaders >= initialHeaderLimit ?
+                false :
+                this.headerIsInExceptions(f) ?
+                    !defaultShowValue :
+                    defaultShowValue;
+            this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: headerShowValue, style: {}});
+            if (headerShowValue) {
+                numHeaders++;
+            }
         }
         this.recalculateActiveHeaders();
+    }
+
+    headerIsInExceptions(header) {
+        let colName = header.columnName;
+        let pName = header.prettyName;
+        for (let name of this.optionsFromConfig.exceptionsToStatus) {
+            if (colName === name || pName === name) {
+                return true;
+            }
+        }
+        return false;
     }
 
     recalculateActiveHeaders() {
@@ -180,13 +216,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     getExportFields() {
         return this.active.headers
-          .filter((header) => header.active)
-          .map((header) => {
-              return {
-                  columnName: header.prop,
-                  prettyName: header.name
-              };
-          });
+            .filter((header) => header.active)
+            .map((header) => {
+                return {
+                    columnName: header.prop,
+                    prettyName: header.name
+                };
+            });
     }
 
     closeColumnSelector() {
@@ -258,6 +294,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
+        let limit = this.active.limit;
+        let offset = ((this.active.page) - 1) * limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause: any = neon.query.where(this.active.sortField.columnName, '!=', null);
 
@@ -267,7 +305,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 this.meta.unsharedFilterValue));
         }
 
-        return query.where(whereClause).sortBy(this.active.sortField.columnName, neonVariables.DESCENDING).limit(this.active.limit);
+        return query.where(whereClause)
+            .sortBy(this.active.sortField.columnName, neonVariables.DESCENDING)
+            .limit(this.active.limit)
+            .offset(offset);
     }
 
     getFiltersToIgnore() {
@@ -276,9 +317,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     arrayToString(arr) {
         let modArr = arr
-        .filter(function(el) {
-            return el;
-        })
+            .filter(function(el) {
+                return el;
+            })
             .map(function(base) {
                 if ((typeof base === 'object')) {
                     return this.objectToString(base);
@@ -287,7 +328,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 } else {
                     return base;
                 }
-        });
+            });
         return '[' + modArr + ']';
     }
 
@@ -308,22 +349,37 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onQuerySuccess(response): void {
-        let data = response.data.map(function(d) {
-            let row = {};
-            for (let field of this.meta.fields)  {
-                if (field.type) {
-                    row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
+        if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
+            this.active.docCount = response.data[0]._docCount;
+        } else {
+            let data = response.data.map(function(d) {
+                let row = {};
+                for (let field of this.meta.fields) {
+                    if (field.type) {
+                        row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
+                    }
                 }
-            }
-            return row;
-        }.bind(this));
-        this.active.data = data;
-        this.refreshVisualization();
+                return row;
+            }.bind(this));
+            this.active.data = data;
+            this.getDocCount();
+            this.refreshVisualization();
+        }
+    }
+
+    getDocCount() {
+        let databaseName = this.meta.database.name;
+        let tableName = this.meta.table.name;
+        let countQuery = new neon.query.Query()
+            .selectFrom(databaseName, tableName)
+            .aggregate(neonVariables.COUNT, '*', '_docCount');
+        this.executeQuery(countQuery);
     }
 
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
+        this.active.page = 1;
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = [this.active.sortField.columnName];
@@ -345,16 +401,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     handleFiltersChangedEvent() {
-
         this.executeQueryChain();
     }
 
-    handleChangeLimit() {
+    handleChangeField() {
         this.logChangeAndStartQueryChain();
     }
 
-    handleChangeField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+    handleChangeSortField() {
+        this.logChangeAndStartQueryChain();
     }
 
     isDragging(): boolean {
@@ -472,6 +527,34 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.filters = [];
     }
 
+    nextPage() {
+        this.active.page += 1;
+        this.executeQueryChain();
+    }
+
+    previousPage() {
+        this.active.page -= 1;
+        this.executeQueryChain();
+    }
+
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
+    getButtonText() {
+        if (!this.active.docCount) {
+            return 'No Data';
+        }
+        if (this.active.docCount <= this.active.limit) {
+            return 'Total ' + super.prettifyInteger(this.active.docCount);
+        }
+        let begin = super.prettifyInteger((this.active.page - 1) * this.active.limit + 1);
+        let end = super.prettifyInteger(Math.min(this.active.page * this.active.limit, this.active.docCount));
+        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.active.docCount);
+    }
+
     /**
      * Publishes a select_id event for the ID of the first item in the given list of selected items.
      *
@@ -479,10 +562,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @fires select_id
      * @private
      */
-    private onSelect({selected}) {
+    onSelect({ selected }) {
         if (selected && selected.length && this.active.idField.columnName && selected[0][this.active.idField.columnName]) {
             this.publishSelectId(selected[0][this.active.idField.columnName]);
         }
+        this.selected.splice(0, this.selected.length);
+        this.selected.push(...selected);
     }
 
     /**
@@ -495,5 +580,19 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     private setStyle(index: number, style: string, value: string) {
         this.active.headers[index].style[style] = value;
+    }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
     }
 }

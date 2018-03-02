@@ -22,7 +22,7 @@ export class LeafletNeonMap extends AbstractMap {
         minZoom: 2,
         zoom: 2,
         center: L.latLng([0, 0]),
-        zoomControl: false,
+        zoomControl: true,
         preferCanvas: true,
         worldCopyJump: true
     };
@@ -30,6 +30,8 @@ export class LeafletNeonMap extends AbstractMap {
     private layerGroups = new Map<MapLayer, L.LayerGroup>();
     private layerControl: L.Control.Layers;
     private box: L.Rectangle;
+
+    private hiddenPoints = new Map();
 
     doCustomInitialization(mapContainer: ElementRef) {
         let customOption = this.optionsFromConfig.customServer,
@@ -85,6 +87,8 @@ export class LeafletNeonMap extends AbstractMap {
                     color: point.cssColorString === whiteString ? 'gray' : point.cssColorString,
                     fillColor: point.cssColorString,
                     weight: 1,
+                    colorByField: point.colorByField,
+                    colorByValue: point.colorByValue,
                     radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
                 },
                 circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
@@ -99,6 +103,9 @@ export class LeafletNeonMap extends AbstractMap {
 
     clearLayer(layer: MapLayer) {
         this.getGroup(layer).clearLayers();
+
+        // Remove any hidden points too
+        this.hiddenPoints.set(layer, null);
     }
 
     destroy() {
@@ -126,6 +133,57 @@ export class LeafletNeonMap extends AbstractMap {
         }
 
         return group;
+    }
+
+    hidePoints(layer: MapLayer, value: string) {
+        let group = this.getGroup(layer);
+
+        let hiddenPoints: any[] = this.hiddenPoints.get(layer);
+        if (!hiddenPoints) {
+            hiddenPoints = [];
+        }
+
+        group.eachLayer((circle: any) => {
+            if (circle.options.colorByValue === value) {
+                hiddenPoints.push(circle);
+                group.removeLayer(circle);
+            }
+        });
+
+        this.hiddenPoints.set(layer, hiddenPoints);
+    }
+
+    unhidePoints(layer: MapLayer, value: string) {
+        let group = this.getGroup(layer);
+
+        let hiddenPoints: any[] = this.hiddenPoints.get(layer);
+
+        if (hiddenPoints) {
+            hiddenPoints = hiddenPoints.filter((circle) => {
+                let matches = circle.options.colorByField === layer.colorField.columnName &&
+                        circle.options.colorByValue === value;
+
+                if (matches) {
+                    group.addLayer(circle);
+                }
+                return !matches;
+            });
+        }
+        this.hiddenPoints.set(layer, hiddenPoints);
+    }
+
+    unhideAllPoints(layer: MapLayer) {
+        let group = this.getGroup(layer);
+
+        let hiddenPoints: any[] = this.hiddenPoints.get(layer);
+
+        if (hiddenPoints) {
+            for (let point of hiddenPoints) {
+                group.addLayer(point);
+            }
+        }
+
+        this.hiddenPoints.set(layer, null);
     }
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

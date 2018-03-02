@@ -39,8 +39,7 @@ class MockFilterService extends FilterMock {
               whereClause: any, filterName: string | { visName: string; text: string },
               onSuccess: (resp: any) => any, onError: (resp: any) => any): void {
         super.addFilter(messenger, ownerId, database, table, whereClause, filterName, onSuccess, onError);
-        let filters = this.getFilters();
-        onSuccess(filters[filters.length - 1].id);
+        onSuccess(super.getLatestFilterId());
     }
 }
 

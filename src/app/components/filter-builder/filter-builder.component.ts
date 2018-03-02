@@ -14,14 +14,17 @@
  *
  */
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewEncapsulation,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
     Injector,
-    ChangeDetectorRef
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -32,11 +35,6 @@ import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
 
-class FilterBuilderDatabaseTableMetadata {
-    filterId: string;
-    clauses: WhereClauseMetaData[];
-}
-
 @Component({
     selector: 'app-filter-builder',
     templateUrl: './filter-builder.component.html',
@@ -44,8 +42,9 @@ class FilterBuilderDatabaseTableMetadata {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
-    OnDestroy {
+export class FilterBuilderComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
 
     private optionsFromConfig: {
         title: string,
@@ -54,18 +53,21 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     };
 
     public active: {
-        operators: OperatorMetaData[],
         andor: string,
-        whereClauses: Map<string, FilterBuilderDatabaseTableMetadata>,
-        whereClausesAsList: WhereClauseMetaData[]
+        clauses: WhereClauseMetaData[],
+        databaseTableKeysToFilterIds: Map<string, string>,
+        operators: OperatorMetaData[]
     };
 
     private counter: number;
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
-                visualizationService: VisualizationService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+        ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
+
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
             database: this.injector.get('database', null),
@@ -73,10 +75,10 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         };
 
         this.active = {
-            operators: [],
             andor: 'and',
-            whereClauses: new Map<string, FilterBuilderDatabaseTableMetadata>(),
-            whereClausesAsList: []
+            clauses: [],
+            databaseTableKeysToFilterIds: new Map<string, string>(),
+            operators: []
         };
 
         this.counter = -1;
@@ -89,11 +91,16 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         this.active.operators.push({ value: '<=', prettyName: '<=' });
         this.active.operators.push({ value: 'contains', prettyName: 'contains' });
         this.active.operators.push({ value: 'not contains', prettyName: 'not contains' });
-        this.queryTitle = 'Filter Builder';
         this.isExportable = false;
     }
 
     subNgOnInit() {
+        this.meta.databases.forEach((database) => {
+            database.tables.forEach((table) => {
+                let databaseTableKey = this.getDatabaseTableKey(database.name, table.name);
+                this.active.databaseTableKeysToFilterIds.set(databaseTableKey, '');
+            });
+        });
         this.addBlankWhereClause();
     }
 
@@ -124,96 +131,71 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     addBlankWhereClause() {
-        let field = (this.meta.fields.length >= 0 ? this.meta.fields[0] : null);
         let clause: WhereClauseMetaData = {
+            changeDatabase: this.meta.database,
+            changeTable: this.meta.table,
+            databases: this.meta.databases,
             database: this.meta.database,
+            tables: this.meta.tables,
             table: this.meta.table,
-            field: field,
+            fields: this.meta.fields,
+            field: null,
             operator: this.active.operators[0],
             value: '',
             active: false,
             id: ++this.counter
         };
-        let databaseTableKey = this.getDatabaseTableKey(clause.database.name, clause.table.name);
-        if (!this.active.whereClauses[databaseTableKey]) {
-            this.active.whereClauses.set(databaseTableKey, new FilterBuilderDatabaseTableMetadata());
-            this.active.whereClauses.get(databaseTableKey).clauses = [];
+        if (clause.database && clause.table) {
+            this.active.clauses.push(clause);
         }
-        this.active.whereClauses.get(databaseTableKey).clauses.push(clause);
-        this.active.whereClausesAsList.push(clause);
     }
 
-    removeClause(where) {
-        let databaseTableKey = this.getDatabaseTableKey(where.database.name, where.table.name);
-        for (let i = this.active.whereClauses.get(databaseTableKey).clauses.length - 1; i >= 0; i--) {
-            let clause = this.active.whereClauses.get(databaseTableKey).clauses[i];
-            if (clause.id === where.id) {
-                this.active.whereClauses.get(databaseTableKey).clauses.splice(i, 1);
-                break;
-            }
+    removeClause(clause) {
+        this.active.clauses = this.active.clauses.filter((clauseFromList) => {
+            return clause.id !== clauseFromList.id;
+        });
+
+        let databaseTableKey = this.getDatabaseTableKey(clause.database.name, clause.table.name);
+        if (this.active.databaseTableKeysToFilterIds.get(databaseTableKey)) {
+            this.removeFilterById(databaseTableKey);
         }
-        for (let i = this.active.whereClausesAsList.length - 1; i >= 0; i--) {
-            if (this.active.whereClausesAsList[i].id === where.id) {
-                this.active.whereClausesAsList.splice(i, 1);
-                break;
-            }
-        }
-        if (this.active.whereClauses.get(databaseTableKey).clauses.length === 0) {
-            if (this.active.whereClauses.get(databaseTableKey).filterId) {
-                this.filterService.removeFilter(
-                    this.messenger,
-                    this.active.whereClauses.get(databaseTableKey).filterId,
-                    () => null);
-            }
-            this.active.whereClauses.delete(databaseTableKey);
-        }
-        if (this.active.whereClauses.size === 0) {
+
+        if (!this.active.clauses.length) {
             this.addBlankWhereClause();
         }
     }
 
-    activateClause(where) {
-        let databaseTableKey = this.getDatabaseTableKey(where.database.name, where.table.name);
-        for (let clause of this.active.whereClauses.get(databaseTableKey).clauses) {
-            if (clause.id === where.id) {
-                clause.active = true;
-                break;
-            }
+    activateClause(clause) {
+        if (this.validateClause(clause)) {
+            clause.active = true;
+            this.updateFilters();
         }
-        this.updateFilters();
-    }
-
-    refreshClause(where) {
-        this.updateFilters();
-    }
-
-    andOrChanged() {
-        this.updateFilters();
     }
 
     updateFilters() {
-        this.active.whereClauses.forEach((value, key) => {
-            let hasActiveClause = false;
-            for (let index = value.clauses.length - 1; !hasActiveClause && index >= 0; index--) {
-                hasActiveClause = value.clauses[index].active;
-            }
-            if (hasActiveClause) {
-                this.addNeonFilter(false, value);
+        this.active.databaseTableKeysToFilterIds.forEach((filterId, databaseTableKey) => {
+            let activeClauses = this.active.clauses.filter((clause) => {
+                let clauseDatabaseTableKey = this.getDatabaseTableKey(clause.database.name, clause.table.name);
+                return databaseTableKey === clauseDatabaseTableKey && this.validateClause(clause) && clause.active;
+            });
+            if (activeClauses.length) {
+                this.addNeonFilter(false, new CustomFilter(activeClauses, databaseTableKey, filterId));
+            } else if (filterId) {
+                this.removeFilterById(databaseTableKey);
             }
         });
     }
 
     resetFilterBuilder() {
         let callback = () => {
-            this.active.whereClauses = new Map<string, FilterBuilderDatabaseTableMetadata>();
-            this.active.whereClausesAsList = [];
+            this.active.clauses = [];
             this.active.andor = 'and';
             this.addBlankWhereClause();
         };
         let filterIds = [];
-        this.active.whereClauses.forEach((value, key) => {
-            if (value.filterId) {
-                filterIds.push(value.filterId);
+        this.active.databaseTableKeysToFilterIds.forEach((filterId, databaseTableKey) => {
+            if (filterId) {
+                filterIds.push(filterId);
             }
         });
         this.filterService.removeFilters(this.messenger, filterIds, callback.bind(this));
@@ -226,29 +208,25 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     /*
     * Assumes all clauses passed in have the same database/table combination
     */
-    addNeonFilter(executeQueryChainOnsuccess: boolean, databaseTableMetadata: FilterBuilderDatabaseTableMetadata) {
-        let clauses = databaseTableMetadata.clauses;
-        if (!clauses || clauses.length === 0) {
+    addNeonFilter(executeQueryChainOnsuccess: boolean, filter: CustomFilter) {
+        if (!filter.clauses || filter.clauses.length === 0) {
             return;
         }
-        let database = clauses[0].database.name;
-        let table = clauses[0].table.name;
-        let databaseTableKey = this.getDatabaseTableKey(database, table);
+        let database = filter.clauses[0].database.name;
+        let table = filter.clauses[0].table.name;
         let text = database + ' - ' + table + ' - filter';
         let visName = this.getVisualizationName();
         let onSuccess = (neonFilterId) => {
-            databaseTableMetadata.filterId = neonFilterId;
+            this.active.databaseTableKeysToFilterIds.set(filter.databaseTableKey, neonFilterId);
         };
         let onError = () => {
             console.error('filter failed to set');
         };
 
-        let filterId = databaseTableMetadata.filterId;
-
-        if (filterId) {
+        if (filter.filterId) {
             this.filterService.replaceFilter(
                 this.messenger,
-                filterId,
+                filter.filterId,
                 this.id,
                 database,
                 table,
@@ -278,20 +256,20 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
-        let filterClauses = [];
-        for (let whereClause of this.active.whereClauses.get(this.getDatabaseTableKey(database, table)).clauses) {
-            if (whereClause.active) {
-                let operator = whereClause.operator.value;
-                let value: any = whereClause.value;
-                if (operator !== 'contains' && operator !== 'not contains') {
-                    value = parseFloat(whereClause.value);
-                    if (isNaN(value)) {
-                        value = whereClause.value;
-                    }
+        let activeClauses = this.active.clauses.filter((clause) => {
+            return clause.database.name === database && clause.table.name === table && this.validateClause(clause) && clause.active;
+        });
+        let filterClauses = activeClauses.map((clause) => {
+            let operator = clause.operator.value;
+            let value: any = clause.value;
+            if (operator !== 'contains' && operator !== 'not contains') {
+                value = parseFloat(clause.value);
+                if (isNaN(value)) {
+                    value = clause.value;
                 }
-                filterClauses.push(neon.query.where(whereClause.field.columnName, operator, value));
             }
-        }
+            return neon.query.where(clause.field.columnName, operator, value);
+        });
         if (filterClauses.length === 1) {
             return filterClauses[0];
         }
@@ -307,7 +285,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     getVisualizationName(): string {
-        return 'Filter Builder';
+        return 'Custom Filters';
     }
 
     refreshVisualization() {
@@ -351,43 +329,113 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         // Do nothing, no filters
     }
 
-    handleValueChange(_event, where) {
-        for (let clause of this.active.whereClauses.get(this.getDatabaseTableKey(where.database.name, where.table.name)).clauses) {
-            if (clause.id === where.id) {
-                if (clause.value && clause.value !== '') {
-                    // TODO
-                } else {
-                    clause.active = false;
-                }
-                return;
-            }
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText
+        };
+    }
+
+    /**
+     * Updates the active status, tables, fields, and value in the given clause and the filters.
+     *
+     * @arg {WhereClauseMetaData} clause
+     */
+    handleChangeDatabaseOfClause(clause: WhereClauseMetaData) {
+        let databaseTableKey = this.getDatabaseTableKey(clause.database.name, clause.table.name);
+
+        clause.active = false;
+        clause.database = clause.changeDatabase;
+        clause.value = '';
+        super.initTables(clause);
+
+        if (this.active.databaseTableKeysToFilterIds.get(databaseTableKey)) {
+            this.updateFilters();
         }
     }
 
-    handleChangeLimit() {
-        this.logChangeAndStartQueryChain();
+    /**
+     * Updates the active status, fields, and value in the given clause and the filters.
+     *
+     * @arg {WhereClauseMetaData} clause
+     */
+    handleChangeTableOfClause(clause: WhereClauseMetaData) {
+        let databaseTableKey = this.getDatabaseTableKey(clause.database.name, clause.table.name);
+
+        clause.active = false;
+        clause.table = clause.changeTable;
+        clause.value = '';
+        super.initFields(clause);
+
+        if (this.active.databaseTableKeysToFilterIds.get(databaseTableKey)) {
+            this.updateFilters();
+        }
     }
 
-    handleChangeField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+    /**
+     * Updates the active status of the given clause.
+     *
+     * @arg {WhereClauseMetaData} clause
+     */
+    handleChangeDataOfClause(clause: WhereClauseMetaData) {
+        clause.active = false;
     }
 
-    handleChangeOperator() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
+    /**
+     * Removes the filters with the given database-table key.
+     *
+     * @arg {string} databaseTableKey
+     */
+    removeFilterById(databaseTableKey: string) {
+        this.filterService.removeFilter(this.messenger, this.active.databaseTableKeysToFilterIds.get(databaseTableKey), () => {
+            this.active.databaseTableKeysToFilterIds.set(databaseTableKey, '');
+        });
+    }
+
+    /**
+     * Returns the validity of the given clause.
+     *
+     * @arg {WhereClauseMetaData} clause
+     */
+    validateClause(clause: WhereClauseMetaData) {
+        return clause.database && clause.table && clause.field;
     }
 }
 
-export class OperatorMetaData {
+class OperatorMetaData {
     value: string;
     prettyName: string;
 }
 
-export class WhereClauseMetaData {
+class WhereClauseMetaData {
+    changeDatabase: DatabaseMetaData;
+    changeTable: TableMetaData;
+    databases: DatabaseMetaData[];
     database: DatabaseMetaData;
+    tables: TableMetaData[];
     table: TableMetaData;
+    fields: FieldMetaData[];
     field: FieldMetaData;
     operator: OperatorMetaData;
     value: string;
     active: boolean;
     id: number;
+}
+
+class CustomFilter {
+    clauses: WhereClauseMetaData[];
+    databaseTableKey: string;
+    filterId: string;
+
+    constructor(clauses: WhereClauseMetaData[], databaseTableKey: string, filterId: string) {
+        this.clauses = clauses;
+        this.databaseTableKey = databaseTableKey;
+        this.filterId = filterId;
+    }
 }

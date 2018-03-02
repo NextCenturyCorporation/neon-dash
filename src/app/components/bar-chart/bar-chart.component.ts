@@ -14,14 +14,17 @@
  *
  */
 import {
-    Component,
-    OnInit,
-    OnDestroy,
-    ViewEncapsulation,
     ChangeDetectionStrategy,
-    Injector, ViewChild,
-    ChangeDetectorRef
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    Injector,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
 } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -31,7 +34,7 @@ import { FieldMetaData } from '../../dataset';
 import { neonMappings, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { ChartComponent } from 'angular2-chartjs';
+import { ChartComponent } from '../chart/chart.component';
 import { Chart } from 'chart.js';
 import { VisualizationService } from '../../services/visualization.service';
 import { Color, ColorSchemeService } from '../../services/color-scheme.service';
@@ -39,7 +42,7 @@ import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 /**
  * Data used to draw the bar chart
  */
-class BarData {
+export class BarData {
     // The X-Axis labels
     labels: string[] = [];
     // The data to graph
@@ -49,7 +52,7 @@ class BarData {
 /**
  * One set of bars to draw
  */
-class BarDataSet {
+export class BarDataSet {
     // The name of the data set
     label: string;
     // The data
@@ -93,6 +96,7 @@ class BarDataSet {
     setActiveColor(position: number) {
         this.backgroundColor[position] = this.color.toRgb();
     }
+
     /**
      * set the background color of a single bar to the inactive color
      * @param {number} position
@@ -109,9 +113,13 @@ class BarDataSet {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BarChartComponent extends BaseNeonComponent implements OnInit,
-    OnDestroy {
+export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
+
     @ViewChild('myChart') chartModule: ChartComponent;
+    @ViewChild('hiddenCanvas') hiddenCanvas: ElementRef;
 
     private filters: {
         id: string,
@@ -133,22 +141,28 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         limit: number,
         chartType: string // bar or horizontalBar
     };
+
     public active: {
         dataField: FieldMetaData,
+        colorField: FieldMetaData,
         aggregationField: FieldMetaData,
         aggregationFieldHidden: boolean,
         andFilters: boolean,
         limit: number,
+        newLimit: number,
+        page: number,
+        lastPage: boolean,
         filterable: boolean,
         layers: any[],
         data: any[],
         aggregation: string,
         chartType: string,
-        maxNum: number,
+        maxCount: number,
         minScale: string,
         maxScale: string,
         scaleManually: boolean,
-        seenValues: string[]
+        bars: string[],
+        seenBars: string[]
     };
 
     //this is what gets loaded into the Chart object; it should always(?) be identical to chartModule.chart.config
@@ -166,10 +180,19 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
     public colorFieldNames: string[] = [];
     private defaultActiveColor;
 
-    constructor(connectionService: ConnectionService, datasetService: DatasetService, filterService: FilterService,
-        exportService: ExportService, injector: Injector, themesService: ThemesService, ref: ChangeDetectorRef,
-        visualizationService: VisualizationService, private colorSchemeService: ColorSchemeService) {
-        super(connectionService, datasetService, filterService, exportService, injector, themesService, ref, visualizationService);
+    constructor(activeGridService: ActiveGridService,
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        exportService: ExportService,
+        injector: Injector,
+        themesService: ThemesService,
+        ref: ChangeDetectorRef,
+        visualizationService: VisualizationService,
+        private colorSchemeService: ColorSchemeService) {
+
+        super(activeGridService, connectionService, datasetService, filterService,
+            exportService, injector, themesService, ref, visualizationService);
 
         this.optionsFromConfig = {
             title: this.injector.get('title', null),
@@ -179,7 +202,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             aggregation: this.injector.get('aggregation', null),
             aggregationField: this.injector.get('aggregationField', null),
             colorField: this.injector.get('colorField', null),
-            limit: this.injector.get('limit', 100),
+            limit: this.injector.get('limit', 10),
             unsharedFilterField: {},
             unsharedFilterValue: '',
             chartType: this.injector.get('chartType', 'bar')
@@ -187,23 +210,101 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.filters = [];
         this.active = {
             dataField: new FieldMetaData(),
+            colorField: new FieldMetaData(),
             aggregationField: new FieldMetaData(),
             aggregationFieldHidden: true,
             andFilters: true,
             limit: this.optionsFromConfig.limit,
+            newLimit: this.optionsFromConfig.limit,
+            page: 1,
+            lastPage: true,
             filterable: true,
             layers: [],
             data: [],
             aggregation: 'count',
             chartType: this.optionsFromConfig.chartType || 'horizontalBar',
+            maxCount: 0,
             minScale: undefined,
             maxScale: undefined,
-            maxNum: 0,
             scaleManually: false,
-            seenValues: []
+            bars: [],
+            seenBars: []
         };
 
         this.onClick = this.onClick.bind(this);
+
+        // Margin for the y-axis labels.
+        let LABELS_MARGIN = 20;
+        // Percentage of the chart for the y-axis labels specified by the UX team.
+        let LABELS_PERCENTAGE = 0.2;
+        // Margin for the tooltip labels.
+        let TOOLTIPS_MARGIN = 20;
+
+        let calculateTextWidth = (text) => {
+            if (!text) {
+                return 0;
+            }
+            let element = this.hiddenCanvas.nativeElement;
+            let context = element.getContext('2d');
+            context.font = '10px sans-serif';
+            return context.measureText(text).width;
+        };
+
+        let resizeChartLabelY = (scaleInstance) => {
+            // Set the label width to either its minimum needed width or a percentage of the chart width (whatever is lower).
+            let containerWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth);
+            // If the bar chart has multiple pages, always return a consistent width (based on the Y-label width if possible).
+            if (this.active.limit < this.active.bars.length) {
+                let yLabels: any[] = (this.active.chartType === 'bar' ? [this.active.maxCount] : this.active.bars);
+                let yLabelsMaxWidth = yLabels.reduce((max, yLabel) => {
+                    return Math.max(max, calculateTextWidth(yLabel));
+                }, 0);
+                scaleInstance.width = Math.min(containerWidth, yLabelsMaxWidth);
+            } else {
+                scaleInstance.width = Math.min(containerWidth, scaleInstance.minSize.width);
+            }
+            scaleInstance.width = Math.floor(scaleInstance.width);
+        };
+
+        let truncateText = (containerWidth, text, suffix = '') => {
+            // Format number strings first.
+            let formatted = this.formatNumber(text);
+            // Subtract three characters for the ellipsis.
+            let truncated = ('' + text).substring(0, ('' + text).length - 3);
+            let elementWidth = calculateTextWidth(formatted + suffix);
+
+            if (!elementWidth || elementWidth < 0 || !containerWidth || containerWidth < 0 || elementWidth < containerWidth) {
+                return (formatted || '') + suffix;
+            }
+
+            while (elementWidth > containerWidth) {
+                // Truncate multiple characters of long text to increase speed performance.
+                let chars = Math.ceil(truncated.length / 20.0);
+                truncated = truncated.substring(0, truncated.length - chars);
+                if (!truncated) {
+                    return '...' + suffix;
+                }
+                elementWidth = calculateTextWidth(truncated + '...' + suffix);
+            }
+
+            return truncated.trim() + '...' + suffix;
+        };
+
+        let truncateBarLabelTextX = (text) => {
+            let containerWidth = Math.floor((1 - LABELS_PERCENTAGE) * this.chartModule.getNativeElement().clientWidth /
+                this.chartInfo.data.labels.length);
+            return truncateText(containerWidth, text);
+        };
+
+        let truncateBarLabelTextY = (text) => {
+            let containerWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth - LABELS_MARGIN);
+            return truncateText(containerWidth, text);
+        };
+
+        let truncateTooltipLabelText = (text, suffix) => {
+            let containerWidth = this.chartModule.getNativeElement().clientWidth - TOOLTIPS_MARGIN;
+            return truncateText(containerWidth, text, suffix);
+        };
 
         this.chartInfo = {
             type: this.active.chartType,
@@ -222,24 +323,27 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 hover: {
                     mode: 'point',
                     onHover: null
-
                 },
                 scales: {
                     xAxes: [{
+                        barPercentage: 0.9,
+                        categoryPercentage: 0.9,
                         stacked: true,
                         ticks: {
-                            // max: 100,
+                            maxRotation: 0,
+                            minRotation: 0,
                             beginAtZero: true,
-                            callback: this.formatingCallback
+                            callback: truncateBarLabelTextX
                         }
                     }],
                     yAxes: [{
-
+                        afterFit: resizeChartLabelY,
+                        barPercentage: 0.9,
+                        categoryPercentage: 0.9,
                         stacked: true,
                         ticks: {
-                            // max: 100,
                             beginAtZero: true,
-                            callback: this.formatingCallback
+                            callback: truncateBarLabelTextY
                         }
                     }]
                 },
@@ -249,30 +353,49 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 tooltips: {
                     mode: 'index',
                     intersect: false,
-                    callbacks: {}
+                    callbacks: {},
+                    position: 'neonCenter'
                 }
             }
         };
 
-        let tooltipTitleFunc = (tooltips, data) => {
-            return this.active.dataField.prettyName + ': ' + tooltips[0].xLabel;
+        let createTooltipTitle = (tooltipList, data) => {
+            let count = tooltipList.reduce(function(sum, tooltipItem) {
+                let dataset = data.datasets[tooltipItem.datasetIndex];
+                return sum + dataset.data[tooltipItem.index];
+            }, 0);
+            return [
+                truncateTooltipLabelText(data.labels[tooltipList[0].index]),
+                this.active.aggregation + ': ' + this.formatNumber(count)
+            ];
         };
-        let tooltipDataFunc = (tooltipItem, data) => {
-            let tooltip = data.datasets[tooltipItem.datasetIndex];
-            let value = tooltip.data[tooltipItem.index];
+
+        let createTooltipLabel = (tooltipItem, data) => {
+            let dataset = data.datasets[tooltipItem.datasetIndex];
+            let count = dataset.data[tooltipItem.index];
             // Returning null removes the row from the tooltip
-            return value === 0 ? null : tooltip.label + ': ' + this.formatingCallback(value);
+            return data.datasets.length === 1 || count === 0 ? null : truncateTooltipLabelText(dataset.label, ': ' +
+                this.formatNumber(count));
         };
-        this.chartInfo.options.tooltips.callbacks.title = tooltipTitleFunc.bind(this);
-        this.chartInfo.options.tooltips.callbacks.label = tooltipDataFunc.bind(this);
-        this.queryTitle = this.optionsFromConfig.title || 'Bar Chart';
 
+        this.chartInfo.options.tooltips.callbacks.title = createTooltipTitle.bind(this);
+        this.chartInfo.options.tooltips.callbacks.label = createTooltipLabel.bind(this);
     }
 
+    /**
+     * Initializes any bar chart sub-components needed.
+     *
+     * @override
+     */
     subNgOnInit() {
-        // Do nothing
+        // Do nothing.
     }
 
+    /**
+     * Handles any bar chart component post-initialization behavior needed.
+     *
+     * @override
+     */
     postInit() {
         this.executeQueryChain();
 
@@ -285,10 +408,21 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.defaultActiveColor = this.getPrimaryThemeColor();
     }
 
+    /**
+     * Deletes any bar chart sub-components needed.
+     *
+     * @override
+     */
     subNgOnDestroy() {
         this.chartModule.chart.destroy();
     }
 
+    /**
+     * Sets the properties in the given bindings for the bar chart.
+     *
+     * @arg {any} bindings
+     * @override
+     */
     subGetBindings(bindings: any) {
         bindings.dataField = this.active.dataField.columnName;
         bindings.aggregation = this.active.aggregation;
@@ -296,7 +430,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         bindings.limit = this.active.limit;
     }
 
-    getExportFields() {
+    /**
+     * Returns the bar chart export fields.
+     *
+     * @return {array}
+     * @override
+     */
+    getExportFields(): any[] {
         let valuePrettyName = this.active.aggregation +
             (this.active.aggregationFieldHidden ? '' : '-' + this.active.aggregationField.prettyName);
         valuePrettyName = valuePrettyName.charAt(0).toUpperCase() + valuePrettyName.slice(1);
@@ -309,13 +449,26 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         }];
     }
 
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
+    /**
+     * Returns the option for the given property from the bar chart config.
+     *
+     * @arg {string} option
+     * @return {any}
+     * @override
+     */
+    getOptionFromConfig(option: string): any {
+        return this.optionsFromConfig[option];
     }
 
-    onClick(_event, elements: any[]) {
-        for (let el of elements) {
-            let value = el._model.label;
+    /**
+     * Adds, replaces, or removes filters using the bar chart data in the given elements.
+     *
+     * @arg {any} _event
+     * @arg {array} elements
+     */
+    onClick(_event: any, elements: any[]) {
+        if (elements.length) {
+            let value = elements[0]._model.label;
             let key = this.active.dataField.columnName;
             let prettyKey = this.active.dataField.prettyName;
             let filter = {
@@ -356,30 +509,38 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         }
     }
 
+    /**
+     * Updates the fields for the bar chart.
+     *
+     * @override
+     */
     onUpdateFields() {
         if (this.optionsFromConfig.aggregation) {
             this.active.aggregation = this.optionsFromConfig.aggregation;
         }
         this.active.aggregationField = this.findFieldObject('aggregationField', neonMappings.TAGS);
         this.active.dataField = this.findFieldObject('dataField', neonMappings.TAGS);
-        this.meta.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
+        this.active.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
     }
 
-    addLocalFilter(filter) {
-        //this.filters[0] = filter;
+    /**
+     * Adds the given filter object to the bar chart's list of filter objects.
+     *
+     * @arg {object} filter
+     */
+    addLocalFilter(filter: any) {
         if (this.filterIsUnique(filter)) {
-            this.filters = this.updateArray(this.filters, filter);
+            this.filters = [].concat(this.filters).concat([filter]);
         }
     }
 
-    updateArray(arr, add) {
-        let newArr = arr.slice();
-        newArr.push(add);
-        return newArr;
-
-    }
-
-    filterIsUnique(filter) {
+    /**
+     * Returns true if the given filter object does not match any filter in the list of bar chart component filter objects.
+     *
+     * @arg {any} filter
+     * @return {boolean}
+     */
+    filterIsUnique(filter: any): boolean {
         for (let f of this.filters) {
             if (f.value === filter.value && f.key === filter.key) {
                 return false;
@@ -388,7 +549,16 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         return true;
     }
 
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
+    /**
+     * Creates and returns the neon filter clause object using the given database, table, and data field names.
+     *
+     * @arg {string} database
+     * @arg {string} table
+     * @arg {string} fieldName
+     * @return {object}
+     * @override
+     */
+    createNeonFilterClauseEquals(database: string, table: string, fieldName: string): object {
         let filterClauses = this.filters.map(function(filter) {
             return neon.query.where(fieldName, '=', filter.value);
         });
@@ -401,33 +571,57 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         return neon.query.or.apply(neon.query, filterClauses);
     }
 
+    /**
+     * Returns the list of filter fields for the bar chart.
+     *
+     * @return {array}
+     * @override
+     */
     getNeonFilterFields(): string[] {
         return [this.active.dataField.columnName];
     }
+
+    /**
+     * Returns the bar chart's visualization name.
+     *
+     * @return {string}
+     * @override
+     */
     getVisualizationName(): string {
         return 'Bar Chart';
     }
 
-    getFilterText(filter) {
+    /**
+     * Returns the bar chart filter text using the given filter object.
+     *
+     * @arg {any} filter
+     * @return {string}
+     * @override
+     */
+    getFilterText(filter: any): string {
         return filter.value;
     }
 
+    /**
+     * Updates the bar colors and legend and refreshes the bar chart.
+     */
     refreshVisualization() {
         let selectedLabels: string[] = [];
         if (this.filters.length >= 1) {
-            let activeValues = this.filters.map((el) => el.value);
-            let activeIndeces = [];
-            for (let index = activeValues.length - 1; index >= 0; index--) {
-                activeIndeces.push(this.chartInfo.data.labels.indexOf(activeValues[index]));
-            }
+            let activeFilterValues = this.filters.map((el) => el.value);
+            let activeLabelIndexes = this.chartInfo.data.labels.map(function(label, index) {
+                return (activeFilterValues.indexOf(label) >= 0 ? index : -1);
+            }).filter(function(index) {
+                return index >= 0;
+            });
 
             for (let dataset of this.chartInfo.data.datasets) {
                 dataset.setAllInactive();
-                for (let index = activeIndeces.length - 1; index >= 0; index--) {
-                    dataset.setActiveColor(activeIndeces[index]);
+                for (let index = activeLabelIndexes.length - 1; index >= 0; index--) {
+                    dataset.setActiveColor(activeLabelIndexes[index]);
                 }
-                for (let index = activeIndeces.length - 1; index >= 0; index--) {
-                    if (dataset.data[activeIndeces[index]] > 0) {
+                for (let index = activeLabelIndexes.length - 1; index >= 0; index--) {
+                    if (dataset.data[activeLabelIndexes[index]] > 0) {
                         selectedLabels.push(dataset.label);
                         continue;
                     }
@@ -435,7 +629,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             }
         } else {
             // Set all bars active
-            for (let dataset of this.chartInfo.data.datasets) {
+            for (let dataset of this.active.data) {
                 dataset.setAllActive();
             }
         }
@@ -444,15 +638,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         this.chartModule.chart.update();
     }
 
-    getActiveValues(filter) {
-        let activeValues = [];
-        for (let value of filter) {
-                activeValues = this.updateArray(activeValues, value);
-        }
-        return activeValues;
-    }
-
-    isValidQuery() {
+    /**
+     * Returns whether the fields for the bar chart are valid.
+     *
+     * @return {boolean}
+     * @override
+     */
+    isValidQuery(): boolean {
         let valid = true;
         valid = (this.meta.database && this.meta.database.name && valid);
         valid = (this.meta.table && this.meta.table.name && valid);
@@ -467,10 +659,15 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             valid = ((this.active.aggregationField.type !== 'string') && valid);
 
         }
-        // valid = (this.active.aggregation && valid);
         return valid;
     }
 
+    /**
+     * Creates and returns the query for the bar chart.
+     *
+     * @return {neon.query.Query}
+     * @override
+     */
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
@@ -480,9 +677,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         let yAxisField = this.active.aggregationField.columnName;
         let groupBy: any[] = [this.active.dataField.columnName];
 
-        if (this.hasColorField()) {
-            whereClauses.push(neon.query.where(this.meta.colorField.columnName, '!=', null));
-            groupBy.push(this.meta.colorField.columnName);
+        if (this.active.colorField && this.active.colorField.columnName !== '') {
+            whereClauses.push(neon.query.where(this.active.colorField.columnName, '!=', null));
+            groupBy.push(this.active.colorField.columnName);
         }
 
         if (this.hasUnsharedFilter()) {
@@ -492,27 +689,35 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                     this.meta.unsharedFilterValue));
         }
 
-        query.where(neon.query.and.apply(query, whereClauses));
+        query.where(neon.query.and.apply(query, whereClauses)).groupBy(groupBy);
+
         switch (this.active.aggregation) {
-            case 'count':
-                return query.groupBy(groupBy).aggregate(neonVariables.COUNT, '*', 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
-            case 'sum':
-                return query.groupBy(groupBy).aggregate(neonVariables.SUM, yAxisField, 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
             case 'average':
-                return query.groupBy(groupBy).aggregate(neonVariables.AVG, yAxisField, 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
+                query.aggregate(neonVariables.AVG, yAxisField, 'value');
+                break;
             case 'min':
-                return query.groupBy(groupBy).aggregate(neonVariables.MIN, yAxisField, 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
+                query.aggregate(neonVariables.MIN, yAxisField, 'value');
+                break;
             case 'max':
-                return query.groupBy(groupBy).aggregate(neonVariables.MAX, yAxisField, 'value')
-                    .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
+                query.aggregate(neonVariables.MAX, yAxisField, 'value');
+                break;
+            case 'sum':
+                query.aggregate(neonVariables.SUM, yAxisField, 'value');
+                break;
+            case 'count':
+            default:
+                query.aggregate(neonVariables.COUNT, '*', 'value');
         }
 
+        return query.sortBy('value', neonVariables.DESCENDING);
     }
 
+    /**
+     * Returns the list of filters for the bar chart to ignore.
+     *
+     * @return {any}
+     * @override
+     */
     getFiltersToIgnore() {
         let database = this.meta.database.name;
         let table = this.meta.table.name;
@@ -529,20 +734,18 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         return null;
     }
 
-    onQuerySuccess(response): void {
-        let colName = this.active.dataField.columnName;
-        // let prettyColName = this.active.dataField.prettyName;
-        let chartData = new BarData();
+    /**
+     * Handles the query results for the bar chart and draws the new bar chart.
+     */
+    onQuerySuccess(response: any) {
+        this.active.bars = [];
 
-        let dataSets = new Map<string, BarDataSet>();
-
-        let hasColor = this.hasColorField();
         // Use our seen values list to create dummy values for every category not returned this time.
-        let valsToAdd = [];
-        for (let value of this.active.seenValues) {
+        let seenData = [];
+        for (let barLabel of this.active.seenBars) {
             let exists = false;
-            for (let row of response.data) {
-                if (row[colName] === value) {
+            for (let item of response.data) {
+                if (item[this.active.dataField.columnName] === barLabel) {
                     exists = true;
                 }
             }
@@ -550,113 +753,156 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
                 let item = {
                     value: 0
                 };
-                item[colName] = value;
-                valsToAdd.push(item);
+                item[this.active.dataField.columnName] = barLabel;
+                seenData.push(item);
             }
         }
-        response.data = response.data.concat(valsToAdd);
+        let data = response.data.concat(seenData);
 
-        /*
-         * We need to build the datasets.
-         * The datasets are just arrays of the data to draw, and the data is indexed
-         * by the labels field.
-         */
-        for (let row of response.data) {
-            let key: string = row[colName];
-            if (!key) {
+        // Update the bars from the data.
+        for (let item of data) {
+            let barLabel: string = item[this.active.dataField.columnName];
+
+            if (!barLabel) {
                 continue;
             }
+
             // Add any labels that we haven't seen before to our "seen values" list so we have them for next time.
-            if (this.active.seenValues.indexOf(key) === -1) {
-                this.active.seenValues.push(key);
+            if (this.active.seenBars.indexOf(barLabel) < 0) {
+                this.active.seenBars.push(barLabel);
             }
-            if (chartData.labels.indexOf(key) === -1) {
-                chartData.labels.push(key);
+
+            if (this.active.bars.indexOf(barLabel) < 0) {
+                this.active.bars.push(barLabel);
             }
         }
-        chartData.labels.sort();
 
-        for (let row of response.data) {
-            let key: string = row[colName];
-            if (!key) {
+        let groupsToDatasets = new Map<string, BarDataSet>();
+        let colorFieldExists = (this.active.colorField && this.active.colorField.columnName !== '');
+
+        // Update the segments and counts from the bars and the data.
+        for (let item of data) {
+            let barLabel: string = item[this.active.dataField.columnName];
+
+            if (!barLabel) {
                 continue;
             }
-            let dataIndex = chartData.labels.indexOf(key);
 
-            // The default group is the query title
-            let group = this.queryTitle;
-            if (hasColor) {
-                group = row[this.meta.colorField.columnName];
+            // Each barLabel will create a new bar.  Each barSegment will create a new piece of a whole bar.
+            let barSegment = colorFieldExists ? (item[this.active.colorField.columnName] || '') : '';
+
+            let barDataset = groupsToDatasets.get(barSegment);
+
+            if (!barDataset) {
+                barDataset = new BarDataSet(this.active.bars.length);
+                barDataset.label = barSegment;
+                barDataset.color = colorFieldExists ? this.colorSchemeService.getColorFor(this.active.colorField.columnName, barSegment) :
+                    this.defaultActiveColor;
+                barDataset.backgroundColor = this.active.bars.map(function(bar) {
+                    return barDataset.color.toRgb();
+                });
+                groupsToDatasets.set(barSegment, barDataset);
             }
 
-            let dataset = dataSets.get(group);
-            if (dataset == null) {
-                dataset = new BarDataSet(chartData.labels.length);
-                dataSets.set(group, dataset);
+            barDataset.data[this.active.bars.indexOf(barLabel)] = item.value;
+        }
 
-                dataset.label = group;
-                if (hasColor) {
-                    dataset.color = this.colorSchemeService.getColorFor(this.meta.colorField.columnName, group);
-                } else {
-                    dataset.color = this.defaultActiveColor;
-                }
+        this.active.data = Array.from(groupsToDatasets.values());
+        this.active.page = 1;
+        this.active.lastPage = (this.active.bars.length <= this.active.limit);
 
-                dataset.backgroundColor[0] = dataset.color.toRgb();
+        let counts = !this.active.data.length ? [] : this.active.data.slice(1).reduce((array, dataset) => {
+            return dataset.data.map((value, index) => {
+                return array[index] + value;
+            });
+        }, this.active.data[0].data);
+
+        this.active.maxCount = counts.reduce((a, b) => {
+            return Math.max(a, b);
+        }) || 0;
+
+        if (!this.active.scaleManually) {
+            let maxCountLength = ('' + Math.ceil(this.active.maxCount)).length;
+            let stepSize = Math.pow(10, maxCountLength - 1);
+            let nextStepSize = Math.pow(10, maxCountLength);
+            if (nextStepSize / 2.0 > this.active.maxCount) {
+                stepSize /= 2.0;
             }
-
-            dataset.data[dataIndex] = row.value;
-
-            // Set this to force the legend to update
-            this.colorFieldNames = [this.meta.colorField.columnName];
+            if (this.active.chartType === 'horizontalBar') {
+                this.chartModule.chart.config.options.scales.xAxes[0].ticks.min = 0;
+                this.chartModule.chart.config.options.scales.xAxes[0].ticks.max = Math.ceil(this.active.maxCount / stepSize) * stepSize;
+                this.chartModule.chart.config.options.scales.xAxes[0].ticks.stepSize = stepSize;
+            }
+            if (this.active.chartType === 'bar') {
+                this.chartModule.chart.config.options.scales.yAxes[0].ticks.min = 0;
+                this.chartModule.chart.config.options.scales.yAxes[0].ticks.max = Math.ceil(this.active.maxCount / stepSize) * stepSize;
+                this.chartModule.chart.config.options.scales.yAxes[0].ticks.stepSize = stepSize;
+            }
         }
 
-        chartData.datasets = Array.from(dataSets.values());
-        this.chartInfo.data = chartData;
-        this.refreshVisualization();
-
-        let title;
-        switch (this.active.aggregation) {
-            case 'count':
-                title = 'Count';
-                break;
-            case 'average':
-                title = 'Average'; // + this.active.aggregationField.prettyName;
-                break;
-            case 'sum':
-                title = 'Sum'; // + this.active.aggregationField.prettyName;
-                break;
-        }
-
-        // I don't know what this code was supposed to do. It adds "by {whatever the text field is currently set to}" to the title,
-        // regardless of what you changed. So if I set the text field to "ID", the title will be "Bar Chart by ID".
-        // If I then set the aggregation to Average, and the corresponding aggregation field to anything, the title will
-        // be "Bar Chart by ID by ID". If I then change the text field to "Name", and then set the color field to '(None)',
-        // the title will be "Bar Chart by ID by ID by Name by Name".
-        // So any time a query is made, the value of the current text field is appended to the chart's title.
-        // I'd guess the intent was to have some record of what filters are currently applied to the chart?
-        // I'll leave in this comment and the old code, in case we want to make that change later.
-        // title = this.optionsFromConfig.title || this.queryTitle + ' by ' + this.active.dataField.prettyName;
-        title = this.optionsFromConfig.title || 'Bar Chart' + ' by ' + this.active.dataField.prettyName;
-        this.queryTitle = title;
+        this.updateBarChart(0, this.active.limit);
     }
 
-    formatingCallback(value): string {
+    /**
+     * Updates the bar chartInfo with the active.bars and active.data using the given bar index and bar limit.
+     *
+     * @arg {number} barIndex
+     * @arg {number} barLimit
+     */
+    updateBarChart(barIndex: number, barLimit: number) {
+        let barChartData = new BarData();
+        barChartData.labels = this.active.bars.slice(barIndex, barIndex + barLimit);
+        barChartData.datasets = this.active.data.map(function(wholeDataset) {
+            let limitedDataset = new BarDataSet(barChartData.labels.length);
+            limitedDataset.label = wholeDataset.label;
+            limitedDataset.color = wholeDataset.color;
+            limitedDataset.backgroundColor = wholeDataset.backgroundColor.slice(barIndex, barIndex + barLimit);
+            limitedDataset.data = wholeDataset.data.slice(barIndex, barIndex + barLimit);
+            return limitedDataset;
+        });
 
-        // This checks if value is a number, taken from https://stackoverflow.com/a/1421988/3015812
-        if (!isNaN(parseFloat(value)) && !isNaN(value - 0)) {
+        // Set this to force the legend to update
+        this.colorFieldNames = [this.active.colorField.columnName];
+
+        this.chartInfo.data = barChartData;
+        this.refreshVisualization();
+    }
+
+    /**
+     * If the given item is a number, returns it as a rounded string; otherwise, returns the given item.
+     *
+     * @arg {any} item
+     * @return {string}
+     */
+    formatNumber(item: any): string {
+        if (super.isNumber(item)) {
             //round to at most 3 decimal places, so as to not display tiny floating-point errors
-            return String(Math.round((parseFloat(value) + 0.00001) * 1000) / 1000);
+            let output = Math.round((parseFloat(item) + 0.00001) * 1000) / 1000;
+            if (output > 999) {
+                return super.prettifyInteger(Math.trunc(output));
+            }
+            return '' + output;
         }
         // can't be converted to a number, so just use it as-is.
-        return value;
+        return '' + item;
     }
 
+    /**
+     * Updates the aggregation type and reruns the bar chart query.
+     */
     handleChangeAggregation() {
         this.active.aggregationFieldHidden = (this.active.aggregation === 'count');
         this.executeQueryChain();
     }
 
+    /**
+     * Updates the bar chart type and redraws the bar chart.
+     */
     handleChangeChartType() {
+        if (!this.chartModule.chart) {
+            return;
+        }
+
         let barData = this.chartInfo.data;
         let barOptions = this.chartInfo.options;
 
@@ -688,8 +934,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             this.chartModule.chart.config.options.scales.yAxes[0].ticks.max = newMax;
         } else if ('horizontalBar') {
             this.chartModule.chart.config.options.scales.xAxes[0].ticks.max = newMax;
-        } else {
-            //what
         }
     }
 
@@ -698,11 +942,12 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             this.chartModule.chart.config.options.scales.yAxes[0].ticks.min = newMin;
         } else if ('horizontalBar') {
             this.chartModule.chart.config.options.scales.xAxes[0].ticks.min = newMin;
-        } else {
-            //what
         }
     }
 
+    /**
+     * Updates the graph scale and reruns the bar chart query.
+     */
     handleChangeScale() {
         if (this.active.scaleManually) {
             if (this.active.maxScale === undefined
@@ -720,14 +965,16 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
             } else {
                 this.setGraphMinimum(Number(this.active.minScale));
             }
-        } else {
-            this.setGraphMaximum(undefined);
-            this.setGraphMinimum(undefined);
         }
 
         this.logChangeAndStartQueryChain();
     }
 
+    /**
+     * Creates filters on init if needed.
+     *
+     * @override
+     */
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
@@ -752,69 +999,112 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         }
     }
 
+    /**
+     * Updates the limit, resets the seen bars, and reruns the bar chart query.
+     */
     handleChangeLimit() {
+        if (super.isNumber(this.active.newLimit)) {
+            let newLimit = parseFloat('' + this.active.newLimit);
+            if (newLimit > 0) {
+                this.active.limit = newLimit;
+                this.active.seenBars = [];
+                this.logChangeAndStartQueryChain();
+            } else {
+                this.active.newLimit = this.active.limit;
+            }
+        } else {
+            this.active.newLimit = this.active.limit;
+        }
+    }
+
+    /**
+     * Resets the seen bars and reruns the bar chart query.
+     */
+    handleChangeField() {
+        this.active.seenBars = [];
         this.logChangeAndStartQueryChain();
     }
 
-    handleChangeDataField() {
-        this.active.seenValues = [];
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    }
-
-    handleChangeAggregationField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    }
-
-    handleChangeColorField() {
-        this.logChangeAndStartQueryChain(); // ('colorField', this.active.colorField.columnName);
-    }
-
-    handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-    }
-
+    /**
+     * Reruns the bar chart query.
+     */
     unsharedFilterChanged() {
         // Update the data
         this.executeQueryChain();
     }
 
+    /**
+     * Reruns the bar chart query.
+     */
     unsharedFilterRemoved() {
         // Update the data
         this.executeQueryChain();
     }
 
-    getButtonText() {
-        let text = 'No Data';
-        let data = this.chartInfo.data.datasets;
-        if (!data || !data[0] || !data[0].data || !data[0].data.length) {
-            return text;
-        } else {
-            let total = data[0].data.reduce((sum, elem) => {
-                return sum + Math.round((elem + 0.00001) * 10000) / 10000;
-            }, 0);
-            return 'Total ' + this.formatingCallback(total);
+    /**
+     * Creates and returns the text for the settings button.
+     *
+     * @return {string}
+     * @override
+     */
+    getButtonText(): string {
+        if (!this.active.bars || !this.active.bars.length) {
+            return 'No Data';
         }
+        if (this.active.bars.length <= this.active.limit) {
+            return 'Total ' + super.prettifyInteger(this.active.bars.length);
+        }
+        let begin = super.prettifyInteger((this.active.page - 1) * this.active.limit + 1);
+        let end = super.prettifyInteger(Math.min(this.active.page * this.active.limit, this.active.bars.length));
+        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.active.bars.length);
     }
 
-    // Get filters and format for each call in HTML
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     */
     getCloseableFilters() {
         return this.filters;
     }
 
+    /**
+     * Returns the bar chart filter tooltip title text using the given filter value.
+     *
+     * @arg {string} value
+     * @return {string}
+     */
     getFilterTitle(value: string) {
         return this.active.dataField.columnName + ' = ' + value;
     }
 
-    getFilterCloseText(value: string) {
+    /**
+     * Returns the bar chart filter text using the given filter value.
+     *
+     * @arg {string} value
+     * @return {string}
+     */
+    getFilterCloseText(value: string): string {
         return value;
     }
 
-    getRemoveFilterTooltip(value: string) {
+    /**
+     * Returns the bar chart remove button tooltip title text using the given filter value.
+     *
+     * @arg {string} value
+     * @return {string}
+     */
+    getRemoveFilterTooltip(value: string): string {
         return 'Delete Filter ' + this.getFilterTitle(value);
     }
 
     //Would love to refactor this but cannot because it's called in base neon.
-    removeFilter(filter) {
+    /**
+     * Removes the given filter object from this bar chart component.
+     *
+     * @arg {any} filter
+     */
+    removeFilter(filter: any) {
         for (let index = this.filters.length - 1; index >= 0; index--) {
             if (this.filters[index].id === filter.id) {
                 this.filters.splice(index, 1);
@@ -822,6 +1112,12 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         }
     }
 
+    /**
+     * Removes all filters from this bar chart component and neon, optionally requerying and/or refreshing.
+     *
+     * @arg {boolean=true} shouldRequery
+     * @arg {boolean=true} shouldRefresh
+     */
     removeAllFilters(shouldRequery: boolean = true, shouldRefresh: boolean = true) {
         for (let index = this.filters.length - 1; index >= 0; index--) {
             this.removeLocalFilterFromLocalAndNeon(this.filters[index], false, false);
@@ -833,5 +1129,48 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit,
         if (shouldRefresh) {
             this.refreshVisualization();
         }
+    }
+
+    /**
+     * Increases the page and updates the bar chart data.
+     */
+    nextPage() {
+        if (!this.active.lastPage) {
+            this.active.page++;
+            this.updatePageData();
+        }
+    }
+
+    /**
+     * Decreases the page and updates the bar chart data.
+     */
+    previousPage() {
+        if (this.active.page !== 1) {
+            this.active.page--;
+            this.updatePageData();
+        }
+    }
+
+    /**
+     * Updates lastPage and the bar chart data using the page and limit.
+     */
+    updatePageData() {
+        let offset = (this.active.page - 1) * this.active.limit;
+        this.active.lastPage = (this.active.bars.length <= (offset + this.active.limit));
+        this.updateBarChart(offset, this.active.limit);
+    }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization.
+     *
+     * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs() {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
     }
 }
