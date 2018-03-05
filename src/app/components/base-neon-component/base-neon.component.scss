@@ -49,20 +49,18 @@ $footer-height: 40px;
     }
 
     .body-container {
-        height: calc(100% - #{$vis-title-expected-height} - 10px);
+        height: calc(100% - #{$vis-title-expected-height});
         position: absolute;
-        top: calc(#{$vis-title-expected-height} + 5px);
-        bottom: 0;
+        top: calc(#{$vis-title-expected-height});
         width: 100%;
 
         &.with-filter {
-            height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - 10px);
-            top: calc(#{$vis-title-expected-height} + #{$filter-container-height} + 5px);
+            height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - 5px);
+            top: calc(#{$vis-title-expected-height} + #{$filter-container-height});
         }
 
         &.with-footer {
-            height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - 10px);
-            bottom: calc(#{$footer-height} + 5px);
+            height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - 5px);
 
             &.with-filter {
                 height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height} - #{$footer-height} - 10px);
