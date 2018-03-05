@@ -859,38 +859,74 @@ describe('Component: BarChart', () => {
         expect(refs.visualization).toBeDefined();
     });
 
-    it('does have previous page button', async(() => {
+    it('does not have previous page button if bars < limit', () => {
         fixture.detectChanges();
         let button = fixture.debugElement.query(By.css('.previous-button'));
-        expect(button).not.toBeNull();
-        expect(button.nativeElement.textContent.trim()).toBe('Previous');
-        expect(button.componentInstance.disabled).toBe(true);
+        expect(button).toBeNull();
+    });
 
+    it('does have disabled previous page button if bars > limit and page is 1', async(() => {
+        component.active.bars = ['a', 'b', 'c', 'd'];
+        component.active.limit = 2;
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            let button = fixture.debugElement.query(By.css('.previous-button'));
+            expect(button).not.toBeNull();
+            expect(button.nativeElement.textContent.trim()).toBe('Previous');
+            expect(button.nativeElement.disabled).toBe(true);
+            expect(button.componentInstance.disabled).toBe(true);
+        });
+    }));
+
+    it('does have enabled previous page button if bars > limit and page is 2', async(() => {
+        component.active.bars = ['a', 'b', 'c', 'd'];
+        component.active.limit = 2;
         component.active.page = 2;
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
             fixture.detectChanges();
-            button = fixture.debugElement.query(By.css('.previous-button'));
+            let button = fixture.debugElement.query(By.css('.previous-button'));
             expect(button).not.toBeNull();
             expect(button.nativeElement.textContent.trim()).toBe('Previous');
+            expect(button.nativeElement.disabled).toBe(false);
             expect(button.componentInstance.disabled).toBe(false);
         });
     }));
 
-    it('does have next page button', async(() => {
+    it('does not have next page button if bars < limit', () => {
         fixture.detectChanges();
         let button = fixture.debugElement.query(By.css('.next-button'));
-        expect(button).not.toBeNull();
-        expect(button.nativeElement.textContent.trim()).toBe('Next');
-        expect(button.componentInstance.disabled).toBe(true);
+        expect(button).toBeNull();
+    });
 
-        component.active.lastPage = false;
+    it('does have disabled next page button if bars > limit and lastPage is true', async(() => {
+        component.active.bars = ['a', 'b', 'c', 'd'];
+        component.active.lastPage = true;
+        component.active.limit = 2;
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
             fixture.detectChanges();
-            button = fixture.debugElement.query(By.css('.next-button'));
+            let button = fixture.debugElement.query(By.css('.next-button'));
+            expect(button).not.toBeNull();
+            expect(button.nativeElement.textContent.trim()).toBe('Next');
+            expect(button.nativeElement.disabled).toBe(true);
+            expect(button.componentInstance.disabled).toBe(true);
+        });
+    }));
+
+    it('does have enabled next page button if bars > limit and lastPage is false', async(() => {
+        component.active.bars = ['a', 'b', 'c', 'd'];
+        component.active.lastPage = false;
+        component.active.limit = 2;
+
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            let button = fixture.debugElement.query(By.css('.next-button'));
             expect(button).not.toBeNull();
             expect(button.nativeElement.textContent.trim()).toBe('Next');
             expect(button.nativeElement.disabled).toBe(false);

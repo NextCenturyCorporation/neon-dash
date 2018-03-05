@@ -152,28 +152,24 @@
     </mat-sidenav>
 
     <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
-        <mat-spinner ></mat-spinner>
+        <mat-spinner></mat-spinner>
     </div>
 
-    <div class="body-container" [class.with-footer]="active.bars.length > active.limit">
-        <div class="filter-container multi-element">
-            <div align="left">
-                <app-legend *ngIf="hasColorField()" [activeList]="selectedLabels"
-                            [fieldNames]="colorFieldNames"></app-legend>
-            </div>
-            <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-                <span class="filter-label" [title]="getFilterTitle(filter.value)">{{ getFilterCloseText(filter.value) }}</span>
-                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                        [matTooltip]="getRemoveFilterTooltip(filter.value)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
-                    <mat-icon class="neon-icon-small">close</mat-icon>
-                </button>
-            </div>
-        </div>
+    <div class="filter-container">
+        <app-legend *ngIf="hasColorField()" [activeList]="selectedLabels" [fieldNames]="colorFieldNames"></app-legend>
 
-        <div class="constant-container">
-            <div class="chart-container-resizable" >
-                <app-chart class="chart" #myChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></app-chart>
-            </div>
+        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+            <span class="filter-label" [title]="getFilterTitle(filter.value)">{{ getFilterCloseText(filter.value) }}</span>
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
+                    [matTooltip]="getRemoveFilterTooltip(filter.value)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                <mat-icon class="neon-icon-small">close</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <div class="body-container" [class.with-filter]="hasColorField() || getCloseableFilters().length" [class.with-footer]="active.bars.length > active.limit">
+        <div #chartContainer class="chart-container">
+            <app-chart class="chart" #myChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></app-chart>
         </div>
     </div>
 
