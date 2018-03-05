@@ -43,7 +43,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="X Axis Field" [(ngModel)]="active.xField" required="true"
-                                (ngModelChange)="handleChangeXField()" [disabled]="meta.fields.length == 0">
+                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -51,7 +51,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Y Axis Field" [(ngModel)]="active.yField" required="true"
-                                (ngModelChange)="handleChangeYField()" [disabled]="meta.fields.length == 0">
+                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -59,7 +59,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Label Field" [(ngModel)]="active.labelField" required="true"
-                                (ngModelChange)="handleChangeLabelField()" [disabled]="meta.fields.length == 0">
+                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -67,7 +67,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Color Field" [(ngModel)]="meta.colorField"
-                               (ngModelChange)="handleChangeColorField()" [disabled]="meta.fields.length == 0">
+                               (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>

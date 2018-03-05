@@ -377,10 +377,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
          this.active = this.updateObject(this.active, 'data', data);
     }
 
-    handleChangeDataField() {
-        this.logChangeAndStartQueryChain();
-    }
-
     /**
      * Updates the limit, resets the seen bars, and reruns the bar chart query.
      */
@@ -396,14 +392,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         } else {
             this.active.newLimit = this.active.limit;
         }
-    }
-
-    handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeSizeField() {
-        this.logChangeAndStartQueryChain();
     }
 
     /**

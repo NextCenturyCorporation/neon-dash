@@ -272,13 +272,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         // Do nothing.
     }
 
-    /**
-     * Responds to changes in a field by starting a new query cycle.
-     */
-    handleChangeField() {
-        this.logChangeAndStartQueryChain();
-    }
-
     formatMetadataEntry(record, metadataEntry) {
         let field = record[metadataEntry.field];
         if (typeof field  === 'string') {
