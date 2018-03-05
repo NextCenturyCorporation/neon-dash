@@ -19,27 +19,11 @@
 
 // FIXME:  Remove the hard-coded colors, using the theme
 
-.table-container {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-}
-
 .table {
     position: relative;
     overflow: hidden;
     height: 100%;
     width: 100%;
-}
-
-.data-table-box {
-    height: calc(100% - #{$vis-title-expected-height} - 60px);
 }
 
 .column-selector-header {
@@ -129,7 +113,7 @@
 }
 
 /deep/ .datatable-body {
-    height: calc(100%);
+    height: 100%;
 }
 
 /deep/ .mat-drawer-content{

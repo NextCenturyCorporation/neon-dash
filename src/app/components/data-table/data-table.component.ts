@@ -277,9 +277,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     refreshVisualization() {
-        this.table.recalculate();
         this.active = Object.assign({}, this.active);
-        this.changeDetection.detectChanges();
+        // Must recalculate table size and detectChanges within setTimeout so angular templates (like ngIf) are updated first.
+        setTimeout(() => {
+            this.table.recalculate();
+            // Must call detectChanges on the ChangeDetectorRef object in the table itself.
+            this.table.cd.detectChanges();
+        }, 0);
     }
 
     isValidQuery() {

@@ -155,7 +155,7 @@
         <mat-spinner ></mat-spinner>
     </div>
 
-    <div class="body-container-with-footer">
+    <div class="body-container" [class.with-footer]="active.bars.length > active.limit">
         <div class="filter-container multi-element">
             <div align="left">
                 <app-legend *ngIf="hasColorField()" [activeList]="selectedLabels"
@@ -177,7 +177,7 @@
         </div>
     </div>
 
-    <div class="footer">
+    <div class="footer" *ngIf="active.bars.length > active.limit">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="active.page == 1" class="pagination-button previous-button" color="primary"
                 (click)="previousPage()">

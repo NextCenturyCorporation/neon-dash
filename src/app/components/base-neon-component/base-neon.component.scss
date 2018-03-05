@@ -43,21 +43,51 @@ $footer-height: 40px;
     .info.text {
         margin: 0 5px;
         overflow: hidden;
+        text-align: right;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
     .contained-scroll-box {
-      overflow-y: auto;
-      height: calc(100% - #{$vis-title-expected-height} - 5px);
+        overflow-y: auto;
+        height: calc(100% - #{$vis-title-expected-height} - 5px);
 
-      &.with-filter {
-          height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height});
-      }
+        &.with-filter {
+            height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height});
+        }
 
-      &.with-footer {
-          height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - 5px);
-      }
+        &.with-footer {
+            height: calc(100% - #{$vis-title-expected-height} - #{$footer-height} - 5px);
+        }
+    }
+
+    .body-container {
+        height: calc(100% - #{$vis-title-expected-height} - 5px);
+        position: absolute;
+        top: #{$vis-title-expected-height};
+        bottom: 0;
+        width: 100%;
+
+        &.with-filter {
+            height: calc(100% - #{$vis-title-expected-height} - #{$filter-container-height});
+            top: calc(#{$vis-title-expected-height} + #{$filter-container-height});
+        }
+
+        &.with-footer {
+            height: calc(100% - #{$vis-title-expected-height} - 5px - #{$footer-height});
+            bottom: #{$footer-height};
+        }
+    }
+
+    .filter-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        height: #{$filter-container-height};
+
+        &.multi-element {
+            justify-content: space-between;
+        }
     }
 
     .footer-button-container {
@@ -140,30 +170,6 @@ $footer-height: 40px;
         font-size: 14px;
         line-height: 20px;
         color: mat-color($fade);
-    }
-}
-
-.body-container {
-    height: calc(100% - #{$vis-title-expected-height} - 5px);
-    position: absolute;
-    top: #{$vis-title-expected-height};
-    bottom: 0;
-    width: 100%;
-}
-
-.body-container-with-footer {
-    height: calc(100% - #{$vis-title-expected-height} - 5px - #{$footer-height});
-    bottom: #{$footer-height};
-}
-
-.filter-container {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-    height: #{$filter-container-height};
-
-    &.multi-element {
-        justify-content: space-between;
     }
 }
 
