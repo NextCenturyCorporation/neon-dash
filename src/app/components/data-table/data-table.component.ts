@@ -415,14 +415,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.executeQueryChain();
     }
 
-    handleChangeField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeSortField() {
-        this.logChangeAndStartQueryChain();
-    }
-
     isDragging(): boolean {
         return (this.drag.mousedown && this.drag.downIndex >= 0);
     }

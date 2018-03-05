@@ -238,10 +238,10 @@ describe('Component: BarChart', () => {
         expect(spy.calls.count()).toBe(1);
     });
 
-    it('handleChangeField does update seenBars and does call logChangeAndStartQueryChain', () => {
+    it('handleChangeDataInBarChart does update seenBars and does call logChangeAndStartQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
         component.active.seenBars = ['a', 'b', 'c', 'd'];
-        component.handleChangeField();
+        component.handleChangeDataInBarChart();
         expect(component.active.seenBars).toEqual([]);
         expect(spy.calls.count()).toBe(1);
     });

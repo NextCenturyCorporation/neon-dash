@@ -257,15 +257,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Handles a change to a field by running a new query.
-     *
-     * @private
-     */
-    handleChangeField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    /**
      * Returns whether the wiki viewer query using the active data config is valid.
      *
      * @return {boolean}

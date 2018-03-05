@@ -765,26 +765,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         }
     }
 
-    handleChangeXField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeYField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeLabelField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeColorField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain();
-    }
-
     unsharedFilterChanged() {
         this.logChangeAndStartQueryChain();
     }

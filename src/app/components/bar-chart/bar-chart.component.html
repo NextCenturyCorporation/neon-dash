@@ -42,7 +42,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Group Field" [(ngModel)]="active.dataField"
-                                required="true" (ngModelChange)="handleChangeField()"
+                                required="true" (ngModelChange)="handleChangeDataInBarChart()"
                                 [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -64,7 +64,7 @@
 
                 <mat-form-field *ngIf="!active.aggregationFieldHidden">
                     <mat-select placeholder="Aggregation Field (Range)" [(ngModel)]="active.aggregationField"
-                                required="true" (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length == 0">
+                                required="true" (ngModelChange)="handleChangeDataInBarChart()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -72,7 +72,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Color Field" [(ngModel)]="active.colorField"
-                               (ngModelChange)="handleChangeField()" [disabled]="meta.fields.length == 0">
+                               (ngModelChange)="handleChangeDataInBarChart()" [disabled]="meta.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>

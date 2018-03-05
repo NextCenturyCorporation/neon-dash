@@ -43,7 +43,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Term Field" [(ngModel)]="active.dataField" required="true"
-                                (ngModelChange)="handleChangeDataField()" [disabled]="meta.fields.length == 0">
+                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -51,7 +51,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Size Field" [(ngModel)]="active.sizeField"
-                               (ngModelChange)="handleChangeSizeField()" [disabled]="meta.fields.length == 0">
+                               (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -60,7 +60,7 @@
 
                 <mat-form-field *ngIf="active.sizeField.columnName != ''">
                     <mat-select placeholder="Size Aggregation" [(ngModel)]="sizeAggregation"
-                               (ngModelChange)="handleChangeSizeField()" [disabled]="meta.fields.length == 0">
+                               (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let aggregation of sizeAggregationTypes"
                                     [value]="aggregation.value">{{ aggregation.name }}</mat-option>
                     </mat-select>
@@ -88,7 +88,7 @@
                 </mat-toolbar>
                 <p></p>
 
-                <mat-button-toggle-group name="filters" [(ngModel)]="active.andFilters" (change)="handleChangeAndFilters()">
+                <mat-button-toggle-group name="filters" [(ngModel)]="active.andFilters" (change)="handleChangeData()">
                     <mat-button-toggle [value]="true">All Filters</mat-button-toggle>
                     <mat-button-toggle [value]="false">Any Filters</mat-button-toggle>
                 </mat-button-toggle-group>

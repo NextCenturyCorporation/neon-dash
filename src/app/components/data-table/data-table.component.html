@@ -42,7 +42,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Initial Sort Field" [(ngModel)]="active.sortField"
-                                required="true" (ngModelChange)="handleChangeSortField()"
+                                required="true" (ngModelChange)="handleChangeData()"
                                 [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
