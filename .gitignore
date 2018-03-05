@@ -21,6 +21,7 @@
 .settings/
 .vscode/
 *.swp
+/out-tsc
 
 # misc
 /.sass-cache
