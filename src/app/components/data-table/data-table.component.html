@@ -78,7 +78,7 @@
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" [title]="getFilterTitle(filter.value)">{{ getFilterCloseText(filter.value) }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="getRemoveFilterTooltip(filter.value)" (click)="removeLocalFilterFromLocalAndNeon(filter, false, true)">
+                    [matTooltip]="getRemoveFilterTooltip(filter.value)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
         </div>
