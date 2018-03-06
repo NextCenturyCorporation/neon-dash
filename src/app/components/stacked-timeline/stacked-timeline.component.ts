@@ -526,18 +526,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         }
     }
 
-    handleChangeDateField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeGroupField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain();
-    }
-
     subGetBindings(bindings: any) {
         bindings.dateField = this.active.dateField.columnName;
         bindings.granularity = this.active.granularity;

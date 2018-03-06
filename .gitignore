@@ -21,6 +21,7 @@
 .settings/
 .vscode/
 *.swp
+/out-tsc
 
 # misc
 /.sass-cache
@@ -52,3 +53,5 @@ package-lock.json
 # Derby database
 derby.log
 /properties/*
+
+src/app/shared/index\.ts

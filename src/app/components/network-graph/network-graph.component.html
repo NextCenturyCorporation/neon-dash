@@ -1,0 +1,92 @@
+<mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+        <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
+        <span class="fill-remaining"></span>
+        <span class="text">{{ getButtonText() }}</span>
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+            <mat-icon>settings</mat-icon>
+        </button>
+    </mat-toolbar>
+
+    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+        <mat-card align="left">
+            <mat-card-content>
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text">
+                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <div>{{ getButtonText() }}</div>
+                    </label>
+                    <p></p>
+                </div>
+
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Node Field" [(ngModel)]="active.nodeField" required="true" (ngModelChange)="handleChangeData()"
+                        [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeData()"
+                        [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <app-export-control [exportId]="exportId"></app-export-control>
+            </mat-card-content>
+        </mat-card>
+    </mat-sidenav>
+
+    <div class="body-container" (click)="stopEventPropagation($event)">
+        <div class="graph-container" (click)="stopEventPropagation($event)">
+            <ngx-graph class="chart-container" [view]="view" [autoZoom]="autoZoom" [legend]="showLegend" [links]="graphData.links" (legendLabelClick)="onLegendLabelClick($event)"
+                [nodes]="graphData.nodes" [orientation]="orientation" [curve]="curve" (select)="select($event)" (click)="stopEventPropagation($event)">
+
+                <ng-template #defsTemplate>
+                    <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
+                        <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
+                    </svg:marker>
+                </ng-template>
+
+                <ng-template #nodeTemplate let-node>
+                    <svg:g class="node">
+                        <svg:rect [attr.width]="node.width" [attr.height]="node.height" [attr.fill]="node.options.color" />
+                        <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.height / 2">{{ node.label }}</svg:text>
+                    </svg:g>
+                </ng-template>
+
+                <ng-template #linkTemplate let-link>
+                    <svg:g class="edge">
+                        <svg:path class="line" stroke-width="2" marker-end="url(#arrow)">
+                        </svg:path>
+                        <svg:text class="edge-label" text-anchor="middle">
+                            <textPath class="text-path" [attr.href]="'#' + link.id" [style.dominant-baseline]="link.dominantBaseline" startOffset="50%">
+                                {{ link.label }}
+                            </textPath>
+                        </svg:text>
+                    </svg:g>
+                </ng-template>
+            </ngx-graph>
+            <div #graphElement id="graphElement" (click)="stopEventPropagation($event)"></div>
+            <div class="graph-selection" *ngIf="false" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
+        </div>
+    </div>
+
+</mat-sidenav-container>

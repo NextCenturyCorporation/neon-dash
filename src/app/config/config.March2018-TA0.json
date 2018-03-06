@@ -1,7 +1,7 @@
 {
 	"datasets": [
 		{
-			"name": "Documents",
+			"name": "Nepal Earthquake 2015 Documents",
 			"connectOnLoad": true,
 			"layout": "TA0-layout",
 			"datastore": "elasticsearch",
@@ -9,7 +9,7 @@
 			"databases": [
 				{
 					"name": "ll_nepal_simplified",
-					"prettyName": "Raw Data",
+					"prettyName": "Nepal Earthquake 2015 Documents",
 					"tables": [
 						{
 							"name": "documents",
@@ -44,7 +44,7 @@
 			}
 		},
 		{
-			"name": "Annotations-ELISA",
+			"name": "Nepal Earthquake 2015 Annotations",
 			"connectOnLoad": false,
 			"layout": "TA1-ELISA-layout",
 			"datastore": "elasticsearch",
@@ -52,18 +52,11 @@
 			"databases": [
 				{
 					"name": "ll_nepal_simplified",
-					"prettyName": "TA1_ELISA",
+					"prettyName": "Nepal Earthquake 2015 Annotations",
 					"tables": [
 						{
 							"name": "annotations",
 							"prettyName": "Annotations",
-							"mappings": {
-								"date": "createdAt"
-							}
-						},
-						{
-							"name": "documents",
-							"prettyName": "Documents",
 							"mappings": {
 								"date": "createdAt"
 							}
@@ -134,8 +127,10 @@
 					"table": "documents",
 					"sortField": "createdAt",
 					"limit": "100",
-					"allColumnStatus": "show",
+					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
+						"createdAt",
+						"originalText"
 					]
 				},
 				"row": 0,
@@ -207,13 +202,13 @@
 					],
 					"layers": [
 						{
-							"title": "LDC Uyghur Point Layer",
+							"title": "NepalEarthquake 2015 Documents Point Layer",
 							"database": "ll_nepal_simplified",
 							"table": "documents",
 							"latitudeField": "geoLocation.latitude",
 							"longitudeField": "geoLocation.longitude",
 							"dateField": "createdAt",
-							"colorField": "topics"
+							"colorField": "lang"
 						}
 					],
 					"geoServer": {
@@ -387,10 +382,9 @@
 						"createdAt",
 						"text",
 						"topics",
-						"GPE",
 						"LOC",
 						"PER",
-						"ORG"
+						"originalText"
 					]
 				},
 				"row": 0,
@@ -414,16 +408,16 @@
 					"filterable": true,
 					"name": "EVENTS",
 					"show": true,
-					"table": "documents",
+					"table": "annotations",
 					"type": "cluster",
 					"limit": 5000,
-					"latitudeField": "geoLocation.latitude",
-					"longitudeField": "geoLocation.longitude",
+					"latitudeField": "entityGeo.lat",
+					"longitudeField": "entityGeo.lon",
 					"sourceLatitudeField": "",
 					"sourceLongitudeField": "",
 					"targetLatitudeField": "",
 					"targetLongitudeField": "",
-					"colorField": "",
+					"colorField": "sentimentString",
 					"colorMapping": [
 						{
 							"match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
@@ -462,13 +456,13 @@
 					],
 					"layers": [
 						{
-							"title": "LDC Uyghur Point Layer",
+							"title": "Nepal Earthquake 2015 Annotations Point Layer",
 							"database": "ll_nepal_simplified",
-							"table": "documents",
-							"latitudeField": "geoLocation.latitude",
-							"longitudeField": "geoLocation.longitude",
+							"table": "annotations",
+							"latitudeField": "entityGeo.lat",
+							"longitudeField": "entityGeo.lon",
 							"dateField": "createdAt",
-							"colorField": "topics"
+							"colorField": "sentimentString"
 						}
 					],
 					"geoServer": {

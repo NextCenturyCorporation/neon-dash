@@ -14,8 +14,9 @@
  *
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
-import { DebugElement } from '@angular/core';
+import { DebugElement, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { APP_BASE_HREF, CommonModule } from '@angular/common';
 
 import 'hammerjs';
 
@@ -62,6 +63,9 @@ import { HttpModule } from '@angular/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
 import { ChartComponent } from './components/chart/chart.component';
+import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
+import { NgxGraphModule } from '@swimlane/ngx-graph';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 describe('App: NeonGtd', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -86,6 +90,7 @@ describe('App: NeonGtd', () => {
                 LegendComponent,
                 LineChartComponent,
                 MapComponent,
+                NetworkGraphComponent,
                 ScatterPlotComponent,
                 SimpleFilterComponent,
                 StackedTimelineComponent,
@@ -99,13 +104,16 @@ describe('App: NeonGtd', () => {
             imports: [
                 FormsModule,
                 AppMaterialModule,
+                NgxChartsModule,
                 NgGridModule,
+                NgxGraphModule,
                 NgxDatatableModule,
                 HttpModule,
                 BrowserAnimationsModule
             ],
             providers: [
                 { provide: 'config', useValue: testConfig },
+                { provide: APP_BASE_HREF, useValue: '/' },
                 ActiveGridService,
                 DatasetService,
                 ConnectionService,

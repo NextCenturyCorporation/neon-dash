@@ -16,7 +16,7 @@
 import * as neon from 'neon-framework';
 import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
-import { FilterService } from '../../app/services/filter.service';
+import { FilterService, ServiceFilter } from '../../app/services/filter.service';
 
 export class FilterMock extends FilterService {
     createMockFilter(database: string, table: string, whereClause: neon.query.WhereClause,
@@ -43,13 +43,7 @@ export class FilterMock extends FilterService {
         // avoid network call
         let id = database + '-' + table + '-' + uuid.v4(),
             filter = this.createMockFilter(database, table, whereClause, filterName);
-        this.getFilters().push({
-            id: id,
-            ownerId: ownerId,
-            database: database,
-            table: table,
-            filter: filter
-        });
+        this.getFilters().push(new ServiceFilter(id, ownerId, database, table, filter));
 
         // don't do success call to avoid calling query chain
     }
@@ -72,13 +66,7 @@ export class FilterMock extends FilterService {
         let filter = this.createMockFilter(database, table, whereClause, filterName);
         let filters = this.getFilters(),
             index = _.findIndex(filters, { id: id });
-        filters[index] = {
-            id: id,
-            ownerId: ownerId,
-            database: database,
-            table: table,
-            filter: filter
-        };
+        filters[index] = new ServiceFilter(id, ownerId, database, table, filter);
 
         // don't do success call to avoid calling query chain
     }
