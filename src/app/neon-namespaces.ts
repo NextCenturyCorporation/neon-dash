@@ -166,8 +166,11 @@ export const neonVisualizations: any[] = [
         name: 'Map',
         type: 'map',
         icon: 'Map64'
-    },
-    {
+    }, {
+        name: 'Network Graph',
+        type: 'networkGraph',
+        icon: 'Graph'
+    }, {
         name: 'Scatter Plot',
         type: 'scatterPlot',
         icon: 'ScatterPlot64'

@@ -43,7 +43,7 @@
 
                 <!-- Text field selector -->
                 <mat-form-field>
-                    <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeField()"
+                    <mat-select placeholder="Text Field" [(ngModel)]="active.dataField" required="true" (ngModelChange)="handleChangeData()"
                         [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -59,7 +59,7 @@
 
                 <!-- Date field selector -->
                 <mat-form-field>
-                    <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="false" (ngModelChange)="handleChangeField()"
+                    <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="false" (ngModelChange)="handleChangeData()"
                         [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -68,7 +68,7 @@
 
                 <!-- ID field selector -->
                 <mat-form-field>
-                    <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeField()"
+                    <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeData()"
                         [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -79,7 +79,7 @@
     </mat-sidenav>
 
     <!-- View documents -->
-    <mat-list class="document-viewer-list-container contained-scroll-box with-footer">
+    <mat-list class="document-viewer-list-container body-container with-scroll" [class.with-footer]="active.docCount > active.limit">
         <div class="mat-list-item-text document-viewer-list-item" layout="column">
             <table class="document-viewer-table">
                 <ng-template ngFor let-item [ngForOf]="active.data">
@@ -110,7 +110,7 @@
         </div>
     </mat-list>
 
-    <div class="footer">
+    <div class="footer" *ngIf="active.docCount > active.limit">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="active.page == 1" class="pagination-button" color="primary" (click)="previousPage()">
                 Previous

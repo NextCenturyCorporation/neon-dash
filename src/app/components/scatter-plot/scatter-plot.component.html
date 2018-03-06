@@ -43,7 +43,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="X Axis Field" [(ngModel)]="active.xField" required="true"
-                                (ngModelChange)="handleChangeXField()" [disabled]="meta.fields.length == 0">
+                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -51,7 +51,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Y Axis Field" [(ngModel)]="active.yField" required="true"
-                                (ngModelChange)="handleChangeYField()" [disabled]="meta.fields.length == 0">
+                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -59,7 +59,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Label Field" [(ngModel)]="active.labelField" required="true"
-                                (ngModelChange)="handleChangeLabelField()" [disabled]="meta.fields.length == 0">
+                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -67,7 +67,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Color Field" [(ngModel)]="meta.colorField"
-                               (ngModelChange)="handleChangeColorField()" [disabled]="meta.fields.length == 0">
+                               (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -100,25 +100,24 @@
         </mat-card>
     </mat-sidenav>
 
-    <div class="body-container">
-        <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
-            <mat-spinner ></mat-spinner>
+    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+        <mat-spinner></mat-spinner>
+    </div>
+
+    <div #filterContainer class="filter-container">
+        <app-legend *ngIf="hasColorField()" (itemSelected)="legendItemSelected($event)" [disabledList]="disabledSet"
+            [fieldNames]="colorByFields"></app-legend>
+
+        <div class="filter-reset" *ngIf="filters[0]">
+            <span class="filter-label" [title]="getFilterTitle()">Scatter Filter</span>
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
+                    [matTooltip]="getRemoveFilterTooltip()" (click)="removeLocalFilterFromLocalAndNeon(filters[0], true)">
+                <mat-icon class="neon-icon-small">close</mat-icon>
+            </button>
         </div>
-        <div #filterContainer class="filter-container multi-element">
-            <div>
-                <app-legend *ngIf="hasColorField()"
-                            (itemSelected)="legendItemSelected($event)"
-                            [disabledList]="disabledSet"
-                            [fieldNames]="colorByFields"></app-legend>
-            </div>
-            <div class="filter-reset" *ngIf="filters[0]">
-                <span class="filter-label" [title]="getFilterTitle()">Scatter Filter</span>
-                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                        [matTooltip]="getRemoveFilterTooltip()" (click)="removeLocalFilterFromLocalAndNeon(filters[0], true)">
-                    <mat-icon class="neon-icon-small">close</mat-icon>
-                </button>
-            </div>
-        </div>
+    </div>
+
+    <div class="body-container" [class.with-filter]="hasColorField() || filters.length">
         <div class="chart-container" #chartContainer (click)="stopEventPropagation($event)" (mousedown)="mouseDown($event)" (mouseleave)="mouseLeave($event)" (mouseup)="mouseUp($event)">
             <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x + selectionOffset.x, 'top.px':selection.y + selectionOffset.y}"></div>
             <app-chart class="chart" #scatter [type]="chart.type" [data]="chart.data" [options]="chart.options"></app-chart>
