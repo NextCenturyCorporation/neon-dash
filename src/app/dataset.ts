@@ -46,10 +46,10 @@ export class DatabaseMetaData {
     prettyName: string = '';
     tables: TableMetaData[];
 
-    constructor(name?: string, prettyName?: string) {
+    constructor(name?: string, prettyName?: string, tables?: TableMetaData[]) {
         this.name = name || '';
         this.prettyName = prettyName || '';
-        this.tables = [];
+        this.tables = tables || [];
     }
 }
 
@@ -94,7 +94,7 @@ export class Dataset {
     options: DatasetOptions = new DatasetOptions();
     mapLayers: Object[] = undefined;
     mapConfig: Object = undefined;
-    relations: Object[] = [];
+    relations: Relation[] = [];
     linkyConfig: Object = undefined;
     dateFilterKeys: Object = undefined;
     lineCharts: Object[] = undefined;
@@ -104,4 +104,12 @@ export class Dataset {
         this.datastore = datastore;
         this.hostname = hostname;
     }
+}
+
+export class Relation {
+    members: {
+        database: string,
+        table: string,
+        field: string
+    }[];
 }

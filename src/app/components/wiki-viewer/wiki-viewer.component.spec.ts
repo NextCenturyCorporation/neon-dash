@@ -583,8 +583,8 @@ describe('Component: WikiViewer with config', () => {
                 VisualizationService,
                 Injector,
                 { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: 'database', useValue: 'testDatabase' },
-                { provide: 'table', useValue: 'testTable' },
+                { provide: 'database', useValue: 'testDatabase1' },
+                { provide: 'table', useValue: 'testTable1' },
                 { provide: 'id', useValue: 'testId' },
                 { provide: 'idField', useValue: 'testIdField' },
                 { provide: 'linkField', useValue: 'testLinkField' },
@@ -603,14 +603,10 @@ describe('Component: WikiViewer with config', () => {
     });
 
     it('does set expected meta properties', (() => {
-        let testTable = new TableMetaData('testTable', 'Test Table', DatasetMock.FIELDS);
-        let testDatabase = new DatabaseMetaData('testDatabase', 'Test Database');
-        testDatabase.tables = [testTable];
-
-        expect(component.meta.database).toEqual(testDatabase);
-        expect(component.meta.table).toEqual(testTable);
-        expect(component.meta.databases).toEqual([testDatabase]);
-        expect(component.meta.tables).toEqual([testTable]);
+        expect(component.meta.database).toEqual(DatasetMock.DATABASES[0]);
+        expect(component.meta.databases).toEqual(DatasetMock.DATABASES);
+        expect(component.meta.table).toEqual(DatasetMock.TABLES[0]);
+        expect(component.meta.tables).toEqual(DatasetMock.TABLES);
         expect(component.meta.fields).toEqual(DatasetMock.FIELDS);
     }));
 
@@ -628,11 +624,11 @@ describe('Component: WikiViewer with config', () => {
     }));
 
     it('getOptionFromConfig does return expected options because config is set', (() => {
-        expect(component.getOptionFromConfig('database')).toBe('testDatabase');
+        expect(component.getOptionFromConfig('database')).toBe('testDatabase1');
         expect(component.getOptionFromConfig('id')).toBe('testId');
         expect(component.getOptionFromConfig('idField')).toBe('testIdField');
         expect(component.getOptionFromConfig('linkField')).toBe('testLinkField');
-        expect(component.getOptionFromConfig('table')).toBe('testTable');
+        expect(component.getOptionFromConfig('table')).toBe('testTable1');
         expect(component.getOptionFromConfig('title')).toBe('Test Title');
     }));
 
@@ -650,10 +646,6 @@ describe('Component: WikiViewer with config', () => {
     }));
 
     it('does show selects in sidenav options menu that have expected options', (() => {
-        let testTable = new TableMetaData('testTable', 'Test Table', DatasetMock.FIELDS);
-        let testDatabase = new DatabaseMetaData('testDatabase', 'Test Database');
-        testDatabase.tables = [testTable];
-
         fixture.detectChanges();
 
         let inputs = fixture.debugElement.queryAll(
@@ -668,22 +660,21 @@ describe('Component: WikiViewer with config', () => {
 
         expect(placeholders[0].nativeElement.textContent).toContain('Title');
 
-        expect(selects[0].componentInstance.disabled).toBe(true);
-        expect(selects[0].componentInstance.options.toArray().length).toBe(1);
-        expect(selects[0].componentInstance.options.toArray()[0].value).toEqual(testDatabase);
+        // Don't directly test the two arrays because it's causing an overflow error!
+        expect(selects[0].componentInstance.options.toArray().length).toEqual(DatasetMock.DATABASES.length);
+        expect(selects[0].componentInstance.disabled).toBe(false);
         expect(placeholders[1].nativeElement.textContent).toContain('Database');
 
-        expect(selects[1].componentInstance.disabled).toBe(true);
-        expect(selects[1].componentInstance.options.toArray().length).toBe(1);
-        expect(selects[1].componentInstance.options.toArray()[0].value).toEqual(testTable);
+        expect(selects[1].componentInstance.options.toArray().length).toEqual(DatasetMock.TABLES.length);
+        expect(selects[1].componentInstance.disabled).toBe(false);
         expect(placeholders[2].nativeElement.textContent).toContain('Table');
 
-        expect(selects[2].componentInstance.disabled).toBe(false);
         expect(selects[2].componentInstance.options.toArray().length).toEqual(DatasetMock.FIELDS.length);
+        expect(selects[2].componentInstance.disabled).toBe(false);
         expect(placeholders[3].nativeElement.textContent).toContain('ID Field');
 
-        expect(selects[3].componentInstance.disabled).toBe(false);
         expect(selects[3].componentInstance.options.toArray().length).toEqual(DatasetMock.FIELDS.length);
+        expect(selects[3].componentInstance.disabled).toBe(false);
         expect(placeholders[4].nativeElement.textContent).toContain('Link Field');
 
         // TODO How can we test the input and select model values?

@@ -24,6 +24,7 @@ import { FilterBuilderComponent } from '../filter-builder/filter-builder.compone
 import { LegendComponent } from '../legend/legend.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
+import { NetworkGraphComponent } from '../network-graph/network-graph.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
@@ -38,6 +39,7 @@ import { VisualizationService } from '../../services/visualization.service';
 
 import { FormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { ChartComponent } from '../chart/chart.component';
@@ -60,6 +62,7 @@ describe('Component: VisualizationContainer', () => {
                 LegendComponent,
                 LineChartComponent,
                 MapComponent,
+                NetworkGraphComponent,
                 ScatterPlotComponent,
                 StackedTimelineComponent,
                 TextCloudComponent,
@@ -78,6 +81,7 @@ describe('Component: VisualizationContainer', () => {
                 AppMaterialModule,
                 FormsModule,
                 NgxDatatableModule,
+                NgxGraphModule,
                 BrowserAnimationsModule
             ]
         });
