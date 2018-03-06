@@ -42,7 +42,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Initial Sort Field" [(ngModel)]="active.sortField"
-                                required="true" (ngModelChange)="handleChangeSortField()"
+                                required="true" (ngModelChange)="handleChangeData()"
                                 [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -74,19 +74,20 @@
         <mat-spinner ></mat-spinner>
     </div>
 
-    <div class="body-container data-table-box">
-        <div class="filter-container">
-            <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-                <span class="filter-label" [title]="getFilterTitle(filter.value)">{{ getFilterCloseText(filter.value) }}</span>
-                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                        [matTooltip]="getRemoveFilterTooltip(filter.value)" (click)="removeLocalFilterFromLocalAndNeon(filter, false, true)">
-                    <mat-icon class="neon-icon-small">close</mat-icon>
-                </button>
-            </div>
+    <div class="filter-container">
+        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+            <span class="filter-label" [title]="getFilterTitle(filter.value)">{{ getFilterCloseText(filter.value) }}</span>
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
+                    [matTooltip]="getRemoveFilterTooltip(filter.value)" (click)="removeLocalFilterFromLocalAndNeon(filter, false, true)">
+                <mat-icon class="neon-icon-small">close</mat-icon>
+            </button>
         </div>
+    </div>
+
+    <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="active.docCount > active.limit">
         <div class="table-container">
             <ngx-datatable #table class="material table" [rows]="active.data" [columnMode]="'force'" [columns]="active.activeHeaders" [headerHeight]="30" [footerHeight]="0"
-                [rowHeight]="25" [scrollbarH]="true" [scrollbarV]="true" [reorderable]="false" [selected]="selected" [selectionType]="'multi'" (select)="onSelect($event)">
+                [rowHeight]="25" [scrollbarH]="true" [scrollbarV]="true" [reorderable]="false" [selected]="selected" [selectionType]="'multi'" (resize)="onTableResize($event)" (select)="onSelect($event)">
             </ngx-datatable>
             <div *ngIf="active.showColumnSelector=='show'" class="column-selector">
                 <div class="column-selector-header"><span> Columns </span>
@@ -113,7 +114,8 @@
             </div>
         </div>
     </div>
-    <div class="footer">
+
+    <div class="footer" *ngIf="active.docCount > active.limit">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="active.page == 1" class="pagination-button" color="primary" (click)="previousPage()">
                 Previous

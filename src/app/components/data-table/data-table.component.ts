@@ -84,7 +84,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         filterable: boolean,
         layers: any[],
         data: Object[],
-        headers: { prop: string, name: string, active: boolean, style: Object }[],
+        headers: { prop: string, name: string, active: boolean, style: Object, width: number}[],
+        headerWidths: Map<string, number>,
         activeHeaders: { prop: string, name: string, active: boolean, style: Object }[],
         showColumnSelector: string
     };
@@ -130,6 +131,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             layers: [],
             data: [],
             headers: [],
+            headerWidths: new Map<string, number>(),
             activeHeaders: [],
             showColumnSelector: 'hide'
         };
@@ -179,7 +181,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 this.headerIsInExceptions(f) ?
                     !defaultShowValue :
                     defaultShowValue;
-            this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: headerShowValue, style: {}});
+            this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: headerShowValue, style: {}, width: 150});
             if (headerShowValue) {
                 numHeaders++;
             }
@@ -199,7 +201,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     recalculateActiveHeaders() {
-        this.active.activeHeaders = this.getActiveHeaders();
+        this.active.activeHeaders = this.getActiveHeaders().map((header: any) => {
+            header.width = this.active.headerWidths.get(header.prop) || header.width;
+            header.$$oldWidth = this.active.headerWidths.get(header.prop) || header.width;
+            return header;
+        });
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
     }
@@ -277,9 +283,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     refreshVisualization() {
-        this.table.recalculate();
         this.active = Object.assign({}, this.active);
-        this.changeDetection.detectChanges();
+        // Must recalculate table size and detectChanges within setTimeout so angular templates (like ngIf) are updated first.
+        setTimeout(() => {
+            this.recalculateActiveHeaders();
+            this.table.recalculate();
+            // Must call detectChanges on the ChangeDetectorRef object in the table itself.
+            this.table.cd.detectChanges();
+        }, 0);
     }
 
     isValidQuery() {
@@ -402,14 +413,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     handleFiltersChangedEvent() {
         this.executeQueryChain();
-    }
-
-    handleChangeField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeSortField() {
-        this.logChangeAndStartQueryChain();
     }
 
     isDragging(): boolean {
@@ -568,6 +571,21 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
         this.selected.splice(0, this.selected.length);
         this.selected.push(...selected);
+    }
+
+    onTableResize(event) {
+        this.active.activeHeaders.forEach((header: any) => {
+            if (!this.active.headerWidths.has(header.prop)) {
+                this.active.headerWidths.set(header.prop, header.width);
+            }
+        });
+        let lastColumn: any = this.active.activeHeaders[this.active.activeHeaders.length - 1];
+        if (event.column.prop !== lastColumn.prop) {
+            this.active.headerWidths.set(event.column.prop, event.newValue);
+            // Adjust the width of the last column based on the added or subtracted width of the event's column.
+            this.active.headerWidths.set(lastColumn.prop, lastColumn.width + event.column.width - event.newValue);
+        }
+        this.refreshVisualization();
     }
 
     /**

@@ -18,7 +18,7 @@ import { URLSearchParams } from '@angular/http';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
-import { Dataset, DatabaseMetaData, TableMetaData, FieldMetaData } from '../../dataset';
+import { Dataset, DatabaseMetaData, TableMetaData, FieldMetaData, Relation } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { ParameterService } from '../../services/parameter.service';
 import { neonVisualizationMinPixel } from '../../neon-namespaces';
@@ -353,18 +353,24 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         });
 
         this.customRelations.forEach(function(customRelation) {
-            let relation = {};
+            let relation = new Relation();
 
-            customRelation.customRelationDatabases.forEach(function(customRelationDatabase) {
-                if (!relation[customRelationDatabase.database.name]) {
-                    relation[customRelationDatabase.database.name] = {};
-                }
+            customRelation.customRelationDatabases.forEach((customRelationDatabase) => {
+                customRelationDatabase.customRelationTables.forEach((customRelationTable) => {
+                    if (relation.members.find((mem) =>
+                            mem.database === customRelationDatabase.database.name &&
+                            mem.table === customRelationTable.table.name &&
+                            mem.field === customRelationTable.field.columnName
+                        ) === undefined) {
 
-                customRelationDatabase.customRelationTables.forEach(function(customRelationTable) {
-                    relation[customRelationDatabase.database.name][customRelationTable.table.name] = customRelationTable.field.columnName;
+                            relation.members.push({
+                            database: customRelationDatabase.database.name,
+                            table: customRelationTable.table.name,
+                            field: customRelationTable.field.columnName
+                        });
+                    }
                 });
             });
-
             dataset.relations.push(relation);
         });
 

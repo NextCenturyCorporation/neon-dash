@@ -31,12 +31,20 @@ export class DatasetMock extends DatasetService {
         new FieldMetaData('testSizeField', 'Test Size Field')
     ];
 
+    public static TABLES: TableMetaData[] = [
+        new TableMetaData('testTable1', 'Test Table 1', DatasetMock.FIELDS),
+        new TableMetaData('testTable2', 'Test Table 2', [])
+    ];
+
+    public static DATABASES: DatabaseMetaData[] = [
+        new DatabaseMetaData('testDatabase1', 'Test Database 1', DatasetMock.TABLES),
+        new DatabaseMetaData('testDatabase2', 'Test Database 2', [])
+    ];
+
     constructor() {
         super(new NeonGTDConfig());
-        let testDatabase = new DatabaseMetaData('testDatabase', 'Test Database');
-        testDatabase.tables = [new TableMetaData('testTable', 'Test Table', DatasetMock.FIELDS)];
         this.setActiveDataset({
-            databases: [testDatabase]
+            databases: DatasetMock.DATABASES
         });
     }
 }

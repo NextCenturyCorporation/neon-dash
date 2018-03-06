@@ -45,7 +45,8 @@ import { ExportControlComponent } from '../export-control/export-control.compone
 import { basename } from 'path';
 import * as neon from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
-///*
+import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
+
 @Component({
     selector: 'app-kebah-case',
     templateUrl: './base-neon.component.html',
@@ -76,13 +77,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             changeDetection,
             visualizationService
         );
-        let testDatabase = new DatabaseMetaData('testDatabase', 'Test Database');
-        testDatabase.tables = [
-            new TableMetaData('testTable', 'Test Table', [
-                new FieldMetaData('testIdField', 'Test ID Field'),
-                new FieldMetaData('testLinkField', 'Test Link Field')
-            ])
-        ];
         this.filters = [];
     }
 
@@ -99,7 +93,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     }
 
     getOptionFromConfig(field) {
-        //
+        return null;
     }
 
     subGetBindings(bindings: any) {
@@ -191,22 +185,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
     }
 }
 
-class TestDatasetService extends DatasetService {
-    constructor() {
-        super(new NeonGTDConfig());
-        let testDatabase = new DatabaseMetaData('testDatabase', 'Test Database');
-        testDatabase.tables = [
-            new TableMetaData('testTable', 'Test Table', [
-                new FieldMetaData('testIdField', 'Test ID Field'),
-                new FieldMetaData('testLinkField', 'Test Link Field')
-            ])
-        ];
-        this.setActiveDataset({
-            databases: [testDatabase]
-        });
-    }
-}
-
 describe('Component: base-neon', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BaseNeonComponent;
@@ -228,15 +206,14 @@ describe('Component: base-neon', () => {
                 ConnectionService,
                 {
                     provide: DatasetService,
-                    useClass: TestDatasetService
+                    useClass: DatasetMock
                 },
-                DatasetService,
                 FilterService,
-                ErrorNotificationService,
                 ExportService,
-                VisualizationService,
-                ThemesService,
                 Injector,
+                ThemesService,
+                VisualizationService,
+                ErrorNotificationService,
                 { provide: 'config', useValue: testConfig }
             ]
         });
@@ -251,8 +228,8 @@ describe('Component: base-neon', () => {
     }));
 
     it('should return expected value from bindings', (() => {
-        component.meta.database = new DatabaseMetaData('testDatabase');
-        component.meta.table = new TableMetaData('testTable');
+        component.meta.database = new DatabaseMetaData('testDatabase1');
+        component.meta.table = new TableMetaData('testTable1');
         expect(component.getBindings()).toEqual({
             title: component.meta.title,
             database: component.meta.database.name,
@@ -262,6 +239,20 @@ describe('Component: base-neon', () => {
             colorField: component.meta.colorField.columnName
         });
     }));
+
+    it('does have expected meta properties', () => {
+        expect(component.meta).toEqual({
+            title: 'Test',
+            databases: DatasetMock.DATABASES,
+            database: DatasetMock.DATABASES[0],
+            tables: DatasetMock.TABLES,
+            table: DatasetMock.TABLES[0],
+            unsharedFilterField: new FieldMetaData(),
+            unsharedFilterValue: '',
+            colorField: new FieldMetaData(),
+            fields: DatasetMock.FIELDS
+        });
+    });
 
     it('Checks both export functions', (() => {
         let query = component.createQuery();
@@ -298,28 +289,105 @@ describe('Component: base-neon', () => {
         expect(spy.calls.count()).toBe(1);
     }));
 
-    it('Initilization tests', (() => {
-        let spyInitFields = spyOn(component, 'initFields');
-        let spyInitTables = spyOn(component, 'initTables');
-        let spyOnUpdateFields = spyOn(component, 'onUpdateFields');
-        let spyLogChangeAndStartQueryChain = spyOn(component, 'logChangeAndStartQueryChain');
+    it('initFields does update fields and does call onUpdateFields', () => {
+        let spy = spyOn(component, 'onUpdateFields');
+        let output = {
+            databases: DatasetMock.DATABASES,
+            database: DatasetMock.DATABASES[0],
+            tables: DatasetMock.TABLES,
+            table: DatasetMock.TABLES[0],
+            fields: []
+        };
+        component.initFields(output);
+        expect(spy.calls.count()).toBe(1);
+        expect(output.databases).toEqual(DatasetMock.DATABASES);
+        expect(output.database).toEqual(DatasetMock.DATABASES[0]);
+        expect(output.tables).toEqual(DatasetMock.TABLES);
+        expect(output.table).toEqual(DatasetMock.TABLES[0]);
+        expect(output.fields).toEqual(DatasetMock.FIELDS);
+    });
 
-        component.initTables();
-        expect(spyInitFields.calls.count()).toBe(0);
-        //expect(component.meta.table).toBeEqual()
+    it('initTables does update tables and fields and does call onUpdateFields', () => {
+        let spy = spyOn(component, 'onUpdateFields');
+        let output = {
+            databases: DatasetMock.DATABASES,
+            database: DatasetMock.DATABASES[0],
+            tables: [],
+            table: null,
+            fields: []
+        };
+        component.initTables(output);
+        expect(spy.calls.count()).toBe(1);
+        expect(output.databases).toEqual(DatasetMock.DATABASES);
+        expect(output.database).toEqual(DatasetMock.DATABASES[0]);
+        expect(output.tables).toEqual(DatasetMock.TABLES);
+        expect(output.table).toEqual(DatasetMock.TABLES[0]);
+        expect(output.fields).toEqual(DatasetMock.FIELDS);
+    });
 
-        component.initDatabases();
-        expect(spyInitTables.calls.count()).toBe(1);
+    it('initDatabases does update databases, tables, and fields and does call onUpdateFields', () => {
+        let spy = spyOn(component, 'onUpdateFields');
+        let output = {
+            databases: [],
+            database: null,
+            tables: [],
+            table: null,
+            fields: []
+        };
+        component.initDatabases(output);
+        expect(spy.calls.count()).toBe(1);
+        expect(output.databases).toEqual(DatasetMock.DATABASES);
+        expect(output.database).toEqual(DatasetMock.DATABASES[0]);
+        expect(output.tables).toEqual(DatasetMock.TABLES);
+        expect(output.table).toEqual(DatasetMock.TABLES[0]);
+        expect(output.fields).toEqual(DatasetMock.FIELDS);
+    });
 
-        component.initFields();
-        expect(spyOnUpdateFields.calls.count()).toBe(0);
-
-        spyInitTables.calls.reset();
+    it('handleChangeDatabase does update meta and does call onUpdateFields and logChangeAndStartQueryChain', () => {
+        let spyUpdate = spyOn(component, 'onUpdateFields');
+        let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
+        component.meta.databases = DatasetMock.DATABASES;
+        component.meta.database = DatasetMock.DATABASES[0];
+        component.meta.tables = [];
+        component.meta.table = null;
+        component.meta.fields = [];
         component.handleChangeDatabase();
-        //expect(spyInitTables.calls.count()).toBe(1);
-        expect(spyLogChangeAndStartQueryChain.calls.count()).toBe(1);
+        expect(spyUpdate.calls.count()).toBe(1);
+        expect(spyLog.calls.count()).toBe(1);
+        expect(component.meta.databases).toEqual(DatasetMock.DATABASES);
+        expect(component.meta.database).toEqual(DatasetMock.DATABASES[0]);
+        expect(component.meta.tables).toEqual(DatasetMock.TABLES);
+        expect(component.meta.table).toEqual(DatasetMock.TABLES[0]);
+        expect(component.meta.fields).toEqual(DatasetMock.FIELDS);
+        expect(component.meta.unsharedFilterField).toEqual(new FieldMetaData());
+        expect(component.meta.unsharedFilterValue).toEqual('');
+    });
 
-    }));
+    it('handleChangeTable does update meta and does call onUpdateFields and logChangeAndStartQueryChain', () => {
+        let spyUpdate = spyOn(component, 'onUpdateFields');
+        let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
+        component.meta.databases = DatasetMock.DATABASES;
+        component.meta.database = DatasetMock.DATABASES[0];
+        component.meta.tables = DatasetMock.TABLES;
+        component.meta.table = DatasetMock.TABLES[0];
+        component.meta.fields = [];
+        component.handleChangeTable();
+        expect(spyUpdate.calls.count()).toBe(1);
+        expect(spyLog.calls.count()).toBe(1);
+        expect(component.meta.databases).toEqual(DatasetMock.DATABASES);
+        expect(component.meta.database).toEqual(DatasetMock.DATABASES[0]);
+        expect(component.meta.tables).toEqual(DatasetMock.TABLES);
+        expect(component.meta.table).toEqual(DatasetMock.TABLES[0]);
+        expect(component.meta.fields).toEqual(DatasetMock.FIELDS);
+        expect(component.meta.unsharedFilterField).toEqual(new FieldMetaData());
+        expect(component.meta.unsharedFilterValue).toEqual('');
+    });
+
+    it('handleChangeData does call logChangeAndStartQueryChain', () => {
+        let spy = spyOn(component, 'logChangeAndStartQueryChain');
+        component.handleChangeData();
+        expect(spy.calls.count()).toBe(1);
+    });
 
     it('Handle Filters Changed Event method calls the correct functions', (() => {
         let spySetupFilters = spyOn(component, 'setupFilters');

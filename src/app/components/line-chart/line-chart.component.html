@@ -42,7 +42,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true"
-                                (ngModelChange)="handleChangeDateField()" [disabled]="meta.fields.length == 0">
+                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -50,7 +50,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Group Field" [(ngModel)]="active.groupField" required="true"
-                                (ngModelChange)="handleChangeGroupField()" [disabled]="meta.fields.length == 0">
+                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -70,13 +70,13 @@
 
                 <mat-form-field *ngIf="!active.aggregationFieldHidden">
                     <mat-select placeholder="Aggregation Field (Y Axis)" [(ngModel)]="active.aggregationField"
-                            required="true" (ngModelChange)="handleChangeAggregationField()" [disabled]="meta.fields.length == 0">
+                            required="true" (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
-                <mat-button-toggle-group #hourGranularity="matButtonToggleGroup" [(ngModel)]="active.granularity" (ngModelChange)="handleChangeGranularity()">
+                <mat-button-toggle-group #hourGranularity="matButtonToggleGroup" [(ngModel)]="active.granularity" (ngModelChange)="handleChangeData()">
                     <mat-button-toggle value="day">
                         Day
                     </mat-button-toggle>
@@ -108,28 +108,25 @@
     </mat-sidenav>
 
     <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
-        <mat-spinner ></mat-spinner>
+        <mat-spinner></mat-spinner>
     </div>
 
-    <div class="body-container">
-        <div #filterContainer class="filter-container multi-element">
-            <div>
-                <app-legend (itemSelected)="legendItemSelected($event)"
-                    [fieldNames]="colorByFields"
-                    [disabledList]="disabledList"></app-legend>
-            </div>
-            <div class="filter-reset" *ngIf="active.filter">
-                <span class="filter-label" [title]="getFilterTitle(active.filter)">Date Filter</span>
-                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                        [matTooltip]="getRemoveFilterTooltip(active.filter)" (click)="removeLocalFilterFromLocalAndNeon(active.filter, true)">
-                    <mat-icon class="neon-icon-small">close</mat-icon>
-                </button>
-            </div>
+    <div #filterContainer class="filter-container">
+        <app-legend (itemSelected)="legendItemSelected($event)" [fieldNames]="colorByFields" [disabledList]="disabledList"></app-legend>
+
+        <div class="filter-reset" *ngIf="active.filter">
+            <span class="filter-label" [title]="getFilterTitle(active.filter)">Date Filter</span>
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
+                    [matTooltip]="getRemoveFilterTooltip(active.filter)" (click)="removeLocalFilterFromLocalAndNeon(active.filter, true)">
+                <mat-icon class="neon-icon-small">close</mat-icon>
+            </button>
         </div>
+    </div>
+
+    <div class="body-container with-filter">
         <div #chartContainer class="chart-container" (click)="stopEventPropagation($event)" (mousedown)="mouseDown($event)" (mouseleave)="mouseLeave($event)">
             <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x + selectionOffset.x, 'top.px':selection.y + selectionOffset.y}"></div>
             <app-chart class="chart" #myChart [type]="chart.type" [data]="chart.data" [options]="chart.options"></app-chart>
-
         </div>
     </div>
 </mat-sidenav-container>

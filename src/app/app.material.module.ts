@@ -22,7 +22,7 @@ import {
     MatToolbarModule, MatTooltipModule
 } from '@angular/material';
 
-const MD_MODULES = [
+const MAT_MODULES = [
     MatButtonModule,
     MatButtonToggleModule,
     MatCardModule,
@@ -49,8 +49,8 @@ const MD_MODULES = [
 
 @NgModule({
     declarations: [],
-    imports: MD_MODULES,
-    exports: MD_MODULES,
+    imports: MAT_MODULES,
+    exports: MAT_MODULES,
     providers: [],
     entryComponents: [],
     bootstrap: []

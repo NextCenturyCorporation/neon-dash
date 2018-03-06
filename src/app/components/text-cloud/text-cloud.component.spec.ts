@@ -649,16 +649,6 @@ describe('Component: TextCloud', () => {
         expect(component.active.data[2].color).toBeDefined();
     });
 
-    it('calls logChangeAndStartQueryChain in handleChangeDataField', () => {
-        let logChangeAndStartQueryChainWasCalled = false;
-        component.logChangeAndStartQueryChain = () => {
-            logChangeAndStartQueryChainWasCalled = true;
-        };
-
-        component.handleChangeDataField();
-        expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
-    });
-
     it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
 
@@ -674,26 +664,6 @@ describe('Component: TextCloud', () => {
         expect(component.active.limit).toBe(1234);
         expect(component.active.newLimit).toBe(1234);
         expect(spy.calls.count()).toBe(1);
-    });
-
-    it('calls logChangeAndStartQueryChain in handleChangeAndFilters', () => {
-        let logChangeAndStartQueryChainWasCalled = false;
-        component.logChangeAndStartQueryChain = () => {
-            logChangeAndStartQueryChainWasCalled = true;
-        };
-
-        component.handleChangeAndFilters();
-        expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
-    });
-
-    it('calls logChangeAndStartQueryChain in handleChangeSizeField', () => {
-        let logChangeAndStartQueryChainWasCalled = false;
-        component.logChangeAndStartQueryChain = () => {
-            logChangeAndStartQueryChainWasCalled = true;
-        };
-
-        component.handleChangeSizeField();
-        expect(logChangeAndStartQueryChainWasCalled).toBeTruthy();
     });
 
     it('returns the proper value from getButtonText', () => {
