@@ -19,7 +19,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
  * limitations under the License.
  *
  */
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
@@ -58,6 +58,7 @@ import { FilterTrayComponent } from './components/filter-tray/filter-tray.compon
 import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components/map/map.component';
+import { NetworkGraphComponent } from './components/network-graph/network-graph.component'
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
@@ -68,6 +69,7 @@ import { VisualizationContainerComponent } from './components/visualization-cont
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
 import { WikiViewerComponent } from './components/wiki-viewer/wiki-viewer.component';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
+import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { AppMaterialModule } from './app.material.module';
 import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
 export function getAppConfig() {
@@ -99,6 +101,7 @@ var AppModule = /** @class */ (function () {
                 LegendComponent,
                 LineChartComponent,
                 MapComponent,
+                NetworkGraphComponent,
                 ScatterPlotComponent,
                 SimpleFilterComponent,
                 SimpleSnackBarComponent,
@@ -119,6 +122,7 @@ var AppModule = /** @class */ (function () {
                 HttpClientModule,
                 NgGridModule,
                 NgxDatatableModule,
+                NgxGraphModule,
                 BrowserAnimationsModule,
                 AppMaterialModule
             ],
@@ -143,7 +147,8 @@ var AppModule = /** @class */ (function () {
             ],
             entryComponents: [AppComponent, AddVisualizationComponent, DocumentViewerSingleItemComponent, FilterTrayComponent, SnackBarComponent,
                 ConfigEditorComponent, SimpleSnackBarComponent],
-            bootstrap: [AppComponent]
+            bootstrap: [AppComponent],
+            schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
         })
         /* tslint:disable:no-unnecessary-class */
     ], AppModule);

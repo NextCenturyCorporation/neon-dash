@@ -57,7 +57,7 @@
     <div class="body-container" (click)="stopEventPropagation($event)">
         <div class="graph-container" (click)="stopEventPropagation($event)">
             <ngx-graph class="chart-container" [view]="view" [autoZoom]="autoZoom" [legend]="showLegend" [links]="graphData.links" (legendLabelClick)="onLegendLabelClick($event)"
-                [nodes]="graphData.nodes" [orientation]="orientation" [curve]="curve" (select)="select($event)">
+                [nodes]="graphData.nodes" [orientation]="orientation" [curve]="curve" (select)="select($event)" (click)="stopEventPropagation($event)">
 
                 <ng-template #defsTemplate>
                     <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">

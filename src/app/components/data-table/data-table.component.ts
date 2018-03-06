@@ -183,10 +183,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     defaultShowValue;
             this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: headerShowValue, style: {}, width: 150});
 
-            if(f.columnName == 'createdAt') {
+            if (f.columnName === 'createdAt') {
                 //this.active.headers[this.active.headers.length-1].width = 100;
             }
-            if(f.columnName == 'originalText') {
+            if (f.columnName === 'originalText') {
                 //this.active.headers[this.active.headers.length-1].width = 900;
             }
             if (headerShowValue) {
