@@ -18,6 +18,7 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    CUSTOM_ELEMENTS_SCHEMA,
     OnInit,
     OnDestroy,
     ViewEncapsulation,

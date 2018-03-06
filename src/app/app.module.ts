@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
@@ -74,6 +74,7 @@ import { AppMaterialModule } from './app.material.module';
 import { SimpleFilterComponent } from './components/simple-filter/simple-filter.component';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
+import { NgxChartsModule } from '@swimlane/ngx-charts';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -123,7 +124,8 @@ export function getAppConfig() {
         NgxDatatableModule,
         BrowserAnimationsModule,
         AppMaterialModule,
-        NgxGraphModule
+        NgxGraphModule,
+        NgxChartsModule
     ],
     providers: [
         ActiveGridService,
