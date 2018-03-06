@@ -65,7 +65,7 @@
 
                         <mat-form-field>
                             <mat-select placeholder="Latitude Field" [(ngModel)]="active.layers[i].latitudeField"
-                                        required="true" (ngModelChange)="handleChangeMapLayer(i)"
+                                        required="true" (ngModelChange)="handleChangeDataAtLayerIndex(i)"
                                         [disabled]="meta.layers[i].fields.length == 0">
                                 <mat-option *ngFor="let field of meta.layers[i].fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
@@ -75,7 +75,7 @@
 
                         <mat-form-field>
                             <mat-select placeholder="Longitude Field" [(ngModel)]="active.layers[i].longitudeField"
-                                        required="true" (ngModelChange)="handleChangeMapLayer(i)"
+                                        required="true" (ngModelChange)="handleChangeDataAtLayerIndex(i)"
                                         [disabled]="meta.layers[i].fields.length == 0">
                                 <mat-option *ngFor="let field of meta.layers[i].fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
@@ -85,7 +85,7 @@
 
                         <mat-form-field>
                             <mat-select placeholder="Color Field" [(ngModel)]="active.layers[i].colorField"
-                                        required="true" (ngModelChange)="handleChangeMapLayer(i)"
+                                        required="true" (ngModelChange)="handleChangeDataAtLayerIndex(i)"
                                         [disabled]="meta.layers[i].fields.length == 0">
                                 <mat-option [value]="emptyField">(None)</mat-option>
                                 <mat-option *ngFor="let field of meta.layers[i].fields"
@@ -94,7 +94,7 @@
                         </mat-form-field>
                         <p></p>
 
-                        <mat-button-toggle-group #clustering="matButtonToggleGroup" [(ngModel)]="active.clustering" (ngModelChange)="handleChangeAllMapLayers()">
+                        <mat-button-toggle-group #clustering="matButtonToggleGroup" [(ngModel)]="active.clustering" (ngModelChange)="handleChangeData()">
                             <mat-button-toggle value="points">
                                 Points
                             </mat-button-toggle>

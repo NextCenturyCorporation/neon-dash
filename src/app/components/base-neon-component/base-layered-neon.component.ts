@@ -769,6 +769,22 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Handles changes in the active data
+     */
+    handleChangeData() {
+        this.logChangeAndStartAllQueryChain();
+    }
+
+    /**
+     * Handles changes in the active data at the given layer index
+     *
+     * @arg {number} layerIndex
+     */
+    handleChangeDataAtLayerIndex(layerIndex: number) {
+        this.logChangeAndStartQueryChain(layerIndex);
+    }
+
+    /**
      * If not initializing, calls executeQueryChain();
      */
     logChangeAndStartAllQueryChain() {

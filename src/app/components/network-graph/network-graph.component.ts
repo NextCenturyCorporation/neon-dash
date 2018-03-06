@@ -417,36 +417,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         //
     }
 
-    handleChangeLimit() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeDataField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    }
-
-    handleChangeNodeField() {
-        //this.graphData = new GraphData();
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeLinkField() {
-        //this.graphData = new GraphData();
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeAggregationField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    }
-
-    handleChangeColorField() {
-        this.logChangeAndStartQueryChain(); // ('colorField', this.active.colorField.columnName);
-    }
-
-    handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
-    }
-
     unsharedFilterChanged() {
         // Update the data
         this.executeQueryChain();

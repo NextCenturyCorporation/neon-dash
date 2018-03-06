@@ -182,13 +182,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     !defaultShowValue :
                     defaultShowValue;
             this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: headerShowValue, style: {}, width: 150});
-
-            if (f.columnName === 'createdAt') {
-                //this.active.headers[this.active.headers.length-1].width = 100;
-            }
-            if (f.columnName === 'originalText') {
-                //this.active.headers[this.active.headers.length-1].width = 900;
-            }
             if (headerShowValue) {
                 numHeaders++;
             }
@@ -290,10 +283,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     refreshVisualization() {
-        this.recalculateActiveHeaders();
-        this.table.recalculate();
         this.active = Object.assign({}, this.active);
-        this.changeDetection.detectChanges();
+        // Must recalculate table size and detectChanges within setTimeout so angular templates (like ngIf) are updated first.
+        setTimeout(() => {
+            this.recalculateActiveHeaders();
+            this.table.recalculate();
+            // Must call detectChanges on the ChangeDetectorRef object in the table itself.
+            this.table.cd.detectChanges();
+        }, 0);
     }
 
     isValidQuery() {
@@ -416,14 +413,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     handleFiltersChangedEvent() {
         this.executeQueryChain();
-    }
-
-    handleChangeField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeSortField() {
-        this.logChangeAndStartQueryChain();
     }
 
     isDragging(): boolean {
