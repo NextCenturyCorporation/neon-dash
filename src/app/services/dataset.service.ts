@@ -16,7 +16,7 @@
 import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
-import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData } from '../dataset';
+import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData, Relation } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
@@ -597,6 +597,134 @@ export class DatasetService {
         });
 
         return [result];
+    }
+
+    public findMentionedFields(filter: neon.query.Filter): { database: string, table: string, field: string }[] {
+        let findMentionedFieldsHelper = (clause: neon.query.WherePredicate) => {
+            if (clause instanceof neon.query.WhereClause) {
+                return [clause.lhs];
+            } else if (clause instanceof neon.query.BooleanClause) {
+                let foundFields = [];
+                clause.whereClauses.forEach((innerClause) => {
+                    foundFields = foundFields.concat(findMentionedFieldsHelper(innerClause));
+                });
+                return foundFields;
+            }
+        };
+        let fields = findMentionedFieldsHelper(filter.whereClause);
+        let uniques = [];
+        for (let i = fields.length - 1; i >= 0; i--) {
+            if (uniques.indexOf(fields[i]) < 0) {
+                uniques.push(fields[i]);
+            }
+        }
+        return uniques.map((item) => {
+            return {
+                database: filter.databaseName,
+                table: filter.tableName,
+                field: item
+            };
+        });
+    }
+
+    public getEquivalentFields(database: string,
+                               table: string,
+                               field: string,
+                               mapping: Map<string, Map<string, { database: string, table: string, field: string }[]>>):
+                               Map<string, Map<string, { database: string, table: string, field: string }[]>> {
+        let relatedFields: any = mapping;
+
+        let found = this.findValueInRelations(database, table, field);
+        found.forEach((value) => {
+            this.addRelatedFieldToMapping(relatedFields, field, value.database, value.table, value.field);
+        });
+
+        // Recursively check for equivalents to the fields we already have until we don't find anything new.
+        let valueAdded: boolean;
+        do {
+            valueAdded = false;
+            for (let kvPair of relatedFields) {
+                for (let relatedField of kvPair[1].fields[field]) {
+                    if (!relatedField.hasBeenChecked) {
+                        let values = this.findValueInRelations(kvPair[1].database, kvPair[1].table, relatedField);
+                        for (let newValue of values) {
+                            valueAdded = valueAdded || this.addRelatedFieldToMapping(relatedFields, field, newValue.database, newValue.table, newValue.field);
+                        }
+                        relatedField.hasBeenChecked = true;
+                    }
+                }
+            }
+        } while (valueAdded);
+        let initialFieldDbAndTableKey = this.makeDbAndTableKey(database, table);
+        if (relatedFields.get(initialFieldDbAndTableKey) && relatedFields.get(initialFieldDbAndTableKey).get(field) !== undefined) {
+            let fields = relatedFields.get(initialFieldDbAndTableKey).get(field);
+            for (let index = fields.length - 1; index >= 0; index--) {
+                if (fields[index].database === database && fields[index].table === table && fields[index].field === field) {
+                    fields.splice(index, 1);
+                }
+            }
+            if (fields.length === 0) {
+                relatedFields.get(initialFieldDbAndTableKey).delete(field);
+            }
+            if (Array.from(relatedFields.get(initialFieldDbAndTableKey).entries()).length === 0) {
+                relatedFields.delete(initialFieldDbAndTableKey);
+            }
+        }
+        return relatedFields;
+    }
+
+    // Internal helper method to create a mapping key for a database and table.
+    private makeDbAndTableKey(database: string, table: string): string {
+        return database + '_' + table;
+    }
+    // Internal helper method to add a related field to the mapping of related fields, and returns true if it was added and false otherwise.
+    private addRelatedFieldToMapping(mapping: Map<string,  Map<string, { database: string, table: string, field: string }[]>>,
+                                     baseField: string,
+                                     database: string,
+                                     table: string,
+                                     field: string): boolean {
+        let dbAndTableKey = this.makeDbAndTableKey(database, table);
+        if (mapping.get(dbAndTableKey) === undefined) {
+            let newMap = new Map<string, { database: string, table: string, field: string }[]>();
+            newMap.set(baseField, [{
+                database: database,
+                table: table,
+                field: field
+            }]);
+            mapping.set(dbAndTableKey, newMap);
+            return true;
+        } else if (mapping.get(dbAndTableKey).get(baseField) === undefined) {
+            mapping.get(dbAndTableKey).set(baseField, [{
+                database: database,
+                table: table,
+                field: field
+            }]);
+            return true;
+        } else if (mapping.get(dbAndTableKey).get(baseField).find((elem) => elem.field === field) === undefined) {
+            mapping.get(dbAndTableKey).get(baseField).push({
+                database: database,
+                table: table,
+                field: field
+            });
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // Internal helper method to find a field in relations.
+    // Returns every member of every relation that contains the given database/table/field combination.
+    private findValueInRelations(db: string, t: string, f: string): {database: string, table: string, field: string}[] {
+        let values = [];
+        this.dataset.relations.forEach((relation) => {
+            for (let x = relation.members.length - 1; x >= 0; x--) {
+                if (relation.members[x].database === db && relation.members[x].table === t && relation.members[x].field === f) {
+                    values = values.concat(relation.members);
+                    return; // Return from this instance of forEach so we don't add the contents of this relation multiple times.
+                }
+            }
+        });
+        return values;
     }
 
     /**

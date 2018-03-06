@@ -558,10 +558,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         }
     }
 
-    handleChangeDateField() {
-        this.logChangeAndStartQueryChain();
-    }
-
     logChangeAndStartQueryChain() {
         if (!this.initializing) {
             this.executeQueryChain();

@@ -55,9 +55,10 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      */
     public meta: {
         title: string,
-        databases: DatabaseMetaData[],
         layers: {
+            index: number,
             title: string,
+            databases: DatabaseMetaData[],
             database: DatabaseMetaData,
             tables: TableMetaData[],
             table: TableMetaData,
@@ -103,7 +104,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
         this.meta = {
             title: '',
-            databases: [],
             layers: []
         };
 
@@ -200,15 +200,12 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     getBindings(): any {
         let bindings = {
             title: this.meta.title,
-            databases: [],
             layers: []
         };
-        for (let database of this.meta.databases) {
-            bindings.databases.push(database.name);
-        }
         for (let layer of this.meta.layers) {
             let layerBindings = {
                 title: layer.title,
+                databases: [],
                 database: layer.database.name,
                 tables: [],
                 table: layer.table.name,
@@ -223,6 +220,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
             for (let table of layer.tables) {
                 layerBindings.tables.push(table.name);
             }
+            for (let database of layer.databases) {
+                layerBindings.databases.push(database.name);
+            }
             bindings.layers.push(layerBindings);
         }
 
@@ -236,8 +236,11 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * Add a new empty layer
      */
     addEmptyLayer() {
+        let index = this.meta.layers.length;
         let layer = {
+            index: index,
             title: '',
+            databases: [],
             database: new DatabaseMetaData(),
             tables: [],
             table: new TableMetaData(),
@@ -249,7 +252,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         this.outstandingDataQueriesByLayer.push({});
         this.subAddEmptyLayer();
         this.meta.layers.push(layer);
-        this.initDatabases(this.meta.layers.length - 1);
+        this.initDatabases(layer);
     }
 
     /**
@@ -382,71 +385,73 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Initialize the database metadata for a layer
-     * @param layerIndex
+     * Load all the database metadata, then call initTables()
+     *
+     * @arg {object} metaObject
      */
-    initDatabases(layerIndex) {
-        this.meta.databases = this.datasetService.getDatabases();
-        this.meta.layers[layerIndex].database = this.meta.databases[0] || this.meta.layers[layerIndex].database;
+    initDatabases(metaObject: any) {
+        metaObject.databases = this.datasetService.getDatabases();
+        metaObject.database = metaObject.databases[0] || new DatabaseMetaData();
 
-        if (this.meta.databases.length > 0) {
+        if (metaObject.databases.length > 0) {
             if (this.getOptionFromConfig('database')) {
-                for (let database of this.meta.databases) {
+                for (let database of metaObject.databases) {
                     if (this.getOptionFromConfig('database') === database.name) {
-                        this.meta.layers[layerIndex].database = database;
+                        metaObject.database = database;
                         break;
                     }
                 }
             }
 
-            this.initTables(layerIndex);
+            this.initTables(metaObject);
         }
     }
 
     /**
-     * Initialize the table metadata for a layer
-     * @param layerIndex
+     * Load all the table metadata, then call initFields()
+     *
+     * @arg {object} metaObject
      */
-    initTables(layerIndex) {
-        this.meta.layers[layerIndex].tables = this.datasetService.getTables(this.meta.layers[layerIndex].database.name);
-        this.meta.layers[layerIndex].table = this.meta.layers[layerIndex].tables[0];
+    initTables(metaObject: any) {
+        metaObject.tables = this.datasetService.getTables(metaObject.database.name);
+        metaObject.table = metaObject.tables[0] || new TableMetaData();
 
-        if (this.meta.layers[layerIndex].tables.length > 0) {
+        if (metaObject.tables.length > 0) {
             if (this.getOptionFromConfig('table')) {
-                for (let table of this.meta.layers[layerIndex].tables) {
+                for (let table of metaObject.tables) {
                     if (this.getOptionFromConfig('table') === table.name) {
-                        this.meta.layers[layerIndex].table = table;
+                        metaObject.table = table;
                         break;
                     }
                 }
             }
-            this.initFields(layerIndex);
+            this.initFields(metaObject);
         }
     }
 
     /**
-     * Initialize the field metadata for a layer
-     * @param layerIndex
+     * Initialize all the field metadata
+     *
+     * @arg {object} metaObject
      */
-    initFields(layerIndex) {
-        // Sort the fields that are displayed in the dropdowns in the options menus
-        // alphabetically.
-        let fields = this.datasetService
-            .getSortedFields(this.meta.layers[layerIndex].database.name, this.meta.layers[layerIndex].table.name);
-        this.meta.layers[layerIndex].fields = fields.filter(function(field) {
-            return !!field;
+    initFields(metaObject: any) {
+        // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
+        metaObject.fields = this.datasetService.getSortedFields(metaObject.database.name, metaObject.table.name, true).filter((field) => {
+            return (field && field.columnName);
         });
-        this.meta.layers[layerIndex].unsharedFilterField = this.findFieldObject(layerIndex, 'unsharedFilterField');
-        this.meta.layers[layerIndex].unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
+        metaObject.unsharedFilterField = this.findFieldObject(metaObject.index, 'unsharedFilterField');
+        metaObject.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
 
-        this.onUpdateFields(layerIndex);
+        this.onUpdateFields(metaObject);
     }
 
     /**
      * Called when any field metadata changes.
      * This will be called once before initialization is complete
+     *
+     * @arg {object} metaObject
      */
-    abstract onUpdateFields(layerIndex);
+    abstract onUpdateFields(metaObject: any);
 
     stopEventPropagation(event) {
         if (event.stopPropagation) {
@@ -751,7 +756,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * Handles changes in the active database
      */
     handleChangeDatabase(layerIndex) {
-        this.initTables(layerIndex);
+        this.initTables(this.meta.layers[layerIndex]);
         this.logChangeAndStartQueryChain(layerIndex);
     }
 
@@ -759,7 +764,23 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * Handles changes in the active table
      */
     handleChangeTable(layerIndex) {
-        this.initFields(layerIndex);
+        this.initFields(this.meta.layers[layerIndex]);
+        this.logChangeAndStartQueryChain(layerIndex);
+    }
+
+    /**
+     * Handles changes in the active data
+     */
+    handleChangeData() {
+        this.logChangeAndStartAllQueryChain();
+    }
+
+    /**
+     * Handles changes in the active data at the given layer index
+     *
+     * @arg {number} layerIndex
+     */
+    handleChangeDataAtLayerIndex(layerIndex: number) {
         this.logChangeAndStartQueryChain(layerIndex);
     }
 

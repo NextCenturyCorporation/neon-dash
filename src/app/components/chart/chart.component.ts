@@ -38,6 +38,13 @@ export class ChartComponent implements OnInit, OnChanges  {
     constructor(private elementRef: ElementRef) { }
 
     ngOnInit() {
+        Chart.defaults.global.defaultFontFamily = 'Roboto, sans-serif';
+        Chart.defaults.global.defaultFontSize = 10;
+
+        Chart.Tooltip.positioners.neonCenter = (elements, eventPosition) => {
+            return elements[0].getCenterPoint();
+        };
+
         this.create();
     }
 
