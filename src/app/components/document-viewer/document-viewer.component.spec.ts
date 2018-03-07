@@ -553,6 +553,16 @@ describe('Component: DocumentViewer', () => {
         selects = fixture.debugElement.queryAll(By.css('.metadata-bold'));
         expect(selects.length).toBe(2);
     });
+
+    it('createClause does return expected object', () => {
+        component.active.dataField = new FieldMetaData('testDataField');
+        expect(component.createClause()).toEqual(neon.query.where('testDataField', '!=', null));
+
+        component.meta.unsharedFilterField = new FieldMetaData('testFilterField');
+        component.meta.unsharedFilterValue = 'testFilterValue';
+        expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testDataField', '!=', null),
+            neon.query.where('testFilterField', '=', 'testFilterValue')));
+    });
 });
 
 describe('Component: Document Viewer with Config', () => {

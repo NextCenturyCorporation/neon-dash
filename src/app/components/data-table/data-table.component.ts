@@ -302,21 +302,29 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return valid;
     }
 
+    /**
+     * Creates and returns the Neon where clause for the visualization.
+     *
+     * @return {any}
+     */
+    createClause(): any {
+        let clause = neon.query.where(this.active.sortField.columnName, '!=', null);
+
+        if (this.hasUnsharedFilter()) {
+            clause = neon.query.and(clause, neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+        }
+
+        return clause;
+    }
+
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let limit = this.active.limit;
         let offset = ((this.active.page) - 1) * limit;
-        let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause: any = neon.query.where(this.active.sortField.columnName, '!=', null);
-
-        // Add unshared filter if needed
-        if (this.hasUnsharedFilter()) {
-            whereClause = neon.query.and(whereClause, neon.query.where(this.meta.unsharedFilterField.columnName, '=',
-                this.meta.unsharedFilterValue));
-        }
-
-        return query.where(whereClause)
+        let whereClause = this.createClause();
+        return new neon.query.Query().selectFrom(databaseName, tableName)
+            .where(whereClause)
             .sortBy(this.active.sortField.columnName, neonVariables.DESCENDING)
             .limit(this.active.limit)
             .offset(offset);
@@ -381,9 +389,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     getDocCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
+        let whereClause = this.createClause();
         let countQuery = new neon.query.Query()
             .selectFrom(databaseName, tableName)
+            .where(whereClause)
             .aggregate(neonVariables.COUNT, '*', '_docCount');
+
         this.executeQuery(countQuery);
     }
 

@@ -298,11 +298,26 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return valid;
     }
 
+    /**
+     * Creates and returns the Neon where clause for the visualization.
+     *
+     * @return {any}
+     */
+    createClause(): any {
+        let clause = neon.query.where(this.active.dateField.columnName, '!=', null);
+
+        if (this.hasUnsharedFilter()) {
+            clause = neon.query.and(clause, neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+        }
+
+        return clause;
+    }
+
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause = neon.query.where(this.active.dateField.columnName, '!=', null);
+        let whereClause = this.createClause();
         let dateField = this.active.dateField.columnName;
         query = query.aggregate(neonVariables.MIN, dateField, 'date');
         let groupBys: any[] = [];
@@ -327,17 +342,13 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         query = query.groupBy(groupBys);
         query = query.sortBy('date', neonVariables.ASCENDING);
         query = query.where(whereClause);
-        // Add the unshared filter field, if it exists
-        if (this.hasUnsharedFilter()) {
-           query.where(neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
-        }
         return query.aggregate(neonVariables.COUNT, '*', 'value');
     }
 
     getDocCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
-        let whereClause = neon.query.where(this.active.dateField.columnName, '!=', null);
+        let whereClause = this.createClause();
         let countQuery = new neon.query.Query()
             .selectFrom(databaseName, tableName)
             .where(whereClause)
