@@ -192,7 +192,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             this.active.layers.splice(layerIndex, 1);
 
             // Update the map
-            this.handleChangeAllMapLayers();
+            this.handleChangeData();
         }
 
         /**
@@ -242,7 +242,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             this.mapObject.initialize(this.mapElement, this.optionsFromConfig, this);
 
             // Draw everything
-            this.handleChangeAllMapLayers();
+            this.handleChangeData();
         }
 
         /**
@@ -834,13 +834,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
 
         /**
-         * Reruns the queries for all map layers.
-         */
-        handleChangeAllMapLayers() {
-            this.logChangeAndStartAllQueryChain();
-        }
-
-        /**
          * Updates the limit, resets the seen bars, and reruns the bar chart query.
          */
         handleChangeLimit() {
@@ -855,15 +848,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             } else {
                 this.active.newLimit = this.active.limit;
             }
-        }
-
-        /**
-         * Reruns the queries for the map layer at the given index.
-         *
-         * @arg {number} layerIndex
-         */
-        handleChangeMapLayer(layerIndex: number) {
-            this.logChangeAndStartQueryChain(layerIndex);
         }
 
         /**

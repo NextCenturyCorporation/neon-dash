@@ -43,7 +43,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true"
-                                (ngModelChange)="handleChangeDateField()" [disabled]="meta.fields.length == 0">
+                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -79,19 +79,20 @@
     </mat-sidenav>
 
     <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
-        <mat-spinner ></mat-spinner>
+        <mat-spinner></mat-spinner>
     </div>
 
-    <div class="body-container">
-        <div class="filter-container">
-            <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-                <span class="filter-label" [title]="getFilterTitle('Date Filter')">{{ 'Date Filter' }}</span>
-                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                        [matTooltip]="getRemoveFilterTooltip('Date Filter')" (click)="removeLocalFilterFromLocalAndNeon(filter, true)">
-                    <mat-icon class="neon-icon-small">close</mat-icon>
-                </button>
-            </div>
+    <div class="filter-container">
+        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+            <span class="filter-label" [title]="getFilterTitle('Date Filter')">{{ 'Date Filter' }}</span>
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
+                    [matTooltip]="getRemoveFilterTooltip('Date Filter')" (click)="removeLocalFilterFromLocalAndNeon(filter, true)">
+                <mat-icon class="neon-icon-small">close</mat-icon>
+            </button>
         </div>
+    </div>
+
+    <div class="body-container" [class.with-filter]="getCloseableFilters().length">
         <!-- Timeline chart div -->
         <div #svg class="timeline-selector-chart"></div>
         <div class ="xlabel"> {{ active.granularity }}</div>

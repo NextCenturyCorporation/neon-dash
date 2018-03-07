@@ -778,10 +778,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         this.logChangeAndStartQueryChain();
     }
 
-    handleChangeGranularity() {
-        this.logChangeAndStartQueryChain();
-    }
-
     setupFilters() {
         let localFilters = [],
             filters = this.filterService.getFiltersForFields(
@@ -821,22 +817,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         } else {
             this.active.newLimit = this.active.limit;
         }
-    }
-
-    handleChangeDateField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeGroupField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeAggregationField() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain();
     }
 
     logChangeAndStartQueryChain() {

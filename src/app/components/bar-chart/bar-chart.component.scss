@@ -15,23 +15,6 @@
  */
 @import '../base-neon-component/base-neon.component.scss';
 
-.chart {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-
-.chart-container-resizable {
-    height: 100%;
-    width: 100%;
-}
-
-.constant-container {
-    overflow-y: auto;
-    height: calc(100% - #{$vis-title-expected-height});
-    width: 100%;
-}
-
 .hidden-canvas {
     display: none;
     height: auto;

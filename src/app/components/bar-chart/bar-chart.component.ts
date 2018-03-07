@@ -1020,7 +1020,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     /**
      * Resets the seen bars and reruns the bar chart query.
      */
-    handleChangeField() {
+    handleChangeDataInBarChart() {
         this.active.seenBars = [];
         this.logChangeAndStartQueryChain();
     }
@@ -1172,5 +1172,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             headerText: this.headerText,
             infoText: this.infoText
         };
+    }
+
+    hasColorField() {
+        return !!this.active.colorField.columnName;
     }
 }

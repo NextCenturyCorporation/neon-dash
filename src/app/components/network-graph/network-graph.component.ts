@@ -18,6 +18,7 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
+    CUSTOM_ELEMENTS_SCHEMA,
     OnInit,
     OnDestroy,
     ViewEncapsulation,
@@ -414,36 +415,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     createNeonFilterClauseEquals() {
         //
-    }
-
-    handleChangeLimit() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeDataField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    }
-
-    handleChangeNodeField() {
-        //this.graphData = new GraphData();
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeLinkField() {
-        //this.graphData = new GraphData();
-        this.logChangeAndStartQueryChain();
-    }
-
-    handleChangeAggregationField() {
-        this.logChangeAndStartQueryChain(); // ('dataField', this.active.dataField.columnName);
-    }
-
-    handleChangeColorField() {
-        this.logChangeAndStartQueryChain(); // ('colorField', this.active.colorField.columnName);
-    }
-
-    handleChangeAndFilters() {
-        this.logChangeAndStartQueryChain(); // ('andFilters', this.active.andFilters, 'button');
     }
 
     unsharedFilterChanged() {

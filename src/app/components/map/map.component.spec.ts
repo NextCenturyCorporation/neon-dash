@@ -479,11 +479,11 @@ describe('Component: Map', () => {
         expect(component.active.layers.length).toBe(2);
     });
 
-    it('subRemoveLayer does remove the layer at the given index and does call handleChangeAllMapLayers', () => {
+    it('subRemoveLayer does remove the layer at the given index and does call handleChangeData', () => {
         updateMapLayer1(component);
         updateMapLayer2(component);
 
-        let spy = spyOn(component, 'handleChangeAllMapLayers');
+        let spy = spyOn(component, 'handleChangeData');
 
         component.subRemoveLayer(1);
         expect(component.active.layers).toEqual([{
@@ -542,9 +542,9 @@ describe('Component: Map', () => {
         });
     });
 
-    it('ngAfterViewInit does call mapObject.initialize and handleChangeAllMapLayers', () => {
+    it('ngAfterViewInit does call mapObject.initialize and handleChangeData', () => {
         component.assignTestMap();
-        let spy = spyOn(component, 'handleChangeAllMapLayers');
+        let spy = spyOn(component, 'handleChangeData');
         let mapSpy = component.spyOnTestMap('initialize');
         component.ngAfterViewInit();
         expect(spy.calls.count()).toBe(1);
@@ -985,12 +985,6 @@ describe('Component: Map', () => {
         // TODO
     });
 
-    it('handleChangeAllMapLayers does call logChangeAndStartAllQueryChain', () => {
-        let spy = spyOn(component, 'logChangeAndStartAllQueryChain');
-        component.handleChangeAllMapLayers();
-        expect(spy.calls.count()).toBe(1);
-    });
-
     it('handleChangeLimit does update limit and call logChangeAndStartAllQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartAllQueryChain');
 
@@ -1006,13 +1000,6 @@ describe('Component: Map', () => {
         expect(component.active.limit).toEqual(1234);
         expect(component.active.newLimit).toEqual(1234);
         expect(spy.calls.count()).toBe(1);
-    });
-
-    it('handleChangeMapLayer does call logChangeAndStartQueryChain', () => {
-        let spy = spyOn(component, 'logChangeAndStartQueryChain');
-        component.handleChangeMapLayer(0);
-        expect(spy.calls.count()).toBe(1);
-        expect(spy.calls.argsFor(0)).toEqual([0]);
     });
 
     it('handleChangeMapType does change and redraw map', () => {
@@ -1225,7 +1212,6 @@ describe('Component: Map with config', () => {
                 { provide: 'south', useValue: 3 },
                 { provide: 'north', useValue: 4 },
                 { provide: 'customServer', useValue: { mapUrl: 'testUrl', layer: 'testLayer' } },
-                { provide: 'mapType', useValue: MapType.Cesium },
                 { provide: 'singleColor', useValue: true },
                 { provide: 'title', useValue: 'Test Title' }
             ],
@@ -1301,7 +1287,6 @@ describe('Component: Map with config', () => {
             mapUrl: 'testUrl',
             layer: 'testLayer'
         });
-        expect(component.getOptionFromConfig('mapType')).toBe(MapType.Cesium);
         expect(component.getOptionFromConfig('singleColor')).toBe(true);
     });
 

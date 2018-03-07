@@ -34,7 +34,7 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Node Field" [(ngModel)]="active.nodeField" required="true" (ngModelChange)="handleChangeNodeField()"
+                    <mat-select placeholder="Node Field" [(ngModel)]="active.nodeField" required="true" (ngModelChange)="handleChangeData()"
                         [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -42,7 +42,7 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeLinkField()"
+                    <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeData()"
                         [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -57,7 +57,7 @@
     <div class="body-container" (click)="stopEventPropagation($event)">
         <div class="graph-container" (click)="stopEventPropagation($event)">
             <ngx-graph class="chart-container" [view]="view" [autoZoom]="autoZoom" [legend]="showLegend" [links]="graphData.links" (legendLabelClick)="onLegendLabelClick($event)"
-                [nodes]="graphData.nodes" [orientation]="orientation" [curve]="curve" (select)="select($event)">
+                [nodes]="graphData.nodes" [orientation]="orientation" [curve]="curve" (select)="select($event)" (click)="stopEventPropagation($event)">
 
                 <ng-template #defsTemplate>
                     <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">

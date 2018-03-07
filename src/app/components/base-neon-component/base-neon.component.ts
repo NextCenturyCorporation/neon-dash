@@ -269,26 +269,25 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Initializes sub-component styles as needed.
      */
     onResizeStart() {
-        // Update info text width.
-        let refs = this.getElementRefs();
-        if (refs.infoText && refs.visualization) {
-            if (refs.visualization.nativeElement.clientWidth > (refs.infoText.nativeElement.clientWidth - this.TOOLBAR_EXTRA_WIDTH)) {
-                refs.infoText.nativeElement.style.minWidth = (Math.round(refs.infoText.nativeElement.clientWidth) + 1) + 'px';
-            }
-        }
+        // Do nothing.
+    }
 
+    /**
+     * Updates the header text styling.
+     */
+    updateHeaderTextStyling() {
+        let refs = this.getElementRefs();
+        if (refs.headerText && refs.infoText && refs.visualization) {
+            refs.headerText.nativeElement.style.maxWidth = Math.floor(refs.visualization.nativeElement.clientWidth -
+                refs.infoText.nativeElement.clientWidth - this.TOOLBAR_EXTRA_WIDTH - 1) + 'px';
+        }
     }
 
     /**
      * Resizes sub-components as needed.
      */
     onResizeStop() {
-        // Update header text width.
-        let refs = this.getElementRefs();
-        if (refs.headerText && refs.infoText && refs.visualization) {
-            refs.headerText.nativeElement.style.maxWidth = Math.round(refs.visualization.nativeElement.clientWidth -
-                refs.infoText.nativeElement.clientWidth - this.TOOLBAR_EXTRA_WIDTH) + 'px';
-        }
+        this.updateHeaderTextStyling();
 
         if (this.redrawAfterResize) {
             // This event fires as soon as the user releases the mouse, but NgGrid animates the resize,
@@ -536,8 +535,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.onQuerySuccess(response);
         this.isLoading = false;
         this.changeDetection.detectChanges();
-        // Initialize the header styles.
-        this.onResizeStart();
+        this.updateHeaderTextStyling();
     }
 
     /**
