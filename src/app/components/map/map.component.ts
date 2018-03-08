@@ -952,7 +952,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          */
         onResizeStop(): void {
             super.onResizeStop();
-            return this.mapObject && this.mapObject.sizeChanged();
+            if (this.mapObject) {
+                this.mapObject.sizeChanged();
+            }
         }
 
         /**

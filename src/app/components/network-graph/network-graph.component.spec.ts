@@ -13,13 +13,15 @@
  * limitations under the License.
  *
  */
-import {  ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, inject, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { Injector } from '@angular/core';
-
-import {} from 'jasmine-core';
+import {
+    ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation,
+    NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA
+} from '@angular/core';
+import { } from 'jasmine-core';
 import * as neon from 'neon-framework';
-
+import { APP_BASE_HREF } from '@angular/common';
 import { NetworkGraphComponent } from './network-graph.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { ActiveGridService } from '../../services/active-grid.service';
@@ -39,12 +41,32 @@ import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.comp
 import { VisualizationService } from '../../services/visualization.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { LegendComponent } from '../legend/legend.component';
-import { ChartComponent } from '../chart/chart.component';
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { NgxGraphModule } from '@swimlane/ngx-graph';
+import { animate, style, transition as ngTransition, trigger } from '@angular/animations';
+import { BaseChartComponent, ChartComponent, calculateViewDimensions, ViewDimensions, ColorHelper
+} from '@swimlane/ngx-charts';
+@Component({
+    selector: 'app-network-graph',
+    templateUrl: './network-graph.component.html',
+    styleUrls: ['./network-graph.component.scss'],
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+
+class TestNetworkGraphComponent extends NetworkGraphComponent {
+    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+        colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
+        super(activeGridService, connectionService, datasetService, filterService, exportService, injector,
+            themesService, colorSchemeSrv, ref, visualizationService);
+    }
+}
 
 describe('Component: NetworkGraph', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
-    let component: NetworkGraphComponent;
-    let fixture: ComponentFixture<NetworkGraphComponent>;
+    let component: TestNetworkGraphComponent;
+    let fixture: ComponentFixture<TestNetworkGraphComponent>;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -67,13 +89,21 @@ describe('Component: NetworkGraph', () => {
                 ThemesService,
                 Injector,
                 ColorSchemeService,
-                { provide: 'config', useValue: testConfig }
+                { provide: APP_BASE_HREF, useValue : '/' },
+                { provide: 'config', useValue: testConfig },
+                { provide: 'title', useValue: 'NetworkGraph with Config Title' },
+                { provide: 'database', useValue: 'NetworkGraphDatabase' },
+                { provide: 'table', useValue: 'testTable' },
+                { provide: 'nodeField', useValue: 'testNodeField' },
+                { provide: 'linkField', useValue: 'testLinkField' },
+                { provide: 'limit', useValue: 'testLimit' }
             ],
             imports: [
                 BrowserAnimationsModule,
                 AppMaterialModule,
                 FormsModule
-            ]
+            ],
+            schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
         });
         fixture = TestBed.createComponent(NetworkGraphComponent);
         component = fixture.componentInstance;
