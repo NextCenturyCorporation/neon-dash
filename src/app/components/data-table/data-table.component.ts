@@ -377,20 +377,19 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.refreshVisualization();
         }
     }
-
+    
     getDocCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let countQuery = new neon.query.Query()
-            .selectFrom(databaseName, tableName)
-            .aggregate(neonVariables.COUNT, '*', '_docCount');
+        .selectFrom(databaseName, tableName)
+        .aggregate(neonVariables.COUNT, '*', '_docCount');
         this.executeQuery(countQuery);
     }
-
+    
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        this.active.page = 1;
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = [this.active.sortField.columnName];
@@ -410,8 +409,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.filters = [];
         }
     }
-
+    
     handleFiltersChangedEvent() {
+        this.active.page = 1;
         this.executeQueryChain();
     }
 
