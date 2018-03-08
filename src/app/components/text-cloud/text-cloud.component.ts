@@ -236,21 +236,32 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return valid;
     }
 
+    /**
+     * Creates and returns the Neon where clause for the visualization.
+     *
+     * @return {any}
+     */
+    createClause(): any {
+        let clauses = [neon.query.where(this.active.dataField.columnName, '!=', null)];
+
+        if (this.optionsFromConfig.configFilter) {
+            clauses.push(neon.query.where(this.optionsFromConfig.configFilter.lhs,
+                this.optionsFromConfig.configFilter.operator,
+                this.optionsFromConfig.configFilter.rhs));
+        }
+
+        if (this.hasUnsharedFilter()) {
+            clauses.push(neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+        }
+
+        return clauses.length > 1 ? neon.query.and.apply(neon.query, clauses) : clauses[0];
+    }
+
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause;
-        // Checks for an unshared filter in the config file.
-        if (this.optionsFromConfig.configFilter) {
-            whereClause = neon.query.where(this.optionsFromConfig.configFilter.lhs,
-                this.optionsFromConfig.configFilter.operator,
-                this.optionsFromConfig.configFilter.rhs);
-        } else if (this.hasUnsharedFilter()) {
-            whereClause = neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue);
-        } else {
-            whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
-        }
+        let whereClause = this.createClause();
         let dataField = this.active.dataField.columnName;
 
         if (this.active.sizeField.columnName === '') {
@@ -273,11 +284,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     getDocCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
-        let whereClause = this.optionsFromConfig.configFilter !== null ?
-            neon.query.where(this.optionsFromConfig.configFilter.lhs,
-                this.optionsFromConfig.configFilter.operator,
-                this.optionsFromConfig.configFilter.rhs) :
-            neon.query.where(this.active.dataField.columnName, '!=', 'null');
+        let whereClause = this.createClause();
         let countQuery = new neon.query.Query()
             .selectFrom(databaseName, tableName)
             .where(whereClause)

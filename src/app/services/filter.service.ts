@@ -186,10 +186,14 @@ export class FilterService {
         onError: (resp: any) => any) {
 
         let filter = this.createNeonFilter(database, table, whereClause, this.getFilterNameString(database, table, filterName));
-        let siblingIds = this.filters[id].siblings;
+        let originalIndex = this.filters.findIndex((f) => f.id === id);
+        if (originalIndex === -1) { // If for some reason the filter we're trying to replacew doesn't exist, add it.
+            return this.addFilter(messenger, ownerId, database, table, whereClause, filterName, onSuccess, onError);
+        }
+        let siblingIds = this.filters[originalIndex].siblings;
         let newFilters = this.createChildrenFromRelations(filter);
         let newSiblings = [];
-        let idAndFilterList = [[id, this.filters[id]]];
+        let idAndFilterList = [[id, filter]];
 
         // For each sibling, find a new filter with the same database and table (the particular field is irrelevant),
         // and make a replacement for that sibling with the new filter so that on success we can easily replace it.

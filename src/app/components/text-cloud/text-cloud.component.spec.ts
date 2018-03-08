@@ -790,6 +790,18 @@ describe('Component: TextCloud', () => {
         component.unsharedFilterRemoved();
         expect(executeQueryChainWasCalled).toBeTruthy();
     });
+
+    it('createClause does return expected object', () => {
+        component.active.dataField = new FieldMetaData('testDataField');
+        expect(component.createClause()).toEqual(neon.query.where('testDataField', '!=', null));
+
+        component.meta.unsharedFilterField = new FieldMetaData('testFilterField');
+        component.meta.unsharedFilterValue = 'testFilterValue';
+        expect(component.createClause()).toEqual(neon.query.and.apply(neon.query, [
+            neon.query.where('testDataField', '!=', null),
+            neon.query.where('testFilterField', '=', 'testFilterValue')
+        ]));
+    });
 });
 
 describe('Component: Textcloud with config', () => {
@@ -857,7 +869,10 @@ describe('Component: Textcloud with config', () => {
         component.meta.unsharedFilterField.columnName = 'testUnsharedFilterField';
         component.meta.unsharedFilterValue = 'testUnsharedFilterValue';
 
-        let whereClause = neon.query.where('testUnsharedFilterField', '=', 'testUnsharedFilterValue');
+        let whereClause = neon.query.and.apply(neon.query, [
+            neon.query.where('testDataField', '!=', null),
+            neon.query.where('testUnsharedFilterField', '=', 'testUnsharedFilterValue')
+        ]);
         let query = new neon.query.Query().selectFrom('testDatabase', 'testTable')
             .where(whereClause)
             .groupBy('testDataField')
@@ -925,7 +940,10 @@ describe('Component: Textcloud with config including configFilter', () => {
         component.meta.table = new TableMetaData('testTable');
         component.active.dataField.columnName = 'testDataField';
 
-        let whereClause = neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue');
+        let whereClause = neon.query.and.apply(neon.query, [
+            neon.query.where('testDataField', '!=', null),
+            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue')
+        ]);
         let query = new neon.query.Query().selectFrom('testDatabase', 'testTable')
             .where(whereClause)
             .groupBy('testDataField')
@@ -934,5 +952,21 @@ describe('Component: Textcloud with config including configFilter', () => {
             .limit(25);
 
         expect(component.createQuery()).toEqual(query);
+    });
+
+    it('createClause does return expected object', () => {
+        component.active.dataField = new FieldMetaData('testDataField');
+        expect(component.createClause()).toEqual(neon.query.and.apply(neon.query, [
+            neon.query.where('testDataField', '!=', null),
+            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue')
+        ]));
+
+        component.meta.unsharedFilterField = new FieldMetaData('testFilterField');
+        component.meta.unsharedFilterValue = 'testFilterValue';
+        expect(component.createClause()).toEqual(neon.query.and.apply(neon.query, [
+            neon.query.where('testDataField', '!=', null),
+            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue'),
+            neon.query.where('testFilterField', '=', 'testFilterValue')
+        ]));
     });
 });
