@@ -535,9 +535,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * @arg {object} filter
      */
     addLocalFilter(filter: any) {
-        if (this.filterIsUnique(filter)) {
-            this.filters = [].concat(this.filters).concat([filter]);
-        }
+        this.filters = this.filters.filter((existingFilter) => {
+            return existingFilter.id !== filter.id;
+        }).map((existingFilter) => {
+            return existingFilter;
+        }).concat([filter]);
     }
 
     /**
@@ -547,8 +549,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * @return {boolean}
      */
     filterIsUnique(filter: any): boolean {
-        for (let f of this.filters) {
-            if (f.value === filter.value && f.key === filter.key) {
+        for (let existingFilter of this.filters) {
+            if (existingFilter.value === filter.value && existingFilter.key === filter.key) {
                 return false;
             }
         }
@@ -988,20 +990,19 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let table = this.meta.table.name;
         let fields = [this.active.dataField.columnName];
         let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        if (neonFilters && neonFilters.length > 0) {
-            for (let filter of neonFilters) {
-                let key = filter.filter.whereClause.lhs;
-                let value = filter.filter.whereClause.rhs;
-                let f = {
-                    id: filter.id,
-                    key: key,
-                    value: value,
-                    prettyKey: key
-                };
-                this.addLocalFilter(f);
+        this.filters = [];
+        for (let neonFilter of neonFilters) {
+            let key = neonFilter.filter.whereClause.lhs;
+            let value = neonFilter.filter.whereClause.rhs;
+            let filter = {
+                id: neonFilter.id,
+                key: key,
+                value: value,
+                prettyKey: key
+            };
+            if (this.filterIsUnique(filter)) {
+                this.addLocalFilter(filter);
             }
-        } else {
-            this.filters = [];
         }
     }
 

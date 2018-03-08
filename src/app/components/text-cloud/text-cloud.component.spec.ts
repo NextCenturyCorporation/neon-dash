@@ -219,33 +219,65 @@ describe('Component: TextCloud', () => {
         expect(component.active.sizeField).toEqual(new FieldMetaData('testDataAndSizeField'));
     });
 
-    it('properly adds a local filter in addLocalFilter', () => {
+    it('addLocalFilter does add the given filter', () => {
         component.addLocalFilter({
             id: '1234567890',
-            key: 'testDataField',
-            value: 'Test Value',
-            prettyKey: 'Test Data Field'
+            key: 'testDataField1',
+            value: 'Test Value 1',
+            prettyKey: 'Test Data Field 1'
         });
-        expect(component.getFilterData().length).toBe(1);
-        expect(component.getFilterData()[0].id).toEqual('1234567890');
+        expect(component.getFilterData()).toEqual([{
+            id: '1234567890',
+            key: 'testDataField1',
+            value: 'Test Value 1',
+            prettyKey: 'Test Data Field 1'
+        }]);
+
         component.addLocalFilter({
-            id: '6789012345',
-            key: 'testDataField',
-            value: 'Test Value the Second',
-            prettyKey: 'Test Data Field'
+            id: '9876543210',
+            key: 'testDataField2',
+            value: 'Test Value 2',
+            prettyKey: 'Test Data Field 2'
         });
-        expect(component.getFilterData().length).toBe(2);
-        expect(component.getFilterData()[0].id).toEqual('1234567890');
-        expect(component.getFilterData()[1].id).toEqual('6789012345');
+        expect(component.getFilterData()).toEqual([{
+            id: '1234567890',
+            key: 'testDataField1',
+            value: 'Test Value 1',
+            prettyKey: 'Test Data Field 1'
+        }, {
+            id: '9876543210',
+            key: 'testDataField2',
+            value: 'Test Value 2',
+            prettyKey: 'Test Data Field 2'
+        }]);
+    });
+
+    it('addLocalFilter does replace the existing filter if the given filter has the same ID', () => {
         component.addLocalFilter({
             id: '1234567890',
-            key: 'testDataField',
-            value: 'Test Value Again',
-            prettyKey: 'Test Data Field'
+            key: 'testDataField1',
+            value: 'Test Value 1',
+            prettyKey: 'Test Data Field 1'
         });
-        expect(component.getFilterData().length).toBe(2);
-        expect(component.getFilterData()[0].id).toEqual('1234567890');
-        expect(component.getFilterData()[1].id).toEqual('6789012345');
+        expect(component.getFilterData()).toEqual([{
+            id: '1234567890',
+            key: 'testDataField1',
+            value: 'Test Value 1',
+            prettyKey: 'Test Data Field 1'
+        }]);
+
+        component.addLocalFilter({
+            id: '1234567890',
+            key: 'testDataField2',
+            value: 'Test Value 2',
+            prettyKey: 'Test Data Field 2'
+        });
+        expect(component.getFilterData()).toEqual([{
+            id: '1234567890',
+            key: 'testDataField2',
+            value: 'Test Value 2',
+            prettyKey: 'Test Data Field 2'
+        }]);
     });
 
     it('creates the correct filter clause in createNeonFilterClauseEquals', () => {
