@@ -201,11 +201,38 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     recalculateActiveHeaders() {
+        // Update the widths of the headers based on the width of the visualization itself.
+        let refs = this.getElementRefs();
+        let tableWidth = this.active.activeHeaders.reduce((sum, header: any) => {
+            return sum + (this.active.headerWidths.get(header.prop) || 0);
+        }, 0);
+        // Subtract 30 to adjust for the margins and the scrollbar.
+        let visualizationWidth = refs.visualization.nativeElement.clientWidth - 30;
+        if (visualizationWidth < tableWidth) {
+            // Start with the last column and work backward.
+            for (let i = this.active.activeHeaders.length - 1; i >= 0; --i) {
+                let header: any = this.active.activeHeaders[i];
+                let oldHeaderWidth = this.active.headerWidths.get(header.prop) || 0;
+                // Minimum header size is 100.
+                let newHeaderWidth = Math.max(oldHeaderWidth - (tableWidth - visualizationWidth), 100);
+                this.active.headerWidths.set(header.prop, newHeaderWidth);
+                tableWidth = tableWidth - oldHeaderWidth + newHeaderWidth;
+                // Only shrink headers until the table fits inside the visualization.
+                if (visualizationWidth >= tableWidth) {
+                    break;
+                }
+            }
+        }
+
+        // Update the widths of the headers for the table object.
         this.active.activeHeaders = this.getActiveHeaders().map((header: any) => {
+            // Must set both width and $$oldWidth here to update the widths of the headers and the table container.
             header.width = this.active.headerWidths.get(header.prop) || header.width;
-            header.$$oldWidth = this.active.headerWidths.get(header.prop) || header.width;
+            header.$$oldWidth = this.active.headerWidths.get(header.prop) || header.$$oldWidth;
             return header;
         });
+
+        // Redraw.
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
     }
@@ -284,13 +311,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     refreshVisualization() {
         this.active = Object.assign({}, this.active);
-        // Must recalculate table size and detectChanges within setTimeout so angular templates (like ngIf) are updated first.
+        // Must recalculate headers/table and detectChanges within setTimeout so angular templates (like ngIf) are updated first.
         setTimeout(() => {
+            // Must recalculateActiveHeaders before table.recalculate to update the header widths.
             this.recalculateActiveHeaders();
             this.table.recalculate();
-            // Must call detectChanges on the ChangeDetectorRef object in the table itself.
+            // Must detectChanges on the ChangeDetectorRef object in the table itself.
             this.table.cd.detectChanges();
-        }, 0);
+            // Must recalculateActiveHeaders a second time to remove unneeded scrollbars from within the table.
+            this.recalculateActiveHeaders();
+        }, 300);
     }
 
     isValidQuery() {
