@@ -27,7 +27,7 @@ import {
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
+import { FilterService, ServiceFilter } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
@@ -325,8 +325,21 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         return '';
     }
 
-    removeFilter(): void {
-        // Do nothing, no filters
+    removeFilter(removedFilter: ServiceFilter): void {
+        // This should only be called when a Filter Builder filter is removed using the filter tray.
+        let databaseTableKey = '';
+        this.active.databaseTableKeysToFilterIds.forEach((value, key) => {
+            if (!databaseTableKey && value === removedFilter.id) {
+                databaseTableKey = key;
+            }
+        });
+        this.active.databaseTableKeysToFilterIds.set(databaseTableKey, '');
+        for (let index = this.active.clauses.length - 1; index >= 0; index --) {
+            if (databaseTableKey === this.getDatabaseTableKey(this.active.clauses[index].database, this.active.clauses[index].table)) {
+                this.active.clauses[index].active = false;
+            }
+        }
+        this.active.clauses = this.active.clauses.slice(0);
     }
 
     /**
