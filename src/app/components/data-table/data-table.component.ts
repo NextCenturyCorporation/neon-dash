@@ -627,7 +627,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
         this.refreshVisualization();
     }
-    
+
     /**
      * Sets the given style in the headers with the given index to the given value.
      *
