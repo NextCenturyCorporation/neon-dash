@@ -270,11 +270,26 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         return valid;
     }
 
+    /**
+     * Creates and returns the Neon where clause for the visualization.
+     *
+     * @return {any}
+     */
+    createClause(): any {
+        let clause = neon.query.where(this.active.dateField.columnName, '!=', null);
+
+        if (this.hasUnsharedFilter()) {
+            clause = neon.query.and(clause, neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+        }
+
+        return clause;
+    }
+
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause = neon.query.where(this.active.dateField.columnName, '!=', null);
+        let whereClause = this.createClause();
         let dateField = this.active.dateField.columnName;
         query = query.aggregate(neonVariables.MIN, dateField, 'date');
         let groupBys: any[] = [];
@@ -310,7 +325,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     getDocCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
-        let whereClause = neon.query.where(this.active.dateField.columnName, '!=', null);
+        let whereClause = this.createClause();
         let countQuery = new neon.query.Query()
             .selectFrom(databaseName, tableName)
             .where(whereClause)
