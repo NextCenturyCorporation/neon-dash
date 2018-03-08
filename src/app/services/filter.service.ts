@@ -259,6 +259,7 @@ export class FilterService {
         onSuccess?: (resp: any) => any,
         onError?: (resp: any) => any) {
 
+        // TODO Use messenger.removeFilters now to remove all filters simultaneously.
         for (let id of ids) {
             this.removeFilter(messenger, id, onSuccess, onError);
         }

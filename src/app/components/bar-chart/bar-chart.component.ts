@@ -505,9 +505,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                     this.filters[0] = filter;
                     this.replaceNeonFilter(true, filter);
                 } else {
-                    this.removeAllFilters(false, false);
-                    this.addLocalFilter(filter);
-                    this.addNeonFilter(true, filter);
+                    // Use concat to copy the list of filters.
+                    this.removeAllFilters([].concat(this.filters), () => {
+                        this.addLocalFilter(filter);
+                        this.addNeonFilter(true, filter);
+                    });
                 }
             }
 
@@ -1122,20 +1124,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     /**
      * Removes all filters from this bar chart component and neon, optionally requerying and/or refreshing.
      *
-     * @arg {boolean=true} shouldRequery
-     * @arg {boolean=true} shouldRefresh
+     * @arg {array} filters
+     * @arg {function} callback
      */
-    removeAllFilters(shouldRequery: boolean = true, shouldRefresh: boolean = true) {
-        for (let index = this.filters.length - 1; index >= 0; index--) {
-            this.removeLocalFilterFromLocalAndNeon(this.filters[index], false, false);
+    removeAllFilters(filters: any[], callback?: Function) {
+        if (!filters.length) {
+            if (callback) {
+                callback();
+            }
+            return;
         }
-        // Do these once we're finished removing all filters, rather than after each one.
-        if (shouldRequery) {
-            this.executeQueryChain();
-        }
-        if (shouldRefresh) {
-            this.refreshVisualization();
-        }
+
+        this.removeLocalFilterFromLocalAndNeon(filters[0], false, false, () => {
+            this.removeAllFilters(filters.slice(1), callback);
+        });
     }
 
     /**
