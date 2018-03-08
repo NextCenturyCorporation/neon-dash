@@ -108,39 +108,39 @@ fdescribe('Component: DataTable', () => {
     });
 
     it('addFilter should add filter', () => {
-        addFilter("testDataField", "Test Value", "Test Data Field");
+        addFilter('testDataField', 'Test Value', 'Test Data Field');
         expect(component.getFilterData().length).toBe(1);
         expect(getService(FilterService).getFilters().length).toBe(1);
         //Set another filter. Filter key must be different
-        addFilter("testDataField2", "Test Value2", "Test Data Field 2");
+        addFilter('testDataField2', 'Test Value2', 'Test Data Field 2');
         expect(getService(FilterService).getFilters().length).toBe(2);
-    })
+    });
 
     it('removeFilter should remove filter', () => {
-        let filter = addFilter("testDataField", "Test Value", "Test Data Field");
+        let filter = addFilter('testDataField', 'Test Value', 'Test Data Field');
         expect(getService(FilterService).getFilters().length).toBe(1);
         component.removeLocalFilterFromLocalAndNeon(filter, true, true);
         expect(getService(FilterService).getFilters().length).toBe(0);
-    })
-    
+    });
+
     it('should remove filter when clicked', () => {
-        addFilter("testDataField", "Test Value", "Test Data Field");
+        addFilter('testDataField', 'Test Value', 'Test Data Field');
         expect(getService(FilterService).getFilters().length).toBe(1);
         let xEl = getDebug('.filter-reset .mat-icon-button');
         xEl.triggerEventHandler('click', null);
         expect(getService(FilterService).getFilters().length).toBe(0);
-    })
+    });
 
     it('filter-reset element should exist if filter is set', () => {
         expect(getDebug('.filter-reset')).toBeNull();
-        addFilter("testDataField", "Test Value", "Test Data Field");
+        addFilter('testDataField', 'Test Value', 'Test Data Field');
         expect(getDebug('.filter-reset')).toBeDefined();
-    })
+    });
 
     it('no filter-reset elements should exist if filter is not set', () => {
         expect(component.getCloseableFilters().length).toBe(0);
         expect(getDebug('.filter-reset')).toBeNull();
-    })
+    });
 
     it('getElementRefs does return expected object', () => {
         let refs = component.getElementRefs();
