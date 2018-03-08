@@ -53,7 +53,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     selected = [];
 
-    private filters: {
+    protected filters: {
         id: string,
         key: string,
         value: string,
@@ -67,6 +67,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         idField: string,
         sortField: string,
         dataField: string,
+        filterable: boolean,
         limit: number,
         limitDisabled: boolean,
         unsharedFilterField: Object,
@@ -115,6 +116,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             idField: this.injector.get('idField', null),
             sortField: this.injector.get('sortField', null),
             dataField: this.injector.get('dataField', null),
+            filterable: this.injector.get('filterable', false),
             limit: this.injector.get('limit', 100),
             limitDisabled: this.injector.get('limitDisabled', true),
             unsharedFilterField: {},
@@ -131,7 +133,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             limit: this.optionsFromConfig.limit,
             page: 1,
             docCount: 0,
-            filterable: true,
+            filterable: this.optionsFromConfig.filterable,
             layers: [],
             data: [],
             headers: [],
@@ -172,6 +174,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.sortField = this.active.sortField.columnName;
         bindings.dataField = this.active.dataField.columnName;
         bindings.limit = this.active.limit;
+        bindings.filterable = this.active.filterable;
     }
 
     onUpdateFields() {
@@ -517,10 +520,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
-        // let closeableFilters = this.filters.map((filter) => {
-        //     return filter.value;
-        // });
-        // return closeableFilters;
         return this.filters;
     }
 
@@ -602,11 +601,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 value: value,
                 prettyKey: prettyKey
             };
-            if (this.filterIsUnique(filter)) {
-                this.addLocalFilter(filter);
-                let whereClause = neon.query.where(filter.key, '=', filter.value);
-                this.addNeonFilter(true, filter, whereClause);
-            }
+            this.addFilter(filter);
+        }
+    }
+
+    addFilter(filter) {
+        if (this.filterIsUnique(filter)) {
+            this.addLocalFilter(filter);
+            let whereClause = neon.query.where(filter.key, '=', filter.value);
+            this.addNeonFilter(true, filter, whereClause);
         }
     }
 

@@ -60,6 +60,26 @@
                 </mat-button-toggle-group>
                 <p></p>
 
+                Filtering:
+                <mat-button-toggle-group name="filtering" [(ngModel)]="active.filterable">
+                    <mat-button-toggle [value]="true">
+                        On
+                    </mat-button-toggle>
+                    <mat-button-toggle [value]="false">
+                        Off
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Term Field" [(ngModel)]="active.dataField"
+                                (ngModelChange)="handleChangeData()"
+                                [disabled]="active.filterable == false">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
                 <app-unshared-filter [(meta)]="meta"
                                      (unsharedFilterChanged)="unsharedFilterChanged()"
                                      (unsharedFilterRemoved)="unsharedFilterRemoved()"></app-unshared-filter>
@@ -78,7 +98,7 @@
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" [title]="getFilterTitle(filter.value)">{{ getFilterCloseText(filter.value) }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="getRemoveFilterTooltip(filter.value)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                    [matTooltip]="getRemoveFilterTooltip(filter.value)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, false)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
         </div>
