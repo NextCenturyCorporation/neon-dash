@@ -190,13 +190,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     addLocalFilter(filter) {
-        // Make sure we're not adding a useless duplicate.
-        for (let index = this.filters.length - 1; index >= 0; index--) {
-            if (filter.id === this.filters[index].id) {
-                return;
-            }
-        }
-        this.filters = [].concat(this.filters).concat([filter]);
+        this.filters = this.filters.filter((existingFilter) => {
+            return existingFilter.id !== filter.id;
+        }).map((existingFilter) => {
+            return existingFilter;
+        }).concat([filter]);
     }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
@@ -236,21 +234,32 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return valid;
     }
 
+    /**
+     * Creates and returns the Neon where clause for the visualization.
+     *
+     * @return {any}
+     */
+    createClause(): any {
+        let clauses = [neon.query.where(this.active.dataField.columnName, '!=', null)];
+
+        if (this.optionsFromConfig.configFilter) {
+            clauses.push(neon.query.where(this.optionsFromConfig.configFilter.lhs,
+                this.optionsFromConfig.configFilter.operator,
+                this.optionsFromConfig.configFilter.rhs));
+        }
+
+        if (this.hasUnsharedFilter()) {
+            clauses.push(neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+        }
+
+        return clauses.length > 1 ? neon.query.and.apply(neon.query, clauses) : clauses[0];
+    }
+
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause;
-        // Checks for an unshared filter in the config file.
-        if (this.optionsFromConfig.configFilter) {
-            whereClause = neon.query.where(this.optionsFromConfig.configFilter.lhs,
-                this.optionsFromConfig.configFilter.operator,
-                this.optionsFromConfig.configFilter.rhs);
-        } else if (this.hasUnsharedFilter()) {
-            whereClause = neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue);
-        } else {
-            whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
-        }
+        let whereClause = this.createClause();
         let dataField = this.active.dataField.columnName;
 
         if (this.active.sizeField.columnName === '') {
@@ -273,11 +282,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     getDocCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
-        let whereClause = this.optionsFromConfig.configFilter !== null ?
-            neon.query.where(this.optionsFromConfig.configFilter.lhs,
-                this.optionsFromConfig.configFilter.operator,
-                this.optionsFromConfig.configFilter.rhs) :
-            neon.query.where(this.active.dataField.columnName, '!=', 'null');
+        let whereClause = this.createClause();
         let countQuery = new neon.query.Query()
             .selectFrom(databaseName, tableName)
             .where(whereClause)
@@ -323,22 +328,21 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let table = this.meta.table.name;
         let fields = [this.active.dataField.columnName];
         let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        if (neonFilters && neonFilters.length > 0) {
-            for (let filter of neonFilters) {
-                let key = filter.filter.whereClause.lhs;
-                let value = filter.filter.whereClause.rhs;
-                let f = {
-                    id: filter.id,
+        this.filters = [];
+        for (let neonFilter of neonFilters) {
+            if (!neonFilter.filter.whereClause.whereClauses) {
+                let key = neonFilter.filter.whereClause.lhs;
+                let value = neonFilter.filter.whereClause.rhs;
+                let filter = {
+                    id: neonFilter.id,
                     key: key,
                     value: value,
                     prettyKey: key
                 };
-                if (this.filterIsUnique(f)) {
-                    this.addLocalFilter(f);
+                if (this.filterIsUnique(filter)) {
+                    this.addLocalFilter(filter);
                 }
             }
-        } else {
-            this.filters = [];
         }
     }
 
@@ -364,8 +368,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     filterIsUnique(filter) {
-        for (let f of this.filters) {
-            if (f.value === filter.value && f.key === filter.key) {
+        for (let existingFilter of this.filters) {
+            if (existingFilter.value === filter.value && existingFilter.key === filter.key) {
                 return false;
             }
         }

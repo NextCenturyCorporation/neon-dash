@@ -18,11 +18,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
-import { NeonGTDConfig } from '../../neon-gtd-config';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 import {} from 'jasmine-core';
 
+import * as neon from 'neon-framework';
+import { FieldMetaData } from '../../dataset';
+import { NeonGTDConfig } from '../../neon-gtd-config';
 import { DataTableComponent } from './data-table.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
@@ -75,6 +77,16 @@ describe('Component: DataTable', () => {
     it('exists', (() => {
         expect(component).toBeTruthy();
     }));
+
+    it('createClause does return expected object', () => {
+        component.active.sortField = new FieldMetaData('testSortField');
+        expect(component.createClause()).toEqual(neon.query.where('testSortField', '!=', null));
+
+        component.meta.unsharedFilterField = new FieldMetaData('testFilterField');
+        component.meta.unsharedFilterValue = 'testFilterValue';
+        expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testSortField', '!=', null),
+            neon.query.where('testFilterField', '=', 'testFilterValue')));
+    });
 
     it('getButtonText does return expected string', () => {
         component.active.limit = 10;

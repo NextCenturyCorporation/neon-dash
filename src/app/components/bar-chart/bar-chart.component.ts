@@ -250,20 +250,26 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             return context.measureText(text).width;
         };
 
-        let resizeChartLabelY = (scaleInstance) => {
-            // Set the label width to either its minimum needed width or a percentage of the chart width (whatever is lower).
-            let containerWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth);
-            // If the bar chart has multiple pages, always return a consistent width (based on the Y-label width if possible).
-            if (this.active.limit < this.active.bars.length) {
-                let yLabels: any[] = (this.active.chartType === 'bar' ? [this.active.maxCount] : this.active.bars);
-                let yLabelsMaxWidth = yLabels.reduce((max, yLabel) => {
-                    return Math.max(max, calculateTextWidth(yLabel));
-                }, 0);
-                scaleInstance.width = Math.min(containerWidth, yLabelsMaxWidth);
-            } else {
-                scaleInstance.width = Math.min(containerWidth, scaleInstance.minSize.width);
-            }
-            scaleInstance.width = Math.floor(scaleInstance.width);
+        let calculateYLabelWidth = () => {
+            let yLabels: any[] = (this.active.chartType === 'bar' ? [this.active.maxCount] : this.active.bars);
+            let yLabelWidth = yLabels.reduce((max, yLabel) => {
+                return Math.max(max, calculateTextWidth(yLabel));
+            }, 0);
+            return yLabelWidth;
+        };
+
+        let resizeXLabel = (scaleInstance) => {
+            // Set the left padding to equal the Y label width plus the margin.  Set the X label width accordingly.
+            let yLabelMaxWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth);
+            scaleInstance.paddingLeft = Math.min(yLabelMaxWidth, calculateYLabelWidth()) + LABELS_MARGIN;
+            scaleInstance.paddingRight = 10;
+            scaleInstance.width = this.chartModule.getNativeElement().clientWidth - scaleInstance.paddingLeft - scaleInstance.paddingRight;
+        };
+
+        let resizeYLabel = (scaleInstance) => {
+            // Set the Y label width to either its minimum needed width or a percentage of the chart width (whatever is lower).
+            let yLabelMaxWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth);
+            scaleInstance.width = Math.min(yLabelMaxWidth, calculateYLabelWidth());
         };
 
         let truncateText = (containerWidth, text, suffix = '') => {
@@ -290,13 +296,12 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             return truncated.trim() + '...' + suffix;
         };
 
-        let truncateBarLabelTextX = (text) => {
-            let containerWidth = Math.floor((1 - LABELS_PERCENTAGE) * this.chartModule.getNativeElement().clientWidth /
-                this.chartInfo.data.labels.length);
+        let truncateXLabelText = (text) => {
+            let containerWidth = Math.floor(this.chartModule.getNativeElement().clientWidth / this.chartInfo.data.labels.length);
             return truncateText(containerWidth, text);
         };
 
-        let truncateBarLabelTextY = (text) => {
+        let truncateYLabelText = (text) => {
             let containerWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth - LABELS_MARGIN);
             return truncateText(containerWidth, text);
         };
@@ -326,6 +331,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 },
                 scales: {
                     xAxes: [{
+                        afterFit: resizeXLabel,
                         barPercentage: 0.9,
                         categoryPercentage: 0.9,
                         stacked: true,
@@ -333,17 +339,17 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                             maxRotation: 0,
                             minRotation: 0,
                             beginAtZero: true,
-                            callback: truncateBarLabelTextX
+                            callback: truncateXLabelText
                         }
                     }],
                     yAxes: [{
-                        afterFit: resizeChartLabelY,
+                        afterFit: resizeYLabel,
                         barPercentage: 0.9,
                         categoryPercentage: 0.9,
                         stacked: true,
                         ticks: {
                             beginAtZero: true,
-                            callback: truncateBarLabelTextY
+                            callback: truncateYLabelText
                         }
                     }]
                 },
@@ -483,9 +489,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                     let whereClause = neon.query.where(filter.key, '=', filter.value);
                     this.addNeonFilter(true, filter, whereClause);
                 } else {
-                    for (let f of this.filters) {
-                        if (f.key === filter.key && f.value === filter.value) {
-                            this.removeLocalFilterFromLocalAndNeon(f, true, true);
+                    for (let existingFilter of this.filters) {
+                        if (existingFilter.key === filter.key && existingFilter.value === filter.value) {
+                            this.removeLocalFilterFromLocalAndNeon(existingFilter, true, true);
                             break;
                         }
                     }
@@ -499,9 +505,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                     this.filters[0] = filter;
                     this.replaceNeonFilter(true, filter);
                 } else {
-                    this.removeAllFilters(false, false);
-                    this.addLocalFilter(filter);
-                    this.addNeonFilter(true, filter);
+                    // Use concat to copy the list of filters.
+                    this.removeAllFilters([].concat(this.filters), () => {
+                        this.addLocalFilter(filter);
+                        this.addNeonFilter(true, filter);
+                    });
                 }
             }
 
@@ -529,9 +537,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * @arg {object} filter
      */
     addLocalFilter(filter: any) {
-        if (this.filterIsUnique(filter)) {
-            this.filters = [].concat(this.filters).concat([filter]);
-        }
+        this.filters = this.filters.filter((existingFilter) => {
+            return existingFilter.id !== filter.id;
+        }).map((existingFilter) => {
+            return existingFilter;
+        }).concat([filter]);
     }
 
     /**
@@ -541,8 +551,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * @return {boolean}
      */
     filterIsUnique(filter: any): boolean {
-        for (let f of this.filters) {
-            if (f.value === filter.value && f.key === filter.key) {
+        for (let existingFilter of this.filters) {
+            if (existingFilter.value === filter.value && existingFilter.key === filter.key) {
                 return false;
             }
         }
@@ -726,8 +736,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         if (neonFilters.length > 0) {
             let ignoredFilterIds = [];
-            for (let filter of neonFilters) {
-                ignoredFilterIds.push(filter.id);
+            for (let neonFilter of neonFilters) {
+                if (!neonFilter.filter.whereClause.whereClauses) {
+                    ignoredFilterIds.push(neonFilter.id);
+                }
             }
             return ignoredFilterIds;
         }
@@ -982,20 +994,21 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let table = this.meta.table.name;
         let fields = [this.active.dataField.columnName];
         let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        if (neonFilters && neonFilters.length > 0) {
-            for (let filter of neonFilters) {
-                let key = filter.filter.whereClause.lhs;
-                let value = filter.filter.whereClause.rhs;
-                let f = {
-                    id: filter.id,
+        this.filters = [];
+        for (let neonFilter of neonFilters) {
+            if (!neonFilter.filter.whereClause.whereClauses) {
+                let key = neonFilter.filter.whereClause.lhs;
+                let value = neonFilter.filter.whereClause.rhs;
+                let filter = {
+                    id: neonFilter.id,
                     key: key,
                     value: value,
                     prettyKey: key
                 };
-                this.addLocalFilter(f);
+                if (this.filterIsUnique(filter)) {
+                    this.addLocalFilter(filter);
+                }
             }
-        } else {
-            this.filters = [];
         }
     }
 
@@ -1115,20 +1128,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     /**
      * Removes all filters from this bar chart component and neon, optionally requerying and/or refreshing.
      *
-     * @arg {boolean=true} shouldRequery
-     * @arg {boolean=true} shouldRefresh
+     * @arg {array} filters
+     * @arg {function} callback
      */
-    removeAllFilters(shouldRequery: boolean = true, shouldRefresh: boolean = true) {
-        for (let index = this.filters.length - 1; index >= 0; index--) {
-            this.removeLocalFilterFromLocalAndNeon(this.filters[index], false, false);
+    removeAllFilters(filters: any[], callback?: Function) {
+        if (!filters.length) {
+            if (callback) {
+                callback();
+            }
+            return;
         }
-        // Do these once we're finished removing all filters, rather than after each one.
-        if (shouldRequery) {
-            this.executeQueryChain();
-        }
-        if (shouldRefresh) {
-            this.refreshVisualization();
-        }
+
+        this.removeLocalFilterFromLocalAndNeon(filters[0], false, false, () => {
+            this.removeAllFilters(filters.slice(1), callback);
+        });
     }
 
     /**

@@ -270,11 +270,26 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         return valid;
     }
 
+    /**
+     * Creates and returns the Neon where clause for the visualization.
+     *
+     * @return {any}
+     */
+    createClause(): any {
+        let clause = neon.query.where(this.active.dateField.columnName, '!=', null);
+
+        if (this.hasUnsharedFilter()) {
+            clause = neon.query.and(clause, neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+        }
+
+        return clause;
+    }
+
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause = neon.query.where(this.active.dateField.columnName, '!=', null);
+        let whereClause = this.createClause();
         let dateField = this.active.dateField.columnName;
         query = query.aggregate(neonVariables.MIN, dateField, 'date');
         let groupBys: any[] = [];
@@ -310,7 +325,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     getDocCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
-        let whereClause = neon.query.where(this.active.dateField.columnName, '!=', null);
+        let whereClause = this.createClause();
         let countQuery = new neon.query.Query()
             .selectFrom(databaseName, tableName)
             .where(whereClause)
@@ -325,11 +340,11 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         let ignoredFilterIds = [];
         let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
-            for (let filter of neonFilters) {
+            for (let neonFilter of neonFilters) {
                 // The data we want is in the whereClause's subclauses
-                let whereClause = filter.filter.whereClause;
+                let whereClause = neonFilter.filter.whereClause;
                 if (whereClause && whereClause.whereClauses.length === 2) {
-                    ignoredFilterIds.push(filter.id);
+                    ignoredFilterIds.push(neonFilter.id);
                 }
             }
         }
@@ -510,14 +525,14 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         let fields = [this.active.dateField.columnName];
         let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
-            for (let filter of neonFilters) {
+            for (let neonFilter of neonFilters) {
                 // The data we want is in the whereClause's subclauses
-                let whereClause = filter.filter.whereClause;
+                let whereClause = neonFilter.filter.whereClause;
                 if (whereClause && whereClause.whereClauses.length === 2) {
                     let key = whereClause.whereClauses[0].lhs;
                     let startDate = whereClause.whereClauses[0].rhs;
                     let endDate = whereClause.whereClauses[1].rhs;
-                    this.addLocalFilter(filter.id, key, startDate, endDate);
+                    this.addLocalFilter(neonFilter.id, key, startDate, endDate);
                 }
 
             }
