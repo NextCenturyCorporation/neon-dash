@@ -1212,7 +1212,6 @@ describe('Component: Map with config', () => {
                 { provide: 'south', useValue: 3 },
                 { provide: 'north', useValue: 4 },
                 { provide: 'customServer', useValue: { mapUrl: 'testUrl', layer: 'testLayer' } },
-                { provide: 'mapType', useValue: MapType.Cesium },
                 { provide: 'singleColor', useValue: true },
                 { provide: 'title', useValue: 'Test Title' }
             ],
@@ -1288,7 +1287,6 @@ describe('Component: Map with config', () => {
             mapUrl: 'testUrl',
             layer: 'testLayer'
         });
-        expect(component.getOptionFromConfig('mapType')).toBe(MapType.Cesium);
         expect(component.getOptionFromConfig('singleColor')).toBe(true);
     });
 

@@ -67,6 +67,8 @@
 					"database": "aida",
 					"table": "reified",
 					"sortField": "subject",
+					"filterable": true,
+					"dataField": "subject",
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
 						"subject"
@@ -91,6 +93,8 @@
 					"database": "aida",
 					"table": "reified",
 					"sortField": "predicate",
+					"filterable": true,
+					"dataField": "predicate",
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
 						"predicate"
@@ -116,6 +120,8 @@
 					"database": "aida",
 					"table": "reified",
 					"sortField": "object",
+					"filterable": true,
+					"dataField": "object",
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
 						"object"
@@ -159,7 +165,8 @@
 				"bindings": {
 					"title": "Graph",
 					"database": "aida",
-					"table": "reified"
+					"table": "reified",
+					"dataField": "object"
 				},
 				"row": 13,
 				"col": 13
