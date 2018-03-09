@@ -780,20 +780,20 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
 
     setupFilters() {
         let localFilters = [],
-            filters = this.filterService.getFiltersForFields(
+            neonFilters = this.filterService.getFiltersForFields(
                 this.meta.database.name,
                 this.meta.table.name,
                 [this.active.dateField.columnName]
             );
-        for (let filter of filters) {
-            let whereClause = filter.filter.whereClause;
+        for (let neonFilter of neonFilters) {
+            let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
                 localFilters.push(
                     new LocalFilter(
                         whereClause.whereClauses[0].lhs,
                         whereClause.whereClauses[0].rhs,
                         whereClause.whereClauses[1].rhs,
-                        filter.id
+                        neonFilter.id
                     )
                 );
             }

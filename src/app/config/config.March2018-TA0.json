@@ -78,10 +78,11 @@
 						}
 					}
 				},
+				    
 				"simpleFilter": {
 					"databaseName": "ll_nepal_simplified",
 					"tableName": "annotations",
-					"fieldName": "originalText",
+					"fieldName": "translatedText",
 					"placeHolder": "Search"
 				}
 			}
@@ -372,7 +373,7 @@
 				"$$hashKey": "object:43",
 				"selected": true,
 				"bindings": {
-					"title": "Raw Data",
+					"title": "Document Annotations",
 					"database": "ll_nepal_simplified",
 					"table": "annotations",
 					"sortField": "createdAt",
@@ -380,11 +381,9 @@
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
 						"createdAt",
-						"text",
+						"translatedText",
 						"topics",
-						"LOC",
-						"PER",
-						"originalText"
+						"LOC"
 					]
 				},
 				"row": 0,
@@ -452,7 +451,7 @@
 					"gradientColorCode5": "",
 					"applyTransientDateFilter": false,
 					"popupFields": [
-						"originalText"
+						"translatedText"
 					],
 					"layers": [
 						{
@@ -590,6 +589,41 @@
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 13,
 				"col": 12
+			},
+			{
+				"name": "Bar Chart",
+				"type": "barChart",
+				"icon": "BarChart64",
+				"sizex": 5,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:30",
+				"selected": true,
+				"bindings": {
+					"title": "MIT-LL Annotations",
+					"database": "ll_nepal_simplified",
+					"table": "annotations",
+					"dataField": "llAnnotation.Type",
+					"aggregation": "",
+					"aggregationField": "",
+					"chartType": "bar",
+					"colors": [
+						{
+							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
+							"color": "77, 190, 194"
+						},
+						{
+							"value": "regimechange|crimeviolence|terrorism|earthquake",
+							"color": "39, 96, 126"
+						}
+					]
+				},
+				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
+				"row": 17,
+				"col": 0
 			}
 		]
 	},

@@ -46,13 +46,22 @@ export class VisualizationContainerComponent implements OnInit {
     }
 
     contract() {
+        this.onResizeStart();
         this.expanded = false;
         this.activeGridService.contractItem(this.visualization);
+        setTimeout(() => {
+            this.onResizeStop();
+        }, 300);
     }
 
     expand() {
+        this.onResizeStart();
         this.expanded = true;
         this.activeGridService.expandItem(this.visualization);
+        setTimeout(() => {
+            this.onResizeStop();
+        }, 300);
+
     }
 
     moveToTop() {

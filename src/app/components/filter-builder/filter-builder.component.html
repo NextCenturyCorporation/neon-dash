@@ -13,7 +13,7 @@
             <mat-icon>delete_sweep</mat-icon>
         </button>
 
-        <mat-button-toggle-group #showColumnSelector="matButtonToggleGroup" [(ngModel)]="active.andor" (change)="updateFilters()"
+        <mat-button-toggle-group #showColumnSelector="matButtonToggleGroup" [(ngModel)]="active.andor" (change)="handleChangeAndOr()"
                 class="neon-button-toggle-group-small">
             <mat-button-toggle value="and">
                 AND
@@ -45,8 +45,8 @@
                     </mat-form-field>
 
                     <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
-                        <mat-select placeholder="Field" [(ngModel)]="clause.field"
-                                    required="true" (ngModelChange)="handleChangeDataOfClause(clause)"
+                        <mat-select placeholder="Field" [(ngModel)]="clause.changeField"
+                                    required="true" (ngModelChange)="handleChangeFieldOfClause(clause)"
                                     [disabled]="clause.fields.length == 0">
                             <mat-option *ngFor="let field of clause.fields" [value]="field">{{ field.prettyName }}</mat-option>
                         </mat-select>
