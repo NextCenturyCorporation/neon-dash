@@ -184,17 +184,25 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let initialHeaderLimit = 25;
         let numHeaders = 0;
         let defaultShowValue = this.optionsFromConfig.allColumnStatus !== 'hide';
-        for (let f of this.meta.fields) {
-            let headerShowValue = numHeaders >= initialHeaderLimit ?
-                false :
-                this.headerIsInExceptions(f) ?
-                    !defaultShowValue :
-                    defaultShowValue;
-            this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: headerShowValue, style: {}, width: 150});
-            if (headerShowValue) {
+        let orderedHeaders = [];
+        let unorderedHeaders = [];
+        if (defaultShowValue) {
+            for (let f of this.meta.fields) {
+                this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: numHeaders < initialHeaderLimit,
+                     style: {}, width: 150});
                 numHeaders++;
             }
+        } else {
+            for (let f of this.meta.fields) {
+                this.headerIsInExceptions(f) ?
+                    orderedHeaders.push({ prop: f.columnName, name: f.prettyName, active: orderedHeaders.length < initialHeaderLimit,
+                         style: {}, width: 150}) :
+                    unorderedHeaders.push({ prop: f.columnName, name: f.prettyName, active: false, style: {}, width: 150});
+            }
+            orderedHeaders = this.sortOrderedHeaders(orderedHeaders);
+            this.active.headers = orderedHeaders.concat(unorderedHeaders);
         }
+
         this.recalculateActiveHeaders();
     }
 
@@ -209,12 +217,50 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return false;
     }
 
+    sortOrderedHeaders(unordered) {
+        let sorted = [];
+        for (let header of this.optionsFromConfig.exceptionsToStatus) {
+            let headerToPush = this.getHeaderByName(header, unordered);
+            if (headerToPush !== null) {
+                sorted.push(headerToPush);
+            }
+        }
+        return sorted;
+    }
+
     recalculateActiveHeaders() {
+        // Update the widths of the headers based on the width of the visualization itself.
+        let refs = this.getElementRefs();
+        let tableWidth = this.active.activeHeaders.reduce((sum, header: any) => {
+            return sum + (this.active.headerWidths.get(header.prop) || 0);
+        }, 0);
+        // Subtract 30 to adjust for the margins and the scrollbar.
+        let visualizationWidth = refs.visualization.nativeElement.clientWidth - 30;
+        if (visualizationWidth < tableWidth) {
+            // Start with the last column and work backward.
+            for (let i = this.active.activeHeaders.length - 1; i >= 0; --i) {
+                let header: any = this.active.activeHeaders[i];
+                let oldHeaderWidth = this.active.headerWidths.get(header.prop) || 0;
+                // Minimum header size is 100.
+                let newHeaderWidth = Math.max(oldHeaderWidth - (tableWidth - visualizationWidth), 100);
+                this.active.headerWidths.set(header.prop, newHeaderWidth);
+                tableWidth = tableWidth - oldHeaderWidth + newHeaderWidth;
+                // Only shrink headers until the table fits inside the visualization.
+                if (visualizationWidth >= tableWidth) {
+                    break;
+                }
+            }
+        }
+
+        // Update the widths of the headers for the table object.
         this.active.activeHeaders = this.getActiveHeaders().map((header: any) => {
+            // Must set both width and $$oldWidth here to update the widths of the headers and the table container.
             header.width = this.active.headerWidths.get(header.prop) || header.width;
-            header.$$oldWidth = this.active.headerWidths.get(header.prop) || header.width;
+            header.$$oldWidth = this.active.headerWidths.get(header.prop) || header.$$oldWidth;
             return header;
         });
+
+        // Redraw.
         this.active = Object.assign({}, this.active);
         this.changeDetection.detectChanges();
     }
@@ -227,6 +273,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
         }
         return active;
+    }
+
+    getHeaderByName(headerName, list) {
+        for (let header of list) {
+            if (headerName === header.prop || headerName === header.name) {
+                return header;
+            }
+        }
+        return null;
     }
 
     getExportFields() {
@@ -306,13 +361,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     refreshVisualization() {
         this.active = Object.assign({}, this.active);
-        // Must recalculate table size and detectChanges within setTimeout so angular templates (like ngIf) are updated first.
+        // Must recalculate headers/table and detectChanges within setTimeout so angular templates (like ngIf) are updated first.
         setTimeout(() => {
+            // Must recalculateActiveHeaders before table.recalculate to update the header widths.
             this.recalculateActiveHeaders();
             this.table.recalculate();
-            // Must call detectChanges on the ChangeDetectorRef object in the table itself.
+            // Must detectChanges on the ChangeDetectorRef object in the table itself.
             this.table.cd.detectChanges();
-        }, 0);
+            // Must recalculateActiveHeaders a second time to remove unneeded scrollbars from within the table.
+            this.recalculateActiveHeaders();
+        }, 300);
     }
 
     isValidQuery() {
@@ -324,21 +382,29 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return valid;
     }
 
+    /**
+     * Creates and returns the Neon where clause for the visualization.
+     *
+     * @return {any}
+     */
+    createClause(): any {
+        let clause = neon.query.where(this.active.sortField.columnName, '!=', null);
+
+        if (this.hasUnsharedFilter()) {
+            clause = neon.query.and(clause, neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+        }
+
+        return clause;
+    }
+
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let limit = this.active.limit;
         let offset = ((this.active.page) - 1) * limit;
-        let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause: any = neon.query.where(this.active.sortField.columnName, '!=', null);
-
-        // Add unshared filter if needed
-        if (this.hasUnsharedFilter()) {
-            whereClause = neon.query.and(whereClause, neon.query.where(this.meta.unsharedFilterField.columnName, '=',
-                this.meta.unsharedFilterValue));
-        }
-
-        return query.where(whereClause)
+        let whereClause = this.createClause();
+        return new neon.query.Query().selectFrom(databaseName, tableName)
+            .where(whereClause)
             .sortBy(this.active.sortField.columnName, neonVariables.DESCENDING)
             .limit(this.active.limit)
             .offset(offset);
@@ -403,37 +469,35 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     getDocCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
+        let whereClause = this.createClause();
         let countQuery = new neon.query.Query()
             .selectFrom(databaseName, tableName)
+            .where(whereClause)
             .aggregate(neonVariables.COUNT, '*', '_docCount');
+
         this.executeQuery(countQuery);
     }
 
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        this.active.page = 1;
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = [this.active.sortField.columnName];
-        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        if (neonFilters && neonFilters.length > 0) {
-            for (let filter of neonFilters) {
-                let key = filter.filter.whereClause.lhs;
-                let value = filter.filter.whereClause.rhs;
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.active.sortField.columnName]);
+        this.filters = [];
+        for (let neonFilter of neonFilters) {
+            if (!neonFilter.filter.whereClause.whereClauses) {
                 this.addLocalFilter({
-                    id: filter.id,
-                    key: key,
-                    value: value,
-                    prettyKey: key
+                    id: neonFilter.id,
+                    key: neonFilter.filter.whereClause.lhs,
+                    value: neonFilter.filter.whereClause.rhs,
+                    prettyKey: neonFilter.filter.whereClause.lhs
                 });
             }
-        } else {
-            this.filters = [];
         }
     }
 
     handleFiltersChangedEvent() {
+        this.active.page = 1;
         this.executeQueryChain();
     }
 

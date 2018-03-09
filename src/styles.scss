@@ -253,6 +253,11 @@ body {
     }
 }
 
+.mat-button-focus-overlay {
+    /* Hide the focus overlay because it sticks. */
+    opacity: 0 !important;
+}
+
 .mat-button-toggle-group {
     border-radius: 10px !important;
     font-size: 18px !important;
