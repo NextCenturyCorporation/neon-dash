@@ -120,7 +120,7 @@
 					"database": "aida",
 					"table": "reified",
 					"sortField": "object",
-					"filerable": true,
+					"filterable": true,
 					"dataField": "object",
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
