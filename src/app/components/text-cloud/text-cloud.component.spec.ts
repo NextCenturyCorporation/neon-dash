@@ -34,7 +34,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { VisualizationService } from '../../services/visualization.service';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonVariables } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
 import { ChartComponent } from '../chart/chart.component';
@@ -50,9 +50,6 @@ class TestDatasetService extends DatasetService {
                 new FieldMetaData('testSizeField', 'Test Size Field')
             ])
         ];
-        testDatabase.tables[0].mappings = {
-            tags: 'testDataAndSizeField'
-        };
         this.setActiveDataset({
             databases: [testDatabase]
         });
@@ -197,26 +194,6 @@ describe('Component: TextCloud', () => {
             value: 'new value',
             newField: 'new field value'
         });
-    });
-
-    it('sets expected fields in onUpdateFields to the correct values', () => {
-        component.meta.database = new DatabaseMetaData('testDatabase', 'Test Database');
-        component.meta.database.name = 'testName';
-        component.meta.table = new TableMetaData('testTable', 'Test Table');
-
-        component.onUpdateFields();
-        expect(component.active.dataField).toEqual(new FieldMetaData());
-        expect(component.active.sizeField).toEqual(new FieldMetaData());
-
-        component.meta.fields = [
-            new FieldMetaData('testDataField'),
-            new FieldMetaData('testSizeField'),
-            new FieldMetaData('testDataAndSizeField') // Because dataField and sizeField both default to TAGS
-        ];
-
-        component.onUpdateFields();
-        expect(component.active.dataField).toEqual(new FieldMetaData('testDataAndSizeField'));
-        expect(component.active.sizeField).toEqual(new FieldMetaData('testDataAndSizeField'));
     });
 
     it('addLocalFilter does add the given filter', () => {

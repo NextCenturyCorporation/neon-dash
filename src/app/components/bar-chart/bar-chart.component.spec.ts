@@ -32,7 +32,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonVariables } from '../../neon-namespaces';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { AppMaterialModule } from '../../app.material.module';

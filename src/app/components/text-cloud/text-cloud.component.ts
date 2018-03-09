@@ -32,7 +32,7 @@ import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
@@ -182,8 +182,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onUpdateFields() {
-        let dataField = this.findFieldObject('dataField', neonMappings.TAGS);
-        let sizeField = this.findFieldObject('sizeField', neonMappings.TAGS);
+        let dataField = this.findFieldObject('dataField');
+        let sizeField = this.findFieldObject('sizeField');
         this.active = this.updateObject(this.active, 'dataField', dataField);
         this.active = this.updateObject(this.active, 'sizeField', sizeField);
         this.meta = Object.assign({}, this.meta); // trigger action

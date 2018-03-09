@@ -31,7 +31,7 @@ import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
@@ -170,8 +170,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onUpdateFields() {
-        this.active.idField = this.findFieldObject('idField', neonMappings.TAGS);
-        this.active.sortField = this.findFieldObject('sortField', neonMappings.TAGS);
+        this.active.idField = this.findFieldObject('idField');
+        this.active.sortField = this.findFieldObject('sortField');
         let initialHeaderLimit = 25;
         let numHeaders = 0;
         let defaultShowValue = this.optionsFromConfig.allColumnStatus !== 'hide';

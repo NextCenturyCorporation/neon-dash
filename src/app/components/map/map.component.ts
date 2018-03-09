@@ -325,8 +325,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             let layer = this.active.layers[metaObject.index];
             layer.latitudeField = this.findFieldObject(metaObject.index, 'latitudeField', neonMappings.LATITUDE);
             layer.longitudeField = this.findFieldObject(metaObject.index, 'longitudeField', neonMappings.LONGITUDE);
-            layer.sizeField = this.findFieldObject(metaObject.index, 'sizeField', neonMappings.SIZE);
-            layer.colorField = this.findFieldObject(metaObject.index, 'colorField', neonMappings.COLOR);
+            layer.sizeField = this.findFieldObject(metaObject.index, 'sizeField');
+            layer.colorField = this.findFieldObject(metaObject.index, 'colorField');
             layer.dateField = this.findFieldObject(metaObject.index, 'dateField', neonMappings.DATE);
 
             // Get the title from the options, if it exists

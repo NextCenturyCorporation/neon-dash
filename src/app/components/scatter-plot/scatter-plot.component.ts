@@ -32,7 +32,7 @@ import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
@@ -341,10 +341,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
     }
 
     onUpdateFields() {
-        this.active.xField = this.findFieldObject('xField', neonMappings.TAGS);
-        this.active.yField = this.findFieldObject('yField', neonMappings.TAGS);
-        this.active.labelField = this.findFieldObject('labelField', neonMappings.TAGS);
-        this.meta.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
+        this.active.xField = this.findFieldObject('xField');
+        this.active.yField = this.findFieldObject('yField');
+        this.active.labelField = this.findFieldObject('labelField');
+        this.meta.colorField = this.findFieldObject('colorField');
     }
 
     createFilter(key, startDate, endDate) {

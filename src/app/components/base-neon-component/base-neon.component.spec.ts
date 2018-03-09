@@ -38,7 +38,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { neonMappings } from '../../neon-namespaces';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ExportControlComponent } from '../export-control/export-control.component';

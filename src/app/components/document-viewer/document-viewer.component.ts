@@ -31,7 +31,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 // import * as moment from 'moment';
@@ -150,8 +150,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     onUpdateFields() {
-        this.active.dataField = this.findFieldObject('dataField', neonMappings.NEWSFEED_TEXT);
-        this.active.dateField = this.findFieldObject('dateField'); // If not set in the config, ignore it altogether.
+        this.active.dataField = this.findFieldObject('dataField');
+        this.active.dateField = this.findFieldObject('dateField');
         this.active.idField = this.findFieldObject('idField');
         this.active.metadataFields = neonUtilities.flatten(this.optionsFromConfig.metadataFields);
     }

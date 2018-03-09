@@ -34,7 +34,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 

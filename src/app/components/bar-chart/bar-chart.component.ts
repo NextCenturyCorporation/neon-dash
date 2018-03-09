@@ -31,7 +31,7 @@ import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
@@ -526,9 +526,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.optionsFromConfig.aggregation) {
             this.active.aggregation = this.optionsFromConfig.aggregation;
         }
-        this.active.aggregationField = this.findFieldObject('aggregationField', neonMappings.TAGS);
-        this.active.dataField = this.findFieldObject('dataField', neonMappings.TAGS);
-        this.active.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
+        this.active.aggregationField = this.findFieldObject('aggregationField');
+        this.active.dataField = this.findFieldObject('dataField');
+        this.active.colorField = this.findFieldObject('colorField');
     }
 
     /**

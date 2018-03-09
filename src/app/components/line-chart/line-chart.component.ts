@@ -32,7 +32,7 @@ import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { DateBucketizer } from '../bucketizers/DateBucketizer';
 import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
@@ -337,9 +337,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         if (this.optionsFromConfig.aggregation) {
             this.active.aggregation = this.optionsFromConfig.aggregation;
         }
-        this.active.aggregationField = this.findFieldObject('aggregationField', neonMappings.TAGS);
-        this.active.dateField = this.findFieldObject('dateField', neonMappings.TAGS);
-        this.active.groupField = this.findFieldObject('groupField', neonMappings.TAGS);
+        this.active.aggregationField = this.findFieldObject('aggregationField');
+        this.active.dateField = this.findFieldObject('dateField');
+        this.active.groupField = this.findFieldObject('groupField');
         this.active = Object.assign({}, this.active);
     }
 
