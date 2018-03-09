@@ -1,0 +1,196 @@
+{
+	"datasets": [
+		{
+			"name": "AIDA Test",
+			"connectOnLoad": true,
+			"layout": "aida-layout",
+			"datastore": "elasticsearch",
+			"hostname": "localhost",
+			"databases": [{
+				"name": "aida",
+				"prettyName": "AIDA",
+				"tables": [{
+					"name": "normal",
+					"prettyName": "Normal"
+				},
+				{
+					"name": "reified",
+					"prettyName": "Reified"
+				}]
+			}]
+		}
+	],
+	"layouts": {
+		"aida-layout": [{
+				"name": "Data Table",
+				"type": "dataTable",
+				"icon": "ViewData64",
+				"sizex": 24,
+				"sizey": 6,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Document",
+					"database": "aida",
+					"table": "normal",
+					"sortField": "author",
+					"allColumnStatus": "hide",
+					"exceptionsToStatus": [
+                        "@id",
+                        "author",
+                        "date",
+                        "docLocation",
+                        "title"
+					]
+				},
+				"row": 0,
+				"col": 0
+			},
+			{
+				"name": "Data Table",
+				"type": "dataTable",
+				"icon": "ViewData64",
+				"sizex": 8,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Subject",
+					"database": "aida",
+					"table": "reified",
+					"sortField": "subject",
+					"filterable": true,
+					"dataField": "subject",
+					"allColumnStatus": "hide",
+					"exceptionsToStatus": [
+						"subject"
+					]
+				},
+				"row":7,
+				"col": 0
+			},
+			{
+				"name": "Data Table",
+				"type": "dataTable",
+				"icon": "ViewData64",
+				"sizex": 8,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:31",
+				"bindings": {
+					"title": "Predicate",
+					"database": "aida",
+					"table": "reified",
+					"sortField": "predicate",
+					"filterable": true,
+					"dataField": "predicate",
+					"allColumnStatus": "hide",
+					"exceptionsToStatus": [
+						"predicate"
+					]
+				},
+				"row": 7,
+				"col": 9
+			},
+			{
+				"name": "Data Table",
+				"type": "dataTable",
+				"icon": "ViewData64",
+				"sizex": 8,
+				"sizey": 5,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Object",
+					"database": "aida",
+					"table": "reified",
+					"sortField": "object",
+					"filterable": true,
+					"dataField": "object",
+					"allColumnStatus": "hide",
+					"exceptionsToStatus": [
+						"object"
+					]
+				},
+				"row": 7,
+				"col": 17
+			},
+			{
+				"name": "Wiki Viewer",
+				"type": "wikiViewer",
+				"icon": "WikiViewer",
+				"sizex": 12,
+				"sizey": 8,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:35",
+				"selected": true,
+				"bindings": {
+					"title": "Wiki Viewer",
+					"database": "aida",
+					"table": "normal"
+				},
+				"row": 13,
+				"col": 0
+			},
+			{
+				"name": "Text Cloud",
+				"type": "textCloud",
+				"icon": "TagCloud64",
+				"sizex": 12,
+				"sizey": 8,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:36",
+				"selected": true,
+				"bindings": {
+					"title": "Graph",
+					"database": "aida",
+					"table": "reified",
+					"dataField": "object"
+				},
+				"row": 13,
+				"col": 13
+			},
+			{
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 24,
+				"sizey": 4,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4,
+				"$$hashKey": "object:37",
+				"selected": true,
+				"bindings": {
+					"title": "Filter Builder",
+					"database": "aida",
+					"table": "reified"
+				},
+				"row": 22,
+				"col": 0
+			}
+		]
+	}
+}
