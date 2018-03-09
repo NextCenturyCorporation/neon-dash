@@ -41,7 +41,7 @@ import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
 import { By } from '@angular/platform-browser';
 import * as neon from 'neon-framework';
 
-fdescribe('Component: DataTable', () => {
+describe('Component: DataTable', () => {
     let component: DataTableComponent,
         fixture: ComponentFixture<DataTableComponent>,
         addFilter = (key: String, value: String, prettyKey: String) => {
