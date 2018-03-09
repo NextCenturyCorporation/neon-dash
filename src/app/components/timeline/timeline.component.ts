@@ -363,11 +363,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         let ignoredFilterIds = [];
         let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
-            for (let filter of neonFilters) {
+            for (let neonFilter of neonFilters) {
                 // The data we want is in the whereClause's subclauses
-                let whereClause = filter.filter.whereClause;
+                let whereClause = neonFilter.filter.whereClause;
                 if (whereClause && whereClause.whereClauses.length === 2) {
-                    ignoredFilterIds.push(filter.id);
+                    ignoredFilterIds.push(neonFilter.id);
                 }
             }
         }
@@ -553,14 +553,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         let fields = [this.active.dateField.columnName];
         let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         if (neonFilters && neonFilters.length > 0) {
-            for (let filter of neonFilters) {
+            for (let neonFilter of neonFilters) {
                 // The data we want is in the whereClause's subclauses
-                let whereClause = filter.filter.whereClause;
+                let whereClause = neonFilter.filter.whereClause;
                 if (whereClause && whereClause.whereClauses.length === 2) {
                     let key = whereClause.whereClauses[0].lhs;
                     let startDate = whereClause.whereClauses[0].rhs;
                     let endDate = whereClause.whereClauses[1].rhs;
-                    this.addLocalFilter(filter.id, key, startDate, endDate);
+                    this.addLocalFilter(neonFilter.id, key, startDate, endDate);
                 }
 
             }

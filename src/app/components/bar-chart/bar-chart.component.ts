@@ -489,9 +489,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                     let whereClause = neon.query.where(filter.key, '=', filter.value);
                     this.addNeonFilter(true, filter, whereClause);
                 } else {
-                    for (let f of this.filters) {
-                        if (f.key === filter.key && f.value === filter.value) {
-                            this.removeLocalFilterFromLocalAndNeon(f, true, true);
+                    for (let existingFilter of this.filters) {
+                        if (existingFilter.key === filter.key && existingFilter.value === filter.value) {
+                            this.removeLocalFilterFromLocalAndNeon(existingFilter, true, true);
                             break;
                         }
                     }
@@ -736,8 +736,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         if (neonFilters.length > 0) {
             let ignoredFilterIds = [];
-            for (let filter of neonFilters) {
-                ignoredFilterIds.push(filter.id);
+            for (let neonFilter of neonFilters) {
+                if (!neonFilter.filter.whereClause.whereClauses) {
+                    ignoredFilterIds.push(neonFilter.id);
+                }
             }
             return ignoredFilterIds;
         }
@@ -994,16 +996,18 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
         this.filters = [];
         for (let neonFilter of neonFilters) {
-            let key = neonFilter.filter.whereClause.lhs;
-            let value = neonFilter.filter.whereClause.rhs;
-            let filter = {
-                id: neonFilter.id,
-                key: key,
-                value: value,
-                prettyKey: key
-            };
-            if (this.filterIsUnique(filter)) {
-                this.addLocalFilter(filter);
+            if (!neonFilter.filter.whereClause.whereClauses) {
+                let key = neonFilter.filter.whereClause.lhs;
+                let value = neonFilter.filter.whereClause.rhs;
+                let filter = {
+                    id: neonFilter.id,
+                    key: key,
+                    value: value,
+                    prettyKey: key
+                };
+                if (this.filterIsUnique(filter)) {
+                    this.addLocalFilter(filter);
+                }
             }
         }
     }

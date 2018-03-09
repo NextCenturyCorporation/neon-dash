@@ -323,19 +323,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     getFiltersToIgnore() {
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = this.getNeonFilterFields();
-        // get relevant neon filters and check for filters that should be ignored and add that to query
-        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        /*
-        if (neonFilters.length > 0) {
-            let ignoredFilterIds = [];
-            for (let filter of neonFilters) {
-                ignoredFilterIds.push(filter.id);
-            }
-            return ignoredFilterIds;
-        }*/
+        // TODO
         return null;
     }
 

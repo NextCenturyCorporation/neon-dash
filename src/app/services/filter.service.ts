@@ -147,8 +147,8 @@ export class FilterService {
         table: string,
         whereClause: any,
         filterName: string | {visName: string, text: string},
-        onSuccess: (resp: any) => any,
-        onError: (resp: any) => any) {
+        onSuccess?: (resp: any) => any,
+        onError?: (resp: any) => any) {
 
         let filter = this.createNeonFilter(database, table, whereClause, this.getFilterNameString(database, table, filterName));
         let id = database + '-' + table + '-' + uuid.v4();
@@ -182,8 +182,8 @@ export class FilterService {
         table: string,
         whereClause: any,
         filterName: string | {visName: string, text: string},
-        onSuccess: (resp: any) => any,
-        onError: (resp: any) => any) {
+        onSuccess?: (resp: any) => any,
+        onError?: (resp: any) => any) {
 
         let filter = this.createNeonFilter(database, table, whereClause, this.getFilterNameString(database, table, filterName));
         let originalIndex = this.filters.findIndex((f) => f.id === id);

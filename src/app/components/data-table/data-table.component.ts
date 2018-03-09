@@ -432,23 +432,18 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
         this.active.page = 1;
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = [this.active.sortField.columnName];
-        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        if (neonFilters && neonFilters.length > 0) {
-            for (let filter of neonFilters) {
-                let key = filter.filter.whereClause.lhs;
-                let value = filter.filter.whereClause.rhs;
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.active.sortField.columnName]);
+        this.filters = [];
+        for (let neonFilter of neonFilters) {
+            if (!neonFilter.filter.whereClause.whereClauses) {
                 this.addLocalFilter({
-                    id: filter.id,
-                    key: key,
-                    value: value,
-                    prettyKey: key
+                    id: neonFilter.id,
+                    key: neonFilter.filter.whereClause.lhs,
+                    value: neonFilter.filter.whereClause.rhs,
+                    prettyKey: neonFilter.filter.whereClause.lhs
                 });
             }
-        } else {
-            this.filters = [];
         }
     }
 
