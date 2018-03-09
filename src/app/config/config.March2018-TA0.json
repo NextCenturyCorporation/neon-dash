@@ -381,11 +381,9 @@
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
 						"createdAt",
-						"text",
+						"translatedText",
 						"topics",
-						"LOC",
-						"PER",
-						"translatedText"
+						"LOC"
 					]
 				},
 				"row": 0,
