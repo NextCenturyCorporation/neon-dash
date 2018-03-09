@@ -59,7 +59,7 @@
                 <p></p>
 
                 <mat-form-field *ngIf="active.sizeField.columnName != ''">
-                    <mat-select placeholder="Size Aggregation" [(ngModel)]="sizeAggregation"
+                    <mat-select placeholder="Size Aggregation" [(ngModel)]="sizeAggregation" required="true"
                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let aggregation of sizeAggregationTypes"
                                     [value]="aggregation.value">{{ aggregation.name }}</mat-option>
