@@ -175,17 +175,25 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let initialHeaderLimit = 25;
         let numHeaders = 0;
         let defaultShowValue = this.optionsFromConfig.allColumnStatus !== 'hide';
-        for (let f of this.meta.fields) {
-            let headerShowValue = numHeaders >= initialHeaderLimit ?
-                false :
-                this.headerIsInExceptions(f) ?
-                    !defaultShowValue :
-                    defaultShowValue;
-            this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: headerShowValue, style: {}, width: 150});
-            if (headerShowValue) {
+        let orderedHeaders = [];
+        let unorderedHeaders = [];
+        if (defaultShowValue) {
+            for (let f of this.meta.fields) {
+                this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: numHeaders < initialHeaderLimit,
+                     style: {}, width: 150});
                 numHeaders++;
             }
+        } else {
+            for (let f of this.meta.fields) {
+                this.headerIsInExceptions(f) ?
+                    orderedHeaders.push({ prop: f.columnName, name: f.prettyName, active: orderedHeaders.length < initialHeaderLimit,
+                         style: {}, width: 150}) :
+                    unorderedHeaders.push({ prop: f.columnName, name: f.prettyName, active: false, style: {}, width: 150});
+            }
+            orderedHeaders = this.sortOrderedHeaders(orderedHeaders);
+            this.active.headers = orderedHeaders.concat(unorderedHeaders);
         }
+
         this.recalculateActiveHeaders();
     }
 
@@ -198,6 +206,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
         }
         return false;
+    }
+
+    sortOrderedHeaders(unordered) {
+        let sorted = [];
+        for (let header of this.optionsFromConfig.exceptionsToStatus) {
+            let headerToPush = this.getHeaderByName(header, unordered);
+            if (headerToPush !== null) {
+                sorted.push(headerToPush);
+            }
+        }
+        return sorted;
     }
 
     recalculateActiveHeaders() {
@@ -245,6 +264,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             }
         }
         return active;
+    }
+
+    getHeaderByName(headerName, list) {
+        for (let header of list) {
+            if (headerName === header.prop || headerName === header.name) {
+                return header;
+            }
+        }
+        return null;
     }
 
     getExportFields() {
@@ -415,7 +443,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.refreshVisualization();
         }
     }
-
+    
     getDocCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
@@ -427,11 +455,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
         this.executeQuery(countQuery);
     }
-
+    
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        this.active.page = 1;
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let fields = [this.active.sortField.columnName];
@@ -451,8 +478,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.filters = [];
         }
     }
-
+    
     handleFiltersChangedEvent() {
+        this.active.page = 1;
         this.executeQueryChain();
     }
 
