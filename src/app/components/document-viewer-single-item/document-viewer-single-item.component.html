@@ -8,8 +8,9 @@
         </table>
 	    <p>{{ text }}</p>
 	</div>
-	<mat-toolbar>
-	    <span class="fill-remaining"></span>
-	    <button mat-raised-button color="primary" (click)="dialogRef.close('close')"> Close </button>
-	</mat-toolbar>
+
+    <div mat-fill class="flex">
+        <span class="fill-remaining"></span>
+        <button mat-raised-button color="primary" (click)="dialogRef.close('close')"> Close </button>
+    </div>
 </div>

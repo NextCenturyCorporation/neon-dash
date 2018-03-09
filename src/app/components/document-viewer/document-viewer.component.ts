@@ -185,13 +185,28 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         return !!(valid);
     }
 
+    /**
+     * Creates and returns the Neon where clause for the visualization.
+     *
+     * @return {any}
+     */
+    createClause(): any {
+        let clause = neon.query.where(this.active.dataField.columnName, '!=', null);
+
+        if (this.hasUnsharedFilter()) {
+            clause = neon.query.and(clause, neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+        }
+
+        return clause;
+    }
+
     createQuery() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
         let limit = this.active.limit;
         let offset = ((this.active.page) - 1) * limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        let whereClause = this.createClause();
         let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
             return x.field;
         }).concat(this.active.dataField.columnName);
@@ -233,7 +248,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     getDocCount() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
-        let whereClause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        let whereClause = this.createClause();
         let countQuery = new neon.query.Query()
             .selectFrom(databaseName, tableName)
             .where(whereClause)

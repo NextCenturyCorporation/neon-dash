@@ -702,7 +702,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @param shouldRequery
      * @param shouldRefresh
      */
-    removeLocalFilterFromLocalAndNeon(filter: any, shouldRequery: boolean, shouldRefresh: boolean) {
+    removeLocalFilterFromLocalAndNeon(filter: any, shouldRequery: boolean, shouldRefresh: boolean, callback?: Function) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
         this.filterService.removeFilter(
             this.messenger,
@@ -722,9 +722,15 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                     }
                 }
                 this.changeDetection.detectChanges();
+                if (callback) {
+                    callback();
+                }
             },
             () => {
                 console.error('error removing filter');
+                if (callback) {
+                    callback();
+                }
             });
         this.changeDetection.detectChanges();
     }

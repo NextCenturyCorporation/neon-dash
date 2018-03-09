@@ -219,33 +219,65 @@ describe('Component: TextCloud', () => {
         expect(component.active.sizeField).toEqual(new FieldMetaData('testDataAndSizeField'));
     });
 
-    it('properly adds a local filter in addLocalFilter', () => {
+    it('addLocalFilter does add the given filter', () => {
         component.addLocalFilter({
             id: '1234567890',
-            key: 'testDataField',
-            value: 'Test Value',
-            prettyKey: 'Test Data Field'
+            key: 'testDataField1',
+            value: 'Test Value 1',
+            prettyKey: 'Test Data Field 1'
         });
-        expect(component.getFilterData().length).toBe(1);
-        expect(component.getFilterData()[0].id).toEqual('1234567890');
+        expect(component.getFilterData()).toEqual([{
+            id: '1234567890',
+            key: 'testDataField1',
+            value: 'Test Value 1',
+            prettyKey: 'Test Data Field 1'
+        }]);
+
         component.addLocalFilter({
-            id: '6789012345',
-            key: 'testDataField',
-            value: 'Test Value the Second',
-            prettyKey: 'Test Data Field'
+            id: '9876543210',
+            key: 'testDataField2',
+            value: 'Test Value 2',
+            prettyKey: 'Test Data Field 2'
         });
-        expect(component.getFilterData().length).toBe(2);
-        expect(component.getFilterData()[0].id).toEqual('1234567890');
-        expect(component.getFilterData()[1].id).toEqual('6789012345');
+        expect(component.getFilterData()).toEqual([{
+            id: '1234567890',
+            key: 'testDataField1',
+            value: 'Test Value 1',
+            prettyKey: 'Test Data Field 1'
+        }, {
+            id: '9876543210',
+            key: 'testDataField2',
+            value: 'Test Value 2',
+            prettyKey: 'Test Data Field 2'
+        }]);
+    });
+
+    it('addLocalFilter does replace the existing filter if the given filter has the same ID', () => {
         component.addLocalFilter({
             id: '1234567890',
-            key: 'testDataField',
-            value: 'Test Value Again',
-            prettyKey: 'Test Data Field'
+            key: 'testDataField1',
+            value: 'Test Value 1',
+            prettyKey: 'Test Data Field 1'
         });
-        expect(component.getFilterData().length).toBe(2);
-        expect(component.getFilterData()[0].id).toEqual('1234567890');
-        expect(component.getFilterData()[1].id).toEqual('6789012345');
+        expect(component.getFilterData()).toEqual([{
+            id: '1234567890',
+            key: 'testDataField1',
+            value: 'Test Value 1',
+            prettyKey: 'Test Data Field 1'
+        }]);
+
+        component.addLocalFilter({
+            id: '1234567890',
+            key: 'testDataField2',
+            value: 'Test Value 2',
+            prettyKey: 'Test Data Field 2'
+        });
+        expect(component.getFilterData()).toEqual([{
+            id: '1234567890',
+            key: 'testDataField2',
+            value: 'Test Value 2',
+            prettyKey: 'Test Data Field 2'
+        }]);
     });
 
     it('creates the correct filter clause in createNeonFilterClauseEquals', () => {
@@ -790,6 +822,18 @@ describe('Component: TextCloud', () => {
         component.unsharedFilterRemoved();
         expect(executeQueryChainWasCalled).toBeTruthy();
     });
+
+    it('createClause does return expected object', () => {
+        component.active.dataField = new FieldMetaData('testDataField');
+        expect(component.createClause()).toEqual(neon.query.where('testDataField', '!=', null));
+
+        component.meta.unsharedFilterField = new FieldMetaData('testFilterField');
+        component.meta.unsharedFilterValue = 'testFilterValue';
+        expect(component.createClause()).toEqual(neon.query.and.apply(neon.query, [
+            neon.query.where('testDataField', '!=', null),
+            neon.query.where('testFilterField', '=', 'testFilterValue')
+        ]));
+    });
 });
 
 describe('Component: Textcloud with config', () => {
@@ -857,7 +901,10 @@ describe('Component: Textcloud with config', () => {
         component.meta.unsharedFilterField.columnName = 'testUnsharedFilterField';
         component.meta.unsharedFilterValue = 'testUnsharedFilterValue';
 
-        let whereClause = neon.query.where('testUnsharedFilterField', '=', 'testUnsharedFilterValue');
+        let whereClause = neon.query.and.apply(neon.query, [
+            neon.query.where('testDataField', '!=', null),
+            neon.query.where('testUnsharedFilterField', '=', 'testUnsharedFilterValue')
+        ]);
         let query = new neon.query.Query().selectFrom('testDatabase', 'testTable')
             .where(whereClause)
             .groupBy('testDataField')
@@ -925,7 +972,10 @@ describe('Component: Textcloud with config including configFilter', () => {
         component.meta.table = new TableMetaData('testTable');
         component.active.dataField.columnName = 'testDataField';
 
-        let whereClause = neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue');
+        let whereClause = neon.query.and.apply(neon.query, [
+            neon.query.where('testDataField', '!=', null),
+            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue')
+        ]);
         let query = new neon.query.Query().selectFrom('testDatabase', 'testTable')
             .where(whereClause)
             .groupBy('testDataField')
@@ -934,5 +984,21 @@ describe('Component: Textcloud with config including configFilter', () => {
             .limit(25);
 
         expect(component.createQuery()).toEqual(query);
+    });
+
+    it('createClause does return expected object', () => {
+        component.active.dataField = new FieldMetaData('testDataField');
+        expect(component.createClause()).toEqual(neon.query.and.apply(neon.query, [
+            neon.query.where('testDataField', '!=', null),
+            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue')
+        ]));
+
+        component.meta.unsharedFilterField = new FieldMetaData('testFilterField');
+        component.meta.unsharedFilterValue = 'testFilterValue';
+        expect(component.createClause()).toEqual(neon.query.and.apply(neon.query, [
+            neon.query.where('testDataField', '!=', null),
+            neon.query.where('testConfigFilterField', '=', 'testConfigFilterValue'),
+            neon.query.where('testFilterField', '=', 'testFilterValue')
+        ]));
     });
 });
