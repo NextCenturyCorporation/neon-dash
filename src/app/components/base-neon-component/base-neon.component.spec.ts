@@ -234,8 +234,7 @@ describe('Component: base-neon', () => {
             database: component.meta.database.name,
             table: component.meta.table.name,
             unsharedFilterField: component.meta.unsharedFilterField.columnName,
-            unsharedFilterValue: component.meta.unsharedFilterValue,
-            colorField: component.meta.colorField.columnName
+            unsharedFilterValue: component.meta.unsharedFilterValue
         });
     }));
 
@@ -248,7 +247,6 @@ describe('Component: base-neon', () => {
             table: DatasetMock.TABLES[0],
             unsharedFilterField: new FieldMetaData(),
             unsharedFilterValue: '',
-            colorField: new FieldMetaData(),
             fields: DatasetMock.FIELDS
         });
     });

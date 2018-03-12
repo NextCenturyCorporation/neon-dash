@@ -156,7 +156,7 @@
     </div>
 
     <div class="filter-container">
-        <app-legend *ngIf="hasColorField()" [activeList]="selectedLabels" [fieldNames]="colorFieldNames"></app-legend>
+        <app-legend *ngIf="!!this.active.colorField.columnName" [activeList]="selectedLabels" [fieldNames]="colorFieldNames"></app-legend>
 
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" [title]="getFilterTitle(filter.value)">{{ getFilterCloseText(filter.value) }}</span>
@@ -167,7 +167,7 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="hasColorField() || getCloseableFilters().length" [class.with-footer]="active.bars.length > active.limit">
+    <div class="body-container" [class.with-filter]="!!this.active.colorField.columnName || getCloseableFilters().length" [class.with-footer]="active.bars.length > active.limit">
         <div #chartContainer class="chart-container">
             <app-chart class="chart" #myChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></app-chart>
         </div>

@@ -127,10 +127,12 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         displayGridLines: boolean,
         displayTicks: boolean
     };
+
     public active: {
         xField: FieldMetaData,
         yField: FieldMetaData,
         labelField: FieldMetaData,
+        colorField: FieldMetaData,
         andFilters: boolean,
         limit: number,
         newLimit: number,
@@ -200,6 +202,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             xField: new FieldMetaData(),
             yField: new FieldMetaData(),
             labelField: new FieldMetaData(),
+            colorField: new FieldMetaData(),
             andFilters: true,
             limit: this.optionsFromConfig.limit,
             newLimit: this.optionsFromConfig.limit,
@@ -337,6 +340,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         bindings.xField = this.active.xField.columnName;
         bindings.yField = this.active.yField.columnName;
         bindings.labelField = this.active.labelField.columnName;
+        bindings.colorField = this.active.colorField.columnName;
         bindings.limit = this.active.limit;
     }
 
@@ -344,7 +348,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         this.active.xField = this.findFieldObject('xField');
         this.active.yField = this.findFieldObject('yField');
         this.active.labelField = this.findFieldObject('labelField');
-        this.meta.colorField = this.findFieldObject('colorField');
+        this.active.colorField = this.findFieldObject('colorField');
     }
 
     createFilter(key, startDate, endDate) {
@@ -585,9 +589,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             whereClauses.push(neon.query.where(this.meta.unsharedFilterField.columnName, '=',
                 this.meta.unsharedFilterValue));
         }
-        if (this.hasColorField()) {
-            whereClauses.push(neon.query.where(this.meta.colorField.columnName, '!=', null));
-            groupBys.push(this.meta.colorField.columnName);
+        if (!!this.active.colorField.columnName) {
+            whereClauses.push(neon.query.where(this.active.colorField.columnName, '!=', null));
+            groupBys.push(this.active.colorField.columnName);
         }
 
         query = query.groupBy(groupBys);
@@ -608,8 +612,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         // TODO much of this method could be optimized, but we'll worry about that later
         let xField = this.active.xField.columnName;
         let yField = this.active.yField.columnName;
-        let colorField = this.meta.colorField.columnName;
-        let hasColor = this.hasColorField();
+        let colorField = this.active.colorField.columnName;
 
         let data = response.data;
         let xAxisIsNumeric = true;
@@ -631,15 +634,15 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
 
             // The key of the dataset is the value of the color field, or ''
             let dataSetKey = '';
-            if (hasColor) {
+            if (!!this.active.colorField.columnName) {
                 dataSetKey = point[colorField];
             }
 
             let dataSet = dataSetMap.get(dataSetKey);
             if (!dataSet) {
                 let color = this.defaultActiveColor;
-                if (hasColor) {
-                    color = this.colorSchemeService.getColorFor(this.meta.colorField.columnName, dataSetKey);
+                if (!!this.active.colorField.columnName) {
+                    color = this.colorSchemeService.getColorFor(this.active.colorField.columnName, dataSetKey);
                 }
                 dataSet = new ScatterDataSet(color);
                 dataSet.label = dataSetKey;
@@ -712,7 +715,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
 
         this.refreshVisualization();
         // Force the legend to update
-        this.colorByFields = [this.meta.colorField.columnName];
+        this.colorByFields = [this.active.colorField.columnName];
     }
 
     xAxisTickCallback(value): string {

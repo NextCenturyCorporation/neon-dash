@@ -1189,8 +1189,4 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             infoText: this.infoText
         };
     }
-
-    hasColorField() {
-        return !!this.active.colorField.columnName;
-    }
 }
