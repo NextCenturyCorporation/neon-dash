@@ -360,12 +360,15 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                     mode: 'index',
                     intersect: false,
                     callbacks: {},
-                    position: 'neonCenter'
+                    position: 'neonBarMousePosition'
                 }
             }
         };
 
         let createTooltipTitle = (tooltipList, data) => {
+            // Hack to reposition the tooltip to the mouse cursor position.
+            this.chartModule.chart.tooltip._lastActive = [];
+
             let count = tooltipList.reduce(function(sum, tooltipItem) {
                 let dataset = data.datasets[tooltipItem.datasetIndex];
                 return sum + dataset.data[tooltipItem.index];
