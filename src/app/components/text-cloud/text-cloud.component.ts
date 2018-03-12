@@ -86,7 +86,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         allowsTranslations: boolean,
         filterable: boolean,
         data: any[],
-        count: number
+        docCount: number
     };
     public sizeAggregationTypes = [
         {name: 'Average', value: 'AVG'},
@@ -126,7 +126,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             allowsTranslations: true,
             filterable: true,
             data: [],
-            count: 0
+            docCount: 0
         };
     }
 
@@ -294,7 +294,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     onQuerySuccess(response): void {
         try {
             if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
-                this.active.count = response.data.length;
+                this.active.docCount = response.data.length;
             } else {
                 let cloudData = response.data || [];
                 let useSizeField: boolean = this.active.sizeField.columnName !== '';
@@ -311,7 +311,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 this.active = this.updateObject(this.active, 'data', activeData);
                 this.refreshVisualization();
                 if (cloudData.length === 0) {
-                    this.active.count = 0;
+                    this.active.docCount = 0;
                 } else {
                     this.getDocCount();
                 }
@@ -408,10 +408,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (!this.isFilterSet() && !this.active.data.length) {
             return 'No Data';
         }
-        if (this.active.count <= this.active.data.length) {
-            return 'Total ' + super.prettifyInteger(this.active.count);
+        if (this.active.docCount <= this.active.data.length) {
+            return 'Total ' + super.prettifyInteger(this.active.docCount);
         }
-        return super.prettifyInteger(this.active.data.length) + ' of ' + super.prettifyInteger(this.active.count);
+        return super.prettifyInteger(this.active.data.length) + ' of ' + super.prettifyInteger(this.active.docCount);
     }
 
     getFilterData() {

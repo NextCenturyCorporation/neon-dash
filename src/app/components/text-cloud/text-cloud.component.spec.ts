@@ -110,7 +110,7 @@ describe('Component: TextCloud', () => {
             allowsTranslations: true,
             filterable: true,
             data: [],
-            count: 0
+            docCount: 0
         });
     });
 
@@ -360,7 +360,7 @@ describe('Component: TextCloud', () => {
     });
 
     it('sets the expected values when getDocCount is called', () => {
-        component.active.count = 40;
+        component.active.docCount = 40;
         let docCountResponse = {
             data: [{
                 _docCount: 8,
@@ -384,7 +384,7 @@ describe('Component: TextCloud', () => {
         component.getDocCount();
 
         expect(calledExecuteQuery).toBeTruthy();
-        expect(component.active.count).toBe(3);
+        expect(component.active.docCount).toBe(3);
     });
 
     it('sets expected values and calls getDocCount if onQuerySuccess returns no data', () => {
@@ -405,7 +405,7 @@ describe('Component: TextCloud', () => {
         component.onQuerySuccess(response);
 
         expect(component.active.data).toEqual([]);
-        expect(component.active.count).toBe(0);
+        expect(component.active.docCount).toBe(0);
         expect(calledExecuteQuery).toBeFalsy(); // Don't query for doc count if we got no data.
 
         component.active.sizeField.columnName = 'testSizeField';
@@ -414,7 +414,7 @@ describe('Component: TextCloud', () => {
         component.onQuerySuccess(response);
 
         expect(component.active.data).toEqual([]);
-        expect(component.active.count).toBe(0);
+        expect(component.active.docCount).toBe(0);
         expect(calledExecuteQuery).toBeFalsy();
     });
 
@@ -489,7 +489,7 @@ describe('Component: TextCloud', () => {
             key: 'Third',
             keyTranslated: 'Third'
         }]);
-        expect(component.active.count).toBe(3);
+        expect(component.active.docCount).toBe(3);
         expect(calledCreateTextCloud).toBeTruthy();
         expect(calledExecuteQuery).toBeTruthy();
 
@@ -521,7 +521,7 @@ describe('Component: TextCloud', () => {
             key: 'Third',
             keyTranslated: 'Third'
         }]);
-        expect(component.active.count).toBe(3);
+        expect(component.active.docCount).toBe(3);
         expect(calledCreateTextCloud).toBeTruthy();
         expect(calledExecuteQuery).toBeTruthy();
     });
@@ -681,9 +681,9 @@ describe('Component: TextCloud', () => {
             testDataField: 'Value',
             value: 10
         }];
-        component.active.count = 1;
+        component.active.docCount = 1;
         expect(component.getButtonText()).toEqual('Total 1');
-        component.active.count = 5;
+        component.active.docCount = 5;
         expect(component.getButtonText()).toEqual('1 of 5');
     });
 
