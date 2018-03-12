@@ -38,7 +38,7 @@ export namespace neonUtilities {
      * @return {array}
      */
     export function flatten(input) {
-        return (input || []).reduce(function(array, element) {
+        return (input || []).reduce((array, element) => {
             return array.concat(Array.isArray(element) ? flatten(element) : element);
         }, []);
     }

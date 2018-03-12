@@ -694,7 +694,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         if (this.chart.data.labels.length > this.active.limit) {
             let pointCount = 0;
             let pointLimit = this.active.limit;
-            this.chart.data.datasets = this.chart.data.datasets.map(function(dataset) {
+            this.chart.data.datasets = this.chart.data.datasets.map((dataset) => {
                 if (pointCount >= pointLimit) {
                     dataset.data = [];
                 } else {
@@ -738,7 +738,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
     }
 
     removeDuplicatesAndSort(inputArray) {
-        return inputArray.sort().filter(function(element, index, array) {
+        return inputArray.sort().filter((element, index, array) => {
             return !index || element !== array[index - 1];
         });
     }

@@ -313,7 +313,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
-        let filterClauses = this.filters.map(function(filter) {
+        let filterClauses = this.filters.map((filter) => {
             return neon.query.where(fieldName, '=', filter.value);
         });
         if (filterClauses.length === 1) {
@@ -394,10 +394,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     arrayToString(arr) {
         let modArr = arr
-            .filter(function(el) {
+            .filter((el) => {
                 return el;
             })
-            .map(function(base) {
+            .map((base) => {
                 if ((typeof base === 'object')) {
                     return this.objectToString(base);
                 } else if (Array.isArray(base)) {
@@ -429,7 +429,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.active.docCount = response.data[0]._docCount;
         } else {
-            let data = response.data.map(function(d) {
+            let data = response.data.map((d) => {
                 let row = {};
                 for (let field of this.meta.fields) {
                     if (field.type) {
@@ -437,7 +437,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     }
                 }
                 return row;
-            }.bind(this));
+            });
             this.active.data = data;
             this.getDocCount();
             this.refreshVisualization();

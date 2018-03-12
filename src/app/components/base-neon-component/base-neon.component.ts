@@ -543,7 +543,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @param query The query to execute
      */
     executeQuery(query: neon.query.Query) {
-        let me = this;
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let connection = this.connectionService.getActiveConnection();
@@ -567,13 +566,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             console.error('execute query did not return an object');
         }
 
-        this.outstandingDataQuery[database][table].always(function() {
-            me.outstandingDataQuery[database][table] = undefined;
+        this.outstandingDataQuery[database][table].always(() => {
+            this.outstandingDataQuery[database][table] = undefined;
         });
 
         this.outstandingDataQuery[database][table].done(this.baseOnQuerySuccess.bind(this));
 
-        this.outstandingDataQuery[database][table].fail(function(response) {
+        this.outstandingDataQuery[database][table].fail((response) => {
             if (response.statusText === 'abort') {
                 // query was aborted so we don't care.  We assume we aborted it on purpose.
             } else {
@@ -592,9 +591,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Get field object from the key into the config options
      */
     findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
-        let me = this;
-        let find = function(name) {
-            return _.find(me.meta.fields, function(field) {
+        let find = (name) => {
+            return _.find(this.meta.fields, (field) => {
                 return field.columnName === name;
             });
         };

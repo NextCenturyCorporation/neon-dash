@@ -433,7 +433,7 @@ export class ParameterService {
         let minimumLongitude: number = Number(boundsList[ParameterService.BOUNDS_MIN_LON]);
         let maximumLongitude: number = Number(boundsList[ParameterService.BOUNDS_MAX_LON]);
 
-        return function(fieldNames: string[]): neon.query.BooleanClause {
+        return (fieldNames: string[]): neon.query.BooleanClause => {
             // Copied from map.js
             let latitudeFieldName: string = fieldNames[0];
             let longitudeFieldName: string = fieldNames[1];

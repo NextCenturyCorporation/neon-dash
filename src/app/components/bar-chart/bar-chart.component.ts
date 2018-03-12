@@ -369,7 +369,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             // Hack to reposition the tooltip to the mouse cursor position.
             this.chartModule.chart.tooltip._lastActive = [];
 
-            let count = tooltipList.reduce(function(sum, tooltipItem) {
+            let count = tooltipList.reduce((sum, tooltipItem) => {
                 let dataset = data.datasets[tooltipItem.datasetIndex];
                 return sum + dataset.data[tooltipItem.index];
             }, 0);
@@ -572,7 +572,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string): object {
-        let filterClauses = this.filters.map(function(filter) {
+        let filterClauses = this.filters.map((filter) => {
             return neon.query.where(fieldName, '=', filter.value);
         });
         if (filterClauses.length === 1) {
@@ -622,9 +622,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let selectedLabels: string[] = [];
         if (this.filters.length >= 1) {
             let activeFilterValues = this.filters.map((el) => el.value);
-            let activeLabelIndexes = this.chartInfo.data.labels.map(function(label, index) {
+            let activeLabelIndexes = this.chartInfo.data.labels.map((label, index) => {
                 return (activeFilterValues.indexOf(label) >= 0 ? index : -1);
-            }).filter(function(index) {
+            }).filter((index) => {
                 return index >= 0;
             });
 
@@ -813,7 +813,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 barDataset.label = barSegment;
                 barDataset.color = colorFieldExists ? this.colorSchemeService.getColorFor(this.active.colorField.columnName, barSegment) :
                     this.defaultActiveColor;
-                barDataset.backgroundColor = this.active.bars.map(function(bar) {
+                barDataset.backgroundColor = this.active.bars.map((bar) => {
                     return barDataset.color.toRgb();
                 });
                 groupsToDatasets.set(barSegment, barDataset);
@@ -867,7 +867,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     updateBarChart(barIndex: number, barLimit: number) {
         let barChartData = new BarData();
         barChartData.labels = this.active.bars.slice(barIndex, barIndex + barLimit);
-        barChartData.datasets = this.active.data.map(function(wholeDataset) {
+        barChartData.datasets = this.active.data.map((wholeDataset) => {
             let limitedDataset = new BarDataSet(barChartData.labels.length);
             limitedDataset.label = wholeDataset.label;
             limitedDataset.color = wholeDataset.color;

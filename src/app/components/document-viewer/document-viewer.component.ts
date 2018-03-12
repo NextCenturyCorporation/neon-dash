@@ -207,7 +207,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let offset = ((this.active.page) - 1) * limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = this.createClause();
-        let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
+        let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map((x) => {
             return x.field;
         }).concat(this.active.dataField.columnName);
         if (this.active.dateField.columnName) {
@@ -224,7 +224,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.active.docCount = response.data[0]._docCount;
         } else {
-            let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
+            let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map((x) => {
                 return x.field;
             }).concat(this.active.dataField.columnName);
             if (this.active.dateField.columnName) {
@@ -233,13 +233,13 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             if (this.active.idField.columnName) {
                 fields = fields.concat(this.active.idField.columnName);
             }
-            let data = response.data.map(function(element) {
+            let data = response.data.map((element) => {
                 let elem = {};
                 for (let field of fields) {
                     elem[field] = neonUtilities.deepFind(element, field);
                 }
                 return elem;
-            }.bind(this));
+            });
             this.active.data = data;
             this.getDocCount();
         }

@@ -700,7 +700,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      */
     findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
         let find = (name: string) => {
-            return _.find(this.meta.layers[layerIndex].fields, function(field) {
+            return _.find(this.meta.layers[layerIndex].fields, (field) => {
                 return field.columnName === name;
             });
         };

@@ -41,7 +41,7 @@ export class ThemesService {
     }
 
     setCurrentTheme(theme: string) {
-        let index: number = _.findIndex(ThemesService.THEMES, function(item) {
+        let index: number = _.findIndex(ThemesService.THEMES, (item) => {
             return item.id === theme;
         });
 
