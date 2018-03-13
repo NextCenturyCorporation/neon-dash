@@ -281,10 +281,19 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Resizes visualization-specific sub-components as needed.  Override as needed.
+     */
+    subOnResizeStop() {
+        // Do nothing.
+    }
+
+    /**
      * Resizes sub-components as needed.
      */
     onResizeStop() {
         this.updateHeaderTextStyling();
+
+        this.subOnResizeStop();
 
         if (this.redrawAfterResize) {
             // This event fires as soon as the user releases the mouse, but NgGrid animates the resize,

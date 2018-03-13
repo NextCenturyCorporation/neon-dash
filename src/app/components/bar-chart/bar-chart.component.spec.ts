@@ -110,6 +110,14 @@ describe('Component: BarChart', () => {
         expect(component.active.filterable).toBe(true);
         expect(component.active.aggregation).toBe('count');
         expect(component.active.chartType).toBe('bar');
+        expect(component.active.labelCount).toBe(0);
+        expect(component.active.maxCount).toBe(0);
+        expect(component.active.minScale).toBeUndefined();
+        expect(component.active.maxScale).toBeUndefined();
+        expect(component.active.minSize).toEqual({
+            height: 0,
+            width: 0
+        });
         expect(component.active.bars).toEqual([]);
         expect(component.active.seenBars).toEqual([]);
 
@@ -1072,5 +1080,91 @@ describe('Component: BarChart', () => {
             value: 'value2',
             prettyKey: 'prettyKey2'
         }]);
+    });
+
+    it('subOnResizeStop with active.chartType=horizontalBar does update active.minSize', () => {
+        component.active.chartType = 'horizontalBar';
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 20,
+            width: 40
+        });
+
+        component.active.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
+        component.active.labelCount = 8;
+        component.active.limit = 12;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 200,
+            width: 240
+        });
+
+        component.active.limit = 6;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 110,
+            width: 240
+        });
+
+        component.active.labelCount = 4;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 110,
+            width: 140
+        });
+
+        component.active.bars = ['a', 'b'];
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 50,
+            width: 140
+        });
+    });
+
+    it('subOnResizeStop with active.chartType=bar does update active.minSize', () => {
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 20,
+            width: 40
+        });
+
+        component.active.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
+        component.active.labelCount = 8;
+        component.active.limit = 12;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 140,
+            width: 340
+        });
+
+        component.active.limit = 6;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 140,
+            width: 190
+        });
+
+        component.active.labelCount = 4;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 80,
+            width: 190
+        });
+
+        component.active.bars = ['a', 'b'];
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 80,
+            width: 90
+        });
     });
 });

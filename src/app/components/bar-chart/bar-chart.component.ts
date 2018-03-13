@@ -118,7 +118,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
-    @ViewChild('myChart') chartModule: ChartComponent;
+    @ViewChild('chartContainer') chartContainer: ElementRef;
+    @ViewChild('barChart') chartModule: ChartComponent;
     @ViewChild('hiddenCanvas') hiddenCanvas: ElementRef;
 
     private filters: {
@@ -157,9 +158,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         data: any[],
         aggregation: string,
         chartType: string,
+        labelCount: number,
         maxCount: number,
         minScale: string,
         maxScale: string,
+        minSize: {
+            height: number,
+            width: number
+        },
         scaleManually: boolean,
         bars: string[],
         seenBars: string[]
@@ -223,9 +229,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             data: [],
             aggregation: 'count',
             chartType: this.optionsFromConfig.chartType || 'horizontalBar',
+            labelCount: 0,
             maxCount: 0,
             minScale: undefined,
             maxScale: undefined,
+            minSize: {
+                height: 0,
+                width: 0
+            },
             scaleManually: false,
             bars: [],
             seenBars: []
@@ -648,7 +659,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         }
 
         this.selectedLabels = selectedLabels;
-        this.chartModule.chart.update();
+        this.subOnResizeStop();
     }
 
     /**
@@ -843,6 +854,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             if (nextStepSize / 2.0 > this.active.maxCount) {
                 stepSize /= 2.0;
             }
+            this.active.labelCount = Math.ceil(this.active.maxCount / stepSize) + 1;
             if (this.active.chartType === 'horizontalBar') {
                 this.chartModule.chart.config.options.scales.xAxes[0].ticks.min = 0;
                 this.chartModule.chart.config.options.scales.xAxes[0].ticks.max = Math.ceil(this.active.maxCount / stepSize) * stepSize;
@@ -1188,5 +1200,24 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             headerText: this.headerText,
             infoText: this.infoText
         };
+    }
+
+    /**
+     * Resizes the bar chart.
+     *
+     * @override
+     */
+    subOnResizeStop() {
+        let xLabelCount = (this.active.chartType === 'bar' ? Math.min(this.active.bars.length, this.active.limit) : this.active.labelCount);
+        let yLabelCount = (this.active.chartType === 'bar' ? this.active.labelCount : Math.min(this.active.bars.length, this.active.limit));
+
+        this.active.minSize = {
+            // The height of the y-axis labels is approx. 15 px each and the height of the x-axis labels is approx. 20 px (arbitrary).
+            height: yLabelCount * 15 + 20,
+            // The width of the x-axis labels is minimum 25 px each and the width of the y-axis labels is 40 px (arbitrary).
+            width: xLabelCount * 25 + 40
+        };
+
+        this.chartModule.chart.update();
     }
 }
