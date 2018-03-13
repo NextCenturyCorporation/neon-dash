@@ -101,7 +101,7 @@
                     <tr>
                         <td>
                             <mat-form-field>
-                                <input matInput placeholder="Group Limit" [(ngModel)]="active.newLimit" required="true">
+                                <input matInput placeholder="Group Limit" [(ngModel)]="active.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                             </mat-form-field>
                         </td>
                         <td>

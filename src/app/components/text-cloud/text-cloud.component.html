@@ -82,7 +82,7 @@
                     <tr>
                         <td>
                             <mat-form-field>
-                                <input matInput placeholder="Term Limit" [(ngModel)]="active.newLimit" required="true">
+                                <input matInput placeholder="Term Limit" [(ngModel)]="active.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                             </mat-form-field>
                         </td>
                         <td>

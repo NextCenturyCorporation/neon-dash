@@ -16,7 +16,7 @@
         <td>
             <mat-form-field>
                 <input matInput [placeholder]="'Filter for ' + meta.unsharedFilterField.prettyName + '...'" [(ngModel)]="meta.unsharedFilterValue"
-                       [disabled]="!(meta.unsharedFilterField.columnName)">
+                       [disabled]="!(meta.unsharedFilterField.columnName)" (keyup.enter)="handleChangeUnsharedFilterValue()">
             </mat-form-field>
         </td>
         <td>

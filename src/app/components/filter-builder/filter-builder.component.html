@@ -61,7 +61,7 @@
                     </mat-form-field>
 
                     <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
-                        <input matInput placeholder="Value" [(ngModel)]="clause.value" (input)="handleChangeDataOfClause(clause)">
+                        <input matInput placeholder="Value" [(ngModel)]="clause.value" (input)="handleChangeDataOfClause(clause)" (keyup.enter)="activateClause(clause)">
                     </mat-form-field>
                 </div>
 
