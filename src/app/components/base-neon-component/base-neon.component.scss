@@ -143,6 +143,7 @@ $footer-height: 40px;
         background-color: mat-color($accent);
 
         .filter-label {
+            float: left;
             max-width: 100px;
             overflow: hidden;
             position: relative;
