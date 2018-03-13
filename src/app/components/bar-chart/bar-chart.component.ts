@@ -374,7 +374,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         let createTooltipTitle = (tooltipList, data) => {
             // Hack to reposition the tooltip to the mouse cursor position.
-            this.chartModule.chart.tooltip._lastActive = [];
+            this.chartModule.chart.tooltip._lastActive = [{}];
 
             let count = tooltipList.reduce((sum, tooltipItem) => {
                 let dataset = data.datasets[tooltipItem.datasetIndex];
