@@ -325,8 +325,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             let layer = this.active.layers[metaObject.index];
             layer.latitudeField = this.findFieldObject(metaObject.index, 'latitudeField', neonMappings.LATITUDE);
             layer.longitudeField = this.findFieldObject(metaObject.index, 'longitudeField', neonMappings.LONGITUDE);
-            layer.sizeField = this.findFieldObject(metaObject.index, 'sizeField', neonMappings.SIZE);
-            layer.colorField = this.findFieldObject(metaObject.index, 'colorField', neonMappings.COLOR);
+            layer.sizeField = this.findFieldObject(metaObject.index, 'sizeField');
+            layer.colorField = this.findFieldObject(metaObject.index, 'colorField');
             layer.dateField = this.findFieldObject(metaObject.index, 'dateField', neonMappings.DATE);
 
             // Get the title from the options, if it exists
@@ -356,9 +356,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 return super.findFieldObject(layerIndex, bindingKey, mappingKey);
             }
 
-            let me = this;
-            let find = function(name) {
-                return _.find(me.meta.layers[layerIndex].fields, function(field) {
+            let find = (name) => {
+                return _.find(this.meta.layers[layerIndex].fields, (field) => {
                     return field.columnName === name;
                 });
             };
@@ -986,7 +985,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          */
         getButtonText(): string {
             let prettifyInteger = super.prettifyInteger;
-            let createButtonText = function(count, limit) {
+            let createButtonText = (count, limit) => {
                 if (!count) {
                     return 'No Data';
                 }
@@ -997,13 +996,12 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 if (this.meta.layers.length === 1) {
                     return createButtonText(this.meta.layers[0].docCount, this.active.limit);
                 }
-                let self = this;
-                return this.meta.layers.map(function(layer, index) {
-                    if (self.active.layers.length >= index) {
-                        return self.active.layers[index].title + ' (' + createButtonText(layer.docCount, self.active.limit) + ')';
+                return this.meta.layers.map((layer, index) => {
+                    if (this.active.layers.length >= index) {
+                        return this.active.layers[index].title + ' (' + createButtonText(layer.docCount, this.active.limit) + ')';
                     }
                     return '';
-                }).filter(function(text) {
+                }).filter((text) => {
                     return !!text;
                 }).join(', ');
             }

@@ -61,7 +61,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         table: TableMetaData,
         unsharedFilterField: any,
         unsharedFilterValue: string,
-        colorField: FieldMetaData,
         fields: FieldMetaData[]
     };
 
@@ -106,7 +105,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             table: new TableMetaData(),
             unsharedFilterField: {},
             unsharedFilterValue: '',
-            colorField: new FieldMetaData(),
             fields: []
         };
 
@@ -199,8 +197,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             database: this.meta.database.name,
             table: this.meta.table.name,
             unsharedFilterField: this.meta.unsharedFilterField.columnName,
-            unsharedFilterValue: this.meta.unsharedFilterValue,
-            colorField: this.meta.colorField.columnName
+            unsharedFilterValue: this.meta.unsharedFilterValue
         };
 
         // Get the bindings from the subclass
@@ -543,7 +540,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @param query The query to execute
      */
     executeQuery(query: neon.query.Query) {
-        let me = this;
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let connection = this.connectionService.getActiveConnection();
@@ -567,13 +563,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             console.error('execute query did not return an object');
         }
 
-        this.outstandingDataQuery[database][table].always(function() {
-            me.outstandingDataQuery[database][table] = undefined;
+        this.outstandingDataQuery[database][table].always(() => {
+            this.outstandingDataQuery[database][table] = undefined;
         });
 
         this.outstandingDataQuery[database][table].done(this.baseOnQuerySuccess.bind(this));
 
-        this.outstandingDataQuery[database][table].fail(function(response) {
+        this.outstandingDataQuery[database][table].fail((response) => {
             if (response.statusText === 'abort') {
                 // query was aborted so we don't care.  We assume we aborted it on purpose.
             } else {
@@ -592,9 +588,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Get field object from the key into the config options
      */
     findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
-        let me = this;
-        let find = function(name) {
-            return _.find(me.meta.fields, function(field) {
+        let find = (name) => {
+            return _.find(this.meta.fields, (field) => {
                 return field.columnName === name;
             });
         };
@@ -686,14 +681,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             this.meta.unsharedFilterField.columnName !== '' &&
             this.meta.unsharedFilterValue &&
             this.meta.unsharedFilterValue.trim() !== '';
-    }
-
-    /**
-     * Returns true of there is a valid color field set fot he visualization
-     * @return {boolean}
-     */
-    hasColorField(): boolean {
-        return this.meta.colorField && this.meta.colorField.columnName !== '';
     }
 
     /**

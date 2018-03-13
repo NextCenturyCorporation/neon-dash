@@ -33,8 +33,7 @@ describe('NeonMappings', () => {
         expect(neonMappings.ID).toBe('id');
         expect(neonMappings.LATITUDE).toBe('latitude');
         expect(neonMappings.LONGITUDE).toBe('longitude');
-        expect(neonMappings.TAGS).toBe('tags');
-        expect(neonMappings.URLS).toBe('url');
+        expect(neonMappings.URL).toBe('url');
     });
 });
 

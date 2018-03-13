@@ -38,7 +38,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { neonMappings } from '../../neon-namespaces';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
@@ -235,8 +234,7 @@ describe('Component: base-neon', () => {
             database: component.meta.database.name,
             table: component.meta.table.name,
             unsharedFilterField: component.meta.unsharedFilterField.columnName,
-            unsharedFilterValue: component.meta.unsharedFilterValue,
-            colorField: component.meta.colorField.columnName
+            unsharedFilterValue: component.meta.unsharedFilterValue
         });
     }));
 
@@ -249,7 +247,6 @@ describe('Component: base-neon', () => {
             table: DatasetMock.TABLES[0],
             unsharedFilterField: new FieldMetaData(),
             unsharedFilterValue: '',
-            colorField: new FieldMetaData(),
             fields: DatasetMock.FIELDS
         });
     });

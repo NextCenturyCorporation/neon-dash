@@ -85,8 +85,7 @@
 
                         <mat-form-field>
                             <mat-select placeholder="Color Field" [(ngModel)]="active.layers[i].colorField"
-                                        required="true" (ngModelChange)="handleChangeDataAtLayerIndex(i)"
-                                        [disabled]="meta.layers[i].fields.length == 0">
+                                        (ngModelChange)="handleChangeDataAtLayerIndex(i)" [disabled]="meta.layers[i].fields.length == 0">
                                 <mat-option [value]="emptyField">(None)</mat-option>
                                 <mat-option *ngFor="let field of meta.layers[i].fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>

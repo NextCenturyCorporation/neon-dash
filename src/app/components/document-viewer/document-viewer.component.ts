@@ -31,7 +31,7 @@ import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 // import * as moment from 'moment';
@@ -150,8 +150,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     onUpdateFields() {
-        this.active.dataField = this.findFieldObject('dataField', neonMappings.NEWSFEED_TEXT);
-        this.active.dateField = this.findFieldObject('dateField'); // If not set in the config, ignore it altogether.
+        this.active.dataField = this.findFieldObject('dataField');
+        this.active.dateField = this.findFieldObject('dateField');
         this.active.idField = this.findFieldObject('idField');
         this.active.metadataFields = neonUtilities.flatten(this.optionsFromConfig.metadataFields);
     }
@@ -207,7 +207,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let offset = ((this.active.page) - 1) * limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = this.createClause();
-        let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
+        let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map((x) => {
             return x.field;
         }).concat(this.active.dataField.columnName);
         if (this.active.dateField.columnName) {
@@ -224,7 +224,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.active.docCount = response.data[0]._docCount;
         } else {
-            let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map(function(x) {
+            let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map((x) => {
                 return x.field;
             }).concat(this.active.dataField.columnName);
             if (this.active.dateField.columnName) {
@@ -233,13 +233,13 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             if (this.active.idField.columnName) {
                 fields = fields.concat(this.active.idField.columnName);
             }
-            let data = response.data.map(function(element) {
+            let data = response.data.map((element) => {
                 let elem = {};
                 for (let field of fields) {
                     elem[field] = neonUtilities.deepFind(element, field);
                 }
                 return elem;
-            }.bind(this));
+            });
             this.active.data = data;
             this.getDocCount();
         }

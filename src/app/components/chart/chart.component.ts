@@ -41,8 +41,29 @@ export class ChartComponent implements OnInit, OnChanges  {
         Chart.defaults.global.defaultFontFamily = 'Roboto, sans-serif';
         Chart.defaults.global.defaultFontSize = 10;
 
-        Chart.Tooltip.positioners.neonCenter = (elements, eventPosition) => {
-            return elements[0].getCenterPoint();
+        Chart.Tooltip.positioners.neonBarMousePosition = (elements, eventPosition) => {
+            // If the mouse is inside the bar, return the mouse position itself.
+            if (elements.some((element) => {
+                return element.inRange(eventPosition.x, eventPosition.y);
+            })) {
+                return eventPosition;
+            }
+
+            let barPosition = elements[elements.length - 1].tooltipPosition();
+
+            // If the bar is horizontal, return the position based on the extent of the bar.
+            if (elements[0]._view.height !== undefined) {
+                return {
+                    x: Math.max(Math.min(eventPosition.x, barPosition.x), elements[0]._view.base),
+                    y: Math.max(Math.min(eventPosition.y, barPosition.y * 2), 0)
+                };
+            }
+
+            // If the bar is vertical, return the position based on the extent of the bar.
+            return {
+                x: Math.max(Math.min(eventPosition.x, barPosition.x * 2), 0),
+                y: Math.min(Math.max(eventPosition.y, barPosition.y), elements[0]._view.base)
+            };
         };
 
         this.create();

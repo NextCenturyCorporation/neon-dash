@@ -34,7 +34,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { VisualizationService } from '../../services/visualization.service';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonVariables } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
 import { ChartComponent } from '../chart/chart.component';
@@ -50,9 +50,6 @@ class TestDatasetService extends DatasetService {
                 new FieldMetaData('testSizeField', 'Test Size Field')
             ])
         ];
-        testDatabase.tables[0].mappings = {
-            tags: 'testDataAndSizeField'
-        };
         this.setActiveDataset({
             databases: [testDatabase]
         });
@@ -113,7 +110,7 @@ describe('Component: TextCloud', () => {
             allowsTranslations: true,
             filterable: true,
             data: [],
-            count: 0
+            docCount: 0
         });
     });
 
@@ -197,26 +194,6 @@ describe('Component: TextCloud', () => {
             value: 'new value',
             newField: 'new field value'
         });
-    });
-
-    it('sets expected fields in onUpdateFields to the correct values', () => {
-        component.meta.database = new DatabaseMetaData('testDatabase', 'Test Database');
-        component.meta.database.name = 'testName';
-        component.meta.table = new TableMetaData('testTable', 'Test Table');
-
-        component.onUpdateFields();
-        expect(component.active.dataField).toEqual(new FieldMetaData());
-        expect(component.active.sizeField).toEqual(new FieldMetaData());
-
-        component.meta.fields = [
-            new FieldMetaData('testDataField'),
-            new FieldMetaData('testSizeField'),
-            new FieldMetaData('testDataAndSizeField') // Because dataField and sizeField both default to TAGS
-        ];
-
-        component.onUpdateFields();
-        expect(component.active.dataField).toEqual(new FieldMetaData('testDataAndSizeField'));
-        expect(component.active.sizeField).toEqual(new FieldMetaData('testDataAndSizeField'));
     });
 
     it('addLocalFilter does add the given filter', () => {
@@ -383,7 +360,7 @@ describe('Component: TextCloud', () => {
     });
 
     it('sets the expected values when getDocCount is called', () => {
-        component.active.count = 40;
+        component.active.docCount = 40;
         let docCountResponse = {
             data: [{
                 _docCount: 8,
@@ -407,7 +384,7 @@ describe('Component: TextCloud', () => {
         component.getDocCount();
 
         expect(calledExecuteQuery).toBeTruthy();
-        expect(component.active.count).toBe(3);
+        expect(component.active.docCount).toBe(3);
     });
 
     it('sets expected values and calls getDocCount if onQuerySuccess returns no data', () => {
@@ -428,7 +405,7 @@ describe('Component: TextCloud', () => {
         component.onQuerySuccess(response);
 
         expect(component.active.data).toEqual([]);
-        expect(component.active.count).toBe(0);
+        expect(component.active.docCount).toBe(0);
         expect(calledExecuteQuery).toBeFalsy(); // Don't query for doc count if we got no data.
 
         component.active.sizeField.columnName = 'testSizeField';
@@ -437,7 +414,7 @@ describe('Component: TextCloud', () => {
         component.onQuerySuccess(response);
 
         expect(component.active.data).toEqual([]);
-        expect(component.active.count).toBe(0);
+        expect(component.active.docCount).toBe(0);
         expect(calledExecuteQuery).toBeFalsy();
     });
 
@@ -512,7 +489,7 @@ describe('Component: TextCloud', () => {
             key: 'Third',
             keyTranslated: 'Third'
         }]);
-        expect(component.active.count).toBe(3);
+        expect(component.active.docCount).toBe(3);
         expect(calledCreateTextCloud).toBeTruthy();
         expect(calledExecuteQuery).toBeTruthy();
 
@@ -544,7 +521,7 @@ describe('Component: TextCloud', () => {
             key: 'Third',
             keyTranslated: 'Third'
         }]);
-        expect(component.active.count).toBe(3);
+        expect(component.active.docCount).toBe(3);
         expect(calledCreateTextCloud).toBeTruthy();
         expect(calledExecuteQuery).toBeTruthy();
     });
@@ -704,9 +681,9 @@ describe('Component: TextCloud', () => {
             testDataField: 'Value',
             value: 10
         }];
-        component.active.count = 1;
+        component.active.docCount = 1;
         expect(component.getButtonText()).toEqual('Total 1');
-        component.active.count = 5;
+        component.active.docCount = 5;
         expect(component.getButtonText()).toEqual('1 of 5');
     });
 

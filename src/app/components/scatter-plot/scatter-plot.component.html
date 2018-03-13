@@ -66,7 +66,7 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Color Field" [(ngModel)]="meta.colorField"
+                    <mat-select placeholder="Color Field" [(ngModel)]="active.colorField"
                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -105,7 +105,7 @@
     </div>
 
     <div #filterContainer class="filter-container">
-        <app-legend *ngIf="hasColorField()" (itemSelected)="legendItemSelected($event)" [disabledList]="disabledSet"
+        <app-legend *ngIf="!!this.active.colorField.columnName" (itemSelected)="legendItemSelected($event)" [disabledList]="disabledSet"
             [fieldNames]="colorByFields"></app-legend>
 
         <div class="filter-reset" *ngIf="filters[0]">
@@ -117,7 +117,7 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="hasColorField() || filters.length">
+    <div class="body-container" [class.with-filter]="!!this.active.colorField.columnName || filters.length">
         <div class="chart-container" #chartContainer (click)="stopEventPropagation($event)" (mousedown)="mouseDown($event)" (mouseleave)="mouseLeave($event)" (mouseup)="mouseUp($event)">
             <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x + selectionOffset.x, 'top.px':selection.y + selectionOffset.y}"></div>
             <app-chart class="chart" #scatter [type]="chart.type" [data]="chart.data" [options]="chart.options"></app-chart>
