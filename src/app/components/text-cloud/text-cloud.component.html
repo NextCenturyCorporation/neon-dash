@@ -78,20 +78,15 @@
                 </mat-form-field>
                 <p></p>
 
-                <table cellspacing="0">
-                    <tr>
-                        <td>
-                            <mat-form-field>
-                                <input matInput placeholder="Term Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
-                            </mat-form-field>
-                        </td>
-                        <td>
-                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <mat-icon>refresh</mat-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
+                <div mat-fill class="flex center">
+                    <mat-form-field>
+                        <input matInput placeholder="Term Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
                 <p></p>
 
                 <mat-toolbar color="primary">

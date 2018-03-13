@@ -90,20 +90,15 @@
                 </mat-form-field>
                 <p></p>
 
-                <table cellspacing="0">
-                    <tr>
-                        <td>
-                            <mat-form-field>
-                                <input matInput placeholder="Group Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
-                            </mat-form-field>
-                        </td>
-                        <td>
-                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <mat-icon>refresh</mat-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
+                <div mat-fill class="flex center">
+                    <mat-form-field>
+                        <input matInput placeholder="Group Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
                 <p></p>
 
                 <label> Displayed Range </label>
@@ -113,33 +108,30 @@
                         <mat-radio-button ngDefaultControl [value]="true" [(ngModel)]="active.scaleManually" >Manual</mat-radio-button>
                     </mat-radio-group>
 
-                    <table *ngIf="active.scaleManually">
-                        <tr>
-                            <td>
-                                <mat-form-field *ngIf='active.chartType == "bar"'>
-                                    <input matInput placeholder="Y maximum" [(ngModel)]="active.maxScale" required="false">
-                                </mat-form-field>
-                                <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
-                                    <input matInput placeholder="X maximum" [(ngModel)]="active.maxScale" required="false">
-                                </mat-form-field>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <mat-form-field *ngIf='active.chartType == "bar"'>
-                                    <input matInput placeholder="Y minimum" [(ngModel)]="active.minScale" required="false">
-                                </mat-form-field>
-                                <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
-                                    <input matInput placeholder="X minimum" [(ngModel)]="active.minScale" required="false">
-                                </mat-form-field>
-                            </td>
-                            <td>
-                                <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeScale()">
-                                    <mat-icon>refresh</mat-icon>
-                                </button>
-                            </td>
-                        </tr>
-                    </table>
+                    <div *ngIf="active.scaleManually">
+                        <p></p>
+                        <div mat-fill class="flex center">
+                            <mat-form-field *ngIf='active.chartType == "bar"'>
+                                <input matInput placeholder="Y maximum" [(ngModel)]="active.maxScale" required="false">
+                            </mat-form-field>
+
+                            <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
+                                <input matInput placeholder="X maximum" [(ngModel)]="active.maxScale" required="false">
+                            </mat-form-field>
+
+                            <mat-form-field *ngIf='active.chartType == "bar"'>
+                                <input matInput placeholder="Y minimum" [(ngModel)]="active.minScale" required="false">
+                            </mat-form-field>
+
+                            <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
+                                <input matInput placeholder="X minimum" [(ngModel)]="active.minScale" required="false">
+                            </mat-form-field>
+
+                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeScale()">
+                                <mat-icon>refresh</mat-icon>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <p></p>
 

@@ -87,20 +87,15 @@
                 </mat-form-field>
                 <p></p>
 
-                <table cellspacing="0">
-                    <tr>
-                        <td>
-                            <mat-form-field>
-                                <input matInput placeholder="Document Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
-                            </mat-form-field>
-                        </td>
-                        <td>
-                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <mat-icon>refresh</mat-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
+                <div mat-fill class="flex center">
+                    <mat-form-field>
+                        <input matInput placeholder="Document Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
                 <p></p>
             </mat-card-content>
         </mat-card>
@@ -109,6 +104,7 @@
     <!-- View documents -->
     <mat-list class="document-viewer-list-container body-container" [class.with-footer]="active.docCount > meta.limit">
         <div class="mat-list-item-text document-viewer-list-item" layout="column">
+            <!-- TODO Do not use <table> elements!  Use flex styling! -->
             <table class="document-viewer-table">
                 <ng-template ngFor let-item [ngForOf]="active.data">
                     <tr class="metadata-row" [ngClass]="{'document-viewer-even-row': i % 2 === 1}" *ngFor="let metadataElement of active.metadataFields; index as i">

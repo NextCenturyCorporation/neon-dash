@@ -66,6 +66,10 @@ body {
     display: flex;
 }
 
+.center {
+    align-items: center;
+}
+
 .fill-remaining {
     flex: 1 1 auto;
 }
