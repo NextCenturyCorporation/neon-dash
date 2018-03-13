@@ -16,7 +16,7 @@
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
@@ -99,6 +99,7 @@ describe('Component: DocumentViewer', () => {
         });
         fixture = TestBed.createComponent(DocumentViewerComponent);
         component = fixture.componentInstance;
+        fixture.detectChanges();
     });
 
     it('exists', (() => {
@@ -112,7 +113,6 @@ describe('Component: DocumentViewer', () => {
             dateField: new FieldMetaData(),
             docCount: 0,
             idField: new FieldMetaData(),
-            limit: 50,
             page: 1,
             metadataFields: []
         });
@@ -167,7 +167,7 @@ describe('Component: DocumentViewer', () => {
         expect(component.getOptionFromConfig('idField')).toBeNull();
         expect(component.getOptionFromConfig('metadataFields')).toBeNull();
         expect(component.getOptionFromConfig('popoutFields')).toBeNull();
-        expect(component.getOptionFromConfig('limit')).toBeNull();
+        expect(component.getOptionFromConfig('limit')).toBe(50);
     });
 
     it('sets expected fields in onUpdateFields to empty strings because fields are empty', () => {
@@ -355,7 +355,6 @@ describe('Component: DocumentViewer', () => {
             dateField: component.active.dateField,
             docCount: 0,
             idField: component.active.idField,
-            limit: 50,
             page: 1,
             metadataFields: []
         };
@@ -374,8 +373,11 @@ describe('Component: DocumentViewer', () => {
         component.active.docCount = 50;
         expect(component.getButtonText()).toBe('1 - 50 of 50');
 
+        // When limit changes
+        component.meta.limit = 10;
+        expect(component.getButtonText()).toBe('1 - 10 of 50');
+
         // When active.data.length >= active.data.docCount
-        component.active.data = ['value1', 'value2'];
         component.active.docCount = 2;
         expect(component.getButtonText()).toBe('Total 2');
     });
@@ -514,7 +516,7 @@ describe('Component: DocumentViewer', () => {
         expect(component.formatMetadataEntry(record, 'nonexistent')).toEqual('None');
     });
 
-    it('creates elements for data', () => {
+    it('creates elements for data', async(() => {
         component.active.dataField.columnName = 'testDataField';
         component.active.dateField.columnName = 'testDateField';
         component.active.idField.columnName = 'testIDField';
@@ -538,21 +540,25 @@ describe('Component: DocumentViewer', () => {
         }];
         fixture.detectChanges();
 
-        // Make sure we have a list of two items.
-        let selects = fixture.debugElement.queryAll(By.css('.document-viewer-button-cell'));
-        expect(selects.length).toBe(2);
-        // Make sure each item has a single row of metadata.
-        selects = fixture.debugElement.queryAll(By.css('.metadata-row'));
-        expect(selects.length).toBe(2);
-        // Make sure each metadata row has a single item in it, and that those items have the right name.
-        expect(selects[0].children[0].nativeElement.textContent).toEqual('Test: ');
-        expect(selects[0].children[1].nativeElement.textContent).toEqual('First');
-        expect(selects[1].children[0].nativeElement.textContent).toEqual('Test: ');
-        expect(selects[1].children[1].nativeElement.textContent).toEqual('Second');
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
 
-        selects = fixture.debugElement.queryAll(By.css('.metadata-bold'));
-        expect(selects.length).toBe(2);
-    });
+            // Make sure we have a list of two items.
+            let selects = fixture.debugElement.queryAll(By.css('.document-viewer-button-cell'));
+            expect(selects.length).toBe(2);
+            // Make sure each item has a single row of metadata.
+            selects = fixture.debugElement.queryAll(By.css('.metadata-row'));
+            expect(selects.length).toBe(2);
+            // Make sure each metadata row has a single item in it, and that those items have the right name.
+            expect(selects[0].children[0].nativeElement.textContent).toEqual('Test: ');
+            expect(selects[0].children[1].nativeElement.textContent).toEqual('First');
+            expect(selects[1].children[0].nativeElement.textContent).toEqual('Test: ');
+            expect(selects[1].children[1].nativeElement.textContent).toEqual('Second');
+
+            selects = fixture.debugElement.queryAll(By.css('.metadata-bold'));
+            expect(selects.length).toBe(2);
+        });
+    }));
 
     it('createClause does return expected object', () => {
         component.active.dataField = new FieldMetaData('testDataField');
@@ -656,7 +662,6 @@ describe('Component: Document Viewer with Config', () => {
             dateField: new FieldMetaData('testDateField', 'Test Date Field'),
             docCount: 0,
             idField: new FieldMetaData('testIDField', 'Test ID Field'),
-            limit: 25,
             page: 1,
             metadataFields: [
                 {

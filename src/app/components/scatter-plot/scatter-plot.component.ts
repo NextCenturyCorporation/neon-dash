@@ -134,8 +134,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         labelField: FieldMetaData,
         colorField: FieldMetaData,
         andFilters: boolean,
-        limit: number,
-        newLimit: number,
         filterable: boolean,
         layers: any[],
         xAxisIsNumeric: boolean,
@@ -189,7 +187,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             yField: this.injector.get('yField', null),
             labelField: this.injector.get('labelField', null),
             colorField: this.injector.get('colorField', null),
-            limit: this.injector.get('limit', 200),
+            limit: this.injector.get('limit', 1000),
             unsharedFilterField: {},
             unsharedFilterValue: '',
             displayGridLines: this.injector.get('displayGridLines', true),
@@ -204,8 +202,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             labelField: new FieldMetaData(),
             colorField: new FieldMetaData(),
             andFilters: true,
-            limit: this.optionsFromConfig.limit,
-            newLimit: this.optionsFromConfig.limit,
             filterable: true,
             layers: [],
             xAxisIsNumeric: true,
@@ -341,7 +337,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         bindings.yField = this.active.yField.columnName;
         bindings.labelField = this.active.labelField.columnName;
         bindings.colorField = this.active.colorField.columnName;
-        bindings.limit = this.active.limit;
     }
 
     onUpdateFields() {
@@ -694,9 +689,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         this.chart.data.labels = this.chart.data.xLabels;
         this.chart.data.datasets = allDataSets;
 
-        if (this.chart.data.labels.length > this.active.limit) {
+        if (this.chart.data.labels.length > this.meta.limit) {
             let pointCount = 0;
-            let pointLimit = this.active.limit;
+            let pointLimit = this.meta.limit;
             this.chart.data.datasets = this.chart.data.datasets.map((dataset) => {
                 if (pointCount >= pointLimit) {
                     dataset.data = [];
@@ -751,21 +746,13 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates the limit, resets the seen bars, and reruns the bar chart query.
+     * Updates the scatter plot after limit change.
+     *
+     * @override
      */
-    handleChangeLimit() {
-        if (super.isNumber(this.active.newLimit)) {
-            let newLimit = parseFloat('' + this.active.newLimit);
-            if (newLimit > 0) {
-                this.active.limit = newLimit;
-                // TODO THOR-526 Redraw the scatter plot but do not requery because we can use the same data from the original query.
-                this.logChangeAndStartQueryChain();
-            } else {
-                this.active.newLimit = this.active.limit;
-            }
-        } else {
-            this.active.newLimit = this.active.limit;
-        }
+    subHandleChangeLimit() {
+        // TODO THOR-526 Redraw the scatter plot but do not requery because we can use the same data from the original query.
+        this.logChangeAndStartQueryChain();
     }
 
     unsharedFilterChanged() {
@@ -798,10 +785,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         if (!this.chart.data.labels || !this.chart.data.labels.length) {
             return 'No Data';
         }
-        if (this.chart.data.labels.length <= this.active.limit) {
+        if (this.chart.data.labels.length <= this.meta.limit) {
             return 'Total ' + super.prettifyInteger(this.chart.data.labels.length);
         }
-        return super.prettifyInteger(this.active.limit) + ' of ' + super.prettifyInteger(this.chart.data.labels.length);
+        return super.prettifyInteger(this.meta.limit) + ' of ' + super.prettifyInteger(this.chart.data.labels.length);
     }
 
     getFilterTitle() {

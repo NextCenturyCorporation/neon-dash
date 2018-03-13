@@ -93,6 +93,7 @@ describe('Component: TextCloud', () => {
         });
         fixture = TestBed.createComponent(TextCloudComponent);
         component = fixture.componentInstance;
+        fixture.detectChanges();
     });
 
     it('exists', () => {
@@ -104,9 +105,7 @@ describe('Component: TextCloud', () => {
             dataField: new FieldMetaData(),
             sizeField: new FieldMetaData(),
             andFilters: true,
-            limit: 40,
-            newLimit: 40,
-            textColor: '#111',
+            textColor: '#ffffff',
             allowsTranslations: true,
             filterable: true,
             data: [],
@@ -138,14 +137,12 @@ describe('Component: TextCloud', () => {
         let bindings = {
             dataField: undefined,
             sizeField: undefined,
-            sizeAggregation: undefined,
-            limit: undefined
+            sizeAggregation: undefined
         };
         component.subGetBindings(bindings);
         expect(bindings.dataField).toEqual('testDataField');
         expect(bindings.sizeField).toEqual('testSizeField');
         expect(bindings.sizeAggregation).toEqual('AVG'); // Default value on creation.
-        expect(bindings.limit).toEqual(40); // Default value on creation.
     });
 
     it('returns the correct value from getExportFields', () => {
@@ -342,7 +339,7 @@ describe('Component: TextCloud', () => {
         expect(component.createQuery()).toEqual(query);
 
         component.active.sizeField.columnName = 'testSizeField';
-        component.active.limit = 25;
+        component.meta.limit = 25;
         let whereClauses = neon.query.and(whereClause, neon.query.where('testSizeField', '!=', null));
 
         query = new neon.query.Query().selectFrom('testDatabase', 'testTable')
@@ -658,23 +655,6 @@ describe('Component: TextCloud', () => {
         expect(component.active.data[2].color).toBeDefined();
     });
 
-    it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
-        let spy = spyOn(component, 'logChangeAndStartQueryChain');
-
-        component.active.newLimit = 1234;
-
-        component.handleChangeLimit();
-        expect(component.active.limit).toBe(1234);
-        expect(spy.calls.count()).toBe(1);
-
-        component.active.newLimit = 0;
-
-        component.handleChangeLimit();
-        expect(component.active.limit).toBe(1234);
-        expect(component.active.newLimit).toBe(1234);
-        expect(spy.calls.count()).toBe(1);
-    });
-
     it('returns the proper value from getButtonText', () => {
         expect(component.getButtonText()).toEqual('No Data');
         component.active.data = [{
@@ -856,6 +836,7 @@ describe('Component: Textcloud with config', () => {
         });
         fixture = TestBed.createComponent(TextCloudComponent);
         component = fixture.componentInstance;
+        fixture.detectChanges();
     });
 
     it('something to do with getOptionsFromConfig', () => {
@@ -942,6 +923,7 @@ describe('Component: Textcloud with config including configFilter', () => {
         });
         fixture = TestBed.createComponent(TextCloudComponent);
         component = fixture.componentInstance;
+        fixture.detectChanges();
     });
 
     it('returns expected query from createQuery when a config filter is given', () => {

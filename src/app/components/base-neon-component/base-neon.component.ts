@@ -62,7 +62,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         fields: FieldMetaData[],
         unsharedFilterField: any,
         unsharedFilterValue: string,
-        errorMessage: string
+        errorMessage: string,
+        limit: number,
+        newLimit: number
     };
 
     public exportId: number;
@@ -107,7 +109,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             fields: [],
             unsharedFilterField: {},
             unsharedFilterValue: '',
-            errorMessage: ''
+            errorMessage: '',
+            limit: 10,
+            newLimit: 10
         };
 
         this.isExportable = true;
@@ -148,6 +152,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         }
 
         this.meta.title = this.getOptionFromConfig('title') || this.getVisualizationName();
+        this.meta.limit = this.getOptionFromConfig('limit') || this.meta.limit;
+        this.meta.newLimit = this.meta.limit;
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
@@ -199,7 +205,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             database: this.meta.database.name,
             table: this.meta.table.name,
             unsharedFilterField: this.meta.unsharedFilterField.columnName,
-            unsharedFilterValue: this.meta.unsharedFilterValue
+            unsharedFilterValue: this.meta.unsharedFilterValue,
+            limit: this.meta.limit
         };
 
         // Get the bindings from the subclass
@@ -666,6 +673,30 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     handleChangeData() {
         this.logChangeAndStartQueryChain();
+    }
+
+    /**
+     * Updates or redraws sub-components after limit change as needed.
+     */
+    subHandleChangeLimit() {
+        this.logChangeAndStartQueryChain();
+    }
+
+    /**
+     * Updates the limit and the visualization.
+     */
+    handleChangeLimit() {
+        if (this.isNumber(this.meta.newLimit)) {
+            let newLimit = parseFloat('' + this.meta.newLimit);
+            if (newLimit > 0) {
+                this.meta.limit = newLimit;
+                this.subHandleChangeLimit();
+            } else {
+                this.meta.newLimit = this.meta.limit;
+            }
+        } else {
+            this.meta.newLimit = this.meta.limit;
+        }
     }
 
     /**

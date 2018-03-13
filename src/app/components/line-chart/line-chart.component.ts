@@ -81,8 +81,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         aggregationFieldHidden: boolean,
         groupField: FieldMetaData,
         andFilters: boolean,
-        limit: number,
-        newLimit: number,
         filterable: boolean,
         aggregation: string,
         dateBucketizer: any,
@@ -149,8 +147,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             aggregationFieldHidden: true,
             groupField: new FieldMetaData(),
             andFilters: true,
-            limit: this.optionsFromConfig.limit,
-            newLimit: this.optionsFromConfig.limit,
             filterable: true,
             aggregation: 'count',
             dateBucketizer: null,
@@ -326,7 +322,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.groupField = this.active.groupField.columnName;
         bindings.aggregation = this.active.aggregation;
         bindings.aggregationField = this.active.aggregationField.columnName;
-        bindings.limit = this.active.limit;
     }
 
     getOptionFromConfig(field) {
@@ -668,8 +663,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             datasets = datasets.sort((a, b) => {
                 return b.total - a.total;
             });
-            if (datasets.length > this.active.limit) {
-                datasets = datasets.slice(0, this.active.limit);
+            if (datasets.length > this.meta.limit) {
+                datasets = datasets.slice(0, this.meta.limit);
             }
             labels = new Array(length);
             for (let i = 0; i < length; i++) {
@@ -802,21 +797,13 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Updates the limit, resets the seen bars, and reruns the bar chart query.
+     * Updates the line chart after limit change.
+     *
+     * @override
      */
-    handleChangeLimit() {
-        if (super.isNumber(this.active.newLimit)) {
-            let newLimit = parseFloat('' + this.active.newLimit);
-            if (newLimit > 0) {
-                this.active.limit = newLimit;
-                // TODO THOR-526 Redraw the line chart but do not requery because we can use the same data from the original query.
-                this.logChangeAndStartQueryChain();
-            } else {
-                this.active.newLimit = this.active.limit;
-            }
-        } else {
-            this.active.newLimit = this.active.limit;
-        }
+    subHandleChangeLimit() {
+        // TODO THOR-526 Redraw the line chart but do not requery because we can use the same data from the original query.
+        this.logChangeAndStartQueryChain();
     }
 
     logChangeAndStartQueryChain() {
@@ -835,10 +822,10 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         if (!this.chart.data.labels || !this.chart.data.labels.length) {
             return 'No Data';
         }
-        if (this.chart.data.labels.length <= this.active.limit) {
+        if (this.chart.data.labels.length <= this.meta.limit) {
             return 'Total ' + super.prettifyInteger(this.chart.data.labels.length);
         }
-        return super.prettifyInteger(this.active.limit) + ' of ' + super.prettifyInteger(this.chart.data.labels.length);
+        return super.prettifyInteger(this.meta.limit) + ' of ' + super.prettifyInteger(this.chart.data.labels.length);
     }
 
     getFilterTitle(filter: LocalFilter) {

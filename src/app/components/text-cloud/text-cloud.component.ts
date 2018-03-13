@@ -51,6 +51,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     @ViewChild('infoText') infoText: ElementRef;
 
     private textCloud: TextCloud;
+
     private filters: {
         id: string,
         key: string,
@@ -76,24 +77,25 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         sizeAggregation: string,
         limit: number
     };
+
     public active: {
         dataField: FieldMetaData,
         sizeField: FieldMetaData,
         andFilters: boolean,
-        limit: number,
-        newLimit: number,
         textColor: string,
         allowsTranslations: boolean,
         filterable: boolean,
         data: any[],
         docCount: number
     };
+
     public sizeAggregationTypes = [
         {name: 'Average', value: 'AVG'},
         {name: 'Maximum', value: 'MAX'},
         {name: 'Minimum', value: 'MIN'},
         {name: 'Sum', value: 'SUM'}
     ];
+
     // Average should be the default. It is loaded from the optionsFromConfig
     public sizeAggregation: string;
 
@@ -120,8 +122,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             dataField: new FieldMetaData(),
             sizeField: new FieldMetaData(),
             andFilters: true,
-            limit: this.optionsFromConfig.limit,
-            newLimit: this.optionsFromConfig.limit,
             textColor: '#111',
             allowsTranslations: true,
             filterable: true,
@@ -150,7 +150,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.dataField = this.active.dataField.columnName;
         bindings.sizeField = this.active.sizeField.columnName;
         bindings.sizeAggregation = this.sizeAggregation;
-        bindings.limit = this.active.limit;
     }
 
     getExportFields() {
@@ -265,13 +264,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (this.active.sizeField.columnName === '') {
             // Normal aggregation query
             return query.where(whereClause).groupBy(dataField).aggregate(neonVariables.COUNT, '*', 'value')
-                .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
+                .sortBy('value', neonVariables.DESCENDING).limit(this.meta.limit);
         } else {
             // Query for data with the size field and sort by it
             let sizeColumn = this.active.sizeField.columnName;
             return query.where(neon.query.and(whereClause, neon.query.where(sizeColumn, '!=', null)))
                 .groupBy(dataField).aggregate(neon.query[this.sizeAggregation], sizeColumn, sizeColumn)
-                .sortBy(sizeColumn, neonVariables.DESCENDING).limit(this.active.limit);
+                .sortBy(sizeColumn, neonVariables.DESCENDING).limit(this.meta.limit);
         }
     }
 
@@ -379,23 +378,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     createTextCloud() {
          let data = this.textCloud.createTextCloud(this.active.data);
          this.active = this.updateObject(this.active, 'data', data);
-    }
-
-    /**
-     * Updates the limit, resets the seen bars, and reruns the bar chart query.
-     */
-    handleChangeLimit() {
-        if (super.isNumber(this.active.newLimit)) {
-            let newLimit = parseFloat('' + this.active.newLimit);
-            if (newLimit > 0) {
-                this.active.limit = newLimit;
-                this.logChangeAndStartQueryChain();
-            } else {
-                this.active.newLimit = this.active.limit;
-            }
-        } else {
-            this.active.newLimit = this.active.limit;
-        }
     }
 
     /**

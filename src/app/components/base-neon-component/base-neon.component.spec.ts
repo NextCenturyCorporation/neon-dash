@@ -234,7 +234,8 @@ describe('Component: base-neon', () => {
             database: component.meta.database.name,
             table: component.meta.table.name,
             unsharedFilterField: component.meta.unsharedFilterField.columnName,
-            unsharedFilterValue: component.meta.unsharedFilterValue
+            unsharedFilterValue: component.meta.unsharedFilterValue,
+            limit: 10
         });
     }));
 
@@ -248,7 +249,9 @@ describe('Component: base-neon', () => {
             fields: DatasetMock.FIELDS,
             unsharedFilterField: new FieldMetaData(),
             unsharedFilterValue: '',
-            errorMessage: ''
+            errorMessage: '',
+            limit: 10,
+            newLimit: 10
         });
     });
 
@@ -384,6 +387,23 @@ describe('Component: base-neon', () => {
     it('handleChangeData does call logChangeAndStartQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
         component.handleChangeData();
+        expect(spy.calls.count()).toBe(1);
+    });
+
+    it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
+        let spy = spyOn(component, 'logChangeAndStartQueryChain');
+
+        component.meta.newLimit = 1234;
+
+        component.handleChangeLimit();
+        expect(component.meta.limit).toBe(1234);
+        expect(spy.calls.count()).toBe(1);
+
+        component.meta.newLimit = 0;
+
+        component.handleChangeLimit();
+        expect(component.meta.limit).toBe(1234);
+        expect(component.meta.newLimit).toBe(1234);
         expect(spy.calls.count()).toBe(1);
     });
 

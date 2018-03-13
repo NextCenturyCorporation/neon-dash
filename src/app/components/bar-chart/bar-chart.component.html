@@ -94,7 +94,7 @@
                     <tr>
                         <td>
                             <mat-form-field>
-                                <input matInput placeholder="Group Limit" [(ngModel)]="active.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                                <input matInput placeholder="Group Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                             </mat-form-field>
                         </td>
                         <td>
@@ -178,13 +178,13 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="!!this.active.colorField.columnName || getCloseableFilters().length" [class.with-footer]="active.bars.length > active.limit">
+    <div class="body-container" [class.with-filter]="!!this.active.colorField.columnName || getCloseableFilters().length" [class.with-footer]="active.bars.length > meta.limit">
         <div #chartContainer class="chart-container" [style.minHeight.px]="this.active.minSize.height" [style.minWidth.px]="this.active.minSize.width">
             <app-chart class="chart" #barChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></app-chart>
         </div>
     </div>
 
-    <div class="footer" *ngIf="active.bars.length > active.limit">
+    <div class="footer" *ngIf="active.bars.length > meta.limit">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="active.page == 1" class="pagination-button previous-button" color="primary"
                 (click)="previousPage()">

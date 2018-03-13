@@ -86,8 +86,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         public active: {
             layers: MapLayer[],
             andFilters: boolean,
-            limit: number,
-            newLimit: number,
             filterable: boolean,
             data: number[][],
             unusedColors: string[],
@@ -147,8 +145,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             this.active = {
                 layers: [],
                 andFilters: true,
-                limit: this.optionsFromConfig.limit,
-                newLimit: this.optionsFromConfig.limit,
                 filterable: true,
                 data: [],
                 nextColorIndex: 0,
@@ -202,7 +198,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * @override
          */
         subGetBindings(bindings: any) {
-            bindings.limit = this.active.limit;
             // The map layers objects are different, clear out the old stuff;
             bindings.layers = [];
             for (let layer of this.active.layers) {
@@ -556,7 +551,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 fields.push(dateField);
             }
 
-            return this.createBasicQuery(layerIndex).withFields(fields).limit(this.active.limit);
+            return this.createBasicQuery(layerIndex).withFields(fields).limit(this.meta.limit);
         }
 
         legendItemSelected(event: any) {
@@ -833,23 +828,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
 
         /**
-         * Updates the limit, resets the seen bars, and reruns the bar chart query.
-         */
-        handleChangeLimit() {
-            if (super.isNumber(this.active.newLimit)) {
-                let newLimit = parseFloat('' + this.active.newLimit);
-                if (newLimit > 0) {
-                    this.active.limit = newLimit;
-                    this.logChangeAndStartAllQueryChain();
-                } else {
-                    this.active.newLimit = this.active.limit;
-                }
-            } else {
-                this.active.newLimit = this.active.limit;
-            }
-        }
-
-        /**
          * Redraws the map using the given map type.
          *
          * @arg {MapType} mapType
@@ -994,11 +972,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
             if (this.active.layers.length && this.meta.layers.length) {
                 if (this.meta.layers.length === 1) {
-                    return createButtonText(this.meta.layers[0].docCount, this.active.limit);
+                    return createButtonText(this.meta.layers[0].docCount, this.meta.limit);
                 }
                 return this.meta.layers.map((layer, index) => {
                     if (this.active.layers.length >= index) {
-                        return this.active.layers[index].title + ' (' + createButtonText(layer.docCount, this.active.limit) + ')';
+                        return this.active.layers[index].title + ' (' + createButtonText(layer.docCount, this.meta.limit) + ')';
                     }
                     return '';
                 }).filter((text) => {

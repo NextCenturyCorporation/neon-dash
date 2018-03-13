@@ -63,10 +63,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         dataField: string,
         dateField: string,
         idField: string,
+        limit: number,
         metadataFields: any[], // Array of arrays. Each internal array is a row of metadata and contains {name, field} objects.
         popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
-        limit: number,
-        limitDisabled: boolean,
         showText: boolean,
         showSelect: boolean
     };
@@ -77,7 +76,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         dateField: FieldMetaData,
         docCount: number,
         idField: FieldMetaData,
-        limit: number,
         page: number,
         metadataFields: any[]
     };
@@ -97,8 +95,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             idField: this.injector.get('idField', null),
             metadataFields: this.injector.get('metadataFields', null),
             popoutFields: this.injector.get('popoutFields', null),
-            limit: this.injector.get('limit', null),
-            limitDisabled: this.injector.get('limitDisabled', true),
+            limit: this.injector.get('limit', 50),
             showText: this.injector.get('showText', false),
             showSelect: this.injector.get('showSelect', true)
         };
@@ -108,7 +105,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             dateField: new FieldMetaData(),
             docCount: 0,
             idField: new FieldMetaData(),
-            limit: this.optionsFromConfig.limit || 50,
             page: 1,
             metadataFields: []
         };
@@ -203,7 +199,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     createQuery() {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
-        let limit = this.active.limit;
+        let limit = this.meta.limit;
         let offset = ((this.active.page) - 1) * limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = this.createClause();
@@ -273,8 +269,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (this.active.docCount <= this.active.data.length) {
             return 'Total ' + super.prettifyInteger(this.active.data.length);
         }
-        let begin = super.prettifyInteger((this.active.page - 1) * this.active.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.active.page * this.active.limit, this.active.docCount));
+        let begin = super.prettifyInteger((this.active.page - 1) * this.meta.limit + 1);
+        let end = super.prettifyInteger(Math.min(this.active.page * this.meta.limit, this.active.docCount));
         return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.active.docCount);
     }
 

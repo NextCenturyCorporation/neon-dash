@@ -67,7 +67,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         idField: string,
         sortField: string,
         limit: number,
-        limitDisabled: boolean,
         unsharedFilterField: Object,
         unsharedFilterValue: string,
         allColumnStatus: string,
@@ -78,7 +77,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         idField: FieldMetaData,
         sortField: FieldMetaData,
         andFilters: boolean,
-        limit: number,
         page: number,
         docCount: number,
         filterable: boolean,
@@ -113,7 +111,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             idField: this.injector.get('idField', null),
             sortField: this.injector.get('sortField', null),
             limit: this.injector.get('limit', 100),
-            limitDisabled: this.injector.get('limitDisabled', true),
             unsharedFilterField: {},
             unsharedFilterValue: '',
             allColumnStatus: this.injector.get('allColumnStatus', 'show'),
@@ -124,7 +121,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             idField: new FieldMetaData(),
             sortField: new FieldMetaData(),
             andFilters: true,
-            limit: this.optionsFromConfig.limit,
             page: 1,
             docCount: 0,
             filterable: true,
@@ -166,7 +162,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     subGetBindings(bindings: any) {
         bindings.idField = this.active.idField.columnName;
         bindings.sortField = this.active.sortField.columnName;
-        bindings.limit = this.active.limit;
     }
 
     onUpdateFields() {
@@ -378,13 +373,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
-        let limit = this.active.limit;
+        let limit = this.meta.limit;
         let offset = ((this.active.page) - 1) * limit;
         let whereClause = this.createClause();
         return new neon.query.Query().selectFrom(databaseName, tableName)
             .where(whereClause)
             .sortBy(this.active.sortField.columnName, neonVariables.DESCENDING)
-            .limit(this.active.limit)
+            .limit(this.meta.limit)
             .offset(offset);
     }
 
@@ -614,11 +609,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (!this.active.docCount) {
             return 'No Data';
         }
-        if (this.active.docCount <= this.active.limit) {
+        if (this.active.docCount <= this.meta.limit) {
             return 'Total ' + super.prettifyInteger(this.active.docCount);
         }
-        let begin = super.prettifyInteger((this.active.page - 1) * this.active.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.active.page * this.active.limit, this.active.docCount));
+        let begin = super.prettifyInteger((this.active.page - 1) * this.meta.limit + 1);
+        let end = super.prettifyInteger(Math.min(this.active.page * this.meta.limit, this.active.docCount));
         return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.active.docCount);
     }
 

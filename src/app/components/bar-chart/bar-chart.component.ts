@@ -149,8 +149,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         aggregationField: FieldMetaData,
         aggregationFieldHidden: boolean,
         andFilters: boolean,
-        limit: number,
-        newLimit: number,
         page: number,
         lastPage: boolean,
         filterable: boolean,
@@ -220,8 +218,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             aggregationField: new FieldMetaData(),
             aggregationFieldHidden: true,
             andFilters: true,
-            limit: this.optionsFromConfig.limit,
-            newLimit: this.optionsFromConfig.limit,
             page: 1,
             lastPage: true,
             filterable: true,
@@ -447,7 +443,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         bindings.dataField = this.active.dataField.columnName;
         bindings.aggregation = this.active.aggregation;
         bindings.aggregationField = this.active.aggregationField.columnName;
-        bindings.limit = this.active.limit;
     }
 
     /**
@@ -835,7 +830,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         this.active.data = Array.from(groupsToDatasets.values());
         this.active.page = 1;
-        this.active.lastPage = (this.active.bars.length <= this.active.limit);
+        this.active.lastPage = (this.active.bars.length <= this.meta.limit);
 
         let counts = !this.active.data.length ? [] : this.active.data.slice(1).reduce((array, dataset) => {
             return dataset.data.map((value, index) => {
@@ -867,7 +862,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             }
         }
 
-        this.updateBarChart(0, this.active.limit);
+        this.updateBarChart(0, this.meta.limit);
     }
 
     /**
@@ -1028,21 +1023,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Updates the limit, resets the seen bars, and reruns the bar chart query.
+     * Resets the seen bars and reruns the bar chart query after limit change.
+     *
+     * @override
      */
-    handleChangeLimit() {
-        if (super.isNumber(this.active.newLimit)) {
-            let newLimit = parseFloat('' + this.active.newLimit);
-            if (newLimit > 0) {
-                this.active.limit = newLimit;
-                this.active.seenBars = [];
-                this.logChangeAndStartQueryChain();
-            } else {
-                this.active.newLimit = this.active.limit;
-            }
-        } else {
-            this.active.newLimit = this.active.limit;
-        }
+    subHandleChangeLimit() {
+        this.active.seenBars = [];
+        this.logChangeAndStartQueryChain();
     }
 
     /**
@@ -1079,11 +1066,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         if (!this.active.bars || !this.active.bars.length) {
             return 'No Data';
         }
-        if (this.active.bars.length <= this.active.limit) {
+        if (this.active.bars.length <= this.meta.limit) {
             return 'Total ' + super.prettifyInteger(this.active.bars.length);
         }
-        let begin = super.prettifyInteger((this.active.page - 1) * this.active.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.active.page * this.active.limit, this.active.bars.length));
+        let begin = super.prettifyInteger((this.active.page - 1) * this.meta.limit + 1);
+        let end = super.prettifyInteger(Math.min(this.active.page * this.meta.limit, this.active.bars.length));
         return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.active.bars.length);
     }
 
@@ -1183,9 +1170,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * Updates lastPage and the bar chart data using the page and limit.
      */
     updatePageData() {
-        let offset = (this.active.page - 1) * this.active.limit;
-        this.active.lastPage = (this.active.bars.length <= (offset + this.active.limit));
-        this.updateBarChart(offset, this.active.limit);
+        let offset = (this.active.page - 1) * this.meta.limit;
+        this.active.lastPage = (this.active.bars.length <= (offset + this.meta.limit));
+        this.updateBarChart(offset, this.meta.limit);
     }
 
     /**
@@ -1208,8 +1195,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     subOnResizeStop() {
-        let xLabelCount = (this.active.chartType === 'bar' ? Math.min(this.active.bars.length, this.active.limit) : this.active.labelCount);
-        let yLabelCount = (this.active.chartType === 'bar' ? this.active.labelCount : Math.min(this.active.bars.length, this.active.limit));
+        let xLabelCount = (this.active.chartType === 'bar' ? Math.min(this.active.bars.length, this.meta.limit) : this.active.labelCount);
+        let yLabelCount = (this.active.chartType === 'bar' ? this.active.labelCount : Math.min(this.active.bars.length, this.meta.limit));
 
         this.active.minSize = {
             // The height of the y-axis labels is approx. 15 px each and the height of the x-axis labels is approx. 20 px (arbitrary).

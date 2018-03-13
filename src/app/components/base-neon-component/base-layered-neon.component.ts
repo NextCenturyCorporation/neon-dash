@@ -55,6 +55,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      */
     public meta: {
         title: string,
+        limit: number,
+        newLimit: number,
         layers: {
             index: number,
             title: string,
@@ -104,6 +106,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
         this.meta = {
             title: '',
+            limit: 10,
+            newLimit: 10,
             layers: []
         };
 
@@ -141,6 +145,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         this.activeGridService.register(this.id, this);
 
         this.meta.title = this.getOptionFromConfig('title') || this.getVisualizationName();
+        this.meta.limit = this.getOptionFromConfig('limit') || this.meta.limit;
+        this.meta.newLimit = this.meta.limit;
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
@@ -200,6 +206,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     getBindings(): any {
         let bindings = {
             title: this.meta.title,
+            limit: this.meta.limit,
             layers: []
         };
         for (let layer of this.meta.layers) {
@@ -782,6 +789,30 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      */
     handleChangeDataAtLayerIndex(layerIndex: number) {
         this.logChangeAndStartQueryChain(layerIndex);
+    }
+
+    /**
+     * Updates or redraws sub-components after limit change as needed.
+     */
+    subHandleChangeLimit() {
+        this.logChangeAndStartAllQueryChain();
+    }
+
+    /**
+     * Updates the limit and the visualization.
+     */
+    handleChangeLimit() {
+        if (this.isNumber(this.meta.newLimit)) {
+            let newLimit = parseFloat('' + this.meta.newLimit);
+            if (newLimit > 0) {
+                this.meta.limit = newLimit;
+                this.subHandleChangeLimit();
+            } else {
+                this.meta.newLimit = this.meta.limit;
+            }
+        } else {
+            this.meta.newLimit = this.meta.limit;
+        }
     }
 
     /**

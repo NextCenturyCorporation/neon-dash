@@ -86,12 +86,28 @@
                     </mat-select>
                 </mat-form-field>
                 <p></p>
+
+                <table cellspacing="0">
+                    <tr>
+                        <td>
+                            <mat-form-field>
+                                <input matInput placeholder="Document Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                                <mat-icon>refresh</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <p></p>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
 
     <!-- View documents -->
-    <mat-list class="document-viewer-list-container body-container" [class.with-footer]="active.docCount > active.limit">
+    <mat-list class="document-viewer-list-container body-container" [class.with-footer]="active.docCount > meta.limit">
         <div class="mat-list-item-text document-viewer-list-item" layout="column">
             <table class="document-viewer-table">
                 <ng-template ngFor let-item [ngForOf]="active.data">
@@ -122,13 +138,13 @@
         </div>
     </mat-list>
 
-    <div class="footer" *ngIf="active.docCount > active.limit">
+    <div class="footer" *ngIf="active.docCount > meta.limit">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="active.page == 1" class="pagination-button" color="primary" (click)="previousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="active.page*active.limit >= active.docCount" class="pagination-button" color="primary"
+            <button mat-raised-button [disabled]="active.page*meta.limit >= active.docCount" class="pagination-button" color="primary"
                     (click)="nextPage()">
                 Next
             </button>

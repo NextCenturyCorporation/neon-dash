@@ -60,6 +60,22 @@
                 </mat-form-field>
                 <p></p>
 
+                <table cellspacing="0">
+                    <tr>
+                        <td>
+                            <mat-form-field>
+                                <input matInput placeholder="Row Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                            </mat-form-field>
+                        </td>
+                        <td>
+                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                                <mat-icon>refresh</mat-icon>
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                <p></p>
+
                 Column Selector:
                 <mat-button-toggle-group #showColumnSelector="matButtonToggleGroup" [(ngModel)]="active.showColumnSelector">
                     <mat-button-toggle value="show">
@@ -95,7 +111,7 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="active.docCount > active.limit">
+    <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="active.docCount > meta.limit">
         <div class="table-container">
             <ngx-datatable #table class="material table" [rows]="active.data" [columnMode]="'force'" [columns]="active.activeHeaders" [headerHeight]="30" [footerHeight]="0"
                 [rowHeight]="25" [scrollbarH]="true" [scrollbarV]="true" [reorderable]="false" [selected]="selected" [selectionType]="'multi'" (resize)="onTableResize($event)" (select)="onSelect($event)">
@@ -126,13 +142,13 @@
         </div>
     </div>
 
-    <div class="footer" *ngIf="active.docCount > active.limit">
+    <div class="footer" *ngIf="active.docCount > meta.limit">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="active.page == 1" class="pagination-button" color="primary" (click)="previousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="active.page*active.limit >= (active.docCount)" class="pagination-button" color="primary"
+            <button mat-raised-button [disabled]="active.page*meta.limit >= (active.docCount)" class="pagination-button" color="primary"
                     (click)="nextPage()">
                 Next
             </button>
