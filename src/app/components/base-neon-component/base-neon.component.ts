@@ -59,9 +59,10 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         database: DatabaseMetaData,
         tables: TableMetaData[],
         table: TableMetaData,
+        fields: FieldMetaData[],
         unsharedFilterField: any,
         unsharedFilterValue: string,
-        fields: FieldMetaData[]
+        errorMessage: string
     };
 
     public exportId: number;
@@ -103,9 +104,10 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             database: new DatabaseMetaData(),
             tables: [],
             table: new TableMetaData(),
+            fields: [],
             unsharedFilterField: {},
             unsharedFilterValue: '',
-            fields: []
+            errorMessage: ''
         };
 
         this.isExportable = true;

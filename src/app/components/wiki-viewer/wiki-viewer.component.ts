@@ -57,7 +57,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
 
     public active: {
         allowsTranslations: boolean,
-        errorMessage: string,
         id: string,
         idField: FieldMetaData,
         linkField: FieldMetaData,
@@ -93,7 +92,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         };
         this.active = {
             allowsTranslations: true,
-            errorMessage: '',
             id: this.optionsFromConfig.id || '',
             idField: new FieldMetaData(),
             linkField: new FieldMetaData(),
@@ -279,16 +277,16 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
-                this.active.errorMessage = '';
+                this.meta.errorMessage = '';
                 this.isLoadingWikiPage = true;
                 let links = neonUtilities.deepFind(response.data[0], this.active.linkField.columnName);
                 this.retrieveWikiPage(Array.isArray(links) ? links : [links]);
             } else {
-                this.active.errorMessage = 'No Data';
+                this.meta.errorMessage = 'No Data';
                 this.refreshVisualization();
             }
         } catch (e) {
-            this.active.errorMessage = 'Error';
+            this.meta.errorMessage = 'Error';
             this.refreshVisualization();
         }
     }

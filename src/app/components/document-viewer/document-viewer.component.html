@@ -2,7 +2,10 @@
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [title]="meta.title">{{ meta.title }}</div>
         <span class="fill-remaining"></span>
-        <span #infoText class="info text">{{ getButtonText() }}</span>
+        <span #infoText class="info text">
+            <span class="error-message" *ngIf="meta.errorMessage" [title]="meta.errorMessage">{{ meta.errorMessage }}</span>
+            <span *ngIf="!meta.errorMessage" [title]="getButtonText()">{{ getButtonText() }}</span>
+        </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
         </button>
@@ -12,9 +15,17 @@
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <div *ngIf="getButtonText()">
-                    <label class="icon-with-text">
+                <div *ngIf="meta.errorMessage">
+                    <label class="icon-with-text error-message" [title]="meta.errorMessage">
                         <mat-icon class="neon-icon-small">error</mat-icon>
+                        <div>{{ meta.errorMessage }}</div>
+                    </label>
+                    <p></p>
+                </div>
+
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text" [title]="getButtonText()">
+                        <mat-icon class="neon-icon-small">info</mat-icon>
                         <div>{{ getButtonText() }}</div>
                     </label>
                     <p></p>

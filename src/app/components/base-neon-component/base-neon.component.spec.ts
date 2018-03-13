@@ -245,9 +245,10 @@ describe('Component: base-neon', () => {
             database: DatasetMock.DATABASES[0],
             tables: DatasetMock.TABLES,
             table: DatasetMock.TABLES[0],
+            fields: DatasetMock.FIELDS,
             unsharedFilterField: new FieldMetaData(),
             unsharedFilterValue: '',
-            fields: DatasetMock.FIELDS
+            errorMessage: ''
         });
     });
 
