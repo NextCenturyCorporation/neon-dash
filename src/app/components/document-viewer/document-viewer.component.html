@@ -80,7 +80,7 @@
     </mat-sidenav>
 
     <!-- View documents -->
-    <mat-list class="document-viewer-list-container body-container with-scroll" [class.with-footer]="active.docCount > active.limit">
+    <mat-list class="document-viewer-list-container body-container" [class.with-footer]="active.docCount > active.limit">
         <div class="mat-list-item-text document-viewer-list-item" layout="column">
             <table class="document-viewer-table">
                 <ng-template ngFor let-item [ngForOf]="active.data">

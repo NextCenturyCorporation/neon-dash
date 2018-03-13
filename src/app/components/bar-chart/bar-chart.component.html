@@ -167,7 +167,7 @@
         </div>
     </div>
 
-    <div class="body-container with-scroll" [class.with-filter]="!!this.active.colorField.columnName || getCloseableFilters().length" [class.with-footer]="active.bars.length > active.limit">
+    <div class="body-container" [class.with-filter]="!!this.active.colorField.columnName || getCloseableFilters().length" [class.with-footer]="active.bars.length > active.limit">
         <div #chartContainer class="chart-container" [style.minHeight.px]="this.active.minSize.height" [style.minWidth.px]="this.active.minSize.width">
             <app-chart class="chart" #barChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></app-chart>
         </div>
