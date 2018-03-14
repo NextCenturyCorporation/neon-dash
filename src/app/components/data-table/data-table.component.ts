@@ -619,15 +619,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     removeFilter(filter: any) {
-        // We do it this way instead of using splice() because we have to replace filter array
-        // with a new object for Angular to recognize the change. It doesn't respond to mutation.
-        let newFilters = [];
-        for (let index = this.filters.length - 1; index >= 0; index--) {
-            if (this.filters[index].id === filter.id) {
-                this.filters.splice(index, 1);
-            }
-        }
-        this.filters = [...this.filters];
+        this.filters = this.filters.filter(element => element.id !== filter.id);
     }
 
     nextPage() {
