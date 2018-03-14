@@ -588,6 +588,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         });
     }
 
+    /**
+     * Returns FieldMetaData object with the given columnName
+     */
     getFieldObject(columnName: string, mappingKey?: string) : FieldMetaData {
         let me = this;
         let find = function(name) {
