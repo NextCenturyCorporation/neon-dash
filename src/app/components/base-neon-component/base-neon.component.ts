@@ -611,6 +611,27 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         return fieldObject || this.datasetService.createBlankField();
     }
 
+    /**
+     * Get field object from the key into the config options
+     */
+    findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
+        let me = this;
+        let find = function(name) {
+            return _.find(me.meta.fields, function(field) {
+                return field.columnName === name;
+            });
+        };
+
+        let fieldObjects = [];
+        if (bindingKey) {
+            this.getOptionFromConfig(bindingKey).forEach((element) => {
+                fieldObjects = fieldObjects.concat(find(element));
+            });
+        }
+
+        return fieldObjects;
+    }
+
     getMapping(key: string): string {
         return this.datasetService.getMapping(this.meta.database.name, this.meta.table.name, key);
     }

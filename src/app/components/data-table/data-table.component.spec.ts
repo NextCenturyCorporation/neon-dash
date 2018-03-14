@@ -44,14 +44,15 @@ import * as neon from 'neon-framework';
 describe('Component: DataTable', () => {
     let component: DataTableComponent,
         fixture: ComponentFixture<DataTableComponent>,
-        addFilter = (key: String, value: String, prettyKey: String) => {
+        addFilter = (key: string, value: string, prettyKey: string) => {
             let filter = {
                 id: undefined,
                 key: key,
                 value: value,
                 prettyKey: prettyKey
             };
-            component.addFilter(filter);
+            let whereClause = neon.query.where(filter.key, '=', filter.value);
+            component.addFilter(filter, whereClause);
             return filter;
         },
         getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
