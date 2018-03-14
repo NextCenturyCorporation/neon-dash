@@ -467,6 +467,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 return row;
             }.bind(this));
             this.active.data = data;
+            // The query response is being stringified and stored in active.data
+            // Store the response in active.rawData to preserve the data in its raw form for querying and filtering purposes
             this.active.rawData = response.data;
             this.getDocCount();
             this.refreshVisualization();
@@ -621,11 +623,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         // with a new object for Angular to recognize the change. It doesn't respond to mutation.
         let newFilters = [];
         for (let index = this.filters.length - 1; index >= 0; index--) {
-            if (this.filters[index].id !== filter.id) {
-                newFilters.push(this.filters[index]);
+            if (this.filters[index].id === filter.id) {
+                this.filters.splice(index, 1);
             }
         }
-        this.filters = newFilters;
+        this.filters = [...this.filters];
     }
 
     nextPage() {

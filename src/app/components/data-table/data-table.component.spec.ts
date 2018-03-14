@@ -137,15 +137,15 @@ describe('Component: DataTable', () => {
     it('should remove filter when clicked', () => {
         addFilter('testDataField', 'Test Value', 'Test Data Field');
         expect(getService(FilterService).getFilters().length).toBe(1);
-        let xEl = getDebug('.filter-reset .mat-icon-button');
+        let xEl = getDebug('.datatable-filter-reset .mat-icon-button');
         xEl.triggerEventHandler('click', null);
         expect(getService(FilterService).getFilters().length).toBe(0);
     });
 
     it('filter-reset element should exist if filter is set', () => {
-        expect(getDebug('.filter-reset')).toBeNull();
+        expect(getDebug('.datatablefilter-reset')).toBeNull();
         addFilter('testDataField', 'Test Value', 'Test Data Field');
-        expect(getDebug('.filter-reset')).toBeDefined();
+        expect(getDebug('.datatable-filter-reset')).toBeDefined();
     });
 
     it('no filter-reset elements should exist if filter is not set', () => {
