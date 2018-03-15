@@ -507,12 +507,12 @@ export class CesiumNeonMap extends AbstractMap {
             singleDigitPins[i] = pinBuilder.fromText('' + (i + 2), Cesium.Color.VIOLET, 52).toDataURL();
         }
 
-        let customStyle = function() {
+        let customStyle = () => {
             if (Cesium.defined(removeListener)) {
                 removeListener();
                 removeListener = undefined;
             } else {
-                removeListener = dataSource.clustering.clusterEvent.addEventListener(function(clusteredEntities, cluster) {
+                removeListener = dataSource.clustering.clusterEvent.addEventListener((clusteredEntities, cluster) => {
                     cluster.label.show = true;
                     cluster.label.showBackground = true;
                     cluster.label.font = '18px sans-serif';

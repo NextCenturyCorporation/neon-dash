@@ -245,8 +245,6 @@ describe('Component: Map', () => {
                 dateField: new FieldMetaData()
             }],
             andFilters: true,
-            limit: 1000,
-            newLimit: 1000,
             filterable: true,
             data: [],
             nextColorIndex: 0,
@@ -505,7 +503,6 @@ describe('Component: Map', () => {
         let bindings = {};
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
-            limit: 1000,
             layers: [{
                 title: '',
                 latitudeField: '',
@@ -519,11 +516,8 @@ describe('Component: Map', () => {
         updateMapLayer1(component);
         updateMapLayer2(component);
 
-        component.active.limit = 9999;
-
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
-            limit: 9999,
             layers: [{
                 title: 'Layer A',
                 latitudeField: 'testLatitude1',
@@ -789,7 +783,7 @@ describe('Component: Map', () => {
     it('createQuery does return expected object', () => {
         updateMapLayer1(component);
 
-        component.active.limit = 5678;
+        component.meta.limit = 5678;
 
         let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
         let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
@@ -985,23 +979,6 @@ describe('Component: Map', () => {
         // TODO
     });
 
-    it('handleChangeLimit does update limit and call logChangeAndStartAllQueryChain', () => {
-        let spy = spyOn(component, 'logChangeAndStartAllQueryChain');
-
-        component.active.newLimit = 1234;
-
-        component.handleChangeLimit();
-        expect(component.active.limit).toEqual(1234);
-        expect(spy.calls.count()).toBe(1);
-
-        component.active.newLimit = 0;
-
-        component.handleChangeLimit();
-        expect(component.active.limit).toEqual(1234);
-        expect(component.active.newLimit).toEqual(1234);
-        expect(spy.calls.count()).toBe(1);
-    });
-
     it('handleChangeMapType does change and redraw map', () => {
         // TODO
     });
@@ -1131,7 +1108,7 @@ describe('Component: Map', () => {
 
         expect(component.getButtonText()).toEqual('1,000 of 1,234');
 
-        component.active.limit = 2000;
+        component.meta.limit = 2000;
 
         expect(component.getButtonText()).toEqual('Total 1,234');
 
@@ -1245,8 +1222,6 @@ describe('Component: Map with config', () => {
                 dateField: new FieldMetaData('testDateField', 'Test Date Field')
             }],
             andFilters: true,
-            limit: 9999,
-            newLimit: 9999,
             filterable: true,
             data: [],
             nextColorIndex: 0,

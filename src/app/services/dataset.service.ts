@@ -46,14 +46,14 @@ export class DatasetService {
     // STATIC METHODS
     // --
     static removeFromArray(array, indexList): void {
-        indexList.forEach(function(index) {
+        indexList.forEach((index) => {
             array.splice(index, 1);
         });
     }
 
     static validateFields(table): void {
         let indexListToRemove = [];
-        table.fields.forEach(function(field, index) {
+        table.fields.forEach((field, index) => {
             if (!field.columnName) {
                 indexListToRemove.push(index);
             } else {
@@ -65,7 +65,7 @@ export class DatasetService {
 
     static validateTables(database): void {
         let indexListToRemove = [];
-        database.tables.forEach(function(table, index) {
+        database.tables.forEach((table, index) => {
             if (!table.name) {
                 indexListToRemove.push(index);
             } else {
@@ -81,7 +81,7 @@ export class DatasetService {
     static validateDatabases(dataset): void {
         let indexListToRemove = [];
         dataset.dateFilterKeys = {};
-        dataset.databases.forEach(function(database, index) {
+        dataset.databases.forEach((database, index) => {
             if (!(database.name || database.tables || database.tables.length)) {
                 indexListToRemove.push(index);
             } else {
@@ -89,7 +89,7 @@ export class DatasetService {
                 DatasetService.validateTables(database);
                 // Initialize the date filter keys map for each database/table pair.
                 dataset.dateFilterKeys[database.name] = {};
-                database.tables.forEach(function(table) {
+                database.tables.forEach((table) => {
                     dataset.dateFilterKeys[database.name][table.name] = {};
                 });
             }
@@ -100,7 +100,7 @@ export class DatasetService {
     constructor(@Inject('config') private config: NeonGTDConfig) {
         this.datasets = (config.datasets ? config.datasets : []);
         this.messenger = new neon.eventing.Messenger();
-        this.datasets.forEach(function(dataset) {
+        this.datasets.forEach((dataset) => {
             DatasetService.validateDatabases(dataset);
         });
     }
@@ -177,10 +177,9 @@ export class DatasetService {
         }
         if (this.dataset.options.requeryInterval) {
             let delay = Math.max(0.5, this.dataset.options.requeryInterval) * 60000;
-            let me = this;
             this.updateInterval = Observable.interval(delay);
             this.updateSubscription = this.updateInterval.subscribe(() => {
-                me.publishUpdateData();
+                this.publishUpdateData();
             });
         }
     }
@@ -424,11 +423,11 @@ export class DatasetService {
             return [];
         }
 
-        let fields = _.cloneDeep(table.fields).filter(function(field) {
+        let fields = _.cloneDeep(table.fields).filter((field) => {
             return ignoreHiddenFields ? !field.hide : true;
         });
 
-        fields.sort(function(x, y) {
+        fields.sort((x, y) => {
             if (!x.prettyName || !y.prettyName) {
                 return 0;
             }
@@ -504,7 +503,7 @@ export class DatasetService {
     public getRelations(databaseName: string, tableName: string, fieldNames: string[]): any[] {
         let relations = this.dataset.relations;
 
-        let initializeMapAsNeeded = function(map, key1, key2) {
+        let initializeMapAsNeeded = (map, key1, key2) => {
             if (!(map[key1])) {
                 map[key1] = {};
             }
@@ -518,9 +517,9 @@ export class DatasetService {
         let relationToFields = {};
 
         // Iterate through each field to find its relations.
-        fieldNames.forEach(function(fieldName) {
+        fieldNames.forEach((fieldName) => {
             // Iterate through each relation to compare with the current field.
-            relations.forEach(function(relation) {
+            relations.forEach((relation) => {
                 let relationFieldNamesForInput = relation[databaseName] ? relation[databaseName][tableName] : [];
                 relationFieldNamesForInput = _.isArray(relationFieldNamesForInput) ?
                     relationFieldNamesForInput : [relationFieldNamesForInput];
@@ -530,20 +529,20 @@ export class DatasetService {
                     let databaseNames = Object.keys(relation);
                     // Add each database/table/field in the current relation to the map.
                     // Note that this will include the input database/table/field.
-                    databaseNames.forEach(function(relationDatabaseName) {
+                    databaseNames.forEach((relationDatabaseName) => {
                         let tableNames = Object.keys(relation[relationDatabaseName]);
-                        tableNames.forEach(function(relationTableName) {
+                        tableNames.forEach((relationTableName) => {
                             let relationFieldNames = relation[relationDatabaseName][relationTableName];
                             relationFieldNames = _.isArray(relationFieldNames) ? relationFieldNames : [relationFieldNames];
                             relationToFields = initializeMapAsNeeded(relationToFields, relationDatabaseName, relationTableName);
 
-                            let existingFieldIndex = relationToFields[relationDatabaseName][relationTableName].map(function(object) {
+                            let existingFieldIndex = relationToFields[relationDatabaseName][relationTableName].map((object) => {
                                 return object.initial;
                             }).indexOf(fieldName);
 
                             // If the database/table/field exists in the relation...
                             if (existingFieldIndex >= 0) {
-                                relationFieldNames.forEach(function(relationFieldName) {
+                                relationFieldNames.forEach((relationFieldName) => {
                                     // If the relation fields do not exist in the relation, add them to the mapping.
                                     if (relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.indexOf(relationFieldName) < 0) { /* tslint:disable:max-line-length */
                                         relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.push(relationFieldName); /* tslint:disable:max-line-length */
@@ -568,9 +567,9 @@ export class DatasetService {
             let results = [];
             // Iterate through the relations for each relation's database/table/field
             // and add a relation object for each database/table pair to the final list of results.
-            resultDatabaseNames.forEach(function(resultDatabaseName) {
+            resultDatabaseNames.forEach((resultDatabaseName) => {
                 let resultTableNames = Object.keys(relationToFields[resultDatabaseName]);
-                resultTableNames.forEach(function(resultTableName) {
+                resultTableNames.forEach((resultTableName) => {
                     results.push({
                         database: resultDatabaseName,
                         table: resultTableName,
@@ -589,7 +588,7 @@ export class DatasetService {
             fields: []
         };
 
-        fieldNames.forEach(function(fieldName) {
+        fieldNames.forEach((fieldName) => {
             result.fields.push({
                 initial: fieldName,
                 related: [fieldName]
@@ -822,20 +821,19 @@ export class DatasetService {
     public updateDatabases(dataset: Dataset, connection: neon.query.Connection, callback?: Function, index?: number): void {
         let databaseIndex = index ? index : 0;
         let database = dataset.databases[databaseIndex];
-        let me = this;
         let pendingTypesRequests = 0;
-        connection.getTableNamesAndFieldNames(database.name, function(tableNamesAndFieldNames) {
-            Object.keys(tableNamesAndFieldNames).forEach(function(tableName: string) {
-                let table = _.find(database.tables, function(item: TableMetaData) {
+        connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
+            Object.keys(tableNamesAndFieldNames).forEach((tableName: string) => {
+                let table = _.find(database.tables, (item: TableMetaData) => {
                     return item.name === tableName;
                 });
 
                 if (table) {
                     let hasField = {};
-                    table.fields.forEach(function(field: FieldMetaData) {
+                    table.fields.forEach((field: FieldMetaData) => {
                         hasField[field.columnName] = true;
                     });
-                    tableNamesAndFieldNames[tableName].forEach(function(fieldName: string) {
+                    tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
                         if (!hasField[fieldName]) {
                             let newField: FieldMetaData = {
                                 columnName: fieldName,
@@ -846,7 +844,7 @@ export class DatasetService {
                         }
                     });
                     pendingTypesRequests++;
-                    connection.getFieldTypes (database.name, table.name, function(types) {
+                    connection.getFieldTypes (database.name, table.name, (types) => {
                         for (let f of table.fields) {
                             if (types && types[f.columnName]) {
                                 f.type = types[f.columnName];
@@ -860,7 +858,7 @@ export class DatasetService {
                 }
             });
             if (++databaseIndex < dataset.databases.length) {
-                me.updateDatabases(dataset, connection, callback, databaseIndex);
+                this.updateDatabases(dataset, connection, callback, databaseIndex);
             } else if (callback) {
                 dataset.hasUpdatedFields = true;
                 if (pendingTypesRequests === 0) {
@@ -917,7 +915,7 @@ export class DatasetService {
      */
     public getPrettyNameForDatabase(databaseName: string): string {
         let name = databaseName;
-        this.dataset.databases.forEach(function(database) {
+        this.dataset.databases.forEach((database) => {
             if (database.name === databaseName) {
                 name = database.prettyName;
             }
@@ -933,7 +931,7 @@ export class DatasetService {
      */
     public getPrettyNameForTable(databaseName: string, tableName: string): string {
         let name = tableName;
-        this.getTables(databaseName).forEach(function(table) {
+        this.getTables(databaseName).forEach((table) => {
             if (table.name === tableName) {
                 name = table.prettyName;
             }

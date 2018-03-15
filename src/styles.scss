@@ -66,6 +66,10 @@ body {
     display: flex;
 }
 
+.center {
+    align-items: center;
+}
+
 .fill-remaining {
     flex: 1 1 auto;
 }
@@ -77,7 +81,7 @@ body {
 
 .grid-item {
     border-radius: 5px;
-    position: absolute;
+    background-color: inherit !important;
 }
 
 .grid-item.moving {

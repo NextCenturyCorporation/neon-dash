@@ -16,11 +16,6 @@
  @import '../base-neon-component/base-neon.component.scss';
 
 .visualization-sidenav {
-    .wiki-name.icon {
-        position: relative;
-        bottom: 1px;
-    }
-
     .mat-tab-group {
         height: calc(100% - #{$vis-title-expected-height});
     }

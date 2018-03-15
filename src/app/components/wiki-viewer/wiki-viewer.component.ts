@@ -34,7 +34,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonUtilities } from '../../neon-namespaces';
+import { neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
@@ -57,7 +57,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
 
     public active: {
         allowsTranslations: boolean,
-        errorMessage: string,
         id: string,
         idField: FieldMetaData,
         linkField: FieldMetaData,
@@ -93,7 +92,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         };
         this.active = {
             allowsTranslations: true,
-            errorMessage: '',
             id: this.optionsFromConfig.id || '',
             idField: new FieldMetaData(),
             linkField: new FieldMetaData(),
@@ -279,16 +277,16 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
-                this.active.errorMessage = '';
+                this.meta.errorMessage = '';
                 this.isLoadingWikiPage = true;
                 let links = neonUtilities.deepFind(response.data[0], this.active.linkField.columnName);
                 this.retrieveWikiPage(Array.isArray(links) ? links : [links]);
             } else {
-                this.active.errorMessage = 'No Data';
+                this.meta.errorMessage = 'No Data';
                 this.refreshVisualization();
             }
         } catch (e) {
-            this.active.errorMessage = 'Error';
+            this.meta.errorMessage = 'Error';
             this.refreshVisualization();
         }
     }
@@ -344,21 +342,20 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             return;
         }
 
-        let self = this;
-        this.http.get (WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).toPromise().then(function(wikiResponse) {
+        this.http.get (WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).toPromise().then((wikiResponse) => {
             let responseObject = JSON.parse(wikiResponse.text());
             if (responseObject.error) {
-                self.active.wikiName.push(links[0]);
-                self.active.wikiText.push(self.sanitizer.bypassSecurityTrustHtml(responseObject.error.info));
+                this.active.wikiName.push(links[0]);
+                this.active.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(responseObject.error.info));
             } else {
-                self.active.wikiName.push(responseObject.parse.title);
-                self.active.wikiText.push(self.sanitizer.bypassSecurityTrustHtml(responseObject.parse.text['*']));
+                this.active.wikiName.push(responseObject.parse.title);
+                this.active.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(responseObject.parse.text['*']));
             }
-            self.retrieveWikiPage(links.slice(1));
-        }).catch(function(error) {
-            self.active.wikiName.push(links[0]);
-            self.active.wikiText.push(self.sanitizer.bypassSecurityTrustHtml(error));
-            self.retrieveWikiPage(links.slice(1));
+            this.retrieveWikiPage(links.slice(1));
+        }).catch((error) => {
+            this.active.wikiName.push(links[0]);
+            this.active.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(error));
+            this.retrieveWikiPage(links.slice(1));
         });
     }
 
