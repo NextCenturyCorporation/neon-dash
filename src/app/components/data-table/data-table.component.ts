@@ -619,7 +619,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     removeFilter(filter: any) {
-        this.filters = this.filters.filter(element => element.id !== filter.id);
+        this.filters = this.filters.filter((element) => element.id !== filter.id);
     }
 
     nextPage() {

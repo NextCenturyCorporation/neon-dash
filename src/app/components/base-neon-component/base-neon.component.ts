@@ -619,7 +619,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Get an array of field objects from the key into the config options
      */
     findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
-        return this.getOptionFromConfig(bindingKey).map(element => this.getFieldObject(element, mappingKey));
+        return this.getOptionFromConfig(bindingKey).map((element) => this.getFieldObject(element, mappingKey));
     }
 
     getMapping(key: string): string {
