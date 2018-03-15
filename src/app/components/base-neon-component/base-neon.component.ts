@@ -589,9 +589,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Get field object from the key into the config options
+     * Returns FieldMetaData object with the given columnName
      */
-    findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
+    private getFieldObject(columnName: string, mappingKey?: string): FieldMetaData {
         let me = this;
         let find = function(name) {
             return _.find(me.meta.fields, function(field) {
@@ -599,16 +599,27 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             });
         };
 
-        let fieldObject;
-        if (bindingKey) {
-            fieldObject = find(this.getOptionFromConfig(bindingKey));
-        }
+        let fieldObject = find(columnName);
 
         if (!fieldObject && mappingKey) {
             fieldObject = find(this.getMapping(mappingKey));
         }
 
         return fieldObject || this.datasetService.createBlankField();
+    }
+
+    /**
+     * Get field object from the key into the config options
+     */
+    findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
+        return this.getFieldObject(this.getOptionFromConfig(bindingKey), mappingKey);
+    }
+
+    /**
+     * Get an array of field objects from the key into the config options
+     */
+    findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
+        return this.getOptionFromConfig(bindingKey).map(element => this.getFieldObject(element, mappingKey));
     }
 
     getMapping(key: string): string {

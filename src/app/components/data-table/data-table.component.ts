@@ -66,8 +66,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         table: string,
         idField: string,
         sortField: string,
-        dataField: string,
+        filterFields: string[],
         filterable: boolean,
+        arrayFilterOperator: string,
         limit: number,
         limitDisabled: boolean,
         unsharedFilterField: Object,
@@ -79,7 +80,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public active: {
         idField: FieldMetaData,
         sortField: FieldMetaData,
-        dataField: FieldMetaData,
+        filterFields: FieldMetaData[],
+        arrayFilterOperator: string,
         andFilters: boolean,
         limit: number,
         page: number,
@@ -87,6 +89,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         filterable: boolean,
         layers: any[],
         data: Object[],
+        rawData: Object[],
         headers: { prop: string, name: string, active: boolean, style: Object, width: number}[],
         headerWidths: Map<string, number>,
         activeHeaders: { prop: string, name: string, active: boolean, style: Object }[],
@@ -115,8 +118,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             table: this.injector.get('table', null),
             idField: this.injector.get('idField', null),
             sortField: this.injector.get('sortField', null),
-            dataField: this.injector.get('dataField', null),
+            filterFields: this.injector.get('filterFields', []),
             filterable: this.injector.get('filterable', false),
+            arrayFilterOperator: this.injector.get('arrayFilterOperator', 'or'),
             limit: this.injector.get('limit', 100),
             limitDisabled: this.injector.get('limitDisabled', true),
             unsharedFilterField: {},
@@ -128,20 +132,21 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.active = {
             idField: new FieldMetaData(),
             sortField: new FieldMetaData(),
-            dataField: new FieldMetaData(),
+            filterFields: [],
             andFilters: true,
             limit: this.optionsFromConfig.limit,
             page: 1,
             docCount: 0,
             filterable: this.optionsFromConfig.filterable,
+            arrayFilterOperator: this.optionsFromConfig.arrayFilterOperator,
             layers: [],
             data: [],
+            rawData: [],
             headers: [],
             headerWidths: new Map<string, number>(),
             activeHeaders: [],
             showColumnSelector: 'hide'
         };
-
         this.drag = {
             mousedown: false,
             downIndex: -1,
@@ -172,15 +177,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     subGetBindings(bindings: any) {
         bindings.idField = this.active.idField.columnName;
         bindings.sortField = this.active.sortField.columnName;
-        bindings.dataField = this.active.dataField.columnName;
+        bindings.filterFields = this.active.filterFields;
         bindings.limit = this.active.limit;
         bindings.filterable = this.active.filterable;
+        bindings.arrayFilterOperator = this.active.arrayFilterOperator;
     }
 
     onUpdateFields() {
         this.active.idField = this.findFieldObject('idField', neonMappings.TAGS);
         this.active.sortField = this.findFieldObject('sortField', neonMappings.TAGS);
-        this.active.dataField = this.findFieldObject('dataField', neonMappings.TAGS);
+        this.active.filterFields = this.findFieldObjects('filterFields', neonMappings.TAGS);
         let initialHeaderLimit = 25;
         let numHeaders = 0;
         let defaultShowValue = this.optionsFromConfig.allColumnStatus !== 'hide';
@@ -318,7 +324,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     addLocalFilter(filter) {
-        this.filters[0] = filter;
+        this.filters = this.filters.concat(filter);
     }
 
     filterIsUnique(filter) {
@@ -461,6 +467,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 return row;
             }.bind(this));
             this.active.data = data;
+            // The query response is being stringified and stored in active.data
+            // Store the response in active.rawData to preserve the data in its raw form for querying and filtering purposes
+            this.active.rawData = response.data;
             this.getDocCount();
             this.refreshVisualization();
         }
@@ -587,16 +596,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return this.filters;
     }
 
-    getFilterTitle(value: string) {
-        return this.active.sortField.columnName + ' = ' + value;
+    getFilterTitle(key: string, value: string) {
+        return key + ' = ' + value;
     }
 
     getFilterCloseText(value: string) {
         return value;
     }
 
-    getRemoveFilterTooltip(value: string) {
-        return 'Delete Filter ' + this.getFilterTitle(value);
+    getRemoveFilterTooltip(key: string, value: string) {
+        return 'Delete Filter ' + this.getFilterTitle(key, value);
     }
 
     unsharedFilterChanged() {
@@ -609,8 +618,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.executeQueryChain();
     }
 
-    removeFilter() {
-        this.filters = [];
+    removeFilter(filter: any) {
+        this.filters = this.filters.filter(element => element.id !== filter.id);
     }
 
     nextPage() {
@@ -654,26 +663,53 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
         this.selected.splice(0, this.selected.length);
         this.selected.push(...selected);
+
         if (this.active.filterable) {
-            let dataField = this.active.dataField.columnName;
-            let value = selected[0][dataField];
-            let key = dataField;
-            let prettyKey = this.active.dataField.prettyName;
-            let filter = {
-                id: undefined, // This will be set in the success callback of addNeonFilter.
-                key: key,
-                value: value,
-                prettyKey: prettyKey
-            };
-            this.addFilter(filter);
+            let object = this.active.rawData.filter((obj) =>
+                obj[this.active.idField.columnName] === selected[0][this.active.idField.columnName])[0];
+            this.active.filterFields.forEach((filterField: any) => {
+                let dataField = filterField.columnName;
+                let value = (this.active.idField.columnName.length === 0) ? selected[0][dataField] : object[dataField];
+                let key = dataField;
+                let prettyKey = filterField.prettyName;
+                let filter = this.createFilterObject(key, value, prettyKey);
+
+                if (value instanceof Array) {
+                    if (this.active.arrayFilterOperator === 'and') {
+                        value.forEach((element) => {
+                            let arrayFilter = this.createFilterObject(key, element, prettyKey);
+                            let whereClause = neon.query.where(arrayFilter.key, '=', arrayFilter.value);
+                            this.addFilter(arrayFilter, whereClause);
+                        });
+                    } else {
+                        let clauses = value.map((val) =>
+                        neon.query.where(filter.key, '=', val)
+                    );
+                        let clause = neon.query.or.apply(neon.query, clauses);
+                        this.addFilter(filter, clause);
+                    }
+                } else {
+                    let clause = neon.query.where(filter.key, '=', filter.value);
+                    this.addFilter(filter, clause);
+                }
+            });
         }
     }
 
-    addFilter(filter) {
+    createFilterObject(key, value, prettyKey): any {
+        let filter = {
+            id: undefined, // This will be set in the success callback of addNeonFilter.
+            key: key,
+            value: value,
+            prettyKey: prettyKey
+        };
+        return filter;
+    }
+
+    addFilter(filter, clause) {
         if (this.filterIsUnique(filter)) {
             this.addLocalFilter(filter);
-            let whereClause = neon.query.where(filter.key, '=', filter.value);
-            this.addNeonFilter(true, filter, whereClause);
+            this.addNeonFilter(true, filter, clause);
         }
     }
 
