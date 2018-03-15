@@ -104,13 +104,7 @@ datasets:
               date: time
               latitude: latitude
               longitude: longitude
-              line_category: type
-              bar_x_axis: net
-              y_axis: mag
-              color_by: type
-              size_by: mag
-              sort_by: time
-              count_by: net
+              id: _id
     mapConfig:
       myMap1:
         bounds:

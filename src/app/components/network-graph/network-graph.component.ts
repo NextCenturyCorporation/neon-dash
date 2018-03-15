@@ -33,7 +33,7 @@ import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
 import { VisualizationService } from '../../services/visualization.service';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonVariables } from '../../neon-namespaces';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import * as shape from 'd3-shape';
@@ -70,11 +70,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }[];
 
     public optionsFromConfig: {
-        title: string;
-        database: string;
-        table: string;
-        nodeField: FieldMetaData;
-        linkField: FieldMetaData;
+        title: string,
+        database: string,
+        table: string,
+        nodeField: FieldMetaData,
+        linkField: FieldMetaData,
         limit: number
     };
 
@@ -85,7 +85,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         aggregationField: FieldMetaData,
         aggregationFieldHidden: boolean,
         andFilters: boolean,
-        limit: number,
         filterable: boolean,
         data: any[],
         aggregation: string
@@ -159,7 +158,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             aggregationField: new FieldMetaData(),
             aggregationFieldHidden: true,
             andFilters: true,
-            limit: this.optionsFromConfig.limit,
             filterable: true,
             data: [],
             aggregation: 'count'
@@ -209,7 +207,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     subGetBindings(bindings: any) {
         bindings.nodeField = this.active.nodeField.columnName;
         bindings.linkField = this.active.linkField.columnName;
-        bindings.limit = this.active.limit;
     }
 
     ngAfterViewInit() {
@@ -391,8 +388,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     onUpdateFields() {
-        this.active.nodeField = this.findFieldObject('nodeField', neonMappings.GRAPH_NODE);
-        this.active.linkField = this.findFieldObject('linkField', neonMappings.GRAPH_LINKED_NODE);
+        this.active.nodeField = this.findFieldObject('nodeField');
+        this.active.linkField = this.findFieldObject('linkField');
         this.updateData();
         //
     }

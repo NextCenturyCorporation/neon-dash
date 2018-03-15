@@ -38,7 +38,7 @@ export namespace neonUtilities {
      * @return {array}
      */
     export function flatten(input) {
-        return (input || []).reduce(function(array, element) {
+        return (input || []).reduce((array, element) => {
             return array.concat(Array.isArray(element) ? flatten(element) : element);
         }, []);
     }
@@ -77,58 +77,11 @@ export namespace neonUtilities {
 
 // Mappings used in the JSON configuration file.
 export namespace neonMappings {
-    export const ID = 'id';
     export const DATE = 'date';
-    export const TAGS = 'tags';
-    export const URLS = 'url';
+    export const ID = 'id';
     export const LATITUDE = 'latitude';
     export const LONGITUDE = 'longitude';
-    export const SOURCE_LATITUDE = 'source_latitude';
-    export const SOURCE_LONGITUDE = 'source_longitude';
-    export const TARGET_LATITUDE = 'target_latitude';
-    export const TARGET_LONGITUDE = 'target_longitude';
-    export const COLOR = 'color_by';
-    export const NODE_COLOR_BY = 'nodeColorBy';
-    export const LINE_COLOR_BY = 'lineColorBy';
-    export const SIZE = 'size_by';
-    export const NODE_SIZE = 'node_size';
-    export const LINE_SIZE = 'line_size';
-    export const SORT = 'sort_by';
-    export const AGGREGATE = 'count_by';
-    export const Y_AXIS = 'y_axis';
-    export const BAR_GROUPS = 'bar_x_axis';
-    export const LINE_GROUPS = 'line_category';
-    export const SCATTERPLOT_X_AXIS = 'x_attr';
-    export const SCATTERPLOT_Y_AXIS = 'y_attr';
-    export const GRAPH_NODE = 'graph_nodes';
-    export const GRAPH_LINKED_NODE = 'graph_links';
-    export const GRAPH_NODE_NAME = 'graph_node_name';
-    export const GRAPH_LINKED_NODE_NAME = 'graph_link_name';
-    export const GRAPH_NODE_SIZE = 'graph_node_size';
-    export const GRAPH_LINKED_NODE_SIZE = 'graph_link_size';
-    export const GRAPH_FLAG = 'graph_flag';
-    export const GRAPH_FLAG_MODE = 'graph_flag_mode';
-    export const GRAPH_TOOLTIP_ID_LABEL = 'graph_tooltip_id_label';
-    export const GRAPH_TOOLTIP_DATA_LABEL = 'graph_tooltip_data_label';
-    export const GRAPH_TOOLTIP_NAME_LABEL = 'graph_tooltip_name_label';
-    export const GRAPH_TOOLTIP_SIZE_LABEL = 'graph_tooltip_size_label';
-    export const GRAPH_TOOLTIP_FLAG_LABEL = 'graph_tooltip_flag_label';
-    export const GRAPH_TOOLTIP_SOURCE_NAME_LABEL = 'graph_tooltip_source_name_label';
-    export const GRAPH_TOOLTIP_TARGET_NAME_LABEL = 'graph_tooltip_target_name_label';
-    export const GRAPH_TOOLTIP_SOURCE_SIZE_LABEL = 'graph_tooltip_source_size_label';
-    export const GRAPH_TOOLTIP_TARGET_SIZE_LABEL = 'graph_tooltip_target_size_label';
-    export const NEWSFEED_NAME = 'newsfeed_name';
-    export const NEWSFEED_TYPE = 'newsfeed_type';
-    export const NEWSFEED_TEXT = 'newsfeed_text';
-    export const NEWSFEED_AUTHOR = 'newsfeed_author';
-    export const START_DATE = 'startDate';
-    export const END_DATE = 'endDate';
-    export const MIN_LAT = 'minLat';
-    export const MIN_LON = 'minLon';
-    export const MAX_LAT = 'maxLat';
-    export const MAX_LON = 'maxLon';
-    export const BOUNDS = 'bounds';
-    export const POINT = 'point';
+    export const URL = 'url';
 }
 
 export namespace neonVisualizationMinPixel { // jshint ignore:line

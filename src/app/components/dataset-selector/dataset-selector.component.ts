@@ -149,34 +149,33 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             });
         }
 
-        let me = this;
-        this.messenger.subscribe(ParameterService.STATE_CHANGED_CHANNEL, function(message) {
+        this.messenger.subscribe(ParameterService.STATE_CHANGED_CHANNEL, (message) => {
             if (message && message.dataset) {
                 if (message.dataset) {
-                    me.datasetService.setActiveDataset(message.dataset);
+                    this.datasetService.setActiveDataset(message.dataset);
 
-                    me.activeDataset = {
+                    this.activeDataset = {
                         name: message.dataset.name,
                         info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
                         data: true
                     };
-                    me.activeDatasetChanged.emit(me.activeDataset);
+                    this.activeDatasetChanged.emit(this.activeDataset);
                 }
                 if (message.dashboard) {
                     let layoutName: string = 'savedDashboard-' + message.dashboardStateId;
 
-                    me.layouts[layoutName] = message.dashboard;
+                    this.layouts[layoutName] = message.dashboard;
 
                     if (message.dataset) {
-                        me.datasetService.setLayout(layoutName);
+                        this.datasetService.setLayout(layoutName);
                     }
 
                     for (let dashboard of message.dashboard) {
                         dashboard.id = uuid.v4();
                     }
-                    me.activeGridService.setGridItems(message.dashboard);
-                    me.activeDatasetChanged.emit(me.activeDataset);
-                    me.gridItemsChanged.emit(message.dashboard.length);
+                    this.activeGridService.setGridItems(message.dashboard);
+                    this.activeDatasetChanged.emit(this.activeDataset);
+                    this.gridItemsChanged.emit(message.dashboard.length);
                 }
             }
         });
@@ -214,12 +213,11 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
         // Update the fields within each database and table within the selected dataset
         // to include fields that weren't listed in the configuration file.
-        let me = this;
-        this.datasetService.updateDatabases(this.datasets[index], connection, function(dataset) {
-            me.datasets[index] = dataset;
+        this.datasetService.updateDatabases(this.datasets[index], connection, (dataset) => {
+            this.datasets[index] = dataset;
 
             // Wait to update the layout until after we finish the dataset updates.
-            me.finishConnectToPreset(dataset, loadDashboardState);
+            this.finishConnectToPreset(dataset, loadDashboardState);
         });
     }
 
@@ -279,9 +277,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         // Clear any old filters prior to loading the new layout and dataset.
         this.messenger.clearFilters();
 
-        _.each(this.customVisualizations, function(visualization) {
+        _.each(this.customVisualizations, (visualization) => {
             let id: string = uuid.v4();
-            let layout: { [key: string]: any } = {
+            let layout: any = {
                 id: id,
                 bindings: {},
                 bordersize: 5,
@@ -310,7 +308,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                 };
             }
 
-            _.each(visualization.bindings, function(value, key) {
+            _.each(visualization.bindings, (value, key) => {
                 layout.bindings[key] = '\'' + value + '\'';
             });
 
@@ -340,10 +338,10 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     createCustomDataset(): Dataset {
         let dataset: Dataset = new Dataset(this.datasetName, this.datastoreType, this.datastoreHost);
 
-        this.customDatabases.forEach(function(customDatabase: CustomDatabase) {
+        this.customDatabases.forEach((customDatabase: CustomDatabase) => {
             let database: DatabaseMetaData = new DatabaseMetaData(customDatabase.database.name, customDatabase.database.prettyName);
 
-            customDatabase.customTables.forEach(function(customTable: CustomTable) {
+            customDatabase.customTables.forEach((customTable: CustomTable) => {
                 let tableObject: TableMetaData = new TableMetaData(customTable.table.name,
                     customTable.table.prettyName, customTable.table.fields, customTable.table.mappings);
                 database.tables.push(tableObject);
@@ -352,7 +350,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             dataset.databases.push(database);
         });
 
-        this.customRelations.forEach(function(customRelation) {
+        this.customRelations.forEach((customRelation) => {
             let relation = new Relation();
 
             customRelation.customRelationDatabases.forEach((customRelationDatabase) => {

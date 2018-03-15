@@ -85,16 +85,16 @@ describe('Component: LineChart', () => {
         component.chart.data.labels = ['group1', 'group2'];
         expect(component.getButtonText()).toBe('Total 2');
 
-        component.active.limit = 1;
+        component.meta.limit = 1;
         expect(component.getButtonText()).toBe('1 of 2');
 
         component.chart.data.labels = ['group1', 'group2', 'group3', 'group4'];
         expect(component.getButtonText()).toBe('1 of 4');
 
-        component.active.limit = 2;
+        component.meta.limit = 2;
         expect(component.getButtonText()).toBe('2 of 4');
 
-        component.active.limit = 4;
+        component.meta.limit = 4;
         expect(component.getButtonText()).toBe('Total 4');
     });
 
@@ -103,22 +103,5 @@ describe('Component: LineChart', () => {
         expect(refs.headerText).toBeDefined();
         expect(refs.infoText).toBeDefined();
         expect(refs.visualization).toBeDefined();
-    });
-
-    it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
-        let spy = spyOn(component, 'logChangeAndStartQueryChain');
-
-        component.active.newLimit = 1234;
-
-        component.handleChangeLimit();
-        expect(component.active.limit).toEqual(1234);
-        expect(spy.calls.count()).toBe(1);
-
-        component.active.newLimit = 0;
-
-        component.handleChangeLimit();
-        expect(component.active.limit).toEqual(1234);
-        expect(component.active.newLimit).toEqual(1234);
-        expect(spy.calls.count()).toBe(1);
     });
 });

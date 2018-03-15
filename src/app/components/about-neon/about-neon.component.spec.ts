@@ -29,7 +29,7 @@ describe('Component: AboutNeonComponent', () => {
     let neonStub: any = {
         util: {
             infoUtils: {
-                getNeonVersion: function(cb) {
+                getNeonVersion: (cb) => {
                     let result: any = {
                         name: 'neon-gtd',
                         version: 'test-version'

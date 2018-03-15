@@ -59,10 +59,12 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         database: DatabaseMetaData,
         tables: TableMetaData[],
         table: TableMetaData,
+        fields: FieldMetaData[],
         unsharedFilterField: any,
         unsharedFilterValue: string,
-        colorField: FieldMetaData,
-        fields: FieldMetaData[]
+        errorMessage: string,
+        limit: number,
+        newLimit: number
     };
 
     public exportId: number;
@@ -104,10 +106,12 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             database: new DatabaseMetaData(),
             tables: [],
             table: new TableMetaData(),
+            fields: [],
             unsharedFilterField: {},
             unsharedFilterValue: '',
-            colorField: new FieldMetaData(),
-            fields: []
+            errorMessage: '',
+            limit: 10,
+            newLimit: 10
         };
 
         this.isExportable = true;
@@ -148,6 +152,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         }
 
         this.meta.title = this.getOptionFromConfig('title') || this.getVisualizationName();
+        this.meta.limit = this.getOptionFromConfig('limit') || this.meta.limit;
+        this.meta.newLimit = this.meta.limit;
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
@@ -200,7 +206,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             table: this.meta.table.name,
             unsharedFilterField: this.meta.unsharedFilterField.columnName,
             unsharedFilterValue: this.meta.unsharedFilterValue,
-            colorField: this.meta.colorField.columnName
+            limit: this.meta.limit
         };
 
         // Get the bindings from the subclass
@@ -284,10 +290,19 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Resizes visualization-specific sub-components as needed.  Override as needed.
+     */
+    subOnResizeStop() {
+        // Do nothing.
+    }
+
+    /**
      * Resizes sub-components as needed.
      */
     onResizeStop() {
         this.updateHeaderTextStyling();
+
+        this.subOnResizeStop();
 
         if (this.redrawAfterResize) {
             // This event fires as soon as the user releases the mouse, but NgGrid animates the resize,
@@ -543,7 +558,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @param query The query to execute
      */
     executeQuery(query: neon.query.Query) {
-        let me = this;
         let database = this.meta.database.name;
         let table = this.meta.table.name;
         let connection = this.connectionService.getActiveConnection();
@@ -567,13 +581,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             console.error('execute query did not return an object');
         }
 
-        this.outstandingDataQuery[database][table].always(function() {
-            me.outstandingDataQuery[database][table] = undefined;
+        this.outstandingDataQuery[database][table].always(() => {
+            this.outstandingDataQuery[database][table] = undefined;
         });
 
         this.outstandingDataQuery[database][table].done(this.baseOnQuerySuccess.bind(this));
 
-        this.outstandingDataQuery[database][table].fail(function(response) {
+        this.outstandingDataQuery[database][table].fail((response) => {
             if (response.statusText === 'abort') {
                 // query was aborted so we don't care.  We assume we aborted it on purpose.
             } else {
@@ -619,7 +633,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Get an array of field objects from the key into the config options
      */
     findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
-        return this.getOptionFromConfig(bindingKey).map(element => this.getFieldObject(element, mappingKey));
+        return this.getOptionFromConfig(bindingKey).map((element) => this.getFieldObject(element, mappingKey));
     }
 
     getMapping(key: string): string {
@@ -674,6 +688,30 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Updates or redraws sub-components after limit change as needed.
+     */
+    subHandleChangeLimit() {
+        this.logChangeAndStartQueryChain();
+    }
+
+    /**
+     * Updates the limit and the visualization.
+     */
+    handleChangeLimit() {
+        if (this.isNumber(this.meta.newLimit)) {
+            let newLimit = parseFloat('' + this.meta.newLimit);
+            if (newLimit > 0) {
+                this.meta.limit = newLimit;
+                this.subHandleChangeLimit();
+            } else {
+                this.meta.newLimit = this.meta.limit;
+            }
+        } else {
+            this.meta.newLimit = this.meta.limit;
+        }
+    }
+
+    /**
      * If not initializing, calls executeQueryChain();
      */
     logChangeAndStartQueryChain() {
@@ -697,14 +735,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             this.meta.unsharedFilterField.columnName !== '' &&
             this.meta.unsharedFilterValue &&
             this.meta.unsharedFilterValue.trim() !== '';
-    }
-
-    /**
-     * Returns true of there is a valid color field set fot he visualization
-     * @return {boolean}
-     */
-    hasColorField(): boolean {
-        return this.meta.colorField && this.meta.colorField.columnName !== '';
     }
 
     /**
