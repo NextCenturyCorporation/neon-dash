@@ -741,7 +741,7 @@
 				"type": "map",
 				"icon": "Map64",
 				"sizex": 11,
-				"sizey": 6,
+				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -827,7 +827,7 @@
 				"type": "barChart",
 				"icon": "BarChart64",
 				"sizex": 5,
-				"sizey": 3,
+				"sizey": 6,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 4,
@@ -862,7 +862,7 @@
 				"type": "textCloud",
 				"icon": "TagCloud64",
 				"sizex": 5,
-				"sizey": 3,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 4,
@@ -884,7 +884,7 @@
 				"type": "timeline",
 				"icon": "Timeline64",
 				"sizex": 11,
-				"sizey": 4,
+				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -901,41 +901,6 @@
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 10,
 				"col": 0
-			},
-			{
-				"name": "Bar Chart",
-				"type": "barChart",
-				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 4,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 3,
-				"$$hashKey": "object:30",
-				"selected": true,
-				"bindings": {
-					"title": "Sentiment",
-					"database": "ll_nepal_simplified_03_08",
-					"table": "documents",
-					"dataField": "sentimentString",
-					"aggregation": "",
-					"aggregationField": "",
-					"chartType": "bar",
-					"colors": [
-						{
-							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
-							"color": "77, 190, 194"
-						},
-						{
-							"value": "regimechange|crimeviolence|terrorism|earthquake",
-							"color": "39, 96, 126"
-						}
-					]
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 11,
-				"col": 12
 			}
 		]
 	},
