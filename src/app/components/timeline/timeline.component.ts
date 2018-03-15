@@ -256,9 +256,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             // Only apply filters that aren't local
             let filterClauses = [];
             filterClauses[0] = neon.query.where(fieldName, '>=', filter.startDate);
-            let endDatePlusOne = filter.endDate.getTime() + DateBucketizer.MILLIS_IN_DAY;
-            let endDatePlusOneDate = new Date(endDatePlusOne);
-            filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
+            filterClauses[1] = neon.query.where(fieldName, '<', filter.endDate);
             return neon.query.and.apply(neon.query, filterClauses);
         }
         return null;

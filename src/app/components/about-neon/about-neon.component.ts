@@ -47,19 +47,17 @@ export class AboutNeonComponent implements OnInit {
     }
 
     private loadNeonInfo() {
-        let me = this;
-        neon.util.infoUtils.getNeonVersion(function(result) {
-            me.serverVersionString = result;
-            me.serverInfoLoaded = false;
+        neon.util.infoUtils.getNeonVersion((result) => {
+            this.serverVersionString = result;
+            this.serverInfoLoaded = false;
         });
     }
 
     ngOnInit() {
-        let me = this;
         if (!this.neonGTDVersionLoaded) {
-            this.loadNeonGTDVersionFile().subscribe(function(versionInfo: VersionInfo) {
-                me.neonGTDVersionString = versionInfo.version;
-                me.neonGTDVersionLoaded = true;
+            this.loadNeonGTDVersionFile().subscribe((versionInfo: VersionInfo) => {
+                this.neonGTDVersionString = versionInfo.version;
+                this.neonGTDVersionLoaded = true;
             });
         }
 

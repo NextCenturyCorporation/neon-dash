@@ -188,7 +188,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     onUpdateFields() {
         this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
-        this.active.groupField = this.findFieldObject('groupField', neonMappings.BAR_GROUPS);
+        this.active.groupField = this.findFieldObject('groupField');
     }
 
     addLocalFilter(id: string, key: string, startDate: Date, endDate: Date, local?: boolean) {

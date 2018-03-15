@@ -38,7 +38,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { neonMappings } from '../../neon-namespaces';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BaseLayeredNeonComponent } from '../base-neon-component/base-layered-neon.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
@@ -236,7 +235,7 @@ describe('Component: base-neon', () => {
             table: component.meta.table.name,
             unsharedFilterField: component.meta.unsharedFilterField.columnName,
             unsharedFilterValue: component.meta.unsharedFilterValue,
-            colorField: component.meta.colorField.columnName
+            limit: 10
         });
     }));
 
@@ -247,10 +246,12 @@ describe('Component: base-neon', () => {
             database: DatasetMock.DATABASES[0],
             tables: DatasetMock.TABLES,
             table: DatasetMock.TABLES[0],
+            fields: DatasetMock.FIELDS,
             unsharedFilterField: new FieldMetaData(),
             unsharedFilterValue: '',
-            colorField: new FieldMetaData(),
-            fields: DatasetMock.FIELDS
+            errorMessage: '',
+            limit: 10,
+            newLimit: 10
         });
     });
 
@@ -386,6 +387,23 @@ describe('Component: base-neon', () => {
     it('handleChangeData does call logChangeAndStartQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
         component.handleChangeData();
+        expect(spy.calls.count()).toBe(1);
+    });
+
+    it('handleChangeLimit does update limit and does call logChangeAndStartQueryChain', () => {
+        let spy = spyOn(component, 'logChangeAndStartQueryChain');
+
+        component.meta.newLimit = 1234;
+
+        component.handleChangeLimit();
+        expect(component.meta.limit).toBe(1234);
+        expect(spy.calls.count()).toBe(1);
+
+        component.meta.newLimit = 0;
+
+        component.handleChangeLimit();
+        expect(component.meta.limit).toBe(1234);
+        expect(component.meta.newLimit).toBe(1234);
         expect(spy.calls.count()).toBe(1);
     });
 

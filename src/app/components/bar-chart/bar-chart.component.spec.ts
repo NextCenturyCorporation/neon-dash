@@ -32,7 +32,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { ErrorNotificationService } from '../../services/error-notification.service';
 import { NeonGTDConfig } from '../../neon-gtd-config';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonVariables } from '../../neon-namespaces';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By } from '@angular/platform-browser';
 import { AppMaterialModule } from '../../app.material.module';
@@ -104,25 +104,33 @@ describe('Component: BarChart', () => {
     it('Checks Active value', (() => {
         expect(component.active.aggregationFieldHidden).toBe(true);
         expect(component.active.andFilters).toBe(true);
-        expect(component.active.limit).toBe(10);
+        expect(component.meta.limit).toBe(10);
         expect(component.active.page).toBe(1);
         expect(component.active.lastPage).toBe(true);
         expect(component.active.filterable).toBe(true);
         expect(component.active.aggregation).toBe('count');
         expect(component.active.chartType).toBe('bar');
+        expect(component.active.labelCount).toBe(0);
+        expect(component.active.maxCount).toBe(0);
+        expect(component.active.minScale).toBeUndefined();
+        expect(component.active.maxScale).toBeUndefined();
+        expect(component.active.minSize).toEqual({
+            height: 0,
+            width: 0
+        });
         expect(component.active.bars).toEqual([]);
         expect(component.active.seenBars).toEqual([]);
 
         component.active.aggregationFieldHidden = false;
         component.active.andFilters = false;
-        component.active.limit = 42;
+        component.meta.limit = 42;
         component.active.filterable = false;
         component.active.aggregation = 'test';
         component.active.chartType = 'testChart';
 
         expect(component.active.aggregationFieldHidden).toBe(false);
         expect(component.active.andFilters).toBe(false);
-        expect(component.active.limit).toBe(42);
+        expect(component.meta.limit).toBe(42);
         expect(component.active.filterable).toBe(false);
         expect(component.active.aggregation).toBe('test');
         expect(component.active.chartType).toBe('testChart');
@@ -202,17 +210,17 @@ describe('Component: BarChart', () => {
         expect(component.getButtonText()).toBe('Total 1');
 
         component.active.bars = ['a', 'b'];
-        component.active.limit = 10;
+        component.meta.limit = 10;
         expect(component.getButtonText()).toBe('Total 2');
-        component.active.limit = 1;
+        component.meta.limit = 1;
         expect(component.getButtonText()).toBe('1 of 2');
 
         component.active.bars = ['a', 'b', 'c', 'd'];
-        component.active.limit = 10;
+        component.meta.limit = 10;
         expect(component.getButtonText()).toBe('Total 4');
-        component.active.limit = 4;
+        component.meta.limit = 4;
         expect(component.getButtonText()).toBe('Total 4');
-        component.active.limit = 2;
+        component.meta.limit = 2;
         expect(component.getButtonText()).toBe('1 - 2 of 4');
         component.active.page = 2;
         expect(component.getButtonText()).toBe('3 - 4 of 4');
@@ -221,19 +229,19 @@ describe('Component: BarChart', () => {
     it('handleChangeLimit does update limit and seenBars and does call logChangeAndStartQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
 
-        component.active.newLimit = 1234;
+        component.meta.newLimit = 1234;
         component.active.seenBars = ['a', 'b', 'c', 'd'];
 
         component.handleChangeLimit();
-        expect(component.active.limit).toEqual(1234);
+        expect(component.meta.limit).toEqual(1234);
         expect(component.active.seenBars).toEqual([]);
         expect(spy.calls.count()).toBe(1);
 
-        component.active.newLimit = 0;
+        component.meta.newLimit = 0;
 
         component.handleChangeLimit();
-        expect(component.active.limit).toEqual(1234);
-        expect(component.active.newLimit).toEqual(1234);
+        expect(component.meta.limit).toEqual(1234);
+        expect(component.meta.newLimit).toEqual(1234);
         expect(component.active.seenBars).toEqual([]);
         expect(spy.calls.count()).toBe(1);
     });
@@ -443,7 +451,7 @@ describe('Component: BarChart', () => {
     it('onQuerySuccess does update active.page and active.lastPage and does call updateBarChart', () => {
         let spy = spyOn(component, 'updateBarChart');
         component.active.dataField = new FieldMetaData('testDataField');
-        component.active.limit = 2;
+        component.meta.limit = 2;
         component.active.page = 2;
         component.active.lastPage = true;
 
@@ -468,7 +476,7 @@ describe('Component: BarChart', () => {
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([0, 2]);
 
-        component.active.limit = 4;
+        component.meta.limit = 4;
         component.active.page = 2;
 
         component.onQuerySuccess({
@@ -840,7 +848,7 @@ describe('Component: BarChart', () => {
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([0, 10]);
 
-        component.active.limit = 4;
+        component.meta.limit = 4;
 
         component.updatePageData();
         expect(component.active.lastPage).toBe(false);
@@ -877,7 +885,7 @@ describe('Component: BarChart', () => {
 
     it('does have disabled previous page button if bars > limit and page is 1', async(() => {
         component.active.bars = ['a', 'b', 'c', 'd'];
-        component.active.limit = 2;
+        component.meta.limit = 2;
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
@@ -892,7 +900,7 @@ describe('Component: BarChart', () => {
 
     it('does have enabled previous page button if bars > limit and page is 2', async(() => {
         component.active.bars = ['a', 'b', 'c', 'd'];
-        component.active.limit = 2;
+        component.meta.limit = 2;
         component.active.page = 2;
 
         fixture.detectChanges();
@@ -915,7 +923,7 @@ describe('Component: BarChart', () => {
     it('does have disabled next page button if bars > limit and lastPage is true', async(() => {
         component.active.bars = ['a', 'b', 'c', 'd'];
         component.active.lastPage = true;
-        component.active.limit = 2;
+        component.meta.limit = 2;
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
@@ -931,7 +939,7 @@ describe('Component: BarChart', () => {
     it('does have enabled next page button if bars > limit and lastPage is false', async(() => {
         component.active.bars = ['a', 'b', 'c', 'd'];
         component.active.lastPage = false;
-        component.active.limit = 2;
+        component.meta.limit = 2;
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
@@ -1072,5 +1080,91 @@ describe('Component: BarChart', () => {
             value: 'value2',
             prettyKey: 'prettyKey2'
         }]);
+    });
+
+    it('subOnResizeStop with active.chartType=horizontalBar does update active.minSize', () => {
+        component.active.chartType = 'horizontalBar';
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 20,
+            width: 40
+        });
+
+        component.active.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
+        component.active.labelCount = 8;
+        component.meta.limit = 12;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 200,
+            width: 240
+        });
+
+        component.meta.limit = 6;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 110,
+            width: 240
+        });
+
+        component.active.labelCount = 4;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 110,
+            width: 140
+        });
+
+        component.active.bars = ['a', 'b'];
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 50,
+            width: 140
+        });
+    });
+
+    it('subOnResizeStop with active.chartType=bar does update active.minSize', () => {
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 20,
+            width: 40
+        });
+
+        component.active.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
+        component.active.labelCount = 8;
+        component.meta.limit = 12;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 140,
+            width: 340
+        });
+
+        component.meta.limit = 6;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 140,
+            width: 190
+        });
+
+        component.active.labelCount = 4;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 80,
+            width: 190
+        });
+
+        component.active.bars = ['a', 'b'];
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 80,
+            width: 90
+        });
     });
 });

@@ -32,7 +32,7 @@ import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
@@ -51,6 +51,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     @ViewChild('infoText') infoText: ElementRef;
 
     private textCloud: TextCloud;
+
     private filters: {
         id: string,
         key: string,
@@ -76,24 +77,25 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         sizeAggregation: string,
         limit: number
     };
+
     public active: {
         dataField: FieldMetaData,
         sizeField: FieldMetaData,
         andFilters: boolean,
-        limit: number,
-        newLimit: number,
         textColor: string,
         allowsTranslations: boolean,
         filterable: boolean,
         data: any[],
-        count: number
+        docCount: number
     };
+
     public sizeAggregationTypes = [
         {name: 'Average', value: 'AVG'},
         {name: 'Maximum', value: 'MAX'},
         {name: 'Minimum', value: 'MIN'},
         {name: 'Sum', value: 'SUM'}
     ];
+
     // Average should be the default. It is loaded from the optionsFromConfig
     public sizeAggregation: string;
 
@@ -120,13 +122,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             dataField: new FieldMetaData(),
             sizeField: new FieldMetaData(),
             andFilters: true,
-            limit: this.optionsFromConfig.limit,
-            newLimit: this.optionsFromConfig.limit,
             textColor: '#111',
             allowsTranslations: true,
             filterable: true,
             data: [],
-            count: 0
+            docCount: 0
         };
     }
 
@@ -150,7 +150,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.dataField = this.active.dataField.columnName;
         bindings.sizeField = this.active.sizeField.columnName;
         bindings.sizeAggregation = this.sizeAggregation;
-        bindings.limit = this.active.limit;
     }
 
     getExportFields() {
@@ -182,8 +181,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onUpdateFields() {
-        let dataField = this.findFieldObject('dataField', neonMappings.TAGS);
-        let sizeField = this.findFieldObject('sizeField', neonMappings.TAGS);
+        let dataField = this.findFieldObject('dataField');
+        let sizeField = this.findFieldObject('sizeField');
         this.active = this.updateObject(this.active, 'dataField', dataField);
         this.active = this.updateObject(this.active, 'sizeField', sizeField);
         this.meta = Object.assign({}, this.meta); // trigger action
@@ -265,13 +264,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (this.active.sizeField.columnName === '') {
             // Normal aggregation query
             return query.where(whereClause).groupBy(dataField).aggregate(neonVariables.COUNT, '*', 'value')
-                .sortBy('value', neonVariables.DESCENDING).limit(this.active.limit);
+                .sortBy('value', neonVariables.DESCENDING).limit(this.meta.limit);
         } else {
             // Query for data with the size field and sort by it
             let sizeColumn = this.active.sizeField.columnName;
             return query.where(neon.query.and(whereClause, neon.query.where(sizeColumn, '!=', null)))
                 .groupBy(dataField).aggregate(neon.query[this.sizeAggregation], sizeColumn, sizeColumn)
-                .sortBy(sizeColumn, neonVariables.DESCENDING).limit(this.active.limit);
+                .sortBy(sizeColumn, neonVariables.DESCENDING).limit(this.meta.limit);
         }
     }
 
@@ -294,7 +293,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     onQuerySuccess(response): void {
         try {
             if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
-                this.active.count = response.data.length;
+                this.active.docCount = response.data.length;
             } else {
                 let cloudData = response.data || [];
                 let useSizeField: boolean = this.active.sizeField.columnName !== '';
@@ -311,7 +310,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 this.active = this.updateObject(this.active, 'data', activeData);
                 this.refreshVisualization();
                 if (cloudData.length === 0) {
-                    this.active.count = 0;
+                    this.active.docCount = 0;
                 } else {
                     this.getDocCount();
                 }
@@ -382,23 +381,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Updates the limit, resets the seen bars, and reruns the bar chart query.
-     */
-    handleChangeLimit() {
-        if (super.isNumber(this.active.newLimit)) {
-            let newLimit = parseFloat('' + this.active.newLimit);
-            if (newLimit > 0) {
-                this.active.limit = newLimit;
-                this.logChangeAndStartQueryChain();
-            } else {
-                this.active.newLimit = this.active.limit;
-            }
-        } else {
-            this.active.newLimit = this.active.limit;
-        }
-    }
-
-    /**
      * Creates and returns the text for the settings button.
      *
      * @return {string}
@@ -408,10 +390,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         if (!this.isFilterSet() && !this.active.data.length) {
             return 'No Data';
         }
-        if (this.active.count <= this.active.data.length) {
-            return 'Total ' + super.prettifyInteger(this.active.count);
+        if (this.active.docCount <= this.active.data.length) {
+            return 'Total ' + super.prettifyInteger(this.active.docCount);
         }
-        return super.prettifyInteger(this.active.data.length) + ' of ' + super.prettifyInteger(this.active.count);
+        return super.prettifyInteger(this.active.data.length) + ' of ' + super.prettifyInteger(this.active.docCount);
     }
 
     getFilterData() {

@@ -87,12 +87,12 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
             // We only want unique filter names to eliminate display of multiple filters created by filter service
 
             // remove filters with empty string names
-            let filterList = _.filter(filters, function(filter) {
+            let filterList = _.filter(filters, (filter) => {
                 return (filter.filter.filterName && filter.filter.filterName !== '');
             });
 
             let result = {};
-            _.each(filterList, function(filter) {
+            _.each(filterList, (filter) => {
                 if (result[filter.filter.filterName]) {
                     // add id to array
                     result[filter.filter.filterName].ids.push(filter.id);
@@ -105,7 +105,7 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
             });
 
             let resultList = [];
-            _.each(result, function(filter) {
+            _.each(result, (filter) => {
                 resultList.push(filter);
             });
 

@@ -78,8 +78,7 @@ let http = injector.get(Http);
 
 function handleConfigJsonError(error) {
     if (isErrorNotFound(error, 'json')) {
-        console.error(error);
-        console.error('missing json file.');
+        // Fail silently.
     } else {
         console.error(error);
         showError('Error reading config.json: ' + error.message);
@@ -101,8 +100,7 @@ function isErrorNotFound(error, fileType) {
 
 function handleConfigYamlError(error) {
     if (isErrorNotFound(error, 'yaml')) {
-        console.error(error);
-        console.error('missing yaml file. trying json config.');
+        // Fail silently.
     } else {
         console.error(error);
         showError('Error reading config.yaml: ' + error.message);
@@ -125,8 +123,7 @@ function handleConfigPropertyServiceError(error) {
     if (error.message === 'No config') {
         // Do nothing, this is the expected response
     } else if (isErrorNotFound(error, 'Property Service')) {
-        console.error(error);
-        console.error('missing config from Property Service. Trying yaml config.');
+        // Fail silently.
     } else {
         console.error(error);
         showError('Error reading Property Service config: ' + error.message);
@@ -144,8 +141,7 @@ function validateConfig(config) {
         return config;
     } else {
         showError('Config from config.yaml or config.json is empty');
-        console.error('Config appears to be empty');
-        console.error(config);
+        console.error('Config appears to be empty', config);
         return EMPTY_CONFIG;
     }
 }
@@ -173,10 +169,10 @@ function showError(error) {
 neon.ready(function() {
   neon.setNeonServerUrl('../neon');
   let config;
-  config = loadConfigYaml().then(bootstrapWithData, function(error) {
-    handleConfigYamlError(error);
-    loadConfigJson().then(bootstrapWithData, function(error2) {
-      handleConfigJsonError(error2);
+  config = loadConfigJson().then(bootstrapWithData, function(error1) {
+    handleConfigJsonError(error1);
+    loadConfigYaml().then(bootstrapWithData, function(error2) {
+      handleConfigYamlError(error2);
       loadConfigFromPropertyService().then(bootstrapWithData, handleConfigPropertyServiceError);
 });
   });

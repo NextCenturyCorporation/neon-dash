@@ -31,7 +31,7 @@ import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { ChartComponent } from '../chart/chart.component';
@@ -118,7 +118,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
-    @ViewChild('myChart') chartModule: ChartComponent;
+    @ViewChild('chartContainer') chartContainer: ElementRef;
+    @ViewChild('barChart') chartModule: ChartComponent;
     @ViewChild('hiddenCanvas') hiddenCanvas: ElementRef;
 
     private filters: {
@@ -148,8 +149,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         aggregationField: FieldMetaData,
         aggregationFieldHidden: boolean,
         andFilters: boolean,
-        limit: number,
-        newLimit: number,
         page: number,
         lastPage: boolean,
         filterable: boolean,
@@ -157,9 +156,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         data: any[],
         aggregation: string,
         chartType: string,
+        labelCount: number,
         maxCount: number,
         minScale: string,
         maxScale: string,
+        minSize: {
+            height: number,
+            width: number
+        },
         scaleManually: boolean,
         bars: string[],
         seenBars: string[]
@@ -214,8 +218,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             aggregationField: new FieldMetaData(),
             aggregationFieldHidden: true,
             andFilters: true,
-            limit: this.optionsFromConfig.limit,
-            newLimit: this.optionsFromConfig.limit,
             page: 1,
             lastPage: true,
             filterable: true,
@@ -223,9 +225,14 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             data: [],
             aggregation: 'count',
             chartType: this.optionsFromConfig.chartType || 'horizontalBar',
+            labelCount: 0,
             maxCount: 0,
             minScale: undefined,
             maxScale: undefined,
+            minSize: {
+                height: 0,
+                width: 0
+            },
             scaleManually: false,
             bars: [],
             seenBars: []
@@ -360,13 +367,16 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                     mode: 'index',
                     intersect: false,
                     callbacks: {},
-                    position: 'neonCenter'
+                    position: 'neonBarMousePosition'
                 }
             }
         };
 
         let createTooltipTitle = (tooltipList, data) => {
-            let count = tooltipList.reduce(function(sum, tooltipItem) {
+            // Hack to reposition the tooltip to the mouse cursor position.
+            this.chartModule.chart.tooltip._lastActive = [{}];
+
+            let count = tooltipList.reduce((sum, tooltipItem) => {
                 let dataset = data.datasets[tooltipItem.datasetIndex];
                 return sum + dataset.data[tooltipItem.index];
             }, 0);
@@ -433,7 +443,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         bindings.dataField = this.active.dataField.columnName;
         bindings.aggregation = this.active.aggregation;
         bindings.aggregationField = this.active.aggregationField.columnName;
-        bindings.limit = this.active.limit;
     }
 
     /**
@@ -526,9 +535,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.optionsFromConfig.aggregation) {
             this.active.aggregation = this.optionsFromConfig.aggregation;
         }
-        this.active.aggregationField = this.findFieldObject('aggregationField', neonMappings.TAGS);
-        this.active.dataField = this.findFieldObject('dataField', neonMappings.TAGS);
-        this.active.colorField = this.findFieldObject('colorField', neonMappings.TAGS);
+        this.active.aggregationField = this.findFieldObject('aggregationField');
+        this.active.dataField = this.findFieldObject('dataField');
+        this.active.colorField = this.findFieldObject('colorField');
     }
 
     /**
@@ -569,7 +578,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string): object {
-        let filterClauses = this.filters.map(function(filter) {
+        let filterClauses = this.filters.map((filter) => {
             return neon.query.where(fieldName, '=', filter.value);
         });
         if (filterClauses.length === 1) {
@@ -619,9 +628,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let selectedLabels: string[] = [];
         if (this.filters.length >= 1) {
             let activeFilterValues = this.filters.map((el) => el.value);
-            let activeLabelIndexes = this.chartInfo.data.labels.map(function(label, index) {
+            let activeLabelIndexes = this.chartInfo.data.labels.map((label, index) => {
                 return (activeFilterValues.indexOf(label) >= 0 ? index : -1);
-            }).filter(function(index) {
+            }).filter((index) => {
                 return index >= 0;
             });
 
@@ -645,7 +654,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         }
 
         this.selectedLabels = selectedLabels;
-        this.chartModule.chart.update();
+        this.subOnResizeStop();
     }
 
     /**
@@ -810,7 +819,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 barDataset.label = barSegment;
                 barDataset.color = colorFieldExists ? this.colorSchemeService.getColorFor(this.active.colorField.columnName, barSegment) :
                     this.defaultActiveColor;
-                barDataset.backgroundColor = this.active.bars.map(function(bar) {
+                barDataset.backgroundColor = this.active.bars.map((bar) => {
                     return barDataset.color.toRgb();
                 });
                 groupsToDatasets.set(barSegment, barDataset);
@@ -821,7 +830,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         this.active.data = Array.from(groupsToDatasets.values());
         this.active.page = 1;
-        this.active.lastPage = (this.active.bars.length <= this.active.limit);
+        this.active.lastPage = (this.active.bars.length <= this.meta.limit);
 
         let counts = !this.active.data.length ? [] : this.active.data.slice(1).reduce((array, dataset) => {
             return dataset.data.map((value, index) => {
@@ -840,6 +849,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             if (nextStepSize / 2.0 > this.active.maxCount) {
                 stepSize /= 2.0;
             }
+            this.active.labelCount = Math.ceil(this.active.maxCount / stepSize) + 1;
             if (this.active.chartType === 'horizontalBar') {
                 this.chartModule.chart.config.options.scales.xAxes[0].ticks.min = 0;
                 this.chartModule.chart.config.options.scales.xAxes[0].ticks.max = Math.ceil(this.active.maxCount / stepSize) * stepSize;
@@ -852,7 +862,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             }
         }
 
-        this.updateBarChart(0, this.active.limit);
+        this.updateBarChart(0, this.meta.limit);
     }
 
     /**
@@ -864,7 +874,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     updateBarChart(barIndex: number, barLimit: number) {
         let barChartData = new BarData();
         barChartData.labels = this.active.bars.slice(barIndex, barIndex + barLimit);
-        barChartData.datasets = this.active.data.map(function(wholeDataset) {
+        barChartData.datasets = this.active.data.map((wholeDataset) => {
             let limitedDataset = new BarDataSet(barChartData.labels.length);
             limitedDataset.label = wholeDataset.label;
             limitedDataset.color = wholeDataset.color;
@@ -1013,21 +1023,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Updates the limit, resets the seen bars, and reruns the bar chart query.
+     * Resets the seen bars and reruns the bar chart query after limit change.
+     *
+     * @override
      */
-    handleChangeLimit() {
-        if (super.isNumber(this.active.newLimit)) {
-            let newLimit = parseFloat('' + this.active.newLimit);
-            if (newLimit > 0) {
-                this.active.limit = newLimit;
-                this.active.seenBars = [];
-                this.logChangeAndStartQueryChain();
-            } else {
-                this.active.newLimit = this.active.limit;
-            }
-        } else {
-            this.active.newLimit = this.active.limit;
-        }
+    subHandleChangeLimit() {
+        this.active.seenBars = [];
+        this.logChangeAndStartQueryChain();
     }
 
     /**
@@ -1064,11 +1066,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         if (!this.active.bars || !this.active.bars.length) {
             return 'No Data';
         }
-        if (this.active.bars.length <= this.active.limit) {
+        if (this.active.bars.length <= this.meta.limit) {
             return 'Total ' + super.prettifyInteger(this.active.bars.length);
         }
-        let begin = super.prettifyInteger((this.active.page - 1) * this.active.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.active.page * this.active.limit, this.active.bars.length));
+        let begin = super.prettifyInteger((this.active.page - 1) * this.meta.limit + 1);
+        let end = super.prettifyInteger(Math.min(this.active.page * this.meta.limit, this.active.bars.length));
         return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.active.bars.length);
     }
 
@@ -1168,9 +1170,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * Updates lastPage and the bar chart data using the page and limit.
      */
     updatePageData() {
-        let offset = (this.active.page - 1) * this.active.limit;
-        this.active.lastPage = (this.active.bars.length <= (offset + this.active.limit));
-        this.updateBarChart(offset, this.active.limit);
+        let offset = (this.active.page - 1) * this.meta.limit;
+        this.active.lastPage = (this.active.bars.length <= (offset + this.meta.limit));
+        this.updateBarChart(offset, this.meta.limit);
     }
 
     /**
@@ -1187,7 +1189,22 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         };
     }
 
-    hasColorField() {
-        return !!this.active.colorField.columnName;
+    /**
+     * Resizes the bar chart.
+     *
+     * @override
+     */
+    subOnResizeStop() {
+        let xLabelCount = (this.active.chartType === 'bar' ? Math.min(this.active.bars.length, this.meta.limit) : this.active.labelCount);
+        let yLabelCount = (this.active.chartType === 'bar' ? this.active.labelCount : Math.min(this.active.bars.length, this.meta.limit));
+
+        this.active.minSize = {
+            // The height of the y-axis labels is approx. 15 px each and the height of the x-axis labels is approx. 20 px (arbitrary).
+            height: yLabelCount * 15 + 20,
+            // The width of the x-axis labels is minimum 25 px each and the width of the y-axis labels is 40 px (arbitrary).
+            width: xLabelCount * 25 + 40
+        };
+
+        this.chartModule.chart.update();
     }
 }

@@ -41,7 +41,6 @@ export class ParameterService {
     static DASHBOARD_FILTER_PREFIX: string = 'dashboard.';
     static DASHBOARD_FILTER_BOUNDS: string = ParameterService.DASHBOARD_FILTER_PREFIX + 'bounds';
     static DASHBOARD_FILTER_DATE: string = ParameterService.DASHBOARD_FILTER_PREFIX + 'date';
-    static DASHBOARD_FILTER_TAG: string = ParameterService.DASHBOARD_FILTER_PREFIX + 'tag';
     static DASHBOARD_FILTER_URL: string = ParameterService.DASHBOARD_FILTER_PREFIX + 'url';
     static DASHBOARD_STATE_ID: string = 'dashboard_state_id';
     static FILTER_STATE_ID: string = 'filter_state_id';
@@ -101,15 +100,7 @@ export class ParameterService {
             filterName: 'date',
             createFilterClauseCallback: this.createDateFilterClauseCallback
         }, {
-            mappings: [neonMappings.TAGS],
-            parameterKey: ParameterService.DASHBOARD_FILTER_TAG,
-            cleanParameter: this.cleanValue,
-            isParameterValid: this.doesParameterExist,
-            filterName: 'tag',
-            operator: 'contains',
-            createFilterClauseCallback: this.createSimpleFilterClauseCallback
-        }, {
-            mappings: [neonMappings.URLS],
+            mappings: [neonMappings.URL],
             parameterKey: ParameterService.DASHBOARD_FILTER_URL,
             cleanParameter: this.cleanValue,
             isParameterValid: this.doesParameterExist,
@@ -442,7 +433,7 @@ export class ParameterService {
         let minimumLongitude: number = Number(boundsList[ParameterService.BOUNDS_MIN_LON]);
         let maximumLongitude: number = Number(boundsList[ParameterService.BOUNDS_MAX_LON]);
 
-        return function(fieldNames: string[]): neon.query.BooleanClause {
+        return (fieldNames: string[]): neon.query.BooleanClause => {
             // Copied from map.js
             let latitudeFieldName: string = fieldNames[0];
             let longitudeFieldName: string = fieldNames[1];
