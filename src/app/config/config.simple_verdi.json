@@ -53,6 +53,7 @@
 					"table": "normal",
 					"sortField": "author",
 					"filterable": true,
+					"idField": "@id",
 					"filterFields": ["@id"],
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
@@ -176,7 +177,10 @@
 				"bindings": {
 					"title": "Wiki Viewer",
 					"database": "aida",
-					"table": "normal"
+					"table": "normal",
+					"idField": "@id",
+					"linkField": "docLocation",
+					"linkPrefix": "picsum.photos/200/300/?random"
 				},
 				"row": 13,
 				"col": 0

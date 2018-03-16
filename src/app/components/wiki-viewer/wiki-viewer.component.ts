@@ -49,7 +49,6 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WikiViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    static WIKI_LINK_PREFIX: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
@@ -60,6 +59,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         id: string,
         idField: FieldMetaData,
         linkField: FieldMetaData,
+        linkPrefix: string,
         textColor: string,
         wikiName: string[],
         wikiText: SafeHtml[]
@@ -70,6 +70,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         id: string,
         idField: string,
         linkField: string,
+        linkPrefix: string,
         table: string,
         title: string
     };
@@ -87,6 +88,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             id: this.injector.get('id', null),
             idField: this.injector.get('idField', null),
             linkField: this.injector.get('linkField', null),
+            linkPrefix: this.injector.get('linkPrefix', ""),
             table: this.injector.get('table', null),
             title: this.injector.get('title', null)
         };
@@ -95,6 +97,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             id: this.optionsFromConfig.id || '',
             idField: new FieldMetaData(),
             linkField: new FieldMetaData(),
+            linkPrefix: this.optionsFromConfig.linkPrefix,
             textColor: '#111',
             wikiName: [],
             wikiText: []
@@ -342,7 +345,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             return;
         }
 
-        this.http.get (WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).toPromise().then((wikiResponse) => {
+        this.http.get (this.active.linkPrefix + links[0]).toPromise().then((wikiResponse) => {
             let responseObject = JSON.parse(wikiResponse.text());
             if (responseObject.error) {
                 this.active.wikiName.push(links[0]);
