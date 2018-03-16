@@ -15,30 +15,7 @@
  */
 @import '../base-neon-component/base-neon.component.scss';
 
-.chart {
-    position: relative;
-    width: 100%;
-    height: 100%;
-}
-.chart-container-resizable {
-    position:  relative;
-    height: 95%;
-    width: 100%;
-    top: 26px;
-    bottom: 0;
-    margin-top: -30px;
-    margin-bottom: -10px;
-    padding-left: 0px;
-    padding-right: 0px;
-    padding-bottom: 0px;
-    display: inline-block;
-}
-.constant-container {
-    overflow-y: auto;
-    height: calc(100% - #{$vis-title-expected-height});
-    width: 100%;
-}
-
+//TODO: optimize this file
 
 html,
 body {
@@ -266,20 +243,11 @@ main {
     }
 }
 
-.graph {
-    .node {
-        text {
-            fill: #fff;
-            font-size: 12px;
-            font-weight: bold;
-        }
-    }
-    .edge {
-        path {
-            stroke: #666 !important;
-        }
-    }
-    .arrow-head {
-        fill: #666;
-    }
+.graph-container {
+    height: calc(100% - #{$vis-title-expected-height});
+}
+
+#graphElement {
+    height: 100%;
+    width: 100%;
 }

@@ -18,14 +18,15 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     Component,
-    CUSTOM_ELEMENTS_SCHEMA,
-    OnInit,
+    ElementRef,
+    Injector,
     OnDestroy,
-    ViewEncapsulation,
-    Injector, ElementRef, ViewChild, HostListener
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
 } from '@angular/core';
 import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
@@ -33,24 +34,16 @@ import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
 import { VisualizationService } from '../../services/visualization.service';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { neonMappings } from '../../neon-namespaces';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import * as shape from 'd3-shape';
-import { select } from 'd3-selection';
 import 'd3-transition';
-import * as dagre from 'dagre';
-import { colorSets } from './color-sets';
 import * as neon from 'neon-framework';
+import * as vis from 'vis';
 
-import { animate, style, transition as ngTransition, trigger } from '@angular/animations';
-import {
-    BaseChartComponent, ChartComponent, calculateViewDimensions, ViewDimensions, ColorHelper
-} from '@swimlane/ngx-charts';
-
-export class GraphData {
-    links: any[] = [];
-    nodes: any[] = [];
+class GraphData {
+    constructor(public nodes = new vis.DataSet(), public edges = new vis.DataSet()) {}
 }
 
 @Component({
@@ -62,6 +55,8 @@ export class GraphData {
 })
 export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     OnDestroy, AfterViewInit {
+
+    @ViewChild('graphElement') graphElement: ElementRef;
 
     private filters: {
         id: string,
@@ -75,7 +70,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         table: string;
         nodeField: FieldMetaData;
         linkField: FieldMetaData;
-        limit: number
+        limit: number,
+        isReified: boolean
     };
 
     public active: {
@@ -91,7 +87,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         aggregation: string
     };
 
-    public graphData: GraphData;
+    public graphData = new GraphData();
 
     graphType = 'Network Graph';
 
@@ -137,7 +133,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     queryTitle;
 
-    @ViewChild('graphElement') graphElement: ElementRef;
+    private graph: vis.Network;
+
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
@@ -149,7 +146,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             table: this.injector.get('table', null),
             nodeField: this.injector.get('nodeField', null),
             linkField: this.injector.get('linkField', null),
-            limit: this.injector.get('limit', 500000)
+            limit: this.injector.get('limit', 500000),
+            isReified: this.injector.get('isReified', false)
         };
 
         this.active = {
@@ -164,8 +162,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             data: [],
             aggregation: 'count'
         };
-
-        this.graphData = new GraphData();
 
         this.queryTitle = this.optionsFromConfig.title || 'Network Graph';
 
@@ -199,7 +195,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     postInit() {
-        //
+        this.executeQueryChain();
     }
 
     subNgOnDestroy() {
@@ -213,7 +209,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     ngAfterViewInit() {
-        //
+        // note: options is REQUIRED. Fails to initialize physics properly without at least empty object
+        let options: vis.Options = {layout: {randomSeed: 0}};
+        this.graph = new vis.Network(this.graphElement.nativeElement, this.graphData, options);
     }
 
     setInterpolationType(curveType) {
@@ -314,7 +312,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
         let fields = [nodeField, linkField];
 
-        query = query.withFields(fields);
+        // query = query.withFields(fields);
         let whereClause = neon.query.and.apply(neon.query, whereClauses);
 
         query.where(whereClause);
@@ -336,8 +334,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response): void {
-        this.graphData = new GraphData();
-        this.evaluateDataAndUpdateGraph(response.data);
+        if (this.optionsFromConfig.isReified) {
+            this.addReifiedDataToGraph(response.data);
+        } else {
+            this.evaluateDataAndUpdateGraph(response.data);
+        }
+
+        this.graph.on('stabilized', (params) => this.graph.setOptions({physics: {enabled: false}}));
 
         let title;
         title = this.optionsFromConfig.title || 'Network Graph' + ' by ' + this.active.nodeField.columnName;
@@ -345,14 +348,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     setupFilters() {
         //
-    }
-
-    getNodes() {
-        return this.graphData.nodes;
-    }
-
-    getLinks() {
-        return this.graphData.links;
     }
 
     updateData() {
@@ -445,10 +440,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         return title;
     }
 
-    resetData() {
-        this.graphData = new GraphData();
-    }
-
     toNodes(datafield) {
         let nodes = [];
         /*
@@ -459,174 +450,95 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
                 });*/
     }
 
-    evaluateDataAndUpdateGraph(data) {
-        let response = data;
-        let nodeField;
-        let linkField;
-        let linkFieldArray;
-        let nodeFieldArray;
-        let graphOptions = this.active;
-        ///*
-        for (let entry of data) {
-            //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
-            //TODO: Make this its own function
-            linkFieldArray = entry[this.active.linkField.columnName];
-            if (Array.isArray(entry[this.active.linkField.columnName])) {
-                linkFieldArray = entry[this.active.linkField.columnName];
-                for (const linkEntry of linkFieldArray) {
-                    if (this.isUniqueNode(linkEntry)) {
-                        const id = linkEntry;
-                        const label = linkEntry;
-                        const nodeType = this.active.linkField.columnName;
-                        const size = 1;
+    addReifiedDataToGraph(data) {
+        this.graphData.nodes.clear();
+        this.graphData.edges.clear();
 
-                        const node = {
-                            id: id,
-                            label: label,
-                            nodeType: nodeType,
-                            size: size
-                        };
+        for (const entry of data) {
+            const subject = entry.subject,
+                predicate = entry.predicate,
+                object = entry.object;
+            this.addNodeToGraph(subject, subject, 'subject', 1);
+            this.addNodeToGraph(object, object, 'object', 1);
+            this.addLinkToGraph(subject, object, predicate, 1);
+            //TODO: add hover with other properties
+        }
+    }
 
-                        this.graphData.nodes.push(node);
+    private addNodeToGraph(id: string, label: string, nodeType: string, size: number) {
+        this.graphData.nodes.update({
+            id: id,
+            label: label
+            // nodeType: nodeType,
+            // size: size
+        });
+    }
 
-                        this.graphData.nodes = [...this.graphData.nodes];
-                    }
-                } //When linkField is not an array
-            } else if (entry[this.active.linkField.columnName]) {
-                ///*
-                linkField = entry[this.active.linkField.columnName];
-                const id = linkField;
-                const label = linkField;
-                const nodeType = this.active.linkField.columnName;
-                const size = 1;
+    private addLinkToGraph(source: string, target: string, label: string, count: number) {
+        this.graphData.edges.update({
+            from: source,
+            to: target,
+            label: label,
+            arrows: 'to' // directed graph
+            // count: count
+        });
+    }
 
-                const node = {
-                    id: id,
-                    label: label,
-                    nodeType: nodeType,
-                    size: size
-                };
-
-                this.graphData.nodes.push(node);
-                //
-
-                this.graphData.nodes = [...this.graphData.nodes];
-                //this.active.linkField = entry[options.linkField];//*/
+    private addLinkFromField(linkField: any, source: string) {
+        if (Array.isArray(linkField)) {
+            for (const linkEntry of linkField) {
+                this.addLinkToGraph(source, linkEntry, '', 1);
             }
+        } else if (linkField) {
+            this.addLinkToGraph(source, linkField, '', 1);
+        }
+    }
+
+    evaluateDataAndUpdateGraph(data) {
+        this.graphData.nodes.clear();
+        this.graphData.edges.clear();
+
+        let linkName = this.active.linkField.columnName,
+            nodeName = this.active.nodeField.columnName;
+        for (let entry of data) {
+
+            //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
+            let linkField = entry[linkName];
+            if (Array.isArray(linkField)) {
+                for (const linkEntry of linkField) {
+                    this.addNodeToGraph(linkEntry, linkEntry, linkName, 1);
+                }
+            } else if (linkField) {
+                this.addNodeToGraph(linkField, linkField, linkName, 1);
+            }
+
             //creates a new node for each unique nodeId
             //nodeField is an array
-            if (Array.isArray(entry[this.active.nodeField.columnName])) {
-                nodeFieldArray = entry[this.active.nodeField.columnName];
-                for (const nodeEntry of nodeFieldArray) {
+            let nodeField = entry[nodeName];
+            if (Array.isArray(nodeField)) {
+                for (const nodeEntry of nodeField) {
                     if (this.isUniqueNode(nodeEntry)) {
-                        const id = nodeEntry;
-                        const label = nodeEntry;
-                        const nodeType = this.active.nodeField.columnName;
-                        const size = 1;
-
-                        const node = {
-                            id: id,
-                            label: label,
-                            nodeType: nodeType,
-                            size: size
-                        };
-
-                        this.graphData.nodes.push(node);
-                        this.graphData.nodes = [...this.graphData.nodes];
-
-                        //Should probably make this its own function
-                        if (Array.isArray(entry[this.active.linkField.columnName])) {
-                            linkFieldArray = entry[this.active.linkField.columnName];
-                            for (const linkEntry of linkFieldArray) {
-                                const link = {
-                                    source: id,
-                                    target: linkEntry,
-                                    label: '',
-                                    count: 1
-                                };
-
-                                this.graphData.links.push(link);
-                                this.graphData.links = [...this.graphData.links];
-                            }
-                        } else if (entry[this.active.linkField.columnName]) {
-                            ///*
-                            linkField = entry[this.active.linkField.columnName];
-                            const link = {
-                                source: id,
-                                target: linkField,
-                                label: '',
-                                count: 1
-                            };
-
-                            this.graphData.links.push(link);
-                            this.graphData.links = [...this.graphData.links];
-                        }
+                        this.addNodeToGraph(nodeEntry, nodeEntry, nodeName, 1);
+                        this.addLinkFromField(linkField, nodeEntry);
                     }
                 }
-            } else if (entry[this.active.nodeField.columnName]) {
-                ///*
-                nodeField = entry[this.active.nodeField.columnName];
-                const id = nodeField;
-                const label = nodeField;
-                const nodeType = this.active.nodeField.columnName;
-                const size = 1;
-
-                const node = {
-                    id: id,
-                    label: label,
-                    nodeType: nodeType,
-                    size: size
-                };
-
-                this.graphData.nodes.push(node);
-                this.graphData.nodes = [...this.graphData.nodes];
-                //TODO: Make this its own method
-                if (Array.isArray(entry[this.active.linkField.columnName])) {
-                    linkFieldArray = entry[this.active.linkField.columnName];
-                    for (const linkEntry of linkFieldArray) {
-                        const link = {
-                            source: id,
-                            target: linkEntry,
-                            label: '',
-                            count: 1
-                        };
-
-                        this.graphData.links.push(link);
-                        this.graphData.links = [...this.graphData.links];
-                    }
-                } else if (entry[this.active.linkField.columnName]) {
-                    linkField = entry[this.active.linkField.columnName];
-                    const link = {
-                        source: id,
-                        target: linkField,
-                        label: '',
-                        count: 1
-                    };
-
-                    this.graphData.links.push(link);
-                    this.graphData.links = [...this.graphData.links];
-                }
+            } else if (nodeField) {
+                this.addNodeToGraph(nodeField, nodeField, nodeName, 1);
+                this.addLinkFromField(linkField, nodeField);
             }
         }
     }
 
     isUniqueNode(nodeId) {
-        let isUnique = true;
-        let duplicateNode;
         if (this.graphData.nodes) {
-            for (let node of this.graphData.nodes) {
-                if (node.id === nodeId) {
-                    //this.graphData.nodes.filter(x => x.id === node.id);
-                    isUnique = false;
+            this.graphData.nodes.forEach((node, id) => {
+                if (id === nodeId) {
+                    return false;
                 }
-            }
+            });
         }
 
-        return isUnique;
-    }
-
-    generateLinks() {
-        //
+        return true;
     }
 
     getElementRefs() {
@@ -634,5 +546,4 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             //
         };
     }
-
 }
