@@ -15,7 +15,7 @@
  */
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
@@ -44,14 +44,15 @@ import * as neon from 'neon-framework';
 describe('Component: DataTable', () => {
     let component: DataTableComponent,
         fixture: ComponentFixture<DataTableComponent>,
-        addFilter = (key: String, value: String, prettyKey: String) => {
+        addFilter = (key: string, value: string, prettyKey: string) => {
             let filter = {
                 id: undefined,
                 key: key,
                 value: value,
                 prettyKey: prettyKey
             };
-            component.addFilter(filter);
+            let whereClause = neon.query.where(filter.key, '=', filter.value);
+            component.addFilter(filter, whereClause);
             return filter;
         },
         getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
@@ -86,6 +87,7 @@ describe('Component: DataTable', () => {
         });
         fixture = TestBed.createComponent(DataTableComponent);
         component = fixture.componentInstance;
+        fixture.detectChanges();
     });
 
     it('exists', (() => {
@@ -103,7 +105,7 @@ describe('Component: DataTable', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        component.active.limit = 10;
+        component.meta.limit = 10;
         expect(component.getButtonText()).toBe('No Data');
         component.active.docCount = 10;
         expect(component.getButtonText()).toBe('Total 10');
@@ -111,7 +113,7 @@ describe('Component: DataTable', () => {
         expect(component.getButtonText()).toBe('1 - 10 of 20');
         component.active.page = 2;
         expect(component.getButtonText()).toBe('11 - 20 of 20');
-        component.active.limit = 5;
+        component.meta.limit = 5;
         expect(component.getButtonText()).toBe('6 - 10 of 20');
         component.active.docCount = 5;
         expect(component.getButtonText()).toBe('Total 5');
@@ -136,15 +138,15 @@ describe('Component: DataTable', () => {
     it('should remove filter when clicked', () => {
         addFilter('testDataField', 'Test Value', 'Test Data Field');
         expect(getService(FilterService).getFilters().length).toBe(1);
-        let xEl = getDebug('.filter-reset .mat-icon-button');
+        let xEl = getDebug('.datatable-filter-reset .mat-icon-button');
         xEl.triggerEventHandler('click', null);
         expect(getService(FilterService).getFilters().length).toBe(0);
     });
 
     it('filter-reset element should exist if filter is set', () => {
-        expect(getDebug('.filter-reset')).toBeNull();
+        expect(getDebug('.datatablefilter-reset')).toBeNull();
         addFilter('testDataField', 'Test Value', 'Test Data Field');
-        expect(getDebug('.filter-reset')).toBeDefined();
+        expect(getDebug('.datatable-filter-reset')).toBeDefined();
     });
 
     it('no filter-reset elements should exist if filter is not set', () => {

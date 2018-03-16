@@ -70,6 +70,25 @@
     position: fixed;
 }
 
+.datatable-filter-container {
+    @extend %filter-container-shared;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+}
+
+.datatable-filter-reset {
+    @extend %filter-reset-shared;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    overflow: hidden;
+
+        .datatable-filter-label {
+            @extend %filter-label-shared;
+        }
+}
 /deep/ .datatable-row-even {
     background-color: mat-color($white);
 }
@@ -103,7 +122,6 @@
     border-right-width: 1px;
     border-right-color: darkgrey;
     border-right-style: dotted;
-    cursor: pointer;
     padding: 2px;
 }
 

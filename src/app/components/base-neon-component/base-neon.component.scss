@@ -50,6 +50,7 @@ $footer-height: 40px;
 
     .body-container {
         height: calc(100% - #{$vis-title-expected-height});
+        overflow-y: auto;
         position: absolute;
         top: calc(#{$vis-title-expected-height});
         width: 100%;
@@ -67,12 +68,10 @@ $footer-height: 40px;
             }
         }
 
-        &.with-scroll {
-            overflow-y: auto;
-        }
-
         .chart-container {
             height: 100%;
+            min-height: 100px;
+            min-width: 200px;
 
             .chart {
                 position: relative;
@@ -90,10 +89,13 @@ $footer-height: 40px;
         }
     }
 
-    .filter-container {
+    %filter-container-shared {
         app-legend {
             float: left;
         }
+    }
+    .filter-container {
+        @extend %filter-container-shared;
     }
 
     .footer {
@@ -134,21 +136,29 @@ $footer-height: 40px;
         }
     }
 
-    .filter-reset {
-        float: right;
+    %filter-reset-shared {
         line-height: 20px;
         height: 20px;
         border-radius: 5px;
         margin: 5px;
         padding: 5px 0 5px 10px;
         background-color: mat-color($accent);
+    }
+
+    %filter-label-shared {
+        overflow: hidden;
+        position: relative;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .filter-reset {
+        @extend %filter-reset-shared;
+        float: right;
 
         .filter-label {
+            @extend %filter-label-shared;
+            float: left;
             max-width: 100px;
-            overflow: hidden;
-            position: relative;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
     }
 

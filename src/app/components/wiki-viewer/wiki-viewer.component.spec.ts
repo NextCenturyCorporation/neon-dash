@@ -16,7 +16,7 @@
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By, DomSanitizer } from '@angular/platform-browser';
-import { ComponentFixture, fakeAsync, inject, TestBed, tick } from '@angular/core/testing';
+import { async, ComponentFixture, fakeAsync, inject, TestBed, tick } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
 import { HttpModule, Response, ResponseOptions, XHRBackend } from '@angular/http';
@@ -73,6 +73,7 @@ describe('Component: WikiViewer', () => {
         });
         fixture = TestBed.createComponent(WikiViewerComponent);
         component = fixture.componentInstance;
+        fixture.detectChanges();
     });
 
     it('exists', (() => {
@@ -82,7 +83,6 @@ describe('Component: WikiViewer', () => {
     it('does have expected active properties', (() => {
         expect(component.active).toEqual({
             allowsTranslations: true,
-            errorMessage: '',
             id: '',
             idField: new FieldMetaData(),
             linkField: new FieldMetaData(),
@@ -196,8 +196,8 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('onQuerySuccess does set expected properties if response returns no data', (() => {
+        component.meta.errorMessage = 'testErrorMessage';
         component.active.linkField.columnName = 'testLinkField';
-        component.active.errorMessage = 'testErrorMessage';
         component.active.wikiName = ['testName'];
         component.active.wikiText = ['testText'];
 
@@ -205,16 +205,16 @@ describe('Component: WikiViewer', () => {
             data: []
         });
 
-        expect(component.active.errorMessage).toBe('No Data');
+        expect(component.meta.errorMessage).toBe('No Data');
         expect(component.active.wikiName).toEqual([]);
         expect(component.active.wikiText).toEqual([]);
     }));
 
     it('onQuerySuccess does call http.get and does set expected properties if response returns data',
-    fakeAsync(inject([XHRBackend], (mockBackend) => {
+        fakeAsync(inject([XHRBackend], (mockBackend) => {
 
+        component.meta.errorMessage = 'testErrorMessage';
         component.active.linkField.columnName = 'testLinkField';
-        component.active.errorMessage = 'testErrorMessage';
 
         mockBackend.connections.subscribe((connection) => {
             connection.mockRespond(new Response(new ResponseOptions({
@@ -237,7 +237,7 @@ describe('Component: WikiViewer', () => {
 
         // Wait for the HTTP response.
         tick(500);
-        expect(component.active.errorMessage).toBe('');
+        expect(component.meta.errorMessage).toBe('');
         expect(component.active.wikiName).toEqual(['Test Title']);
         expect(component.active.wikiText.length).toBe(1);
         expect(component.active.wikiText[0].toString()).toBe(
@@ -266,17 +266,17 @@ describe('Component: WikiViewer', () => {
 
         // Wait for the HTTP response.
         tick(500);
-        expect(component.active.errorMessage).toBe('');
+        expect(component.meta.errorMessage).toBe('');
         expect(component.active.wikiName).toEqual(['testLinkValue']);
         expect(component.active.wikiText.length).toBe(1);
         expect(component.active.wikiText[0].toString()).toBeTruthy();
     })));
 
     it('onQuerySuccess does call http.get multiple times and does set expected properties if response returns data with multiple links',
-    fakeAsync(inject([XHRBackend], (mockBackend) => {
+        fakeAsync(inject([XHRBackend], (mockBackend) => {
 
+        component.meta.errorMessage = 'testErrorMessage';
         component.active.linkField.columnName = 'testLinkField';
-        component.active.errorMessage = 'testErrorMessage';
 
         mockBackend.connections.subscribe((connection) => {
             if (connection.request.url === WikiViewerComponent.WIKI_LINK_PREFIX + 'testLinkValue1') {
@@ -314,7 +314,7 @@ describe('Component: WikiViewer', () => {
 
         // Wait for the HTTP response.
         tick(500);
-        expect(component.active.errorMessage).toBe('');
+        expect(component.meta.errorMessage).toBe('');
         expect(component.active.wikiName).toEqual(['Test Title 1', 'Test Title 2']);
         expect(component.active.wikiText.length).toBe(2);
         expect(component.active.wikiText[0].toString()).toBe(
@@ -386,33 +386,37 @@ describe('Component: WikiViewer', () => {
         expect(header.nativeElement.textContent).toBe('Wiki Viewer');
     }));
 
-    it('does hide error-message in toolbar and sidenav if active.errorMessage is undefined', (() => {
+    it('does hide error-message in toolbar and sidenav if meta.errorMessage is undefined', (() => {
         fixture.detectChanges();
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
 
-        let iconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message mat-icon'));
+        let iconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
         expect(iconInSidenav).toBeNull();
 
-        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message > div'));
+        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message div'));
         expect(errorMessageInSidenav).toBeNull();
     }));
 
-    it('does show error-message in toolbar and sidenav if active.errorMessage is defined', (() => {
-        component.active.errorMessage = 'Test Error Message';
+    it('does show error-message in toolbar and sidenav if meta.errorMessage is defined', async(() => {
+        component.meta.errorMessage = 'Test Error Message';
         fixture.detectChanges();
 
-        let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
-        expect(errorMessageInToolbar).not.toBeNull();
-        expect(errorMessageInToolbar.nativeElement.textContent).toBe('Test Error Message');
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
 
-        let iconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message.icon'));
-        expect(iconInSidenav).not.toBeNull();
-        expect(iconInSidenav.nativeElement.textContent).toBe('error');
+            let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
+            expect(errorMessageInToolbar).not.toBeNull();
+            expect(errorMessageInToolbar.nativeElement.textContent).toBe('Test Error Message');
 
-        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message.text'));
-        expect(errorMessageInSidenav).not.toBeNull();
-        expect(errorMessageInSidenav.nativeElement.textContent).toBe('Test Error Message');
+            let iconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
+            expect(iconInSidenav).not.toBeNull();
+            expect(iconInSidenav.nativeElement.textContent).toBe('error');
+
+            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message div'));
+            expect(errorMessageInSidenav).not.toBeNull();
+            expect(errorMessageInSidenav.nativeElement.textContent).toBe('Test Error Message');
+        });
     }));
 
     it('does show settings icon button in toolbar', (() => {
@@ -477,15 +481,19 @@ describe('Component: WikiViewer', () => {
         expect(hiddenSpinner).not.toBeNull();
     }));
 
-    it('does show loading overlay if isLoading is true', (() => {
+    it('does show loading overlay if isLoading is true', async(() => {
         component.isLoading = true;
         fixture.detectChanges();
 
-        let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
-        expect(loadingOverlay).not.toBeNull();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
 
-        let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
-        expect(spinner).not.toBeNull();
+            let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
+            expect(loadingOverlay).not.toBeNull();
+
+            let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
+            expect(spinner).not.toBeNull();
+        });
     }));
 
     it('does show loading overlay if calling onQuerySuccess', fakeAsync(inject([XHRBackend], (mockBackend) => {
@@ -494,22 +502,26 @@ describe('Component: WikiViewer', () => {
         mockBackend.connections.subscribe((connection) => {
             fixture.detectChanges();
 
-            let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
-            expect(loadingOverlay).not.toBeNull();
+            fixture.whenStable().then(() => {
+                fixture.detectChanges();
 
-            let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
-            expect(spinner).not.toBeNull();
+                let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
+                expect(loadingOverlay).not.toBeNull();
 
-            connection.mockRespond(new Response(new ResponseOptions({
-                body: JSON.stringify({
-                    parse: {
-                        text: {
-                            '*': ''
-                        },
-                        title: ''
-                    }
-                })
-            })));
+                let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
+                expect(spinner).not.toBeNull();
+
+                connection.mockRespond(new Response(new ResponseOptions({
+                    body: JSON.stringify({
+                        parse: {
+                            text: {
+                                '*': ''
+                            },
+                            title: ''
+                        }
+                    })
+                })));
+            });
         });
 
         component.onQuerySuccess({
@@ -538,28 +550,32 @@ describe('Component: WikiViewer', () => {
         expect(text.length).toBe(0);
     }));
 
-    it('does show wiki-text tabs if active.wikiText is not empty', inject([DomSanitizer], (sanitizer) => {
+    it('does show wiki-text tabs if active.wikiText is not empty', async(inject([DomSanitizer], (sanitizer) => {
         component.active.wikiName = ['Tab One', 'Tab Two'];
         component.active.wikiText = [sanitizer.bypassSecurityTrustHtml('<p>one</p>'), sanitizer.bypassSecurityTrustHtml('<p>two</p>')];
         fixture.detectChanges();
 
-        expect(component.active.wikiText.length).toBe(2);
-        expect(component.active.wikiText[0].toString()).toBe(
-            'SafeValue must use [property]=binding: <p>one</p> (see http://g.co/ng/security#xss)');
-        expect(component.active.wikiText[1].toString()).toBe(
-            'SafeValue must use [property]=binding: <p>two</p> (see http://g.co/ng/security#xss)');
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
 
-        let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
-        expect(tabs.length).toBe(2);
-        expect(tabs[0].nativeElement.textContent).toBe('Tab One');
-        expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
-        expect(tabs[1].nativeElement.textContent).toBe('Tab Two');
-        expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
+            expect(component.active.wikiText.length).toBe(2);
+            expect(component.active.wikiText[0].toString()).toBe(
+                'SafeValue must use [property]=binding: <p>one</p> (see http://g.co/ng/security#xss)');
+            expect(component.active.wikiText[1].toString()).toBe(
+                'SafeValue must use [property]=binding: <p>two</p> (see http://g.co/ng/security#xss)');
 
-        let text = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .wiki-text'));
-        expect(text.length).toBe(1);
-        expect(text[0].nativeElement.innerHTML).toBe('<p>one</p>');
-    }));
+            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+            expect(tabs.length).toBe(2);
+            expect(tabs[0].nativeElement.textContent).toBe('Tab One');
+            expect(tabs[0].nativeElement.classList.contains('mat-tab-label-active')).toBe(true);
+            expect(tabs[1].nativeElement.textContent).toBe('Tab Two');
+            expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
+
+            let text = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .wiki-text'));
+            expect(text.length).toBe(1);
+            expect(text[0].nativeElement.innerHTML).toBe('<p>one</p>');
+        });
+    })));
 });
 
 describe('Component: WikiViewer with config', () => {
@@ -613,7 +629,6 @@ describe('Component: WikiViewer with config', () => {
     it('does set expected active properties', (() => {
         expect(component.active).toEqual({
             allowsTranslations: true,
-            errorMessage: '',
             id: 'testId',
             idField: new FieldMetaData('testIdField', 'Test ID Field'),
             linkField: new FieldMetaData('testLinkField', 'Test Link Field'),

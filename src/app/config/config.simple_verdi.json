@@ -17,7 +17,21 @@
 					"name": "reified",
 					"prettyName": "Reified"
 				}]
-			}]
+			}],
+			"relations": [
+				{"members": [
+					{
+						"database": "aida",
+						"table": "normal",
+						"field": "@id"
+					},
+					{
+						"database": "aida",
+						"table": "reified",
+						"field": "provenance"
+					}
+				]}
+			]
 		}
 	],
 	"layouts": {
@@ -38,6 +52,8 @@
 					"database": "aida",
 					"table": "normal",
 					"sortField": "author",
+					"filterable": true,
+					"filterFields": ["@id"],
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
                         "@id",
@@ -67,8 +83,13 @@
 					"database": "aida",
 					"table": "reified",
 					"sortField": "subject",
+					"idField": "@id",
+					"arrayFilterOperator": "or",
 					"filterable": true,
-					"dataField": "subject",
+					"filterFields": [
+						"subject",
+						"provenance"
+					],
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
 						"subject"
@@ -93,8 +114,13 @@
 					"database": "aida",
 					"table": "reified",
 					"sortField": "predicate",
+					"idField": "@id",
+					"arrayFilterOperator": "or",
 					"filterable": true,
-					"dataField": "predicate",
+					"filterFields": [
+						"predicate",
+						"provenance"
+					],
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
 						"predicate"
@@ -120,8 +146,13 @@
 					"database": "aida",
 					"table": "reified",
 					"sortField": "object",
+					"idField": "@id",
+					"arrayFilterOperator": "or",
 					"filterable": true,
-					"dataField": "object",
+					"filterFields": [
+						"object",
+						"provenance"
+					],
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
 						"object"

@@ -163,12 +163,11 @@ export class TranslationService {
                     params += '&' + this.apis[this.chosenApi].params.from + '=' + from;
                 }
 
-                let self = this;
                 return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.translate + '?' + params)
                     .toPromise()
                     .then((response) => {
                         // Cache the translations for later use.
-                        self.getResponseData(response).data.translations.forEach((item, index) => {
+                        this.getResponseData(response).data.translations.forEach((item, index) => {
                             if (!cached[index]) {
                                 this.translationCache[to][text[index]] = item.translatedText;
                             }
@@ -176,7 +175,7 @@ export class TranslationService {
                         // Add the cached translations in the response data for the callback.
                         cached.forEach((item, index) => {
                             if (item) {
-                                self.getResponseData(response).data.translations[index].translatedText = item;
+                                this.getResponseData(response).data.translations[index].translatedText = item;
                             }
                         });
                         return response;
@@ -237,11 +236,10 @@ export class TranslationService {
         let params = this.apis[this.chosenApi].params.key + '=' + this.apis[this.chosenApi].key +
             '&' + this.apis[this.chosenApi].params.to + '=en';
 
-        let self = this;
         return this.http.get(this.apis[this.chosenApi].base + this.apis[this.chosenApi].methods.languages + '?' + params)
             .toPromise()
             .then((response) => {
-                _.forEach(self.getResponseData(response).data.languages, (elem: any) => {
+                _.forEach(this.getResponseData(response).data.languages, (elem: any) => {
                     this.apis[this.chosenApi].languages[elem.language] = elem.name;
                 });
                 return this.apis[this.chosenApi].languages;
