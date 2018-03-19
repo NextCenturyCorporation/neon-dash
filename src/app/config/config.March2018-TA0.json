@@ -1128,7 +1128,7 @@
 				"bindings": {
 					"title": "Filter Builder",
 					"database": "il3_uyghur_out",
-					"table": "tweet"
+					"table": "tweets"
 				},
 				"row": 0,
 				"col": 0
@@ -1295,7 +1295,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "People/Groups",
-					"database": "il3_uyghurs",
+					"database": "il3_uyghur",
 					"table": "tweets",
 					"dataField": "user.screenName"
 				},
@@ -1340,7 +1340,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Sentiment",
-					"database": "il3_uyghurs",
+					"database": "il3_uyghur",
 					"table": "tweets",
 					"dataField": "sentimentString",
 					"aggregation": "",
