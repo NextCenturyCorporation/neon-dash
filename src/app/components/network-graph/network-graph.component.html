@@ -44,7 +44,18 @@
                 </mat-form-field>
                 <p></p>
 
-                <mat-form-field>
+                Data Format:
+                <mat-button-toggle-group name="Reified" [(ngModel)]="optionsFromConfig.isReified" (ngModelChange)="handleChangeReified()">
+                    <mat-button-toggle [value]="true">
+                        Reified
+                    </mat-button-toggle>
+                    <mat-button-toggle [value]="false">
+                        Tabular
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <mat-form-field *ngIf="!optionsFromConfig.isReified">
                     <mat-select placeholder="Node Field" [(ngModel)]="active.nodeField" required="true" (ngModelChange)="handleChangeData()"
                         [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -52,12 +63,23 @@
                 </mat-form-field>
                 <p></p>
 
-                <mat-form-field>
+                <mat-form-field *ngIf="!optionsFromConfig.isReified">
                     <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeData()"
                         [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
+                <p></p>
+
+                Show Directed:
+                <mat-button-toggle-group name="Directed" [(ngModel)]="optionsFromConfig.isDirected" (ngModelChange)="handleChangeDirected()">
+                    <mat-button-toggle [value]="true">
+                        Show
+                    </mat-button-toggle>
+                    <mat-button-toggle [value]="false">
+                        Hide
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>

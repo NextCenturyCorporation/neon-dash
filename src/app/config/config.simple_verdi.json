@@ -1,14 +1,14 @@
 {
 	"datasets": [
 		{
-			"name": "AIDA Test",
+			"name": "VERDI Test",
 			"connectOnLoad": true,
-			"layout": "aida-layout",
+			"layout": "verdi-layout",
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [{
-				"name": "aida",
-				"prettyName": "AIDA",
+				"name": "verdi-rdf",
+				"prettyName": "VERDI",
 				"tables": [{
 					"name": "normal",
 					"prettyName": "Normal"
@@ -21,12 +21,12 @@
 			"relations": [
 				{"members": [
 					{
-						"database": "aida",
+						"database": "verdi-rdf",
 						"table": "normal",
 						"field": "@id"
 					},
 					{
-						"database": "aida",
+						"database": "verdi-rdf",
 						"table": "reified",
 						"field": "provenance"
 					}
@@ -35,7 +35,7 @@
 		}
 	],
 	"layouts": {
-		"aida-layout": [{
+		"verdi-layout": [{
 				"name": "Data Table",
 				"type": "dataTable",
 				"icon": "ViewData64",
@@ -49,7 +49,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Document",
-					"database": "aida",
+					"database": "verdi-rdf",
 					"table": "normal",
 					"sortField": "author",
 					"filterable": true,
@@ -80,7 +80,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Subject",
-					"database": "aida",
+					"database": "verdi-rdf",
 					"table": "reified",
 					"sortField": "subject",
 					"idField": "@id",
@@ -111,7 +111,7 @@
 				"$$hashKey": "object:31",
 				"bindings": {
 					"title": "Predicate",
-					"database": "aida",
+					"database": "verdi-rdf",
 					"table": "reified",
 					"sortField": "predicate",
 					"idField": "@id",
@@ -143,7 +143,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Object",
-					"database": "aida",
+					"database": "verdi-rdf",
 					"table": "reified",
 					"sortField": "object",
 					"idField": "@id",
@@ -175,33 +175,39 @@
 				"selected": true,
 				"bindings": {
 					"title": "Wiki Viewer",
-					"database": "aida",
+					"database": "verdi-rdf",
 					"table": "normal"
 				},
 				"row": 13,
 				"col": 0
 			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 12,
-				"sizey": 8,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 4,
-				"$$hashKey": "object:36",
-				"selected": true,
-				"bindings": {
-					"title": "Graph",
-					"database": "aida",
-					"table": "reified",
-					"dataField": "object"
-				},
-				"row": 13,
-				"col": 13
-			},
+            {
+                "name": "Network Graph",
+                "type": "networkGraph",
+                "icon": "Graph",
+                "sizex": 12,
+                "sizey": 8,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4,
+                "$$hashKey": "object:36",
+                "selected": true,
+                "bindings": {
+                    "title": "Network Graph",
+                    "database": "verdi-rdf",
+                    "table": "reified",
+                    "unsharedFilterField": "",
+                    "unsharedFilterValue": "",
+                    "colorField": "",
+                    "nodeField": "subject",
+                    "linkField": "object",
+                    "isReified": true,
+                    "isDirected": true
+                },
+                "row": 13,
+                "col": 13
+            },
 			{
 				"name": "Filter Builder",
 				"type": "filterBuilder",
@@ -216,7 +222,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Filter Builder",
-					"database": "aida",
+					"database": "verdi-rdf",
 					"table": "reified"
 				},
 				"row": 22,

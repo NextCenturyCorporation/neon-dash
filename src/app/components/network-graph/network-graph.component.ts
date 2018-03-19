@@ -45,6 +45,40 @@ class GraphData {
     constructor(public nodes = new vis.DataSet(), public edges = new vis.DataSet()) {}
 }
 
+class GraphProperties {
+    constructor(public nodes: Node[] = [], public edges: Edge[] = []) {}
+    addNode(node: Node) {
+        this.nodes.push(node);
+    }
+    addEdge(edge: Edge) {
+        this.edges.push(edge);
+    }
+}
+
+class Node {
+    // http://visjs.org/docs/network/nodes.html
+    constructor(public id: string, public label: string, public nodeType?: string, public size?: number) {}
+}
+
+interface ArrowProperties {
+    to: boolean;
+}
+interface ArrowUpdate {
+    id: string;
+    arrows: ArrowProperties;
+}
+
+class Edge {
+    // http://visjs.org/docs/network/edges.html
+    constructor(
+        public from: string,
+        public to: string,
+        public label?: string,
+        public arrows?: ArrowProperties,
+        public count?: number
+    ) {}
+}
+
 @Component({
     selector: 'app-network-graph',
     templateUrl: './network-graph.component.html',
@@ -70,7 +104,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         nodeField: FieldMetaData,
         linkField: FieldMetaData,
         limit: number,
-        isReified: boolean
+        isReified: boolean,
+        isDirected: boolean
     };
 
     public active: {
@@ -145,7 +180,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             nodeField: this.injector.get('nodeField', null),
             linkField: this.injector.get('linkField', null),
             limit: this.injector.get('limit', 500000),
-            isReified: this.injector.get('isReified', false)
+            isReified: this.injector.get('isReified', false),
+            isDirected: this.injector.get('isDirected', false)
         };
 
         this.active = {
@@ -208,6 +244,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         // note: options is REQUIRED. Fails to initialize physics properly without at least empty object
         let options: vis.Options = {layout: {randomSeed: 0}};
         this.graph = new vis.Network(this.graphElement.nativeElement, this.graphData, options);
+        this.graph.on('stabilized', (params) => this.graph.setOptions({physics: {enabled: false}}));
     }
 
     setInterpolationType(curveType) {
@@ -330,16 +367,23 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response): void {
-        if (this.optionsFromConfig.isReified) {
-            this.addReifiedDataToGraph(response.data);
-        } else {
-            this.evaluateDataAndUpdateGraph(response.data);
-        }
-
-        this.graph.on('stabilized', (params) => this.graph.setOptions({physics: {enabled: false}}));
+        this.active.data = response.data;
+        this.resetGraphData();
 
         let title;
         title = this.optionsFromConfig.title || 'Network Graph' + ' by ' + this.active.nodeField.columnName;
+    }
+
+    private resetGraphData() {
+        this.graphData.nodes.clear();
+        this.graphData.edges.clear();
+
+        let graphProperties = this.optionsFromConfig.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
+
+        this.graph.setOptions({physics: {enabled: true}});
+
+        this.graphData.nodes.update(graphProperties.nodes);
+        this.graphData.edges.update(graphProperties.edges);
     }
 
     setupFilters() {
@@ -446,66 +490,48 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
                 });*/
     }
 
-    addReifiedDataToGraph(data) {
-        this.graphData.nodes.clear();
-        this.graphData.edges.clear();
+    private createReifiedGraphProperties() {
+        let graph = new GraphProperties();
 
-        for (const entry of data) {
+        for (const entry of this.active.data) {
             const subject = entry.subject,
                 predicate = entry.predicate,
                 object = entry.object;
-            this.addNodeToGraph(subject, subject, 'subject', 1);
-            this.addNodeToGraph(object, object, 'object', 1);
-            this.addLinkToGraph(subject, object, predicate, 1);
+
+            graph.addNode(new Node(subject, subject));
+            graph.addNode(new Node(object, object));
+            graph.addEdge(new Edge(subject, object, predicate, {to: this.optionsFromConfig.isDirected}));
+
             //TODO: add hover with other properties
         }
+        return graph;
     }
 
-    private addNodeToGraph(id: string, label: string, nodeType: string, size: number) {
-        this.graphData.nodes.update({
-            id: id,
-            label: label
-            // nodeType: nodeType,
-            // size: size
-        });
-    }
-
-    private addLinkToGraph(source: string, target: string, label: string, count: number) {
-        this.graphData.edges.update({
-            from: source,
-            to: target,
-            label: label,
-            arrows: 'to' // directed graph
-            // count: count
-        });
-    }
-
-    private addLinkFromField(linkField: any, source: string) {
+    private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string) {
         if (Array.isArray(linkField)) {
             for (const linkEntry of linkField) {
-                this.addLinkToGraph(source, linkEntry, '', 1);
+                graph.addEdge(new Edge(source, linkEntry, '', null, 1));
             }
         } else if (linkField) {
-            this.addLinkToGraph(source, linkField, '', 1);
+            graph.addEdge(new Edge(source, linkField, '', null, 1));
         }
     }
 
-    evaluateDataAndUpdateGraph(data) {
-        this.graphData.nodes.clear();
-        this.graphData.edges.clear();
-
-        let linkName = this.active.linkField.columnName,
+    private createTabularGraphProperties() {
+        let graph = new GraphProperties(),
+            linkName = this.active.linkField.columnName,
             nodeName = this.active.nodeField.columnName;
-        for (let entry of data) {
+
+        for (let entry of this.active.data) {
 
             //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
             let linkField = entry[linkName];
             if (Array.isArray(linkField)) {
                 for (const linkEntry of linkField) {
-                    this.addNodeToGraph(linkEntry, linkEntry, linkName, 1);
+                    graph.addNode(new Node(linkEntry, linkEntry, linkName, 1));
                 }
             } else if (linkField) {
-                this.addNodeToGraph(linkField, linkField, linkName, 1);
+                graph.addNode(new Node(linkField, linkField, linkName, 1));
             }
 
             //creates a new node for each unique nodeId
@@ -514,15 +540,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             if (Array.isArray(nodeField)) {
                 for (const nodeEntry of nodeField) {
                     if (this.isUniqueNode(nodeEntry)) {
-                        this.addNodeToGraph(nodeEntry, nodeEntry, nodeName, 1);
-                        this.addLinkFromField(linkField, nodeEntry);
+                        graph.addNode(new Node(nodeEntry, nodeEntry, nodeName, 1));
+                        this.addEdgesFromField(graph, linkField, nodeEntry);
                     }
                 }
             } else if (nodeField) {
-                this.addNodeToGraph(nodeField, nodeField, nodeName, 1);
-                this.addLinkFromField(linkField, nodeField);
+                graph.addNode(new Node(nodeField, nodeField, nodeName, 1));
+                this.addEdgesFromField(graph, linkField, nodeField);
             }
         }
+        return graph;
     }
 
     isUniqueNode(nodeId) {
@@ -535,6 +562,18 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         }
 
         return true;
+    }
+
+    handleChangeDirected() {
+        let arrowUpdates: ArrowUpdate[] = this.graphData.edges.map(
+            (edge: ArrowUpdate) => ({id: edge.id, arrows: {to: this.optionsFromConfig.isDirected}}),
+            {fields: ['id', 'arrows']}
+        );
+        this.graphData.edges.update(arrowUpdates);
+    }
+
+    handleChangeReified() {
+        this.resetGraphData();
     }
 
     getElementRefs() {
