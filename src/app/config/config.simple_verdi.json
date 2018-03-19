@@ -1,14 +1,14 @@
 {
 	"datasets": [
 		{
-			"name": "AIDA Test",
+			"name": "Verdi Test",
 			"connectOnLoad": true,
-			"layout": "aida-layout",
+			"layout": "verdi-layout",
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [{
-				"name": "aida",
-				"prettyName": "AIDA",
+				"name": "verdi",
+				"prettyName": "Verdi",
 				"tables": [{
 					"name": "normal",
 					"prettyName": "Normal"
@@ -21,12 +21,12 @@
 			"relations": [
 				{"members": [
 					{
-						"database": "aida",
+						"database": "verdi",
 						"table": "normal",
 						"field": "@id"
 					},
 					{
-						"database": "aida",
+						"database": "verdi",
 						"table": "reified",
 						"field": "provenance"
 					}
@@ -35,7 +35,7 @@
 		}
 	],
 	"layouts": {
-		"aida-layout": [{
+		"verdi-layout": [{
 				"name": "Data Table",
 				"type": "dataTable",
 				"icon": "ViewData64",
@@ -49,7 +49,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Document",
-					"database": "aida",
+					"database": "verdi",
 					"table": "normal",
 					"sortField": "author",
 					"filterable": true,
@@ -81,7 +81,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Subject",
-					"database": "aida",
+					"database": "verdi",
 					"table": "reified",
 					"sortField": "subject",
 					"idField": "@id",
@@ -112,7 +112,7 @@
 				"$$hashKey": "object:31",
 				"bindings": {
 					"title": "Predicate",
-					"database": "aida",
+					"database": "verdi",
 					"table": "reified",
 					"sortField": "predicate",
 					"idField": "@id",
@@ -144,7 +144,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Object",
-					"database": "aida",
+					"database": "verdi",
 					"table": "reified",
 					"sortField": "object",
 					"idField": "@id",
@@ -163,9 +163,9 @@
 				"col": 17
 			},
 			{
-				"name": "Wiki Viewer",
-				"type": "wikiViewer",
-				"icon": "WikiViewer",
+				"name": "Media Viewer",
+				"type": "mediaViewer",
+				"icon": "mediaViewer",
 				"sizex": 12,
 				"sizey": 8,
 				"minPixelx": 320,
@@ -176,11 +176,10 @@
 				"selected": true,
 				"bindings": {
 					"title": "Wiki Viewer",
-					"database": "aida",
+					"database": "verdi",
 					"table": "normal",
 					"idField": "@id",
-					"linkField": "docLocation",
-					"linkPrefix": "picsum.photos/200/300/?random"
+					"linkField": "docLocation"
 				},
 				"row": 13,
 				"col": 0
@@ -199,7 +198,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Graph",
-					"database": "aida",
+					"database": "verdi",
 					"table": "reified",
 					"dataField": "object"
 				},
@@ -220,7 +219,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Filter Builder",
-					"database": "aida",
+					"database": "verdi",
 					"table": "reified"
 				},
 				"row": 22,

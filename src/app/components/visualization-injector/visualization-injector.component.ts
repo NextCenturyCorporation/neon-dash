@@ -35,7 +35,7 @@ import { VisualizationService } from '../../services/visualization.service';
 @Component({
     selector: 'app-visualization-injector',
     entryComponents: [BarChartComponent, DataTableComponent, DocumentViewerComponent, FilterBuilderComponent, LineChartComponent,
-        MapComponent, MediaViewerComponent, NetworkGraphComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent, 
+        MapComponent, MediaViewerComponent, NetworkGraphComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent,
         TimelineComponent, WikiViewerComponent],
     template: `<div #dynamicComponentContainer></div>`
 })
