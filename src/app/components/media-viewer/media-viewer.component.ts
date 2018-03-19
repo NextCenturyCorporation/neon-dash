@@ -42,13 +42,13 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
  * A visualization that shows the content of a wikipedia page triggered through a select_id event.
  */
 @Component({
-    selector: 'app-wiki-viewer',
-    templateUrl: './wiki-viewer.component.html',
-    styleUrls: ['./wiki-viewer.component.scss'],
+    selector: 'app-media-viewer',
+    templateUrl: './media-viewer.component.html',
+    styleUrls: ['./media-viewer.component.scss'],
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WikiViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     static WIKI_LINK_PREFIX: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
@@ -342,7 +342,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             return;
         }
 
-        this.http.get (WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).toPromise().then((wikiResponse) => {
+        this.http.get (MediaViewerComponent.WIKI_LINK_PREFIX + links[0]).toPromise().then((wikiResponse) => {
             let responseObject = JSON.parse(wikiResponse.text());
             if (responseObject.error) {
                 this.active.wikiName.push(links[0]);

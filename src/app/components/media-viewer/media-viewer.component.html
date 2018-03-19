@@ -74,7 +74,10 @@
 
     <mat-tab-group>
         <mat-tab *ngFor="let text of active.wikiText; let i = index" [label]="getTabLabel(active.wikiName, i)">
-            <div class="wiki-text html" [innerHTML]="text"></div>
+            <div class="wiki-text">
+                <object data="https://gizmodo.com/" width="600" height="400">
+                </object>
+            </div>
         </mat-tab>
     </mat-tab-group>
 </mat-sidenav-container>

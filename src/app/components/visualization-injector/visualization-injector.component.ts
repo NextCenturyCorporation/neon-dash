@@ -21,6 +21,7 @@ import { DocumentViewerComponent } from '../document-viewer/document-viewer.comp
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
+import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
@@ -34,8 +35,8 @@ import { VisualizationService } from '../../services/visualization.service';
 @Component({
     selector: 'app-visualization-injector',
     entryComponents: [BarChartComponent, DataTableComponent, DocumentViewerComponent, FilterBuilderComponent, LineChartComponent,
-        MapComponent, NetworkGraphComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent, TimelineComponent,
-        WikiViewerComponent],
+        MapComponent, MediaViewerComponent, NetworkGraphComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent, 
+        TimelineComponent, WikiViewerComponent],
     template: `<div #dynamicComponentContainer></div>`
 })
 export class VisualizationInjectorComponent {
@@ -97,6 +98,7 @@ export class VisualizationInjectorComponent {
             case 'filterBuilder': return FilterBuilderComponent;
             case 'lineChart': return LineChartComponent;
             case 'map': return MapComponent;
+            case 'mediaViewer': return MediaViewerComponent;
             case 'networkGraph' : return NetworkGraphComponent;
             case 'scatterPlot': return ScatterPlotComponent;
             case 'stackedTimeline': return StackedTimelineComponent;
