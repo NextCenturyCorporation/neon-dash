@@ -1,9 +1,9 @@
 {
 	"datasets": [
 		{
-			"name": "VERDI Test",
+			"name": "VERDI TA1",
 			"connectOnLoad": true,
-			"layout": "verdi-layout",
+			"layout": "verdi-ta1-layout",
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [{
@@ -35,7 +35,7 @@
 		}
 	],
 	"layouts": {
-		"verdi-layout": [{
+		"verdi-ta1-layout": [{
 				"name": "Data Table",
 				"type": "dataTable",
 				"icon": "ViewData64",
