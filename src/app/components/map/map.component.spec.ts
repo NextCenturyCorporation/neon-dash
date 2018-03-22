@@ -634,10 +634,12 @@ describe('Component: Map', () => {
         expect(spy.calls.argsFor(0)).toEqual([0, true, {
             id: undefined,
             fieldsByLayer: [{
-                latitudeName: 'testLatitude1',
-                longitudeName: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             }],
-            filterName: 'testDatabase1 - testTable1 - testLatitude1, testLongitude1 - 0'
+            filterName: 'Test Latitude 1 from 1 to 2 and Test Longitude 1 from 3 to 4'
         }]);
 
         updateMapLayer2(component);
@@ -650,24 +652,32 @@ describe('Component: Map', () => {
         expect(spy.calls.argsFor(1)).toEqual([0, true, {
             id: undefined,
             fieldsByLayer: [{
-                latitudeName: 'testLatitude1',
-                longitudeName: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             }, {
-                latitudeName: 'testLatitude2',
-                longitudeName: 'testLongitude2'
+                latitude: 'testLatitude2',
+                longitude: 'testLongitude2',
+                prettyLatitude: 'Test Latitude 2',
+                prettyLongitude: 'Test Longitude 2'
             }],
-            filterName: 'Map Filter - multiple layers'
+            filterName: 'latitude from 5 to 6 and longitude from 7 to 8'
         }]);
         expect(spy.calls.argsFor(2)).toEqual([1, true, {
             id: undefined,
             fieldsByLayer: [{
-                latitudeName: 'testLatitude1',
-                longitudeName: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             }, {
-                latitudeName: 'testLatitude2',
-                longitudeName: 'testLongitude2'
+                latitude: 'testLatitude2',
+                longitude: 'testLongitude2',
+                prettyLatitude: 'Test Latitude 2',
+                prettyLongitude: 'Test Longitude 2'
             }],
-            filterName: 'Map Filter - multiple layers'
+            filterName: 'latitude from 5 to 6 and longitude from 7 to 8'
         }]);
     });
 
@@ -688,16 +698,20 @@ describe('Component: Map', () => {
         component.addLocalFilter({
             id: 'testId1',
             fieldsByLayer: {
-                latField: 'testLatitude1',
-                lonField: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             },
             filterName: 'testFilter1'
         });
         expect(component.getFilters()).toEqual([{
             id: 'testId1',
             fieldsByLayer: {
-                latField: 'testLatitude1',
-                lonField: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             },
             filterName: 'testFilter1'
         }]);
@@ -729,29 +743,33 @@ describe('Component: Map', () => {
         expect(component.createNeonFilterClauseEquals('testDatabase1', 'testTable1', ['testLatitude1', 'testLongitude1'])).toEqual(query2);
     });
 
-    it('getFilterTextByFields does return expected string', () => {
-        updateMapLayer1(component);
-
-        expect(component.getFilterTextByFields([1])).toEqual('testDatabase1 - testTable1 - testLatitude1, testLongitude1 - 0');
-
-        expect(component.getFilterTextByFields([1, 2])).toEqual('Map Filter - multiple layers');
-    });
-
     it('getFilterText does return expected string', () => {
-        expect(component.getFilterText({})).toEqual('Map Filter');
+        expect(component.getFilterText({})).toEqual('');
         expect(component.getFilterText({
             filterName: 'testFilter'
         })).toEqual('testFilter');
     });
 
+    it('getFilterTextByFields does return expected string', () => {
+        expect(component.getFilterTextByFields(new BoundingBoxByDegrees(1, 2, 3, 4), [{
+            prettyLatitude: 'filterLatitude',
+            prettyLongitude: 'filterLongitude'
+        }])).toEqual('filterLatitude from 1 to 2 and filterLongitude from 3 to 4');
+
+        expect(component.getFilterTextByFields(new BoundingBoxByDegrees(1, 2, 3, 4), [{
+            prettyLatitude: 'filterLatitude1',
+            prettyLongitude: 'filterLongitude1'
+        }, {
+            prettyLatitude: 'filterLatitude2',
+            prettyLongitude: 'filterLongitude2'
+        }])).toEqual('latitude from 1 to 2 and longitude from 3 to 4');
+    });
+
     it('getFilterTextForLayer does return expected string', () => {
-        updateMapLayer1(component);
-
-        expect(component.getFilterTextForLayer(0)).toEqual('testDatabase1 - testTable1 - testLatitude1, testLongitude1 - 0');
-
-        updateMapLayer2(component);
-
-        expect(component.getFilterTextForLayer(1)).toEqual('testDatabase2 - testTable2 - testLatitude2, testLongitude2 - 1');
+        expect(component.getFilterTextForLayer(new BoundingBoxByDegrees(1, 2, 3, 4), {
+            prettyLatitude: 'filterLatitude',
+            prettyLongitude: 'filterLongitude'
+        })).toEqual('filterLatitude from 1 to 2 and filterLongitude from 3 to 4');
     });
 
     it('getNeonFilterFields does return expected array', () => {
@@ -988,34 +1006,23 @@ describe('Component: Map', () => {
         component.addLocalFilter([{
             id: 'testId1',
             fieldsByLayer: {
-                latField: 'testLatitude1',
-                lonField: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             },
             filterName: 'testFilter1'
         }]);
         expect(component.getCloseableFilters()).toEqual([[{
             id: 'testId1',
             fieldsByLayer: {
-                latField: 'testLatitude1',
-                lonField: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             },
             filterName: 'testFilter1'
         }]]);
-    });
-
-    it('getFilterTitle does return expected string', () => {
-        expect(component.getFilterTitle()).toBe('Map Filter');
-        let map = component.assignTestMap();
-        map.markInexact();
-        expect(component.getFilterTitle()).toBe(
-            'Map Filter *Filter was altered outside of Map visualization and selection rectangle may not accurately represent filter.');
-    });
-
-    it('getFilterCloseText does return expected string', () => {
-        expect(component.getFilterCloseText('testText')).toBe('testText');
-        let map = component.assignTestMap();
-        map.markInexact();
-        expect(component.getFilterCloseText('testText')).toBe('testText*');
     });
 
     it('removeFilter does delete filterBoundingBox and call mapObject.removeFilterBox', () => {

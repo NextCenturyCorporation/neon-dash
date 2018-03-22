@@ -293,7 +293,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @return {string}
      */
     getFilterName(clause) {
-        return clause.database.name + ' - ' + clause.table.name + ' - ' + clause.field.columnName + ' - filter';
+        return clause.field.prettyName + ' ' + clause.operator.prettyName + ' ' + clause.value;
     }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
@@ -373,7 +373,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         // Do nothing
     }
 
-    getFilterText(_filter): string {
+    getFilterText(filter): string {
         // Do nothing, no filters
         return '';
     }

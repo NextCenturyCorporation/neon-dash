@@ -42,10 +42,6 @@ import { ChartComponent } from '../chart/chart.component';
 import * as moment from 'moment-timezone';
 import { VisualizationService } from '../../services/visualization.service';
 
-class LocalFilter {
-    constructor(public key: string, public startDate: Date, public endDate: Date, public id?: string) {}
-}
-
 @Component({
     selector: 'app-line-chart',
     templateUrl: './line-chart.component.html',
@@ -61,6 +57,14 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     @ViewChild('myChart') chartModule: ChartComponent;
     @ViewChild('filterContainer') filterContainer: ElementRef;
     @ViewChild('chartContainer') chartContainer: ElementRef;
+
+    private filters: {
+        id: string,
+        key: string,
+        prettyKey: string,
+        startDate: Date,
+        endDate: Date
+    }[];
 
     private optionsFromConfig: {
         title: string,
@@ -84,8 +88,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         filterable: boolean,
         aggregation: string,
         dateBucketizer: any,
-        granularity: string,
-        filter: LocalFilter
+        granularity: string
     };
 
     public selection: {
@@ -150,8 +153,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             filterable: true,
             aggregation: 'count',
             dateBucketizer: null,
-            granularity: 'day',
-            filter: null
+            granularity: 'day'
         };
 
         this.selection = {
@@ -168,6 +170,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             endDate: null
         };
 
+        this.filters = [];
         this.mouseEventValid = false;
         this.onHover = this.onHover.bind(this);
 
@@ -473,13 +476,18 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
                 invert = start > end;
             this.selection.startDate = invert ? end : start;
             this.selection.endDate = invert ? start : end;
-            let key = this.active.dateField.columnName;
-            let f = new LocalFilter(key, this.selection.startDate, this.selection.endDate);
-            if (this.active.filter) {
-                f.id = this.active.filter.id;
-                this.replaceNeonFilter(true, f);
+            let filter = {
+                key: this.active.dateField.columnName,
+                prettyKey: this.active.dateField.prettyName,
+                startDate: this.selection.startDate,
+                endDate: this.selection.endDate,
+                id: this.filters.length ? this.filters[0].id : undefined
+            };
+            this.filters = [filter];
+            if (this.filters[0].id) {
+                this.replaceNeonFilter(true, filter);
             } else {
-                this.addNeonFilter(true, f);
+                this.addNeonFilter(true, filter);
             }
             redraw = true;
         }
@@ -503,18 +511,14 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
-    getFilterText() {
-        // I.E. test - earthquakes - time = 10/11/2015 to 5/1/2016"
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let field = this.active.dateField.columnName;
-        let text = database + ' - ' + table + ' - ' + field + ' = ';
-        let date = this.selection.startDate;
-        text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
-        date = this.selection.endDate;
-        text += ' to ';
-        text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
-        return text;
+    getCloseableFilters() {
+        return this.filters;
+    }
+
+    getFilterText(filter) {
+        let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' + filter.startDate.getUTCFullYear();
+        let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
+        return filter.prettyKey + ' from ' + begin + ' to ' + end;
     }
 
     getNeonFilterFields() {
@@ -774,26 +778,27 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     setupFilters() {
-        let localFilters = [],
-            neonFilters = this.filterService.getFiltersForFields(
-                this.meta.database.name,
-                this.meta.table.name,
-                [this.active.dateField.columnName]
-            );
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            this.getNeonFilterFields());
+
         for (let neonFilter of neonFilters) {
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
-                localFilters.push(
-                    new LocalFilter(
-                        whereClause.whereClauses[0].lhs,
-                        whereClause.whereClauses[0].rhs,
-                        whereClause.whereClauses[1].rhs,
-                        neonFilter.id
-                    )
-                );
+                if (!this.filters.length || this.filters[0].id !== neonFilter.id) {
+                    this.filters = [{
+                        key: whereClause.whereClauses[0].lhs,
+                        prettyKey: whereClause.whereClauses[0].lhs,
+                        startDate: whereClause.whereClauses[0].rhs,
+                        endDate: whereClause.whereClauses[1].rhs,
+                        id: neonFilter.id
+                    }];
+                }
             }
         }
-        this.active.filter = localFilters.length ? localFilters[0] : null;
+
+        if (!neonFilters.length) {
+            this.removeFilter();
+        }
     }
 
     /**
@@ -828,20 +833,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         return super.prettifyInteger(this.meta.limit) + ' of ' + super.prettifyInteger(this.chart.data.labels.length);
     }
 
-    getFilterTitle(filter: LocalFilter) {
-        return filter.startDate + ' >= ' + this.active.dateField.columnName + ' < ' + filter.endDate;
-    }
-
-    getFilterCloseText(value: string) {
-        return value;
-    }
-
-    getRemoveFilterTooltip(filter: LocalFilter) {
-        return 'Delete Filter ' + this.getFilterTitle(filter);
-    }
-
     removeFilter() {
-        this.setupFilters();
+        this.filters = [];
     }
 
     /**

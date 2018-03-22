@@ -354,8 +354,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         };
     }
 
-    addLocalFilter(f) {
-        this.filters[0] = f;
+    addLocalFilter(filter) {
+        this.filters[0] = filter;
     }
 
     getExportFields() {
@@ -517,13 +517,15 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             y2 = this.chart.data.yLabels[i];
         }
         return {
-            id: undefined,
             xMin: x1,
             xMax: x2,
             yMin: y1,
             yMax: y2,
             xField: this.active.xField.columnName,
-            yField: this.active.yField.columnName
+            yField: this.active.yField.columnName,
+            xPrettyField: this.active.xField.prettyName,
+            yPrettyField: this.active.yField.prettyName,
+            id: undefined
         };
     }
 
@@ -539,8 +541,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         return neon.query.and.apply(neon.query, filterClauses);
     }
 
-    getFilterText() {
-        return '';
+    getFilterText(filter) {
+        return filter.xPrettyField + ' from ' + filter.xMin + ' to ' + filter.xMax + ' and ' + filter.yPrettyField + ' from ' +
+            filter.yMin + ' to ' + filter.yMax;
     }
 
     getNeonFilterFields() {
@@ -765,14 +768,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
-        if (this.filters.length > 0) {
-            return [{
-                id: this.filters[0].id,
-                value: 'Scatter Filter'
-            }];
-        } else {
-            return [];
-        }
+        return this.filters;
     }
 
     /**
@@ -789,18 +785,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             return 'Total ' + super.prettifyInteger(this.chart.data.labels.length);
         }
         return super.prettifyInteger(this.meta.limit) + ' of ' + super.prettifyInteger(this.chart.data.labels.length);
-    }
-
-    getFilterTitle() {
-        return this.active.xField.columnName + ' vs ' + this.active.yField.columnName;
-    }
-
-    getFilterCloseText(value: string) {
-        return value;
-    }
-
-    getRemoveFilterTooltip() {
-        return 'Delete Filter ' + this.getFilterTitle();
     }
 
     removeFilter() {

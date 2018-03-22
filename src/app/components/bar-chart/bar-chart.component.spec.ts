@@ -156,11 +156,6 @@ describe('Component: BarChart', () => {
         expect(spyExecuteQueryChain.calls.count()).toBe(1);
     }));
 
-    it('checks return values', (() => {
-        expect(component.getFilterCloseText('test')).toBe('test');
-        expect(component.getRemoveFilterTooltip('test')).toBe('Delete Filter  = test');
-    }));
-
     it('Checks for expected value from getExportFields', (() => {
         component.active.dataField.columnName = 'Test datafield column';
         component.active.dataField.prettyName = 'Test datafield prettyName';

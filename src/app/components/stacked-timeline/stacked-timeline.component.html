@@ -100,9 +100,9 @@
 
     <div class="filter-container">
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-            <span class="filter-label" [title]="getFilterTitle('Date Filter')">{{ 'Date Filter' }}</span>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" [matTooltip]="getRemoveFilterTooltip('Date Filter')"
-                    tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, true)">
+            <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">Date Filter</span>
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
         </div>

@@ -618,7 +618,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     getFilterText(filter: any): string {
-        return filter.value;
+        return filter.prettyKey + ' = ' + filter.value;
     }
 
     /**
@@ -694,7 +694,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let whereClauses: neon.query.WherePredicate[] = [];
         whereClauses.push(neon.query.where(this.active.dataField.columnName, '!=', null));
         let yAxisField = this.active.aggregationField.columnName;
-        let groupBy: any[] = [this.active.dataField.columnName];
+        let groupBy: any[] = this.getNeonFilterFields();
 
         if (this.active.colorField && this.active.colorField.columnName !== '') {
             whereClauses.push(neon.query.where(this.active.colorField.columnName, '!=', null));
@@ -738,21 +738,15 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     getFiltersToIgnore() {
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = this.getNeonFilterFields();
         // get relevant neon filters and check for filters that should be ignored and add that to query
-        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        if (neonFilters.length > 0) {
-            let ignoredFilterIds = [];
-            for (let neonFilter of neonFilters) {
-                if (!neonFilter.filter.whereClause.whereClauses) {
-                    ignoredFilterIds.push(neonFilter.id);
-                }
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+        let ignoredFilterIds = [];
+        for (let neonFilter of neonFilters) {
+            if (!neonFilter.filter.whereClause.whereClauses) {
+                ignoredFilterIds.push(neonFilter.id);
             }
-            return ignoredFilterIds;
         }
-        return null;
+        return ignoredFilterIds.length ? ignoredFilterIds : null;
     }
 
     /**
@@ -1000,11 +994,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = [this.active.dataField.columnName];
-        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
         this.filters = [];
+
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
                 let key = neonFilter.filter.whereClause.lhs;
@@ -1081,36 +1073,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     getCloseableFilters() {
         return this.filters;
-    }
-
-    /**
-     * Returns the bar chart filter tooltip title text using the given filter value.
-     *
-     * @arg {string} value
-     * @return {string}
-     */
-    getFilterTitle(value: string) {
-        return this.active.dataField.columnName + ' = ' + value;
-    }
-
-    /**
-     * Returns the bar chart filter text using the given filter value.
-     *
-     * @arg {string} value
-     * @return {string}
-     */
-    getFilterCloseText(value: string): string {
-        return value;
-    }
-
-    /**
-     * Returns the bar chart remove button tooltip title text using the given filter value.
-     *
-     * @arg {string} value
-     * @return {string}
-     */
-    getRemoveFilterTooltip(value: string): string {
-        return 'Delete Filter ' + this.getFilterTitle(value);
     }
 
     //Would love to refactor this but cannot because it's called in base neon.

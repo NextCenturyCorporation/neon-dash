@@ -273,11 +273,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     getFilterText(filter) {
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let field = this.active.nodeField.columnName;
-        let text = database + ' - ' + table + ' - ' + field + ' = ';
-        return text;
+        // TODO
+        return '';
     }
 
     refreshVisualization() {

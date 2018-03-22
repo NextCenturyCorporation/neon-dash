@@ -77,8 +77,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         protected filters: {
             id: string,
             fieldsByLayer: {
-                latField: string,
-                lonField: string
+                latitude: string,
+                longitude: string
+                prettyLatitude: string,
+                prettyLongitude: string
             },
             filterName: string
         }[];
@@ -363,18 +365,23 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         /**
          * Sets the filter bounding box to the given box and adds or replaces the neon map filter.
          *
+         * Function for the FilterListener interface.
+         *
          * @arg {BoundingBoxByDegrees} box
+         * @override
          */
         filterByLocation(box: BoundingBoxByDegrees) {
             this.filterBoundingBox = box;
 
-            let fieldsByLayer = this.active.layers.map((l) => {
+            let fieldsByLayer = this.active.layers.map((layer) => {
                 return {
-                    latitudeName: l.latitudeField.columnName,
-                    longitudeName: l.longitudeField.columnName
+                    latitude: layer.latitudeField.columnName,
+                    longitude: layer.longitudeField.columnName,
+                    prettyLatitude: layer.latitudeField.prettyName,
+                    prettyLongitude: layer.longitudeField.prettyName
                 };
             });
-            let localLayerName = this.getFilterTextByFields(fieldsByLayer);
+            let localLayerName = this.getFilterTextByFields(box, fieldsByLayer);
             let localFilters = this.createFilter(fieldsByLayer, localLayerName);
             this.addLocalFilter(localFilters);
             for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
@@ -439,15 +446,27 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         /**
          * Returns the map filter text using the given fields.
          *
+         * @arg {BoundingBoxByDegrees} box
          * @arg {array} fieldsByLayer
          * @return {string}
          */
-        getFilterTextByFields(fieldsByLayer: any[]): string {
+        getFilterTextByFields(box: BoundingBoxByDegrees, fieldsByLayer: any[]): string {
             if (fieldsByLayer.length === 1) {
-                return this.getFilterTextForLayer(0);
-            } else {
-                return 'Map Filter - multiple layers';
+                return this.getFilterTextForLayer(box, fieldsByLayer[0]);
             }
+            return 'latitude from ' + box.south + ' to ' + box.north + ' and longitude from ' + box.west + ' to ' + box.east;
+        }
+
+        /**
+         * Returns the map filter text for the map layer at the given index.
+         *
+         * @arg {BoundingBoxByDegrees} box
+         * @arg {object} fieldsByLayer
+         * @return {string}
+         */
+        getFilterTextForLayer(box: BoundingBoxByDegrees, fieldsByLayer: any): string {
+            return fieldsByLayer.prettyLatitude + ' from ' + box.south + ' to ' + box.north + ' and ' + fieldsByLayer.prettyLongitude +
+                ' from ' + box.west + ' to ' + box.east;
         }
 
         /**
@@ -458,25 +477,17 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * @override
          */
         getFilterText(filter: any): string {
-            if (filter && filter.filterName) {
-                return filter.filterName;
-            } else {
-                return 'Map Filter';
-            }
+            return filter.filterName || '';
         }
 
         /**
-         * Returns the map filter text for the map layer at the given index.
+         * Returns the map filter detail.
          *
-         * @arg {number} layerIndex
          * @return {string}
          */
-        getFilterTextForLayer(layerIndex: number): string {
-            let database = this.meta.layers[layerIndex].database.name;
-            let table = this.meta.layers[layerIndex].table.name;
-            let latField = this.active.layers[layerIndex].latitudeField.columnName;
-            let lonField = this.active.layers[layerIndex].longitudeField.columnName;
-            return database + ' - ' + table + ' - ' + latField + ', ' + lonField + ' - ' + layerIndex;
+        getFilterDetail(): string {
+            return (!this.mapObject || this.mapObject.isExact()) ? '' :
+                ' *Filter was altered outside of Map visualization and selection rectangle may not accurately represent filter.';
         }
 
         /**
@@ -745,10 +756,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * @return {boolean}
          */
         doesLayerStillHaveFilter(layerIndex: number): boolean {
-            let database = this.meta.layers[layerIndex].database.name;
-            let table = this.meta.layers[layerIndex].table.name;
-            let fields = this.getNeonFilterFields(layerIndex);
-            let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
+            let neonFilters = this.filterService.getFiltersForFields(this.meta.layers[layerIndex].database.name,
+                this.meta.layers[layerIndex].table.name, this.getNeonFilterFields(layerIndex));
             return neonFilters && neonFilters.length > 0;
         }
 
@@ -780,10 +789,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
         hasLayerFilterChanged(layerIndex: number): boolean {
             let filterChanged = true;
-            let database = this.meta.layers[layerIndex].database.name;
-            let table = this.meta.layers[layerIndex].table.name;
-            let fields = this.getNeonFilterFields(layerIndex);
-            let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
+            let neonFilters = this.filterService.getFiltersForFields(this.meta.layers[layerIndex].database.name,
+                this.meta.layers[layerIndex].table.name, this.getNeonFilterFields(layerIndex));
             let clauses = this.getClausesFromFilterWithIdenticalArguments(neonFilters, [
                 this.active.layers[layerIndex].latitudeField.columnName,
                 this.active.layers[layerIndex].longitudeField.columnName
@@ -848,43 +855,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * @return {array}
          */
         getCloseableFilters(): object[] {
-            // TODO
             return this.filters;
-        }
-
-        /**
-         * Returns the map filter tooltip title text.
-         *
-         * @return {string}
-         */
-        getFilterTitle(): string {
-            let title = 'Map Filter';
-            if (this.mapObject && !this.mapObject.isExact()) {
-                title += ' *Filter was altered outside of Map visualization and selection rectangle may not accurately represent filter.';
-            }
-            return title;
-        }
-
-        /**
-         * Returns the map filter text.
-         *
-         * @arg {string} input
-         * @return {string}
-         */
-        getFilterCloseText(input: string): string {
-            if (this.mapObject && !this.mapObject.isExact()) {
-                return input + '*';
-            }
-            return input;
-        }
-
-        /**
-         * Returns the map filter remove button tooltip title text.
-         *
-         * @return {string}
-         */
-        getRemoveFilterTooltip(): string {
-            return 'Delete ' + this.getFilterTitle();
         }
 
         /**

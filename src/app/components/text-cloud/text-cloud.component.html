@@ -115,16 +115,16 @@
     </div>
 
     <div class="filter-container">
-        <div class="filter-reset" *ngFor="let filter of getFilterData()">
-            <span class="filter-label" [title]="createFilterDesc(filter.value)">{{ createFilterText(filter.value) }}</span>
+        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+            <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter) + getFilterDetail(filter)">{{ filter.value }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="getRemoveDesc(filter.value)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
         </div>
     </div>
 
-    <div class="text-cloud body-container" [class.with-filter]="getFilterData().length" mat-fill layout="col">
+    <div class="text-cloud body-container" [class.with-filter]="getCloseableFilters().length" mat-fill layout="col">
         <a (click)="onClick(item)" class="text" *ngFor="let item of active.data" title="{{item.value}}" [rel]="item.count" [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">{{ item.key }}</a>
     </div>
 </mat-sidenav-container>

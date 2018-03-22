@@ -328,8 +328,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Data Chart';
     }
 
-    getFilterText() {
-        return this.filters[0].value;
+    getFilterText(filter) {
+        return filter.prettyKey + ' = ' + filter.value;
     }
 
     refreshVisualization() {
@@ -557,22 +557,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     // Get filters and format for each call in HTML
     getCloseableFilters() {
-        let closeableFilters = this.filters.map((filter) => {
-            return filter.value;
-        });
-        return closeableFilters;
-    }
-
-    getFilterTitle(value: string) {
-        return this.active.sortField.columnName + ' = ' + value;
-    }
-
-    getFilterCloseText(value: string) {
-        return value;
-    }
-
-    getRemoveFilterTooltip(value: string) {
-        return 'Delete Filter ' + this.getFilterTitle(value);
+        return this.filters;
     }
 
     unsharedFilterChanged() {
