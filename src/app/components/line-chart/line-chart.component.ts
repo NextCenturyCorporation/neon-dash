@@ -66,19 +66,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         endDate: Date
     }[];
 
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        dateField: string,
-        groupField: string,
-        aggregation: string,
-        aggregationField: string,
-        unsharedFilterField: Object,
-        unsharedFilterValue: string,
-        limit: number
-    };
-
     public active: {
         dateField: FieldMetaData,
         aggregationField: FieldMetaData,
@@ -130,18 +117,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            dateField: this.injector.get('dateField', null),
-            groupField: this.injector.get('groupField', null),
-            aggregation: this.injector.get('aggregation', null),
-            aggregationField: this.injector.get('aggregationField', null),
-            limit: this.injector.get('limit', 10),
-            unsharedFilterField: {},
-            unsharedFilterValue: ''
-        };
+
         this.colorSchemeService = colorSchemeSrv;
 
         this.active = {
@@ -327,13 +303,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.aggregationField = this.active.aggregationField.columnName;
     }
 
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
-    }
-
     onUpdateFields() {
-        if (this.optionsFromConfig.aggregation) {
-            this.active.aggregation = this.optionsFromConfig.aggregation;
+        if (this.injector.get('aggregation', null)) {
+            this.active.aggregation = this.injector.get('aggregation', null);
         }
         this.active.aggregationField = this.findFieldObject('aggregationField');
         this.active.dateField = this.findFieldObject('dateField');

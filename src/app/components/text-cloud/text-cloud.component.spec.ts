@@ -169,20 +169,6 @@ describe('Component: TextCloud', () => {
         }]);
     });
 
-    it('returns the correct values from getOptionFromConfig', () => {
-        expect(component.getOptionFromConfig('title')).toBeNull();
-        expect(component.getOptionFromConfig('database')).toBeNull();
-        expect(component.getOptionFromConfig('table')).toBeNull();
-        expect(component.getOptionFromConfig('dataField')).toBeNull();
-        expect(component.getOptionFromConfig('configFilter')).toBeNull();
-        expect(component.getOptionFromConfig('unsharedFilterField')).toBeNull();
-        expect(component.getOptionFromConfig('unsharedFilterValue')).toBeNull();
-        expect(component.getOptionFromConfig('sizeField')).toBeNull();
-        expect(component.getOptionFromConfig('sizeAggregation')).toEqual('AVG');
-        expect(component.getOptionFromConfig('limit')).toBe(40);
-        expect(component.getOptionFromConfig('nonexistentOption')).toBeUndefined();
-    });
-
     it('properly updates objects in updateObject', () => {
         let startingObject = component.updateObject({}, 'value', 'a value');
         startingObject = component.updateObject(startingObject, 'newField', 'new field value');
@@ -819,19 +805,6 @@ describe('Component: Textcloud with config', () => {
         fixture = TestBed.createComponent(TextCloudComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-    });
-
-    it('something to do with getOptionsFromConfig', () => {
-        expect(component.getOptionFromConfig('title')).toEqual('Textcloud with Config Title');
-        expect(component.getOptionFromConfig('database')).toEqual('testDatabase');
-        expect(component.getOptionFromConfig('table')).toEqual('testTable');
-        expect(component.getOptionFromConfig('dataField')).toEqual('testDataField');
-        expect(component.getOptionFromConfig('configFilter')).toBeNull();
-        expect(component.getOptionFromConfig('unsharedFilterField')).toEqual('testUnsharedFilterField');
-        expect(component.getOptionFromConfig('unsharedFilterValue')).toEqual('testUnsharedFilterValue');
-        expect(component.getOptionFromConfig('sizeField')).toEqual('testSizeField');
-        expect(component.getOptionFromConfig('sizeAggregation')).toEqual('COUNT');
-        expect(component.getOptionFromConfig('limit')).toBe(25);
     });
 
     it('returns expected query from createQuery when an unshared filter is given', () => {

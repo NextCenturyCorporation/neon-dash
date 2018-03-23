@@ -60,22 +60,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         prettyKey: string
     }[];
 
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        dataField: string,
-        configFilter: {
-            use: boolean,
-            lhs: string,
-            operator: string,
-            rhs: string
-        },
-        unsharedFilterField: any,
-        unsharedFilterValue: string,
-        sizeField: string,
-        sizeAggregation: string,
-        limit: number
+    private configFilter: {
+        use: boolean,
+        lhs: string,
+        operator: string,
+        rhs: string
     };
 
     public active: {
@@ -96,7 +85,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         {name: 'Sum', value: 'SUM'}
     ];
 
-    // Average should be the default. It is loaded from the optionsFromConfig
     public sizeAggregation: string;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
@@ -104,19 +92,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            dataField: this.injector.get('dataField', null),
-            configFilter: this.injector.get('configFilter', null),
-            unsharedFilterField: this.injector.get('unsharedFilterField', null),
-            unsharedFilterValue: this.injector.get('unsharedFilterValue', null),
-            sizeField: this.injector.get('sizeField', null),
-            sizeAggregation: this.injector.get('sizeAggregation', 'AVG'),
-            limit: this.injector.get('limit', 40)
-        };
-        this.sizeAggregation = this.optionsFromConfig.sizeAggregation;
+
+        this.configFilter = this.injector.get('configFilter', null);
+        this.sizeAggregation = this.injector.get('sizeAggregation', 'AVG');
         this.filters = [];
         this.active = {
             dataField: new FieldMetaData(),
@@ -164,10 +142,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         }];
     }
 
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
-    }
-
     private updateTextCloudSettings() {
         let options = new TextCloudOptions(new SizeOptions(80, 140, '%'),
             new ColorOptions('#aaaaaa', this.active.textColor));
@@ -183,6 +157,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     onUpdateFields() {
         let dataField = this.findFieldObject('dataField');
         let sizeField = this.findFieldObject('sizeField');
+        // TODO Is this really needed?
         this.active = this.updateObject(this.active, 'dataField', dataField);
         this.active = this.updateObject(this.active, 'sizeField', sizeField);
         this.meta = Object.assign({}, this.meta); // trigger action
@@ -245,10 +220,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     createClause(): any {
         let clauses = [neon.query.where(this.active.dataField.columnName, '!=', null)];
 
-        if (this.optionsFromConfig.configFilter) {
-            clauses.push(neon.query.where(this.optionsFromConfig.configFilter.lhs,
-                this.optionsFromConfig.configFilter.operator,
-                this.optionsFromConfig.configFilter.rhs));
+        if (this.configFilter) {
+            clauses.push(neon.query.where(this.configFilter.lhs, this.configFilter.operator, this.configFilter.rhs));
         }
 
         if (this.hasUnsharedFilter()) {
@@ -428,6 +401,16 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     unsharedFilterRemoved() {
         // Update the data
         this.executeQueryChain();
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {number}
+     * @override
+     */
+    getDefaultLimit() {
+        return 40;
     }
 
     /**

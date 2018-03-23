@@ -112,21 +112,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
     filters: ScatterPlotFilter[];
 
     private defaultActiveColor;
-
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        xField: string,
-        yField: string,
-        labelField: string,
-        colorField: string,
-        unsharedFilterField: Object,
-        unsharedFilterValue: string,
-        limit: number,
-        displayGridLines: boolean,
-        displayTicks: boolean
-    };
+    private displayGridLines: boolean;
+    private displayTicks: boolean;
 
     public active: {
         xField: FieldMetaData,
@@ -138,7 +125,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         layers: any[],
         xAxisIsNumeric: boolean,
         yAxisIsNumeric: boolean,
-        pointLabels: string[]
+        pointLabels: string[],
     };
 
     private mouseEventValid: boolean;
@@ -179,20 +166,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            xField: this.injector.get('xField', null),
-            yField: this.injector.get('yField', null),
-            labelField: this.injector.get('labelField', null),
-            colorField: this.injector.get('colorField', null),
-            limit: this.injector.get('limit', 1000),
-            unsharedFilterField: {},
-            unsharedFilterValue: '',
-            displayGridLines: this.injector.get('displayGridLines', true),
-            displayTicks: this.injector.get('displayTicks', true)
-        };
+
+        this.displayGridLines = this.injector.get('displayGridLines', true);
+        this.displayTicks = this.injector.get('displayTicks', true);
         this.colorSchemeService = colorSchemeSrv;
         this.filters = [];
         this.mouseEventValid = false;
@@ -267,10 +243,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
                 scales: {
                     xAxes: [{
                         gridLines: {
-                            display: this.optionsFromConfig.displayGridLines
+                            display: this.displayGridLines
                         },
                         ticks: {
-                            display: this.optionsFromConfig.displayTicks,
+                            display: this.displayTicks,
                             callback: this.xAxisTickCallback
                         },
                         position: 'bottom',
@@ -278,10 +254,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
                     }],
                     yAxes: [{
                         gridLines: {
-                            display: this.optionsFromConfig.displayGridLines
+                            display: this.displayGridLines
                         },
                         ticks: {
-                            display: this.optionsFromConfig.displayTicks,
+                            display: this.displayTicks,
                             callback: this.yAxisTickCallback
                         },
                         type: 'linear'
@@ -326,10 +302,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
 
     subNgOnDestroy() {
         this.getChart().destroy();
-    }
-
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
     }
 
     subGetBindings(bindings: any) {
@@ -789,6 +761,16 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
 
     removeFilter() {
         this.filters = [];
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {number}
+     * @override
+     */
+    getDefaultLimit() {
+        return 1000;
     }
 
     /**

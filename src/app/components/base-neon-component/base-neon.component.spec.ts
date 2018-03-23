@@ -91,10 +91,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         //Get an option from the visualization's config
     }
 
-    getOptionFromConfig(field) {
-        return null;
-    }
-
     subGetBindings(bindings: any) {
         //
     }

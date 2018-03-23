@@ -136,20 +136,6 @@ describe('Component: BarChart', () => {
         expect(component.active.chartType).toBe('testChart');
     }));
 
-    it('Checks optionsFromConfig default value', (() => {
-        expect(component.getOptionFromConfig('title')).toBeNull();
-        expect(component.getOptionFromConfig('database')).toBeNull();
-        expect(component.getOptionFromConfig('table')).toBeNull();
-        expect(component.getOptionFromConfig('dataField')).toBeNull();
-        expect(component.getOptionFromConfig('aggregation')).toBeNull();
-        expect(component.getOptionFromConfig('aggregationField')).toBeNull();
-        expect(component.getOptionFromConfig('colorField')).toBeNull();
-        expect(component.getOptionFromConfig('limit')).toBe(10);
-        expect(component.getOptionFromConfig('unsharedFilterField')).toEqual({});
-        expect(component.getOptionFromConfig('unsharedFilterValue')).toBe('');
-        expect(component.getOptionFromConfig('chartType')).toBe('bar');
-    }));
-
     it('Handle change Aggregation method calls the correct function', (() => {
         let spyExecuteQueryChain = spyOn(component, 'executeQueryChain');
         component.handleChangeAggregation();

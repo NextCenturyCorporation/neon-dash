@@ -43,7 +43,7 @@
 
                 <div *ngFor="let layer of meta.layers; let i = index">
                     <mat-toolbar style="cursor: pointer;" (click)="toggleFilter(i)">
-                        <span>{{ active.layers[i].title }}</span>
+                        <span>{{ layer.title }}</span>
                         <span class="toolbar-spacer"></span>
                         <mat-icon class="neon-icon-small" *ngIf="meta.layers.length > 1" (click)="removeLayer(i)">delete</mat-icon>
                         <mat-icon class="neon-icon-small">{{ getIconForFilter(i) }}</mat-icon>
@@ -52,7 +52,7 @@
 
                     <div [hidden]="!filterVisible[i]" >
                         <mat-form-field>
-                            <input matInput placeholder="Layer Name" [(ngModel)]="active.layers[i].title" required="true">
+                            <input matInput placeholder="Layer Name" [(ngModel)]="layer.title" required="true">
                         </mat-form-field>
                         <p></p>
 
@@ -117,7 +117,7 @@
                 </div>
 
                 <mat-form-field>
-                    <mat-select placeholder="Map Type" [ngModel]="optionsFromConfig.mapType" (ngModelChange)="handleChangeMapType($event)">
+                    <mat-select placeholder="Map Type" [ngModel]="mapType" (ngModelChange)="handleChangeMapType($event)">
                         <mat-option *ngFor="let type of mapTypes" [value]="type.value">{{ type.name }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -146,7 +146,7 @@
         </div>
 
         <div class=" legend-container ">
-            <div *ngIf="!optionsFromConfig.singleColor">
+            <div *ngIf="!active.singleColor">
                 <app-legend [fieldNames]="colorByFields"
                     [disabledSets]="disabledSet"
                     (itemSelected)="legendItemSelected($event)"></app-legend>

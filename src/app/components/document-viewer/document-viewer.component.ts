@@ -56,20 +56,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
 
-    public optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        dataField: string,
-        dateField: string,
-        idField: string,
-        limit: number,
-        metadataFields: any[], // Array of arrays. Each internal array is a row of metadata and contains {name, field} objects.
-        popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
-        showText: boolean,
-        showSelect: boolean
-    };
-
     public active: {
         data: any[],
         dataField: FieldMetaData,
@@ -77,7 +63,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         docCount: number,
         idField: FieldMetaData,
         page: number,
-        metadataFields: any[]
+        metadataFields: any[], // Array of arrays. Each internal array is a row of metadata and contains {name, field} objects.
+        popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
+        showSelect: boolean,
+        showText: boolean
     };
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
@@ -86,19 +75,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         public dialog: MatDialog) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            dataField: this.injector.get('dataField', null),
-            dateField: this.injector.get('dateField', null),
-            idField: this.injector.get('idField', null),
-            metadataFields: this.injector.get('metadataFields', null),
-            popoutFields: this.injector.get('popoutFields', null),
-            limit: this.injector.get('limit', 50),
-            showText: this.injector.get('showText', false),
-            showSelect: this.injector.get('showSelect', true)
-        };
+
         this.active = {
             data: [],
             dataField: new FieldMetaData(),
@@ -106,7 +83,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             docCount: 0,
             idField: new FieldMetaData(),
             page: 1,
-            metadataFields: []
+            metadataFields: neonUtilities.flatten(this.injector.get('metadataFields', [])),
+            popoutFields: neonUtilities.flatten(this.injector.get('popoutFields', [])),
+            showSelect: this.injector.get('showSelect', false),
+            showText: this.injector.get('showText', false)
         };
     }
 
@@ -141,15 +121,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         }];
     }
 
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
-    }
-
     onUpdateFields() {
         this.active.dataField = this.findFieldObject('dataField');
         this.active.dateField = this.findFieldObject('dateField');
         this.active.idField = this.findFieldObject('idField');
-        this.active.metadataFields = neonUtilities.flatten(this.optionsFromConfig.metadataFields);
     }
 
     getFilterText(filter) {
@@ -203,8 +178,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let offset = ((this.active.page) - 1) * limit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = this.createClause();
-        let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map((x) => {
-            return x.field;
+        let fields = this.active.metadataFields.map((item) => {
+            return item.field;
         }).concat(this.active.dataField.columnName);
         if (this.active.dateField.columnName) {
             fields = fields.concat(this.active.dateField.columnName);
@@ -220,8 +195,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.active.docCount = response.data[0]._docCount;
         } else {
-            let fields = neonUtilities.flatten(this.optionsFromConfig.metadataFields).map((x) => {
-                return x.field;
+            let fields = this.active.metadataFields.map((item) => {
+                return item.field;
             }).concat(this.active.dataField.columnName);
             if (this.active.dateField.columnName) {
                 fields = fields.concat(this.active.dateField.columnName);
@@ -331,15 +306,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     private openSingleRecord(item) {
         let config = new MatDialogConfig();
-        // config.viewContainerRef = this.viewContainerRef;
-        let metadata = this.active.metadataFields;
-        if (this.optionsFromConfig.popoutFields) {
-            metadata = metadata.concat(neonUtilities.flatten(this.optionsFromConfig.popoutFields));
-        }
         config.data = {
             item: item,
             textField: this.active.dataField.columnName,
-            metadataFields: metadata
+            metadataFields: this.active.metadataFields.concat(this.active.popoutFields)
         };
 
         this.singleItemRef = this.dialog.open(DocumentViewerSingleItemComponent, config);
@@ -369,6 +339,16 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     previousPage() {
         this.active.page -= 1;
         this.executeQueryChain();
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {number}
+     * @override
+     */
+    getDefaultLimit() {
+        return 50;
     }
 
     /**

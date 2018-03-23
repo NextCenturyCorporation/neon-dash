@@ -164,14 +164,6 @@ describe('Component: WikiViewer', () => {
         expect(component.getNeonFilterFields()).toEqual([]);
     }));
 
-    it('getOptionFromConfig does return null options because config is empty', (() => {
-        expect(component.getOptionFromConfig('database')).toBeNull();
-        expect(component.getOptionFromConfig('idField')).toBeNull();
-        expect(component.getOptionFromConfig('linkField')).toBeNull();
-        expect(component.getOptionFromConfig('table')).toBeNull();
-        expect(component.getOptionFromConfig('title')).toBeNull();
-    }));
-
     it('getVisualizationName does return expected string', (() => {
         expect(component.getVisualizationName()).toBe('Wiki Viewer');
     }));
@@ -636,15 +628,6 @@ describe('Component: WikiViewer with config', () => {
             wikiName: [],
             wikiText: []
         });
-    }));
-
-    it('getOptionFromConfig does return expected options because config is set', (() => {
-        expect(component.getOptionFromConfig('database')).toBe('testDatabase1');
-        expect(component.getOptionFromConfig('id')).toBe('testId');
-        expect(component.getOptionFromConfig('idField')).toBe('testIdField');
-        expect(component.getOptionFromConfig('linkField')).toBe('testLinkField');
-        expect(component.getOptionFromConfig('table')).toBe('testTable1');
-        expect(component.getOptionFromConfig('title')).toBe('Test Title');
     }));
 
     it('onUpdateFields does set expected fields from config', (() => {

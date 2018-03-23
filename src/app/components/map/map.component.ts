@@ -45,11 +45,11 @@ import {
     AbstractMap,
     BoundingBoxByDegrees,
     FilterListener,
+    MapConfiguration,
     MapLayer,
     MapPoint,
     MapType,
     MapTypePairs,
-    OptionsFromConfig,
     whiteString
 } from './map.type.abstract';
 import { LeafletNeonMap } from './map.type.leaflet';
@@ -93,8 +93,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             unusedColors: string[],
             nextColorIndex: number,
             clustering: string,
-            minClusterSize: number,
-            clusterPixelRange: number
+            singleColor: boolean
         };
 
         public colorByFields: string[] = [];
@@ -105,41 +104,36 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
         protected colorSchemeService: ColorSchemeService;
 
-        public optionsFromConfig: OptionsFromConfig;
+        public mapConfiguration: MapConfiguration;
         protected mapObject: AbstractMap;
         protected filterBoundingBox: BoundingBoxByDegrees;
 
         public disabledSet: [string[]] = [] as [string[]];
         protected defaultActiveColor: Color;
+        protected mapType: MapType | string;
 
         constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
             filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
             colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
             super(activeGridService, connectionService, datasetService, filterService,
                 exportService, injector, themesService, ref, visualizationService);
+
             (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
+
             this.colorSchemeService = colorSchemeSrv;
+            this.mapType = this.injector.get('mapType', MapType.Leaflet);
             this.FIELD_ID = '_id';
-            this.optionsFromConfig = {
-                title: this.injector.get('title', null),
-                database: this.injector.get('database', null),
-                table: this.injector.get('table', null),
-                limit: this.injector.get('limit', 1000),
-                unsharedFilterField: {},
-                unsharedFilterValue: '',
-                layers: this.injector.get('layers', []),
-                clustering: this.injector.get('clustering', 'points'),
-                minClusterSize: this.injector.get('minClusterSize', 5),
-                clusterPixelRange: this.injector.get('clusterPixelRange', 15),
-                hoverSelect: this.injector.get('hoverSelect', null),
-                hoverPopupEnabled: this.injector.get('hoverPopupEnabled', false),
+
+            this.mapConfiguration = {
                 west: this.injector.get('west', null),
                 east: this.injector.get('east', null),
                 north: this.injector.get('north', null),
                 south: this.injector.get('south', null),
+                clusterPixelRange: this.injector.get('clusterPixelRange', 15),
                 customServer: this.injector.get('customServer', {}),
-                mapType: this.injector.get('mapType', MapType.Leaflet),
-                singleColor: this.injector.get('singleColor', false)
+                hoverSelect: this.injector.get('hoverSelect', null),
+                hoverPopupEnabled: this.injector.get('hoverPopupEnabled', false),
+                minClusterSize: this.injector.get('minClusterSize', 5)
             };
 
             this.filters = [];
@@ -151,9 +145,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 data: [],
                 nextColorIndex: 0,
                 unusedColors: [],
-                clustering: this.optionsFromConfig.clustering,
-                minClusterSize: this.optionsFromConfig.minClusterSize,
-                clusterPixelRange: this.optionsFromConfig.clusterPixelRange
+                clustering: this.injector.get('clustering', 'points'),
+                singleColor: this.injector.get('singleColor', false)
             };
         }
 
@@ -173,8 +166,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          */
         postInit() {
             // There is one layer automatically added
-            for (let i = 1; i < this.optionsFromConfig.layers.length; i++) {
-                this.addEmptyLayer();
+            for (let layer of this.injector.get('layers', [])) {
+                this.addEmptyLayer(layer);
             }
 
             this.defaultActiveColor = this.getPrimaryThemeColor();
@@ -204,7 +197,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             bindings.layers = [];
             for (let layer of this.active.layers) {
                 bindings.layers.push({
-                    title: layer.title,
                     latitudeField: layer.latitudeField.columnName,
                     longitudeField: layer.longitudeField.columnName,
                     sizeField: layer.sizeField.columnName,
@@ -218,12 +210,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * Initializes and draws the map.
          */
         ngAfterViewInit() {
-            let type = this.optionsFromConfig.mapType;
-            if (!super.isNumber(type)) {
-                type = MapType[type] || MapType.Leaflet;
-                this.optionsFromConfig.mapType = type;
+            if (!super.isNumber(this.mapType)) {
+                this.mapType = MapType[this.mapType] || MapType.Leaflet;
             }
-            switch (type) {
+            switch (this.mapType) {
                 case MapType.Cesium:
                     this.mapObject = new CesiumNeonMap();
                     break;
@@ -236,7 +226,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                     }
             }
 
-            this.mapObject.initialize(this.mapElement, this.optionsFromConfig, this);
+            this.mapObject.initialize(this.mapElement, this.mapConfiguration, this);
 
             // Draw everything
             this.handleChangeData();
@@ -249,17 +239,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          */
         subNgOnDestroy() {
             return this.mapObject && this.mapObject.destroy();
-        }
-
-        /**
-         * Returns the option for the given property from the map config.
-         *
-         * @arg {string} option
-         * @return {any}
-         * @override
-         */
-        getOptionFromConfig(option: string): any {
-            return this.optionsFromConfig[option];
         }
 
         /**
@@ -315,51 +294,19 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         /**
          * Updates the fields for the map layer contained within the given object.
          *
-         * @arg {any} metaObject
+         * @arg {object} metaObject
+         * @arg {object} layerOptions
          * @override
          */
-        onUpdateFields(metaObject: any) {
+        onUpdateFields(metaObject: any, layerOptions?: any) {
             let layer = this.active.layers[metaObject.index];
-            layer.latitudeField = this.findFieldObject(metaObject.index, 'latitudeField', neonMappings.LATITUDE);
-            layer.longitudeField = this.findFieldObject(metaObject.index, 'longitudeField', neonMappings.LONGITUDE);
-            layer.sizeField = this.findFieldObject(metaObject.index, 'sizeField');
-            layer.colorField = this.findFieldObject(metaObject.index, 'colorField');
-            layer.dateField = this.findFieldObject(metaObject.index, 'dateField', neonMappings.DATE);
-
-            // Get the title from the options, if it exists
-            if (metaObject.index >= this.optionsFromConfig.layers.length ||
-                !this.optionsFromConfig.layers[metaObject.index] || !this.optionsFromConfig.layers[metaObject.index].title) {
-                layer.title = this.optionsFromConfig.title;
-            } else {
-                layer.title = this.optionsFromConfig.layers[metaObject.index].title;
-            }
-            if (!layer.title || layer.title === '') {
-                layer.title = 'New Layer';
-            }
-        }
-
-        /**
-         * Finds and returns the field object for the map layer at the given index with the given binding key or mapping key.
-         *
-         * @arg {number} layerIndex
-         * @arg {string} bindingKey
-         * @arg {string} mappingKey
-         * @return {FieldMetaData}
-         */
-        findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
-            // If there are no layers or the index is past the end of the layers in the config, default to the original
-            if (layerIndex >= this.optionsFromConfig.layers.length || !bindingKey
-                || !this.optionsFromConfig.layers[layerIndex][bindingKey]) {
-                return super.findFieldObject(layerIndex, bindingKey, mappingKey);
-            }
-
-            let find = (name) => {
-                return _.find(this.meta.layers[layerIndex].fields, (field) => {
-                    return field.columnName === name;
-                });
-            };
-
-            return find(this.optionsFromConfig.layers[layerIndex][bindingKey]) || this.getBlankField();
+            layer.latitudeField = this.findFieldObject(metaObject, layerOptions, 'latitudeField', neonMappings.LATITUDE);
+            layer.longitudeField = this.findFieldObject(metaObject, layerOptions, 'longitudeField', neonMappings.LONGITUDE);
+            layer.sizeField = this.findFieldObject(metaObject, layerOptions, 'sizeField');
+            layer.colorField = this.findFieldObject(metaObject, layerOptions, 'colorField');
+            layer.dateField = this.findFieldObject(metaObject, layerOptions, 'dateField', neonMappings.DATE);
+            // Must copy the title into the active layer for the map object.
+            layer.title = metaObject.title;
         }
 
         /**
@@ -624,7 +571,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             let rgbColor = this.defaultActiveColor.toRgb();
             map.forEach((unique) => {
                 let color = rgbColor;
-                if (!this.optionsFromConfig.singleColor) {
+                if (!this.active.singleColor) {
                     color = unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString;
                 }
                 mapPoints.push(
@@ -840,8 +787,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * @arg {MapType} mapType
          */
         handleChangeMapType(mapType: MapType) {
-            if (this.optionsFromConfig.mapType !== mapType) {
-                this.optionsFromConfig.mapType = mapType;
+            if (this.mapType !== mapType) {
+                this.mapType = mapType;
                 if (this.mapObject) {
                     this.mapObject.destroy();
                 }
@@ -945,11 +892,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 if (this.meta.layers.length === 1) {
                     return createButtonText(this.meta.layers[0].docCount, this.meta.limit);
                 }
-                return this.meta.layers.map((layer, index) => {
-                    if (this.active.layers.length >= index) {
-                        return this.active.layers[index].title + ' (' + createButtonText(layer.docCount, this.meta.limit) + ')';
-                    }
-                    return '';
+                return this.meta.layers.map((layer) => {
+                    return layer.title + ' (' + createButtonText(layer.docCount, this.meta.limit) + ')';
                 }).filter((text) => {
                     return !!text;
                 }).join(', ');
@@ -965,6 +909,16 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         runDocumentCountQuery(layerIndex: number): void {
             let query = this.createBasicQuery(layerIndex).aggregate(neonVariables.COUNT, '*', '_docCount');
             this.executeQuery(layerIndex, query);
+        }
+
+        /**
+         * Returns the default limit for the visualization.
+         *
+         * @return {number}
+         * @override
+         */
+        getDefaultLimit() {
+            return 1000;
         }
 
         /**

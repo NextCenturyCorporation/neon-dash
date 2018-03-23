@@ -70,14 +70,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         local: boolean
     }[];
 
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        dateField: string,
-        granularity: string
-    };
-
     public active: {
         data: {
             value: number,
@@ -104,20 +96,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            dateField: this.injector.get('dateField', null),
-            granularity: this.injector.get('granularity', 'day')
-        };
+
         this.colorSchemeService = colorSchemeSrv;
         this.filters = [];
 
         this.active = {
             data: [],
             dateField: new FieldMetaData(),
-            granularity: this.optionsFromConfig.granularity,
+            granularity: this.injector.get('granularity', 'day'),
             ylabel: 'Count',
             docCount: 0
         };
@@ -186,10 +172,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 /* falls through */
         }
         return fields;
-    }
-
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
     }
 
     onUpdateFields() {

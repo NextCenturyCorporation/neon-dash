@@ -107,11 +107,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             tables: [],
             table: new TableMetaData(),
             fields: [],
-            unsharedFilterField: {},
+            unsharedFilterField: new FieldMetaData(),
             unsharedFilterValue: '',
             errorMessage: '',
-            limit: 10,
-            newLimit: 10
+            limit: 0,
+            newLimit: 0
         };
 
         this.isExportable = true;
@@ -119,10 +119,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.getBindings = this.getBindings.bind(this);
         // Let the ID be a UUID
         this.id = uuid.v4();
-
-        // Make sure the empty field has non-null values
-        this.emptyField.columnName = '';
-        this.emptyField.prettyName = '';
     }
 
     /**
@@ -151,8 +147,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             // Fails in unit tests - ignore.
         }
 
-        this.meta.title = this.getOptionFromConfig('title') || this.getVisualizationName();
-        this.meta.limit = this.getOptionFromConfig('limit') || this.meta.limit;
+        this.meta.title = this.injector.get('title', this.getVisualizationName());
+        this.meta.limit = this.injector.get('limit', this.getDefaultLimit());
         this.meta.newLimit = this.meta.limit;
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
@@ -174,13 +170,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Method to do any visualization-specific logic before it is destroyed
      */
     abstract subNgOnDestroy();
-
-    /**
-     * Get an option from the visualization's config
-     * @param option the option
-     * @return {any} the option's value
-     */
-    abstract getOptionFromConfig(option: string): any;
 
     /**
      * Get the list of fields to export
@@ -333,9 +322,10 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         metaObject.database = metaObject.databases[0] || new DatabaseMetaData();
 
         if (metaObject.databases.length > 0) {
-            if (this.getOptionFromConfig('database')) {
+            let injectedDatabase = this.injector.get('database', null);
+            if (injectedDatabase) {
                 for (let database of metaObject.databases) {
-                    if (this.getOptionFromConfig('database') === database.name) {
+                    if (injectedDatabase === database.name) {
                         metaObject.database = database;
                         break;
                     }
@@ -356,9 +346,10 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         metaObject.table = metaObject.tables[0] || new TableMetaData();
 
         if (metaObject.tables.length > 0) {
-            if (this.getOptionFromConfig('table')) {
+            let injectedTable = this.injector.get('table', null);
+            if (injectedTable) {
                 for (let table of metaObject.tables) {
-                    if (this.getOptionFromConfig('table') === table.name) {
+                    if (injectedTable === table.name) {
                         metaObject.table = table;
                         break;
                     }
@@ -378,8 +369,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         metaObject.fields = this.datasetService.getSortedFields(metaObject.database.name, metaObject.table.name, true).filter((field) => {
             return (field && field.columnName);
         });
-        metaObject.unsharedFilterField = this.findFieldObject('unsharedFilterField');
-        metaObject.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
+        metaObject.unsharedFilterField = new FieldMetaData();
+        metaObject.unsharedFilterValue = '';
 
         this.onUpdateFields();
     }
@@ -607,21 +598,18 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
         let find = (name) => {
-            return _.find(this.meta.fields, (field) => {
+            return !name ? undefined : _.find(this.meta.fields, (field) => {
                 return field.columnName === name;
             });
         };
 
-        let fieldObject;
-        if (bindingKey) {
-            fieldObject = find(this.getOptionFromConfig(bindingKey));
-        }
+        let fieldObject = bindingKey ? find(this.injector.get(bindingKey, '')) : undefined;
 
         if (!fieldObject && mappingKey) {
             fieldObject = find(this.getMapping(mappingKey));
         }
 
-        return fieldObject || this.datasetService.createBlankField();
+        return fieldObject || new FieldMetaData();
     }
 
     getMapping(key: string): string {
@@ -805,6 +793,15 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     getComputedStyle(nativeElement: any) {
         return window.getComputedStyle(nativeElement, null);
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {number}
+     */
+    getDefaultLimit(): number {
+        return 10;
     }
 
     /**

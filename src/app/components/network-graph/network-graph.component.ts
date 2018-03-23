@@ -69,15 +69,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         value: string
     }[];
 
-    public optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        nodeField: FieldMetaData,
-        linkField: FieldMetaData,
-        limit: number
-    };
-
     public active: {
         nodeField: FieldMetaData, //[FieldMetaData] TODO Future support for multiple node and link fields
         linkField: FieldMetaData, //[FieldMetaData]
@@ -142,14 +133,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            nodeField: this.injector.get('nodeField', null),
-            linkField: this.injector.get('linkField', null),
-            limit: this.injector.get('limit', 500000)
-        };
 
         this.active = {
             nodeField: new FieldMetaData(),
@@ -164,8 +147,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         };
 
         this.graphData = new GraphData();
-
-        this.queryTitle = this.optionsFromConfig.title || 'Network Graph';
 
         this.setInterpolationType('Bundle');
 
@@ -260,10 +241,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         }];
     }
 
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
-    }
-
     addLocalFilter(filter) {
         //
     }
@@ -332,9 +309,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     onQuerySuccess(response): void {
         this.graphData = new GraphData();
         this.evaluateDataAndUpdateGraph(response.data);
-
-        let title;
-        title = this.optionsFromConfig.title || 'Network Graph' + ' by ' + this.active.nodeField.columnName;
     }
 
     setupFilters() {
@@ -427,16 +401,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             let total = data.nodes.length;
             return 'Total Nodes: ' + this.formatingCallback(total);
         }
-    }
-
-    createTitle() {
-        let title = '';
-        if (!this.optionsFromConfig) {
-            title = 'Network Graph';
-        } else {
-            title = this.optionsFromConfig.title;
-        }
-        return title;
     }
 
     resetData() {
@@ -621,6 +585,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     generateLinks() {
         //
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {number}
+     * @override
+     */
+    getDefaultLimit() {
+        return 500000;
     }
 
     getElementRefs() {

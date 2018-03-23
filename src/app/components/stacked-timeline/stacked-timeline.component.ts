@@ -70,15 +70,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         local: boolean
     }[];
 
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        dateField: string,
-        granularity: string,
-        groupField: string
-    };
-
     public active: {
         dateField: FieldMetaData,
         data: {
@@ -102,21 +93,14 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            dateField: this.injector.get('dateField', null),
-            granularity: this.injector.get('granularity', 'day'),
-            groupField: this.injector.get('groupField', null)
-        };
+
         this.colorSchemeService = colorSchemeSrv;
         this.filters = [];
 
         this.active = {
             dateField: new FieldMetaData(),
             data: [],
-            granularity: 'day',
+            granularity: this.injector.get('granularity', 'day'),
             groupField: new FieldMetaData(),
             ylabel: 'Count',
             docCount: 0
@@ -181,10 +165,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                 /* falls through */
         }
         return fields;
-    }
-
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
     }
 
     onUpdateFields() {

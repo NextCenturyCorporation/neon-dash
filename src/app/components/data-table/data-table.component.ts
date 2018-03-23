@@ -60,19 +60,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         prettyKey: string
     }[];
 
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        idField: string,
-        sortField: string,
-        limit: number,
-        unsharedFilterField: Object,
-        unsharedFilterValue: string,
-        allColumnStatus: string,
-        exceptionsToStatus: string[]
-    };
-
     public active: {
         idField: FieldMetaData,
         sortField: FieldMetaData,
@@ -87,6 +74,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         activeHeaders: { prop: string, name: string, active: boolean, style: Object }[],
         showColumnSelector: string
     };
+
+    private allColumnStatus: string;
+    private exceptionsToStatus: string[];
 
     private drag: {
         mousedown: boolean,
@@ -104,18 +94,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            idField: this.injector.get('idField', null),
-            sortField: this.injector.get('sortField', null),
-            limit: this.injector.get('limit', 100),
-            unsharedFilterField: {},
-            unsharedFilterValue: '',
-            allColumnStatus: this.injector.get('allColumnStatus', 'show'),
-            exceptionsToStatus: this.injector.get('exceptionsToStatus', [])
-        };
+
+        this.allColumnStatus = this.injector.get('allColumnStatus', 'show');
+        this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
         this.filters = [];
         this.active = {
             idField: new FieldMetaData(),
@@ -155,10 +136,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         // Do nothing
     }
 
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
-    }
-
     subGetBindings(bindings: any) {
         bindings.idField = this.active.idField.columnName;
         bindings.sortField = this.active.sortField.columnName;
@@ -169,7 +146,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.active.sortField = this.findFieldObject('sortField');
         let initialHeaderLimit = 25;
         let numHeaders = 0;
-        let defaultShowValue = this.optionsFromConfig.allColumnStatus !== 'hide';
+        let defaultShowValue = this.allColumnStatus !== 'hide';
         let orderedHeaders = [];
         let unorderedHeaders = [];
         if (defaultShowValue) {
@@ -195,7 +172,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     headerIsInExceptions(header) {
         let colName = header.columnName;
         let pName = header.prettyName;
-        for (let name of this.optionsFromConfig.exceptionsToStatus) {
+        for (let name of this.exceptionsToStatus) {
             if (colName === name || pName === name) {
                 return true;
             }
@@ -205,7 +182,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     sortOrderedHeaders(unordered) {
         let sorted = [];
-        for (let header of this.optionsFromConfig.exceptionsToStatus) {
+        for (let header of this.exceptionsToStatus) {
             let headerToPush = this.getHeaderByName(header, unordered);
             if (headerToPush !== null) {
                 sorted.push(headerToPush);
@@ -642,6 +619,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     private setStyle(index: number, style: string, value: string) {
         this.active.headers[index].style[style] = value;
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {number}
+     * @override
+     */
+    getDefaultLimit() {
+        return 100;
     }
 
     /**
