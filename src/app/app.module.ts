@@ -59,6 +59,7 @@ import { FilterTrayComponent } from './components/filter-tray/filter-tray.compon
 import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components/map/map.component';
+import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
@@ -101,6 +102,7 @@ export function getAppConfig() {
         LegendComponent,
         LineChartComponent,
         MapComponent,
+        MediaViewerComponent,
         NetworkGraphComponent,
         ScatterPlotComponent,
         SimpleFilterComponent,
