@@ -100,9 +100,7 @@
                 </mat-button-toggle-group>
                 <p></p>
 
-                <app-unshared-filter [(meta)]="meta"
-                    (unsharedFilterChanged)="unsharedFilterChanged()"
-                    (unsharedFilterRemoved)="unsharedFilterRemoved()"></app-unshared-filter>
+                <app-unshared-filter [(meta)]="meta" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>

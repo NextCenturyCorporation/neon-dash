@@ -537,16 +537,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return this.filters;
     }
 
-    unsharedFilterChanged() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
-    unsharedFilterRemoved() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
     removeFilter() {
         this.filters = [];
     }

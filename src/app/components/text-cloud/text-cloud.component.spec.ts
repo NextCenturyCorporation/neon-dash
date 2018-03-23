@@ -730,24 +730,6 @@ describe('Component: TextCloud', () => {
         expect(component.requestExport).toBeDefined();
     });
 
-    it('has an unsharedFilterChanged method that calls executeQueryChain', () => {
-        let executeQueryChainWasCalled = false;
-        component.executeQueryChain = () => {
-            executeQueryChainWasCalled = true;
-        };
-        component.unsharedFilterChanged();
-        expect(executeQueryChainWasCalled).toBeTruthy();
-    });
-
-    it('has an unsharedFilterRemoved method that calls executeQueryChain', () => {
-        let executeQueryChainWasCalled = false;
-        component.executeQueryChain = () => {
-            executeQueryChainWasCalled = true;
-        };
-        component.unsharedFilterRemoved();
-        expect(executeQueryChainWasCalled).toBeTruthy();
-    });
-
     it('createClause does return expected object', () => {
         component.active.dataField = new FieldMetaData('testDataField');
         expect(component.createClause()).toEqual(neon.query.where('testDataField', '!=', null));

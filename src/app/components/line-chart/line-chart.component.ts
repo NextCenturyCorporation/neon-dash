@@ -751,15 +751,15 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
 
     setupFilters() {
         let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
-            this.getNeonFilterFields());
+            [this.active.dateField.columnName]);
 
         for (let neonFilter of neonFilters) {
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
                 if (!this.filters.length || this.filters[0].id !== neonFilter.id) {
                     this.filters = [{
-                        key: whereClause.whereClauses[0].lhs,
-                        prettyKey: whereClause.whereClauses[0].lhs,
+                        key: this.active.dateField.columnName,
+                        prettyKey: this.active.dateField.prettyName,
                         startDate: whereClause.whereClauses[0].rhs,
                         endDate: whereClause.whereClauses[1].rhs,
                         id: neonFilter.id
@@ -781,12 +781,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     subHandleChangeLimit() {
         // TODO THOR-526 Redraw the line chart but do not requery because we can use the same data from the original query.
         this.logChangeAndStartQueryChain();
-    }
-
-    logChangeAndStartQueryChain() {
-        if (!this.initializing) {
-            this.executeQueryChain();
-        }
     }
 
     /**

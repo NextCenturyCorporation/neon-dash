@@ -166,8 +166,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     addLocalFilter(filter) {
         this.filters = this.filters.filter((existingFilter) => {
             return existingFilter.id !== filter.id;
-        }).map((existingFilter) => {
-            return existingFilter;
         }).concat([filter]);
     }
 
@@ -391,16 +389,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     // These methods must be present for AoT compile
     requestExport() {
         // Do nothing.
-    }
-
-    unsharedFilterChanged() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
-    unsharedFilterRemoved() {
-        // Update the data
-        this.executeQueryChain();
     }
 
     /**

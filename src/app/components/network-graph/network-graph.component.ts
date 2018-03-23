@@ -373,16 +373,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         //
     }
 
-    unsharedFilterChanged() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
-    unsharedFilterRemoved() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
     formatingCallback(value): string {
         if (!isNaN(parseFloat(value)) && !isNaN(value - 0)) {
             //round to at most 3 decimal places, so as to not display tiny floating-point errors

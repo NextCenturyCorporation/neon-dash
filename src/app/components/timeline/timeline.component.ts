@@ -519,25 +519,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         }
     }
 
-    logChangeAndStartQueryChain() {
-        if (!this.initializing) {
-            this.executeQueryChain();
-        }
-    }
-
     // Get filters and format for each call in HTML
     getCloseableFilters() {
         return this.filters;
-    }
-
-    unsharedFilterChanged() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
-    unsharedFilterRemoved() {
-        // Update the data
-        this.executeQueryChain();
     }
 
     removeFilter() {

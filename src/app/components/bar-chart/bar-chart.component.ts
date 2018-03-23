@@ -510,8 +510,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     addLocalFilter(filter: any) {
         this.filters = this.filters.filter((existingFilter) => {
             return existingFilter.id !== filter.id;
-        }).map((existingFilter) => {
-            return existingFilter;
         }).concat([filter]);
     }
 
@@ -982,7 +980,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Resets the seen bars and reruns the bar chart query after limit change.
+     * Updates properties and/or sub-components whenever the limit is changed and reruns the visualization query.
      *
      * @override
      */
@@ -992,27 +990,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Resets the seen bars and reruns the bar chart query.
+     * Updates properties and/or sub-components whenever a config option is changed and reruns the visualization query.
+     *
+     * @override
      */
-    handleChangeDataInBarChart() {
+    handleChangeData() {
         this.active.seenBars = [];
-        this.logChangeAndStartQueryChain();
-    }
-
-    /**
-     * Reruns the bar chart query.
-     */
-    unsharedFilterChanged() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
-    /**
-     * Reruns the bar chart query.
-     */
-    unsharedFilterRemoved() {
-        // Update the data
-        this.executeQueryChain();
+        super.handleChangeData();
     }
 
     /**
@@ -1055,25 +1039,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 this.filters.splice(index, 1);
             }
         }
-    }
-
-    /**
-     * Removes all filters from this bar chart component and neon, optionally requerying and/or refreshing.
-     *
-     * @arg {array} filters
-     * @arg {function} callback
-     */
-    removeAllFilters(filters: any[], callback?: Function) {
-        if (!filters.length) {
-            if (callback) {
-                callback();
-            }
-            return;
-        }
-
-        this.removeLocalFilterFromLocalAndNeon(filters[0], false, false, () => {
-            this.removeAllFilters(filters.slice(1), callback);
-        });
     }
 
     /**

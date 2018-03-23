@@ -594,6 +594,19 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Returns the field object in the given list matching the given name.
+     *
+     * @arg {array} fields
+     * @arg {string} name
+     * @return {object}
+     */
+    findField(fields, name): FieldMetaData {
+        return (!fields || !name) ? undefined : _.find(fields, (field) => {
+            return field.columnName === name;
+        });
+    }
+
+    /**
      * Get field object from the key into the config options
      */
     findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
@@ -641,7 +654,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Handles changes in the active database
+     * Updates tables and fields whenenver the database is changed and reruns the visualization query.
      */
     handleChangeDatabase() {
         this.initTables(this.meta);
@@ -649,7 +662,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Handles changes in the active table
+     * Updates fields whenever the table is changed and reruns the visualization query.
      */
     handleChangeTable() {
         this.initFields(this.meta);
@@ -657,14 +670,14 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Handles changes in the active data
+     * Updates properties and/or sub-components whenever a config option is changed and reruns the visualization query.
      */
     handleChangeData() {
         this.logChangeAndStartQueryChain();
     }
 
     /**
-     * Updates or redraws sub-components after limit change as needed.
+     * Updates properties and/or sub-components whenever the limit is changed and reruns the visualization query.
      */
     subHandleChangeLimit() {
         this.logChangeAndStartQueryChain();
@@ -750,6 +763,25 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                 }
             });
         this.changeDetection.detectChanges();
+    }
+
+    /**
+     * Removes all filters from this component and neon with an optional callback.
+     *
+     * @arg {array} filters
+     * @arg {function} callback
+     */
+    removeAllFilters(filters: any[], callback?: Function) {
+        if (!filters.length) {
+            if (callback) {
+                callback();
+            }
+            return;
+        }
+
+        this.removeLocalFilterFromLocalAndNeon(filters[0], false, false, () => {
+            this.removeAllFilters(filters.slice(1), callback);
+        });
     }
 
     getButtonText() {

@@ -125,7 +125,7 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         layers: any[],
         xAxisIsNumeric: boolean,
         yAxisIsNumeric: boolean,
-        pointLabels: string[],
+        pointLabels: string[]
     };
 
     private mouseEventValid: boolean;
@@ -727,14 +727,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
      */
     subHandleChangeLimit() {
         // TODO THOR-526 Redraw the scatter plot but do not requery because we can use the same data from the original query.
-        this.logChangeAndStartQueryChain();
-    }
-
-    unsharedFilterChanged() {
-        this.logChangeAndStartQueryChain();
-    }
-
-    unsharedFilterRemoved() {
         this.logChangeAndStartQueryChain();
     }
 

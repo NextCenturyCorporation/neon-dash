@@ -452,4 +452,134 @@ describe('Component: base-neon', () => {
         expect(component.prettifyInteger(1234)).toBe('1,234');
         expect(component.prettifyInteger(1234567890)).toBe('1,234,567,890');
     });
+
+    it('removeAllFilters does work as expected with single filter', () => {
+        let removeCalls = 0;
+
+        component.removeLocalFilterFromLocalAndNeon = (filter, bool1, bool2, removeMoreFilters) => {
+            removeCalls++;
+            if (removeCalls === 1) {
+                expect(filter).toEqual({
+                    id: 'id1',
+                    key: 'key1',
+                    value: 'value1',
+                    prettyKey: 'prettyKey1'
+                });
+            }
+            expect(bool1).toBe(false);
+            expect(bool2).toBe(false);
+            expect(typeof removeMoreFilters).toBe('function');
+            removeMoreFilters();
+        };
+
+        component.removeAllFilters([{
+            id: 'id1',
+            key: 'key1',
+            value: 'value1',
+            prettyKey: 'prettyKey1'
+        }]);
+
+        expect(removeCalls).toBe(1);
+    });
+
+    it('removeAllFilters does work as expected with multiple filters', () => {
+        let removeCalls = 0;
+
+        component.removeLocalFilterFromLocalAndNeon = (filter, bool1, bool2, removeMoreFilters) => {
+            removeCalls++;
+            if (removeCalls === 1) {
+                expect(filter).toEqual({
+                    id: 'id1',
+                    key: 'key1',
+                    value: 'value1',
+                    prettyKey: 'prettyKey1'
+                });
+            }
+            if (removeCalls === 2) {
+                expect(filter).toEqual({
+                    id: 'id2',
+                    key: 'key2',
+                    value: 'value2',
+                    prettyKey: 'prettyKey2'
+                });
+            }
+            expect(bool1).toBe(false);
+            expect(bool2).toBe(false);
+            expect(typeof removeMoreFilters).toBe('function');
+            removeMoreFilters();
+        };
+
+        component.removeAllFilters([{
+            id: 'id1',
+            key: 'key1',
+            value: 'value1',
+            prettyKey: 'prettyKey1'
+        }, {
+            id: 'id2',
+            key: 'key2',
+            value: 'value2',
+            prettyKey: 'prettyKey2'
+        }]);
+
+        expect(removeCalls).toBe(2);
+    });
+
+    it('removeAllFilters does work as expected with single filter', () => {
+        let removeCalls = 0;
+        let callbackCalls = 0;
+
+        component.removeLocalFilterFromLocalAndNeon = (filter, bool1, bool2, removeMoreFilters) => {
+            removeCalls++;
+            removeMoreFilters();
+        };
+
+        component.removeAllFilters([{
+            id: 'id1',
+            key: 'key1',
+            value: 'value1',
+            prettyKey: 'prettyKey1'
+        }, {
+            id: 'id2',
+            key: 'key2',
+            value: 'value2',
+            prettyKey: 'prettyKey2'
+        }], () => {
+            callbackCalls++;
+        });
+
+        expect(removeCalls).toBe(2);
+        expect(callbackCalls).toBe(1);
+    });
+
+    it('removeAllFilters does not change original array', () => {
+        component.removeLocalFilterFromLocalAndNeon = (filter, bool1, bool2, removeMoreFilters) => {
+            removeMoreFilters();
+        };
+
+        let filters = [{
+            id: 'id1',
+            key: 'key1',
+            value: 'value1',
+            prettyKey: 'prettyKey1'
+        }, {
+            id: 'id2',
+            key: 'key2',
+            value: 'value2',
+            prettyKey: 'prettyKey2'
+        }];
+
+        component.removeAllFilters(filters);
+
+        expect(filters).toEqual([{
+            id: 'id1',
+            key: 'key1',
+            value: 'value1',
+            prettyKey: 'prettyKey1'
+        }, {
+            id: 'id2',
+            key: 'key2',
+            value: 'value2',
+            prettyKey: 'prettyKey2'
+        }]);
+    });
 });
