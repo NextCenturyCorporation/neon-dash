@@ -123,7 +123,7 @@ export const neonVisualizations: any[] = [
         name: 'Media Viewer',
         type: 'mediaViewer',
         icon: 'MediaViewer'
-    } , {
+    }, {
         name: 'Network Graph',
         type: 'networkGraph',
         icon: 'Graph'

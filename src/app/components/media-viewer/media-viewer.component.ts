@@ -24,7 +24,7 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml, SafeResourceUrl } from '@angular/platform-browser';
 import { Http } from '@angular/http';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -62,7 +62,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         linkField: FieldMetaData,
         textColor: string,
         wikiName: string[],
-        wikiText: SafeHtml[]
+        wikiText: SafeHtml[],
+        url: SafeResourceUrl
     };
 
     private optionsFromConfig: {
@@ -71,7 +72,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         idField: string,
         linkField: string,
         table: string,
-        title: string
+        title: string,
+        url: string
     };
 
     isLoadingWikiPage: boolean;
@@ -88,8 +90,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             idField: this.injector.get('idField', null),
             linkField: this.injector.get('linkField', null),
             table: this.injector.get('table', null),
-            title: this.injector.get('title', null)
+            title: this.injector.get('title', null),
+            url: this.injector.get('url', null)
         };
+
         this.active = {
             allowsTranslations: true,
             id: this.optionsFromConfig.id || '',
@@ -97,8 +101,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             linkField: new FieldMetaData(),
             textColor: '#111',
             wikiName: [],
-            wikiText: []
-        };
+            wikiText: [],
+            url: this.optionsFromConfig.url ? sanitizer.bypassSecurityTrustResourceUrl(this.optionsFromConfig.url) : ''
+    };
+
         this.isLoadingWikiPage = false;
         this.subscribeToSelectId(this.getSelectIdCallback());
     }
@@ -139,8 +145,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     getButtonText() {
-        if (!this.active.wikiName.length) {
+        if (!this.active.wikiName.length && !this.active.url) {
             return 'No Data';
+        }
+        else if(this.active.url){
+            return '';
         }
         return 'Total ' + super.prettifyInteger(this.active.wikiName.length);
     }
@@ -240,7 +249,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @return {string}
      * @private
      */
-    private getTabLabel(names, index) {
+    private getTabLabel(names, index) { //TODO: fix duplicate tab issue
         return names && names.length > index ? names[index] : '';
     }
 

@@ -6,7 +6,7 @@
             <span class="error-message" *ngIf="meta.errorMessage" [title]="meta.errorMessage">{{ meta.errorMessage }}</span>
             <span *ngIf="!meta.errorMessage" [title]="getButtonText()">{{ getButtonText() }}</span>
         </span>
-        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+        <button *ngIf="active.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -72,12 +72,19 @@
         <mat-spinner ></mat-spinner>
     </div>
 
-    <mat-tab-group>
-        <mat-tab *ngFor="let text of active.wikiText; let i = index" [label]="getTabLabel(active.wikiName, i)">
-            <div class="wiki-text">
-                <object data="https://gizmodo.com/" width="600" height="400">
-                </object>
-            </div>
-        </mat-tab>
+    <mat-tab-group class="media-viewer" *ngIf="active.url == ''">
+            <mat-tab *ngFor="let text of active.wikiText; let i = index" [label]="getTabLabel(active.wikiName, i)">
+                <div class="wiki-text media-viewer-div">
+                    <iframe src="http://gizmodo.com" frameborder="0">
+                    </iframe>
+                </div>
+            </mat-tab>
     </mat-tab-group>
+
+    <div class="media-viewer" *ngIf="active.url != ''">
+        <div class="media-viewer-div">
+            <iframe [src]="active.url" frameborder="0">
+            </iframe>
+        </div>
+    </div>
 </mat-sidenav-container>
