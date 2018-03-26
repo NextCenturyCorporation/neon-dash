@@ -118,6 +118,10 @@ export const neonVisualizations: any[] = [{
     type: 'networkGraph',
     icon: 'NetworkGraph64'
 }, {
+    name: 'Sample',
+    type: 'sample',
+    icon: 'DocumentViewer64'
+}, {
     name: 'Scatter Plot',
     type: 'scatterPlot',
     icon: 'ScatterPlot64'
@@ -125,10 +129,6 @@ export const neonVisualizations: any[] = [{
     name: 'Stacked Timeline',
     type: 'stackedTimeline',
     icon: 'Timeline64'
-}, {
-    name: 'Stub',
-    type: 'stub',
-    icon: 'DocumentViewer64'
 }, {
     name: 'Text Cloud',
     type: 'textCloud',

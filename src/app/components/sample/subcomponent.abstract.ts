@@ -14,7 +14,7 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { StubOptions } from './stub.options';
+import { SampleOptions } from './sample.options';
 
 export enum SubcomponentType { Impl1 }
 
@@ -23,15 +23,15 @@ export interface SubcomponentListener {
 }
 
 export abstract class AbstractSubcomponent {
-    protected options: StubOptions;
+    protected options: SampleOptions;
     protected listener: SubcomponentListener;
 
     /**
      * @constructor
-     * @arg {StubOptions} options
+     * @arg {SampleOptions} options
      * @arg {SubcomponentListener} listener
      */
-    constructor(options: StubOptions, listener: SubcomponentListener) {
+    constructor(options: SampleOptions, listener: SubcomponentListener) {
         this.options = options;
         this.listener = listener;
     }

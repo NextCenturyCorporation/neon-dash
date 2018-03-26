@@ -19,10 +19,9 @@ import { SubcomponentType } from './subcomponent.abstract';
 /**
  * Manages configurable options for the visualization.
  */
-export interface StubOptions {
+export interface SampleOptions {
     // TODO Add and remove properties as needed.
-    stubOptionalField: FieldMetaData,
-    stubRequiredField: FieldMetaData,
-    subcomponentType: SubcomponentType
+    sampleOptionalField: FieldMetaData;
+    sampleRequiredField: FieldMetaData;
+    subcomponentType: SubcomponentType;
 }
-

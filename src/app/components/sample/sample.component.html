@@ -56,7 +56,7 @@
 
                 <!-- TODO Do you need fields?  Are they required or optional? -->
                 <mat-form-field>
-                    <mat-select placeholder="Stub Required Field" [(ngModel)]="options.stubRequiredField" required="true"
+                    <mat-select placeholder="Sample Required Field" [(ngModel)]="options.sampleRequiredField" required="true"
                         (ngModelChange)="handleChangeFilterField()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -64,7 +64,7 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Stub Optional Field" [(ngModel)]="options.stubOptionalField" required="false"
+                    <mat-select placeholder="Sample Optional Field" [(ngModel)]="options.sampleOptionalField" required="false"
                         (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -75,7 +75,7 @@
                 <!-- TODO Do you need a limit? -->
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Stub Limit" [(ngModel)]="meta.newLimit" required="true"
+                        <input matInput placeholder="Sample Limit" [(ngModel)]="meta.newLimit" required="true"
                             (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
