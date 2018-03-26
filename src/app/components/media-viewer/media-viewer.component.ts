@@ -147,8 +147,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     getButtonText() {
         if (!this.active.wikiName.length && !this.active.url) {
             return 'No Data';
-        }
-        else if(this.active.url){
+        } else if (this.active.url) {
             return '';
         }
         return 'Total ' + super.prettifyInteger(this.active.wikiName.length);
