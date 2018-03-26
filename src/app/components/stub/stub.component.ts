@@ -1,0 +1,642 @@
+/*
+ * Copyright 2017 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    Injector,
+    OnDestroy,
+    OnInit,
+    ViewChild,
+    ViewEncapsulation
+} from '@angular/core';
+
+import { ActiveGridService } from '../../services/active-grid.service';
+import { ColorSchemeService } from '../../services/color-scheme.service';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { VisualizationService } from '../../services/visualization.service';
+
+import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+import { FieldMetaData } from '../../dataset';
+import { neonVariables } from '../../neon-namespaces';
+import * as neon from 'neon-framework';
+
+// TODO Name your visualization!
+@Component({
+    selector: 'app-stub',
+    templateUrl: './stub.component.html',
+    styleUrls: ['./stub.component.scss'],
+    encapsulation: ViewEncapsulation.Emulated,
+    changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class StubComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+    // HTML element references used by the superclass for the resizing behavior.
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
+    @ViewChild('headerText') headerText: ElementRef;
+    @ViewChild('infoText') infoText: ElementRef;
+
+    // TODO Remove this property if you don't need to use the chart element.
+    // Reference to the HTML chart element.
+    @ViewChild('chartContainer') chartContainer: ElementRef;
+
+    // TODO Define properties as needed.
+
+    // The data shown in the visualization (limited).
+    protected activeData: any[];
+
+    // The data count used for the settings text and pagination.
+    protected docCount: number;
+
+    // The filter set in the config file.
+    protected configFilter: {
+        lhs: string,
+        operator: string,
+        rhs: string
+    };
+
+    // The visualization filters.
+    protected filters: {
+        id: string,
+        field: string,
+        prettyField: string,
+        value: string
+    }[];
+
+    // The data pagination properties.
+    protected lastPage: boolean;
+    protected page: number;
+
+    // The data returned by the visualization query response (not limited).
+    protected responseData: any[];
+
+    // The visualization fields.
+    protected stubOptionalField: FieldMetaData;
+    protected stubRequiredField: FieldMetaData;
+
+    constructor(
+        activeGridService: ActiveGridService,
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        exportService: ExportService,
+        injector: Injector,
+        themesService: ThemesService,
+        ref: ChangeDetectorRef,
+        visualizationService: VisualizationService
+    ) {
+
+        super(
+            activeGridService,
+            connectionService,
+            datasetService,
+            filterService,
+            exportService,
+            injector,
+            themesService,
+            ref,
+            visualizationService
+        );
+
+        // TODO Initialize properties as needed.  Use the injector to get options set in the config file.
+        this.activeData = [];
+        this.configFilter = this.injector.get('configFilter', null);
+        this.docCount = 0;
+        this.filters = [];
+        this.lastPage = true;
+        this.page = 1;
+        this.responseData = [];
+        this.stubOptionalField = new FieldMetaData();
+        this.stubRequiredField = new FieldMetaData();
+    }
+
+    // TODO Change arguments as needed.
+    /**
+     * Adds the given filter object to the visualization and removes any existing filter object with ID matching the given filter ID.
+     *
+     * @arg {object} filter
+     */
+    addVisualizationFilter(filter: any) {
+        this.filters = this.filters.filter((existingFilter) => {
+            return existingFilter.id !== filter.id;
+        }).concat(filter);
+    }
+
+    // TODO Change arguments as needed.
+    /**
+     * Creates and returns a filter object for the visualization.
+     *
+     * @arg {string} id
+     * @arg {string} field
+     * @arg {string} prettyField
+     * @arg {string} value
+     * @return {object}
+     */
+    buildVisualizationFilter(id: string, field: string, prettyField: string, value: string): any {
+        return {
+            id: id,
+            field: field,
+            prettyField: prettyField,
+            value: value
+        };
+    }
+
+    /**
+     * Creates and returns the neon filter clause object for the visualization using the given database, table, and filter field names.
+     *
+     * @arg {string} databaseName
+     * @arg {string} tableName
+     * @arg {string} fieldName
+     * @return {neon.query.WherePredicate}
+     * @override
+     */
+    createNeonFilterClauseEquals(databaseName: string, tableName: string, fieldName: string): neon.query.WherePredicate {
+        // TODO This function is deprecated.  Always pass a neon filter object to addNeonFilter or replaceNeonFilter.
+        return null;
+    }
+
+    /**
+     * Creates and returns the query for the visualization.
+     *
+     * @return {neon.query.Query}
+     * @override
+     */
+    createQuery(): neon.query.Query {
+        let query = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createWhere());
+
+        // TODO Change this behavior as needed to create your visualization query.  Here is an example of an aggregation count query.
+        return query.groupBy(this.getNeonFilterFields()).aggregate(neonVariables.COUNT, '*', 'count')
+            .sortBy('count', neonVariables.DESCENDING);
+    }
+
+    /**
+     * Creates and returns the where predicate for the visualization.
+     *
+     * @return {neon.query.WherePredicate}
+     */
+    createWhere(): neon.query.WherePredicate {
+        // TODO Add or remove clauses as needed.
+        let clauses: neon.query.WherePredicate[] = [neon.query.where(this.stubRequiredField.columnName, '!=', null)];
+
+        // Only add the optional field if it is defined.
+        if (this.stubOptionalField.columnName) {
+            clauses.push(neon.query.where(this.stubOptionalField.columnName, '!=', null));
+        }
+
+        if (this.configFilter) {
+            clauses.push(neon.query.where(this.configFilter.lhs, this.configFilter.operator, this.configFilter.rhs));
+        }
+
+        if (this.hasUnsharedFilter()) {
+            clauses.push(neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+        }
+
+        return clauses.length > 1 ? neon.query.and.apply(neon.query, clauses) : clauses[0];
+    }
+
+    // TODO Remove this sample function.
+    /**
+     * Adds a filter for the given item both in neon and for the visualization or replaces all the existing filters if replaceAll is true.
+     *
+     * @arg {object} item
+     * @arg {boolean} replaceAll
+     */
+    filterOnItem(item: any, replaceAll: boolean) {
+        let filter = this.buildVisualizationFilter(undefined, item.field, item.prettyField, item.label);
+        let neonFilter = neon.query.where(filter.field, '=', filter.value);
+
+        if (replaceAll) {
+            if (this.filters.length === 1) {
+                // If we have a single existing filter, keep the ID and replace the old filter with the new filter.
+                filter.id = this.filters[0].id;
+                this.filters = [filter];
+                this.replaceNeonFilter(true, filter, neonFilter);
+            } else if (this.filters.length > 1) {
+                // If we have multiple existing filters, remove all the old filters and add the new filter once done.
+                // Use concat to copy the filter list.
+                this.removeAllFilters([].concat(this.filters), () => {
+                    this.filters = [filter];
+                    this.addNeonFilter(true, filter, neonFilter);
+                });
+            } else {
+                // If we don't have an existing filter, add the new filter.
+                this.filters = [filter];
+                this.addNeonFilter(true, filter, neonFilter);
+            }
+        } else {
+            // If the new filter is unique, add the filter to the existing filters in both neon and the visualization.
+            if (this.isVisualizationFilterUnique(item.field, item.label)) {
+                this.addVisualizationFilter(filter);
+                this.addNeonFilter(true, filter, neonFilter);
+            }
+        }
+    }
+
+    /**
+     * Creates and returns the text for the settings button and menu.
+     *
+     * @return {string}
+     * @override
+     */
+    getButtonText(): string {
+        if (!this.responseData.length || !this.activeData.length) {
+            return 'No Data';
+        }
+        if (this.activeData.length === this.responseData.length) {
+            return 'Total ' + super.prettifyInteger(this.activeData.length);
+        }
+        let begin = super.prettifyInteger((this.page - 1) * this.meta.limit + 1);
+        let end = super.prettifyInteger(Math.min(this.page * this.meta.limit, this.activeData.length));
+        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.responseData.length);
+    }
+
+    /**
+     * Returns the filter list for the visualization.
+     *
+     * @return {array}
+     */
+    getCloseableFilters(): any[] {
+        return this.filters;
+    }
+
+    // TODO Remove this function if the default limit for the visualization is 10.
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {number}
+     * @override
+     */
+    getDefaultLimit(): number {
+        return 50;
+    }
+
+    /**
+     * Returns an object containing the ElementRef objects for the visualization needed for the resizing behavior.
+     *
+     * @return {object} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
+     * @override
+     */
+    getElementRefs(): any {
+        return {
+            visualization: this.visualization,
+            headerText: this.headerText,
+            infoText: this.infoText
+        };
+    }
+
+    /**
+     * Returns the export fields for the visualization.
+     *
+     * @return {array}
+     * @override
+     */
+    getExportFields(): any[] {
+        // TODO Add or remove fields and properties as needed.
+        return [{
+            columnName: this.stubOptionalField.columnName,
+            prettyName: this.stubOptionalField.prettyName
+        }, {
+            columnName: this.stubRequiredField.columnName,
+            prettyName: this.stubRequiredField.prettyName
+        }];
+    }
+
+    /**
+     * Returns the list of filter IDs for the visualization to ignore.
+     *
+     * @return {array}
+     * @override
+     */
+    getFiltersToIgnore(): string[] {
+        // TODO Do you want the visualization to ignore its own filters?  If not, just return null.
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+        let filterIdsToIgnore = [];
+        for (let neonFilter of neonFilters) {
+            if (!neonFilter.filter.whereClause.whereClauses) {
+                filterIdsToIgnore.push(neonFilter.id);
+            }
+        }
+        return filterIdsToIgnore.length ? filterIdsToIgnore : null;
+    }
+
+    /**
+     * Returns the filter text for the given visualization filter object.
+     *
+     * @arg {any} filter
+     * @return {string}
+     * @override
+     */
+    getFilterText(filter: any): string {
+        // TODO Update as needed.  Do you want to use an equals sign?
+        return filter.prettyField + ' = ' + filter.value;
+    }
+
+    /**
+     * Returns the list of filterable fields for the visualization.
+     *
+     * @return {array}
+     * @override
+     */
+    getNeonFilterFields(): string[] {
+        // TODO Add or remove fields as needed.
+        return [this.stubRequiredField.columnName];
+    }
+
+    /**
+     * Returns the name for the visualization.
+     *
+     * @return {string}
+     * @override
+     */
+    getVisualizationName(): string {
+        // TODO Update!
+        return 'Stub';
+    }
+
+    // TODO Remove this function if you don't need pagination.
+    /**
+     * Increases the page and updates the active data.
+     */
+    goToNextPage() {
+        if (!this.lastPage) {
+            this.page++;
+            this.updateActiveData();
+        }
+    }
+
+    // TODO Remove this function if you don't need pagination.
+    /**
+     * Decreases the page and updates the active data.
+     */
+    goToPreviousPage() {
+        if (this.page !== 1) {
+            this.page--;
+            this.updateActiveData();
+        }
+    }
+
+    // TODO If you don't need to do anything here (like update properties), just remove this function and use the superclass one!
+    /**
+     * Updates properties and/or sub-components whenever a config option is changed and reruns the visualization query.
+     *
+     * @override
+     */
+    handleChangeData() {
+        super.handleChangeData();
+    }
+
+    /**
+     * Returns whether the data and fields for the visualization are valid.
+     *
+     * @return {boolean}
+     * @override
+     */
+    isValidQuery(): boolean {
+        // TODO Add or remove fields and properties as needed.
+        return !!(this.meta.database.name && this.meta.table.name && this.stubRequiredField.columnName);
+    }
+
+    // TODO Change arguments as needed.
+    /**
+     * Returns whether a visualization filter object in the filter list matching the given properties exists.
+     *
+     * @arg {string} field
+     * @arg {string} value
+     * @return {boolean}
+     */
+    isVisualizationFilterUnique(field: string, value: string): boolean {
+        // TODO What filters do you need to de-duplicate?  Is it OK to have multiple filters with matching values?
+        return !this.filters.some((existingFilter) => {
+            return existingFilter.field === field && existingFilter.value === value;
+        });
+    }
+
+    /**
+     * Handles any post-initialization behavior needed with properties or sub-components for the visualization.
+     *
+     * @override
+     */
+    postInit() {
+        // Run the query to load the data.
+        this.executeQueryChain();
+    }
+
+    /**
+     * Updates any properties and/or sub-components as needed.
+     *
+     * @override
+     */
+    refreshVisualization() {
+        // TODO Do you need to update and properties or redraw any sub-components?
+        // Do nothing.
+    }
+
+    /**
+     * Removes the given visualization filter object from this visualization.
+     *
+     * @arg {object} filter
+     * @override
+     */
+    removeFilter(filter: any) {
+        this.filters = this.filters.filter((existingFilter) => {
+            return existingFilter.id !== filter.id;
+        });
+    }
+
+    // TODO Remove this function if you don't need a document count query.
+    /**
+     * Creates and runs the document count query.
+     */
+    runDocCountQuery() {
+        let query = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createWhere());
+
+        let ignoreFilters = this.getFiltersToIgnore();
+        if (ignoreFilters && ignoreFilters.length) {
+            query.ignoreFilters(ignoreFilters);
+        }
+
+        // The document count query is a count aggregation for the filter fields.
+        query.groupBy(this.getNeonFilterFields()).aggregate(neonVariables.COUNT, '*', '_docCount');
+
+        this.executeQuery(query);
+    }
+
+    /**
+     * Updates the filters for the visualization on initialization or whenever filters are changed externally.
+     *
+     * @override
+     */
+    setupFilters() {
+        // First reset the existing visualization filters.
+        this.filters = [];
+
+        // Get all the neon filters relevant to this visualization.
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+
+        for (let neonFilter of neonFilters) {
+            // TODO Change as needed.  Do your filters have multiple clauses?  Do your filters have multiple keys (like begin/end dates)?
+
+            // This will ignore a filter with multiple clauses.
+            if (!neonFilter.filter.whereClause.whereClauses) {
+                let field = this.findField(this.meta.fields, neonFilter.filter.whereClause.lhs);
+                let value = neonFilter.filter.whereClause.rhs;
+                if (this.isVisualizationFilterUnique(field.columnName, value)) {
+                    this.addVisualizationFilter(this.buildVisualizationFilter(neonFilter.id, field.columnName, field.prettyName, value));
+                }
+            }
+        }
+    }
+
+    // TODO Remove this function if you don't need a filter-container.
+    /**
+     * Returns whether any components are shown in the filter-container.
+     *
+     * @return {boolean}
+     */
+    showFilterContainer(): boolean {
+        // TODO Check for any other components (like a legend).
+        return !!this.getCloseableFilters().length;
+    }
+
+    // TODO Remove this function if you don't need a footer-container.
+    /**
+     * Returns whether any components are shown in the footer-container.
+     *
+     * @return {boolean}
+     */
+    showFooterContainer(): boolean {
+        // TODO Check for any other components.
+        return this.activeData.length < this.responseData.length;
+    }
+
+    /**
+     * Sets the visualization fields and properties in the given bindings object needed to save layout states.
+     *
+     * @arg {object} bindings
+     * @override
+     */
+    subGetBindings(bindings: any) {
+        // TODO Add or remove fields and properties as needed.
+        bindings.stubOptionalField = this.stubOptionalField.columnName;
+        bindings.stubRequiredField = this.stubRequiredField.columnName;
+    }
+
+    // TODO If you don't need to do anything here (like update properties), just remove this function and use the superclass one!
+    /**
+     * Updates properties and/or sub-components whenever the limit is changed and reruns the visualization query.
+     *
+     * @override
+     */
+    subHandleChangeLimit() {
+        super.subHandleChangeLimit();
+    }
+
+    /**
+     * Deletes any properties and/or sub-components needed.
+     *
+     * @override
+     */
+    subNgOnDestroy() {
+        // TODO Do you need to remove any sub-components?
+        // Do nothing.
+    }
+
+    /**
+     * Initializes any properties and/or sub-components needed once databases, tables, fields, and other meta properties are set.
+     *
+     * @override
+     */
+    subNgOnInit() {
+        // TODO Do you need to create any sub-components?
+        // Do nothing.
+    }
+
+    // TODO Remove this function if you don't need to update and/or redraw any sub-components on resize.
+    /**
+     * Resizes the sub-components.
+     *
+     * @override
+     */
+    subOnResizeStop() {
+        // Do nothing.
+    }
+
+    /**
+     * Handles the query results for the visualization; updates and/or redraws any properties and/or sub-components as needed.
+     *
+     * @arg {object} response
+     * @override
+     */
+    onQuerySuccess(response: any) {
+        // TODO Remove this part if you don't need a document count query.
+        // Check for undefined because the count may be zero.
+        if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
+            this.docCount = response.data.length;
+            return;
+        }
+
+        // TODO If you need to show an error message, set this.meta.errorMessage as needed.
+
+        // TODO Change this behavior as needed to handle your query results.
+
+        // The aggregation query response data will have a count field and all visualization fields.
+        this.responseData = response.data.map((item) => {
+            return {
+                count: item.count,
+                field: this.stubRequiredField.columnName,
+                label: item[this.stubRequiredField.columnName],
+                prettyField: this.stubRequiredField.prettyName,
+                tooltip: item[this.stubOptionalField.columnName || this.stubRequiredField.columnName]
+            };
+        });
+
+        this.page = 1;
+        this.updateActiveData();
+
+        // TODO Remove this part if you don't need a document count query.
+        if (this.responseData.length) {
+            this.runDocCountQuery();
+        } else {
+            this.docCount = 0;
+        }
+    }
+
+    /**
+     * Updates the fields for the visualization once databases and tables are set.
+     *
+     * @override
+     */
+    onUpdateFields() {
+        // Read the config bindings for the visualization.
+        this.stubOptionalField = this.findFieldObject('stubOptionalField');
+        this.stubRequiredField = this.findFieldObject('stubRequiredField');
+        // TODO Add or remove fields and properties as needed.
+    }
+
+    /**
+     * Updates the pagination properties and the active data.
+     */
+    updateActiveData() {
+        let offset = (this.page - 1) * this.meta.limit;
+        this.activeData = this.responseData.slice(offset, (offset + this.meta.limit));
+        this.lastPage = (this.activeData.length <= (offset + this.meta.limit));
+        this.refreshVisualization();
+    }
+}

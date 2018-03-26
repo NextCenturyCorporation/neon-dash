@@ -106,8 +106,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
         this.meta = {
             title: '',
-            limit: 10,
-            newLimit: 10,
+            limit: 0,
+            newLimit: 0,
             layers: []
         };
 
@@ -115,10 +115,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
         this.id = uuid.v4();
-
-        // Make sure the empty field has non-null values
-        this.emptyField.columnName = '';
-        this.emptyField.prettyName = '';
     }
 
     /**
@@ -144,8 +140,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         this.visualizationService.registerBindings(this.id, this);
         this.activeGridService.register(this.id, this);
 
-        this.meta.title = this.getOptionFromConfig('title') || this.getVisualizationName();
-        this.meta.limit = this.getOptionFromConfig('limit') || this.meta.limit;
+        this.meta.title = this.injector.get('title', this.getVisualizationName());
+        this.meta.limit = this.injector.get('limit', this.getDefaultLimit());
         this.meta.newLimit = this.meta.limit;
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
@@ -167,13 +163,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * Method to do any visualization-specific logic before it is destroyed
      */
     abstract subNgOnDestroy();
-
-    /**
-     * Get an option from the visualization's config
-     * @param option the option
-     * @return {any} the option's value
-     */
-    abstract getOptionFromConfig(option: string): any;
 
     /**
      * Get the list of fields to export for the layer index
@@ -241,17 +230,19 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
     /**
      * Add a new empty layer
+     *
+     * @arg {object} layerOptions
      */
-    addEmptyLayer() {
+    addEmptyLayer(layerOptions?: any) {
         let index = this.meta.layers.length;
         let layer = {
             index: index,
-            title: '',
+            title: (layerOptions ? layerOptions.title : '') || this.meta.title || 'New Layer',
             databases: [],
             database: new DatabaseMetaData(),
             tables: [],
             table: new TableMetaData(),
-            unsharedFilterField: {},
+            unsharedFilterField: new FieldMetaData(),
             unsharedFilterValue: '',
             fields: [],
             docCount: 0
@@ -259,7 +250,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         this.outstandingDataQueriesByLayer.push({});
         this.subAddEmptyLayer();
         this.meta.layers.push(layer);
-        this.initDatabases(layer);
+        this.initDatabases(layer, layerOptions);
     }
 
     /**
@@ -388,29 +379,33 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     }
 
     initData() {
-        this.addEmptyLayer();
+        if (!this.injector.get('layers', []).length) {
+            this.addEmptyLayer();
+        }
     }
 
     /**
      * Load all the database metadata, then call initTables()
      *
      * @arg {object} metaObject
+     * @arg {object} layerOptions
      */
-    initDatabases(metaObject: any) {
+    initDatabases(metaObject: any, layerOptions?: any) {
         metaObject.databases = this.datasetService.getDatabases();
         metaObject.database = metaObject.databases[0] || new DatabaseMetaData();
 
         if (metaObject.databases.length > 0) {
-            if (this.getOptionFromConfig('database')) {
+            let injectedDatabase = layerOptions ? layerOptions.database : undefined;
+            if (injectedDatabase) {
                 for (let database of metaObject.databases) {
-                    if (this.getOptionFromConfig('database') === database.name) {
+                    if (injectedDatabase === database.name) {
                         metaObject.database = database;
                         break;
                     }
                 }
             }
 
-            this.initTables(metaObject);
+            this.initTables(metaObject, layerOptions);
         }
     }
 
@@ -418,21 +413,23 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * Load all the table metadata, then call initFields()
      *
      * @arg {object} metaObject
+     * @arg {object} layerOptions
      */
-    initTables(metaObject: any) {
+    initTables(metaObject: any, layerOptions?: any) {
         metaObject.tables = this.datasetService.getTables(metaObject.database.name);
         metaObject.table = metaObject.tables[0] || new TableMetaData();
 
         if (metaObject.tables.length > 0) {
-            if (this.getOptionFromConfig('table')) {
+            let injectedTable = layerOptions ? layerOptions.table : undefined;
+            if (injectedTable) {
                 for (let table of metaObject.tables) {
-                    if (this.getOptionFromConfig('table') === table.name) {
+                    if (injectedTable === table.name) {
                         metaObject.table = table;
                         break;
                     }
                 }
             }
-            this.initFields(metaObject);
+            this.initFields(metaObject, layerOptions);
         }
     }
 
@@ -440,16 +437,17 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * Initialize all the field metadata
      *
      * @arg {object} metaObject
+     * @arg {object} layerOptions
      */
-    initFields(metaObject: any) {
+    initFields(metaObject: any, layerOptions?: any) {
         // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
         metaObject.fields = this.datasetService.getSortedFields(metaObject.database.name, metaObject.table.name, true).filter((field) => {
             return (field && field.columnName);
         });
-        metaObject.unsharedFilterField = this.findFieldObject(metaObject.index, 'unsharedFilterField');
-        metaObject.unsharedFilterValue = this.getOptionFromConfig('unsharedFilterValue') || '';
+        metaObject.unsharedFilterField = new FieldMetaData();
+        metaObject.unsharedFilterValue = '';
 
-        this.onUpdateFields(metaObject);
+        this.onUpdateFields(metaObject, layerOptions);
     }
 
     /**
@@ -457,8 +455,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * This will be called once before initialization is complete
      *
      * @arg {object} metaObject
+     * @arg {object} layerOptions
      */
-    abstract onUpdateFields(metaObject: any);
+    abstract onUpdateFields(metaObject: any, layerOptions?: any);
 
     stopEventPropagation(event) {
         if (event.stopPropagation) {
@@ -705,34 +704,24 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     /**
      * Get field object from the key into the config options
      */
-    findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
+    findFieldObject(metaObject: any, layerOptions: any, bindingKey: string, mappingKey?: string): FieldMetaData {
         let find = (name: string) => {
-            return _.find(this.meta.layers[layerIndex].fields, (field) => {
+            return !name ? undefined : _.find(metaObject.fields, (field) => {
                 return field.columnName === name;
             });
         };
 
-        let fieldObject;
-        if (bindingKey) {
-            fieldObject = find(this.getOptionFromConfig(bindingKey));
-        }
+        let fieldObject = layerOptions && bindingKey ? find(layerOptions[bindingKey] || '') : undefined;
 
         if (!fieldObject && mappingKey) {
-            fieldObject = find(this.getMapping(layerIndex, mappingKey));
+            fieldObject = find(this.getMapping(metaObject, mappingKey));
         }
 
-        return fieldObject || this.datasetService.createBlankField();
+        return fieldObject || new FieldMetaData();
     }
 
-    /**
-     * Get a blank FieldMetaData object
-     */
-    getBlankField(): FieldMetaData {
-        return this.datasetService.createBlankField();
-    }
-
-    getMapping(layerIndex, key: string): string {
-        return this.datasetService.getMapping(this.meta.layers[layerIndex].database.name, this.meta.layers[layerIndex].table.name, key);
+    getMapping(metaObject: any, key: string): string {
+        return this.datasetService.getMapping(metaObject.database.name, metaObject.table.name, key);
     }
 
     /**
@@ -884,6 +873,15 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
             style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
         }
         return style && Color.fromRgbString(style);
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {number}
+     */
+    getDefaultLimit(): number {
+        return 10;
     }
 
     /**

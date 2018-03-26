@@ -46,12 +46,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
 
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string
-    };
-
     public active: {
         andor: string,
         clauses: WhereClauseMetaData[],
@@ -67,12 +61,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null)
-        };
 
         this.active = {
             andor: 'and',
@@ -118,10 +106,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         // Do nothing.  Doesn't export nor does this visualization register to export
         // therefore, this function can be ignored.
         return null;
-    }
-
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
     }
 
     onUpdateFields() {
@@ -293,7 +277,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @return {string}
      */
     getFilterName(clause) {
-        return clause.database.name + ' - ' + clause.table.name + ' - ' + clause.field.columnName + ' - filter';
+        return clause.field.prettyName + ' ' + clause.operator.prettyName + ' ' + clause.value;
     }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
@@ -373,7 +357,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         // Do nothing
     }
 
-    getFilterText(_filter): string {
+    getFilterText(filter): string {
         // Do nothing, no filters
         return '';
     }

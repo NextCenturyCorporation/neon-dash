@@ -120,10 +120,10 @@
     <div #filterContainer class="filter-container">
         <app-legend (itemSelected)="legendItemSelected($event)" [fieldNames]="colorByFields" [disabledList]="disabledList"></app-legend>
 
-        <div class="filter-reset" *ngIf="active.filter">
-            <span class="filter-label" [title]="getFilterTitle(active.filter)">Date Filter</span>
+        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+            <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">Date Filter</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="getRemoveFilterTooltip(active.filter)" (click)="removeLocalFilterFromLocalAndNeon(active.filter, true)">
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
         </div>

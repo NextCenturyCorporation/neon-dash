@@ -24,6 +24,7 @@ import { MapComponent } from '../map/map.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
+import { StubComponent } from '../stub/stub.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
@@ -33,9 +34,21 @@ import { VisualizationService } from '../../services/visualization.service';
 
 @Component({
     selector: 'app-visualization-injector',
-    entryComponents: [BarChartComponent, DataTableComponent, DocumentViewerComponent, FilterBuilderComponent, LineChartComponent,
-        MapComponent, NetworkGraphComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent, TimelineComponent,
-        WikiViewerComponent],
+    entryComponents: [
+        BarChartComponent,
+        DataTableComponent,
+        DocumentViewerComponent,
+        FilterBuilderComponent,
+        LineChartComponent,
+        MapComponent,
+        NetworkGraphComponent,
+        ScatterPlotComponent,
+        StackedTimelineComponent,
+        StubComponent,
+        TextCloudComponent,
+        TimelineComponent,
+        WikiViewerComponent
+    ],
     template: `<div #dynamicComponentContainer></div>`
 })
 export class VisualizationInjectorComponent {
@@ -100,6 +113,7 @@ export class VisualizationInjectorComponent {
             case 'networkGraph' : return NetworkGraphComponent;
             case 'scatterPlot': return ScatterPlotComponent;
             case 'stackedTimeline': return StackedTimelineComponent;
+            case 'stub': return StubComponent;
             case 'textCloud': return TextCloudComponent;
             case 'timeline': return TimelineComponent;
             case 'wikiViewer': return WikiViewerComponent;

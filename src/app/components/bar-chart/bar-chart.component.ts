@@ -129,20 +129,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         prettyKey: string
     }[];
 
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        dataField: string,
-        aggregation: string,
-        aggregationField: string,
-        unsharedFilterField: any,
-        unsharedFilterValue: string,
-        colorField: string,
-        limit: number,
-        chartType: string // bar or horizontalBar
-    };
-
     public active: {
         dataField: FieldMetaData,
         colorField: FieldMetaData,
@@ -198,19 +184,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
 
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            dataField: this.injector.get('dataField', null),
-            aggregation: this.injector.get('aggregation', null),
-            aggregationField: this.injector.get('aggregationField', null),
-            colorField: this.injector.get('colorField', null),
-            limit: this.injector.get('limit', 10),
-            unsharedFilterField: {},
-            unsharedFilterValue: '',
-            chartType: this.injector.get('chartType', 'bar')
-        };
         this.filters = [];
         this.active = {
             dataField: new FieldMetaData(),
@@ -224,7 +197,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             layers: [],
             data: [],
             aggregation: 'count',
-            chartType: this.optionsFromConfig.chartType || 'horizontalBar',
+            chartType: this.injector.get('chartType', 'bar'),
             labelCount: 0,
             maxCount: 0,
             minScale: undefined,
@@ -436,7 +409,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     /**
      * Sets the properties in the given bindings for the bar chart.
      *
-     * @arg {any} bindings
+     * @arg {object} bindings
      * @override
      */
     subGetBindings(bindings: any) {
@@ -465,20 +438,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns the option for the given property from the bar chart config.
-     *
-     * @arg {string} option
-     * @return {any}
-     * @override
-     */
-    getOptionFromConfig(option: string): any {
-        return this.optionsFromConfig[option];
-    }
-
-    /**
      * Adds, replaces, or removes filters using the bar chart data in the given elements.
      *
-     * @arg {any} _event
+     * @arg {object} _event
      * @arg {array} elements
      */
     onClick(_event: any, elements: any[]) {
@@ -532,8 +494,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     onUpdateFields() {
-        if (this.optionsFromConfig.aggregation) {
-            this.active.aggregation = this.optionsFromConfig.aggregation;
+        if (this.injector.get('aggregation', null)) {
+            this.active.aggregation = this.injector.get('aggregation', null);
         }
         this.active.aggregationField = this.findFieldObject('aggregationField');
         this.active.dataField = this.findFieldObject('dataField');
@@ -548,15 +510,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     addLocalFilter(filter: any) {
         this.filters = this.filters.filter((existingFilter) => {
             return existingFilter.id !== filter.id;
-        }).map((existingFilter) => {
-            return existingFilter;
         }).concat([filter]);
     }
 
     /**
      * Returns true if the given filter object does not match any filter in the list of bar chart component filter objects.
      *
-     * @arg {any} filter
+     * @arg {object} filter
      * @return {boolean}
      */
     filterIsUnique(filter: any): boolean {
@@ -613,16 +573,18 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     /**
      * Returns the bar chart filter text using the given filter object.
      *
-     * @arg {any} filter
+     * @arg {object} filter
      * @return {string}
      * @override
      */
     getFilterText(filter: any): string {
-        return filter.value;
+        return filter.prettyKey + ' = ' + filter.value;
     }
 
     /**
      * Updates the bar colors and legend and refreshes the bar chart.
+     *
+     * @override
      */
     refreshVisualization() {
         let selectedLabels: string[] = [];
@@ -694,7 +656,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let whereClauses: neon.query.WherePredicate[] = [];
         whereClauses.push(neon.query.where(this.active.dataField.columnName, '!=', null));
         let yAxisField = this.active.aggregationField.columnName;
-        let groupBy: any[] = [this.active.dataField.columnName];
+        let groupBy: any[] = this.getNeonFilterFields();
 
         if (this.active.colorField && this.active.colorField.columnName !== '') {
             whereClauses.push(neon.query.where(this.active.colorField.columnName, '!=', null));
@@ -738,25 +700,22 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     getFiltersToIgnore() {
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = this.getNeonFilterFields();
         // get relevant neon filters and check for filters that should be ignored and add that to query
-        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        if (neonFilters.length > 0) {
-            let ignoredFilterIds = [];
-            for (let neonFilter of neonFilters) {
-                if (!neonFilter.filter.whereClause.whereClauses) {
-                    ignoredFilterIds.push(neonFilter.id);
-                }
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+        let ignoredFilterIds = [];
+        for (let neonFilter of neonFilters) {
+            if (!neonFilter.filter.whereClause.whereClauses) {
+                ignoredFilterIds.push(neonFilter.id);
             }
-            return ignoredFilterIds;
         }
-        return null;
+        return ignoredFilterIds.length ? ignoredFilterIds : null;
     }
 
     /**
      * Handles the query results for the bar chart and draws the new bar chart.
+     *
+     * @arg {object} response
+     * @override
      */
     onQuerySuccess(response: any) {
         this.active.bars = [];
@@ -893,7 +852,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     /**
      * If the given item is a number, returns it as a rounded string; otherwise, returns the given item.
      *
-     * @arg {any} item
+     * @arg {object} item
      * @return {string}
      */
     formatNumber(item: any): string {
@@ -1000,11 +959,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = [this.active.dataField.columnName];
-        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
         this.filters = [];
+
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
                 let key = neonFilter.filter.whereClause.lhs;
@@ -1023,7 +980,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Resets the seen bars and reruns the bar chart query after limit change.
+     * Updates properties and/or sub-components whenever the limit is changed and reruns the visualization query.
      *
      * @override
      */
@@ -1033,27 +990,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Resets the seen bars and reruns the bar chart query.
+     * Updates properties and/or sub-components whenever a config option is changed and reruns the visualization query.
+     *
+     * @override
      */
-    handleChangeDataInBarChart() {
+    handleChangeData() {
         this.active.seenBars = [];
-        this.logChangeAndStartQueryChain();
-    }
-
-    /**
-     * Reruns the bar chart query.
-     */
-    unsharedFilterChanged() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
-    /**
-     * Reruns the bar chart query.
-     */
-    unsharedFilterRemoved() {
-        // Update the data
-        this.executeQueryChain();
+        super.handleChangeData();
     }
 
     /**
@@ -1083,41 +1026,12 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         return this.filters;
     }
 
-    /**
-     * Returns the bar chart filter tooltip title text using the given filter value.
-     *
-     * @arg {string} value
-     * @return {string}
-     */
-    getFilterTitle(value: string) {
-        return this.active.dataField.columnName + ' = ' + value;
-    }
-
-    /**
-     * Returns the bar chart filter text using the given filter value.
-     *
-     * @arg {string} value
-     * @return {string}
-     */
-    getFilterCloseText(value: string): string {
-        return value;
-    }
-
-    /**
-     * Returns the bar chart remove button tooltip title text using the given filter value.
-     *
-     * @arg {string} value
-     * @return {string}
-     */
-    getRemoveFilterTooltip(value: string): string {
-        return 'Delete Filter ' + this.getFilterTitle(value);
-    }
-
     //Would love to refactor this but cannot because it's called in base neon.
     /**
      * Removes the given filter object from this bar chart component.
      *
-     * @arg {any} filter
+     * @arg {object} filter
+     * @override
      */
     removeFilter(filter: any) {
         for (let index = this.filters.length - 1; index >= 0; index--) {
@@ -1125,25 +1039,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 this.filters.splice(index, 1);
             }
         }
-    }
-
-    /**
-     * Removes all filters from this bar chart component and neon, optionally requerying and/or refreshing.
-     *
-     * @arg {array} filters
-     * @arg {function} callback
-     */
-    removeAllFilters(filters: any[], callback?: Function) {
-        if (!filters.length) {
-            if (callback) {
-                callback();
-            }
-            return;
-        }
-
-        this.removeLocalFilterFromLocalAndNeon(filters[0], false, false, () => {
-            this.removeAllFilters(filters.slice(1), callback);
-        });
     }
 
     /**

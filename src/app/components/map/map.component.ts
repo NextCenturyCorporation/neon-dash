@@ -45,11 +45,11 @@ import {
     AbstractMap,
     BoundingBoxByDegrees,
     FilterListener,
+    MapConfiguration,
     MapLayer,
     MapPoint,
     MapType,
     MapTypePairs,
-    OptionsFromConfig,
     whiteString
 } from './map.type.abstract';
 import { LeafletNeonMap } from './map.type.leaflet';
@@ -77,8 +77,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         protected filters: {
             id: string,
             fieldsByLayer: {
-                latField: string,
-                lonField: string
+                latitude: string,
+                longitude: string
+                prettyLatitude: string,
+                prettyLongitude: string
             },
             filterName: string
         }[];
@@ -91,8 +93,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             unusedColors: string[],
             nextColorIndex: number,
             clustering: string,
-            minClusterSize: number,
-            clusterPixelRange: number
+            singleColor: boolean
         };
 
         public colorByFields: string[] = [];
@@ -103,41 +104,36 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
         protected colorSchemeService: ColorSchemeService;
 
-        public optionsFromConfig: OptionsFromConfig;
+        public mapConfiguration: MapConfiguration;
         protected mapObject: AbstractMap;
         protected filterBoundingBox: BoundingBoxByDegrees;
 
         public disabledSet: [string[]] = [] as [string[]];
         protected defaultActiveColor: Color;
+        protected mapType: MapType | string;
 
         constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
             filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
             colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
             super(activeGridService, connectionService, datasetService, filterService,
                 exportService, injector, themesService, ref, visualizationService);
+
             (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
+
             this.colorSchemeService = colorSchemeSrv;
+            this.mapType = this.injector.get('mapType', MapType.Leaflet);
             this.FIELD_ID = '_id';
-            this.optionsFromConfig = {
-                title: this.injector.get('title', null),
-                database: this.injector.get('database', null),
-                table: this.injector.get('table', null),
-                limit: this.injector.get('limit', 1000),
-                unsharedFilterField: {},
-                unsharedFilterValue: '',
-                layers: this.injector.get('layers', []),
-                clustering: this.injector.get('clustering', 'points'),
-                minClusterSize: this.injector.get('minClusterSize', 5),
-                clusterPixelRange: this.injector.get('clusterPixelRange', 15),
-                hoverSelect: this.injector.get('hoverSelect', null),
-                hoverPopupEnabled: this.injector.get('hoverPopupEnabled', false),
+
+            this.mapConfiguration = {
                 west: this.injector.get('west', null),
                 east: this.injector.get('east', null),
                 north: this.injector.get('north', null),
                 south: this.injector.get('south', null),
+                clusterPixelRange: this.injector.get('clusterPixelRange', 15),
                 customServer: this.injector.get('customServer', {}),
-                mapType: this.injector.get('mapType', MapType.Leaflet),
-                singleColor: this.injector.get('singleColor', false)
+                hoverSelect: this.injector.get('hoverSelect', null),
+                hoverPopupEnabled: this.injector.get('hoverPopupEnabled', false),
+                minClusterSize: this.injector.get('minClusterSize', 5)
             };
 
             this.filters = [];
@@ -149,9 +145,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 data: [],
                 nextColorIndex: 0,
                 unusedColors: [],
-                clustering: this.optionsFromConfig.clustering,
-                minClusterSize: this.optionsFromConfig.minClusterSize,
-                clusterPixelRange: this.optionsFromConfig.clusterPixelRange
+                clustering: this.injector.get('clustering', 'points'),
+                singleColor: this.injector.get('singleColor', false)
             };
         }
 
@@ -171,8 +166,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          */
         postInit() {
             // There is one layer automatically added
-            for (let i = 1; i < this.optionsFromConfig.layers.length; i++) {
-                this.addEmptyLayer();
+            for (let layer of this.injector.get('layers', [])) {
+                this.addEmptyLayer(layer);
             }
 
             this.defaultActiveColor = this.getPrimaryThemeColor();
@@ -202,7 +197,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             bindings.layers = [];
             for (let layer of this.active.layers) {
                 bindings.layers.push({
-                    title: layer.title,
                     latitudeField: layer.latitudeField.columnName,
                     longitudeField: layer.longitudeField.columnName,
                     sizeField: layer.sizeField.columnName,
@@ -216,12 +210,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * Initializes and draws the map.
          */
         ngAfterViewInit() {
-            let type = this.optionsFromConfig.mapType;
-            if (!super.isNumber(type)) {
-                type = MapType[type] || MapType.Leaflet;
-                this.optionsFromConfig.mapType = type;
+            if (!super.isNumber(this.mapType)) {
+                this.mapType = MapType[this.mapType] || MapType.Leaflet;
             }
-            switch (type) {
+            switch (this.mapType) {
                 case MapType.Cesium:
                     this.mapObject = new CesiumNeonMap();
                     break;
@@ -234,7 +226,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                     }
             }
 
-            this.mapObject.initialize(this.mapElement, this.optionsFromConfig, this);
+            this.mapObject.initialize(this.mapElement, this.mapConfiguration, this);
 
             // Draw everything
             this.handleChangeData();
@@ -247,17 +239,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          */
         subNgOnDestroy() {
             return this.mapObject && this.mapObject.destroy();
-        }
-
-        /**
-         * Returns the option for the given property from the map config.
-         *
-         * @arg {string} option
-         * @return {any}
-         * @override
-         */
-        getOptionFromConfig(option: string): any {
-            return this.optionsFromConfig[option];
         }
 
         /**
@@ -313,68 +294,41 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         /**
          * Updates the fields for the map layer contained within the given object.
          *
-         * @arg {any} metaObject
+         * @arg {object} metaObject
+         * @arg {object} layerOptions
          * @override
          */
-        onUpdateFields(metaObject: any) {
+        onUpdateFields(metaObject: any, layerOptions?: any) {
             let layer = this.active.layers[metaObject.index];
-            layer.latitudeField = this.findFieldObject(metaObject.index, 'latitudeField', neonMappings.LATITUDE);
-            layer.longitudeField = this.findFieldObject(metaObject.index, 'longitudeField', neonMappings.LONGITUDE);
-            layer.sizeField = this.findFieldObject(metaObject.index, 'sizeField');
-            layer.colorField = this.findFieldObject(metaObject.index, 'colorField');
-            layer.dateField = this.findFieldObject(metaObject.index, 'dateField', neonMappings.DATE);
-
-            // Get the title from the options, if it exists
-            if (metaObject.index >= this.optionsFromConfig.layers.length ||
-                !this.optionsFromConfig.layers[metaObject.index] || !this.optionsFromConfig.layers[metaObject.index].title) {
-                layer.title = this.optionsFromConfig.title;
-            } else {
-                layer.title = this.optionsFromConfig.layers[metaObject.index].title;
-            }
-            if (!layer.title || layer.title === '') {
-                layer.title = 'New Layer';
-            }
-        }
-
-        /**
-         * Finds and returns the field object for the map layer at the given index with the given binding key or mapping key.
-         *
-         * @arg {number} layerIndex
-         * @arg {string} bindingKey
-         * @arg {string} mappingKey
-         * @return {FieldMetaData}
-         */
-        findFieldObject(layerIndex: number, bindingKey: string, mappingKey?: string): FieldMetaData {
-            // If there are no layers or the index is past the end of the layers in the config, default to the original
-            if (layerIndex >= this.optionsFromConfig.layers.length || !bindingKey
-                || !this.optionsFromConfig.layers[layerIndex][bindingKey]) {
-                return super.findFieldObject(layerIndex, bindingKey, mappingKey);
-            }
-
-            let find = (name) => {
-                return _.find(this.meta.layers[layerIndex].fields, (field) => {
-                    return field.columnName === name;
-                });
-            };
-
-            return find(this.optionsFromConfig.layers[layerIndex][bindingKey]) || this.getBlankField();
+            layer.latitudeField = this.findFieldObject(metaObject, layerOptions, 'latitudeField', neonMappings.LATITUDE);
+            layer.longitudeField = this.findFieldObject(metaObject, layerOptions, 'longitudeField', neonMappings.LONGITUDE);
+            layer.sizeField = this.findFieldObject(metaObject, layerOptions, 'sizeField');
+            layer.colorField = this.findFieldObject(metaObject, layerOptions, 'colorField');
+            layer.dateField = this.findFieldObject(metaObject, layerOptions, 'dateField', neonMappings.DATE);
+            // Must copy the title into the active layer for the map object.
+            layer.title = metaObject.title;
         }
 
         /**
          * Sets the filter bounding box to the given box and adds or replaces the neon map filter.
          *
+         * Function for the FilterListener interface.
+         *
          * @arg {BoundingBoxByDegrees} box
+         * @override
          */
         filterByLocation(box: BoundingBoxByDegrees) {
             this.filterBoundingBox = box;
 
-            let fieldsByLayer = this.active.layers.map((l) => {
+            let fieldsByLayer = this.active.layers.map((layer) => {
                 return {
-                    latitudeName: l.latitudeField.columnName,
-                    longitudeName: l.longitudeField.columnName
+                    latitude: layer.latitudeField.columnName,
+                    longitude: layer.longitudeField.columnName,
+                    prettyLatitude: layer.latitudeField.prettyName,
+                    prettyLongitude: layer.longitudeField.prettyName
                 };
             });
-            let localLayerName = this.getFilterTextByFields(fieldsByLayer);
+            let localLayerName = this.getFilterTextByFields(box, fieldsByLayer);
             let localFilters = this.createFilter(fieldsByLayer, localLayerName);
             this.addLocalFilter(localFilters);
             for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
@@ -439,15 +393,27 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         /**
          * Returns the map filter text using the given fields.
          *
+         * @arg {BoundingBoxByDegrees} box
          * @arg {array} fieldsByLayer
          * @return {string}
          */
-        getFilterTextByFields(fieldsByLayer: any[]): string {
+        getFilterTextByFields(box: BoundingBoxByDegrees, fieldsByLayer: any[]): string {
             if (fieldsByLayer.length === 1) {
-                return this.getFilterTextForLayer(0);
-            } else {
-                return 'Map Filter - multiple layers';
+                return this.getFilterTextForLayer(box, fieldsByLayer[0]);
             }
+            return 'latitude from ' + box.south + ' to ' + box.north + ' and longitude from ' + box.west + ' to ' + box.east;
+        }
+
+        /**
+         * Returns the map filter text for the map layer at the given index.
+         *
+         * @arg {BoundingBoxByDegrees} box
+         * @arg {object} fieldsByLayer
+         * @return {string}
+         */
+        getFilterTextForLayer(box: BoundingBoxByDegrees, fieldsByLayer: any): string {
+            return fieldsByLayer.prettyLatitude + ' from ' + box.south + ' to ' + box.north + ' and ' + fieldsByLayer.prettyLongitude +
+                ' from ' + box.west + ' to ' + box.east;
         }
 
         /**
@@ -458,25 +424,17 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * @override
          */
         getFilterText(filter: any): string {
-            if (filter && filter.filterName) {
-                return filter.filterName;
-            } else {
-                return 'Map Filter';
-            }
+            return filter.filterName || '';
         }
 
         /**
-         * Returns the map filter text for the map layer at the given index.
+         * Returns the map filter detail.
          *
-         * @arg {number} layerIndex
          * @return {string}
          */
-        getFilterTextForLayer(layerIndex: number): string {
-            let database = this.meta.layers[layerIndex].database.name;
-            let table = this.meta.layers[layerIndex].table.name;
-            let latField = this.active.layers[layerIndex].latitudeField.columnName;
-            let lonField = this.active.layers[layerIndex].longitudeField.columnName;
-            return database + ' - ' + table + ' - ' + latField + ', ' + lonField + ' - ' + layerIndex;
+        getFilterDetail(): string {
+            return (!this.mapObject || this.mapObject.isExact()) ? '' :
+                ' *Filter was altered outside of Map visualization and selection rectangle may not accurately represent filter.';
         }
 
         /**
@@ -613,7 +571,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             let rgbColor = this.defaultActiveColor.toRgb();
             map.forEach((unique) => {
                 let color = rgbColor;
-                if (!this.optionsFromConfig.singleColor) {
+                if (!this.active.singleColor) {
                     color = unique.colorValue ? this.colorSchemeService.getColorFor(colorField, unique.colorValue).toRgb() : whiteString;
                 }
                 mapPoints.push(
@@ -745,10 +703,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * @return {boolean}
          */
         doesLayerStillHaveFilter(layerIndex: number): boolean {
-            let database = this.meta.layers[layerIndex].database.name;
-            let table = this.meta.layers[layerIndex].table.name;
-            let fields = this.getNeonFilterFields(layerIndex);
-            let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
+            let neonFilters = this.filterService.getFiltersForFields(this.meta.layers[layerIndex].database.name,
+                this.meta.layers[layerIndex].table.name, this.getNeonFilterFields(layerIndex));
             return neonFilters && neonFilters.length > 0;
         }
 
@@ -780,10 +736,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
         hasLayerFilterChanged(layerIndex: number): boolean {
             let filterChanged = true;
-            let database = this.meta.layers[layerIndex].database.name;
-            let table = this.meta.layers[layerIndex].table.name;
-            let fields = this.getNeonFilterFields(layerIndex);
-            let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
+            let neonFilters = this.filterService.getFiltersForFields(this.meta.layers[layerIndex].database.name,
+                this.meta.layers[layerIndex].table.name, this.getNeonFilterFields(layerIndex));
             let clauses = this.getClausesFromFilterWithIdenticalArguments(neonFilters, [
                 this.active.layers[layerIndex].latitudeField.columnName,
                 this.active.layers[layerIndex].longitudeField.columnName
@@ -833,8 +787,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * @arg {MapType} mapType
          */
         handleChangeMapType(mapType: MapType) {
-            if (this.optionsFromConfig.mapType !== mapType) {
-                this.optionsFromConfig.mapType = mapType;
+            if (this.mapType !== mapType) {
+                this.mapType = mapType;
                 if (this.mapObject) {
                     this.mapObject.destroy();
                 }
@@ -848,43 +802,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * @return {array}
          */
         getCloseableFilters(): object[] {
-            // TODO
             return this.filters;
-        }
-
-        /**
-         * Returns the map filter tooltip title text.
-         *
-         * @return {string}
-         */
-        getFilterTitle(): string {
-            let title = 'Map Filter';
-            if (this.mapObject && !this.mapObject.isExact()) {
-                title += ' *Filter was altered outside of Map visualization and selection rectangle may not accurately represent filter.';
-            }
-            return title;
-        }
-
-        /**
-         * Returns the map filter text.
-         *
-         * @arg {string} input
-         * @return {string}
-         */
-        getFilterCloseText(input: string): string {
-            if (this.mapObject && !this.mapObject.isExact()) {
-                return input + '*';
-            }
-            return input;
-        }
-
-        /**
-         * Returns the map filter remove button tooltip title text.
-         *
-         * @return {string}
-         */
-        getRemoveFilterTooltip(): string {
-            return 'Delete ' + this.getFilterTitle();
         }
 
         /**
@@ -974,11 +892,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 if (this.meta.layers.length === 1) {
                     return createButtonText(this.meta.layers[0].docCount, this.meta.limit);
                 }
-                return this.meta.layers.map((layer, index) => {
-                    if (this.active.layers.length >= index) {
-                        return this.active.layers[index].title + ' (' + createButtonText(layer.docCount, this.meta.limit) + ')';
-                    }
-                    return '';
+                return this.meta.layers.map((layer) => {
+                    return layer.title + ' (' + createButtonText(layer.docCount, this.meta.limit) + ')';
                 }).filter((text) => {
                     return !!text;
                 }).join(', ');
@@ -994,6 +909,16 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         runDocumentCountQuery(layerIndex: number): void {
             let query = this.createBasicQuery(layerIndex).aggregate(neonVariables.COUNT, '*', '_docCount');
             this.executeQuery(layerIndex, query);
+        }
+
+        /**
+         * Returns the default limit for the visualization.
+         *
+         * @return {number}
+         * @override
+         */
+        getDefaultLimit() {
+            return 1000;
         }
 
         /**

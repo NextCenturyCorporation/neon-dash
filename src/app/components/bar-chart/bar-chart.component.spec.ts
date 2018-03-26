@@ -136,29 +136,10 @@ describe('Component: BarChart', () => {
         expect(component.active.chartType).toBe('testChart');
     }));
 
-    it('Checks optionsFromConfig default value', (() => {
-        expect(component.getOptionFromConfig('title')).toBeNull();
-        expect(component.getOptionFromConfig('database')).toBeNull();
-        expect(component.getOptionFromConfig('table')).toBeNull();
-        expect(component.getOptionFromConfig('dataField')).toBeNull();
-        expect(component.getOptionFromConfig('aggregation')).toBeNull();
-        expect(component.getOptionFromConfig('aggregationField')).toBeNull();
-        expect(component.getOptionFromConfig('colorField')).toBeNull();
-        expect(component.getOptionFromConfig('limit')).toBe(10);
-        expect(component.getOptionFromConfig('unsharedFilterField')).toEqual({});
-        expect(component.getOptionFromConfig('unsharedFilterValue')).toBe('');
-        expect(component.getOptionFromConfig('chartType')).toBe('bar');
-    }));
-
     it('Handle change Aggregation method calls the correct function', (() => {
         let spyExecuteQueryChain = spyOn(component, 'executeQueryChain');
         component.handleChangeAggregation();
         expect(spyExecuteQueryChain.calls.count()).toBe(1);
-    }));
-
-    it('checks return values', (() => {
-        expect(component.getFilterCloseText('test')).toBe('test');
-        expect(component.getRemoveFilterTooltip('test')).toBe('Delete Filter  = test');
     }));
 
     it('Checks for expected value from getExportFields', (() => {
@@ -246,10 +227,10 @@ describe('Component: BarChart', () => {
         expect(spy.calls.count()).toBe(1);
     });
 
-    it('handleChangeDataInBarChart does update seenBars and does call logChangeAndStartQueryChain', () => {
+    it('handleChangeData does update seenBars and does call logChangeAndStartQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
         component.active.seenBars = ['a', 'b', 'c', 'd'];
-        component.handleChangeDataInBarChart();
+        component.handleChangeData();
         expect(component.active.seenBars).toEqual([]);
         expect(spy.calls.count()).toBe(1);
     });
@@ -951,136 +932,6 @@ describe('Component: BarChart', () => {
             expect(button.componentInstance.disabled).toBe(false);
         });
     }));
-
-    it('removeAllFilters does work as expected with single filter', () => {
-        let removeCalls = 0;
-
-        component.removeLocalFilterFromLocalAndNeon = (filter, bool1, bool2, removeMoreFilters) => {
-            removeCalls++;
-            if (removeCalls === 1) {
-                expect(filter).toEqual({
-                    id: 'id1',
-                    key: 'key1',
-                    value: 'value1',
-                    prettyKey: 'prettyKey1'
-                });
-            }
-            expect(bool1).toBe(false);
-            expect(bool2).toBe(false);
-            expect(typeof removeMoreFilters).toBe('function');
-            removeMoreFilters();
-        };
-
-        component.removeAllFilters([{
-            id: 'id1',
-            key: 'key1',
-            value: 'value1',
-            prettyKey: 'prettyKey1'
-        }]);
-
-        expect(removeCalls).toBe(1);
-    });
-
-    it('removeAllFilters does work as expected with multiple filters', () => {
-        let removeCalls = 0;
-
-        component.removeLocalFilterFromLocalAndNeon = (filter, bool1, bool2, removeMoreFilters) => {
-            removeCalls++;
-            if (removeCalls === 1) {
-                expect(filter).toEqual({
-                    id: 'id1',
-                    key: 'key1',
-                    value: 'value1',
-                    prettyKey: 'prettyKey1'
-                });
-            }
-            if (removeCalls === 2) {
-                expect(filter).toEqual({
-                    id: 'id2',
-                    key: 'key2',
-                    value: 'value2',
-                    prettyKey: 'prettyKey2'
-                });
-            }
-            expect(bool1).toBe(false);
-            expect(bool2).toBe(false);
-            expect(typeof removeMoreFilters).toBe('function');
-            removeMoreFilters();
-        };
-
-        component.removeAllFilters([{
-            id: 'id1',
-            key: 'key1',
-            value: 'value1',
-            prettyKey: 'prettyKey1'
-        }, {
-            id: 'id2',
-            key: 'key2',
-            value: 'value2',
-            prettyKey: 'prettyKey2'
-        }]);
-
-        expect(removeCalls).toBe(2);
-    });
-
-    it('removeAllFilters does work as expected with single filter', () => {
-        let removeCalls = 0;
-        let callbackCalls = 0;
-
-        component.removeLocalFilterFromLocalAndNeon = (filter, bool1, bool2, removeMoreFilters) => {
-            removeCalls++;
-            removeMoreFilters();
-        };
-
-        component.removeAllFilters([{
-            id: 'id1',
-            key: 'key1',
-            value: 'value1',
-            prettyKey: 'prettyKey1'
-        }, {
-            id: 'id2',
-            key: 'key2',
-            value: 'value2',
-            prettyKey: 'prettyKey2'
-        }], () => {
-            callbackCalls++;
-        });
-
-        expect(removeCalls).toBe(2);
-        expect(callbackCalls).toBe(1);
-    });
-
-    it('removeAllFilters does not change original array', () => {
-        component.removeLocalFilterFromLocalAndNeon = (filter, bool1, bool2, removeMoreFilters) => {
-            removeMoreFilters();
-        };
-
-        let filters = [{
-            id: 'id1',
-            key: 'key1',
-            value: 'value1',
-            prettyKey: 'prettyKey1'
-        }, {
-            id: 'id2',
-            key: 'key2',
-            value: 'value2',
-            prettyKey: 'prettyKey2'
-        }];
-
-        component.removeAllFilters(filters);
-
-        expect(filters).toEqual([{
-            id: 'id1',
-            key: 'key1',
-            value: 'value1',
-            prettyKey: 'prettyKey1'
-        }, {
-            id: 'id2',
-            key: 'key2',
-            value: 'value2',
-            prettyKey: 'prettyKey2'
-        }]);
-    });
 
     it('subOnResizeStop with active.chartType=horizontalBar does update active.minSize', () => {
         component.active.chartType = 'horizontalBar';

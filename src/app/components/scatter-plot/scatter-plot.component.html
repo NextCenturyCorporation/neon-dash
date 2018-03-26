@@ -85,9 +85,7 @@
                 </div>
                 <p></p>
 
-                <app-unshared-filter [(meta)]="meta"
-                                     (unsharedFilterChanged)="unsharedFilterChanged()"
-                                     (unsharedFilterRemoved)="unsharedFilterRemoved()"></app-unshared-filter>
+                <app-unshared-filter [(meta)]="meta" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
@@ -103,10 +101,10 @@
         <app-legend *ngIf="!!this.active.colorField.columnName" (itemSelected)="legendItemSelected($event)" [disabledList]="disabledSet"
             [fieldNames]="colorByFields"></app-legend>
 
-        <div class="filter-reset" *ngIf="filters[0]">
-            <span class="filter-label" [title]="getFilterTitle()">Scatter Filter</span>
+        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+            <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">Scatter Filter</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="getRemoveFilterTooltip()" (click)="removeLocalFilterFromLocalAndNeon(filters[0], true)">
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
         </div>

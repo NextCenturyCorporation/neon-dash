@@ -53,46 +53,30 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     selected = [];
 
-    protected filters: {
+    private filters: {
         id: string,
         key: string,
         value: string,
         prettyKey: string
     }[];
 
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        idField: string,
-        sortField: string,
-        filterFields: string[],
-        filterable: boolean,
-        arrayFilterOperator: string,
-        limit: number,
-        unsharedFilterField: Object,
-        unsharedFilterValue: string,
-        allColumnStatus: string,
-        exceptionsToStatus: string[]
-    };
-
     public active: {
         idField: FieldMetaData,
         sortField: FieldMetaData,
-        filterFields: FieldMetaData[],
-        arrayFilterOperator: string,
         andFilters: boolean,
         page: number,
         docCount: number,
         filterable: boolean,
         layers: any[],
         data: Object[],
-        rawData: Object[],
         headers: { prop: string, name: string, active: boolean, style: Object, width: number}[],
         headerWidths: Map<string, number>,
         activeHeaders: { prop: string, name: string, active: boolean, style: Object }[],
         showColumnSelector: string
     };
+
+    private allColumnStatus: string;
+    private exceptionsToStatus: string[];
 
     private drag: {
         mousedown: boolean,
@@ -110,39 +94,25 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            idField: this.injector.get('idField', null),
-            sortField: this.injector.get('sortField', null),
-            filterFields: this.injector.get('filterFields', []),
-            filterable: this.injector.get('filterable', false),
-            arrayFilterOperator: this.injector.get('arrayFilterOperator', 'or'),
-            limit: this.injector.get('limit', 100),
-            unsharedFilterField: {},
-            unsharedFilterValue: '',
-            allColumnStatus: this.injector.get('allColumnStatus', 'show'),
-            exceptionsToStatus: this.injector.get('exceptionsToStatus', [])
-        };
+
+        this.allColumnStatus = this.injector.get('allColumnStatus', 'show');
+        this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
         this.filters = [];
         this.active = {
             idField: new FieldMetaData(),
             sortField: new FieldMetaData(),
-            filterFields: [],
             andFilters: true,
             page: 1,
             docCount: 0,
-            filterable: this.optionsFromConfig.filterable,
-            arrayFilterOperator: this.optionsFromConfig.arrayFilterOperator,
+            filterable: true,
             layers: [],
             data: [],
-            rawData: [],
             headers: [],
             headerWidths: new Map<string, number>(),
             activeHeaders: [],
             showColumnSelector: 'hide'
         };
+
         this.drag = {
             mousedown: false,
             downIndex: -1,
@@ -166,25 +136,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         // Do nothing
     }
 
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
-    }
-
     subGetBindings(bindings: any) {
         bindings.idField = this.active.idField.columnName;
         bindings.sortField = this.active.sortField.columnName;
-        bindings.filterFields = this.active.filterFields;
-        bindings.filterable = this.active.filterable;
-        bindings.arrayFilterOperator = this.active.arrayFilterOperator;
     }
 
     onUpdateFields() {
         this.active.idField = this.findFieldObject('idField');
         this.active.sortField = this.findFieldObject('sortField');
-        this.active.filterFields = this.findFieldObjects('filterFields');
         let initialHeaderLimit = 25;
         let numHeaders = 0;
-        let defaultShowValue = this.optionsFromConfig.allColumnStatus !== 'hide';
+        let defaultShowValue = this.allColumnStatus !== 'hide';
         let orderedHeaders = [];
         let unorderedHeaders = [];
         if (defaultShowValue) {
@@ -210,7 +172,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     headerIsInExceptions(header) {
         let colName = header.columnName;
         let pName = header.prettyName;
-        for (let name of this.optionsFromConfig.exceptionsToStatus) {
+        for (let name of this.exceptionsToStatus) {
             if (colName === name || pName === name) {
                 return true;
             }
@@ -220,7 +182,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     sortOrderedHeaders(unordered) {
         let sorted = [];
-        for (let header of this.optionsFromConfig.exceptionsToStatus) {
+        for (let header of this.exceptionsToStatus) {
             let headerToPush = this.getHeaderByName(header, unordered);
             if (headerToPush !== null) {
                 sorted.push(headerToPush);
@@ -319,16 +281,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     addLocalFilter(filter) {
-        this.filters = this.filters.concat(filter);
-    }
-
-    filterIsUnique(filter) {
-        for (let f of this.filters) {
-            if (f.value === filter.value && f.key === filter.key) {
-                return false;
-            }
-        }
-        return true;
+        this.filters[0] = filter;
     }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
@@ -352,12 +305,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Data Chart';
     }
 
-    getFilterData() {
-        return this.filters;
-    }
-
-    getFilterText() {
-        return this.filters[0].value;
+    getFilterText(filter) {
+        return filter.prettyKey + ' = ' + filter.value;
     }
 
     refreshVisualization() {
@@ -462,9 +411,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 return row;
             });
             this.active.data = data;
-            // The query response is being stringified and stored in active.data
-            // Store the response in active.rawData to preserve the data in its raw form for querying and filtering purposes
-            this.active.rawData = response.data;
             this.getDocCount();
             this.refreshVisualization();
         }
@@ -591,30 +537,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return this.filters;
     }
 
-    getFilterTitle(key: string, value: string) {
-        return key + ' = ' + value;
-    }
-
-    getFilterCloseText(value: string) {
-        return value;
-    }
-
-    getRemoveFilterTooltip(key: string, value: string) {
-        return 'Delete Filter ' + this.getFilterTitle(key, value);
-    }
-
-    unsharedFilterChanged() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
-    unsharedFilterRemoved() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
-    removeFilter(filter: any) {
-        this.filters = this.filters.filter((element) => element.id !== filter.id);
+    removeFilter() {
+        this.filters = [];
     }
 
     nextPage() {
@@ -658,54 +582,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
         this.selected.splice(0, this.selected.length);
         this.selected.push(...selected);
-
-        if (this.active.filterable) {
-            let object = this.active.rawData.filter((obj) =>
-                obj[this.active.idField.columnName] === selected[0][this.active.idField.columnName])[0];
-            this.active.filterFields.forEach((filterField: any) => {
-                let dataField = filterField.columnName;
-                let value = (this.active.idField.columnName.length === 0) ? selected[0][dataField] : object[dataField];
-                let key = dataField;
-                let prettyKey = filterField.prettyName;
-                let filter = this.createFilterObject(key, value, prettyKey);
-
-                if (value instanceof Array) {
-                    if (this.active.arrayFilterOperator === 'and') {
-                        value.forEach((element) => {
-                            let arrayFilter = this.createFilterObject(key, element, prettyKey);
-                            let whereClause = neon.query.where(arrayFilter.key, '=', arrayFilter.value);
-                            this.addFilter(arrayFilter, whereClause);
-                        });
-                    } else {
-                        let clauses = value.map((val) =>
-                        neon.query.where(filter.key, '=', val)
-                    );
-                        let clause = neon.query.or.apply(neon.query, clauses);
-                        this.addFilter(filter, clause);
-                    }
-                } else {
-                    let clause = neon.query.where(filter.key, '=', filter.value);
-                    this.addFilter(filter, clause);
-                }
-            });
-        }
-    }
-
-    createFilterObject(key, value, prettyKey): any {
-        let filter = {
-            id: undefined, // This will be set in the success callback of addNeonFilter.
-            key: key,
-            value: value,
-            prettyKey: prettyKey
-        };
-        return filter;
-    }
-
-    addFilter(filter, clause) {
-        if (this.filterIsUnique(filter)) {
-            this.addLocalFilter(filter);
-            this.addNeonFilter(true, filter, clause);
-        }
     }
 
     onTableResize(event) {
@@ -733,6 +609,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     private setStyle(index: number, style: string, value: string) {
         this.active.headers[index].style[style] = value;
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {number}
+     * @override
+     */
+    getDefaultLimit() {
+        return 100;
     }
 
     /**

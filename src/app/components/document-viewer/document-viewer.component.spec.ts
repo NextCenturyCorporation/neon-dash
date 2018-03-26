@@ -114,7 +114,10 @@ describe('Component: DocumentViewer', () => {
             docCount: 0,
             idField: new FieldMetaData(),
             page: 1,
-            metadataFields: []
+            metadataFields: [],
+            popoutFields: [],
+            showSelect: false,
+            showText: false
         });
     });
 
@@ -156,18 +159,6 @@ describe('Component: DocumentViewer', () => {
                 prettyName: 'Test ID Field'
             }
         ]);
-    });
-
-    it('returns null options from getOptionFromConfig because config is empty', () => {
-        expect(component.getOptionFromConfig('title')).toBeNull();
-        expect(component.getOptionFromConfig('database')).toBeNull();
-        expect(component.getOptionFromConfig('table')).toBeNull();
-        expect(component.getOptionFromConfig('dataField')).toBeNull();
-        expect(component.getOptionFromConfig('dateField')).toBeNull();
-        expect(component.getOptionFromConfig('idField')).toBeNull();
-        expect(component.getOptionFromConfig('metadataFields')).toBeNull();
-        expect(component.getOptionFromConfig('popoutFields')).toBeNull();
-        expect(component.getOptionFromConfig('limit')).toBe(50);
     });
 
     it('sets expected fields in onUpdateFields to empty strings because fields are empty', () => {
@@ -349,18 +340,19 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('doesn\'t do anything in refreshVisualization', () => {
-        let active = {
+        expect(component.refreshVisualization()).toBeUndefined();
+        expect(component.active).toEqual({
             data: [],
             dataField: component.active.dataField,
             dateField: component.active.dateField,
             docCount: 0,
             idField: component.active.idField,
             page: 1,
-            metadataFields: []
-        };
-
-        expect(component.refreshVisualization()).toBe(undefined);
-        expect(component.active).toEqual(active);
+            metadataFields: [],
+            popoutFields: [],
+            showSelect: false,
+            showText: false
+        });
     });
 
     it('returns the expected value from getButtonText', () => {
@@ -631,32 +623,8 @@ describe('Component: Document Viewer with Config', () => {
         fixture.detectChanges();
     });
 
-    it('has expected optionsFromConfig and active properties after config is loaded', () => {
-        let optionsFromConfig = {
-            title: 'Document Viewer Title',
-            database: 'testDatabase',
-            table: 'testTable',
-            dataField: 'testDataField',
-            dateField: 'testDateField',
-            idField: 'testIDField',
-            metadataFields: [
-                [{
-                    name: 'Single Item Metadata Row',
-                    field: 'singleItemMetadataRow'
-                }],
-                [{
-                    name: 'First of Multiple Item Metadata Row',
-                    field: 'firstOfMultipleItemMetadataRow'
-                },
-                {
-                    name: 'Second of Multiple Item Metadata Row',
-                    field: 'secondOfMultipleItemMetadataRow'
-                }]
-            ],
-            popoutFields: null,
-            limit: 25
-        };
-        let active = {
+    it('has expected active properties after config is loaded', () => {
+        expect(component.active).toEqual({
             data: [],
             dataField: new FieldMetaData('testDataField', 'Test Data Field'),
             dateField: new FieldMetaData('testDateField', 'Test Date Field'),
@@ -676,19 +644,11 @@ describe('Component: Document Viewer with Config', () => {
                     name: 'Second of Multiple Item Metadata Row',
                     field: 'secondOfMultipleItemMetadataRow'
                 }
-            ]
-        };
-
-        expect(component.getOptionFromConfig('title')).toEqual(optionsFromConfig.title);
-        expect(component.getOptionFromConfig('database')).toEqual(optionsFromConfig.database);
-        expect(component.getOptionFromConfig('table')).toEqual(optionsFromConfig.table);
-        expect(component.getOptionFromConfig('dataField')).toEqual(optionsFromConfig.dataField);
-        expect(component.getOptionFromConfig('dateField')).toEqual(optionsFromConfig.dateField);
-        expect(component.getOptionFromConfig('idField')).toEqual(optionsFromConfig.idField);
-        expect(component.getOptionFromConfig('metadataFields')).toEqual(optionsFromConfig.metadataFields);
-        expect(component.getOptionFromConfig('popoutFields')).toEqual(optionsFromConfig.popoutFields);
-        expect(component.getOptionFromConfig('limit')).toEqual(optionsFromConfig.limit);
-        expect(component.active).toEqual(active);
+            ],
+            popoutFields: [],
+            showSelect: false,
+            showText: false
+        });
     });
 
     it('sets expected fields in onUpdateFields to fields from the config', () => {

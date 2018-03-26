@@ -79,9 +79,7 @@
                 </mat-button-toggle-group>
                 <p></p>
 
-                <app-unshared-filter [(meta)]="meta"
-                                     (unsharedFilterChanged)="unsharedFilterChanged()"
-                                     (unsharedFilterRemoved)="unsharedFilterRemoved()"></app-unshared-filter>
+                <app-unshared-filter [(meta)]="meta" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
@@ -95,9 +93,9 @@
 
     <div class="filter-container">
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-            <span class="filter-label" [title]="getFilterTitle('Date Filter')">{{ 'Date Filter' }}</span>
+            <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">Date Filter</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="getRemoveFilterTooltip('Date Filter')" (click)="removeLocalFilterFromLocalAndNeon(filter, true)">
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
         </div>

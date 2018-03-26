@@ -65,15 +65,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         wikiText: SafeHtml[]
     };
 
-    private optionsFromConfig: {
-        database: string,
-        id: string,
-        idField: string,
-        linkField: string,
-        table: string,
-        title: string
-    };
-
     isLoadingWikiPage: boolean;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
@@ -82,17 +73,10 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
 
         super(activeGridService, connectionService, datasetService,
             filterService, exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            database: this.injector.get('database', null),
-            id: this.injector.get('id', null),
-            idField: this.injector.get('idField', null),
-            linkField: this.injector.get('linkField', null),
-            table: this.injector.get('table', null),
-            title: this.injector.get('title', null)
-        };
+
         this.active = {
             allowsTranslations: true,
-            id: this.optionsFromConfig.id || '',
+            id: this.injector.get('id', ''),
             idField: new FieldMetaData(),
             linkField: new FieldMetaData(),
             textColor: '#111',
@@ -204,17 +188,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     getNeonFilterFields(): string[] {
         return [];
-    }
-
-    /**
-     * Returns the option for the given property from the wiki viewer config.
-     *
-     * @arg {string} option
-     * @return {object}
-     * @override
-     */
-    getOptionFromConfig(option: string): any {
-        return this.optionsFromConfig[option];
     }
 
     /**

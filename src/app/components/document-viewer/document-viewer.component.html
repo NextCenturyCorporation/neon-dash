@@ -62,7 +62,7 @@
                 <p></p>
 
                 <!-- Text toggle -->
-                <mat-button-toggle-group [(ngModel)]="optionsFromConfig.showText">
+                <mat-button-toggle-group [(ngModel)]="active.showText">
                     <mat-button-toggle [value]="true">Show</mat-button-toggle>
                     <mat-button-toggle [value]="false">Hide</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -113,16 +113,16 @@
                     </tr>
                     <tr>
                         <td class="document-viewer-button-cell" colspan="100%">
-                            <div *ngIf="optionsFromConfig.showText" class="metadata-row metadata-text">
+                            <div *ngIf="active.showText" class="metadata-row metadata-text">
                                 {{ item[active.dataField.columnName] }}
                             </div>
                             <div class="document-viewer-button-container">
                                 <button mat-raised-button class="neon-button-small document-viewer-button" color="primary"
-                                        *ngIf="!optionsFromConfig.showText" (click)="openSingleRecord(item)">View Source Text</button>
+                                        *ngIf="!active.showText" (click)="openSingleRecord(item)">View Source Text</button>
                                 <span class="document-viewer-button-spacer"
-                                        *ngIf="!optionsFromConfig.showText && optionsFromConfig.showSelect && active.idField.columnName"></span>
+                                        *ngIf="!active.showText && active.showSelect && active.idField.columnName"></span>
                                 <button mat-raised-button class="neon-button-small document-viewer-button" color="primary"
-                                        *ngIf="optionsFromConfig.showSelect && active.idField.columnName" (click)="selectSingleRecord(item)">
+                                        *ngIf="active.showSelect && active.idField.columnName" (click)="selectSingleRecord(item)">
                                     Select
                                 </button>
                             </div>

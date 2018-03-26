@@ -169,20 +169,6 @@ describe('Component: TextCloud', () => {
         }]);
     });
 
-    it('returns the correct values from getOptionFromConfig', () => {
-        expect(component.getOptionFromConfig('title')).toBeNull();
-        expect(component.getOptionFromConfig('database')).toBeNull();
-        expect(component.getOptionFromConfig('table')).toBeNull();
-        expect(component.getOptionFromConfig('dataField')).toBeNull();
-        expect(component.getOptionFromConfig('configFilter')).toBeNull();
-        expect(component.getOptionFromConfig('unsharedFilterField')).toBeNull();
-        expect(component.getOptionFromConfig('unsharedFilterValue')).toBeNull();
-        expect(component.getOptionFromConfig('sizeField')).toBeNull();
-        expect(component.getOptionFromConfig('sizeAggregation')).toEqual('AVG');
-        expect(component.getOptionFromConfig('limit')).toBe(40);
-        expect(component.getOptionFromConfig('nonexistentOption')).toBeUndefined();
-    });
-
     it('properly updates objects in updateObject', () => {
         let startingObject = component.updateObject({}, 'value', 'a value');
         startingObject = component.updateObject(startingObject, 'newField', 'new field value');
@@ -200,7 +186,7 @@ describe('Component: TextCloud', () => {
             value: 'Test Value 1',
             prettyKey: 'Test Data Field 1'
         });
-        expect(component.getFilterData()).toEqual([{
+        expect(component.getCloseableFilters()).toEqual([{
             id: '1234567890',
             key: 'testDataField1',
             value: 'Test Value 1',
@@ -213,7 +199,7 @@ describe('Component: TextCloud', () => {
             value: 'Test Value 2',
             prettyKey: 'Test Data Field 2'
         });
-        expect(component.getFilterData()).toEqual([{
+        expect(component.getCloseableFilters()).toEqual([{
             id: '1234567890',
             key: 'testDataField1',
             value: 'Test Value 1',
@@ -233,7 +219,7 @@ describe('Component: TextCloud', () => {
             value: 'Test Value 1',
             prettyKey: 'Test Data Field 1'
         });
-        expect(component.getFilterData()).toEqual([{
+        expect(component.getCloseableFilters()).toEqual([{
             id: '1234567890',
             key: 'testDataField1',
             value: 'Test Value 1',
@@ -246,7 +232,7 @@ describe('Component: TextCloud', () => {
             value: 'Test Value 2',
             prettyKey: 'Test Data Field 2'
         });
-        expect(component.getFilterData()).toEqual([{
+        expect(component.getCloseableFilters()).toEqual([{
             id: '1234567890',
             key: 'testDataField2',
             value: 'Test Value 2',
@@ -303,14 +289,31 @@ describe('Component: TextCloud', () => {
         expect(createTextCloudHasBeenCalled).toBeTruthy();
     });
 
-    it('has a getFilterText method that returns the value of a filter passed to it', () => {
-        let filter = {
+    it('getFilterText does return expected string', () => {
+        expect(component.getFilterText({
             id: `1234567890`,
             key: 'testDataField',
             value: 'Value',
             prettyKey: 'Test Data Field'
-        };
-        expect(component.getFilterText(filter)).toEqual('Value');
+        })).toEqual('Test Data Field = Value');
+    });
+
+    it('getFilterDetail does return expected string', () => {
+        expect(component.getFilterDetail({
+            id: `1234567890`,
+            key: 'testDataField',
+            value: 'Value',
+            prettyKey: 'Test Data Field'
+        })).toEqual('');
+
+        component.active.allowsTranslations = true;
+        expect(component.getFilterDetail({
+            id: `1234567890`,
+            translated: 'Translated Value',
+            key: 'testDataField',
+            value: 'Value',
+            prettyKey: 'Test Data Field'
+        })).toEqual(' (Translated Value)');
     });
 
     it('has an isValidQuery method that properly checks whether or not a valid query can be made', () => {
@@ -601,7 +604,7 @@ describe('Component: TextCloud', () => {
 
         expect(serviceAddFilterHasBeenCalled).toBeTruthy();
         expect(component.isFilterSet()).toBeTruthy();
-        expect(component.getFilterData()[0]).toEqual({
+        expect(component.getCloseableFilters()[0]).toEqual({
             id: undefined,
             key: 'testDataField',
             value: 'testValue',
@@ -667,7 +670,7 @@ describe('Component: TextCloud', () => {
         expect(component.getButtonText()).toEqual('1 of 5');
     });
 
-    it('properly returns the list of filters from getFilterData', () => {
+    it('properly returns the list of filters from getCloseableFilters', () => {
         let filter1 = {
             id: '12345',
             key: 'testDataField',
@@ -681,53 +684,18 @@ describe('Component: TextCloud', () => {
             prettyKey: 'testDataField'
         };
 
-        expect(component.getFilterData()).toEqual([]);
+        expect(component.getCloseableFilters()).toEqual([]);
         component.addLocalFilter(filter1);
-        expect(component.getFilterData()).toEqual([filter1]);
+        expect(component.getCloseableFilters()).toEqual([filter1]);
         component.addLocalFilter(filter2);
-        expect(component.getFilterData()).toEqual([filter1, filter2]);
+        expect(component.getCloseableFilters()).toEqual([filter1, filter2]);
         component.removeFilter(filter1);
-        expect(component.getFilterData()).toEqual([filter2]);
+        expect(component.getCloseableFilters()).toEqual([filter2]);
         component.addLocalFilter(filter1);
-        expect(component.getFilterData()).toEqual([filter2, filter1]);
+        expect(component.getCloseableFilters()).toEqual([filter2, filter1]);
         component.removeFilter(filter1);
         component.removeFilter(filter2);
-        expect(component.getFilterData()).toEqual([]);
-    });
-
-    it('returns the correct value from createFilterDesc', () => {
-        expect(component.createFilterDesc('test')).toEqual(' = test');
-        component.active.dataField.columnName = 'testDataField';
-        expect(component.createFilterDesc('value 2')).toEqual('testDataField = value 2');
-        component.active.dataField.columnName = 'test2';
-        expect(component.createFilterDesc('value 3')).toEqual('test2 = value 3');
-    });
-
-    it('returns the correct value from createFilterText', () => {
-        let filter = {
-            id: '67890',
-            key: 'testDataField',
-            value: 'Value One',
-            prettyKey: 'testDataField',
-            translated: 'Value Uno'
-        };
-        expect(component.createFilterText('Value One')).toEqual('');
-        component.addLocalFilter(filter);
-        expect(component.createFilterText('Value One')).toEqual('Value Uno');
-        component.removeFilter('67890');
-        filter.translated = '';
-        component.addLocalFilter(filter);
-        expect(component.createFilterText('Value One')).toEqual('Value One');
-        component.active.allowsTranslations = false;
-        expect(component.createFilterText('Value One')).toEqual('Value One');
-    });
-
-    it('returns the correct value from getRemoveDesc', () => {
-        expect(component.getRemoveDesc('test')).toEqual('Delete Filter  = test');
-        component.active.dataField.columnName = 'testDataField';
-        expect(component.getRemoveDesc('value 2')).toEqual('Delete Filter testDataField = value 2');
-        component.active.dataField.columnName = 'test2';
-        expect(component.getRemoveDesc('value 3')).toEqual('Delete Filter test2 = value 3');
+        expect(component.getCloseableFilters()).toEqual([]);
     });
 
     it('properly removes filters in removeFilter', () => {
@@ -744,40 +712,22 @@ describe('Component: TextCloud', () => {
             prettyKey: 'testDataField'
         };
 
-        expect(component.getFilterData()).toEqual([]);
+        expect(component.getCloseableFilters()).toEqual([]);
         component.addLocalFilter(filter1);
-        expect(component.getFilterData()).toEqual([filter1]);
+        expect(component.getCloseableFilters()).toEqual([filter1]);
         component.addLocalFilter(filter2);
-        expect(component.getFilterData()).toEqual([filter1, filter2]);
+        expect(component.getCloseableFilters()).toEqual([filter1, filter2]);
         component.removeFilter(filter1);
-        expect(component.getFilterData()).toEqual([filter2]);
+        expect(component.getCloseableFilters()).toEqual([filter2]);
         component.addLocalFilter(filter1);
-        expect(component.getFilterData()).toEqual([filter2, filter1]);
+        expect(component.getCloseableFilters()).toEqual([filter2, filter1]);
         component.removeFilter(filter1);
         component.removeFilter(filter2);
-        expect(component.getFilterData()).toEqual([]);
+        expect(component.getCloseableFilters()).toEqual([]);
     });
 
     it('has a requestExport method that does nothing', () => {
         expect(component.requestExport).toBeDefined();
-    });
-
-    it('has an unsharedFilterChanged method that calls executeQueryChain', () => {
-        let executeQueryChainWasCalled = false;
-        component.executeQueryChain = () => {
-            executeQueryChainWasCalled = true;
-        };
-        component.unsharedFilterChanged();
-        expect(executeQueryChainWasCalled).toBeTruthy();
-    });
-
-    it('has an unsharedFilterRemoved method that calls executeQueryChain', () => {
-        let executeQueryChainWasCalled = false;
-        component.executeQueryChain = () => {
-            executeQueryChainWasCalled = true;
-        };
-        component.unsharedFilterRemoved();
-        expect(executeQueryChainWasCalled).toBeTruthy();
     });
 
     it('createClause does return expected object', () => {
@@ -837,19 +787,6 @@ describe('Component: Textcloud with config', () => {
         fixture = TestBed.createComponent(TextCloudComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
-    });
-
-    it('something to do with getOptionsFromConfig', () => {
-        expect(component.getOptionFromConfig('title')).toEqual('Textcloud with Config Title');
-        expect(component.getOptionFromConfig('database')).toEqual('testDatabase');
-        expect(component.getOptionFromConfig('table')).toEqual('testTable');
-        expect(component.getOptionFromConfig('dataField')).toEqual('testDataField');
-        expect(component.getOptionFromConfig('configFilter')).toBeNull();
-        expect(component.getOptionFromConfig('unsharedFilterField')).toEqual('testUnsharedFilterField');
-        expect(component.getOptionFromConfig('unsharedFilterValue')).toEqual('testUnsharedFilterValue');
-        expect(component.getOptionFromConfig('sizeField')).toEqual('testSizeField');
-        expect(component.getOptionFromConfig('sizeAggregation')).toEqual('COUNT');
-        expect(component.getOptionFromConfig('limit')).toBe(25);
     });
 
     it('returns expected query from createQuery when an unshared filter is given', () => {

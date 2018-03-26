@@ -34,6 +34,7 @@ import { LineChartComponent } from './components/line-chart/line-chart.component
 import { MapComponent } from './components//map/map.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
+import { StubComponent } from './components/stub/stub.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
@@ -94,6 +95,7 @@ describe('App: NeonGtd', () => {
                 ScatterPlotComponent,
                 SimpleFilterComponent,
                 StackedTimelineComponent,
+                StubComponent,
                 TextCloudComponent,
                 TimelineComponent,
                 UnsharedFilterComponent,
