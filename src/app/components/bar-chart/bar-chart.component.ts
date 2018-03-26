@@ -799,7 +799,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         this.active.maxCount = counts.reduce((a, b) => {
             return Math.max(a, b);
-        }) || 0;
+        }, 0);
 
         if (!this.active.scaleManually) {
             let maxCountLength = ('' + Math.ceil(this.active.maxCount)).length;
