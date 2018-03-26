@@ -130,6 +130,16 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
+    getCloseableFilters(): any[] {
+        return [];
+    }
+
+    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization

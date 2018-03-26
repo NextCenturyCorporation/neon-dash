@@ -519,7 +519,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         }
     }
 
-    // Get filters and format for each call in HTML
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
     getCloseableFilters() {
         return this.filters;
     }

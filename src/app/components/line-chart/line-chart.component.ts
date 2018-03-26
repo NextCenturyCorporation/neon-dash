@@ -483,6 +483,12 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
     getCloseableFilters() {
         return this.filters;
     }

@@ -108,6 +108,10 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         //
     }
 
+    getCloseableFilters() {
+        return [];
+    }
+
     getFilterText(filter) {
         if (filter && filter.filterName) {
             return filter.filterName;

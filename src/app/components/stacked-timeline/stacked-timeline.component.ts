@@ -519,7 +519,12 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         bindings.groupField = this.active.groupField.columnName;
     }
 
-    // Get filters and format for each call in HTML
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
     getCloseableFilters() {
         return this.filters;
     }

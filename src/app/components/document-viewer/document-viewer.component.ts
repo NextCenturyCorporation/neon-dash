@@ -342,6 +342,16 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
+    getCloseableFilters(): any[] {
+        return [];
+    }
+
+    /**
      * Returns the default limit for the visualization.
      *
      * @return {number}

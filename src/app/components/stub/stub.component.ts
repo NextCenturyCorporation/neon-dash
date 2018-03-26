@@ -271,6 +271,7 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
      * Returns the filter list for the visualization.
      *
      * @return {array}
+     * @override
      */
     getCloseableFilters(): any[] {
         return this.filters;

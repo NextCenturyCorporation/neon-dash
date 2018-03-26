@@ -76,7 +76,7 @@
 
                         <mat-form-field>
                             <mat-select placeholder="Latitude Field" [(ngModel)]="active.layers[i].latitudeField"
-                                        required="true" (ngModelChange)="handleChangeDataAtLayerIndex(i)"
+                                        required="true" (ngModelChange)="handleChangeFilterField(i)"
                                         [disabled]="meta.layers[i].fields.length == 0">
                                 <mat-option *ngFor="let field of meta.layers[i].fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
@@ -86,7 +86,7 @@
 
                         <mat-form-field>
                             <mat-select placeholder="Longitude Field" [(ngModel)]="active.layers[i].longitudeField"
-                                        required="true" (ngModelChange)="handleChangeDataAtLayerIndex(i)"
+                                        required="true" (ngModelChange)="handleChangeFilterField(i)"
                                         [disabled]="meta.layers[i].fields.length == 0">
                                 <mat-option *ngFor="let field of meta.layers[i].fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>

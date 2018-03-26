@@ -800,6 +800,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * Returns the list of filter objects.
          *
          * @return {array}
+         * @override
          */
         getCloseableFilters(): object[] {
             return this.filters;

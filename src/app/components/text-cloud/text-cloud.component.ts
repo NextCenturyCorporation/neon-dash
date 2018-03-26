@@ -369,6 +369,12 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return super.prettifyInteger(this.active.data.length) + ' of ' + super.prettifyInteger(this.active.docCount);
     }
 
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
     getCloseableFilters() {
         return this.filters;
     }

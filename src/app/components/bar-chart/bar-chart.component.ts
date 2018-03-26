@@ -1021,6 +1021,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * Returns the list of filter objects.
      *
      * @return {array}
+     * @override
      */
     getCloseableFilters() {
         return this.filters;

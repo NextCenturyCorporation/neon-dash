@@ -357,6 +357,16 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         // Do nothing
     }
 
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
+    getCloseableFilters(): any[] {
+        return [];
+    }
+
     getFilterText(filter): string {
         // Do nothing, no filters
         return '';

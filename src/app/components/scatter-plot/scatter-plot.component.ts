@@ -730,7 +730,12 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         this.logChangeAndStartQueryChain();
     }
 
-    // Get filters and format for each call in HTML
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
     getCloseableFilters() {
         return this.filters;
     }
