@@ -201,8 +201,14 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         let query = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createWhere());
 
         // TODO Change this behavior as needed to create your visualization query.  Here is a sample of a count aggregation query.
-        return query.groupBy(this.getNeonFilterFields()).aggregate(neonVariables.COUNT, '*', 'count')
-            .sortBy('count', neonVariables.DESCENDING);
+
+        let aggregationFields = this.getNeonFilterFields();
+
+        if (this.options.sampleOptionalField.columnName) {
+            aggregationFields.push(this.options.sampleOptionalField.columnName);
+        }
+
+        return query.groupBy(aggregationFields).aggregate(neonVariables.COUNT, '*', 'count').sortBy('count', neonVariables.DESCENDING);
     }
 
     /**
@@ -242,7 +248,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.filterOnItem({
             field: this.options.sampleRequiredField.columnName,
             prettyField: this.options.sampleRequiredField.prettyName,
-            label: text
+            value: text
         });
     }
 
@@ -254,7 +260,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * @arg {boolean} [replaceAll=false]
      */
     filterOnItem(item: any, replaceAll = false) {
-        let filter = this.buildVisualizationFilter(undefined, item.field, item.prettyField, item.label);
+        let filter = this.buildVisualizationFilter(undefined, item.field, item.prettyField, item.value);
         let neonFilter = neon.query.where(filter.field, '=', filter.value);
 
         if (replaceAll) {
@@ -277,7 +283,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             }
         } else {
             // If the new filter is unique, add the filter to the existing filters in both neon and the visualization.
-            if (this.isVisualizationFilterUnique(item.field, item.label)) {
+            if (this.isVisualizationFilterUnique(item.field, item.value)) {
                 this.addVisualizationFilter(filter);
                 this.addNeonFilter(true, filter, neonFilter);
             }
@@ -298,7 +304,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             return 'Total ' + super.prettifyInteger(this.activeData.length);
         }
         let begin = super.prettifyInteger((this.page - 1) * this.meta.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.meta.limit, this.activeData.length));
+        let end = super.prettifyInteger(Math.min(this.page * this.meta.limit, this.responseData.length));
         return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.responseData.length);
     }
 
@@ -539,8 +545,8 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             query.ignoreFilters(ignoreFilters);
         }
 
-        // The document count query is a count aggregation for the filter fields.
-        query.groupBy(this.getNeonFilterFields()).aggregate(neonVariables.COUNT, '*', '_docCount');
+        // The document count query is a count aggregation for all the documents.
+        query.aggregate(neonVariables.COUNT, '*', '_docCount');
 
         this.executeQuery(query);
     }
@@ -657,7 +663,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         // TODO Remove this part if you don't need a document count query.
         // Check for undefined because the count may be zero.
         if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data.length;
+            this.docCount = response.data[0]._docCount;
             return;
         }
 
@@ -667,12 +673,15 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
         // The aggregation query response data will have a count field and all visualization fields.
         this.responseData = response.data.map((item) => {
+            let label = item[this.options.sampleRequiredField.columnName] + (this.options.sampleOptionalField.columnName ? ' - ' +
+                item[this.options.sampleOptionalField.columnName] : '');
+
             return {
                 count: item.count,
                 field: this.options.sampleRequiredField.columnName,
-                label: item[this.options.sampleRequiredField.columnName],
+                label: label,
                 prettyField: this.options.sampleRequiredField.prettyName,
-                tooltip: item[this.options.sampleOptionalField.columnName || this.options.sampleRequiredField.columnName]
+                value: item[this.options.sampleRequiredField.columnName]
             };
         });
 
@@ -705,7 +714,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     updateActiveData() {
         let offset = (this.page - 1) * this.meta.limit;
         this.activeData = this.responseData.slice(offset, (offset + this.meta.limit));
-        this.lastPage = (this.activeData.length <= (offset + this.meta.limit));
+        this.lastPage = (this.responseData.length <= (offset + this.meta.limit));
         this.refreshVisualization();
     }
 }

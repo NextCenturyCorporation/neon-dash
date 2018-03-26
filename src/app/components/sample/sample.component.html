@@ -125,10 +125,11 @@
     <div class="body-container" [class.with-filter]="showFilterContainer()" [class.with-footer]="showFooterContainer()">
 
         <!-- TODO Replace with your visualization components! -->
+        <div><strong>Total Document Count: {{ docCount }}</strong></div>
         <div *ngFor="let item of activeData">
-            <span [title]="item.tooltip">{{ item.label }}: {{ item.count }}</span>
+            <span [matTooltip]="item.label + ': ' + item.count">{{ item.label }}: {{ item.count }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Filter"
-                [matTooltip]="'Add Filter on ' + item.label" tooltip-position="below" (click)="filterOnItem(item, false)">
+                [matTooltip]="'Add Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, false)">
                 <mat-icon class="neon-icon-small">search</mat-icon>
             </button>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Filter"
