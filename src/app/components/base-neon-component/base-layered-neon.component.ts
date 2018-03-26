@@ -793,7 +793,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         });
     }
 
-
     /**
      * Reruns the visualization query.  Override to update properties and/or sub-components.
      */

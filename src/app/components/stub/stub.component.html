@@ -56,7 +56,7 @@
 
                 <!-- TODO Do you need fields?  Are they required or optional? -->
                 <mat-form-field>
-                    <mat-select placeholder="Stub Required Field" [(ngModel)]="stubRequiredField" required="true"
+                    <mat-select placeholder="Stub Required Field" [(ngModel)]="options.stubRequiredField" required="true"
                         (ngModelChange)="handleChangeFilterField()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -64,7 +64,7 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Stub Optional Field" [(ngModel)]="stubOptionalField" required="false"
+                    <mat-select placeholder="Stub Optional Field" [(ngModel)]="options.stubOptionalField" required="false"
                         (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -85,7 +85,16 @@
                     </button>
                 </div>
                 <p></p>
-                
+
+                <!-- Do you need a subcomponent type selector? -->
+                <mat-form-field>
+                    <mat-select placeholder="Subcomponent Type" [ngModel]="subcomponentType"
+                        (ngModelChange)="handleChangeSubcomponentType($event)">
+                        <mat-option *ngFor="let type of subcomponentTypes" [value]="type.id">{{ type.name }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
                 <!-- TODO Do you need an unshared filter? -->
                 <app-unshared-filter [(meta)]="meta" (unsharedFilterChanged)="handleChangeData()"
                     (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
@@ -117,7 +126,7 @@
 
         <!-- TODO Replace with your visualization components! -->
         <div *ngFor="let item of activeData">
-            <span [matTooltip]="item.tooltip" tooltip-position="below">{{ item.label }}: {{ item.count }}</span>
+            <span [title]="item.tooltip">{{ item.label }}: {{ item.count }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Filter"
                 [matTooltip]="'Add Filter on ' + item.label" tooltip-position="below" (click)="filterOnItem(item, false)">
                 <mat-icon class="neon-icon-small">search</mat-icon>
@@ -129,7 +138,7 @@
         </div>
 
         <!-- TODO Remove if you don't need a chart container element. -->
-        <div #chartContainer class="chart-container">
+        <div #subcomponent class="chart-container" style="display: none;">
         </div>
     </div>
 
