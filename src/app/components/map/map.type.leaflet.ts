@@ -24,7 +24,8 @@ export class LeafletNeonMap extends AbstractMap {
         center: L.latLng([0, 0]),
         zoomControl: true,
         preferCanvas: true,
-        worldCopyJump: true
+        worldCopyJump: true,
+        scrollWheelZoom: false
     };
     private map: L.Map;
     private layerGroups = new Map<MapLayer, L.LayerGroup>();
