@@ -36,7 +36,10 @@ export class AddVisualizationComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.visualizations = neonVisualizations;
+        // Ignore the stub visualization.
+        this.visualizations = neonVisualizations.filter((visualization) => {
+            return visualization.type !== 'stub';
+        });
     }
 
     public onItemSelected(shiftKey: boolean, index: number) {
