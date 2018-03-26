@@ -298,12 +298,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     }
 
     getDocCount() {
-        let databaseName = this.meta.database.name;
-        let tableName = this.meta.table.name;
-        let whereClause = this.createClause();
-        let countQuery = new neon.query.Query()
-            .selectFrom(databaseName, tableName)
-            .where(whereClause)
+        let countQuery = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createClause())
             .aggregate(neonVariables.COUNT, '*', '_docCount');
         this.executeQuery(countQuery);
     }

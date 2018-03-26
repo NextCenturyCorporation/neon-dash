@@ -75,7 +75,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         allowsTranslations: boolean,
         filterable: boolean,
         data: any[],
-        docCount: number
+        termsCount: number
     };
 
     public sizeAggregationTypes = [
@@ -104,7 +104,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             allowsTranslations: true,
             filterable: true,
             data: [],
-            docCount: 0
+            termsCount: 0
         };
     }
 
@@ -253,22 +253,16 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         return null;
     }
 
-    getDocCount() {
-        let databaseName = this.meta.database.name;
-        let tableName = this.meta.table.name;
-        let whereClause = this.createClause();
-        let countQuery = new neon.query.Query()
-            .selectFrom(databaseName, tableName)
-            .where(whereClause)
-            .groupBy(this.active.dataField.columnName)
-            .aggregate(neonVariables.COUNT, '*', '_docCount');
+    getTermsCount() {
+        let countQuery = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createClause())
+            .groupBy(this.active.dataField.columnName).aggregate(neonVariables.COUNT, '*', '_termsCount');
         this.executeQuery(countQuery);
     }
 
     onQuerySuccess(response): void {
         try {
-            if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
-                this.active.docCount = response.data.length;
+            if (response && response.data && response.data.length && response.data[0]._termsCount !== undefined) {
+                this.active.termsCount = response.data.length;
             } else {
                 let cloudData = response.data || [];
                 let useSizeField: boolean = this.active.sizeField.columnName !== '';
@@ -285,9 +279,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 this.active = this.updateObject(this.active, 'data', activeData);
                 this.refreshVisualization();
                 if (cloudData.length === 0) {
-                    this.active.docCount = 0;
+                    this.active.termsCount = 0;
                 } else {
-                    this.getDocCount();
+                    this.getTermsCount();
                 }
             }
         } catch (e) {
@@ -360,13 +354,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     getButtonText() {
-        if (!this.isFilterSet() && !this.active.data.length) {
+        if (!this.isFilterSet() && !this.active.termsCount) {
             return 'No Data';
         }
-        if (this.active.docCount <= this.active.data.length) {
-            return 'Total ' + super.prettifyInteger(this.active.docCount);
+        if (this.active.termsCount <= this.active.data.length) {
+            return 'Total ' + super.prettifyInteger(this.active.termsCount);
         }
-        return super.prettifyInteger(this.active.data.length) + ' of ' + super.prettifyInteger(this.active.docCount);
+        return super.prettifyInteger(this.active.data.length) + ' of ' + super.prettifyInteger(this.active.termsCount);
     }
 
     /**
