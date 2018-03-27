@@ -18,7 +18,7 @@
         <mat-card align="left">
             <mat-card-content>
                 <div *ngIf="meta.errorMessage">
-                    <label class="icon-with-text error-message" [title]="meta.errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
                         <div>{{ meta.errorMessage }}</div>
                     </label>
@@ -26,7 +26,7 @@
                 </div>
 
                 <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [title]="getButtonText()">
+                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
                         <mat-icon class="neon-icon-small">info</mat-icon>
                         <div>{{ getButtonText() }}</div>
                     </label>
