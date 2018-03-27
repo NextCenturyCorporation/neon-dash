@@ -298,10 +298,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         return null;
     }
 
-    getNeonFilterFields(): string[] {
-        return [this.active.nodeField.columnName];
-    }
-
     removeFilter() {
         //
     }
@@ -366,10 +362,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     addLocalFilters(filter) {
-        //
-    }
-
-    createNeonFilterClauseEquals() {
         //
     }
 

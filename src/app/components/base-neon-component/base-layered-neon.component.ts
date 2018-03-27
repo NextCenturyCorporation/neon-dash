@@ -474,20 +474,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     abstract getFilterText(filter: any): string;
 
     /**
-     * Creates and returns the Neon where clause for a Neon filter on the given database, table, and
-     * fields using the filters set in this visualization.
-     * Called by the Filter Service.
-     * @param databaseAndTableName
-     * @param fieldName
-     */
-    abstract createNeonFilterClauseEquals(database: string, table: string, fieldName: string | string[]);
-
-    /**
-     * Returns the list of field objects on which filters are set for the layer.
-     */
-    abstract getNeonFilterFields(layerIndex: number): string[];
-
-    /**
      * Get the name of the visualization
      */
     abstract getVisualizationName(): string;
@@ -500,18 +486,20 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
     /**
      * Add a filter and register it with neon.
-     * @param layerIndex
-     * @param {boolean} executeQueryChainOnSuccess
-     * @param filter
+     *
+     * @arg {number} layerIndex
+     * @arg {boolean} executeQueryChainOnSuccess
+     * @arg {object} subclassFilter
+     * @arg {neon.query.WherePredicate} wherePredicate
      */
-    addNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, filter: any) {
+    addNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate) {
         let filterName = {
             visName: this.getVisualizationName(),
-            text: this.getFilterText(filter)
+            text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
             if (typeof resp === 'string') {
-                filter.id = resp;
+                subclassFilter.id = resp;
             }
             if (executeQueryChainOnSuccess) {
                 this.executeQueryChain(layerIndex);
@@ -521,10 +509,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
             this.id,
             this.meta.layers[layerIndex].database.name,
             this.meta.layers[layerIndex].table.name,
-            this.createNeonFilterClauseEquals(
-                this.meta.layers[layerIndex].database.name,
-                this.meta.layers[layerIndex].table.name,
-                this.getNeonFilterFields(layerIndex)),
+            wherePredicate,
             filterName,
             onSuccess.bind(this),
             () => {
@@ -535,14 +520,18 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
     /**
      * Replace a filter and register the change with Neon.
-     * @param layerIndex
-     * @param {boolean} executeQueryChainOnSuccess
-     * @param filter
+     *
+     * @arg {number} layerIndex
+     * @arg {boolean} executeQueryChainOnSuccess
+     * @arg {object} subclassFilter
+     * @arg {neon.query.WherePredicate} wherePredicate
      */
-    replaceNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, filter: any) {
+    replaceNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, subclassFilter: any,
+        wherePredicate: neon.query.WherePredicate) {
+
         let filterName = {
             visName: this.getVisualizationName(),
-            text: this.getFilterText(filter)
+            text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
             if (executeQueryChainOnSuccess) {
@@ -551,14 +540,11 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         };
         this.filterService.replaceFilter(
             this.messenger,
-            filter.id,
+            subclassFilter.id,
             this.id,
             this.meta.layers[layerIndex].database.name,
             this.meta.layers[layerIndex].table.name,
-            this.createNeonFilterClauseEquals(
-                this.meta.layers[layerIndex].database.name,
-                this.meta.layers[layerIndex].table.name,
-                this.getNeonFilterFields(layerIndex)),
+            wherePredicate,
             filterName,
             onSuccess.bind(this),
             () => {
@@ -870,7 +856,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
         let database = this.meta.layers[layerIndex].database.name;
         let table = this.meta.layers[layerIndex].table.name;
-        let fields = this.getNeonFilterFields(layerIndex);
         this.filterService.removeFilter(
             this.messenger,
             filter.id,

@@ -423,7 +423,7 @@ describe('Component: Map', () => {
 
         addFilter(box, dbName, tableName, latName, lngName);
 
-        let whereClauses = component.createNeonFilterClauseEquals(dbName, tableName, [latName, lngName]),
+        let whereClauses = component.createNeonFilter(box, latName, lngName),
             filterClauses = [
                 neon.query.where(latName, '>=', box.south),
                 neon.query.where(latName, '<=', box.north),
@@ -616,7 +616,12 @@ describe('Component: Map', () => {
                 prettyLongitude: 'Test Longitude 1'
             }],
             filterName: 'Test Latitude 1 from 1 to 2 and Test Longitude 1 from 3 to 4'
-        }]);
+        }, neon.query.and.apply(neon.query, [
+            neon.query.where('testLatitude1', '>=', 1),
+            neon.query.where('testLatitude1', '<=', 2),
+            neon.query.where('testLongitude1', '>=', 3),
+            neon.query.where('testLongitude1', '<=', 4)
+        ])]);
 
         updateMapLayer2(component);
 
@@ -639,7 +644,12 @@ describe('Component: Map', () => {
                 prettyLongitude: 'Test Longitude 2'
             }],
             filterName: 'latitude from 5 to 6 and longitude from 7 to 8'
-        }]);
+        }, neon.query.and.apply(neon.query, [
+            neon.query.where('testLatitude1', '>=', 5),
+            neon.query.where('testLatitude1', '<=', 6),
+            neon.query.where('testLongitude1', '>=', 7),
+            neon.query.where('testLongitude1', '<=', 8)
+        ])]);
         expect(spy.calls.argsFor(2)).toEqual([1, true, {
             id: undefined,
             fieldsByLayer: [{
@@ -654,7 +664,12 @@ describe('Component: Map', () => {
                 prettyLongitude: 'Test Longitude 2'
             }],
             filterName: 'latitude from 5 to 6 and longitude from 7 to 8'
-        }]);
+        }, neon.query.and.apply(neon.query, [
+            neon.query.where('testLatitude2', '>=', 5),
+            neon.query.where('testLatitude2', '<=', 6),
+            neon.query.where('testLongitude2', '>=', 7),
+            neon.query.where('testLongitude2', '<=', 8)
+        ])]);
     });
 
     it('createFilter does return expected object', () => {
@@ -693,9 +708,8 @@ describe('Component: Map', () => {
         }]);
     });
 
-    it('createNeonFilterClauseEquals does return expected object', () => {
+    it('createNeonFilter does return expected object', () => {
         let box1 = new BoundingBoxByDegrees(1, 2, 3, 4);
-        component.setFilterBoundingBox(box1);
 
         let query1 = neon.query.and.apply(neon.query, [
             neon.query.where('testLatitude1', '>=', 1),
@@ -704,10 +718,9 @@ describe('Component: Map', () => {
             neon.query.where('testLongitude1', '<=', 4)
         ]);
 
-        expect(component.createNeonFilterClauseEquals('testDatabase1', 'testTable1', ['testLatitude1', 'testLongitude1'])).toEqual(query1);
+        expect(component.createNeonFilter(box1, 'testLatitude1', 'testLongitude1')).toEqual(query1);
 
         let box2 = new BoundingBoxByDegrees(5, 6, 7, 8);
-        component.setFilterBoundingBox(box2);
 
         let query2 = neon.query.and.apply(neon.query, [
             neon.query.where('testLatitude1', '>=', 5),
@@ -716,7 +729,7 @@ describe('Component: Map', () => {
             neon.query.where('testLongitude1', '<=', 8)
         ]);
 
-        expect(component.createNeonFilterClauseEquals('testDatabase1', 'testTable1', ['testLatitude1', 'testLongitude1'])).toEqual(query2);
+        expect(component.createNeonFilter(box2, 'testLatitude1', 'testLongitude1')).toEqual(query2);
     });
 
     it('getFilterText does return expected string', () => {
@@ -746,16 +759,6 @@ describe('Component: Map', () => {
             prettyLatitude: 'filterLatitude',
             prettyLongitude: 'filterLongitude'
         })).toEqual('filterLatitude from 1 to 2 and filterLongitude from 3 to 4');
-    });
-
-    it('getNeonFilterFields does return expected array', () => {
-        updateMapLayer1(component);
-
-        expect(component.getNeonFilterFields(0)).toEqual(['testLatitude1', 'testLongitude1']);
-
-        updateMapLayer2(component);
-
-        expect(component.getNeonFilterFields(1)).toEqual(['testLatitude2', 'testLongitude2']);
     });
 
     it('getVisualizationName does return expected string', () => {

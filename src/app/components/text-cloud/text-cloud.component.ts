@@ -169,23 +169,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         }).concat([filter]);
     }
 
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
-        let filterClauses = this.filters.map((filter) => {
-            return neon.query.where(fieldName, '=', filter.value);
-        });
-        if (filterClauses.length === 1) {
-            return filterClauses[0];
-        }
-        if (this.active.andFilters) {
-            return neon.query.and.apply(neon.query, filterClauses);
-        }
-        return neon.query.or.apply(neon.query, filterClauses);
-    }
-
-    getNeonFilterFields(): string[] {
-        return [this.active.dataField.columnName];
-    }
-
     getVisualizationName(): string {
         return 'Text Cloud';
     }
@@ -292,7 +275,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.active.dataField.columnName]);
         this.filters = [];
 
         for (let neonFilter of neonFilters) {

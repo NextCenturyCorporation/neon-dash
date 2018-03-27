@@ -100,10 +100,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return query;
     }
 
-    createNeonFilterClauseEquals() {
-        //
-    }
-
     onUpdateFields() {
         //
     }
@@ -126,10 +122,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             prettyName: 'Count'
         }];
         return fields;
-    }
-
-    getNeonFilterFields() {
-        return null;
     }
 
     getVisualizationName() {

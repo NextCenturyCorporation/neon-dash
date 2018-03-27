@@ -427,9 +427,9 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
                 }
                 this.addLocalFilter(filter);
                 if (filter.id) {
-                    this.replaceNeonFilter(true, filter);
+                    this.replaceNeonFilter(true, filter, this.createNeonFilter(filter));
                 } else {
-                    this.addNeonFilter(true, filter);
+                    this.addNeonFilter(true, filter, this.createNeonFilter(filter));
                 }
             }
         }
@@ -501,15 +501,20 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         };
     }
 
-    createNeonFilterClauseEquals(database: string, table: string, xyFieldNames: string[]) {
-        let filterClauses = [];
-        let xField = xyFieldNames[0];
-        let yField = xyFieldNames[1];
-        let filter = this.filters[0];
-        filterClauses[0] = neon.query.where(xField, '>=', filter.xMin);
-        filterClauses[1] = neon.query.where(xField, '<=', filter.xMax);
-        filterClauses[2] = neon.query.where(yField, '>=', filter.yMin);
-        filterClauses[3] = neon.query.where(yField, '<=', filter.yMax);
+    /**
+     * Creates and returns the neon filter object using the given timeline filter object.
+     *
+     * @arg {object} filter
+     * @return {neon.query.WherePredicate}
+     * @override
+     */
+    createNeonFilter(filter: any): neon.query.WherePredicate {
+        let filterClauses = [
+            neon.query.where(this.active.xField.columnName, '>=', filter.xMin),
+            neon.query.where(this.active.xField.columnName, '<=', filter.xMax),
+            neon.query.where(this.active.yField.columnName, '>=', filter.yMin),
+            neon.query.where(this.active.yField.columnName, '<=', filter.yMax)
+        ];
         return neon.query.and.apply(neon.query, filterClauses);
     }
 
@@ -518,9 +523,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             filter.yMin + ' to ' + filter.yMax;
     }
 
-    getNeonFilterFields() {
-        return [this.active.xField.columnName, this.active.yField.columnName];
-    }
     getVisualizationName() {
         return 'Scatter Plot';
     }

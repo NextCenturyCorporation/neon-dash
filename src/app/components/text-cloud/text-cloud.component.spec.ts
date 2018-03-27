@@ -240,42 +240,6 @@ describe('Component: TextCloud', () => {
         }]);
     });
 
-    it('creates the correct filter clause in createNeonFilterClauseEquals', () => {
-        // This is a nonsensical situation (local filters are added before Neon filters) but test it anyway.
-        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testDataField'))
-            .toEqual(neon.query.and.apply([]));
-
-        component.addLocalFilter({
-            id: '1234567890',
-            key: 'testDataField',
-            value: 'Test Value',
-            prettyKey: 'Test Data Field'
-        });
-        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testDataField'))
-            .toEqual(new neon.query.WhereClause('testDataField', '=', 'Test Value'));
-
-        component.addLocalFilter({
-            id: '6789012345',
-            key: 'testDataField',
-            value: 'Test Value the Second',
-            prettyKey: 'Test Data Field'
-        });
-        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testDataField'))
-            .toEqual(neon.query.and.apply(neon.query, [new neon.query.WhereClause('testDataField', '=', 'Test Value'),
-                                          new neon.query.WhereClause('testDataField', '=', 'Test Value the Second')]));
-
-        component.active.andFilters = false;
-        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testDataField'))
-        .toEqual(neon.query.or.apply(neon.query, [new neon.query.WhereClause('testDataField', '=', 'Test Value'),
-                                      new neon.query.WhereClause('testDataField', '=', 'Test Value the Second')]));
-    });
-
-    it('returns the expected values from getNeonFilterFields', () => {
-        component.active.dataField.columnName = 'testDataField';
-        component.active.sizeField.columnName = 'testSizeField';
-        expect(component.getNeonFilterFields()).toEqual(['testDataField']);
-    });
-
     it('returns the expected value from getVisualizationName', () => {
         expect(component.getVisualizationName()).toEqual('Text Cloud');
     });

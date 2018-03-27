@@ -333,11 +333,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             this.addLocalFilter(localFilters);
             for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
                 let neonFilters = this.filterService.getFiltersByOwner(this.id);
+                let neonFilter = this.createNeonFilter(this.filterBoundingBox, localFilters.fieldsByLayer[i].latitude,
+                    localFilters.fieldsByLayer[i].longitude);
+
                 if (neonFilters && neonFilters.length) {
                     localFilters.id = neonFilters[0].id;
-                    this.replaceNeonFilter(i, true, localFilters);
+                    this.replaceNeonFilter(i, true, localFilters, neonFilter);
                 } else {
-                    this.addNeonFilter(i, true, localFilters);
+                    this.addNeonFilter(i, true, localFilters, neonFilter);
                 }
             }
         }
@@ -367,26 +370,20 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
 
         /**
-         * Creates and returns the neon filter clause object using the given database, table, and latitude/longitude fields.
+         * Creates and returns the neon filter object using the given bounding box, latitude field, and longitude field.
          *
-         * @arg {string} database
-         * @arg {string} table
-         * @arg {array} latLonFieldNames
-         * @return {object}
-         * @override
+         * @arg {BoundingBoxByDegrees} boundingBox
+         * @arg {string} latitudeField
+         * @arg {string} longitudeField
+         * @return {neon.query.WherePredicate}
          */
-        createNeonFilterClauseEquals(database: string, table: string, latLonFieldNames: string[]): object {
-            let filterClauses = [];
-            let latField = latLonFieldNames[0];
-            let lonField = latLonFieldNames[1];
-            let minLat = this.filterBoundingBox.south;
-            let maxLat = this.filterBoundingBox.north;
-            let minLon = this.filterBoundingBox.west;
-            let maxLon = this.filterBoundingBox.east;
-            filterClauses[0] = neon.query.where(latField, '>=', minLat);
-            filterClauses[1] = neon.query.where(latField, '<=', maxLat);
-            filterClauses[2] = neon.query.where(lonField, '>=', minLon);
-            filterClauses[3] = neon.query.where(lonField, '<=', maxLon);
+        createNeonFilter(boundingBox: BoundingBoxByDegrees, latitudeField: string, longitudeField: string): neon.query.WherePredicate {
+            let filterClauses = [
+                neon.query.where(latitudeField, '>=', boundingBox.south),
+                neon.query.where(latitudeField, '<=', boundingBox.north),
+                neon.query.where(longitudeField, '>=', boundingBox.west),
+                neon.query.where(longitudeField, '<=', boundingBox.east)
+            ];
             return neon.query.and.apply(neon.query, filterClauses);
         }
 
@@ -435,17 +432,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         getFilterDetail(): string {
             return (!this.mapObject || this.mapObject.isExact()) ? '' :
                 ' *Filter was altered outside of Map visualization and selection rectangle may not accurately represent filter.';
-        }
-
-        /**
-         * Returns the list of filter fields for the map layer at the given index.
-         *
-         * @arg {number} layerIndex
-         * @return {array}
-         * @override
-         */
-        getNeonFilterFields(layerIndex: number): string[] {
-            return [this.active.layers[layerIndex].latitudeField.columnName, this.active.layers[layerIndex].longitudeField.columnName];
         }
 
         /**
@@ -703,8 +689,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * @return {boolean}
          */
         doesLayerStillHaveFilter(layerIndex: number): boolean {
+            let fields = [this.active.layers[layerIndex].latitudeField.columnName,
+                this.active.layers[layerIndex].longitudeField.columnName];
             let neonFilters = this.filterService.getFiltersForFields(this.meta.layers[layerIndex].database.name,
-                this.meta.layers[layerIndex].table.name, this.getNeonFilterFields(layerIndex));
+                this.meta.layers[layerIndex].table.name, fields);
             return neonFilters && neonFilters.length > 0;
         }
 
@@ -736,8 +724,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
         hasLayerFilterChanged(layerIndex: number): boolean {
             let filterChanged = true;
+            let fields = [this.active.layers[layerIndex].latitudeField.columnName,
+                this.active.layers[layerIndex].longitudeField.columnName];
             let neonFilters = this.filterService.getFiltersForFields(this.meta.layers[layerIndex].database.name,
-                this.meta.layers[layerIndex].table.name, this.getNeonFilterFields(layerIndex));
+                this.meta.layers[layerIndex].table.name, fields);
             let clauses = this.getClausesFromFilterWithIdenticalArguments(neonFilters, [
                 this.active.layers[layerIndex].latitudeField.columnName,
                 this.active.layers[layerIndex].longitudeField.columnName

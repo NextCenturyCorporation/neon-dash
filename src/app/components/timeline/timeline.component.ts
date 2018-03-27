@@ -207,34 +207,34 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         }
         this.filters[0] = filter;
         if (filter.id === undefined) {
-            this.addNeonFilter(false, filter);
+            this.addNeonFilter(false, filter, this.createNeonFilter(filter));
         } else {
-            this.replaceNeonFilter(false, filter);
+            this.replaceNeonFilter(false, filter, this.createNeonFilter(filter));
         }
 
         // Update the charts
         this.filterAndRefreshData();
     }
 
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
-        for (let filter of this.filters) {
-            // Only apply filters that aren't local
-            let filterClauses = [];
-            filterClauses[0] = neon.query.where(fieldName, '>=', filter.startDate);
-            filterClauses[1] = neon.query.where(fieldName, '<', filter.endDate);
-            return neon.query.and.apply(neon.query, filterClauses);
-        }
-        return null;
+    /**
+     * Creates and returns the neon filter object using the given timeline filter object.
+     *
+     * @arg {object} filter
+     * @return {neon.query.WherePredicate}
+     * @override
+     */
+    createNeonFilter(filter: any): neon.query.WherePredicate {
+        let filterClauses = [
+            neon.query.where(this.active.dateField.columnName, '>=', filter.startDate),
+            neon.query.where(this.active.dateField.columnName, '<', filter.endDate)
+        ];
+        return neon.query.and.apply(neon.query, filterClauses);
     }
 
     getFilterText(filter) {
         let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' + filter.startDate.getUTCFullYear();
         let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
         return filter.prettyKey + ' from ' + begin + ' to ' + end;
-    }
-
-    getNeonFilterFields() {
-        return [this.active.dateField.columnName];
     }
 
     getVisualizationName() {
@@ -308,7 +308,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     getFiltersToIgnore() {
         let ignoredFilterIds = [];
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.active.dateField.columnName]);
 
         for (let neonFilter of neonFilters) {
             // The data we want is in the whereClause's subclauses
@@ -495,7 +496,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.active.dateField.columnName]);
 
         for (let neonFilter of neonFilters) {
             // The data we want is in the whereClause's subclauses

@@ -178,20 +178,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Creates and returns the neon filter clause object for the visualization using the given database, table, and filter field names.
-     *
-     * @arg {string} databaseName
-     * @arg {string} tableName
-     * @arg {string} fieldName
-     * @return {neon.query.WherePredicate}
-     * @override
-     */
-    createNeonFilterClauseEquals(databaseName: string, tableName: string, fieldName: string): neon.query.WherePredicate {
-        // TODO This function is deprecated.  Always pass a neon filter object to addNeonFilter or replaceNeonFilter.
-        return null;
-    }
-
-    /**
      * Creates and returns the query for the visualization.
      *
      * @return {neon.query.Query}
@@ -202,7 +188,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
         // TODO Change this behavior as needed to create your visualization query.  Here is a sample of a count aggregation query.
 
-        let aggregationFields = this.getNeonFilterFields();
+        let aggregationFields = [this.options.sampleRequiredField.columnName];
 
         if (this.options.sampleOptionalField.columnName) {
             aggregationFields.push(this.options.sampleOptionalField.columnName);
@@ -368,13 +354,19 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      */
     getFiltersToIgnore(): string[] {
         // TODO Do you want the visualization to ignore its own filters?  If not, just return null.
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+
+        // TODO Change the list of filter fields here as needed.
+        // Get all the neon filters relevant to this visualization.
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.options.sampleRequiredField.columnName]);
+
         let filterIdsToIgnore = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
                 filterIdsToIgnore.push(neonFilter.id);
             }
         }
+
         return filterIdsToIgnore.length ? filterIdsToIgnore : null;
     }
 
@@ -388,17 +380,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     getFilterText(filter: any): string {
         // TODO Update as needed.  Do you want to use an equals sign?
         return filter.prettyField + ' = ' + filter.value;
-    }
-
-    /**
-     * Returns the list of filterable fields for the visualization.
-     *
-     * @return {array}
-     * @override
-     */
-    getNeonFilterFields(): string[] {
-        // TODO Add or remove fields as needed.
-        return [this.options.sampleRequiredField.columnName];
     }
 
     /**
@@ -560,8 +541,10 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         // First reset the existing visualization filters.
         this.filters = [];
 
+        // TODO Change the list of filter fields here as needed.
         // Get all the neon filters relevant to this visualization.
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.options.sampleRequiredField.columnName]);
 
         for (let neonFilter of neonFilters) {
             // TODO Change as needed.  Do your filters have multiple clauses?  Do your filters have multiple keys (like begin/end dates)?

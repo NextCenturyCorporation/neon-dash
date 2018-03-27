@@ -88,16 +88,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Creates and returns the filter for the wiki viewer (null because the wiki viewer does not filter).
-     *
-     * @return {null}
-     * @override
-     */
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string | string[]) {
-        return null;
-    }
-
-    /**
      * Creates and returns the query for the wiki viewer.
      *
      * @return {neon.query.Query}
@@ -188,16 +178,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     getFilterText(filter: any): string {
         return '';
-    }
-
-    /**
-     * Returns the list of filter fields for the wiki viewer (an empty array because the wiki viewer does not filter).
-     *
-     * @return {array}
-     * @override
-     */
-    getNeonFilterFields(): string[] {
-        return [];
     }
 
     /**

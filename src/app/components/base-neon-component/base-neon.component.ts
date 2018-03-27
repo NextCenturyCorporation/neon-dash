@@ -396,20 +396,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     abstract getFilterText(filter: any): string;
 
     /**
-     * Creates and returns the Neon where clause for a Neon filter on the given database, table, and
-     * fields using the filters set in this visualization.
-     * Called by the Filter Service.
-     * @param databaseAndTableName
-     * @param fieldName
-     */
-    abstract createNeonFilterClauseEquals(database: string, table: string, fieldName: string | string[]);
-
-    /**
-     * Returns the list of field objects on which filters are set.
-     */
-    abstract getNeonFilterFields(): string[];
-
-    /**
      * Get the name of the visualization
      */
     abstract getVisualizationName(): string;
@@ -422,31 +408,29 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     /**
      * Add a filter and register it with neon.
-     * @param {boolean} executeQueryChainOnSuccess
-     * @param filter
+     *
+     * @arg {boolean} executeQueryChainOnSuccess
+     * @arg {object} subclassFilter
+     * @arg {neon.query.WherePredicate} wherePredicate
      */
-    addNeonFilter(executeQueryChainOnSuccess: boolean, filter: any, whereClause?: neon.query.WherePredicate) {
+    addNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate) {
         let filterName = {
             visName: this.getVisualizationName(),
-            text: this.getFilterText(filter)
+            text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
             if (typeof resp === 'string') {
-                filter.id = resp;
+                subclassFilter.id = resp;
             }
             if (executeQueryChainOnSuccess) {
                 this.executeQueryChain();
             }
         };
-        let filterFields = this.getNeonFilterFields();
         this.filterService.addFilter(this.messenger,
             this.id,
             this.meta.database.name,
             this.meta.table.name,
-            whereClause || this.createNeonFilterClauseEquals(
-                this.meta.database.name,
-                this.meta.table.name,
-                (filterFields.length === 1) ? filterFields[0] : filterFields),
+            wherePredicate,
             filterName,
             onSuccess.bind(this),
             () => {
@@ -457,29 +441,27 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     /**
      * Replace a filter and register the change with Neon.
-     * @param {boolean} executeQueryChainOnSuccess
-     * @param filter
+     *
+     * @arg {boolean} executeQueryChainOnSuccess
+     * @arg {object} subclassFilter
+     * @arg {neon.query.WherePredicate} wherePredicate
      */
-    replaceNeonFilter(executeQueryChainOnSuccess: boolean, filter: any, whereClause?: neon.query.WherePredicate) {
+    replaceNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate) {
         let filterName = {
             visName: this.getVisualizationName(),
-            text: this.getFilterText(filter)
+            text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
             if (executeQueryChainOnSuccess) {
                 this.executeQueryChain();
             }
         };
-        let filterFields = this.getNeonFilterFields();
         this.filterService.replaceFilter(this.messenger,
-            filter.id,
+            subclassFilter.id,
             this.id,
             this.meta.database.name,
             this.meta.table.name,
-            whereClause || this.createNeonFilterClauseEquals(
-                this.meta.database.name,
-                this.meta.table.name,
-                (filterFields.length === 1) ? filterFields[0] : filterFields),
+            wherePredicate,
             filterName,
             onSuccess.bind(this),
             () => {

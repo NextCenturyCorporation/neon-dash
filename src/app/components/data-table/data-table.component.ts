@@ -284,23 +284,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.filters[0] = filter;
     }
 
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
-        let filterClauses = this.filters.map((filter) => {
-            return neon.query.where(fieldName, '=', filter.value);
-        });
-        if (filterClauses.length === 1) {
-            return filterClauses[0];
-        }
-        if (this.active.andFilters) {
-            return neon.query.and.apply(neon.query, filterClauses);
-        }
-        return neon.query.or.apply(neon.query, filterClauses);
-    }
-
-    getNeonFilterFields(): string[] {
-        return [this.active.sortField.columnName];
-    }
-
     getVisualizationName(): string {
         return 'Data Chart';
     }

@@ -237,7 +237,6 @@ describe('Component: BarChart', () => {
 
     it('onClick does call add functions if filters is an empty array', () => {
         component.active.dataField = new FieldMetaData('testDataField', 'Test Data Field');
-        let spy1 = spyOn(component, 'addLocalFilter');
         let spy2 = spyOn(component, 'addNeonFilter');
         let spy3 = spyOn(component, 'removeAllFilters');
         let spy4 = spyOn(component, 'replaceNeonFilter');
@@ -249,8 +248,7 @@ describe('Component: BarChart', () => {
             }
         }]);
 
-        expect(spy1.calls.count()).toBe(1);
-        expect(spy1.calls.argsFor(0)).toEqual([{
+        expect(component.getCloseableFilters()).toEqual([{
             id: undefined,
             key: 'testDataField',
             value: 'testFilter',
@@ -262,7 +260,7 @@ describe('Component: BarChart', () => {
             key: 'testDataField',
             value: 'testFilter',
             prettyKey: 'Test Data Field'
-        }]);
+        }, neon.query.where('testDataField', '=', 'testFilter')]);
         expect(spy3.calls.count()).toBe(0);
         expect(spy4.calls.count()).toBe(0);
         expect(spy5.calls.count()).toBe(1);
@@ -271,10 +269,10 @@ describe('Component: BarChart', () => {
     it('onClick does change filters and does call replace function if filters is not an empty array and filter does match', () => {
         component.active.dataField = new FieldMetaData('testDataField', 'Test Data Field');
         component.addLocalFilter({
+            id: 1,
             key: 'otherField',
             value: 'otherValue'
         });
-        let spy1 = spyOn(component, 'addLocalFilter');
         let spy2 = spyOn(component, 'addNeonFilter');
         let spy3 = spyOn(component, 'removeAllFilters');
         let spy4 = spyOn(component, 'replaceNeonFilter');
@@ -286,26 +284,40 @@ describe('Component: BarChart', () => {
             }
         }]);
 
-        expect(spy1.calls.count()).toBe(0);
-        expect(spy2.calls.count()).toBe(0);
-        expect(spy3.calls.count()).toBe(0);
-        expect(spy4.calls.count()).toBe(1);
-        expect(spy4.calls.argsFor(0)).toEqual([true, {
-            id: undefined,
+        expect(component.getCloseableFilters()).toEqual([{
+            id: 1,
             key: 'testDataField',
             value: 'testFilter',
             prettyKey: 'Test Data Field'
         }]);
+        expect(spy2.calls.count()).toBe(0);
+        expect(spy3.calls.count()).toBe(0);
+        expect(spy4.calls.count()).toBe(1);
+        expect(spy4.calls.argsFor(0)).toEqual([true, {
+            id: 1,
+            key: 'testDataField',
+            value: 'testFilter',
+            prettyKey: 'Test Data Field'
+        }, neon.query.where('testDataField', '=', 'testFilter')]);
         expect(spy5.calls.count()).toBe(1);
     });
 
     it('onClick does does call remove and add functions if filters is not an empty array and filter does not match', () => {
+        let filter1 = {
+            id: 1,
+            key: 'otherField1',
+            value: 'otherValue1'
+        };
+        let filter2 = {
+            id: 2,
+            key: 'otherField2',
+            value: 'otherValue2'
+        };
+
         component.active.dataField = new FieldMetaData('testDataField', 'Test Data Field');
-        component.addLocalFilter({
-            key: 'testDataField',
-            value: 'testFilter'
-        });
-        let spy1 = spyOn(component, 'addLocalFilter');
+        component.addLocalFilter(filter1);
+        component.addLocalFilter(filter2);
+
         let spy2 = spyOn(component, 'addNeonFilter');
         let spy3 = spyOn(component, 'removeAllFilters');
         let spy4 = spyOn(component, 'replaceNeonFilter');
@@ -317,22 +329,22 @@ describe('Component: BarChart', () => {
             }
         }]);
 
-        expect(spy1.calls.count()).toBe(0);
+        expect(component.getCloseableFilters()).toEqual([filter1, filter2]);
         expect(spy2.calls.count()).toBe(0);
         expect(spy3.calls.count()).toBe(1);
         expect(spy4.calls.count()).toBe(0);
         expect(spy5.calls.count()).toBe(1);
 
+        component.removeFilter(filter1);
+        component.removeFilter(filter2);
+
+        // Call the callback function for removeAllFilters.  It should call addNeonFilter.
         let args = spy3.calls.argsFor(0);
-        expect(args[0]).toEqual([{
-            key: 'testDataField',
-            value: 'testFilter'
-        }]);
+        expect(args[0]).toEqual([filter1, filter2]);
         expect(typeof args[1]).toBe('function');
         args[1]();
 
-        expect(spy1.calls.count()).toBe(1);
-        expect(spy1.calls.argsFor(0)).toEqual([{
+        expect(component.getCloseableFilters()).toEqual([{
             id: undefined,
             key: 'testDataField',
             value: 'testFilter',
@@ -344,12 +356,11 @@ describe('Component: BarChart', () => {
             key: 'testDataField',
             value: 'testFilter',
             prettyKey: 'Test Data Field'
-        }]);
+        }, neon.query.where('testDataField', '=', 'testFilter')]);
     });
 
     it('onClick only uses first input element', () => {
         component.active.dataField = new FieldMetaData('testDataField', 'Test Data Field');
-        let spy1 = spyOn(component, 'addLocalFilter');
         let spy2 = spyOn(component, 'addNeonFilter');
         let spy3 = spyOn(component, 'removeAllFilters');
         let spy4 = spyOn(component, 'replaceNeonFilter');
@@ -357,28 +368,27 @@ describe('Component: BarChart', () => {
 
         component.onClick({}, [{
             _model: {
-                label: 'testFilter1'
+                label: 'testFilter'
             }
         }, {
             _model: {
-                label: 'testFilter2'
+                label: 'testFilterThatShouldBeUnused'
             }
         }]);
 
-        expect(spy1.calls.count()).toBe(1);
-        expect(spy1.calls.argsFor(0)).toEqual([{
+        expect(component.getCloseableFilters()).toEqual([{
             id: undefined,
             key: 'testDataField',
-            value: 'testFilter1',
+            value: 'testFilter',
             prettyKey: 'Test Data Field'
         }]);
         expect(spy2.calls.count()).toBe(1);
         expect(spy2.calls.argsFor(0)).toEqual([true, {
             id: undefined,
             key: 'testDataField',
-            value: 'testFilter1',
+            value: 'testFilter',
             prettyKey: 'Test Data Field'
-        }]);
+        }, neon.query.where('testDataField', '=', 'testFilter')]);
         expect(spy3.calls.count()).toBe(0);
         expect(spy4.calls.count()).toBe(0);
         expect(spy5.calls.count()).toBe(1);

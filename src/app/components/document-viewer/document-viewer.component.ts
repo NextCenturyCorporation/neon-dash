@@ -131,14 +131,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         return '';
     }
 
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
-        return null; // This visualization doesn't filter.
-    }
-
-    getNeonFilterFields() {
-        return []; // This visualization doesn't filter.
-    }
-
     getVisualizationName() {
         return 'Document Viewer';
     }
