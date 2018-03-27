@@ -55,9 +55,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     private filters: {
         id: string,
-        key: string,
+        field: string,
         value: string,
-        prettyKey: string
+        prettyField: string
     }[];
 
     public active: {
@@ -289,7 +289,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getFilterText(filter) {
-        return filter.prettyKey + ' = ' + filter.value;
+        return filter.prettyField + ' = ' + filter.value;
     }
 
     refreshVisualization() {
@@ -415,9 +415,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             if (!neonFilter.filter.whereClause.whereClauses) {
                 this.addLocalFilter({
                     id: neonFilter.id,
-                    key: neonFilter.filter.whereClause.lhs,
+                    field: neonFilter.filter.whereClause.lhs,
                     value: neonFilter.filter.whereClause.rhs,
-                    prettyKey: neonFilter.filter.whereClause.lhs
+                    prettyField: neonFilter.filter.whereClause.lhs
                 });
             }
         }

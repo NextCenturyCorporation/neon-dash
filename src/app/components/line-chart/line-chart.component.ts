@@ -60,8 +60,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
 
     private filters: {
         id: string,
-        key: string,
-        prettyKey: string,
+        field: string,
+        prettyField: string,
         startDate: Date,
         endDate: Date
     }[];
@@ -449,17 +449,17 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             this.selection.startDate = invert ? end : start;
             this.selection.endDate = invert ? start : end;
             let filter = {
-                key: this.active.dateField.columnName,
-                prettyKey: this.active.dateField.prettyName,
+                field: this.active.dateField.columnName,
+                prettyField: this.active.dateField.prettyName,
                 startDate: this.selection.startDate,
                 endDate: this.selection.endDate,
                 id: this.filters.length ? this.filters[0].id : undefined
             };
             this.filters = [filter];
             if (this.filters[0].id) {
-                this.replaceNeonFilter(true, filter, this.createNeonFilter());
+                this.replaceNeonFilter(true, filter, this.createNeonFilter(filter));
             } else {
-                this.addNeonFilter(true, filter, this.createNeonFilter());
+                this.addNeonFilter(true, filter, this.createNeonFilter(filter));
             }
             redraw = true;
         }
@@ -471,17 +471,19 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Creates and returns the neon filter object using the line chart selection.
+     * Creates and returns the neon filter object using the given line chart filter object.
      *
+     * @arg {object} filter
      * @return {neon.query.WherePredicate}
      * @override
      */
-    createNeonFilter(): neon.query.WherePredicate {
-        let filterClauses = [];
-        filterClauses[0] = neon.query.where(this.active.dateField.columnName, '>=', this.selection.startDate);
-        let endDatePlusOne = this.selection.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
+    createNeonFilter(filter: any): neon.query.WherePredicate {
+        let endDatePlusOne = filter.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
         let endDatePlusOneDate = new Date(endDatePlusOne);
-        filterClauses[1] = neon.query.where(this.active.dateField.columnName, '<', endDatePlusOneDate);
+        let filterClauses = [
+            neon.query.where(filter.field, '>=', filter.startDate),
+            neon.query.where(filter.field, '<', endDatePlusOneDate)
+        ];
         return neon.query.and.apply(neon.query, filterClauses);
     }
 
@@ -498,7 +500,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     getFilterText(filter) {
         let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' + filter.startDate.getUTCFullYear();
         let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
-        return filter.prettyKey + ' from ' + begin + ' to ' + end;
+        return filter.prettyField + ' from ' + begin + ' to ' + end;
     }
 
     getVisualizationName() {
@@ -762,8 +764,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             if (whereClause && whereClause.whereClauses.length === 2) {
                 if (!this.filters.length || this.filters[0].id !== neonFilter.id) {
                     this.filters = [{
-                        key: this.active.dateField.columnName,
-                        prettyKey: this.active.dateField.prettyName,
+                        field: this.active.dateField.columnName,
+                        prettyField: this.active.dateField.prettyName,
                         startDate: whereClause.whereClauses[0].rhs,
                         endDate: whereClause.whereClauses[1].rhs,
                         id: neonFilter.id

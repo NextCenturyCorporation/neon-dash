@@ -182,61 +182,61 @@ describe('Component: TextCloud', () => {
     it('addLocalFilter does add the given filter', () => {
         component.addLocalFilter({
             id: '1234567890',
-            key: 'testDataField1',
+            field: 'testDataField1',
             value: 'Test Value 1',
-            prettyKey: 'Test Data Field 1'
+            prettyField: 'Test Data Field 1'
         });
         expect(component.getCloseableFilters()).toEqual([{
             id: '1234567890',
-            key: 'testDataField1',
+            field: 'testDataField1',
             value: 'Test Value 1',
-            prettyKey: 'Test Data Field 1'
+            prettyField: 'Test Data Field 1'
         }]);
 
         component.addLocalFilter({
             id: '9876543210',
-            key: 'testDataField2',
+            field: 'testDataField2',
             value: 'Test Value 2',
-            prettyKey: 'Test Data Field 2'
+            prettyField: 'Test Data Field 2'
         });
         expect(component.getCloseableFilters()).toEqual([{
             id: '1234567890',
-            key: 'testDataField1',
+            field: 'testDataField1',
             value: 'Test Value 1',
-            prettyKey: 'Test Data Field 1'
+            prettyField: 'Test Data Field 1'
         }, {
             id: '9876543210',
-            key: 'testDataField2',
+            field: 'testDataField2',
             value: 'Test Value 2',
-            prettyKey: 'Test Data Field 2'
+            prettyField: 'Test Data Field 2'
         }]);
     });
 
     it('addLocalFilter does replace the existing filter if the given filter has the same ID', () => {
         component.addLocalFilter({
             id: '1234567890',
-            key: 'testDataField1',
+            field: 'testDataField1',
             value: 'Test Value 1',
-            prettyKey: 'Test Data Field 1'
+            prettyField: 'Test Data Field 1'
         });
         expect(component.getCloseableFilters()).toEqual([{
             id: '1234567890',
-            key: 'testDataField1',
+            field: 'testDataField1',
             value: 'Test Value 1',
-            prettyKey: 'Test Data Field 1'
+            prettyField: 'Test Data Field 1'
         }]);
 
         component.addLocalFilter({
             id: '1234567890',
-            key: 'testDataField2',
+            field: 'testDataField2',
             value: 'Test Value 2',
-            prettyKey: 'Test Data Field 2'
+            prettyField: 'Test Data Field 2'
         });
         expect(component.getCloseableFilters()).toEqual([{
             id: '1234567890',
-            key: 'testDataField2',
+            field: 'testDataField2',
             value: 'Test Value 2',
-            prettyKey: 'Test Data Field 2'
+            prettyField: 'Test Data Field 2'
         }]);
     });
 
@@ -256,27 +256,27 @@ describe('Component: TextCloud', () => {
     it('getFilterText does return expected string', () => {
         expect(component.getFilterText({
             id: `1234567890`,
-            key: 'testDataField',
+            field: 'testDataField',
             value: 'Value',
-            prettyKey: 'Test Data Field'
+            prettyField: 'Test Data Field'
         })).toEqual('Test Data Field = Value');
     });
 
     it('getFilterDetail does return expected string', () => {
         expect(component.getFilterDetail({
             id: `1234567890`,
-            key: 'testDataField',
+            field: 'testDataField',
             value: 'Value',
-            prettyKey: 'Test Data Field'
+            prettyField: 'Test Data Field'
         })).toEqual('');
 
         component.active.allowsTranslations = true;
         expect(component.getFilterDetail({
             id: `1234567890`,
             translated: 'Translated Value',
-            key: 'testDataField',
+            field: 'testDataField',
             value: 'Value',
-            prettyKey: 'Test Data Field'
+            prettyField: 'Test Data Field'
         })).toEqual(' (Translated Value)');
     });
 
@@ -525,17 +525,17 @@ describe('Component: TextCloud', () => {
     it('has an isFilterSet method that properly checks for local filters', () => {
         let filter1 = {
             id: '1q2w-3e4r-5t6y-7u8i',
-            key: 'testDataField',
+            field: 'testDataField',
             value: 'testValue',
             translated: '',
-            prettyKey: 'testDataField'
+            prettyField: 'testDataField'
         };
         let filter2 = {
             id: '0p9o-8i7u-6y5t-4r3e',
-            key: 'testDataField',
+            field: 'testDataField',
             value: 'testValueTheSecond',
             translated: '',
-            prettyKey: 'testDataField'
+            prettyField: 'testDataField'
         };
         expect(component.isFilterSet()).toBeFalsy();
         component.addLocalFilter(filter1);
@@ -570,31 +570,31 @@ describe('Component: TextCloud', () => {
         expect(component.isFilterSet()).toBeTruthy();
         expect(component.getCloseableFilters()[0]).toEqual({
             id: undefined,
-            key: 'testDataField',
+            field: 'testDataField',
             value: 'testValue',
-            prettyKey: 'testDataField'
+            prettyField: 'testDataField'
         });
     });
 
     it('has a filterIsUnique method that properly checks the uniqueness of filters to add', () => {
         let filter1 = {
             id: '12345',
-            key: 'testDataField',
+            field: 'testDataField',
             value: 'Value 1',
-            prettyKey: 'testDataField'
+            prettyField: 'testDataField'
         };
         let filter2 = {
             id: '67890',
-            key: 'testDataField',
+            field: 'testDataField',
             value: 'Value 1',
-            prettyKey: 'testDataField'
+            prettyField: 'testDataField'
         };
         expect(component.filterIsUnique(filter2)).toBeTruthy();
         component.addLocalFilter(filter1);
         expect(component.filterIsUnique(filter2)).toBeFalsy();
-        filter2.key = 'testOtherField';
+        filter2.field = 'testOtherField';
         expect(component.filterIsUnique(filter2)).toBeTruthy();
-        filter2.key = 'testDataField';
+        filter2.field = 'testDataField';
         filter2.value = 'Value 2';
         expect(component.filterIsUnique(filter2)).toBeTruthy();
     });
@@ -637,15 +637,15 @@ describe('Component: TextCloud', () => {
     it('properly returns the list of filters from getCloseableFilters', () => {
         let filter1 = {
             id: '12345',
-            key: 'testDataField',
+            field: 'testDataField',
             value: 'Value 1',
-            prettyKey: 'testDataField'
+            prettyField: 'testDataField'
         };
         let filter2 = {
             id: '67890',
-            key: 'testDataField',
+            field: 'testDataField',
             value: 'Value 1',
-            prettyKey: 'testDataField'
+            prettyField: 'testDataField'
         };
 
         expect(component.getCloseableFilters()).toEqual([]);
@@ -665,15 +665,15 @@ describe('Component: TextCloud', () => {
     it('properly removes filters in removeFilter', () => {
         let filter1 = {
             id: '12345',
-            key: 'testDataField',
+            field: 'testDataField',
             value: 'Value 1',
-            prettyKey: 'testDataField'
+            prettyField: 'testDataField'
         };
         let filter2 = {
             id: '67890',
-            key: 'testDataField',
+            field: 'testDataField',
             value: 'Value 1',
-            prettyKey: 'testDataField'
+            prettyField: 'testDataField'
         };
 
         expect(component.getCloseableFilters()).toEqual([]);

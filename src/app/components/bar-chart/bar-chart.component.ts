@@ -124,9 +124,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
     private filters: {
         id: string,
-        key: string,
+        field: string,
         value: string,
-        prettyKey: string
+        prettyField: string
     }[];
 
     public active: {
@@ -445,23 +445,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     onClick(_event: any, elements: any[]) {
         if (elements.length) {
-            let value = elements[0]._model.label;
-            let key = this.active.dataField.columnName;
-            let prettyKey = this.active.dataField.prettyName;
             let filter = {
                 id: undefined,
-                key: key,
-                value: value,
-                prettyKey: prettyKey
+                field: this.active.dataField.columnName,
+                value: elements[0]._model.label,
+                prettyField: this.active.dataField.prettyName
             };
             if (_event.ctrlKey || _event.metaKey) { // If Ctrl (or Command on Mac) is pressed...
                 if (this.filterIsUnique(filter)) {
                     this.addLocalFilter(filter);
-                    let whereClause = neon.query.where(filter.key, '=', filter.value);
+                    let whereClause = neon.query.where(filter.field, '=', filter.value);
                     this.addNeonFilter(true, filter, whereClause);
                 } else {
                     for (let existingFilter of this.filters) {
-                        if (existingFilter.key === filter.key && existingFilter.value === filter.value) {
+                        if (existingFilter.field === filter.field && existingFilter.value === filter.value) {
                             this.removeLocalFilterFromLocalAndNeon(existingFilter, true, true);
                             break;
                         }
@@ -521,7 +518,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     filterIsUnique(filter: any): boolean {
         for (let existingFilter of this.filters) {
-            if (existingFilter.value === filter.value && existingFilter.key === filter.key) {
+            if (existingFilter.value === filter.value && existingFilter.field === filter.field) {
                 return false;
             }
         }
@@ -537,7 +534,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     createNeonFilter(filters: any[]): neon.query.WherePredicate {
         let filterClauses = filters.map((filter) => {
-            return neon.query.where(this.active.dataField.columnName, '=', filter.value);
+            return neon.query.where(filter.field, '=', filter.value);
         });
         if (filterClauses.length === 1) {
             return filterClauses[0];
@@ -566,7 +563,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     getFilterText(filter: any): string {
-        return filter.prettyKey + ' = ' + filter.value;
+        return filter.prettyField + ' = ' + filter.value;
     }
 
     /**
@@ -954,13 +951,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let key = neonFilter.filter.whereClause.lhs;
-                let value = neonFilter.filter.whereClause.rhs;
                 let filter = {
                     id: neonFilter.id,
-                    key: key,
-                    value: value,
-                    prettyKey: key
+                    field: neonFilter.filter.whereClause.lhs,
+                    value: neonFilter.filter.whereClause.rhs,
+                    prettyField: neonFilter.filter.whereClause.lhs
                 };
                 if (this.filterIsUnique(filter)) {
                     this.addLocalFilter(filter);

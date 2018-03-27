@@ -63,8 +63,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     private filters: {
         id: string,
-        key: string,
-        prettyKey: string,
+        field: string,
+        prettyField: string,
         startDate: Date,
         endDate: Date,
         local: boolean
@@ -178,12 +178,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
     }
 
-    addLocalFilter(id: string, key: string, startDate: Date, endDate: Date, local?: boolean) {
+    addLocalFilter(id: string, field: string, startDate: Date, endDate: Date, local?: boolean) {
         try {
             this.filters[0] = {
                 id: id,
-                key: key,
-                prettyKey: key,
+                field: field,
+                prettyField: field,
                 startDate: new Date(startDate),
                 endDate: new Date(endDate),
                 local: local
@@ -196,8 +196,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     onTimelineSelection(startDate: Date, endDate: Date): void {
         let filter = {
             id: undefined,
-            key: this.active.dateField.columnName,
-            prettyKey: this.active.dateField.prettyName,
+            field: this.active.dateField.columnName,
+            prettyField: this.active.dateField.prettyName,
             startDate: startDate,
             endDate: endDate,
             local: true
@@ -225,8 +225,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     createNeonFilter(filter: any): neon.query.WherePredicate {
         let filterClauses = [
-            neon.query.where(this.active.dateField.columnName, '>=', filter.startDate),
-            neon.query.where(this.active.dateField.columnName, '<', filter.endDate)
+            neon.query.where(filter.field, '>=', filter.startDate),
+            neon.query.where(filter.field, '<', filter.endDate)
         ];
         return neon.query.and.apply(neon.query, filterClauses);
     }
@@ -234,7 +234,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     getFilterText(filter) {
         let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' + filter.startDate.getUTCFullYear();
         let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
-        return filter.prettyKey + ' from ' + begin + ' to ' + end;
+        return filter.prettyField + ' from ' + begin + ' to ' + end;
     }
 
     getVisualizationName() {
@@ -503,10 +503,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
-                let key = whereClause.whereClauses[0].lhs;
-                let startDate = whereClause.whereClauses[0].rhs;
-                let endDate = whereClause.whereClauses[1].rhs;
-                this.addLocalFilter(neonFilter.id, key, startDate, endDate);
+                this.addLocalFilter(neonFilter.id, whereClause.whereClauses[0].lhs, whereClause.whereClauses[0].rhs,
+                    whereClause.whereClauses[1].rhs);
             }
 
         }

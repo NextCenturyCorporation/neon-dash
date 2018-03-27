@@ -54,10 +54,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     private filters: {
         id: string,
-        key: string,
+        field: string,
         value: string,
         translated: string,
-        prettyKey: string
+        prettyField: string
     }[];
 
     private configFilter: {
@@ -178,7 +178,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getFilterText(filter) {
-        return filter.prettyKey + ' = ' + filter.value;
+        return filter.prettyField + ' = ' + filter.value;
     }
 
     getFilterDetail(filter) {
@@ -281,13 +281,11 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let key = neonFilter.filter.whereClause.lhs;
-                let value = neonFilter.filter.whereClause.rhs;
                 let filter = {
                     id: neonFilter.id,
-                    key: key,
-                    value: value,
-                    prettyKey: key
+                    field: neonFilter.filter.whereClause.lhs,
+                    value: neonFilter.filter.whereClause.rhs,
+                    prettyField: neonFilter.filter.whereClause.lhs
                 };
                 if (this.filterIsUnique(filter)) {
                     this.addLocalFilter(filter);
@@ -301,25 +299,22 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onClick(item) {
-        let value = item.key;
-        let key = this.active.dataField.columnName;
-        let prettyKey = this.active.dataField.prettyName;
         let filter = {
             id: undefined, // This will be set in the success callback of addNeonFilter.
-            key: key,
-            value: value,
-            prettyKey: prettyKey
+            field: this.active.dataField.columnName,
+            value: item.key,
+            prettyField: this.active.dataField.prettyName
         };
         if (this.filterIsUnique(filter)) {
             this.addLocalFilter(filter);
-            let whereClause = neon.query.where(filter.key, '=', filter.value);
+            let whereClause = neon.query.where(filter.field, '=', filter.value);
             this.addNeonFilter(true, filter, whereClause);
         }
     }
 
     filterIsUnique(filter) {
         for (let existingFilter of this.filters) {
-            if (existingFilter.value === filter.value && existingFilter.key === filter.key) {
+            if (existingFilter.value === filter.value && existingFilter.field === filter.field) {
                 return false;
             }
         }

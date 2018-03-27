@@ -510,10 +510,10 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
      */
     createNeonFilter(filter: any): neon.query.WherePredicate {
         let filterClauses = [
-            neon.query.where(this.active.xField.columnName, '>=', filter.xMin),
-            neon.query.where(this.active.xField.columnName, '<=', filter.xMax),
-            neon.query.where(this.active.yField.columnName, '>=', filter.yMin),
-            neon.query.where(this.active.yField.columnName, '<=', filter.yMax)
+            neon.query.where(filter.xField, '>=', filter.xMin),
+            neon.query.where(filter.xField, '<=', filter.xMax),
+            neon.query.where(filter.yField, '>=', filter.yMin),
+            neon.query.where(filter.yField, '<=', filter.yMax)
         ];
         return neon.query.and.apply(neon.query, filterClauses);
     }
@@ -795,4 +795,6 @@ export class ScatterPlotFilter {
     yMax: any;
     xField: string;
     yField: string;
+    xPrettyField: string;
+    yPrettyField: string;
 }

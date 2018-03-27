@@ -63,8 +63,8 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     private filters: {
         id: string,
-        key: string,
-        prettyKey: string,
+        field: string,
+        prettyField: string,
         startDate: Date,
         endDate: Date,
         local: boolean
@@ -172,11 +172,11 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         this.active.groupField = this.findFieldObject('groupField');
     }
 
-    addLocalFilter(id: string, key: string, startDate: Date, endDate: Date, local?: boolean) {
+    addLocalFilter(id: string, field: string, startDate: Date, endDate: Date, local?: boolean) {
         this.filters[0] = {
             id: id,
-            key: key,
-            prettyKey: key,
+            field: field,
+            prettyField: field,
             startDate: startDate,
             endDate: endDate,
             local: local
@@ -186,8 +186,8 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     onTimelineSelection(startDate: Date, endDate: Date): void {
         let filter = {
             id: undefined,
-            key: this.active.dateField.columnName,
-            prettyKey: this.active.dateField.prettyName,
+            field: this.active.dateField.columnName,
+            prettyField: this.active.dateField.prettyName,
             startDate: startDate,
             endDate: endDate,
             local: true
@@ -215,8 +215,8 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
      */
     createNeonFilter(filter: any): neon.query.WherePredicate {
         let filterClauses = [
-            neon.query.where(this.active.dateField.columnName, '>=', filter.startDate),
-            neon.query.where(this.active.dateField.columnName, '<', filter.endDate)
+            neon.query.where(filter.field, '>=', filter.startDate),
+            neon.query.where(filter.field, '<', filter.endDate)
         ];
         return neon.query.and.apply(neon.query, filterClauses);
     }
@@ -224,7 +224,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     getFilterText(filter) {
         let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' + filter.startDate.getUTCFullYear();
         let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
-        return filter.prettyKey + ' from ' + begin + ' to ' + end;
+        return filter.prettyField + ' from ' + begin + ' to ' + end;
     }
 
     getVisualizationName() {
@@ -495,10 +495,10 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
-                let key = whereClause.whereClauses[0].lhs;
+                let field = whereClause.whereClauses[0].lhs;
                 let startDate = whereClause.whereClauses[0].rhs;
                 let endDate = whereClause.whereClauses[1].rhs;
-                this.addLocalFilter(neonFilter.id, key, startDate, endDate);
+                this.addLocalFilter(neonFilter.id, field, startDate, endDate);
             }
 
         }
