@@ -470,16 +470,16 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             } else { // If Ctrl isn't pressed...
                 if (this.filters.length === 0) {
                     this.addLocalFilter(filter);
-                    this.addNeonFilter(true, filter);
+                    this.addNeonFilter(true, filter, this.createNeonFilter(this.filters));
                 } else if (this.filters.length === 1 && this.filterIsUnique(filter)) {
                     filter.id = this.filters[0].id;
                     this.filters[0] = filter;
-                    this.replaceNeonFilter(true, filter);
+                    this.replaceNeonFilter(true, filter, this.createNeonFilter(this.filters));
                 } else {
                     // Use concat to copy the list of filters.
                     this.removeAllFilters([].concat(this.filters), () => {
                         this.addLocalFilter(filter);
-                        this.addNeonFilter(true, filter);
+                        this.addNeonFilter(true, filter, this.createNeonFilter(this.filters));
                     });
                 }
             }
@@ -529,17 +529,15 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Creates and returns the neon filter clause object using the given database, table, and data field names.
+     * Creates and returns the neon filter object using the given filters.
      *
-     * @arg {string} database
-     * @arg {string} table
-     * @arg {string} fieldName
-     * @return {object}
+     * @arg {array} filters
+     * @return {neon.query.WherePredicate}
      * @override
      */
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string): object {
-        let filterClauses = this.filters.map((filter) => {
-            return neon.query.where(fieldName, '=', filter.value);
+    createNeonFilter(filters: any[]): neon.query.WherePredicate {
+        let filterClauses = filters.map((filter) => {
+            return neon.query.where(this.active.dataField.columnName, '=', filter.value);
         });
         if (filterClauses.length === 1) {
             return filterClauses[0];
@@ -548,16 +546,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             return neon.query.and.apply(neon.query, filterClauses);
         }
         return neon.query.or.apply(neon.query, filterClauses);
-    }
-
-    /**
-     * Returns the list of filter fields for the bar chart.
-     *
-     * @return {array}
-     * @override
-     */
-    getNeonFilterFields(): string[] {
-        return [this.active.dataField.columnName];
     }
 
     /**
@@ -656,7 +644,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let whereClauses: neon.query.WherePredicate[] = [];
         whereClauses.push(neon.query.where(this.active.dataField.columnName, '!=', null));
         let yAxisField = this.active.aggregationField.columnName;
-        let groupBy: any[] = this.getNeonFilterFields();
+        let groupBy: any[] = [this.active.dataField.columnName];
 
         if (this.active.colorField && this.active.colorField.columnName !== '') {
             whereClauses.push(neon.query.where(this.active.colorField.columnName, '!=', null));
@@ -701,7 +689,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     getFiltersToIgnore() {
         // get relevant neon filters and check for filters that should be ignored and add that to query
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.active.dataField.columnName]);
         let ignoredFilterIds = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
@@ -799,7 +788,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         this.active.maxCount = counts.reduce((a, b) => {
             return Math.max(a, b);
-        }) || 0;
+        }, 0);
 
         if (!this.active.scaleManually) {
             let maxCountLength = ('' + Math.ceil(this.active.maxCount)).length;
@@ -959,7 +948,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.active.dataField.columnName]);
         this.filters = [];
 
         for (let neonFilter of neonFilters) {
@@ -1021,6 +1011,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      * Returns the list of filter objects.
      *
      * @return {array}
+     * @override
      */
     getCloseableFilters() {
         return this.filters;

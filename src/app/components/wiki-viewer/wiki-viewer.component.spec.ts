@@ -92,10 +92,6 @@ describe('Component: WikiViewer', () => {
         });
     }));
 
-    it('createNeonFilterClauseEquals does return null', (() => {
-        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testField')).toBeNull();
-    }));
-
     it('createQuery does return expected query', (() => {
         component.meta.database = new DatabaseMetaData('testDatabase');
         component.meta.table = new TableMetaData('testTable');
@@ -158,10 +154,6 @@ describe('Component: WikiViewer', () => {
         expect(component.getFilterText({
             value: 'testValue'
         })).toBe('');
-    }));
-
-    it('getNeonFilterFields does return empty array', (() => {
-        expect(component.getNeonFilterFields()).toEqual([]);
     }));
 
     it('getVisualizationName does return expected string', (() => {

@@ -474,20 +474,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     abstract getFilterText(filter: any): string;
 
     /**
-     * Creates and returns the Neon where clause for a Neon filter on the given database, table, and
-     * fields using the filters set in this visualization.
-     * Called by the Filter Service.
-     * @param databaseAndTableName
-     * @param fieldName
-     */
-    abstract createNeonFilterClauseEquals(database: string, table: string, fieldName: string | string[]);
-
-    /**
-     * Returns the list of field objects on which filters are set for the layer.
-     */
-    abstract getNeonFilterFields(layerIndex: number): string[];
-
-    /**
      * Get the name of the visualization
      */
     abstract getVisualizationName(): string;
@@ -500,18 +486,20 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
     /**
      * Add a filter and register it with neon.
-     * @param layerIndex
-     * @param {boolean} executeQueryChainOnSuccess
-     * @param filter
+     *
+     * @arg {number} layerIndex
+     * @arg {boolean} executeQueryChainOnSuccess
+     * @arg {object} subclassFilter
+     * @arg {neon.query.WherePredicate} wherePredicate
      */
-    addNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, filter: any) {
+    addNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate) {
         let filterName = {
             visName: this.getVisualizationName(),
-            text: this.getFilterText(filter)
+            text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
             if (typeof resp === 'string') {
-                filter.id = resp;
+                subclassFilter.id = resp;
             }
             if (executeQueryChainOnSuccess) {
                 this.executeQueryChain(layerIndex);
@@ -521,10 +509,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
             this.id,
             this.meta.layers[layerIndex].database.name,
             this.meta.layers[layerIndex].table.name,
-            this.createNeonFilterClauseEquals(
-                this.meta.layers[layerIndex].database.name,
-                this.meta.layers[layerIndex].table.name,
-                this.getNeonFilterFields(layerIndex)),
+            wherePredicate,
             filterName,
             onSuccess.bind(this),
             () => {
@@ -535,14 +520,18 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
     /**
      * Replace a filter and register the change with Neon.
-     * @param layerIndex
-     * @param {boolean} executeQueryChainOnSuccess
-     * @param filter
+     *
+     * @arg {number} layerIndex
+     * @arg {boolean} executeQueryChainOnSuccess
+     * @arg {object} subclassFilter
+     * @arg {neon.query.WherePredicate} wherePredicate
      */
-    replaceNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, filter: any) {
+    replaceNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, subclassFilter: any,
+        wherePredicate: neon.query.WherePredicate) {
+
         let filterName = {
             visName: this.getVisualizationName(),
-            text: this.getFilterText(filter)
+            text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
             if (executeQueryChainOnSuccess) {
@@ -551,14 +540,11 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         };
         this.filterService.replaceFilter(
             this.messenger,
-            filter.id,
+            subclassFilter.id,
             this.id,
             this.meta.layers[layerIndex].database.name,
             this.meta.layers[layerIndex].table.name,
-            this.createNeonFilterClauseEquals(
-                this.meta.layers[layerIndex].database.name,
-                this.meta.layers[layerIndex].table.name,
-                this.getNeonFilterFields(layerIndex)),
+            wherePredicate,
             filterName,
             onSuccess.bind(this),
             () => {
@@ -741,6 +727,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     abstract setupFilters(): void;
 
     /**
+     * Returns the list of closeable filters for the visualization.
+     *
+     * @return {array}
+     */
+    abstract getCloseableFilters(): any[];
+
+    /**
      * Handles updates that come through the data channel
      * @param event
      */
@@ -749,30 +742,52 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Handles changes in the active database
+     * Updates tables, fields, and filters whenenver the database is changed and reruns the visualization query.
+     *
+     * @arg {number} layerIndex
      */
-    handleChangeDatabase(layerIndex) {
+    handleChangeDatabase(layerIndex: number) {
         this.initTables(this.meta.layers[layerIndex]);
-        this.logChangeAndStartQueryChain(layerIndex);
+        this.removeAllFilters(layerIndex, this.getCloseableFilters(), () => {
+            this.setupFilters();
+            this.handleChangeDataAtLayerIndex(layerIndex);
+        });
     }
 
     /**
-     * Handles changes in the active table
+     * Updates fields and filters whenever the table is changed and reruns the visualization query.
+     *
+     * @arg {number} layerIndex
      */
-    handleChangeTable(layerIndex) {
+    handleChangeTable(layerIndex: number) {
         this.initFields(this.meta.layers[layerIndex]);
-        this.logChangeAndStartQueryChain(layerIndex);
+        this.removeAllFilters(layerIndex, this.getCloseableFilters(), () => {
+            this.setupFilters();
+            this.handleChangeDataAtLayerIndex(layerIndex);
+        });
     }
 
     /**
-     * Handles changes in the active data
+     * Updates filters whenever a filter field is changed and reruns the visualization query.
+     *
+     * @arg {number} layerIndex
+     */
+    handleChangeFilterField(layerIndex: number) {
+        this.removeAllFilters(layerIndex, this.getCloseableFilters(), () => {
+            this.setupFilters();
+            this.handleChangeDataAtLayerIndex(layerIndex);
+        });
+    }
+
+    /**
+     * Reruns the visualization query.  Override to update properties and/or sub-components.
      */
     handleChangeData() {
         this.logChangeAndStartAllQueryChain();
     }
 
     /**
-     * Handles changes in the active data at the given layer index
+     * Reruns the visualization query for the layer at the given index.  Override to update properties and/or sub-components.
      *
      * @arg {number} layerIndex
      */
@@ -830,25 +845,26 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
 
     /**
      * Remove a filter from neon, and optionally requery and/or refresh
-     * @param layerIndex
-     * @param name the filter name
-     * @param shouldRequery
-     * @param shouldRefresh
+     *
+     * @arg {number} layerIndex
+     * @arg {object} filter
+     * @arg {boolean} requery
+     * @arg {boolean} refresh
+     * @arg {function} [callback]
      */
-    removeLocalFilterFromLocalAndNeon(layerIndex: number, filter: any, shouldRequery: boolean, shouldRefresh: boolean) {
+    removeLocalFilterFromLocalAndNeon(layerIndex: number, filter: any, requery: boolean, refresh: boolean, callback?: Function) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
         let database = this.meta.layers[layerIndex].database.name;
         let table = this.meta.layers[layerIndex].table.name;
-        let fields = this.getNeonFilterFields(layerIndex);
         this.filterService.removeFilter(
             this.messenger,
             filter.id,
             () => {
                 this.removeFilter(filter);
-                if (shouldRequery) {
+                if (requery) {
                     this.executeQueryChain(layerIndex);
                 } else {
-                    if (shouldRefresh) {
+                    if (refresh) {
                         this.refreshVisualization();
                     }
                 }
@@ -858,6 +874,26 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
                 console.error('error removing filter');
             });
         this.changeDetection.detectChanges();
+    }
+
+    /**
+     * Removes all the given filters from this component and neon with an optional callback.
+     *
+     * @arg {number} layerIndex
+     * @arg {array} filters
+     * @arg {function} [callback]
+     */
+    removeAllFilters(layerIndex: number, filters: any[], callback?: Function) {
+        if (!filters.length) {
+            if (callback) {
+                callback();
+            }
+            return;
+        }
+
+        this.removeLocalFilterFromLocalAndNeon(layerIndex, filters[0], false, false, () => {
+            this.removeAllFilters(layerIndex, filters.slice(1), callback);
+        });
     }
 
     getButtonText() {

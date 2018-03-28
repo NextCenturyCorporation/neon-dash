@@ -23,9 +23,9 @@ import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
+import { SampleComponent } from '../sample/sample.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
-import { StubComponent } from '../stub/stub.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
@@ -44,9 +44,9 @@ import { VisualizationService } from '../../services/visualization.service';
         MapComponent,
         MediaViewerComponent,
         NetworkGraphComponent,
+        SampleComponent,
         ScatterPlotComponent,
         StackedTimelineComponent,
-        StubComponent,
         TextCloudComponent,
         TimelineComponent,
         WikiViewerComponent
@@ -114,9 +114,9 @@ export class VisualizationInjectorComponent {
             case 'map': return MapComponent;
             case 'mediaViewer': return MediaViewerComponent;
             case 'networkGraph' : return NetworkGraphComponent;
+            case 'sample': return SampleComponent;
             case 'scatterPlot': return ScatterPlotComponent;
             case 'stackedTimeline': return StackedTimelineComponent;
-            case 'stub': return StubComponent;
             case 'textCloud': return TextCloudComponent;
             case 'timeline': return TimelineComponent;
             case 'wikiViewer': return WikiViewerComponent;

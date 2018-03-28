@@ -175,10 +175,6 @@ describe('Component: DocumentViewer', () => {
         })).toBe('');
     });
 
-    it('returns an empty array from getNeonFilterFields', () => {
-        expect(component.getNeonFilterFields()).toEqual([]);
-    });
-
     it('returns the expected string from getVisualizationName', () => {
         expect(component.getVisualizationName()).toBe('Document Viewer');
     });

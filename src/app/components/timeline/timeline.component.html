@@ -54,7 +54,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Date Field" [(ngModel)]="active.dateField" required="true"
-                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
+                                (ngModelChange)="handleChangeFilterField()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>

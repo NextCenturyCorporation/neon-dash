@@ -241,6 +241,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
+    getCloseableFilters(): any[] {
+        return [];
+    }
+
+    /**
      * Returns the label for the tab using the given array of names and the given index.
      *
      * @arg {array} names

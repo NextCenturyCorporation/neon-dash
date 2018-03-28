@@ -53,7 +53,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Group Field" [(ngModel)]="active.dataField"
-                                required="true" (ngModelChange)="handleChangeData()"
+                                required="true" (ngModelChange)="handleChangeFilterField()"
                                 [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>

@@ -131,14 +131,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         return '';
     }
 
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
-        return null; // This visualization doesn't filter.
-    }
-
-    getNeonFilterFields() {
-        return []; // This visualization doesn't filter.
-    }
-
     getVisualizationName() {
         return 'Document Viewer';
     }
@@ -217,12 +209,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     getDocCount() {
-        let databaseName = this.meta.database.name;
-        let tableName = this.meta.table.name;
-        let whereClause = this.createClause();
-        let countQuery = new neon.query.Query()
-            .selectFrom(databaseName, tableName)
-            .where(whereClause)
+        let countQuery = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createClause())
             .aggregate(neonVariables.COUNT, '*', '_docCount');
         this.executeQuery(countQuery);
     }
@@ -238,11 +225,11 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     getButtonText() {
-        if (!this.active.data.length) {
+        if (!this.active.docCount) {
             return 'No Data';
         }
         if (this.active.docCount <= this.active.data.length) {
-            return 'Total ' + super.prettifyInteger(this.active.data.length);
+            return 'Total ' + super.prettifyInteger(this.active.docCount);
         }
         let begin = super.prettifyInteger((this.active.page - 1) * this.meta.limit + 1);
         let end = super.prettifyInteger(Math.min(this.active.page * this.meta.limit, this.active.docCount));
@@ -339,6 +326,16 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     previousPage() {
         this.active.page -= 1;
         this.executeQueryChain();
+    }
+
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
+    getCloseableFilters(): any[] {
+        return [];
     }
 
     /**

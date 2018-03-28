@@ -100,12 +100,12 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return query;
     }
 
-    createNeonFilterClauseEquals() {
+    onUpdateFields() {
         //
     }
 
-    onUpdateFields() {
-        //
+    getCloseableFilters() {
+        return [];
     }
 
     getFilterText(filter) {
@@ -122,10 +122,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             prettyName: 'Count'
         }];
         return fields;
-    }
-
-    getNeonFilterFields() {
-        return null;
     }
 
     getVisualizationName() {
