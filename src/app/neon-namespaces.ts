@@ -120,6 +120,10 @@ export const neonVisualizations: any[] = [
         type: 'map',
         icon: 'Map64'
     }, {
+        name: 'Media Viewer',
+        type: 'mediaViewer',
+        icon: 'MediaViewer'
+    }, {
         name: 'Network Graph',
         type: 'networkGraph',
         icon: 'Graph'
