@@ -122,6 +122,12 @@ class TestMap extends AbstractMap {
     unhideAllPoints(layer: MapLayer) {
         /* NO-OP */
     }
+    zoomIn() {
+        /* NO-OP */
+    }
+    zoomOut() {
+        /* NO-OP*/
+    }
 }
 /* tslint:enable:component-class-suffix */
 
@@ -252,7 +258,8 @@ describe('Component: Map', () => {
             nextColorIndex: 0,
             unusedColors: [],
             clustering: 'points',
-            singleColor: false
+            singleColor: false,
+            disableCtrlZoom: false
         });
     });
 
@@ -1176,6 +1183,7 @@ describe('Component: Map with config', () => {
                 { provide: 'north', useValue: 4 },
                 { provide: 'customServer', useValue: { mapUrl: 'testUrl', layer: 'testLayer' } },
                 { provide: 'singleColor', useValue: true },
+                { provide: 'disableCtrlZoom', useValue: false},
                 { provide: 'title', useValue: 'Test Title' }
             ],
             imports: [
@@ -1213,7 +1221,8 @@ describe('Component: Map with config', () => {
             nextColorIndex: 0,
             unusedColors: [],
             clustering: 'clusters',
-            singleColor: true
+            singleColor: true,
+            disableCtrlZoom: false
         });
     });
 

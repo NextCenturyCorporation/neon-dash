@@ -130,6 +130,9 @@ export abstract class AbstractMap {
 
     abstract destroy();
 
+    abstract zoomOut();
+    abstract zoomIn();
+
     // utility
     areBoundsSet() {
         return this.mapConfiguration.west != null && this.mapConfiguration.east != null &&

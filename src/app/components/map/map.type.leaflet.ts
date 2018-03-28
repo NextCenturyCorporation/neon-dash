@@ -24,7 +24,10 @@ export class LeafletNeonMap extends AbstractMap {
         center: L.latLng([0, 0]),
         zoomControl: true,
         preferCanvas: true,
-        worldCopyJump: true
+        worldCopyJump: true,
+        scrollWheelZoom: false,
+        tap: true,
+        touchZoom: true
     };
     private map: L.Map;
     private layerGroups = new Map<MapLayer, L.LayerGroup>();
@@ -67,6 +70,7 @@ export class LeafletNeonMap extends AbstractMap {
         this.map.addControl(this.layerControl);
 
         this.map.on('boxzoomend', this.handleBoxZoom, this);
+
     }
 
     makeSelectionInexact() {
@@ -184,6 +188,14 @@ export class LeafletNeonMap extends AbstractMap {
         }
 
         this.hiddenPoints.set(layer, null);
+    }
+
+    zoomIn() {
+        this.map.zoomIn(1);
+    }
+
+    zoomOut() {
+        this.map.zoomOut(1);
     }
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
