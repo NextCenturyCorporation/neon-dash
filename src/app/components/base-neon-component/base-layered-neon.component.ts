@@ -691,13 +691,13 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * Get field object from the key into the config options
      */
     findFieldObject(metaObject: any, layerOptions: any, bindingKey: string, mappingKey?: string): FieldMetaData {
-        let find = (name: string) => {
-            return !name ? undefined : _.find(metaObject.fields, (field) => {
+        let find = (name: string): FieldMetaData => {
+            return !name ? undefined : _.find(metaObject.fields, (field: FieldMetaData) => {
                 return field.columnName === name;
             });
         };
 
-        let fieldObject = layerOptions && bindingKey ? find(layerOptions[bindingKey] || '') : undefined;
+        let fieldObject: FieldMetaData = layerOptions && bindingKey ? find(layerOptions[bindingKey] || '') : undefined;
 
         if (!fieldObject && mappingKey) {
             fieldObject = find(this.getMapping(metaObject, mappingKey));
