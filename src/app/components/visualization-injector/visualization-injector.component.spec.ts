@@ -27,9 +27,9 @@ import { LegendComponent } from '../legend/legend.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
+import { SampleComponent } from '../sample/sample.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
-import { StubComponent } from '../stub/stub.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
@@ -57,9 +57,9 @@ describe('Component: VisualizationInjector', () => {
                 LineChartComponent,
                 MapComponent,
                 NetworkGraphComponent,
+                SampleComponent,
                 ScatterPlotComponent,
                 StackedTimelineComponent,
-                StubComponent,
                 TextCloudComponent,
                 TimelineComponent,
                 UnsharedFilterComponent,

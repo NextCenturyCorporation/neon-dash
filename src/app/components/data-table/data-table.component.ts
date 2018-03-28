@@ -284,23 +284,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.filters[0] = filter;
     }
 
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
-        let filterClauses = this.filters.map((filter) => {
-            return neon.query.where(fieldName, '=', filter.value);
-        });
-        if (filterClauses.length === 1) {
-            return filterClauses[0];
-        }
-        if (this.active.andFilters) {
-            return neon.query.and.apply(neon.query, filterClauses);
-        }
-        return neon.query.or.apply(neon.query, filterClauses);
-    }
-
-    getNeonFilterFields(): string[] {
-        return [this.active.sortField.columnName];
-    }
-
     getVisualizationName(): string {
         return 'Data Chart';
     }
@@ -417,14 +400,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getDocCount() {
-        let databaseName = this.meta.database.name;
-        let tableName = this.meta.table.name;
-        let whereClause = this.createClause();
-        let countQuery = new neon.query.Query()
-            .selectFrom(databaseName, tableName)
-            .where(whereClause)
+        let countQuery = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createClause())
             .aggregate(neonVariables.COUNT, '*', '_docCount');
-
         this.executeQuery(countQuery);
     }
 
@@ -532,7 +509,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
-    // Get filters and format for each call in HTML
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
     getCloseableFilters() {
         return this.filters;
     }

@@ -457,9 +457,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             };
             this.filters = [filter];
             if (this.filters[0].id) {
-                this.replaceNeonFilter(true, filter);
+                this.replaceNeonFilter(true, filter, this.createNeonFilter());
             } else {
-                this.addNeonFilter(true, filter);
+                this.addNeonFilter(true, filter, this.createNeonFilter());
             }
             redraw = true;
         }
@@ -470,19 +470,27 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string | string[]) {
-        if (typeof fieldName === 'string') {
-            let filterClauses = [];
-            filterClauses[0] = neon.query.where(fieldName, '>=', this.selection.startDate);
-            let endDatePlusOne = this.selection.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
-            let endDatePlusOneDate = new Date(endDatePlusOne);
-            filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
-            return neon.query.and.apply(neon.query, filterClauses);
-        } else {
-            return null;
-        }
+    /**
+     * Creates and returns the neon filter object using the line chart selection.
+     *
+     * @return {neon.query.WherePredicate}
+     * @override
+     */
+    createNeonFilter(): neon.query.WherePredicate {
+        let filterClauses = [];
+        filterClauses[0] = neon.query.where(this.active.dateField.columnName, '>=', this.selection.startDate);
+        let endDatePlusOne = this.selection.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
+        let endDatePlusOneDate = new Date(endDatePlusOne);
+        filterClauses[1] = neon.query.where(this.active.dateField.columnName, '<', endDatePlusOneDate);
+        return neon.query.and.apply(neon.query, filterClauses);
     }
 
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
     getCloseableFilters() {
         return this.filters;
     }
@@ -491,10 +499,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' + filter.startDate.getUTCFullYear();
         let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
         return filter.prettyKey + ' from ' + begin + ' to ' + end;
-    }
-
-    getNeonFilterFields() {
-        return [this.active.dateField.columnName];
     }
 
     getVisualizationName() {

@@ -56,15 +56,15 @@
 
                 <!-- TODO Do you need fields?  Are they required or optional? -->
                 <mat-form-field>
-                    <mat-select placeholder="Stub Required Field" [(ngModel)]="stubRequiredField" required="true"
-                        (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
+                    <mat-select placeholder="Sample Required Field" [(ngModel)]="options.sampleRequiredField" required="true"
+                        (ngModelChange)="handleChangeFilterField()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Stub Optional Field" [(ngModel)]="stubOptionalField" required="false"
+                    <mat-select placeholder="Sample Optional Field" [(ngModel)]="options.sampleOptionalField" required="false"
                         (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -75,7 +75,7 @@
                 <!-- TODO Do you need a limit? -->
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Stub Limit" [(ngModel)]="meta.newLimit" required="true"
+                        <input matInput placeholder="Sample Limit" [(ngModel)]="meta.newLimit" required="true"
                             (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
@@ -85,7 +85,16 @@
                     </button>
                 </div>
                 <p></p>
-                
+
+                <!-- Do you need a subcomponent type selector? -->
+                <mat-form-field>
+                    <mat-select placeholder="Subcomponent Type" [ngModel]="subcomponentType"
+                        (ngModelChange)="handleChangeSubcomponentType($event)">
+                        <mat-option *ngFor="let type of subcomponentTypes" [value]="type.id">{{ type.name }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
                 <!-- TODO Do you need an unshared filter? -->
                 <app-unshared-filter [(meta)]="meta" (unsharedFilterChanged)="handleChangeData()"
                     (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
@@ -116,10 +125,11 @@
     <div class="body-container" [class.with-filter]="showFilterContainer()" [class.with-footer]="showFooterContainer()">
 
         <!-- TODO Replace with your visualization components! -->
+        <div><strong>Total Document Count: {{ docCount }}</strong></div>
         <div *ngFor="let item of activeData">
-            <span [matTooltip]="item.tooltip" tooltip-position="below">{{ item.label }}: {{ item.count }}</span>
+            <span [matTooltip]="item.label + ': ' + item.count">{{ item.label }}: {{ item.count }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Filter"
-                [matTooltip]="'Add Filter on ' + item.label" tooltip-position="below" (click)="filterOnItem(item, false)">
+                [matTooltip]="'Add Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, false)">
                 <mat-icon class="neon-icon-small">search</mat-icon>
             </button>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Filter"
@@ -129,7 +139,7 @@
         </div>
 
         <!-- TODO Remove if you don't need a chart container element. -->
-        <div #chartContainer class="chart-container">
+        <div #subcomponent class="chart-container" style="display: none;">
         </div>
     </div>
 

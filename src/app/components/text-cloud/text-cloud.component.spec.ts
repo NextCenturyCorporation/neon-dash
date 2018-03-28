@@ -109,7 +109,7 @@ describe('Component: TextCloud', () => {
             allowsTranslations: true,
             filterable: true,
             data: [],
-            docCount: 0
+            termsCount: 0
         });
     });
 
@@ -240,42 +240,6 @@ describe('Component: TextCloud', () => {
         }]);
     });
 
-    it('creates the correct filter clause in createNeonFilterClauseEquals', () => {
-        // This is a nonsensical situation (local filters are added before Neon filters) but test it anyway.
-        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testDataField'))
-            .toEqual(neon.query.and.apply([]));
-
-        component.addLocalFilter({
-            id: '1234567890',
-            key: 'testDataField',
-            value: 'Test Value',
-            prettyKey: 'Test Data Field'
-        });
-        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testDataField'))
-            .toEqual(new neon.query.WhereClause('testDataField', '=', 'Test Value'));
-
-        component.addLocalFilter({
-            id: '6789012345',
-            key: 'testDataField',
-            value: 'Test Value the Second',
-            prettyKey: 'Test Data Field'
-        });
-        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testDataField'))
-            .toEqual(neon.query.and.apply(neon.query, [new neon.query.WhereClause('testDataField', '=', 'Test Value'),
-                                          new neon.query.WhereClause('testDataField', '=', 'Test Value the Second')]));
-
-        component.active.andFilters = false;
-        expect(component.createNeonFilterClauseEquals('testDatabase', 'testTable', 'testDataField'))
-        .toEqual(neon.query.or.apply(neon.query, [new neon.query.WhereClause('testDataField', '=', 'Test Value'),
-                                      new neon.query.WhereClause('testDataField', '=', 'Test Value the Second')]));
-    });
-
-    it('returns the expected values from getNeonFilterFields', () => {
-        component.active.dataField.columnName = 'testDataField';
-        component.active.sizeField.columnName = 'testSizeField';
-        expect(component.getNeonFilterFields()).toEqual(['testDataField']);
-    });
-
     it('returns the expected value from getVisualizationName', () => {
         expect(component.getVisualizationName()).toEqual('Text Cloud');
     });
@@ -359,35 +323,35 @@ describe('Component: TextCloud', () => {
         expect(component.getFiltersToIgnore()).toBeNull();
     });
 
-    it('sets the expected values when getDocCount is called', () => {
-        component.active.docCount = 40;
-        let docCountResponse = {
+    it('sets the expected values when getTermsCount is called', () => {
+        component.active.termsCount = 40;
+        let termsCountResponse = {
             data: [{
-                _docCount: 8,
-                testDataField: 'getDocCount works differently in the text cloud than in other places'
+                _termsCount: 8,
+                testDataField: 'getTermsCount works differently in the text cloud than in other places'
             },
             {
-                _docCount: 5,
+                _termsCount: 5,
                 testDataField: 'it doesn\'t operate on raw documents, and so can\'t somply give a nice count'
             },
             {
-                _docCount: 1,
+                _termsCount: 1,
                 testDataField: 'instead, it returns a list of all values and counts them'
             }]
         };
         let calledExecuteQuery = false;
         component.executeQuery = () => {
             calledExecuteQuery = true;
-            component.onQuerySuccess(docCountResponse);
+            component.onQuerySuccess(termsCountResponse);
         };
 
-        component.getDocCount();
+        component.getTermsCount();
 
         expect(calledExecuteQuery).toBeTruthy();
-        expect(component.active.docCount).toBe(3);
+        expect(component.active.termsCount).toBe(3);
     });
 
-    it('sets expected values and calls getDocCount if onQuerySuccess returns no data', () => {
+    it('sets expected values and calls getTermsCount if onQuerySuccess returns no data', () => {
         component.active.dataField.columnName = 'testDataField';
         component.active.dataField.prettyName = 'Test Data Field';
         let response = {
@@ -405,7 +369,7 @@ describe('Component: TextCloud', () => {
         component.onQuerySuccess(response);
 
         expect(component.active.data).toEqual([]);
-        expect(component.active.docCount).toBe(0);
+        expect(component.active.termsCount).toBe(0);
         expect(calledExecuteQuery).toBeFalsy(); // Don't query for doc count if we got no data.
 
         component.active.sizeField.columnName = 'testSizeField';
@@ -414,11 +378,11 @@ describe('Component: TextCloud', () => {
         component.onQuerySuccess(response);
 
         expect(component.active.data).toEqual([]);
-        expect(component.active.docCount).toBe(0);
+        expect(component.active.termsCount).toBe(0);
         expect(calledExecuteQuery).toBeFalsy();
     });
 
-    it('sets expected values and calls getDocCount if onQuerySuccess returns data', () => {
+    it('sets expected values and calls getTermsCount if onQuerySuccess returns data', () => {
         component.active.dataField.columnName = 'testDataField';
         component.active.dataField.prettyName = 'Test Data Field';
         let response = {
@@ -438,17 +402,17 @@ describe('Component: TextCloud', () => {
                 testSizeField: 50
             }]
         };
-        let docCountResponse = {
+        let termsCountResponse = {
             data: [{
-                _docCount: 8,
+                _termsCount: 8,
                 testDataField: 'a value'
             },
             {
-                _docCount: 5,
+                _termsCount: 5,
                 testDataField: 'a second value'
             },
             {
-                _docCount: 1,
+                _termsCount: 1,
                 testDataField: 'a third value'
             }]
         };
@@ -457,7 +421,7 @@ describe('Component: TextCloud', () => {
         let calledExecuteQuery = false;
         component.executeQuery = () => {
             calledExecuteQuery = true;
-            component.onQuerySuccess(docCountResponse);
+            component.onQuerySuccess(termsCountResponse);
         };
         // Mock createTextCloud to skip over its editing of active.data. That will be tested elsewhere.
         let calledCreateTextCloud = false;
@@ -489,7 +453,7 @@ describe('Component: TextCloud', () => {
             key: 'Third',
             keyTranslated: 'Third'
         }]);
-        expect(component.active.docCount).toBe(3);
+        expect(component.active.termsCount).toBe(3);
         expect(calledCreateTextCloud).toBeTruthy();
         expect(calledExecuteQuery).toBeTruthy();
 
@@ -521,7 +485,7 @@ describe('Component: TextCloud', () => {
             key: 'Third',
             keyTranslated: 'Third'
         }]);
-        expect(component.active.docCount).toBe(3);
+        expect(component.active.termsCount).toBe(3);
         expect(calledCreateTextCloud).toBeTruthy();
         expect(calledExecuteQuery).toBeTruthy();
     });
@@ -664,9 +628,9 @@ describe('Component: TextCloud', () => {
             testDataField: 'Value',
             value: 10
         }];
-        component.active.docCount = 1;
+        component.active.termsCount = 1;
         expect(component.getButtonText()).toEqual('Total 1');
-        component.active.docCount = 5;
+        component.active.termsCount = 5;
         expect(component.getButtonText()).toEqual('1 of 5');
     });
 

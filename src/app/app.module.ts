@@ -59,10 +59,10 @@ import { FilterTrayComponent } from './components/filter-tray/filter-tray.compon
 import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components/map/map.component';
+import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
-import { StubComponent } from './components/stub/stub.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
@@ -103,12 +103,12 @@ export function getAppConfig() {
         LineChartComponent,
         MapComponent,
         NetworkGraphComponent,
+        SampleComponent,
         ScatterPlotComponent,
         SimpleFilterComponent,
         SimpleSnackBarComponent,
         SnackBarComponent,
         StackedTimelineComponent,
-        StubComponent,
         TextCloudComponent,
         TimelineComponent,
         UnsharedFilterComponent,

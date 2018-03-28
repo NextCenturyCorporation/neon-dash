@@ -36,9 +36,9 @@ export class AddVisualizationComponent implements OnInit {
     }
 
     ngOnInit() {
-        // Ignore the stub visualization.
+        // Ignore the sample visualization.
         this.visualizations = neonVisualizations.filter((visualization) => {
-            return visualization.type !== 'stub';
+            return visualization.type !== 'sample';
         });
     }
 

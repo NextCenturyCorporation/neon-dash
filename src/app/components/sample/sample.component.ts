@@ -34,36 +34,36 @@ import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
+import {
+    AbstractSubcomponent,
+    SubcomponentListener,
+    SubcomponentType
+} from './subcomponent.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
+import { SampleOptions } from './sample.options';
+import { SubcomponentImpl1 } from './subcomponent.impl1';
 import * as neon from 'neon-framework';
 
 // TODO Name your visualization!
 @Component({
-    selector: 'app-stub',
-    templateUrl: './stub.component.html',
-    styleUrls: ['./stub.component.scss'],
+    selector: 'app-sample',
+    templateUrl: './sample.component.html',
+    styleUrls: ['./sample.component.scss'],
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StubComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+export class SampleComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     // HTML element references used by the superclass for the resizing behavior.
     @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
-    // TODO Remove this property if you don't need to use the chart element.
-    // Reference to the HTML chart element.
-    @ViewChild('chartContainer') chartContainer: ElementRef;
+    // TODO Remove this property if you don't need a subcomponent.
+    @ViewChild('subcomponent') subcomponentElementRef: ElementRef;
 
-    // TODO Define properties as needed.
-
-    // The data shown in the visualization (limited).
-    protected activeData: any[];
-
-    // The data count used for the settings text and pagination.
-    protected docCount: number;
+    // TODO Define properties as needed.  Make protected so they can be used by test implementations.
 
     // The filter set in the config file.
     protected configFilter: {
@@ -80,16 +80,32 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
         value: string
     }[];
 
+    // The configurable options for the visualization.
+    protected options: SampleOptions;
+
     // The data pagination properties.
     protected lastPage: boolean;
     protected page: number;
 
+    // The data shown in the visualization (limited).
+    protected activeData: any[];
+
+    // The data count used for the settings text and pagination.
+    protected docCount: number;
+
     // The data returned by the visualization query response (not limited).
     protected responseData: any[];
 
-    // The visualization fields.
-    protected stubOptionalField: FieldMetaData;
-    protected stubRequiredField: FieldMetaData;
+    // TODO The subcomponent is here as a sample but it's not doing anything.  Use it or remove it!
+    // The properties for the subcomponent.
+    protected subcomponentObject: AbstractSubcomponent;
+    protected subcomponentTypes: {
+        id: number,
+        name: string
+    }[] = Object.keys(SubcomponentType).map((name) => ({
+        id: SubcomponentType[name],
+        name: name
+    }));
 
     constructor(
         activeGridService: ActiveGridService,
@@ -121,10 +137,13 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
         this.docCount = 0;
         this.filters = [];
         this.lastPage = true;
+        this.options = {
+            sampleOptionalField: new FieldMetaData(),
+            sampleRequiredField: new FieldMetaData(),
+            subcomponentType: this.injector.get('subcomponentType', this.subcomponentTypes[0])
+        };
         this.page = 1;
         this.responseData = [];
-        this.stubOptionalField = new FieldMetaData();
-        this.stubRequiredField = new FieldMetaData();
     }
 
     // TODO Change arguments as needed.
@@ -159,20 +178,6 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
     }
 
     /**
-     * Creates and returns the neon filter clause object for the visualization using the given database, table, and filter field names.
-     *
-     * @arg {string} databaseName
-     * @arg {string} tableName
-     * @arg {string} fieldName
-     * @return {neon.query.WherePredicate}
-     * @override
-     */
-    createNeonFilterClauseEquals(databaseName: string, tableName: string, fieldName: string): neon.query.WherePredicate {
-        // TODO This function is deprecated.  Always pass a neon filter object to addNeonFilter or replaceNeonFilter.
-        return null;
-    }
-
-    /**
      * Creates and returns the query for the visualization.
      *
      * @return {neon.query.Query}
@@ -181,9 +186,15 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
     createQuery(): neon.query.Query {
         let query = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createWhere());
 
-        // TODO Change this behavior as needed to create your visualization query.  Here is an example of an aggregation count query.
-        return query.groupBy(this.getNeonFilterFields()).aggregate(neonVariables.COUNT, '*', 'count')
-            .sortBy('count', neonVariables.DESCENDING);
+        // TODO Change this behavior as needed to create your visualization query.  Here is a sample of a count aggregation query.
+
+        let aggregationFields = [this.options.sampleRequiredField.columnName];
+
+        if (this.options.sampleOptionalField.columnName) {
+            aggregationFields.push(this.options.sampleOptionalField.columnName);
+        }
+
+        return query.groupBy(aggregationFields).aggregate(neonVariables.COUNT, '*', 'count').sortBy('count', neonVariables.DESCENDING);
     }
 
     /**
@@ -193,11 +204,11 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
      */
     createWhere(): neon.query.WherePredicate {
         // TODO Add or remove clauses as needed.
-        let clauses: neon.query.WherePredicate[] = [neon.query.where(this.stubRequiredField.columnName, '!=', null)];
+        let clauses: neon.query.WherePredicate[] = [neon.query.where(this.options.sampleRequiredField.columnName, '!=', null)];
 
         // Only add the optional field if it is defined.
-        if (this.stubOptionalField.columnName) {
-            clauses.push(neon.query.where(this.stubOptionalField.columnName, '!=', null));
+        if (this.options.sampleOptionalField.columnName) {
+            clauses.push(neon.query.where(this.options.sampleOptionalField.columnName, '!=', null));
         }
 
         if (this.configFilter) {
@@ -213,13 +224,29 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
 
     // TODO Remove this sample function.
     /**
+     * Adds a filter for the given text both in neon and for the visualization.  Abstract function from SubcomponentListener.
+     * Called by the subcomponent.
+     *
+     * @arg {string} text
+     * @override
+     */
+    filterFromSubcomponent(text: string) {
+        this.filterOnItem({
+            field: this.options.sampleRequiredField.columnName,
+            prettyField: this.options.sampleRequiredField.prettyName,
+            value: text
+        });
+    }
+
+    // TODO Remove this sample function.
+    /**
      * Adds a filter for the given item both in neon and for the visualization or replaces all the existing filters if replaceAll is true.
      *
      * @arg {object} item
-     * @arg {boolean} replaceAll
+     * @arg {boolean} [replaceAll=false]
      */
-    filterOnItem(item: any, replaceAll: boolean) {
-        let filter = this.buildVisualizationFilter(undefined, item.field, item.prettyField, item.label);
+    filterOnItem(item: any, replaceAll = false) {
+        let filter = this.buildVisualizationFilter(undefined, item.field, item.prettyField, item.value);
         let neonFilter = neon.query.where(filter.field, '=', filter.value);
 
         if (replaceAll) {
@@ -242,7 +269,7 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
             }
         } else {
             // If the new filter is unique, add the filter to the existing filters in both neon and the visualization.
-            if (this.isVisualizationFilterUnique(item.field, item.label)) {
+            if (this.isVisualizationFilterUnique(item.field, item.value)) {
                 this.addVisualizationFilter(filter);
                 this.addNeonFilter(true, filter, neonFilter);
             }
@@ -263,7 +290,7 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
             return 'Total ' + super.prettifyInteger(this.activeData.length);
         }
         let begin = super.prettifyInteger((this.page - 1) * this.meta.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.meta.limit, this.activeData.length));
+        let end = super.prettifyInteger(Math.min(this.page * this.meta.limit, this.responseData.length));
         return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.responseData.length);
     }
 
@@ -271,6 +298,7 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
      * Returns the filter list for the visualization.
      *
      * @return {array}
+     * @override
      */
     getCloseableFilters(): any[] {
         return this.filters;
@@ -310,11 +338,11 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
     getExportFields(): any[] {
         // TODO Add or remove fields and properties as needed.
         return [{
-            columnName: this.stubOptionalField.columnName,
-            prettyName: this.stubOptionalField.prettyName
+            columnName: this.options.sampleOptionalField.columnName,
+            prettyName: this.options.sampleOptionalField.prettyName
         }, {
-            columnName: this.stubRequiredField.columnName,
-            prettyName: this.stubRequiredField.prettyName
+            columnName: this.options.sampleRequiredField.columnName,
+            prettyName: this.options.sampleRequiredField.prettyName
         }];
     }
 
@@ -326,13 +354,19 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
      */
     getFiltersToIgnore(): string[] {
         // TODO Do you want the visualization to ignore its own filters?  If not, just return null.
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+
+        // TODO Change the list of filter fields here as needed.
+        // Get all the neon filters relevant to this visualization.
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.options.sampleRequiredField.columnName]);
+
         let filterIdsToIgnore = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
                 filterIdsToIgnore.push(neonFilter.id);
             }
         }
+
         return filterIdsToIgnore.length ? filterIdsToIgnore : null;
     }
 
@@ -349,17 +383,6 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
     }
 
     /**
-     * Returns the list of filterable fields for the visualization.
-     *
-     * @return {array}
-     * @override
-     */
-    getNeonFilterFields(): string[] {
-        // TODO Add or remove fields as needed.
-        return [this.stubRequiredField.columnName];
-    }
-
-    /**
      * Returns the name for the visualization.
      *
      * @return {string}
@@ -367,7 +390,7 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
      */
     getVisualizationName(): string {
         // TODO Update!
-        return 'Stub';
+        return 'Sample';
     }
 
     // TODO Remove this function if you don't need pagination.
@@ -402,6 +425,37 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
         super.handleChangeData();
     }
 
+    // TODO Remove this function if you don't have a sub-component with multiple configurable types.
+    /**
+     * Updates the sub-component and reruns the visualization query.
+     *
+     * @arg {SubcomponentType} subcomponentType
+     */
+    handleChangeSubcomponentType(subcomponentType: SubcomponentType) {
+        if (this.options.subcomponentType !== subcomponentType) {
+            this.options.subcomponentType = subcomponentType;
+            if (this.subcomponentObject) {
+                this.subcomponentObject.destroyElements();
+            }
+            this.initializeSubcomponent();
+            this.handleChangeData();
+        }
+    }
+
+    // TODO Remove this function or change as needed.
+    /**
+     * Initializes the sub-component.
+     */
+    initializeSubcomponent() {
+        switch (this.options.subcomponentType) {
+            case SubcomponentType.Impl1:
+            default:
+                this.subcomponentObject = new SubcomponentImpl1(this.options, this);
+        }
+
+        this.subcomponentObject.buildElements(this.subcomponentElementRef);
+    }
+
     /**
      * Returns whether the data and fields for the visualization are valid.
      *
@@ -410,7 +464,7 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
      */
     isValidQuery(): boolean {
         // TODO Add or remove fields and properties as needed.
-        return !!(this.meta.database.name && this.meta.table.name && this.stubRequiredField.columnName);
+        return !!(this.meta.database.name && this.meta.table.name && this.options.sampleRequiredField.columnName);
     }
 
     // TODO Change arguments as needed.
@@ -445,7 +499,7 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
      */
     refreshVisualization() {
         // TODO Do you need to update and properties or redraw any sub-components?
-        // Do nothing.
+        this.subcomponentObject.updateData(this.activeData);
     }
 
     /**
@@ -472,8 +526,8 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
             query.ignoreFilters(ignoreFilters);
         }
 
-        // The document count query is a count aggregation for the filter fields.
-        query.groupBy(this.getNeonFilterFields()).aggregate(neonVariables.COUNT, '*', '_docCount');
+        // The document count query is a count aggregation for all the documents.
+        query.aggregate(neonVariables.COUNT, '*', '_docCount');
 
         this.executeQuery(query);
     }
@@ -487,8 +541,10 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
         // First reset the existing visualization filters.
         this.filters = [];
 
+        // TODO Change the list of filter fields here as needed.
         // Get all the neon filters relevant to this visualization.
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name, this.getNeonFilterFields());
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.options.sampleRequiredField.columnName]);
 
         for (let neonFilter of neonFilters) {
             // TODO Change as needed.  Do your filters have multiple clauses?  Do your filters have multiple keys (like begin/end dates)?
@@ -534,8 +590,8 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
      */
     subGetBindings(bindings: any) {
         // TODO Add or remove fields and properties as needed.
-        bindings.stubOptionalField = this.stubOptionalField.columnName;
-        bindings.stubRequiredField = this.stubRequiredField.columnName;
+        bindings.sampleOptionalField = this.options.sampleOptionalField.columnName;
+        bindings.sampleRequiredField = this.options.sampleRequiredField.columnName;
     }
 
     // TODO If you don't need to do anything here (like update properties), just remove this function and use the superclass one!
@@ -555,7 +611,9 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
      */
     subNgOnDestroy() {
         // TODO Do you need to remove any sub-components?
-        // Do nothing.
+        if (this.subcomponentObject) {
+            this.subcomponentObject.destroyElements();
+        }
     }
 
     /**
@@ -565,7 +623,7 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
      */
     subNgOnInit() {
         // TODO Do you need to create any sub-components?
-        // Do nothing.
+        this.initializeSubcomponent();
     }
 
     // TODO Remove this function if you don't need to update and/or redraw any sub-components on resize.
@@ -575,7 +633,7 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
      * @override
      */
     subOnResizeStop() {
-        // Do nothing.
+        this.subcomponentObject.redraw();
     }
 
     /**
@@ -588,7 +646,7 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
         // TODO Remove this part if you don't need a document count query.
         // Check for undefined because the count may be zero.
         if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data.length;
+            this.docCount = response.data[0]._docCount;
             return;
         }
 
@@ -598,12 +656,15 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
 
         // The aggregation query response data will have a count field and all visualization fields.
         this.responseData = response.data.map((item) => {
+            let label = item[this.options.sampleRequiredField.columnName] + (this.options.sampleOptionalField.columnName ? ' - ' +
+                item[this.options.sampleOptionalField.columnName] : '');
+
             return {
                 count: item.count,
-                field: this.stubRequiredField.columnName,
-                label: item[this.stubRequiredField.columnName],
-                prettyField: this.stubRequiredField.prettyName,
-                tooltip: item[this.stubOptionalField.columnName || this.stubRequiredField.columnName]
+                field: this.options.sampleRequiredField.columnName,
+                label: label,
+                prettyField: this.options.sampleRequiredField.prettyName,
+                value: item[this.options.sampleRequiredField.columnName]
             };
         });
 
@@ -625,8 +686,8 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
      */
     onUpdateFields() {
         // Read the config bindings for the visualization.
-        this.stubOptionalField = this.findFieldObject('stubOptionalField');
-        this.stubRequiredField = this.findFieldObject('stubRequiredField');
+        this.options.sampleOptionalField = this.findFieldObject('sampleOptionalField');
+        this.options.sampleRequiredField = this.findFieldObject('sampleRequiredField');
         // TODO Add or remove fields and properties as needed.
     }
 
@@ -636,7 +697,7 @@ export class StubComponent extends BaseNeonComponent implements OnInit, OnDestro
     updateActiveData() {
         let offset = (this.page - 1) * this.meta.limit;
         this.activeData = this.responseData.slice(offset, (offset + this.meta.limit));
-        this.lastPage = (this.activeData.length <= (offset + this.meta.limit));
+        this.lastPage = (this.responseData.length <= (offset + this.meta.limit));
         this.refreshVisualization();
     }
 }
