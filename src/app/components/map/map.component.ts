@@ -21,6 +21,7 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
+    HostListener,
     Injector,
     OnDestroy,
     OnInit,
@@ -56,7 +57,7 @@ import { LeafletNeonMap } from './map.type.leaflet';
 
 class UniqueLocationPoint {
     constructor(public lat: number, public lng: number, public count: number,
-        public colorField: string, public colorValue: string) {}
+        public colorField: string, public colorValue: string) { }
 }
 
 @Component({
@@ -67,7 +68,7 @@ class UniqueLocationPoint {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MapComponent extends BaseLayeredNeonComponent implements OnInit, OnDestroy, AfterViewInit, FilterListener {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
@@ -93,7 +94,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         unusedColors: string[],
         nextColorIndex: number,
         clustering: string,
-        singleColor: boolean
+        singleColor: boolean,
+        disableCtrlZoom: boolean
     };
 
     public colorByFields: string[] = [];
@@ -146,7 +148,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             nextColorIndex: 0,
             unusedColors: [],
             clustering: this.injector.get('clustering', 'points'),
-            singleColor: this.injector.get('singleColor', false)
+            singleColor: this.injector.get('singleColor', false),
+            disableCtrlZoom: this.injector.get('disableCtrlZoom', false)
         };
     }
 
@@ -267,10 +270,10 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      */
     getExportFields(layerIndex: number): any[] {
         let usedFields = [this.active.layers[layerIndex].latitudeField,
-            this.active.layers[layerIndex].longitudeField,
-            this.active.layers[layerIndex].colorField,
-            this.active.layers[layerIndex].sizeField,
-            this.active.layers[layerIndex].dateField];
+        this.active.layers[layerIndex].longitudeField,
+        this.active.layers[layerIndex].colorField,
+        this.active.layers[layerIndex].sizeField,
+        this.active.layers[layerIndex].dateField];
         return usedFields
             .filter((header) => header && header.columnName)
             .map((header) => {
@@ -690,7 +693,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      */
     doesLayerStillHaveFilter(layerIndex: number): boolean {
         let fields = [this.active.layers[layerIndex].latitudeField.columnName,
-            this.active.layers[layerIndex].longitudeField.columnName];
+        this.active.layers[layerIndex].longitudeField.columnName];
         let neonFilters = this.filterService.getFiltersForFields(this.meta.layers[layerIndex].database.name,
             this.meta.layers[layerIndex].table.name, fields);
         return neonFilters && neonFilters.length > 0;
@@ -725,7 +728,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     hasLayerFilterChanged(layerIndex: number): boolean {
         let filterChanged = true;
         let fields = [this.active.layers[layerIndex].latitudeField.columnName,
-            this.active.layers[layerIndex].longitudeField.columnName];
+        this.active.layers[layerIndex].longitudeField.columnName];
         let neonFilters = this.filterService.getFiltersForFields(this.meta.layers[layerIndex].database.name,
             this.meta.layers[layerIndex].table.name, fields);
         let clauses = this.getClausesFromFilterWithIdenticalArguments(neonFilters, [
@@ -734,7 +737,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         ]);
         if (clauses && this.filterBoundingBox) {
             let values = [this.filterBoundingBox.north, this.filterBoundingBox.south, this.filterBoundingBox.east,
-                this.filterBoundingBox.west];
+            this.filterBoundingBox.west];
             // TODO FIX THE NEXT LINE!!!!
             let emptyIfUnchanged = clauses.filter((cl) => (values.indexOf(cl.rhs) === -1));
             return emptyIfUnchanged.length > 0;
@@ -924,5 +927,17 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             headerText: this.headerText,
             infoText: this.infoText
         };
+    }
+
+    mouseWheelUp(_event) {
+        if (_event.ctrlKey || _event.metaKey && !this.active.disableCtrlZoom && (this.mapType === 'Leaflet')) {
+            this.mapObject.zoomIn();
+        }
+    }
+
+    mouseWheelDown(_event) {
+        if (_event.ctrlKey || _event.metaKey && !this.active.disableCtrlZoom && (this.mapType === 'Leaflet')) {
+            this.mapObject.zoomOut();
+        }
     }
 }

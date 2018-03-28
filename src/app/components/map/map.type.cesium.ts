@@ -427,6 +427,12 @@ export class CesiumNeonMap extends AbstractMap {
         }
     }
 
+    zoomIn() {
+        //;
+    }
+    zoomOut() {
+        //
+    }
     private correctLatLon(obj, lat, x, lon, y) {
         let needCorrection = false;
         if (obj[lat] < -90) {
