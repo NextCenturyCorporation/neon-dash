@@ -21,12 +21,12 @@
         <span>Property Service Configuration</span>
     </mat-toolbar>
     <p></p>
-    <button mat-raised-button class="neon-button-small btn-open-config-edit" color="primary" title="Open configuration editor."
-            (click)="openEditConfigDialog()">
+    <button mat-raised-button class="neon-button-small btn-open-config-edit" color="primary" matTooltip="Open configuration editor."
+            tooltip-position="below" (click)="openEditConfigDialog()">
         Edit Configuration
     </button>
-    <button mat-raised-button class="neon-button-small" color="warn"
-            title="Removes any configuration saved in the Property Service.  Configuration will be loaded from yaml or json files.">
+    <button mat-raised-button class="neon-button-small" color="warn" tooltip-position="below"
+        matTooltip="Removes any configuration saved in the Property Service.  Configuration will be loaded from yaml or json files.">
         Delete Configuration
     </button>
     <p></p>

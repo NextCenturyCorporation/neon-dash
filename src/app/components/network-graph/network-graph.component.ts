@@ -34,6 +34,7 @@ import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
 import { VisualizationService } from '../../services/visualization.service';
+import { neonVariables } from '../../neon-namespaces';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import * as shape from 'd3-shape';
@@ -97,17 +98,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         value: string
     }[];
 
-    public optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        nodeField: FieldMetaData,
-        linkField: FieldMetaData,
-        limit: number,
-        isReified: boolean,
-        isDirected: boolean
-    };
-
     public active: {
         nodeField: FieldMetaData, //[FieldMetaData] TODO Future support for multiple node and link fields
         linkField: FieldMetaData, //[FieldMetaData]
@@ -117,7 +107,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         andFilters: boolean,
         filterable: boolean,
         data: any[],
-        aggregation: string
+        aggregation: string,
+        isDirected: boolean,
+        isReified: boolean,
+        title: string
     };
 
     public graphData = new GraphData();
@@ -173,16 +166,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            nodeField: this.injector.get('nodeField', null),
-            linkField: this.injector.get('linkField', null),
-            limit: this.injector.get('limit', 500000),
-            isReified: this.injector.get('isReified', false),
-            isDirected: this.injector.get('isDirected', false)
-        };
 
         this.active = {
             nodeField: new FieldMetaData(),
@@ -193,10 +176,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
             andFilters: true,
             filterable: true,
             data: [],
-            aggregation: 'count'
+            aggregation: 'count',
+            isDirected: this.injector.get('isDirected', false),
+            isReified: this.injector.get('isReified', false),
+            title: this.injector.get('title', '')
         };
 
-        this.queryTitle = this.optionsFromConfig.title || 'Network Graph';
+        this.graphData = new GraphData();
 
         this.setInterpolationType('Bundle');
 
@@ -294,10 +280,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         }];
     }
 
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
-    }
-
     addLocalFilter(filter) {
         //
     }
@@ -307,11 +289,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     getFilterText(filter) {
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let field = this.active.nodeField.columnName;
-        let text = database + ' - ' + table + ' - ' + field + ' = ';
-        return text;
+        // TODO
+        return '';
     }
 
     refreshVisualization() {
@@ -358,10 +337,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         return null;
     }
 
-    getNeonFilterFields(): string[] {
-        return [this.active.nodeField.columnName];
-    }
-
     removeFilter() {
         //
     }
@@ -371,14 +346,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         this.resetGraphData();
 
         let title;
-        title = this.optionsFromConfig.title || 'Network Graph' + ' by ' + this.active.nodeField.columnName;
+        title = this.active.title || 'Network Graph' + ' by ' + this.active.nodeField.columnName;
     }
 
     private resetGraphData() {
         this.graphData.nodes.clear();
         this.graphData.edges.clear();
 
-        let graphProperties = this.optionsFromConfig.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
+        let graphProperties = this.active.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
 
         this.graph.setOptions({physics: {enabled: true}});
 
@@ -436,20 +411,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         //
     }
 
-    createNeonFilterClauseEquals() {
-        //
-    }
-
-    unsharedFilterChanged() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
-    unsharedFilterRemoved() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
     formatingCallback(value): string {
         if (!isNaN(parseFloat(value)) && !isNaN(value - 0)) {
             //round to at most 3 decimal places, so as to not display tiny floating-point errors
@@ -470,14 +431,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         }
     }
 
-    createTitle() {
-        let title = '';
-        if (!this.optionsFromConfig) {
-            title = 'Network Graph';
-        } else {
-            title = this.optionsFromConfig.title;
-        }
-        return title;
+    resetData() {
+        this.graphData = new GraphData();
     }
 
     toNodes(datafield) {
@@ -500,7 +455,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
             graph.addNode(new Node(subject, subject));
             graph.addNode(new Node(object, object));
-            graph.addEdge(new Edge(subject, object, predicate, {to: this.optionsFromConfig.isDirected}));
+            graph.addEdge(new Edge(subject, object, predicate, {to: this.active.isDirected}));
 
             //TODO: add hover with other properties
         }
@@ -566,7 +521,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeDirected() {
         let arrowUpdates: ArrowUpdate[] = this.graphData.edges.map(
-            (edge: ArrowUpdate) => ({id: edge.id, arrows: {to: this.optionsFromConfig.isDirected}}),
+            (edge: ArrowUpdate) => ({id: edge.id, arrows: {to: this.active.isDirected}}),
             {fields: ['id', 'arrows']}
         );
         this.graphData.edges.update(arrowUpdates);
@@ -574,6 +529,26 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeReified() {
         this.resetGraphData();
+    }
+
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
+    getCloseableFilters(): any[] {
+        return [];
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {number}
+     * @override
+     */
+    getDefaultLimit() {
+        return 500000;
     }
 
     getElementRefs() {

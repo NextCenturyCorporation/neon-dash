@@ -1,10 +1,12 @@
 <mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [title]="meta.title">{{ meta.title }}</div>
+        <div #headerText class="header text pull-left" [matTooltip]="meta.title" tooltip-position="below">{{ meta.title }}</div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
-            <span class="error-message" *ngIf="meta.errorMessage" [title]="meta.errorMessage">{{ meta.errorMessage }}</span>
-            <span *ngIf="!meta.errorMessage" [title]="getButtonText()">{{ getButtonText() }}</span>
+            <span class="error-message" *ngIf="meta.errorMessage" [matTooltip]="meta.errorMessage" tooltip-position="below">
+                {{ meta.errorMessage }}
+            </span>
+            <span *ngIf="!meta.errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
@@ -16,7 +18,7 @@
         <mat-card align="left">
             <mat-card-content>
                 <div *ngIf="meta.errorMessage">
-                    <label class="icon-with-text error-message" [title]="meta.errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
                         <div>{{ meta.errorMessage }}</div>
                     </label>
@@ -24,7 +26,7 @@
                 </div>
 
                 <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [title]="getButtonText()">
+                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
                         <mat-icon class="neon-icon-small">info</mat-icon>
                         <div>{{ getButtonText() }}</div>
                     </label>
@@ -62,7 +64,7 @@
                 <p></p>
 
                 <!-- Text toggle -->
-                <mat-button-toggle-group [(ngModel)]="optionsFromConfig.showText">
+                <mat-button-toggle-group [(ngModel)]="active.showText">
                     <mat-button-toggle [value]="true">Show</mat-button-toggle>
                     <mat-button-toggle [value]="false">Hide</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -113,16 +115,16 @@
                     </tr>
                     <tr>
                         <td class="document-viewer-button-cell" colspan="100%">
-                            <div *ngIf="optionsFromConfig.showText" class="metadata-row metadata-text">
+                            <div *ngIf="active.showText" class="metadata-row metadata-text">
                                 {{ item[active.dataField.columnName] }}
                             </div>
                             <div class="document-viewer-button-container">
                                 <button mat-raised-button class="neon-button-small document-viewer-button" color="primary"
-                                        *ngIf="!optionsFromConfig.showText" (click)="openSingleRecord(item)">View Source Text</button>
+                                        *ngIf="!active.showText" (click)="openSingleRecord(item)">View Source Text</button>
                                 <span class="document-viewer-button-spacer"
-                                        *ngIf="!optionsFromConfig.showText && optionsFromConfig.showSelect && active.idField.columnName"></span>
+                                        *ngIf="!active.showText && active.showSelect && active.idField.columnName"></span>
                                 <button mat-raised-button class="neon-button-small document-viewer-button" color="primary"
-                                        *ngIf="optionsFromConfig.showSelect && active.idField.columnName" (click)="selectSingleRecord(item)">
+                                        *ngIf="active.showSelect && active.idField.columnName" (click)="selectSingleRecord(item)">
                                     Select
                                 </button>
                             </div>

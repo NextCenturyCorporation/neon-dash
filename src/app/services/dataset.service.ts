@@ -891,15 +891,6 @@ export class DatasetService {
     }
 
     /**
-     * Creates and returns a new blank field object.
-     * @method createBlankField
-     * @return {Object}
-     */
-    public createBlankField(): FieldMetaData {
-        return new FieldMetaData();
-    }
-
-    /**
      * Returns whether the given field object is valid.
      * @param {Object} fieldObject
      * @return {Boolean}

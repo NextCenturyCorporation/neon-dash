@@ -1,10 +1,12 @@
 <mat-sidenav-container class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div class="header text pull-left" [title]="createTitle()">{{ createTitle() }}</div>
+        <div #headerText class="header text pull-left" [matTooltip]="meta.title" tooltip-position="below">{{ meta.title }}</div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
-            <span class="error-message" *ngIf="meta.errorMessage" [title]="meta.errorMessage">{{ meta.errorMessage }}</span>
-            <span *ngIf="!meta.errorMessage" [title]="getButtonText()">{{ getButtonText() }}</span>
+            <span class="error-message" *ngIf="meta.errorMessage" [matTooltip]="meta.errorMessage" tooltip-position="below">
+                {{ meta.errorMessage }}
+            </span>
+            <span *ngIf="!meta.errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
@@ -15,7 +17,7 @@
         <mat-card align="left">
             <mat-card-content>
                 <div *ngIf="meta.errorMessage">
-                    <label class="icon-with-text error-message" [title]="meta.errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
                         <div>{{ meta.errorMessage }}</div>
                     </label>
@@ -23,7 +25,7 @@
                 </div>
 
                 <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [title]="getButtonText()">
+                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
                         <mat-icon class="neon-icon-small">info</mat-icon>
                         <div>{{ getButtonText() }}</div>
                     </label>
@@ -45,7 +47,7 @@
                 <p></p>
 
                 Data Format:
-                <mat-button-toggle-group name="Reified" [(ngModel)]="optionsFromConfig.isReified" (ngModelChange)="handleChangeReified()">
+                <mat-button-toggle-group name="Reified" [(ngModel)]="active.isReified" (ngModelChange)="handleChangeReified()">
                     <mat-button-toggle [value]="true">
                         Reified
                     </mat-button-toggle>
@@ -55,7 +57,7 @@
                 </mat-button-toggle-group>
                 <p></p>
 
-                <mat-form-field *ngIf="!optionsFromConfig.isReified">
+                <mat-form-field *ngIf="!active.isReified">
                     <mat-select placeholder="Node Field" [(ngModel)]="active.nodeField" required="true" (ngModelChange)="handleChangeData()"
                         [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -63,7 +65,7 @@
                 </mat-form-field>
                 <p></p>
 
-                <mat-form-field *ngIf="!optionsFromConfig.isReified">
+                <mat-form-field *ngIf="!active.isReified">
                     <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeData()"
                         [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -72,7 +74,7 @@
                 <p></p>
 
                 Show Directed:
-                <mat-button-toggle-group name="Directed" [(ngModel)]="optionsFromConfig.isDirected" (ngModelChange)="handleChangeDirected()">
+                <mat-button-toggle-group name="Directed" [(ngModel)]="active.isDirected" (ngModelChange)="handleChangeDirected()">
                     <mat-button-toggle [value]="true">
                         Show
                     </mat-button-toggle>

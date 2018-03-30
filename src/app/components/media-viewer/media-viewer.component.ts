@@ -205,6 +205,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     *
+     */
+    getCloseableFilters(): any[] {
+        return;
+    }
+
+    /**
      * Returns the list of filter fields for the wiki viewer (an empty array because the wiki viewer does not filter).
      *
      * @return {array}

@@ -34,24 +34,7 @@ export class MapLayer {
     dateField: FieldMetaData;
 }
 
-export interface OptionsFromConfig {
-    title: string;
-    database: string;
-    table: string;
-    limit: number;
-    unsharedFilterField: Object;
-    unsharedFilterValue: string;
-    layers: {
-        title: string;
-        database: string;
-        table: string;
-        latitudeField: string;
-        longitudeField: string;
-        sizeField: string;
-        colorField: string;
-        dateField: string
-    }[];
-    clustering: string;
+export interface MapConfiguration {
     minClusterSize: number;
     clusterPixelRange: number;
     hoverSelect: {
@@ -62,13 +45,11 @@ export interface OptionsFromConfig {
     east: number;
     north: number;
     south: number;
-    mapType: MapType | string;
     customServer: {
         useCustomServer: boolean,
         mapUrl: string,
         layer: string
     };
-    singleColor: boolean;
 }
 
 export class BoundingBoxByDegrees {
@@ -98,12 +79,12 @@ export interface FilterListener {
 }
 
 export abstract class AbstractMap {
-    protected optionsFromConfig: OptionsFromConfig;
+    protected mapConfiguration: MapConfiguration;
     protected filterListener: FilterListener;
     protected isDrawnFilterExact = true;
 
-    initialize(mapContainer: ElementRef, optionsFromConfig: OptionsFromConfig, filterListener: FilterListener) {
-        this.optionsFromConfig = optionsFromConfig;
+    initialize(mapContainer: ElementRef, mapConfiguration: MapConfiguration, filterListener: FilterListener) {
+        this.mapConfiguration = mapConfiguration;
         this.filterListener = filterListener;
         this.doCustomInitialization(mapContainer);
     }
@@ -149,9 +130,12 @@ export abstract class AbstractMap {
 
     abstract destroy();
 
+    abstract zoomOut();
+    abstract zoomIn();
+
     // utility
     areBoundsSet() {
-        return this.optionsFromConfig.west != null && this.optionsFromConfig.east != null &&
-            this.optionsFromConfig.north != null && this.optionsFromConfig.south != null;
+        return this.mapConfiguration.west != null && this.mapConfiguration.east != null &&
+            this.mapConfiguration.north != null && this.mapConfiguration.south != null;
     }
 }

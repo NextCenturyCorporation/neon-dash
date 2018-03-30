@@ -193,7 +193,7 @@ export class FilterService {
         let siblingIds = this.filters[originalIndex].siblings;
         let newFilters = this.createChildrenFromRelations(filter);
         let newSiblings = [];
-        let idAndFilterList = [[id, filter]];
+        let idAndFilterList = [[id, this.filters[originalIndex].filter]];
 
         // For each sibling, find a new filter with the same database and table (the particular field is irrelevant),
         // and make a replacement for that sibling with the new filter so that on success we can easily replace it.
@@ -267,10 +267,8 @@ export class FilterService {
 
     private getFilterNameString(database: string, table: string, filterName: string | {visName: string, text: string}): string {
         if (typeof filterName === 'object') {
-            let nameString = filterName.visName ? filterName.visName + ' - ' : '';
-            nameString += this.datasetService.getTableWithName(database, table).prettyName;
-            nameString += filterName.text ? ': ' + filterName.text : '';
-            return nameString;
+            return (filterName.visName ? filterName.visName + ' - ' : '') + this.datasetService.getDatabaseWithName(database).prettyName +
+                ' - ' + this.datasetService.getTableWithName(database, table).prettyName + (filterName.text ? ': ' + filterName.text : '');
         } else {
             return filterName;
         }
