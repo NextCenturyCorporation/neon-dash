@@ -86,8 +86,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         public active: {
             layers: MapLayer[],
             andFilters: boolean,
-            limit: number,
-            newLimit: number,
             filterable: boolean,
             data: number[][],
             unusedColors: string[],
@@ -147,8 +145,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             this.active = {
                 layers: [],
                 andFilters: true,
-                limit: this.optionsFromConfig.limit,
-                newLimit: this.optionsFromConfig.limit,
                 filterable: true,
                 data: [],
                 nextColorIndex: 0,
@@ -202,7 +198,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          * @override
          */
         subGetBindings(bindings: any) {
-            bindings.limit = this.active.limit;
             // The map layers objects are different, clear out the old stuff;
             bindings.layers = [];
             for (let layer of this.active.layers) {
@@ -325,8 +320,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             let layer = this.active.layers[metaObject.index];
             layer.latitudeField = this.findFieldObject(metaObject.index, 'latitudeField', neonMappings.LATITUDE);
             layer.longitudeField = this.findFieldObject(metaObject.index, 'longitudeField', neonMappings.LONGITUDE);
-            layer.sizeField = this.findFieldObject(metaObject.index, 'sizeField', neonMappings.SIZE);
-            layer.colorField = this.findFieldObject(metaObject.index, 'colorField', neonMappings.COLOR);
+            layer.sizeField = this.findFieldObject(metaObject.index, 'sizeField');
+            layer.colorField = this.findFieldObject(metaObject.index, 'colorField');
             layer.dateField = this.findFieldObject(metaObject.index, 'dateField', neonMappings.DATE);
 
             // Get the title from the options, if it exists
@@ -356,9 +351,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 return super.findFieldObject(layerIndex, bindingKey, mappingKey);
             }
 
-            let me = this;
-            let find = function(name) {
-                return _.find(me.meta.layers[layerIndex].fields, function(field) {
+            let find = (name) => {
+                return _.find(this.meta.layers[layerIndex].fields, (field) => {
                     return field.columnName === name;
                 });
             };
@@ -557,7 +551,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 fields.push(dateField);
             }
 
-            return this.createBasicQuery(layerIndex).withFields(fields).limit(this.active.limit);
+            return this.createBasicQuery(layerIndex).withFields(fields).limit(this.meta.limit);
         }
 
         legendItemSelected(event: any) {
@@ -834,23 +828,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         }
 
         /**
-         * Updates the limit, resets the seen bars, and reruns the bar chart query.
-         */
-        handleChangeLimit() {
-            if (super.isNumber(this.active.newLimit)) {
-                let newLimit = parseFloat('' + this.active.newLimit);
-                if (newLimit > 0) {
-                    this.active.limit = newLimit;
-                    this.logChangeAndStartAllQueryChain();
-                } else {
-                    this.active.newLimit = this.active.limit;
-                }
-            } else {
-                this.active.newLimit = this.active.limit;
-            }
-        }
-
-        /**
          * Redraws the map using the given map type.
          *
          * @arg {MapType} mapType
@@ -986,7 +963,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
          */
         getButtonText(): string {
             let prettifyInteger = super.prettifyInteger;
-            let createButtonText = function(count, limit) {
+            let createButtonText = (count, limit) => {
                 if (!count) {
                     return 'No Data';
                 }
@@ -995,15 +972,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
             if (this.active.layers.length && this.meta.layers.length) {
                 if (this.meta.layers.length === 1) {
-                    return createButtonText(this.meta.layers[0].docCount, this.active.limit);
+                    return createButtonText(this.meta.layers[0].docCount, this.meta.limit);
                 }
-                let self = this;
-                return this.meta.layers.map(function(layer, index) {
-                    if (self.active.layers.length >= index) {
-                        return self.active.layers[index].title + ' (' + createButtonText(layer.docCount, self.active.limit) + ')';
+                return this.meta.layers.map((layer, index) => {
+                    if (this.active.layers.length >= index) {
+                        return this.active.layers[index].title + ' (' + createButtonText(layer.docCount, this.meta.limit) + ')';
                     }
                     return '';
-                }).filter(function(text) {
+                }).filter((text) => {
                     return !!text;
                 }).join(', ');
             }

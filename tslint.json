@@ -7,6 +7,7 @@
     "array-type": [true, "array"],
     "arrow-parens": true,
     "arrow-return-shorthand": true,
+    "ban": [true, "fdescribe", "fit"],
     "callable-types": true,
     "class-name": true,
     "comment-format": true,

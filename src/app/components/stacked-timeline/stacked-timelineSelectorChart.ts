@@ -123,7 +123,7 @@ export class StackedTimelineSelectorChart {
     private xContext: d3.time.Scale<Date, any>;
     private yContext: any;
     private heightFocus: number;
-    private colorSet: any[];
+    private colorSet: any;
 
     private tlComponent: StackedTimelineComponent;
 
@@ -392,9 +392,15 @@ export class StackedTimelineSelectorChart {
         let color = d3.scale.category20();
 
         let stack = d3.layout.stack()
-            .values(function(d) { return d.values; })
-            .x(function(d) {return d.date; })
-            .y(function(d) { return d.value; });
+            .values((d) => {
+                return d.values;
+            })
+            .x((d) => {
+                return d.date;
+            })
+            .y((d) => {
+                return d.value;
+            });
 
         let layers = stack(this.data);
 
@@ -754,16 +760,24 @@ export class StackedTimelineSelectorChart {
 
             // Start of stack
             let stack = d3.layout.stack()
-                .values(function(d) { return d.values; })
-                .x(function(d) {return d.date; })
-                .y(function(d) { return d.value; });
+                .values((d) => {
+                    return d.values;
+                })
+                .x((d) => {
+                    return d.date;
+                })
+                .y((d) => {
+                    return d.value;
+                });
 
            let layers = stack(this.data);
 
            let categories = this.svg.selectAll('.bar')
                 .data(layers)
                 .enter().append('g')
-                .style('fill', function(d, i) { return this.colorSet(i); });
+                .style('fill', (d, i) => {
+                    return this.colorSet(i);
+                });
 
             let layer = this.svg.selectAll('.layer')
                 .data(layers)

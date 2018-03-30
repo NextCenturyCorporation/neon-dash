@@ -39,8 +39,11 @@
 }
 
 .neon-dash {
+    background-color: #efefef;
+    /* 60 = 50 px toolbar + 10 px padding */
+    height: calc(100% - 60px);
+    padding: 5px;
     overflow-y: auto;
-    height: calc(100% - 50px);
 }
 
 .coloraccessor {

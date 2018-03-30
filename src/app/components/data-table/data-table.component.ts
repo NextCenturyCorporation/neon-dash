@@ -31,7 +31,7 @@ import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonUtilities, neonVariables } from '../../neon-namespaces';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { VisualizationService } from '../../services/visualization.service';
@@ -70,7 +70,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         filterable: boolean,
         arrayFilterOperator: string,
         limit: number,
-        limitDisabled: boolean,
         unsharedFilterField: Object,
         unsharedFilterValue: string,
         allColumnStatus: string,
@@ -83,7 +82,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         filterFields: FieldMetaData[],
         arrayFilterOperator: string,
         andFilters: boolean,
-        limit: number,
         page: number,
         docCount: number,
         filterable: boolean,
@@ -122,7 +120,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             filterable: this.injector.get('filterable', false),
             arrayFilterOperator: this.injector.get('arrayFilterOperator', 'or'),
             limit: this.injector.get('limit', 100),
-            limitDisabled: this.injector.get('limitDisabled', true),
             unsharedFilterField: {},
             unsharedFilterValue: '',
             allColumnStatus: this.injector.get('allColumnStatus', 'show'),
@@ -134,7 +131,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             sortField: new FieldMetaData(),
             filterFields: [],
             andFilters: true,
-            limit: this.optionsFromConfig.limit,
             page: 1,
             docCount: 0,
             filterable: this.optionsFromConfig.filterable,
@@ -178,15 +174,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.idField = this.active.idField.columnName;
         bindings.sortField = this.active.sortField.columnName;
         bindings.filterFields = this.active.filterFields;
-        bindings.limit = this.active.limit;
         bindings.filterable = this.active.filterable;
         bindings.arrayFilterOperator = this.active.arrayFilterOperator;
     }
 
     onUpdateFields() {
-        this.active.idField = this.findFieldObject('idField', neonMappings.TAGS);
-        this.active.sortField = this.findFieldObject('sortField', neonMappings.TAGS);
-        this.active.filterFields = this.findFieldObjects('filterFields', neonMappings.TAGS);
+        this.active.idField = this.findFieldObject('idField');
+        this.active.sortField = this.findFieldObject('sortField');
+        this.active.filterFields = this.findFieldObjects('filterFields');
         let initialHeaderLimit = 25;
         let numHeaders = 0;
         let defaultShowValue = this.optionsFromConfig.allColumnStatus !== 'hide';
@@ -337,7 +332,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
-        let filterClauses = this.filters.map(function(filter) {
+        let filterClauses = this.filters.map((filter) => {
             return neon.query.where(fieldName, '=', filter.value);
         });
         if (filterClauses.length === 1) {
@@ -406,13 +401,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     createQuery(): neon.query.Query {
         let databaseName = this.meta.database.name;
         let tableName = this.meta.table.name;
-        let limit = this.active.limit;
+        let limit = this.meta.limit;
         let offset = ((this.active.page) - 1) * limit;
         let whereClause = this.createClause();
         return new neon.query.Query().selectFrom(databaseName, tableName)
             .where(whereClause)
             .sortBy(this.active.sortField.columnName, neonVariables.DESCENDING)
-            .limit(this.active.limit)
+            .limit(this.meta.limit)
             .offset(offset);
     }
 
@@ -422,10 +417,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     arrayToString(arr) {
         let modArr = arr
-            .filter(function(el) {
+            .filter((el) => {
                 return el;
             })
-            .map(function(base) {
+            .map((base) => {
                 if ((typeof base === 'object')) {
                     return this.objectToString(base);
                 } else if (Array.isArray(base)) {
@@ -457,7 +452,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.active.docCount = response.data[0]._docCount;
         } else {
-            let data = response.data.map(function(d) {
+            let data = response.data.map((d) => {
                 let row = {};
                 for (let field of this.meta.fields) {
                     if (field.type) {
@@ -465,7 +460,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     }
                 }
                 return row;
-            }.bind(this));
+            });
             this.active.data = data;
             // The query response is being stringified and stored in active.data
             // Store the response in active.rawData to preserve the data in its raw form for querying and filtering purposes
@@ -642,11 +637,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (!this.active.docCount) {
             return 'No Data';
         }
-        if (this.active.docCount <= this.active.limit) {
+        if (this.active.docCount <= this.meta.limit) {
             return 'Total ' + super.prettifyInteger(this.active.docCount);
         }
-        let begin = super.prettifyInteger((this.active.page - 1) * this.active.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.active.page * this.active.limit, this.active.docCount));
+        let begin = super.prettifyInteger((this.active.page - 1) * this.meta.limit + 1);
+        let end = super.prettifyInteger(Math.min(this.active.page * this.meta.limit, this.active.docCount));
         return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.active.docCount);
     }
 

@@ -2,7 +2,10 @@
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
         <div #headerText class="header text pull-left" [title]="meta.title">{{ meta.title }}</div>
         <span class="fill-remaining"></span>
-        <span #infoText class="info text">{{ getButtonText() }}</span>
+        <span #infoText class="info text">
+            <span class="error-message" *ngIf="meta.errorMessage" [title]="meta.errorMessage">{{ meta.errorMessage }}</span>
+            <span *ngIf="!meta.errorMessage" [title]="getButtonText()">{{ getButtonText() }}</span>
+        </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
         </button>
@@ -11,9 +14,17 @@
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <div *ngIf="getButtonText()">
-                    <label class="icon-with-text">
+                <div *ngIf="meta.errorMessage">
+                    <label class="icon-with-text error-message" [title]="meta.errorMessage">
                         <mat-icon class="neon-icon-small">error</mat-icon>
+                        <div>{{ meta.errorMessage }}</div>
+                    </label>
+                    <p></p>
+                </div>
+
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text" [title]="getButtonText()">
+                        <mat-icon class="neon-icon-small">info</mat-icon>
                         <div>{{ getButtonText() }}</div>
                     </label>
                     <p></p>
@@ -79,20 +90,15 @@
                 </mat-form-field>
                 <p></p>
 
-                <table cellspacing="0">
-                    <tr>
-                        <td>
-                            <mat-form-field>
-                                <input matInput placeholder="Group Limit" [(ngModel)]="active.newLimit" required="true">
-                            </mat-form-field>
-                        </td>
-                        <td>
-                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                                <mat-icon>refresh</mat-icon>
-                            </button>
-                        </td>
-                    </tr>
-                </table>
+                <div mat-fill class="flex center">
+                    <mat-form-field>
+                        <input matInput placeholder="Group Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
                 <p></p>
 
                 <label> Displayed Range </label>
@@ -102,33 +108,30 @@
                         <mat-radio-button ngDefaultControl [value]="true" [(ngModel)]="active.scaleManually" >Manual</mat-radio-button>
                     </mat-radio-group>
 
-                    <table *ngIf="active.scaleManually">
-                        <tr>
-                            <td>
-                                <mat-form-field *ngIf='active.chartType == "bar"'>
-                                    <input matInput placeholder="Y maximum" [(ngModel)]="active.maxScale" required="false">
-                                </mat-form-field>
-                                <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
-                                    <input matInput placeholder="X maximum" [(ngModel)]="active.maxScale" required="false">
-                                </mat-form-field>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <mat-form-field *ngIf='active.chartType == "bar"'>
-                                    <input matInput placeholder="Y minimum" [(ngModel)]="active.minScale" required="false">
-                                </mat-form-field>
-                                <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
-                                    <input matInput placeholder="X minimum" [(ngModel)]="active.minScale" required="false">
-                                </mat-form-field>
-                            </td>
-                            <td>
-                                <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeScale()">
-                                    <mat-icon>refresh</mat-icon>
-                                </button>
-                            </td>
-                        </tr>
-                    </table>
+                    <div *ngIf="active.scaleManually">
+                        <p></p>
+                        <div mat-fill class="flex center">
+                            <mat-form-field *ngIf='active.chartType == "bar"'>
+                                <input matInput placeholder="Y maximum" [(ngModel)]="active.maxScale" required="false">
+                            </mat-form-field>
+
+                            <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
+                                <input matInput placeholder="X maximum" [(ngModel)]="active.maxScale" required="false">
+                            </mat-form-field>
+
+                            <mat-form-field *ngIf='active.chartType == "bar"'>
+                                <input matInput placeholder="Y minimum" [(ngModel)]="active.minScale" required="false">
+                            </mat-form-field>
+
+                            <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
+                                <input matInput placeholder="X minimum" [(ngModel)]="active.minScale" required="false">
+                            </mat-form-field>
+
+                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeScale()">
+                                <mat-icon>refresh</mat-icon>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <p></p>
 
@@ -156,7 +159,7 @@
     </div>
 
     <div class="filter-container">
-        <app-legend *ngIf="hasColorField()" [activeList]="selectedLabels" [fieldNames]="colorFieldNames"></app-legend>
+        <app-legend *ngIf="!!this.active.colorField.columnName" [activeList]="selectedLabels" [fieldNames]="colorFieldNames"></app-legend>
 
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" [title]="getFilterTitle(filter.value)">{{ getFilterCloseText(filter.value) }}</span>
@@ -167,13 +170,13 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="hasColorField() || getCloseableFilters().length" [class.with-footer]="active.bars.length > active.limit">
-        <div #chartContainer class="chart-container">
-            <app-chart class="chart" #myChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></app-chart>
+    <div class="body-container" [class.with-filter]="!!this.active.colorField.columnName || getCloseableFilters().length" [class.with-footer]="active.bars.length > meta.limit">
+        <div #chartContainer class="chart-container" [style.minHeight.px]="this.active.minSize.height" [style.minWidth.px]="this.active.minSize.width">
+            <app-chart class="chart" #barChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></app-chart>
         </div>
     </div>
 
-    <div class="footer" *ngIf="active.bars.length > active.limit">
+    <div class="footer" *ngIf="active.bars.length > meta.limit">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="active.page == 1" class="pagination-button previous-button" color="primary"
                 (click)="previousPage()">

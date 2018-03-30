@@ -210,26 +210,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     onTimelineSelection(startDate: Date, endDate: Date): void {
-        // By default, this will give us too many values in other visualizations. For example, selecting March
-        // will give a filter from 3/1 to 4/1, which causes all other visualizations to pull March and April
-        // documents. To avoid this, decrement the next granularity down by 1.
-        switch (this.active.granularity) {
-            case 'year':
-                endDate.setMonth(endDate.getMonth() - 1);
-                break;
-            case 'month':
-                endDate.setDate(endDate.getDate() - 1);
-                break;
-            case 'day':
-                endDate.setHours(endDate.getHours() - 1);
-                break;
-            case 'hour':
-                endDate.setMinutes(endDate.getMinutes() - 1);
-                break;
-            case 'minute':
-                endDate.setSeconds(endDate.getSeconds() - 1);
-                break;
-        }
         let filter = {
             id: undefined,
             key: this.active.dateField.columnName,
@@ -256,9 +236,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             // Only apply filters that aren't local
             let filterClauses = [];
             filterClauses[0] = neon.query.where(fieldName, '>=', filter.startDate);
-            let endDatePlusOne = filter.endDate.getTime() + DateBucketizer.MILLIS_IN_DAY;
-            let endDatePlusOneDate = new Date(endDatePlusOne);
-            filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
+            filterClauses[1] = neon.query.where(fieldName, '<', filter.endDate);
             return neon.query.and.apply(neon.query, filterClauses);
         }
         return null;

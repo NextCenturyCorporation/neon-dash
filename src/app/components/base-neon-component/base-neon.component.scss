@@ -50,6 +50,7 @@ $footer-height: 40px;
 
     .body-container {
         height: calc(100% - #{$vis-title-expected-height});
+        overflow-y: auto;
         position: absolute;
         top: calc(#{$vis-title-expected-height});
         width: 100%;
@@ -67,12 +68,10 @@ $footer-height: 40px;
             }
         }
 
-        &.with-scroll {
-            overflow-y: auto;
-        }
-
         .chart-container {
             height: 100%;
+            min-height: 100px;
+            min-width: 200px;
 
             .chart {
                 position: relative;
@@ -158,6 +157,7 @@ $footer-height: 40px;
 
         .filter-label {
             @extend %filter-label-shared;
+            float: left;
             max-width: 100px;
         }
     }

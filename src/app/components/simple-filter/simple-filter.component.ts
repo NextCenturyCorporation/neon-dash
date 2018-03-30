@@ -55,7 +55,7 @@ export class SimpleFilterComponent {
             whereContains = neon.query.where(sf.fieldName, 'contains', term),
             filterName = `simple filter for ${sf.fieldName} containing '${term}'`,
             filterId = this.filterId.getValue(),
-            noOp = function() { /*no op*/};
+            noOp = () => { /*no op*/ };
         if (filterId) {
             this.filterService.replaceFilter(
                 this.messenger, filterId, this.id,

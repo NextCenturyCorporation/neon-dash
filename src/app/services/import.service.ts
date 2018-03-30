@@ -80,12 +80,12 @@ export class ImportService {
         let toReturn = fieldTypePairs;
         let toRemoveIndices = [];
 
-        fieldTypePairs.forEach(function(pair, index) {
+        fieldTypePairs.forEach((pair, index) => {
             if (pair.keys && pair.keys.length && pair.type === 'OBJECT') {
                 let objectFTPairs = [];
 
                 // Find and save in pair all objectFTPairs that are associated with pair and save the index to remove later
-                pair.keys.forEach(function(key) {
+                pair.keys.forEach((key) => {
                     let indx = _.findIndex(toReturn, {
                         name: pair.name + '__' + key
                     });
@@ -103,7 +103,7 @@ export class ImportService {
                 };
             } else if (pair.keys && pair.keys.length && pair.type !== 'OBJECT') {
                 // Find all objectFTPairs that are associated with pair and save the index to remove later
-                pair.keys.forEach(function(key) {
+                pair.keys.forEach((key) => {
                     let indx = _.findIndex(toReturn, {
                         name: pair.name + '__' + key
                     });
