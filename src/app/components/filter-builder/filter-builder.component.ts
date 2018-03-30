@@ -46,12 +46,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
 
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string
-    };
-
     public active: {
         andor: string,
         clauses: WhereClauseMetaData[],
@@ -67,12 +61,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null)
-        };
 
         this.active = {
             andor: 'and',
@@ -118,10 +106,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         // Do nothing.  Doesn't export nor does this visualization register to export
         // therefore, this function can be ignored.
         return null;
-    }
-
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
     }
 
     onUpdateFields() {
@@ -173,7 +157,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                     this.id,
                     clause.database.name,
                     clause.table.name,
-                    this.createNeonFilterClauseEquals(clause.database.name, clause.table.name, clause.field.columnName),
+                    this.createNeonFilter(clause.database.name, clause.table.name, clause.field.columnName),
                     {
                         visName: this.getVisualizationName(),
                         text: this.getFilterName(clause)
@@ -261,7 +245,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 this.id,
                 sampleClause.database.name,
                 sampleClause.table.name,
-                this.createNeonFilterClauseEquals(sampleClause.database.name, sampleClause.table.name, sampleClause.field.columnName),
+                this.createNeonFilter(sampleClause.database.name, sampleClause.table.name, sampleClause.field.columnName),
                 {
                     visName: this.getVisualizationName(),
                     text: this.getFilterName(sampleClause)
@@ -274,7 +258,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 this.id,
                 sampleClause.database.name,
                 sampleClause.table.name,
-                this.createNeonFilterClauseEquals(sampleClause.database.name, sampleClause.table.name, sampleClause.field.columnName),
+                this.createNeonFilter(sampleClause.database.name, sampleClause.table.name, sampleClause.field.columnName),
                 {
                     visName: this.getVisualizationName(),
                     text: this.getFilterName(sampleClause)
@@ -293,10 +277,10 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @return {string}
      */
     getFilterName(clause) {
-        return clause.database.name + ' - ' + clause.table.name + ' - ' + clause.field.columnName + ' - filter';
+        return clause.field.prettyName + ' ' + clause.operator.prettyName + ' ' + clause.value;
     }
 
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
+    createNeonFilter(database: string, table: string, fieldName: string) {
         let databaseTableFieldKey = this.getDatabaseTableFieldKey(database, table, fieldName);
         let activeMatchingClauses = this.active.clauses.filter((clause) => {
             let clauseDatabaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
@@ -330,11 +314,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     removeFilter(filter: any) {
         // Do nothing.
-    }
-
-    getNeonFilterFields(): string[] {
-        // TODO
-        return [''];
     }
 
     getVisualizationName(): string {
@@ -373,7 +352,17 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         // Do nothing
     }
 
-    getFilterText(_filter): string {
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
+    getCloseableFilters(): any[] {
+        return [];
+    }
+
+    getFilterText(filter): string {
         // Do nothing, no filters
         return '';
     }

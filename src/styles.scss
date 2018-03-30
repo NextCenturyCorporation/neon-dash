@@ -132,6 +132,10 @@ body {
     background-position: -256px 0
 }
 
+.icon-NetworkGraph64 {
+    background-position: -64px -64px
+}
+
 .icon-News64 {
     background-position: -256px -64px
 }
@@ -168,6 +172,12 @@ body {
     background-position: 0 -128px
 }
 
+.icon-WikiViewer64 {
+    background-position: -5px -320px
+}
+/* End Icons */
+
+/* Old Icons - Can we delete them? */
 .icon-Bar-Chart {
     background-position: -128px -64px
 }
@@ -176,21 +186,14 @@ body {
     background-position: -128px 0
 }
 
-.icon-Graph {
-    background-position: -64px -64px
-}
-
-.icon-LineChart {
+.icon-Line-Chart {
     background-position: 0 -64px
 }
 
-.icon-PieChart {
+.icon-Pie-Chart {
     background-position: -64px 0
 }
-
-.icon-WikiViewer {
-    background-position: -5px -320px
-}
+/* End Old Icons */
 
 .icon-container {
     justify-content: center;

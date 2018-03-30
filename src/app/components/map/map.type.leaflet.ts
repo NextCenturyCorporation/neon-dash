@@ -18,13 +18,16 @@ import { ElementRef } from '@angular/core';
 import * as L from 'leaflet';
 
 export class LeafletNeonMap extends AbstractMap {
-    private mapOptions: L.MapOptions = {
+    private leafletOptions: L.MapOptions = {
         minZoom: 2,
         zoom: 2,
         center: L.latLng([0, 0]),
         zoomControl: true,
         preferCanvas: true,
-        worldCopyJump: true
+        worldCopyJump: true,
+        scrollWheelZoom: false,
+        tap: true,
+        touchZoom: true
     };
     private map: L.Map;
     private layerGroups = new Map<MapLayer, L.LayerGroup>();
@@ -34,19 +37,19 @@ export class LeafletNeonMap extends AbstractMap {
     private hiddenPoints = new Map();
 
     doCustomInitialization(mapContainer: ElementRef) {
-        let customOption = this.optionsFromConfig.customServer,
-            mOptions = this.mapOptions,
-            baseTileLayer = customOption && customOption.useCustomServer ?
-                L.tileLayer.wms(customOption.mapUrl, {
-                    layers: customOption.layer,
+        let mapConfiguration = this.mapConfiguration.customServer,
+            leafletOptions = this.leafletOptions,
+            baseTileLayer = mapConfiguration && mapConfiguration.useCustomServer ?
+                L.tileLayer.wms(mapConfiguration.mapUrl, {
+                    layers: mapConfiguration.layer,
                     transparent: true,
-                    minZoom: mOptions.minZoom
+                    minZoom: leafletOptions.minZoom
                 }) : new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    minZoom: mOptions.minZoom,
+                    minZoom: leafletOptions.minZoom,
                     attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
                 }),
             monochrome = new L.TileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
-                minZoom: mOptions.minZoom,
+                minZoom: leafletOptions.minZoom,
                 attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">' +
                 'GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; ' +
                 '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -56,17 +59,18 @@ export class LeafletNeonMap extends AbstractMap {
                 MonoChrome: monochrome
             };
 
-        this.map = new L.Map(mapContainer.nativeElement, this.mapOptions).addLayer(baseTileLayer);
+        this.map = new L.Map(mapContainer.nativeElement, this.leafletOptions).addLayer(baseTileLayer);
         if (this.areBoundsSet()) {
             this.map.fitBounds([
-                [this.optionsFromConfig.north, this.optionsFromConfig.west],
-                [this.optionsFromConfig.south, this.optionsFromConfig.east]
+                [this.mapConfiguration.north, this.mapConfiguration.west],
+                [this.mapConfiguration.south, this.mapConfiguration.east]
             ]);
         }
         this.layerControl = L.control.layers(baseLayers, {});
         this.map.addControl(this.layerControl);
 
         this.map.on('boxzoomend', this.handleBoxZoom, this);
+
     }
 
     makeSelectionInexact() {
@@ -93,7 +97,7 @@ export class LeafletNeonMap extends AbstractMap {
                 },
                 circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
 
-            if (this.optionsFromConfig.hoverPopupEnabled) {
+            if (this.mapConfiguration.hoverPopupEnabled) {
                 circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
             }
             group.addLayer(circle);
@@ -184,6 +188,14 @@ export class LeafletNeonMap extends AbstractMap {
         }
 
         this.hiddenPoints.set(layer, null);
+    }
+
+    zoomIn() {
+        this.map.zoomIn(1);
+    }
+
+    zoomOut() {
+        this.map.zoomOut(1);
     }
 
     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

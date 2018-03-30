@@ -63,20 +63,12 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     private filters: {
         id: string,
-        key: string,
+        field: string,
+        prettyField: string,
         startDate: Date,
         endDate: Date,
         local: boolean
     }[];
-
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        dateField: string,
-        granularity: string,
-        groupField: string
-    };
 
     public active: {
         dateField: FieldMetaData,
@@ -101,21 +93,14 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            dateField: this.injector.get('dateField', null),
-            granularity: this.injector.get('granularity', 'day'),
-            groupField: this.injector.get('groupField', null)
-        };
+
         this.colorSchemeService = colorSchemeSrv;
         this.filters = [];
 
         this.active = {
             dateField: new FieldMetaData(),
             data: [],
-            granularity: 'day',
+            granularity: this.injector.get('granularity', 'day'),
             groupField: new FieldMetaData(),
             ylabel: 'Count',
             docCount: 0
@@ -182,19 +167,16 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         return fields;
     }
 
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
-    }
-
     onUpdateFields() {
         this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
         this.active.groupField = this.findFieldObject('groupField');
     }
 
-    addLocalFilter(id: string, key: string, startDate: Date, endDate: Date, local?: boolean) {
+    addLocalFilter(id: string, field: string, startDate: Date, endDate: Date, local?: boolean) {
         this.filters[0] = {
             id: id,
-            key: key,
+            field: field,
+            prettyField: field,
             startDate: startDate,
             endDate: endDate,
             local: local
@@ -204,7 +186,8 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     onTimelineSelection(startDate: Date, endDate: Date): void {
         let filter = {
             id: undefined,
-            key: this.active.dateField.columnName,
+            field: this.active.dateField.columnName,
+            prettyField: this.active.dateField.prettyName,
             startDate: startDate,
             endDate: endDate,
             local: true
@@ -214,44 +197,34 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         }
         this.filters[0] = filter;
         if (filter.id === undefined) {
-            this.addNeonFilter(false, filter);
+            this.addNeonFilter(false, filter, this.createNeonFilter(filter));
         } else {
-            this.replaceNeonFilter(false, filter);
+            this.replaceNeonFilter(false, filter, this.createNeonFilter(filter));
         }
 
         // Update the charts
         this.filterAndRefreshData();
     }
 
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
-        for (let filter of this.filters) {
-            // Only apply filters that aren't local
-            let filterClauses = [];
-            filterClauses[0] = neon.query.where(fieldName, '>=', filter.startDate);
-            let endDatePlusOne = filter.endDate.getTime() + DateBucketizer.MILLIS_IN_DAY;
-            let endDatePlusOneDate = new Date(endDatePlusOne);
-            filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
-            return neon.query.and.apply(neon.query, filterClauses);
-        }
-        return null;
+    /**
+     * Creates and returns the neon filter object using the given timeline filter object.
+     *
+     * @arg {object} filter
+     * @return {neon.query.WherePredicate}
+     * @override
+     */
+    createNeonFilter(filter: any): neon.query.WherePredicate {
+        let filterClauses = [
+            neon.query.where(filter.field, '>=', filter.startDate),
+            neon.query.where(filter.field, '<', filter.endDate)
+        ];
+        return neon.query.and.apply(neon.query, filterClauses);
     }
 
     getFilterText(filter) {
-        // I.E. TIMELINE - EARTHQUAKES: 8 AUG 2015 TO 20 DEC 2015
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let field = this.active.dateField.columnName;
-        let text = database + ' - ' + table + ' - ' + field + ' = ';
-        let date = filter.startDate;
-        text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
-        date = filter.endDate;
-        text += ' to ';
-        text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
-        return text;
-    }
-
-    getNeonFilterFields() {
-        return [this.active.dateField.columnName];
+        let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' + filter.startDate.getUTCFullYear();
+        let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
+        return filter.prettyField + ' from ' + begin + ' to ' + end;
     }
 
     getVisualizationName() {
@@ -323,22 +296,16 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     }
 
     getDocCount() {
-        let databaseName = this.meta.database.name;
-        let tableName = this.meta.table.name;
-        let whereClause = this.createClause();
-        let countQuery = new neon.query.Query()
-            .selectFrom(databaseName, tableName)
-            .where(whereClause)
+        let countQuery = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createClause())
             .aggregate(neonVariables.COUNT, '*', '_docCount');
         this.executeQuery(countQuery);
     }
 
     getFiltersToIgnore() {
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = [this.active.dateField.columnName];
         let ignoredFilterIds = [];
-        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.active.dateField.columnName]);
+
         if (neonFilters && neonFilters.length > 0) {
             for (let neonFilter of neonFilters) {
                 // The data we want is in the whereClause's subclauses
@@ -348,6 +315,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                 }
             }
         }
+
         return (ignoredFilterIds.length > 0 ? ignoredFilterIds : null);
     }
 
@@ -520,23 +488,22 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let fields = [this.active.dateField.columnName];
-        let neonFilters = this.filterService.getFiltersForFields(database, table, fields);
-        if (neonFilters && neonFilters.length > 0) {
-            for (let neonFilter of neonFilters) {
-                // The data we want is in the whereClause's subclauses
-                let whereClause = neonFilter.filter.whereClause;
-                if (whereClause && whereClause.whereClauses.length === 2) {
-                    let key = whereClause.whereClauses[0].lhs;
-                    let startDate = whereClause.whereClauses[0].rhs;
-                    let endDate = whereClause.whereClauses[1].rhs;
-                    this.addLocalFilter(neonFilter.id, key, startDate, endDate);
-                }
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.active.dateField.columnName]);
 
+        for (let neonFilter of neonFilters) {
+            // The data we want is in the whereClause's subclauses
+            let whereClause = neonFilter.filter.whereClause;
+            if (whereClause && whereClause.whereClauses.length === 2) {
+                let field = whereClause.whereClauses[0].lhs;
+                let startDate = whereClause.whereClauses[0].rhs;
+                let endDate = whereClause.whereClauses[1].rhs;
+                this.addLocalFilter(neonFilter.id, field, startDate, endDate);
             }
-        } else {
+
+        }
+
+        if (!neonFilters.length) {
             this.removeFilter();
         }
     }
@@ -547,33 +514,14 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         bindings.groupField = this.active.groupField.columnName;
     }
 
-    logChangeAndStartQueryChain() {
-        if (!this.initializing) {
-            this.executeQueryChain();
-        }
-    }
-
-    // Get filters and format for each call in HTML
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
     getCloseableFilters() {
         return this.filters;
-    }
-
-    getFilterTitle(value: string) {
-        return this.active.dateField.columnName + ' = ' + value;
-    }
-
-    getRemoveFilterTooltip(value: string) {
-        return 'Delete Filter ' + this.getFilterTitle(value);
-    }
-
-    unsharedFilterChanged() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
-    unsharedFilterRemoved() {
-        // Update the data
-        this.executeQueryChain();
     }
 
     removeFilter() {
