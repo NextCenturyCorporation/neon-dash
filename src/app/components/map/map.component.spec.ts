@@ -67,7 +67,7 @@ class TestMapComponent extends MapComponent {
     }
 
     assignTestMap() {
-        this.optionsFromConfig.mapType = -1;
+        this.mapType = -1;
         this.mapObject = new TestMap();
         return this.mapObject;
     }
@@ -122,12 +122,19 @@ class TestMap extends AbstractMap {
     unhideAllPoints(layer: MapLayer) {
         /* NO-OP */
     }
+    zoomIn() {
+        /* NO-OP */
+    }
+    zoomOut() {
+        /* NO-OP*/
+    }
 }
 /* tslint:enable:component-class-suffix */
 
 function updateMapLayer1(component) {
     component.meta.layers[0] = {
         index: 0,
+        title: 'Layer A',
         databases: [],
         database: new DatabaseMetaData('testDatabase1'),
         tables: [],
@@ -151,6 +158,7 @@ function updateMapLayer1(component) {
 function updateMapLayer2(component) {
     component.meta.layers.push({
         index: 1,
+        title: 'Layer B',
         databases: [],
         database: new DatabaseMetaData('testDatabase2'),
         tables: [],
@@ -250,8 +258,8 @@ describe('Component: Map', () => {
             nextColorIndex: 0,
             unusedColors: [],
             clustering: 'points',
-            minClusterSize: 5,
-            clusterPixelRange: 15
+            singleColor: false,
+            disableCtrlZoom: false
         });
     });
 
@@ -268,28 +276,6 @@ describe('Component: Map', () => {
         expect(component.meta.layers[0].table).toEqual(new TableMetaData());
         expect(component.meta.layers[0].fields).toEqual([]);
     }));
-
-    it('getOptionFromConfig does return expected options', () => {
-        expect(component.getOptionFromConfig('title')).toBeNull();
-        expect(component.getOptionFromConfig('database')).toBeNull();
-        expect(component.getOptionFromConfig('table')).toBeNull();
-        expect(component.getOptionFromConfig('limit')).toBe(1000);
-        expect(component.getOptionFromConfig('unsharedFilterField')).toEqual({});
-        expect(component.getOptionFromConfig('unsharedFilterValue')).toEqual('');
-        expect(component.getOptionFromConfig('layers')).toEqual([]);
-        expect(component.getOptionFromConfig('clustering')).toBe('points');
-        expect(component.getOptionFromConfig('minClusterSize')).toBe(5);
-        expect(component.getOptionFromConfig('clusterPixelRange')).toBe(15);
-        expect(component.getOptionFromConfig('hoverSelect')).toBeNull();
-        expect(component.getOptionFromConfig('hoverPopupEnabled')).toBe(false);
-        expect(component.getOptionFromConfig('west')).toBeNull();
-        expect(component.getOptionFromConfig('east')).toBeNull();
-        expect(component.getOptionFromConfig('north')).toBeNull();
-        expect(component.getOptionFromConfig('south')).toBeNull();
-        expect(component.getOptionFromConfig('customServer')).toEqual({});
-        expect(component.getOptionFromConfig('mapType')).toBe(MapType.Leaflet);
-        expect(component.getOptionFromConfig('singleColor')).toBe(false);
-    });
 
     it('onUpdateFields does set expected fields to empty strings because layers config is empty', () => {
         component.onUpdateFields(component.meta.layers[0]);
@@ -444,7 +430,7 @@ describe('Component: Map', () => {
 
         addFilter(box, dbName, tableName, latName, lngName);
 
-        let whereClauses = component.createNeonFilterClauseEquals(dbName, tableName, [latName, lngName]),
+        let whereClauses = component.createNeonFilter(box, latName, lngName),
             filterClauses = [
                 neon.query.where(latName, '>=', box.south),
                 neon.query.where(latName, '<=', box.north),
@@ -504,7 +490,6 @@ describe('Component: Map', () => {
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
             layers: [{
-                title: '',
                 latitudeField: '',
                 longitudeField: '',
                 sizeField: '',
@@ -519,14 +504,12 @@ describe('Component: Map', () => {
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
             layers: [{
-                title: 'Layer A',
                 latitudeField: 'testLatitude1',
                 longitudeField: 'testLongitude1',
                 sizeField: 'testSize1',
                 colorField: 'testColor1',
                 dateField: 'testDate1'
             }, {
-                title: 'Layer B',
                 latitudeField: 'testLatitude2',
                 longitudeField: 'testLongitude2',
                 sizeField: 'testSize2',
@@ -634,11 +617,18 @@ describe('Component: Map', () => {
         expect(spy.calls.argsFor(0)).toEqual([0, true, {
             id: undefined,
             fieldsByLayer: [{
-                latitudeName: 'testLatitude1',
-                longitudeName: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             }],
-            filterName: 'testDatabase1 - testTable1 - testLatitude1, testLongitude1 - 0'
-        }]);
+            filterName: 'Test Latitude 1 from 1 to 2 and Test Longitude 1 from 3 to 4'
+        }, neon.query.and.apply(neon.query, [
+            neon.query.where('testLatitude1', '>=', 1),
+            neon.query.where('testLatitude1', '<=', 2),
+            neon.query.where('testLongitude1', '>=', 3),
+            neon.query.where('testLongitude1', '<=', 4)
+        ])]);
 
         updateMapLayer2(component);
 
@@ -650,25 +640,43 @@ describe('Component: Map', () => {
         expect(spy.calls.argsFor(1)).toEqual([0, true, {
             id: undefined,
             fieldsByLayer: [{
-                latitudeName: 'testLatitude1',
-                longitudeName: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             }, {
-                latitudeName: 'testLatitude2',
-                longitudeName: 'testLongitude2'
+                latitude: 'testLatitude2',
+                longitude: 'testLongitude2',
+                prettyLatitude: 'Test Latitude 2',
+                prettyLongitude: 'Test Longitude 2'
             }],
-            filterName: 'Map Filter - multiple layers'
-        }]);
+            filterName: 'latitude from 5 to 6 and longitude from 7 to 8'
+        }, neon.query.and.apply(neon.query, [
+            neon.query.where('testLatitude1', '>=', 5),
+            neon.query.where('testLatitude1', '<=', 6),
+            neon.query.where('testLongitude1', '>=', 7),
+            neon.query.where('testLongitude1', '<=', 8)
+        ])]);
         expect(spy.calls.argsFor(2)).toEqual([1, true, {
             id: undefined,
             fieldsByLayer: [{
-                latitudeName: 'testLatitude1',
-                longitudeName: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             }, {
-                latitudeName: 'testLatitude2',
-                longitudeName: 'testLongitude2'
+                latitude: 'testLatitude2',
+                longitude: 'testLongitude2',
+                prettyLatitude: 'Test Latitude 2',
+                prettyLongitude: 'Test Longitude 2'
             }],
-            filterName: 'Map Filter - multiple layers'
-        }]);
+            filterName: 'latitude from 5 to 6 and longitude from 7 to 8'
+        }, neon.query.and.apply(neon.query, [
+            neon.query.where('testLatitude2', '>=', 5),
+            neon.query.where('testLatitude2', '<=', 6),
+            neon.query.where('testLongitude2', '>=', 7),
+            neon.query.where('testLongitude2', '<=', 8)
+        ])]);
     });
 
     it('createFilter does return expected object', () => {
@@ -688,24 +696,27 @@ describe('Component: Map', () => {
         component.addLocalFilter({
             id: 'testId1',
             fieldsByLayer: {
-                latField: 'testLatitude1',
-                lonField: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             },
             filterName: 'testFilter1'
         });
         expect(component.getFilters()).toEqual([{
             id: 'testId1',
             fieldsByLayer: {
-                latField: 'testLatitude1',
-                lonField: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             },
             filterName: 'testFilter1'
         }]);
     });
 
-    it('createNeonFilterClauseEquals does return expected object', () => {
+    it('createNeonFilter does return expected object', () => {
         let box1 = new BoundingBoxByDegrees(1, 2, 3, 4);
-        component.setFilterBoundingBox(box1);
 
         let query1 = neon.query.and.apply(neon.query, [
             neon.query.where('testLatitude1', '>=', 1),
@@ -714,10 +725,9 @@ describe('Component: Map', () => {
             neon.query.where('testLongitude1', '<=', 4)
         ]);
 
-        expect(component.createNeonFilterClauseEquals('testDatabase1', 'testTable1', ['testLatitude1', 'testLongitude1'])).toEqual(query1);
+        expect(component.createNeonFilter(box1, 'testLatitude1', 'testLongitude1')).toEqual(query1);
 
         let box2 = new BoundingBoxByDegrees(5, 6, 7, 8);
-        component.setFilterBoundingBox(box2);
 
         let query2 = neon.query.and.apply(neon.query, [
             neon.query.where('testLatitude1', '>=', 5),
@@ -726,42 +736,36 @@ describe('Component: Map', () => {
             neon.query.where('testLongitude1', '<=', 8)
         ]);
 
-        expect(component.createNeonFilterClauseEquals('testDatabase1', 'testTable1', ['testLatitude1', 'testLongitude1'])).toEqual(query2);
-    });
-
-    it('getFilterTextByFields does return expected string', () => {
-        updateMapLayer1(component);
-
-        expect(component.getFilterTextByFields([1])).toEqual('testDatabase1 - testTable1 - testLatitude1, testLongitude1 - 0');
-
-        expect(component.getFilterTextByFields([1, 2])).toEqual('Map Filter - multiple layers');
+        expect(component.createNeonFilter(box2, 'testLatitude1', 'testLongitude1')).toEqual(query2);
     });
 
     it('getFilterText does return expected string', () => {
-        expect(component.getFilterText({})).toEqual('Map Filter');
+        expect(component.getFilterText({})).toEqual('');
         expect(component.getFilterText({
             filterName: 'testFilter'
         })).toEqual('testFilter');
     });
 
-    it('getFilterTextForLayer does return expected string', () => {
-        updateMapLayer1(component);
+    it('getFilterTextByFields does return expected string', () => {
+        expect(component.getFilterTextByFields(new BoundingBoxByDegrees(1, 2, 3, 4), [{
+            prettyLatitude: 'filterLatitude',
+            prettyLongitude: 'filterLongitude'
+        }])).toEqual('filterLatitude from 1 to 2 and filterLongitude from 3 to 4');
 
-        expect(component.getFilterTextForLayer(0)).toEqual('testDatabase1 - testTable1 - testLatitude1, testLongitude1 - 0');
-
-        updateMapLayer2(component);
-
-        expect(component.getFilterTextForLayer(1)).toEqual('testDatabase2 - testTable2 - testLatitude2, testLongitude2 - 1');
+        expect(component.getFilterTextByFields(new BoundingBoxByDegrees(1, 2, 3, 4), [{
+            prettyLatitude: 'filterLatitude1',
+            prettyLongitude: 'filterLongitude1'
+        }, {
+            prettyLatitude: 'filterLatitude2',
+            prettyLongitude: 'filterLongitude2'
+        }])).toEqual('latitude from 1 to 2 and longitude from 3 to 4');
     });
 
-    it('getNeonFilterFields does return expected array', () => {
-        updateMapLayer1(component);
-
-        expect(component.getNeonFilterFields(0)).toEqual(['testLatitude1', 'testLongitude1']);
-
-        updateMapLayer2(component);
-
-        expect(component.getNeonFilterFields(1)).toEqual(['testLatitude2', 'testLongitude2']);
+    it('getFilterTextForLayer does return expected string', () => {
+        expect(component.getFilterTextForLayer(new BoundingBoxByDegrees(1, 2, 3, 4), {
+            prettyLatitude: 'filterLatitude',
+            prettyLongitude: 'filterLongitude'
+        })).toEqual('filterLatitude from 1 to 2 and filterLongitude from 3 to 4');
     });
 
     it('getVisualizationName does return expected string', () => {
@@ -988,34 +992,23 @@ describe('Component: Map', () => {
         component.addLocalFilter([{
             id: 'testId1',
             fieldsByLayer: {
-                latField: 'testLatitude1',
-                lonField: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             },
             filterName: 'testFilter1'
         }]);
         expect(component.getCloseableFilters()).toEqual([[{
             id: 'testId1',
             fieldsByLayer: {
-                latField: 'testLatitude1',
-                lonField: 'testLongitude1'
+                latitude: 'testLatitude1',
+                longitude: 'testLongitude1',
+                prettyLatitude: 'Test Latitude 1',
+                prettyLongitude: 'Test Longitude 1'
             },
             filterName: 'testFilter1'
         }]]);
-    });
-
-    it('getFilterTitle does return expected string', () => {
-        expect(component.getFilterTitle()).toBe('Map Filter');
-        let map = component.assignTestMap();
-        map.markInexact();
-        expect(component.getFilterTitle()).toBe(
-            'Map Filter *Filter was altered outside of Map visualization and selection rectangle may not accurately represent filter.');
-    });
-
-    it('getFilterCloseText does return expected string', () => {
-        expect(component.getFilterCloseText('testText')).toBe('testText');
-        let map = component.assignTestMap();
-        map.markInexact();
-        expect(component.getFilterCloseText('testText')).toBe('testText*');
     });
 
     it('removeFilter does delete filterBoundingBox and call mapObject.removeFilterBox', () => {
@@ -1190,6 +1183,7 @@ describe('Component: Map with config', () => {
                 { provide: 'north', useValue: 4 },
                 { provide: 'customServer', useValue: { mapUrl: 'testUrl', layer: 'testLayer' } },
                 { provide: 'singleColor', useValue: true },
+                { provide: 'disableCtrlZoom', useValue: false},
                 { provide: 'title', useValue: 'Test Title' }
             ],
             imports: [
@@ -1227,42 +1221,9 @@ describe('Component: Map with config', () => {
             nextColorIndex: 0,
             unusedColors: [],
             clustering: 'clusters',
-            minClusterSize: 10,
-            clusterPixelRange: 20
+            singleColor: true,
+            disableCtrlZoom: false
         });
-    });
-
-    it('getOptionFromConfig does return expected options', () => {
-        expect(component.getOptionFromConfig('title')).toBe('Test Title');
-        expect(component.getOptionFromConfig('database')).toBe('testDatabase1');
-        expect(component.getOptionFromConfig('table')).toBe('testTable1');
-        expect(component.getOptionFromConfig('limit')).toBe(9999);
-        expect(component.getOptionFromConfig('unsharedFilterField')).toEqual({});
-        expect(component.getOptionFromConfig('unsharedFilterValue')).toEqual('');
-        expect(component.getOptionFromConfig('layers')).toEqual([{
-            colorField: 'testColorField',
-            dateField: 'testDateField',
-            latitudeField: 'testLatitudeField',
-            longitudeField: 'testLongitudeField',
-            sizeField: 'testSizeField',
-            title: 'Test Layer Title'
-        }]);
-        expect(component.getOptionFromConfig('clustering')).toBe('clusters');
-        expect(component.getOptionFromConfig('minClusterSize')).toBe(10);
-        expect(component.getOptionFromConfig('clusterPixelRange')).toBe(20);
-        expect(component.getOptionFromConfig('hoverSelect')).toEqual({
-            hoverTime: 5
-        });
-        expect(component.getOptionFromConfig('hoverPopupEnabled')).toBe(true);
-        expect(component.getOptionFromConfig('west')).toBe(1);
-        expect(component.getOptionFromConfig('east')).toBe(2);
-        expect(component.getOptionFromConfig('south')).toBe(3);
-        expect(component.getOptionFromConfig('north')).toBe(4);
-        expect(component.getOptionFromConfig('customServer')).toEqual({
-            mapUrl: 'testUrl',
-            layer: 'testLayer'
-        });
-        expect(component.getOptionFromConfig('singleColor')).toBe(true);
     });
 
     it('onUpdateFields does set expected fields to layers config', () => {
@@ -1275,7 +1236,13 @@ describe('Component: Map with config', () => {
             dateField: new FieldMetaData()
         };
 
-        component.onUpdateFields(component.meta.layers[0]);
+        component.onUpdateFields(component.meta.layers[0], {
+            colorField: 'testColorField',
+            dateField: 'testDateField',
+            latitudeField: 'testLatitudeField',
+            longitudeField: 'testLongitudeField',
+            sizeField: 'testSizeField'
+        });
         expect(component.active.layers[0]).toEqual({
             title: 'Test Layer Title',
             latitudeField: new FieldMetaData('testLatitudeField', 'Test Latitude Field'),

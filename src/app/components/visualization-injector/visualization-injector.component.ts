@@ -23,6 +23,7 @@ import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
+import { SampleComponent } from '../sample/sample.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
@@ -34,9 +35,22 @@ import { VisualizationService } from '../../services/visualization.service';
 
 @Component({
     selector: 'app-visualization-injector',
-    entryComponents: [BarChartComponent, DataTableComponent, DocumentViewerComponent, FilterBuilderComponent, LineChartComponent,
-        MapComponent, MediaViewerComponent, NetworkGraphComponent, ScatterPlotComponent, StackedTimelineComponent, TextCloudComponent,
-        TimelineComponent, WikiViewerComponent],
+    entryComponents: [
+        BarChartComponent,
+        DataTableComponent,
+        DocumentViewerComponent,
+        FilterBuilderComponent,
+        LineChartComponent,
+        MapComponent,
+        MediaViewerComponent,
+        NetworkGraphComponent,
+        SampleComponent,
+        ScatterPlotComponent,
+        StackedTimelineComponent,
+        TextCloudComponent,
+        TimelineComponent,
+        WikiViewerComponent
+    ],
     template: `<div #dynamicComponentContainer></div>`
 })
 export class VisualizationInjectorComponent {
@@ -100,6 +114,7 @@ export class VisualizationInjectorComponent {
             case 'map': return MapComponent;
             case 'mediaViewer': return MediaViewerComponent;
             case 'networkGraph' : return NetworkGraphComponent;
+            case 'sample': return SampleComponent;
             case 'scatterPlot': return ScatterPlotComponent;
             case 'stackedTimeline': return StackedTimelineComponent;
             case 'textCloud': return TextCloudComponent;
