@@ -25,6 +25,7 @@ import { LegendComponent } from '../legend/legend.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
+import { SampleComponent } from '../sample/sample.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
@@ -43,6 +44,7 @@ import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { ChartComponent } from '../chart/chart.component';
+import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -62,7 +64,9 @@ describe('Component: VisualizationContainer', () => {
                 LegendComponent,
                 LineChartComponent,
                 MapComponent,
+                MediaViewerComponent,
                 NetworkGraphComponent,
+                SampleComponent,
                 ScatterPlotComponent,
                 StackedTimelineComponent,
                 TextCloudComponent,

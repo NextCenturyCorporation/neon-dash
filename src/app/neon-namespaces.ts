@@ -89,67 +89,60 @@ export namespace neonVisualizationMinPixel { // jshint ignore:line
     export const y = 240;
 }
 
-export const neonVisualizations: any[] = [
-    {
-        name: 'Bar Chart',
-        type: 'barChart',
-        icon: 'BarChart64'
-    },
-    {
-        name: 'Data Table',
-        type: 'dataTable',
-        icon: 'ViewData64'
-    },
-    {
-        name: 'Document Viewer',
-        type: 'documentViewer',
-        icon: 'DocumentViewer64'
-    },
-    {
-        minPixelX: 480,
-        name: 'Filter Builder',
-        type: 'filterBuilder',
-        icon: 'CreateFilter64'
-    },
-    {
-        name: 'Line Chart',
-        type: 'lineChart',
-        icon: 'LineChart64'
-    }, {
-        name: 'Map',
-        type: 'map',
-        icon: 'Map64'
-    }, {
-        name: 'Media Viewer',
-        type: 'mediaViewer',
-        icon: 'MediaViewer'
-    }, {
-        name: 'Network Graph',
-        type: 'networkGraph',
-        icon: 'Graph'
-    }, {
-        name: 'Scatter Plot',
-        type: 'scatterPlot',
-        icon: 'ScatterPlot64'
-    },
-    {
-        name: 'Stacked Timeline',
-        type: 'stackedTimeline',
-        icon: 'Timeline64'
-    },
-    {
-        name: 'Text Cloud',
-        type: 'textCloud',
-        icon: 'TagCloud64'
-    },
-    {
-        name: 'Timeline',
-        type: 'timeline',
-        icon: 'Timeline64'
-    },
-    {
-        name: 'Wiki Viewer',
-        type: 'wikiViewer',
-        icon: 'WikiViewer'
-    }
-];
+export const neonVisualizations: any[] = [{
+    name: 'Bar Chart',
+    type: 'barChart',
+    icon: 'BarChart64'
+}, {
+    name: 'Data Table',
+    type: 'dataTable',
+    icon: 'ViewData64'
+}, {
+    name: 'Document Viewer',
+    type: 'documentViewer',
+    icon: 'DocumentViewer64'
+}, {
+    name: 'Filter Builder',
+    type: 'filterBuilder',
+    icon: 'CreateFilter64'
+}, {
+    name: 'Line Chart',
+    type: 'lineChart',
+    icon: 'LineChart64'
+}, {
+    name: 'Map',
+    type: 'map',
+    icon: 'Map64'
+}, {
+    name: 'Media Viewer',
+    type: 'mediaViewer',
+    icon: 'MediaViewer'
+}, {
+    name: 'Network Graph',
+    type: 'networkGraph',
+    icon: 'NetworkGraph64'
+}, {
+    name: 'Sample',
+    type: 'sample',
+    icon: 'DocumentViewer64'
+}, {
+    name: 'Scatter Plot',
+    type: 'scatterPlot',
+    icon: 'ScatterPlot64'
+}, {
+    name: 'Stacked Timeline',
+    type: 'stackedTimeline',
+    icon: 'Timeline64'
+}, {
+    name: 'Text Cloud',
+    type: 'textCloud',
+    icon: 'TagCloud64'
+}, {
+    name: 'Timeline',
+    type: 'timeline',
+    icon: 'Timeline64'
+}, {
+    name: 'Wiki Viewer',
+    type: 'wikiViewer',
+    icon: 'WikiViewer64'
+}];

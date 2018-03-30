@@ -1,10 +1,12 @@
 <mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [title]="meta.title">{{ meta.title }}</div>
+        <div #headerText class="header text pull-left" [matTooltip]="meta.title" tooltip-position="below">{{ meta.title }}</div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
-            <span class="error-message" *ngIf="meta.errorMessage" [title]="meta.errorMessage">{{ meta.errorMessage }}</span>
-            <span *ngIf="!meta.errorMessage" [title]="getButtonText()">{{ getButtonText() }}</span>
+            <span class="error-message" *ngIf="meta.errorMessage" [matTooltip]="meta.errorMessage" tooltip-position="below">
+                {{ meta.errorMessage }}
+            </span>
+            <span *ngIf="!meta.errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
@@ -15,7 +17,7 @@
         <mat-card align="left">
             <mat-card-content>
                 <div *ngIf="meta.errorMessage">
-                    <label class="icon-with-text error-message" [title]="meta.errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
                         <div>{{ meta.errorMessage }}</div>
                     </label>
@@ -23,7 +25,7 @@
                 </div>
 
                 <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [title]="getButtonText()">
+                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
                         <mat-icon class="neon-icon-small">info</mat-icon>
                         <div>{{ getButtonText() }}</div>
                     </label>
@@ -43,7 +45,7 @@
 
                 <div *ngFor="let layer of meta.layers; let i = index">
                     <mat-toolbar style="cursor: pointer;" (click)="toggleFilter(i)">
-                        <span>{{ active.layers[i].title }}</span>
+                        <span>{{ layer.title }}</span>
                         <span class="toolbar-spacer"></span>
                         <mat-icon class="neon-icon-small" *ngIf="meta.layers.length > 1" (click)="removeLayer(i)">delete</mat-icon>
                         <mat-icon class="neon-icon-small">{{ getIconForFilter(i) }}</mat-icon>
@@ -52,7 +54,7 @@
 
                     <div [hidden]="!filterVisible[i]" >
                         <mat-form-field>
-                            <input matInput placeholder="Layer Name" [(ngModel)]="active.layers[i].title" required="true">
+                            <input matInput placeholder="Layer Name" [(ngModel)]="layer.title" required="true">
                         </mat-form-field>
                         <p></p>
 
@@ -76,7 +78,7 @@
 
                         <mat-form-field>
                             <mat-select placeholder="Latitude Field" [(ngModel)]="active.layers[i].latitudeField"
-                                        required="true" (ngModelChange)="handleChangeDataAtLayerIndex(i)"
+                                        required="true" (ngModelChange)="handleChangeFilterField(i)"
                                         [disabled]="meta.layers[i].fields.length == 0">
                                 <mat-option *ngFor="let field of meta.layers[i].fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
@@ -86,7 +88,7 @@
 
                         <mat-form-field>
                             <mat-select placeholder="Longitude Field" [(ngModel)]="active.layers[i].longitudeField"
-                                        required="true" (ngModelChange)="handleChangeDataAtLayerIndex(i)"
+                                        required="true" (ngModelChange)="handleChangeFilterField(i)"
                                         [disabled]="meta.layers[i].fields.length == 0">
                                 <mat-option *ngFor="let field of meta.layers[i].fields"
                                             [value]="field">{{ field.prettyName }}</mat-option>
@@ -117,7 +119,7 @@
                 </div>
 
                 <mat-form-field>
-                    <mat-select placeholder="Map Type" [ngModel]="optionsFromConfig.mapType" (ngModelChange)="handleChangeMapType($event)">
+                    <mat-select placeholder="Map Type" [ngModel]="mapType" (ngModelChange)="handleChangeMapType($event)">
                         <mat-option *ngFor="let type of mapTypes" [value]="type.value">{{ type.name }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -140,21 +142,22 @@
     </mat-sidenav>
 
     <div class="body-container" (click)="stopEventPropagation($event)">
-        <div class="map-container" (click)="stopEventPropagation($event)">
-
+        <div class="map-container" (click)="stopEventPropagation($event)" mouseWheel (mouseWheelUp)="mouseWheelUp($event)" (mouseWheelDown)="mouseWheelDown($event)">
             <div #mapElement id="mapElement" (click)="stopEventPropagation($event)"></div>
             <div class="map-selection" *ngIf="false" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
         </div>
+
         <div class=" legend-container ">
-            <div *ngIf="!optionsFromConfig.singleColor">
+            <div *ngIf="!active.singleColor">
                 <app-legend [fieldNames]="colorByFields"
                     [disabledSets]="disabledSet"
                     (itemSelected)="legendItemSelected($event)"></app-legend>
             </div>
-            <div class="filter-reset " *ngFor="let filter of getCloseableFilters() ">
-                <span class="filter-label " [title]="getFilterTitle('Map Filter') ">{{ getFilterCloseText('Map Filter') }}</span>
+
+            <div class="filter-reset" *ngFor="let filter of getCloseableFilters() ">
+                <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter) + getFilterDetail()">Map Filter</span>
                 <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                        [matTooltip]="getRemoveFilterTooltip('Map Filter')" (click)="handleRemoveFilter(filter)">
+                        [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="handleRemoveFilter(filter)">
                     <mat-icon class="neon-icon-small">close</mat-icon>
                 </button>
             </div>

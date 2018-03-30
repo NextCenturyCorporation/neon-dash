@@ -42,10 +42,6 @@ import { ChartComponent } from '../chart/chart.component';
 import * as moment from 'moment-timezone';
 import { VisualizationService } from '../../services/visualization.service';
 
-class LocalFilter {
-    constructor(public key: string, public startDate: Date, public endDate: Date, public id?: string) {}
-}
-
 @Component({
     selector: 'app-line-chart',
     templateUrl: './line-chart.component.html',
@@ -62,18 +58,13 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     @ViewChild('filterContainer') filterContainer: ElementRef;
     @ViewChild('chartContainer') chartContainer: ElementRef;
 
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        dateField: string,
-        groupField: string,
-        aggregation: string,
-        aggregationField: string,
-        unsharedFilterField: Object,
-        unsharedFilterValue: string,
-        limit: number
-    };
+    private filters: {
+        id: string,
+        field: string,
+        prettyField: string,
+        startDate: Date,
+        endDate: Date
+    }[];
 
     public active: {
         dateField: FieldMetaData,
@@ -84,8 +75,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         filterable: boolean,
         aggregation: string,
         dateBucketizer: any,
-        granularity: string,
-        filter: LocalFilter
+        granularity: string
     };
 
     public selection: {
@@ -127,18 +117,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            dateField: this.injector.get('dateField', null),
-            groupField: this.injector.get('groupField', null),
-            aggregation: this.injector.get('aggregation', null),
-            aggregationField: this.injector.get('aggregationField', null),
-            limit: this.injector.get('limit', 10),
-            unsharedFilterField: {},
-            unsharedFilterValue: ''
-        };
+
         this.colorSchemeService = colorSchemeSrv;
 
         this.active = {
@@ -150,8 +129,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             filterable: true,
             aggregation: 'count',
             dateBucketizer: null,
-            granularity: 'day',
-            filter: null
+            granularity: 'day'
         };
 
         this.selection = {
@@ -168,6 +146,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             endDate: null
         };
 
+        this.filters = [];
         this.mouseEventValid = false;
         this.onHover = this.onHover.bind(this);
 
@@ -324,13 +303,9 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.aggregationField = this.active.aggregationField.columnName;
     }
 
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
-    }
-
     onUpdateFields() {
-        if (this.optionsFromConfig.aggregation) {
-            this.active.aggregation = this.optionsFromConfig.aggregation;
+        if (this.injector.get('aggregation', null)) {
+            this.active.aggregation = this.injector.get('aggregation', null);
         }
         this.active.aggregationField = this.findFieldObject('aggregationField');
         this.active.dateField = this.findFieldObject('dateField');
@@ -473,13 +448,18 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
                 invert = start > end;
             this.selection.startDate = invert ? end : start;
             this.selection.endDate = invert ? start : end;
-            let key = this.active.dateField.columnName;
-            let f = new LocalFilter(key, this.selection.startDate, this.selection.endDate);
-            if (this.active.filter) {
-                f.id = this.active.filter.id;
-                this.replaceNeonFilter(true, f);
+            let filter = {
+                field: this.active.dateField.columnName,
+                prettyField: this.active.dateField.prettyName,
+                startDate: this.selection.startDate,
+                endDate: this.selection.endDate,
+                id: this.filters.length ? this.filters[0].id : undefined
+            };
+            this.filters = [filter];
+            if (this.filters[0].id) {
+                this.replaceNeonFilter(true, filter, this.createNeonFilter(filter));
             } else {
-                this.addNeonFilter(true, f);
+                this.addNeonFilter(true, filter, this.createNeonFilter(filter));
             }
             redraw = true;
         }
@@ -490,35 +470,37 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string | string[]) {
-        if (typeof fieldName === 'string') {
-            let filterClauses = [];
-            filterClauses[0] = neon.query.where(fieldName, '>=', this.selection.startDate);
-            let endDatePlusOne = this.selection.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
-            let endDatePlusOneDate = new Date(endDatePlusOne);
-            filterClauses[1] = neon.query.where(fieldName, '<', endDatePlusOneDate);
-            return neon.query.and.apply(neon.query, filterClauses);
-        } else {
-            return null;
-        }
+    /**
+     * Creates and returns the neon filter object using the given line chart filter object.
+     *
+     * @arg {object} filter
+     * @return {neon.query.WherePredicate}
+     * @override
+     */
+    createNeonFilter(filter: any): neon.query.WherePredicate {
+        let endDatePlusOne = filter.endDate.getTime() + this.active.dateBucketizer.getMillisMultiplier();
+        let endDatePlusOneDate = new Date(endDatePlusOne);
+        let filterClauses = [
+            neon.query.where(filter.field, '>=', filter.startDate),
+            neon.query.where(filter.field, '<', endDatePlusOneDate)
+        ];
+        return neon.query.and.apply(neon.query, filterClauses);
     }
 
-    getFilterText() {
-        // I.E. test - earthquakes - time = 10/11/2015 to 5/1/2016"
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
-        let field = this.active.dateField.columnName;
-        let text = database + ' - ' + table + ' - ' + field + ' = ';
-        let date = this.selection.startDate;
-        text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
-        date = this.selection.endDate;
-        text += ' to ';
-        text += (date.getUTCMonth() + 1) + '/' + date.getUTCDate() + '/' + date.getUTCFullYear();
-        return text;
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
+    getCloseableFilters() {
+        return this.filters;
     }
 
-    getNeonFilterFields() {
-        return [this.active.dateField.columnName];
+    getFilterText(filter) {
+        let begin = (filter.startDate.getUTCMonth() + 1) + '/' + filter.startDate.getUTCDate() + '/' + filter.startDate.getUTCFullYear();
+        let end = (filter.endDate.getUTCMonth() + 1) + '/' + filter.endDate.getUTCDate() + '/' + filter.endDate.getUTCFullYear();
+        return filter.prettyField + ' from ' + begin + ' to ' + end;
     }
 
     getVisualizationName() {
@@ -774,26 +756,27 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     setupFilters() {
-        let localFilters = [],
-            neonFilters = this.filterService.getFiltersForFields(
-                this.meta.database.name,
-                this.meta.table.name,
-                [this.active.dateField.columnName]
-            );
+        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+            [this.active.dateField.columnName]);
+
         for (let neonFilter of neonFilters) {
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
-                localFilters.push(
-                    new LocalFilter(
-                        whereClause.whereClauses[0].lhs,
-                        whereClause.whereClauses[0].rhs,
-                        whereClause.whereClauses[1].rhs,
-                        neonFilter.id
-                    )
-                );
+                if (!this.filters.length || this.filters[0].id !== neonFilter.id) {
+                    this.filters = [{
+                        field: this.active.dateField.columnName,
+                        prettyField: this.active.dateField.prettyName,
+                        startDate: whereClause.whereClauses[0].rhs,
+                        endDate: whereClause.whereClauses[1].rhs,
+                        id: neonFilter.id
+                    }];
+                }
             }
         }
-        this.active.filter = localFilters.length ? localFilters[0] : null;
+
+        if (!neonFilters.length) {
+            this.removeFilter();
+        }
     }
 
     /**
@@ -804,12 +787,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
     subHandleChangeLimit() {
         // TODO THOR-526 Redraw the line chart but do not requery because we can use the same data from the original query.
         this.logChangeAndStartQueryChain();
-    }
-
-    logChangeAndStartQueryChain() {
-        if (!this.initializing) {
-            this.executeQueryChain();
-        }
     }
 
     /**
@@ -828,20 +805,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         return super.prettifyInteger(this.meta.limit) + ' of ' + super.prettifyInteger(this.chart.data.labels.length);
     }
 
-    getFilterTitle(filter: LocalFilter) {
-        return filter.startDate + ' >= ' + this.active.dateField.columnName + ' < ' + filter.endDate;
-    }
-
-    getFilterCloseText(value: string) {
-        return value;
-    }
-
-    getRemoveFilterTooltip(filter: LocalFilter) {
-        return 'Delete Filter ' + this.getFilterTitle(filter);
-    }
-
     removeFilter() {
-        this.setupFilters();
+        this.filters = [];
     }
 
     /**
