@@ -205,7 +205,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * 
+     *
      */
     getCloseableFilters(): any[] {
         return;
