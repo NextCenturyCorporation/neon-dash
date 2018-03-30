@@ -24,7 +24,7 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer, SafeHtml, SafeResourceUrl } from '@angular/platform-browser';
 import { Http } from '@angular/http';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -42,13 +42,13 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
  * A visualization that shows the content of a wikipedia page triggered through a select_id event.
  */
 @Component({
-    selector: 'app-wiki-viewer',
-    templateUrl: './wiki-viewer.component.html',
-    styleUrls: ['./wiki-viewer.component.scss'],
+    selector: 'app-media-viewer',
+    templateUrl: './media-viewer.component.html',
+    styleUrls: ['./media-viewer.component.scss'],
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WikiViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
+export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     static WIKI_LINK_PREFIX: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
@@ -62,7 +62,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         linkField: FieldMetaData,
         textColor: string,
         wikiName: string[],
-        wikiText: SafeHtml[]
+        wikiText: SafeHtml[],
+        url: SafeResourceUrl
     };
 
     private optionsFromConfig: {
@@ -71,7 +72,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         idField: string,
         linkField: string,
         table: string,
-        title: string
+        title: string,
+        url: string
     };
 
     isLoadingWikiPage: boolean;
@@ -88,8 +90,10 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             idField: this.injector.get('idField', null),
             linkField: this.injector.get('linkField', null),
             table: this.injector.get('table', null),
-            title: this.injector.get('title', null)
+            title: this.injector.get('title', null),
+            url: this.injector.get('url', null)
         };
+
         this.active = {
             allowsTranslations: true,
             id: this.optionsFromConfig.id || '',
@@ -97,8 +101,10 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             linkField: new FieldMetaData(),
             textColor: '#111',
             wikiName: [],
-            wikiText: []
-        };
+            wikiText: [],
+            url: this.optionsFromConfig.url ? sanitizer.bypassSecurityTrustResourceUrl(this.optionsFromConfig.url) : ''
+    };
+
         this.isLoadingWikiPage = false;
         this.subscribeToSelectId(this.getSelectIdCallback());
     }
@@ -139,8 +145,10 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @override
      */
     getButtonText() {
-        if (!this.active.wikiName.length) {
+        if (!this.active.wikiName.length && !this.active.url) {
             return 'No Data';
+        } else if (this.active.url) {
+            return '';
         }
         return 'Total ' + super.prettifyInteger(this.active.wikiName.length);
     }
@@ -240,7 +248,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @return {string}
      * @private
      */
-    private getTabLabel(names, index) {
+    private getTabLabel(names, index) { //TODO: fix duplicate tab issue
         return names && names.length > index ? names[index] : '';
     }
 
@@ -342,7 +350,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             return;
         }
 
-        this.http.get (WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).toPromise().then((wikiResponse) => {
+        this.http.get (MediaViewerComponent.WIKI_LINK_PREFIX + links[0]).toPromise().then((wikiResponse) => {
             let responseObject = JSON.parse(wikiResponse.text());
             if (responseObject.error) {
                 this.active.wikiName.push(links[0]);

@@ -15,7 +15,7 @@
  */
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testing';
+import { ComponentFixture, TestBed, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
@@ -87,6 +87,7 @@ describe('Component: DataTable', () => {
         });
         fixture = TestBed.createComponent(DataTableComponent);
         component = fixture.componentInstance;
+        fixture.detectChanges();
     });
 
     it('exists', (() => {
@@ -104,7 +105,7 @@ describe('Component: DataTable', () => {
     });
 
     it('getButtonText does return expected string', () => {
-        component.active.limit = 10;
+        component.meta.limit = 10;
         expect(component.getButtonText()).toBe('No Data');
         component.active.docCount = 10;
         expect(component.getButtonText()).toBe('Total 10');
@@ -112,7 +113,7 @@ describe('Component: DataTable', () => {
         expect(component.getButtonText()).toBe('1 - 10 of 20');
         component.active.page = 2;
         expect(component.getButtonText()).toBe('11 - 20 of 20');
-        component.active.limit = 5;
+        component.meta.limit = 5;
         expect(component.getButtonText()).toBe('6 - 10 of 20');
         component.active.docCount = 5;
         expect(component.getButtonText()).toBe('Total 5');

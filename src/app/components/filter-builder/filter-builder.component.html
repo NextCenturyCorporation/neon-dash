@@ -24,7 +24,7 @@
         </mat-button-toggle-group>
     </mat-toolbar>
 
-    <div class="body-container with-scroll">
+    <div class="body-container">
         <div class="main-container">
             <div class="clause-container" *ngFor="let clause of active.clauses">
                 <div class="clause-form-container">
@@ -61,7 +61,7 @@
                     </mat-form-field>
 
                     <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
-                        <input matInput placeholder="Value" [(ngModel)]="clause.value" (input)="handleChangeDataOfClause(clause)">
+                        <input matInput placeholder="Value" [(ngModel)]="clause.value" (input)="handleChangeDataOfClause(clause)" (keyup.enter)="activateClause(clause)">
                     </mat-form-field>
                 </div>
 
