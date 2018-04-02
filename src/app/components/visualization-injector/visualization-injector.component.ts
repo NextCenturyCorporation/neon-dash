@@ -21,6 +21,7 @@ import { DocumentViewerComponent } from '../document-viewer/document-viewer.comp
 import { FilterBuilderComponent } from '../filter-builder/filter-builder.component';
 import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
+import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
 import { SampleComponent } from '../sample/sample.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
@@ -41,6 +42,7 @@ import { VisualizationService } from '../../services/visualization.service';
         FilterBuilderComponent,
         LineChartComponent,
         MapComponent,
+        MediaViewerComponent,
         NetworkGraphComponent,
         SampleComponent,
         ScatterPlotComponent,
@@ -110,6 +112,7 @@ export class VisualizationInjectorComponent {
             case 'filterBuilder': return FilterBuilderComponent;
             case 'lineChart': return LineChartComponent;
             case 'map': return MapComponent;
+            case 'mediaViewer': return MediaViewerComponent;
             case 'networkGraph' : return NetworkGraphComponent;
             case 'sample': return SampleComponent;
             case 'scatterPlot': return ScatterPlotComponent;

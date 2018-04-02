@@ -67,6 +67,7 @@ import { ChartComponent } from './components/chart/chart.component';
 import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
 
 describe('App: NeonGtd', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -91,6 +92,7 @@ describe('App: NeonGtd', () => {
                 LegendComponent,
                 LineChartComponent,
                 MapComponent,
+                MediaViewerComponent,
                 NetworkGraphComponent,
                 SampleComponent,
                 ScatterPlotComponent,
