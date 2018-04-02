@@ -159,17 +159,35 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let orderedHeaders = [];
         let unorderedHeaders = [];
         if (defaultShowValue) {
-            for (let f of this.meta.fields) {
-                this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: numHeaders < initialHeaderLimit,
-                     style: {}, width: 150});
+            for (let field of this.meta.fields) {
+                this.active.headers.push({
+                    prop: field.columnName,
+                    name: field.prettyName,
+                    active: numHeaders < initialHeaderLimit,
+                    style: {},
+                    width: 150
+                });
                 numHeaders++;
             }
         } else {
-            for (let f of this.meta.fields) {
-                this.headerIsInExceptions(f) ?
-                    orderedHeaders.push({ prop: f.columnName, name: f.prettyName, active: orderedHeaders.length < initialHeaderLimit,
-                         style: {}, width: 150}) :
-                    unorderedHeaders.push({ prop: f.columnName, name: f.prettyName, active: false, style: {}, width: 150});
+            for (let field of this.meta.fields) {
+                if (this.headerIsInExceptions(field)) {
+                    orderedHeaders.push({
+                        prop: field.columnName,
+                        name: field.prettyName,
+                        active: orderedHeaders.length < initialHeaderLimit,
+                        style: {},
+                        width: 150
+                    });
+                } else {
+                    unorderedHeaders.push({
+                        prop: field.columnName,
+                        name: field.prettyName,
+                        active: false,
+                        style: {},
+                        width: 150
+                    });
+                }
             }
             orderedHeaders = this.sortOrderedHeaders(orderedHeaders);
             this.active.headers = orderedHeaders.concat(unorderedHeaders);
@@ -294,8 +312,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     filterIsUnique(filter) {
-        for (let f of this.filters) {
-            if (f.value === filter.value && f.field === filter.field) {
+        for (let existingFilter of this.filters) {
+            if (existingFilter.value === filter.value && existingFilter.field === filter.field) {
                 return false;
             }
         }
@@ -306,12 +324,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return 'Data Chart';
     }
 
-    getFilterData() {
-        return this.filters;
-    }
-
-    getFilterText() {
-        return this.filters[0].value;
+    getFilterText(filter) {
+        return filter.prettyKey + ' = ' + filter.value;
     }
 
     refreshVisualization() {
@@ -542,28 +556,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getCloseableFilters() {
         return this.filters;
-    }
-
-    getFilterTitle(key: string, value: string) {
-        return key + ' = ' + value;
-    }
-
-    getFilterCloseText(value: string) {
-        return value;
-    }
-
-    getRemoveFilterTooltip(key: string, value: string) {
-        return 'Delete Filter ' + this.getFilterTitle(key, value);
-    }
-
-    unsharedFilterChanged() {
-        // Update the data
-        this.executeQueryChain();
-    }
-
-    unsharedFilterRemoved() {
-        // Update the data
-        this.executeQueryChain();
     }
 
     removeFilter(filter: any) {
