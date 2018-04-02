@@ -1168,7 +1168,7 @@ describe('Component: Sample', () => {
         expect(dataInfoIconInSidenav).not.toBeNull();
         expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
 
-        let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info div'));
+        let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
         expect(dataInfoTextInSidenav).not.toBeNull();
         expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
 
@@ -1178,7 +1178,7 @@ describe('Component: Sample', () => {
         let errorIconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
         expect(errorIconInSidenav).toBeNull();
 
-        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message div'));
+        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
         expect(errorMessageInSidenav).toBeNull();
     });
 
@@ -1197,7 +1197,7 @@ describe('Component: Sample', () => {
             expect(dataInfoIconInSidenav).not.toBeNull();
             expect(dataInfoIconInSidenav.nativeElement.textContent).toEqual('info');
 
-            let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info div'));
+            let dataInfoTextInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .data-info span'));
             expect(dataInfoTextInSidenav).not.toBeNull();
             expect(dataInfoTextInSidenav.nativeElement.textContent).toContain('No Data');
 
@@ -1209,7 +1209,7 @@ describe('Component: Sample', () => {
             expect(errorIconInSidenav).not.toBeNull();
             expect(errorIconInSidenav.nativeElement.textContent).toEqual('error');
 
-            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message div'));
+            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
             expect(errorMessageInSidenav).not.toBeNull();
             expect(errorMessageInSidenav.nativeElement.textContent).toContain('Test Error Message');
         });
