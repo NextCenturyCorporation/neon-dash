@@ -53,7 +53,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     selected = [];
 
-    private filters: {
+    protected filters: {
         id: string,
         field: string,
         value: string,
@@ -63,12 +63,15 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public active: {
         idField: FieldMetaData,
         sortField: FieldMetaData,
+        filterFields: FieldMetaData[],
+        arrayFilterOperator: string,
         andFilters: boolean,
         page: number,
         docCount: number,
         filterable: boolean,
         layers: any[],
         data: Object[],
+        rawData: Object[],
         headers: { prop: string, name: string, active: boolean, style: Object, width: number}[],
         headerWidths: Map<string, number>,
         activeHeaders: { prop: string, name: string, active: boolean, style: Object }[],
@@ -101,18 +104,20 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.active = {
             idField: new FieldMetaData(),
             sortField: new FieldMetaData(),
+            filterFields: [],
             andFilters: true,
             page: 1,
             docCount: 0,
-            filterable: true,
+            filterable: this.injector.get('filterable', false),
+            arrayFilterOperator: this.injector.get('arrayFilterOperator', 'and'),
             layers: [],
             data: [],
+            rawData: [],
             headers: [],
             headerWidths: new Map<string, number>(),
             activeHeaders: [],
             showColumnSelector: 'hide'
         };
-
         this.drag = {
             mousedown: false,
             downIndex: -1,
@@ -139,28 +144,50 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     subGetBindings(bindings: any) {
         bindings.idField = this.active.idField.columnName;
         bindings.sortField = this.active.sortField.columnName;
+        bindings.filterFields = this.active.filterFields;
+        bindings.filterable = this.active.filterable;
+        bindings.arrayFilterOperator = this.active.arrayFilterOperator;
     }
 
     onUpdateFields() {
         this.active.idField = this.findFieldObject('idField');
         this.active.sortField = this.findFieldObject('sortField');
+        this.active.filterFields = this.findFieldObjects('filterFields');
         let initialHeaderLimit = 25;
         let numHeaders = 0;
         let defaultShowValue = this.allColumnStatus !== 'hide';
         let orderedHeaders = [];
         let unorderedHeaders = [];
         if (defaultShowValue) {
-            for (let f of this.meta.fields) {
-                this.active.headers.push({ prop: f.columnName, name: f.prettyName, active: numHeaders < initialHeaderLimit,
-                     style: {}, width: 150});
+            for (let field of this.meta.fields) {
+                this.active.headers.push({
+                    prop: field.columnName,
+                    name: field.prettyName,
+                    active: numHeaders < initialHeaderLimit,
+                    style: {},
+                    width: 150
+                });
                 numHeaders++;
             }
         } else {
-            for (let f of this.meta.fields) {
-                this.headerIsInExceptions(f) ?
-                    orderedHeaders.push({ prop: f.columnName, name: f.prettyName, active: orderedHeaders.length < initialHeaderLimit,
-                         style: {}, width: 150}) :
-                    unorderedHeaders.push({ prop: f.columnName, name: f.prettyName, active: false, style: {}, width: 150});
+            for (let field of this.meta.fields) {
+                if (this.headerIsInExceptions(field)) {
+                    orderedHeaders.push({
+                        prop: field.columnName,
+                        name: field.prettyName,
+                        active: orderedHeaders.length < initialHeaderLimit,
+                        style: {},
+                        width: 150
+                    });
+                } else {
+                    unorderedHeaders.push({
+                        prop: field.columnName,
+                        name: field.prettyName,
+                        active: false,
+                        style: {},
+                        width: 150
+                    });
+                }
             }
             orderedHeaders = this.sortOrderedHeaders(orderedHeaders);
             this.active.headers = orderedHeaders.concat(unorderedHeaders);
@@ -281,7 +308,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     addLocalFilter(filter) {
-        this.filters[0] = filter;
+        this.filters = this.filters.concat(filter);
+    }
+
+    filterIsUnique(filter) {
+        for (let existingFilter of this.filters) {
+            if (existingFilter.value === filter.value && existingFilter.field === filter.field) {
+                return false;
+            }
+        }
+        return true;
     }
 
     getVisualizationName(): string {
@@ -289,7 +325,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getFilterText(filter) {
-        return filter.prettyField + ' = ' + filter.value;
+        return filter.prettyKey + ' = ' + filter.value;
     }
 
     refreshVisualization() {
@@ -394,6 +430,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 return row;
             });
             this.active.data = data;
+            // The query response is being stringified and stored in active.data
+            // Store the response in active.rawData to preserve the data in its raw form for querying and filtering purposes
+            this.active.rawData = response.data;
             this.getDocCount();
             this.refreshVisualization();
         }
@@ -413,11 +452,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
+                let field = this.findField(this.meta.fields, neonFilter.filter.whereClause.lhs);
+                let value = neonFilter.filter.whereClause.rhs;
                 this.addLocalFilter({
                     id: neonFilter.id,
-                    field: neonFilter.filter.whereClause.lhs,
-                    value: neonFilter.filter.whereClause.rhs,
-                    prettyField: neonFilter.filter.whereClause.lhs
+                    field: field.columnName,
+                    value: value,
+                    prettyField: field.prettyName
                 });
             }
         }
@@ -519,8 +560,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return this.filters;
     }
 
-    removeFilter() {
-        this.filters = [];
+    removeFilter(filter: any) {
+        this.filters = this.filters.filter((element) => element.id !== filter.id);
     }
 
     nextPage() {
@@ -564,6 +605,54 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
         this.selected.splice(0, this.selected.length);
         this.selected.push(...selected);
+
+        if (this.active.filterable) {
+            let object = this.active.rawData.filter((obj) =>
+                obj[this.active.idField.columnName] === selected[0][this.active.idField.columnName])[0];
+            this.active.filterFields.forEach((filterField: any) => {
+                let dataField = filterField.columnName;
+                let value = (this.active.idField.columnName.length === 0) ? selected[0][dataField] : object[dataField];
+                let key = dataField;
+                let prettyKey = filterField.prettyName;
+                let filter = this.createFilterObject(key, value, prettyKey);
+
+                if (value instanceof Array) {
+                    if (this.active.arrayFilterOperator === 'and') {
+                        value.forEach((element) => {
+                            let arrayFilter = this.createFilterObject(key, element, prettyKey);
+                            let whereClause = neon.query.where(arrayFilter.key, '=', arrayFilter.value);
+                            this.addFilter(arrayFilter, whereClause);
+                        });
+                    } else {
+                        let clauses = value.map((val) =>
+                        neon.query.where(filter.key, '=', val)
+                    );
+                        let clause = neon.query.or.apply(neon.query, clauses);
+                        this.addFilter(filter, clause);
+                    }
+                } else {
+                    let clause = neon.query.where(filter.key, '=', filter.value);
+                    this.addFilter(filter, clause);
+                }
+            });
+        }
+    }
+
+    createFilterObject(key, value, prettyKey): any {
+        let filter = {
+            id: undefined, // This will be set in the success callback of addNeonFilter.
+            key: key,
+            value: value,
+            prettyKey: prettyKey
+        };
+        return filter;
+    }
+
+    addFilter(filter, clause) {
+        if (this.filterIsUnique(filter)) {
+            this.addLocalFilter(filter);
+            this.addNeonFilter(true, filter, clause);
+        }
     }
 
     onTableResize(event) {

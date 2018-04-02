@@ -1028,4 +1028,90 @@ describe('Component: BarChart', () => {
             width: 90
         });
     });
+
+    it('subOnResizeStop with active.chartType=horizontalBar does update active.minSize', () => {
+        component.active.chartType = 'horizontalBar';
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 20,
+            width: 40
+        });
+
+        component.active.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
+        component.active.labelCount = 8;
+        component.meta.limit = 12;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 200,
+            width: 240
+        });
+
+        component.meta.limit = 6;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 110,
+            width: 240
+        });
+
+        component.active.labelCount = 4;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 110,
+            width: 140
+        });
+
+        component.active.bars = ['a', 'b'];
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 50,
+            width: 140
+        });
+    });
+
+    it('subOnResizeStop with active.chartType=bar does update active.minSize', () => {
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 20,
+            width: 40
+        });
+
+        component.active.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
+        component.active.labelCount = 8;
+        component.meta.limit = 12;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 140,
+            width: 340
+        });
+
+        component.meta.limit = 6;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 140,
+            width: 190
+        });
+
+        component.active.labelCount = 4;
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 80,
+            width: 190
+        });
+
+        component.active.bars = ['a', 'b'];
+
+        component.subOnResizeStop();
+        expect(component.active.minSize).toEqual({
+            height: 80,
+            width: 90
+        });
+    });
 });

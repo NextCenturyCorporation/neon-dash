@@ -19,7 +19,7 @@
                 <div *ngIf="meta.errorMessage">
                     <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
-                        <div>{{ meta.errorMessage }}</div>
+                        <span>{{ meta.errorMessage }}</span>
                     </label>
                     <p></p>
                 </div>
@@ -27,7 +27,7 @@
                 <div *ngIf="getButtonText()">
                     <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
                         <mat-icon class="neon-icon-small">info</mat-icon>
-                        <div>{{ getButtonText() }}</div>
+                        <span>{{ getButtonText() }}</span>
                     </label>
                     <p></p>
                 </div>
@@ -49,6 +49,15 @@
                     <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true"
                                 (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
                         <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="ID Field" [(ngModel)]="active.idField"
+                                required="false" (ngModelChange)="handleChangeData()"
+                                [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
@@ -84,6 +93,38 @@
                 </mat-button-toggle-group>
                 <p></p>
 
+                Filtering:
+                <mat-button-toggle-group name="filtering" [(ngModel)]="active.filterable">
+                    <mat-button-toggle [value]="true">
+                        On
+                    </mat-button-toggle>
+                    <mat-button-toggle [value]="false">
+                        Off
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Filter Fields" [(ngModel)]="active.filterFields"
+                                (ngModelChange)="handleChangeFilterField()"
+                                [disabled]="active.filterable == false"
+                                multiple>
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                Array Filter Operator:
+                <mat-button-toggle-group [(ngModel)]="active.arrayFilterOperator" [disabled]="active.filterable == false">
+                    <mat-button-toggle value="and">
+                        and
+                    </mat-button-toggle>
+                    <mat-button-toggle value="or">
+                        or
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
                 <app-unshared-filter [(meta)]="meta" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
@@ -93,16 +134,16 @@
     </mat-sidenav>
 
     <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
-        <mat-spinner ></mat-spinner>
+        <mat-spinner></mat-spinner>
     </div>
 
-    <div class="filter-container">
-        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-            <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
+    <div class="datatable-filter-container">
+        <div class="datatable-filter-reset" *ngFor="let filter of getCloseableFilters()">
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, false, true)">
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, false)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
+            <span class="datatable-filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
         </div>
     </div>
 
