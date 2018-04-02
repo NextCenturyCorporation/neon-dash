@@ -19,7 +19,7 @@
                 <div *ngIf="meta.errorMessage">
                     <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
-                        <div>{{ meta.errorMessage }}</div>
+                        <span>{{ meta.errorMessage }}</span>
                     </label>
                     <p></p>
                 </div>
@@ -27,7 +27,7 @@
                 <div *ngIf="getButtonText()">
                     <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
                         <mat-icon class="neon-icon-small">info</mat-icon>
-                        <div>{{ getButtonText() }}</div>
+                        <span>{{ getButtonText() }}</span>
                     </label>
                     <p></p>
                 </div>
@@ -106,7 +106,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Filter Fields" [(ngModel)]="active.filterFields"
-                                (ngModelChange)="handleChangeData()"
+                                (ngModelChange)="handleChangeFilterField()"
                                 [disabled]="active.filterable == false"
                                 multiple>
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -125,7 +125,6 @@
                 </mat-button-toggle-group>
                 <p></p>
 
-
                 <app-unshared-filter [(meta)]="meta" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
@@ -135,7 +134,7 @@
     </mat-sidenav>
 
     <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
-        <mat-spinner ></mat-spinner>
+        <mat-spinner></mat-spinner>
     </div>
 
     <div class="datatable-filter-container">

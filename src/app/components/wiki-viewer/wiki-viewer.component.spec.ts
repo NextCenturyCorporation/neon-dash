@@ -378,7 +378,7 @@ describe('Component: WikiViewer', () => {
         let iconInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message mat-icon'));
         expect(iconInSidenav).toBeNull();
 
-        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message div'));
+        let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
         expect(errorMessageInSidenav).toBeNull();
     }));
 
@@ -397,7 +397,7 @@ describe('Component: WikiViewer', () => {
             expect(iconInSidenav).not.toBeNull();
             expect(iconInSidenav.nativeElement.textContent).toBe('error');
 
-            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message div'));
+            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
             expect(errorMessageInSidenav).not.toBeNull();
             expect(errorMessageInSidenav.nativeElement.textContent).toContain('Test Error Message');
         });
