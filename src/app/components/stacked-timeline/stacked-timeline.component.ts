@@ -172,11 +172,11 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         this.active.groupField = this.findFieldObject('groupField');
     }
 
-    addLocalFilter(id: string, field: string, startDate: Date, endDate: Date, local?: boolean) {
+    addLocalFilter(id: string, field: string, prettyField: string, startDate: Date, endDate: Date, local?: boolean) {
         this.filters[0] = {
             id: id,
             field: field,
-            prettyField: field,
+            prettyField: prettyField,
             startDate: startDate,
             endDate: endDate,
             local: local
@@ -495,10 +495,9 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
-                let field = whereClause.whereClauses[0].lhs;
-                let startDate = whereClause.whereClauses[0].rhs;
-                let endDate = whereClause.whereClauses[1].rhs;
-                this.addLocalFilter(neonFilter.id, field, startDate, endDate);
+                let field = this.findField(this.meta.fields, neonFilter.filter.whereClause[0].lhs);
+                this.addLocalFilter(neonFilter.id, field.columnName, field.prettyName, whereClause.whereClauses[0].rhs,
+                    whereClause.whereClauses[1].rhs);
             }
 
         }
