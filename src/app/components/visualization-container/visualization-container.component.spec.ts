@@ -44,6 +44,7 @@ import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { ChartComponent } from '../chart/chart.component';
+import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -63,6 +64,7 @@ describe('Component: VisualizationContainer', () => {
                 LegendComponent,
                 LineChartComponent,
                 MapComponent,
+                MediaViewerComponent,
                 NetworkGraphComponent,
                 SampleComponent,
                 ScatterPlotComponent,
