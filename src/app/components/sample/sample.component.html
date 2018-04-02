@@ -6,7 +6,9 @@
             <span class="error-message" *ngIf="meta.errorMessage" [matTooltip]="meta.errorMessage" tooltip-position="below">
                 {{ meta.errorMessage }}
             </span>
-            <span *ngIf="!meta.errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+            <span *ngIf="!meta.errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+                {{ getButtonText() }}
+            </span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below"
             (click)="optionsMenu.toggle();">
@@ -26,7 +28,7 @@
                 </div>
 
                 <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
+                    <label class="icon-with-text data-info" [matTooltip]="getButtonText()" tooltip-position="below">
                         <mat-icon class="neon-icon-small">info</mat-icon>
                         <div>{{ getButtonText() }}</div>
                     </label>
@@ -88,9 +90,9 @@
 
                 <!-- Do you need a subcomponent type selector? -->
                 <mat-form-field>
-                    <mat-select placeholder="Subcomponent Type" [ngModel]="subcomponentType"
+                    <mat-select placeholder="Subcomponent Type" [(ngModel)]="subcomponentType" required="true"
                         (ngModelChange)="handleChangeSubcomponentType($event)">
-                        <mat-option *ngFor="let type of subcomponentTypes" [value]="type.id">{{ type.name }}</mat-option>
+                        <mat-option *ngFor="let type of subcomponentTypes" [value]="type">{{ type }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
@@ -110,7 +112,7 @@
     </div>
 
     <!-- TODO Do you need a header for filters or other components (like a legend)? -->
-    <div class="filter-container">
+    <div class="filter-container" *ngIf="showFilterContainer()">
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close"
@@ -125,15 +127,17 @@
     <div class="body-container" [class.with-filter]="showFilterContainer()" [class.with-footer]="showFooterContainer()">
 
         <!-- TODO Replace with your visualization components! -->
-        <div><strong>Total Document Count: {{ docCount }}</strong></div>
-        <div *ngFor="let item of activeData">
-            <span [matTooltip]="item.label + ': ' + item.count">{{ item.label }}: {{ item.count }}</span>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Filter"
+        <div class="doc-count"><strong>Total Document Count: {{ docCount }}</strong></div>
+        <div class="data-item" *ngFor="let item of activeData">
+            <span class="text" [matTooltip]="item.label + ': ' + item.count" tooltip-position="below">
+                {{ item.label }}: {{ item.count }}
+            </span>
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Add Filter"
                 [matTooltip]="'Add Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, false)">
                 <mat-icon class="neon-icon-small">search</mat-icon>
             </button>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Filter"
-                [matTooltip]="'Replace Filters with Filter on ' + item.label" tooltip-position="below" (click)="filterOnItem(item, true)">
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Replace Filter"
+                [matTooltip]="'Replace Filters with Filter on ' + item.value" tooltip-position="below" (click)="filterOnItem(item, true)">
                 <mat-icon class="neon-icon-small">find_replace</mat-icon>
             </button>
         </div>

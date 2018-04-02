@@ -20,25 +20,35 @@ import { DatasetService } from '../../app/services/dataset.service';
 import { NeonGTDConfig } from '../../app/neon-gtd-config';
 
 export class DatasetMock extends DatasetService {
+    public static COLOR_FIELD = new FieldMetaData('testColorField', 'Test Color Field');
+    public static DATE_FIELD = new FieldMetaData('testDateField', 'Test Date Field');
+    public static GROUP_FIELD = new FieldMetaData('testGroupField', 'Test Group Field');
+    public static ID_FIELD = new FieldMetaData('testIdField', 'Test ID Field');
+    public static LATITUDE_FIELD = new FieldMetaData('testLatitudeField', 'Test Latitude Field');
+    public static LINK_FIELD = new FieldMetaData('testLinkField', 'Test Link Field');
+    public static LONGITUDE_FIELD = new FieldMetaData('testLongitudeField', 'Test Longitude Field');
+    public static SIZE_FIELD = new FieldMetaData('testSizeField', 'Test Size Field');
+
     // Keep in alphabetical order.
     public static FIELDS: FieldMetaData[] = [
-        new FieldMetaData('testColorField', 'Test Color Field'),
-        new FieldMetaData('testDateField', 'Test Date Field'),
-        new FieldMetaData('testIdField', 'Test ID Field'),
-        new FieldMetaData('testLatitudeField', 'Test Latitude Field'),
-        new FieldMetaData('testLinkField', 'Test Link Field'),
-        new FieldMetaData('testLongitudeField', 'Test Longitude Field'),
-        new FieldMetaData('testSizeField', 'Test Size Field')
+        DatasetMock.COLOR_FIELD,
+        DatasetMock.DATE_FIELD,
+        DatasetMock.GROUP_FIELD,
+        DatasetMock.ID_FIELD,
+        DatasetMock.LATITUDE_FIELD,
+        DatasetMock.LINK_FIELD,
+        DatasetMock.LONGITUDE_FIELD,
+        DatasetMock.SIZE_FIELD
     ];
 
     public static TABLES: TableMetaData[] = [
         new TableMetaData('testTable1', 'Test Table 1', DatasetMock.FIELDS),
-        new TableMetaData('testTable2', 'Test Table 2', [])
+        new TableMetaData('testTable2', 'Test Table 2', DatasetMock.FIELDS)
     ];
 
     public static DATABASES: DatabaseMetaData[] = [
         new DatabaseMetaData('testDatabase1', 'Test Database 1', DatasetMock.TABLES),
-        new DatabaseMetaData('testDatabase2', 'Test Database 2', [])
+        new DatabaseMetaData('testDatabase2', 'Test Database 2', DatasetMock.TABLES)
     ];
 
     constructor() {

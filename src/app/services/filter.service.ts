@@ -42,10 +42,10 @@ export class ServiceFilter {
 @Injectable()
 export class FilterService {
 
-    private filters: ServiceFilter[];
-    private messenger: neon.eventing.Messenger;
+    protected filters: ServiceFilter[];
+    protected messenger: neon.eventing.Messenger;
 
-    constructor(private errorNotificationService: ErrorNotificationService, private datasetService: DatasetService) {
+    constructor(protected errorNotificationService: ErrorNotificationService, protected datasetService: DatasetService) {
         this.messenger = new neon.eventing.Messenger();
         this.filters = [];
     }
@@ -72,21 +72,21 @@ export class FilterService {
     }
 
     /**
-     * Returns all filters matching the given comparitor object. The comparitor object can be as sparse
+     * Returns all filters matching the given comparator object. The comparator object can be as sparse
      * or as detailed as desired, and only filters matching every given field will be returned. If no parameter
      * is given, all filters are returned.
-     * @param {Object} [comparitor] The object to use as a filter for returning filters.
+     * @param {Object} [comparator] The object to use as a filter for returning filters.
      * @return {List} The list of all filters that match the given object.
      */
-    public getFilters(comparitor?: any): ServiceFilter[] {
+    public getFilters(comparator?: any): ServiceFilter[] {
         let matches = [];
         // Check the obvious case first to avoid unnecessary comparisons.
-        if (!comparitor) {
+        if (!comparator) {
             return this.filters;
         }
         for (let filter of this.filters) {
             // if unable to find mismatched values, must be equal
-            if (!Object.keys(comparitor).find((key) => !_.isEqual(comparitor[key], filter[key]))) {
+            if (!Object.keys(comparator).find((key) => !_.isEqual(comparator[key], filter[key]))) {
                 matches.push(filter);
             }
         }
@@ -265,16 +265,15 @@ export class FilterService {
         }
     }
 
-    private getFilterNameString(database: string, table: string, filterName: string | {visName: string, text: string}): string {
+    protected getFilterNameString(database: string, table: string, filterName: string | {visName: string, text: string}): string {
         if (typeof filterName === 'object') {
             return (filterName.visName ? filterName.visName + ' - ' : '') + this.datasetService.getDatabaseWithName(database).prettyName +
                 ' - ' + this.datasetService.getTableWithName(database, table).prettyName + (filterName.text ? ': ' + filterName.text : '');
-        } else {
-            return filterName;
         }
+        return filterName;
     }
 
-    private createNeonFilter(database: string, table: string, whereClause: any, filterName: string): neon.query.Filter {
+    protected createNeonFilter(database: string, table: string, whereClause: any, filterName: string): neon.query.Filter {
         let filter = new neon.query.Filter().selectFrom(database, table);
         filter.whereClause = whereClause;
         if (filterName) {
@@ -283,11 +282,11 @@ export class FilterService {
         return filter;
     }
 
-    private createFilterId(database: string, table: string) {
+    protected createFilterId(database: string, table: string) {
         return database + '-' + table + '-' + uuid.v4();
     }
 
-    private createChildrenFromRelations(filter: neon.query.Filter): neon.query.Filter[] {
+    protected createChildrenFromRelations(filter: neon.query.Filter): neon.query.Filter[] {
         let mentionedFields = this.datasetService.findMentionedFields(filter);
         let relatedFieldMapping: any = new Map<string, any>();
         mentionedFields.forEach((field) => {
@@ -312,7 +311,7 @@ export class FilterService {
         return childFilters;
     }
 
-    private getPermutations(originalDb: string,
+    protected getPermutations(originalDb: string,
                             originalTable: string,
                             relatedFieldMapping: Map<string, { database: string, table: string, field: string }[]>):
                             Map<{ database: string, table: string, field: string }, { database: string, table: string, field: string }>[] {
@@ -344,7 +343,7 @@ export class FilterService {
             return permutations;
     }
 
-    private adaptNeonFilterForNewDataset(filter: any,
+    protected adaptNeonFilterForNewDataset(filter: any,
         changeMap: Map<{ database: string, table: string, field: string }, { database: string, table: string, field: string }>): any {
 
         let replaceValues = (object, oldDb, oldTable, oldField, newDb, newTable, newField) => {
