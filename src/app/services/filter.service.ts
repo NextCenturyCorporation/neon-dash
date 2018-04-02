@@ -193,7 +193,7 @@ export class FilterService {
         let siblingIds = this.filters[originalIndex].siblings;
         let newFilters = this.createChildrenFromRelations(filter);
         let newSiblings = [];
-        let idAndFilterList = [[id, filter]];
+        let idAndFilterList = [[id, this.filters[originalIndex].filter]];
 
         // For each sibling, find a new filter with the same database and table (the particular field is irrelevant),
         // and make a replacement for that sibling with the new filter so that on success we can easily replace it.

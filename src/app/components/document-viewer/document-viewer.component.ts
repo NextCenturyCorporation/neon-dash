@@ -75,7 +75,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         public dialog: MatDialog) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-
         this.active = {
             data: [],
             dataField: new FieldMetaData(),

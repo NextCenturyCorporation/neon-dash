@@ -41,6 +41,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { VisualizationService } from '../../services/visualization.service';
 import { ChartComponent } from '../chart/chart.component';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
+import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -56,6 +57,7 @@ describe('Component: VisualizationInjector', () => {
                 LegendComponent,
                 LineChartComponent,
                 MapComponent,
+                MediaViewerComponent,
                 NetworkGraphComponent,
                 SampleComponent,
                 ScatterPlotComponent,

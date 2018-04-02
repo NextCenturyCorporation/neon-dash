@@ -576,6 +576,18 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Returns FieldMetaData object with the given columnName
+     */
+    private getFieldObject(columnName: string, mappingKey?: string): FieldMetaData {
+        let fieldObject: FieldMetaData = columnName ? this.findField(this.meta.fields, columnName) : undefined;
+
+        if (!fieldObject && mappingKey) {
+            fieldObject = this.findField(this.meta.fields, this.getMapping(mappingKey));
+        }
+
+        return fieldObject || new FieldMetaData();
+    }
+    /**
      * Returns the field object in the given list matching the given name.
      *
      * @arg {array} fields
@@ -592,13 +604,14 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Get field object from the key into the config options
      */
     findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
-        let fieldObject: FieldMetaData = bindingKey ? this.findField(this.meta.fields, this.injector.get(bindingKey, '')) : undefined;
+        return this.getFieldObject(this.injector.get(bindingKey, ''), mappingKey);
+    }
 
-        if (!fieldObject && mappingKey) {
-            fieldObject = this.findField(this.meta.fields, this.getMapping(mappingKey));
-        }
-
-        return fieldObject || new FieldMetaData();
+    /**
+     * Get an array of field objects from the key into the config options
+     */
+    findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
+        return this.injector.get(bindingKey, '').map((element) => this.getFieldObject(element, mappingKey));
     }
 
     getMapping(key: string): string {
