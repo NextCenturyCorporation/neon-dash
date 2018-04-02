@@ -933,11 +933,30 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         if (_event.ctrlKey || _event.metaKey && !this.active.disableCtrlZoom && (this.mapType === 'Leaflet')) {
             this.mapObject.zoomIn();
         }
+        this.overlayOn(_event);
     }
 
     mouseWheelDown(_event) {
         if (_event.ctrlKey || _event.metaKey && !this.active.disableCtrlZoom && (this.mapType === 'Leaflet')) {
             this.mapObject.zoomOut();
         }
+        this.overlayOn(_event);
+    }
+
+    overlayOn(_event) {
+        if (!(_event.ctrlKey || _event.metaKey) && !this.active.disableCtrlZoom && (this.mapType === 'Leaflet')) {
+            document.getElementById('overlay').style.zIndex = '1000';
+        }
+    }
+
+    overlayOff(_event) {
+        document.getElementById('overlay').style.zIndex = '-1';
+    }
+
+    getOverlayText() {
+        let overlayText;
+        //TODO display ctrl or CMD based on operating system
+        overlayText = 'Use ctrl + scroll wheel to zoom';
+        return overlayText;
     }
 }
