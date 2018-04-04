@@ -112,8 +112,17 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         // TODO pull in filters from previous filter builder?  maybe?
     }
 
+    /**
+     * Sets the properties in the given bindings for the bar chart.
+     *
+     * @arg {object} bindings
+     * @override
+     */
     subGetBindings(bindings: any) {
-        // TODO
+        bindings.andor = this.active.andor;
+        bindings.clauses = this.active.clauses;
+        bindings.databaseTableFieldKeysToFilterIds = this.active.databaseTableFieldKeysToFilterIds;
+        bindings.operators = this.active.operators;
     }
 
     addBlankWhereClause() {

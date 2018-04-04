@@ -87,11 +87,13 @@ export class DashboardOptionsComponent implements OnInit {
      * @method saveState
      */
     saveState(name: string) {
+        /*
+        // Commenting this out because it causes silent failure on trying to update a saved state.
+        // Better for now to let people overwrite states and protect them from themselves later.
         if (!this.validateName(name)) {
             console.error('Name already exists');
             return;
-        }
-        // TODO: Enable once the visualization service has been migrated
+        }*/
         let stateParams: any = {};
 
         if (name) {
@@ -177,6 +179,7 @@ export class DashboardOptionsComponent implements OnInit {
     handleSaveStateSuccess(response) {
         this.dashboardStateId = response.dashboardStateId;
         this.filterStateId = response.filterStateId;
+        this.formData.stateToSave = '';
 
         // Add/Replace state ids in the url parameters
         // TODO: Enable after replacing old $location calls with appropriate router calls.
