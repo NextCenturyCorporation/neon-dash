@@ -32,6 +32,7 @@ import { FilterBuilderComponent } from './components/filter-builder/filter-build
 import { LegendComponent } from './components/legend/legend.component';
 import { LineChartComponent } from './components/line-chart/line-chart.component';
 import { MapComponent } from './components//map/map.component';
+import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
@@ -66,6 +67,7 @@ import { ChartComponent } from './components/chart/chart.component';
 import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
 
 describe('App: NeonGtd', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -90,7 +92,9 @@ describe('App: NeonGtd', () => {
                 LegendComponent,
                 LineChartComponent,
                 MapComponent,
+                MediaViewerComponent,
                 NetworkGraphComponent,
+                SampleComponent,
                 ScatterPlotComponent,
                 SimpleFilterComponent,
                 StackedTimelineComponent,

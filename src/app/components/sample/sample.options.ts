@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Next Century Corporation
+ * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,13 +13,15 @@
  * limitations under the License.
  *
  */
-@import '../base-neon-component/base-neon.component.scss';
+import { FieldMetaData } from '../../dataset';
+import { SubcomponentType } from './subcomponent.abstract';
 
-.graph-container {
-    height: 100%;
-}
-
-#graphElement {
-    height: 100%;
-    width: 100%;
+/**
+ * Manages configurable options for the visualization.
+ */
+export interface SampleOptions {
+    // TODO Add and remove properties as needed.
+    sampleOptionalField: FieldMetaData;
+    sampleRequiredField: FieldMetaData;
+    subcomponentType: SubcomponentType;
 }

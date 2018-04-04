@@ -1,10 +1,12 @@
 <mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [title]="meta.title">{{ meta.title }}</div>
+        <div #headerText class="header text pull-left" [matTooltip]="meta.title" tooltip-position="below">{{ meta.title }}</div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
-            <span class="error-message" *ngIf="meta.errorMessage" [title]="meta.errorMessage">{{ meta.errorMessage }}</span>
-            <span *ngIf="!meta.errorMessage" [title]="getButtonText()">{{ getButtonText() }}</span>
+            <span class="error-message" *ngIf="meta.errorMessage" [matTooltip]="meta.errorMessage" tooltip-position="below">
+                {{ meta.errorMessage }}
+            </span>
+            <span *ngIf="!meta.errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
@@ -15,7 +17,7 @@
         <mat-card align="left">
             <mat-card-content>
                 <div *ngIf="meta.errorMessage">
-                    <label class="icon-with-text error-message" [title]="meta.errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
                         <div>{{ meta.errorMessage }}</div>
                     </label>
@@ -23,7 +25,7 @@
                 </div>
 
                 <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [title]="getButtonText()">
+                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
                         <mat-icon class="neon-icon-small">info</mat-icon>
                         <div>{{ getButtonText() }}</div>
                     </label>
@@ -54,7 +56,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Term Field" [(ngModel)]="active.dataField" required="true"
-                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
+                                (ngModelChange)="handleChangeFilterField()" [disabled]="meta.fields.length == 0">
                         <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -100,9 +102,7 @@
                 </mat-button-toggle-group>
                 <p></p>
 
-                <app-unshared-filter [(meta)]="meta"
-                    (unsharedFilterChanged)="unsharedFilterChanged()"
-                    (unsharedFilterRemoved)="unsharedFilterRemoved()"></app-unshared-filter>
+                <app-unshared-filter [(meta)]="meta" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
@@ -115,16 +115,17 @@
     </div>
 
     <div class="filter-container">
-        <div class="filter-reset" *ngFor="let filter of getFilterData()">
-            <span class="filter-label" [title]="createFilterDesc(filter.value)">{{ createFilterText(filter.value) }}</span>
+        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+            <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter) + getFilterDetail(filter)">{{ filter.value }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
-                    [matTooltip]="getRemoveDesc(filter.value)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
                 <mat-icon class="neon-icon-small">close</mat-icon>
             </button>
         </div>
     </div>
 
-    <div class="text-cloud body-container" [class.with-filter]="getFilterData().length" mat-fill layout="col">
-        <a (click)="onClick(item)" class="text" *ngFor="let item of active.data" title="{{item.value}}" [rel]="item.count" [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">{{ item.key }}</a>
+    <div class="text-cloud body-container" [class.with-filter]="getCloseableFilters().length" mat-fill layout="col">
+        <a (click)="onClick(item)" class="text" *ngFor="let item of active.data" [matTooltip]="'Count: ' + item.value"
+            tooltip-position="below" [rel]="item.count" [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">{{ item.key }}</a>
     </div>
 </mat-sidenav-container>

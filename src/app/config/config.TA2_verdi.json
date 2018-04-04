@@ -1,72 +1,24 @@
 {
 	"datasets": [
 		{
-			"name": "Verdi Test",
+			"name": "VERDI TA2",
 			"connectOnLoad": true,
-			"layout": "verdi-layout",
+			"layout": "verdi-ta2-layout",
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [{
-				"name": "verdi",
-				"prettyName": "Verdi",
-				"tables": [{
-					"name": "normal",
-					"prettyName": "Normal"
-				},
+				"name": "verdi-rdf",
+				"prettyName": "VERDI",
+				"tables": [
 				{
 					"name": "reified",
 					"prettyName": "Reified"
 				}]
-			}],
-			"relations": [
-				{"members": [
-					{
-						"database": "verdi",
-						"table": "normal",
-						"field": "@id"
-					},
-					{
-						"database": "verdi",
-						"table": "reified",
-						"field": "provenance"
-					}
-				]}
-			]
+			}]
 		}
 	],
 	"layouts": {
-		"verdi-layout": [{
-				"name": "Data Table",
-				"type": "dataTable",
-				"icon": "ViewData64",
-				"sizex": 24,
-				"sizey": 6,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 2,
-				"minSizey": 2,
-				"$$hashKey": "object:31",
-				"selected": true,
-				"bindings": {
-					"title": "Document",
-					"database": "verdi",
-					"table": "normal",
-					"sortField": "author",
-					"filterable": true,
-					"idField": "@id",
-					"filterFields": ["@id"],
-					"allColumnStatus": "hide",
-					"exceptionsToStatus": [
-                        "@id",
-                        "author",
-                        "date",
-                        "docLocation",
-                        "title"
-					]
-				},
-				"row": 0,
-				"col": 0
-			},
+		"verdi-ta2-layout": [
 			{
 				"name": "Data Table",
 				"type": "dataTable",
@@ -81,15 +33,14 @@
 				"selected": true,
 				"bindings": {
 					"title": "Subject",
-					"database": "verdi",
+					"database": "verdi-rdf",
 					"table": "reified",
 					"sortField": "subject",
 					"idField": "@id",
 					"arrayFilterOperator": "or",
 					"filterable": true,
 					"filterFields": [
-						"subject",
-						"provenance"
+						"subject"
 					],
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
@@ -112,15 +63,14 @@
 				"$$hashKey": "object:31",
 				"bindings": {
 					"title": "Predicate",
-					"database": "verdi",
+					"database": "verdi-rdf",
 					"table": "reified",
 					"sortField": "predicate",
 					"idField": "@id",
 					"arrayFilterOperator": "or",
 					"filterable": true,
 					"filterFields": [
-						"predicate",
-						"provenance"
+						"predicate"
 					],
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
@@ -144,15 +94,14 @@
 				"selected": true,
 				"bindings": {
 					"title": "Object",
-					"database": "verdi",
+					"database": "verdi-rdf",
 					"table": "reified",
 					"sortField": "object",
 					"idField": "@id",
 					"arrayFilterOperator": "or",
 					"filterable": true,
 					"filterFields": [
-						"object",
-						"provenance"
+						"object"
 					],
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
@@ -162,49 +111,33 @@
 				"row": 7,
 				"col": 17
 			},
-			{
-				"name": "Media Viewer",
-				"type": "mediaViewer",
-				"icon": "mediaViewer",
-				"sizex": 12,
-				"sizey": 8,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 4,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "Wiki Viewer",
-					"database": "verdi",
-					"table": "normal",
-					"idField": "@id",
-					"linkField": "docLocation"
-				},
-				"row": 13,
-				"col": 0
-			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 12,
-				"sizey": 8,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 4,
-				"$$hashKey": "object:36",
-				"selected": true,
-				"bindings": {
-					"title": "Graph",
-					"database": "verdi",
-					"table": "reified",
-					"dataField": "object"
-				},
-				"row": 13,
-				"col": 13
-			},
+            {
+                "name": "Network Graph",
+                "type": "networkGraph",
+                "icon": "Graph",
+                "sizex": 24,
+                "sizey": 16,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4,
+                "$$hashKey": "object:36",
+                "selected": true,
+                "bindings": {
+                    "title": "Network Graph",
+                    "database": "verdi-rdf",
+                    "table": "reified",
+                    "unsharedFilterField": "",
+                    "unsharedFilterValue": "",
+                    "colorField": "",
+                    "nodeField": "subject",
+                    "linkField": "object",
+                    "isReified": true,
+                    "isDirected": true
+                },
+                "row": 13,
+                "col": 0
+            },
 			{
 				"name": "Filter Builder",
 				"type": "filterBuilder",
@@ -219,7 +152,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Filter Builder",
-					"database": "verdi",
+					"database": "verdi-rdf",
 					"table": "reified"
 				},
 				"row": 22,

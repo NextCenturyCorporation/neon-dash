@@ -10,12 +10,12 @@
       </mat-option>
     </mat-select>
     <button mat-raised-button color="primary" (click)="save()" aria-label="Save"
-      title="Saves configuration to Property Service.  Refresh is required to see changes.">Save</button>
+      matTooltip="Saves configuration to Property Service.  Refresh is required to see changes." tooltip-position="below">Save</button>
     <button mat-raised-button color="primary" (click)="delete()" aria-label="Delete"
-      title="Removes any configuration saved in the Property Service.  Configuration will be loaded from yaml or json files.">Delete</button>
+      matTooltip="Removes any configuration saved in the Property Service.  Configuration will be loaded from yaml or json files." tooltip-position="below">Delete</button>
     <button mat-raised-button color="primary" (click)="reset()" aria-label="Reset"
-      title="Reset changes to actively loaded configuation.">Reset</button>
+      matTooltip="Reset changes to actively loaded configuation." tooltip-position="below">Reset</button>
     <button mat-raised-button color="primary" matDialogClose="close" aria-label="Close"
-      title="Close configuration editor and discard changes.">Close</button>
+      matTooltip="Close configuration editor and discard changes." tooltip-position="below">Close</button>
   </div>
 </div>

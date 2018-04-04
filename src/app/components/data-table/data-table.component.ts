@@ -55,26 +55,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     protected filters: {
         id: string,
-        key: string,
+        field: string,
         value: string,
-        prettyKey: string
+        prettyField: string
     }[];
-
-    private optionsFromConfig: {
-        title: string,
-        database: string,
-        table: string,
-        idField: string,
-        sortField: string,
-        filterFields: string[],
-        filterable: boolean,
-        arrayFilterOperator: string,
-        limit: number,
-        unsharedFilterField: Object,
-        unsharedFilterValue: string,
-        allColumnStatus: string,
-        exceptionsToStatus: string[]
-    };
 
     public active: {
         idField: FieldMetaData,
@@ -94,6 +78,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         showColumnSelector: string
     };
 
+    private allColumnStatus: string;
+    private exceptionsToStatus: string[];
+
     private drag: {
         mousedown: boolean,
         downIndex: number,
@@ -110,21 +97,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         ref: ChangeDetectorRef, visualizationService: VisualizationService) {
         super(activeGridService, connectionService, datasetService, filterService,
             exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            title: this.injector.get('title', null),
-            database: this.injector.get('database', null),
-            table: this.injector.get('table', null),
-            idField: this.injector.get('idField', null),
-            sortField: this.injector.get('sortField', null),
-            filterFields: this.injector.get('filterFields', []),
-            filterable: this.injector.get('filterable', false),
-            arrayFilterOperator: this.injector.get('arrayFilterOperator', 'or'),
-            limit: this.injector.get('limit', 100),
-            unsharedFilterField: {},
-            unsharedFilterValue: '',
-            allColumnStatus: this.injector.get('allColumnStatus', 'show'),
-            exceptionsToStatus: this.injector.get('exceptionsToStatus', [])
-        };
+
+        this.allColumnStatus = this.injector.get('allColumnStatus', 'show');
+        this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
         this.filters = [];
         this.active = {
             idField: new FieldMetaData(),
@@ -133,8 +108,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             andFilters: true,
             page: 1,
             docCount: 0,
-            filterable: this.optionsFromConfig.filterable,
-            arrayFilterOperator: this.optionsFromConfig.arrayFilterOperator,
+            filterable: this.injector.get('filterable', false),
+            arrayFilterOperator: this.injector.get('arrayFilterOperator', 'and'),
             layers: [],
             data: [],
             rawData: [],
@@ -166,10 +141,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         // Do nothing
     }
 
-    getOptionFromConfig(field) {
-        return this.optionsFromConfig[field];
-    }
-
     subGetBindings(bindings: any) {
         bindings.idField = this.active.idField.columnName;
         bindings.sortField = this.active.sortField.columnName;
@@ -184,7 +155,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.active.filterFields = this.findFieldObjects('filterFields');
         let initialHeaderLimit = 25;
         let numHeaders = 0;
-        let defaultShowValue = this.optionsFromConfig.allColumnStatus !== 'hide';
+        let defaultShowValue = this.allColumnStatus !== 'hide';
         let orderedHeaders = [];
         let unorderedHeaders = [];
         if (defaultShowValue) {
@@ -210,7 +181,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     headerIsInExceptions(header) {
         let colName = header.columnName;
         let pName = header.prettyName;
-        for (let name of this.optionsFromConfig.exceptionsToStatus) {
+        for (let name of this.exceptionsToStatus) {
             if (colName === name || pName === name) {
                 return true;
             }
@@ -220,7 +191,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     sortOrderedHeaders(unordered) {
         let sorted = [];
-        for (let header of this.optionsFromConfig.exceptionsToStatus) {
+        for (let header of this.exceptionsToStatus) {
             let headerToPush = this.getHeaderByName(header, unordered);
             if (headerToPush !== null) {
                 sorted.push(headerToPush);
@@ -324,28 +295,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     filterIsUnique(filter) {
         for (let f of this.filters) {
-            if (f.value === filter.value && f.key === filter.key) {
+            if (f.value === filter.value && f.field === filter.field) {
                 return false;
             }
         }
         return true;
-    }
-
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string) {
-        let filterClauses = this.filters.map((filter) => {
-            return neon.query.where(fieldName, '=', filter.value);
-        });
-        if (filterClauses.length === 1) {
-            return filterClauses[0];
-        }
-        if (this.active.andFilters) {
-            return neon.query.and.apply(neon.query, filterClauses);
-        }
-        return neon.query.or.apply(neon.query, filterClauses);
-    }
-
-    getNeonFilterFields(): string[] {
-        return [this.active.sortField.columnName];
     }
 
     getVisualizationName(): string {
@@ -471,14 +425,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getDocCount() {
-        let databaseName = this.meta.database.name;
-        let tableName = this.meta.table.name;
-        let whereClause = this.createClause();
-        let countQuery = new neon.query.Query()
-            .selectFrom(databaseName, tableName)
-            .where(whereClause)
+        let countQuery = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createClause())
             .aggregate(neonVariables.COUNT, '*', '_docCount');
-
         this.executeQuery(countQuery);
     }
 
@@ -492,9 +440,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             if (!neonFilter.filter.whereClause.whereClauses) {
                 this.addLocalFilter({
                     id: neonFilter.id,
-                    key: neonFilter.filter.whereClause.lhs,
+                    field: neonFilter.filter.whereClause.lhs,
                     value: neonFilter.filter.whereClause.rhs,
-                    prettyKey: neonFilter.filter.whereClause.lhs
+                    prettyField: neonFilter.filter.whereClause.lhs
                 });
             }
         }
@@ -586,7 +534,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
-    // Get filters and format for each call in HTML
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
     getCloseableFilters() {
         return this.filters;
     }
@@ -733,6 +686,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     private setStyle(index: number, style: string, value: string) {
         this.active.headers[index].style[style] = value;
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {number}
+     * @override
+     */
+    getDefaultLimit() {
+        return 100;
     }
 
     /**

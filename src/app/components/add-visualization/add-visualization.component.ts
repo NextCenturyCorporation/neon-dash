@@ -36,7 +36,10 @@ export class AddVisualizationComponent implements OnInit {
     }
 
     ngOnInit() {
-        this.visualizations = neonVisualizations;
+        // Ignore the sample visualization.
+        this.visualizations = neonVisualizations.filter((visualization) => {
+            return visualization.type !== 'sample';
+        });
     }
 
     public onItemSelected(shiftKey: boolean, index: number) {
