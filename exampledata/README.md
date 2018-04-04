@@ -11,4 +11,3 @@ curl -XPOST localhost:9200/earthquakes
 curl -XPOST localhost:9200/earthquakes/quakeData/_mapping -d @earthquakedata_mapping.json
 
 elasticdump --input=earthquakes.json --output=http://localhost:9200/earthquakes --type=data
-`
