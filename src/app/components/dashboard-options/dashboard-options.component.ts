@@ -100,9 +100,6 @@ export class DashboardOptionsComponent implements OnInit {
 
         let connection: neon.query.Connection = this.connectionService.getActiveConnection();
         if (connection) {
-            this.datasetService.setLineCharts([{}]);
-            this.datasetService.setMapLayers([{}]);
-
             // Get each visualization's bindings and save them to our dashboard state parameter
             stateParams.dashboard = this.visualizationService.getWidgets();
 

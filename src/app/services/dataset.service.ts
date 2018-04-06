@@ -80,18 +80,12 @@ export class DatasetService {
 
     static validateDatabases(dataset): void {
         let indexListToRemove = [];
-        dataset.dateFilterKeys = {};
         dataset.databases.forEach((database, index) => {
             if (!(database.name || database.tables || database.tables.length)) {
                 indexListToRemove.push(index);
             } else {
                 database.prettyName = database.prettyName || database.name;
                 DatasetService.validateTables(database);
-                // Initialize the date filter keys map for each database/table pair.
-                dataset.dateFilterKeys[database.name] = {};
-                database.tables.forEach((table) => {
-                    dataset.dateFilterKeys[database.name][table.name] = {};
-                });
             }
         });
         this.removeFromArray(dataset.databases, indexListToRemove);
@@ -162,12 +156,7 @@ export class DatasetService {
         this.dataset.hostname = dataset.hostname || '';
         this.dataset.databases = dataset.databases || [];
         this.dataset.options = dataset.options || {};
-        this.dataset.mapLayers = dataset.mapLayers || [];
-        this.dataset.mapConfig = dataset.mapConfig || {};
         this.dataset.relations = dataset.relations || [];
-        this.dataset.linkyConfig = dataset.linkyConfig || {};
-        this.dataset.dateFilterKeys = dataset.dateFilterKeys;
-        this.dataset.lineCharts = dataset.lineCharts || [];
 
         // Shutdown any previous update intervals.
         if (this.updateInterval) {
@@ -724,90 +713,6 @@ export class DatasetService {
             }
         });
         return values;
-    }
-
-    /**
-     * Returns the initial configuration parameters for the map with the given name in the active dataset.
-     * @param {String} name
-     * @return {Object}
-     */
-    public getMapConfig(name: string): Object {
-        return this.dataset.mapConfig[name] || {};
-    }
-
-    /**
-     * Sets the map layer configuration for the active dataset.
-     * @param {object} config A set of layer configuration objects.
-     */
-    public setMapLayers(config: any): void {
-        this.dataset.mapLayers = config;
-        this.updateDataset();
-    }
-
-    /**
-     * Adds a map layer configuration for the active dataset.
-     * @param {String} name A name to map to the given layers.
-     * @param {Array} layers A list of map layer configuration objects.
-     */
-    public addMapLayer(name: string, layers: string): void {
-        this.dataset.mapLayers[name] = layers;
-        this.updateDataset();
-    }
-
-    /**
-     * Returns the map layer configuration for the map with the given name in the active dataset.
-     * @return {Array}
-     */
-    public getMapLayers(name: string): any[] {
-        return this.dataset.mapLayers[name] || [];
-    }
-
-    /**
-     * Sets the line chart configuration for the active dataset.
-     * @param {Array<Object>} config A set of line chart configuration objects.
-     */
-    public setLineCharts(config: any[]): void {
-        this.dataset.lineCharts = config;
-        this.updateDataset();
-    }
-
-    /**
-     * Adds a line chart configuration for the active dataset.
-     * @param {String} chartName A name to map to the given charts.
-     * @param {Array} charts A list of line chart configuration objects.
-     */
-    public addLineChart(chartName: string, charts: Object[]): void {
-        this.dataset.lineCharts[chartName] = charts;
-        this.updateDataset();
-    }
-
-    /**
-     * Returns the line chart configuration for the the line chart with the given name in the active dataset.
-     * @return {Array}
-     */
-    public getLineCharts(name: string): Object {
-        return this.dataset.lineCharts[name] || [];
-    }
-
-    /**
-     * Returns the linky configuration for the active dataset.
-     * @return {Object}
-     */
-    public getLinkyConfig(): any {
-        return this.dataset.linkyConfig;
-    }
-
-    /**
-     * Sets the linky configuration for the active dataset.
-     * @param {Object} config A linky configuration object
-     * @param {Boolean} config.mentions If mentions should be linked
-     * @param {Boolean} config.hashtags If hashtags should be linked
-     * @param {Boolean} config.urls If URLs should be linked
-     * @param {String} config.linkTo Location where mentions and hashtags
-     * should be linked to. Options: "twitter", "instagram", "github"
-     */
-    public setLinkyConfig(config: Object): void {
-        this.dataset.linkyConfig = config;
     }
 
     /**

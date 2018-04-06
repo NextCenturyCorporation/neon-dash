@@ -261,9 +261,6 @@ export class ParameterService {
                 // Update dataset fields, then set as active and update the dashboard
                 this.datasetService.updateDatabases(matchingDataset, connection, (dataset: Dataset) => {
                     this.filterService.getFilterState(() => {
-                        dataset.mapLayers = dashboardState.dataset.mapLayers;
-                        dataset.lineCharts = dashboardState.dataset.lineCharts;
-
                         for (let i = 0; i < dataset.databases.length; i++) {
                             for (let j = 0; j < dataset.databases[i].tables.length; j++) {
                                 dataset.databases[i].tables[j].mappings = dashboardState.dataset.databases[i].tables[j].mappings;
