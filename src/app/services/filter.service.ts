@@ -133,7 +133,7 @@ export class FilterService {
         };
 
         let matchingFilters = [];
-        for (let filter of this.getFilters({database: database, table: table})) {
+        for (let filter of this.getFilters({ database: database, table: table })) {
             if (checkClauses(filter.filter.whereClause)) {
                 matchingFilters.push(filter);
             }
@@ -146,7 +146,7 @@ export class FilterService {
         database: string,
         table: string,
         whereClause: any,
-        filterName: string | {visName: string, text: string},
+        filterName: string | { visName: string, text: string },
         onSuccess?: (resp: any) => any,
         onError?: (resp: any) => any) {
 
@@ -181,7 +181,7 @@ export class FilterService {
         database: string,
         table: string,
         whereClause: any,
-        filterName: string | {visName: string, text: string},
+        filterName: string | { visName: string, text: string },
         onSuccess?: (resp: any) => any,
         onError?: (resp: any) => any) {
 
@@ -222,7 +222,7 @@ export class FilterService {
                 let index = _.findIndex(this.filters, { id: id });
                 this.filters[index] = new ServiceFilter(id, ownerId, database, table, filter, this.filters[index].siblings);
                 for (let i = newSiblings.length - 1; i >= 0; i--) {
-                    index = _.findIndex(this.filters, { id: newSiblings[i].id});
+                    index = _.findIndex(this.filters, { id: newSiblings[i].id });
                     this.filters[index] = newSiblings[i];
                 }
                 onSuccess(id); // Return the ID of the replaced filter.
@@ -239,7 +239,7 @@ export class FilterService {
         let siblings = baseFilter.siblings.concat(id);
         messenger.removeFilters(siblings,
             () => { // TODO - Actually care about what's returned here: a list of successfully removed filters.
-                    // Filters not included weren't successfully removed.
+                // Filters not included weren't successfully removed.
                 siblings.forEach((sibling) => {
                     for (let index = this.filters.length - 1; index >= 0; index--) {
                         if (this.filters[index].id === sibling) {
@@ -265,7 +265,7 @@ export class FilterService {
         }
     }
 
-    protected getFilterNameString(database: string, table: string, filterName: string | {visName: string, text: string}): string {
+    protected getFilterNameString(database: string, table: string, filterName: string | { visName: string, text: string }): string {
         if (typeof filterName === 'object') {
             return (filterName.visName ? filterName.visName + ' - ' : '') + this.datasetService.getDatabaseWithName(database).prettyName +
                 ' - ' + this.datasetService.getTableWithName(database, table).prettyName + (filterName.text ? ': ' + filterName.text : '');
@@ -312,35 +312,35 @@ export class FilterService {
     }
 
     protected getPermutations(originalDb: string,
-                            originalTable: string,
-                            relatedFieldMapping: Map<string, { database: string, table: string, field: string }[]>):
-                            Map<{ database: string, table: string, field: string }, { database: string, table: string, field: string }>[] {
+        originalTable: string,
+        relatedFieldMapping: Map<string, { database: string, table: string, field: string }[]>):
+        Map<{ database: string, table: string, field: string }, { database: string, table: string, field: string }>[] {
 
-            let getPermutationHelper = (fields: any[], permutationToDate: Map<any, any>) => {
-                let currentPermutation = permutationToDate || new Map<any, any>();
-                if (fields.length > 0) {
-                    let currentField = fields[0];
-                    for (let option of currentField[1]) {
-                        let current = _.cloneDeep(currentPermutation);
-                        current.set({
-                            database: originalDb,
-                            table: originalTable,
-                            field: currentField[0]
-                        }, {
+        let getPermutationHelper = (fields: any[], permutationToDate: Map<any, any>) => {
+            let currentPermutation = permutationToDate || new Map<any, any>();
+            if (fields.length > 0) {
+                let currentField = fields[0];
+                for (let option of currentField[1]) {
+                    let current = _.cloneDeep(currentPermutation);
+                    current.set({
+                        database: originalDb,
+                        table: originalTable,
+                        field: currentField[0]
+                    }, {
                             database: option.database,
                             table: option.table,
                             field: option.field
                         });
-                        getPermutationHelper(fields.slice(1), current);
-                    }
-                } else {
-                    permutations.push(permutationToDate);
+                    getPermutationHelper(fields.slice(1), current);
                 }
-            };
-            let permutations = []; // List of maps from original field to new field.
-            let fieldList = Array.from(relatedFieldMapping.entries());
-            getPermutationHelper(fieldList, undefined);
-            return permutations;
+            } else {
+                permutations.push(permutationToDate);
+            }
+        };
+        let permutations = []; // List of maps from original field to new field.
+        let fieldList = Array.from(relatedFieldMapping.entries());
+        getPermutationHelper(fieldList, undefined);
+        return permutations;
     }
 
     protected adaptNeonFilterForNewDataset(filter: any,
