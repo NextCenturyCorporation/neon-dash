@@ -1,50 +1,7 @@
 {
     "dashboard": {
-        "gridsterColumns": 24,
-        "gridsterMargins": 10,
-        "hideNavbarItems": false,
-        "hideAdvancedOptions": false,
-        "hideFilterStatusTray": false,
-        "hideErrorNotifications": false,
-        "hideHeaders": false,
-        "hideCloseButton": false,
-        "showVideoOnLoad": false,
-        "showImport": false,
-        "showExport": true,
         "translationKeys": {
             "google": "API_KEY"
-        }
-    },
-
-    "help": {
-        "guide": "./app/help/Neon-Dashboard-User-Guide.pdf",
-        "webVideo": "",
-        "localVideo": ""
-    },
-
-    "externalServices": {
-        "jsonConfigFile": "",
-        "appImagePath": "",
-        "fileProps": {
-            "url": "url",
-            "name": "name",
-            "image": "image",
-            "services": "services"
-        },
-        "servicesMappings": {
-            "neonMapping1": "serviceName1",
-            "neonMapping2": "serviceName2"
-        },
-        "argsMappings": {
-            "neonMapping1": {
-                "serviceName1": "neonMapping1"
-            },
-            "neonMapping2": {
-                "serviceName2": {
-                    "propertyName1": "neonMapping3",
-                    "propertyName2": "neonMapping4"
-                }
-            }
         }
     },
 
@@ -114,39 +71,7 @@
                     "id": "_id"
                 }
             }]
-        }],
-        "mapConfig": {
-            "myMap1": {
-                "bounds": {
-                    "left": -180,
-                    "bottom": -90,
-                    "right": 180,
-                    "top": 90
-                }
-            }
-        },
-        "linkyConfig": {
-            "mentions": false,
-            "hashtags": false,
-            "urls": true,
-            "linkTo": "twitter"
-        },
-        "options": {
-            "colorMaps": {
-                "test": {
-                    "earthquakes": {
-                        "myField": {
-                            "fieldA": "",
-                            "fieldB": ""
-                        }
-                    }
-                }
-            },
-            "mapBaseLayer": {
-                "color": "dark",
-                "protocol": "https"
-            }
-        }
+        }]
     }],
 
     "layouts": {
@@ -171,22 +96,6 @@
                     "xField": "longitude",
                     "yField": "latitude",
                     "limit": 200
-                }
-            },
-            {
-                "sizex": 20,
-                "sizey": 8,
-                "type": "map",
-                "bindings": {
-                    "database": "test",
-                    "table": "earthquakes",
-                    "latitudeField": "latitude",
-                    "longitudeField": "longitude",
-                    "dateField": "time",
-                    "sizeField": "mag",
-                    "colorField": "magType",
-                    "limit": 1000
-
                 }
             },
             {
@@ -271,89 +180,6 @@
                     "table": "earthquakes"
                 }
             }
-        ]
-    },
-
-    "customFilters": {
-        "test": {
-            "earthquakes": [{
-                "label": "Types",
-                "items": [{
-                    "label": "Earthquake",
-                    "field": "type",
-                    "value": "earthquake"
-                }, {
-                    "label": "Explosion",
-                    "field": "type",
-                    "value": "explosion"
-                }, {
-                    "label": "Landslide",
-                    "field": "type",
-                    "value": "landslide"
-                }, {
-                    "label": "Mining Explosion",
-                    "field": "type",
-                    "value": "mining_explosion"
-                }, {
-                    "label": "Quarry",
-                    "field": "type",
-                    "value": "quarry"
-                }, {
-                    "label": "Quarry Blast",
-                    "field": "type",
-                    "value": "quarry_blast"
-                }, {
-                    "label": "Sonicboom",
-                    "field": "type",
-                    "value": "sonicboom"
-                }]
-            }, {
-                "label": "Networks",
-                "input": {
-                    "field": "net"
-                }
-            }],
-            "myTable": [{
-                "label": "My Group",
-                "items": [{
-                    "label": "Equals My Value",
-                    "field": "myField",
-                    "value": "myValue"
-                }, {
-                    "label": "Contains My Value",
-                    "field": "myField",
-                    "operator": "contains",
-                    "value": "myValue"
-                }, {
-                    "label": "Not Null",
-                    "field": "myField"
-                }],
-                "input": {
-                    "field": "myField",
-                    "operator": "contains"
-                }
-            }, {
-                "label": "My Group 2",
-                "multi": {
-                    "myField": [{
-                        "value": "A"
-                    }, {
-                        "operator": "contains",
-                        "value": "B"
-                    }, {
-                        "value": ["C", "D"]
-                    }]
-                }
-            }]
-        }
-    },
-
-    "files": {
-        "datasets": [
-            "./app/config/sample.dataset.config.json"
-        ],
-        "layouts": [
-            "./app/config/sample.layout.config.json"
         ]
     }
 }
