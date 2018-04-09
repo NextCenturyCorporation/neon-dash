@@ -51,7 +51,13 @@ module.exports = function (config) {
         colors: true,
         logLevel: config.LOG_INFO,
         autoWatch: false,
-        browsers: ['ChromeHeadless', 'Firefox'],
+        browsers: ['ChromeHeadless', 'FirefoxHeadless'],
+        customLaunchers: {
+            FirefoxHeadless: {
+                base: 'Firefox',
+                flags: [ '-headless' ],
+              },
+        },
         singleRun: true,
         client: {
             captureConsole: true,
