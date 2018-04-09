@@ -112,7 +112,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
     public disabledSet: [string[]] = [] as [string[]];
     protected defaultActiveColor: Color;
-    protected mapType: MapType | string;
+    mapType: MapType | string;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
