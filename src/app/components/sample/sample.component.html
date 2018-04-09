@@ -90,7 +90,7 @@
 
                 <!-- Do you need a subcomponent type selector? -->
                 <mat-form-field>
-                    <mat-select placeholder="Subcomponent Type" [(ngModel)]="subcomponentType" required="true"
+                    <mat-select placeholder="Subcomponent Type" [(ngModel)]="options.subcomponentType" required="true"
                         (ngModelChange)="handleChangeSubcomponentType($event)">
                         <mat-option *ngFor="let type of subcomponentTypes" [value]="type">{{ type }}</mat-option>
                     </mat-select>
