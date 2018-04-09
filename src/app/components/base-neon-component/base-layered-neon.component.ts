@@ -68,7 +68,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
             unsharedFilterField: any,
             unsharedFilterValue: string,
             docCount: number
-        }[]
+        }[],
+        errorMessage?: string
     };
 
     public exportId: number;

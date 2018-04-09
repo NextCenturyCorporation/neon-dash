@@ -81,17 +81,17 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }[];
 
     // The configurable options for the visualization.
-    protected options: SampleOptions;
+    options: SampleOptions;
 
     // The data pagination properties.
     protected lastPage: boolean;
     protected page: number;
 
     // The data shown in the visualization (limited).
-    protected activeData: any[];
+    activeData: any[];
 
     // The data count used for the settings text and pagination.
-    protected docCount: number;
+    docCount: number;
 
     // The data returned by the visualization query response (not limited).
     protected responseData: any[];
@@ -99,7 +99,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     // TODO The subcomponent is here as a sample but it's not doing anything.  Use it or remove it!
     // The properties for the subcomponent.
     protected subcomponentObject: AbstractSubcomponent;
-    protected subcomponentTypes: {
+    subcomponentTypes: {
         id: number,
         name: string
     }[] = Object.keys(SubcomponentType).map((name) => ({
