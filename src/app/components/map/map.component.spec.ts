@@ -960,8 +960,8 @@ describe('Component: Map', () => {
         updateMapLayer1(component);
         expect(component.doesLayerStillHaveFilter(0)).toBe(false);
 
-        getService(FilterService).addFilter(null, 'testOwner1', 'testDatabase1', 'testTable1', neon.query.and.apply(
-            neon.query, [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)]), 'testFilter1');
+        getService(FilterService).addFilter(null, 'testName', 'testDatabase1', 'testTable1', neon.query.and.apply(neon.query, [
+            neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)]), 'testFilterName1');
         expect(component.doesLayerStillHaveFilter(0)).toBe(true);
 
         updateMapLayer2(component);

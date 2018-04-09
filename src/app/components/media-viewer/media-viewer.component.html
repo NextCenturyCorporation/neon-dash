@@ -1,10 +1,12 @@
 <mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [title]="meta.title">{{ meta.title }}</div>
+        <div #headerText class="header text pull-left" [matTooltip]="meta.title" tooltip-position="below">{{ meta.title }}</div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
-            <span class="error-message" *ngIf="meta.errorMessage" [title]="meta.errorMessage">{{ meta.errorMessage }}</span>
-            <span *ngIf="!meta.errorMessage" [title]="getButtonText()">{{ getButtonText() }}</span>
+            <span class="error-message" *ngIf="meta.errorMessage" [matTooltip]="meta.errorMessage" tooltip-position="below">
+                {{ meta.errorMessage }}
+            </span>
+            <span *ngIf="!meta.errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
         <button *ngIf="active.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
@@ -15,17 +17,17 @@
         <mat-card align="left">
             <mat-card-content>
                 <div *ngIf="meta.errorMessage">
-                    <label class="icon-with-text error-message" [title]="meta.errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
-                        <div>{{ meta.errorMessage }}</div>
+                        <span>{{ meta.errorMessage }}</span>
                     </label>
                     <p></p>
                 </div>
 
                 <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [title]="getButtonText()">
+                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
                         <mat-icon class="neon-icon-small">info</mat-icon>
-                        <div>{{ getButtonText() }}</div>
+                        <span>{{ getButtonText() }}</span>
                     </label>
                     <p></p>
                 </div>
@@ -69,7 +71,7 @@
     </mat-sidenav>
 
     <div [class.loading-overlay]="isLoading || isLoadingWikiPage" [class.not-loading-overlay]="!isLoading && !isLoadingWikiPage">
-        <mat-spinner ></mat-spinner>
+        <mat-spinner></mat-spinner>
     </div>
 
     <mat-tab-group class="media-viewer" *ngIf="active.url == ''">

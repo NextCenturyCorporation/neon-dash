@@ -34,16 +34,13 @@ import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import {
-    AbstractSubcomponent,
-    SubcomponentListener,
-    SubcomponentType
-} from './subcomponent.abstract';
+import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
 import { SampleOptions } from './sample.options';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
+import { SubcomponentImpl2 } from './subcomponent.impl2';
 import * as neon from 'neon-framework';
 
 // TODO Name your visualization!
@@ -63,49 +60,43 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     // TODO Remove this property if you don't need a subcomponent.
     @ViewChild('subcomponent') subcomponentElementRef: ElementRef;
 
-    // TODO Define properties as needed.  Make protected so they can be used by test implementations.
+    // TODO Define properties as needed.  Made public so they can be used by unit tests.
 
     // The filter set in the config file.
-    protected configFilter: {
+    public configFilter: {
         lhs: string,
         operator: string,
         rhs: string
     };
 
     // The visualization filters.
-    protected filters: {
+    public filters: {
         id: string,
         field: string,
         prettyField: string,
         value: string
-    }[];
+    }[] = [];
 
     // The configurable options for the visualization.
-    options: SampleOptions;
+    public options: SampleOptions;
 
     // The data pagination properties.
-    protected lastPage: boolean;
-    protected page: number;
+    public lastPage: boolean = true;
+    public page: number = 1;
 
     // The data shown in the visualization (limited).
-    activeData: any[];
+    public activeData: any[] = [];
 
     // The data count used for the settings text and pagination.
-    docCount: number;
+    public docCount: number = 0;
 
     // The data returned by the visualization query response (not limited).
-    protected responseData: any[];
+    public responseData: any[] = [];
 
     // TODO The subcomponent is here as a sample but it's not doing anything.  Use it or remove it!
     // The properties for the subcomponent.
-    protected subcomponentObject: AbstractSubcomponent;
-    subcomponentTypes: {
-        id: number,
-        name: string
-    }[] = Object.keys(SubcomponentType).map((name) => ({
-        id: SubcomponentType[name],
-        name: name
-    }));
+    public subcomponentObject: AbstractSubcomponent;
+    public subcomponentTypes: string[] = ['Impl1', 'Impl2'];
 
     constructor(
         activeGridService: ActiveGridService,
@@ -132,18 +123,12 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         );
 
         // TODO Initialize properties as needed.  Use the injector to get options set in the config file.
-        this.activeData = [];
         this.configFilter = this.injector.get('configFilter', null);
-        this.docCount = 0;
-        this.filters = [];
-        this.lastPage = true;
         this.options = {
-            sampleOptionalField: new FieldMetaData(),
-            sampleRequiredField: new FieldMetaData(),
+            sampleOptionalField: this.emptyField,
+            sampleRequiredField: this.emptyField,
             subcomponentType: this.injector.get('subcomponentType', this.subcomponentTypes[0])
         };
-        this.page = 1;
-        this.responseData = [];
     }
 
     // TODO Change arguments as needed.
@@ -156,25 +141,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.filters = this.filters.filter((existingFilter) => {
             return existingFilter.id !== filter.id;
         }).concat(filter);
-    }
-
-    // TODO Change arguments as needed.
-    /**
-     * Creates and returns a filter object for the visualization.
-     *
-     * @arg {string} id
-     * @arg {string} field
-     * @arg {string} prettyField
-     * @arg {string} value
-     * @return {object}
-     */
-    buildVisualizationFilter(id: string, field: string, prettyField: string, value: string): any {
-        return {
-            id: id,
-            field: field,
-            prettyField: prettyField,
-            value: value
-        };
     }
 
     /**
@@ -195,6 +161,25 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         }
 
         return query.groupBy(aggregationFields).aggregate(neonVariables.COUNT, '*', 'count').sortBy('count', neonVariables.DESCENDING);
+    }
+
+    // TODO Change arguments as needed.
+    /**
+     * Creates and returns a filter object for the visualization.
+     *
+     * @arg {string} id
+     * @arg {string} field
+     * @arg {string} prettyField
+     * @arg {string} value
+     * @return {object}
+     */
+    createVisualizationFilter(id: string, field: string, prettyField: string, value: string): any {
+        return {
+            id: id,
+            field: field,
+            prettyField: prettyField,
+            value: value
+        };
     }
 
     /**
@@ -246,7 +231,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * @arg {boolean} [replaceAll=false]
      */
     filterOnItem(item: any, replaceAll = false) {
-        let filter = this.buildVisualizationFilter(undefined, item.field, item.prettyField, item.value);
+        let filter = this.createVisualizationFilter(undefined, item.field, item.prettyField, item.value);
         let neonFilter = neon.query.where(filter.field, '=', filter.value);
 
         if (replaceAll) {
@@ -429,9 +414,9 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     /**
      * Updates the sub-component and reruns the visualization query.
      *
-     * @arg {SubcomponentType} subcomponentType
+     * @arg {string} subcomponentType
      */
-    handleChangeSubcomponentType(subcomponentType: SubcomponentType) {
+    handleChangeSubcomponentType(subcomponentType: string) {
         if (this.options.subcomponentType !== subcomponentType) {
             this.options.subcomponentType = subcomponentType;
             if (this.subcomponentObject) {
@@ -448,7 +433,10 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      */
     initializeSubcomponent() {
         switch (this.options.subcomponentType) {
-            case SubcomponentType.Impl1:
+            case 'Impl2':
+                this.subcomponentObject = new SubcomponentImpl2(this.options, this);
+                break;
+            case 'Impl1':
             default:
                 this.subcomponentObject = new SubcomponentImpl1(this.options, this);
         }
@@ -480,6 +468,61 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         return !this.filters.some((existingFilter) => {
             return existingFilter.field === field && existingFilter.value === value;
         });
+    }
+
+    /**
+     * Handles the query results for the visualization; updates and/or redraws any properties and/or sub-components as needed.
+     *
+     * @arg {object} response
+     * @override
+     */
+    onQuerySuccess(response: any) {
+        // TODO Remove this part if you don't need a document count query.
+        // Check for undefined because the count may be zero.
+        if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
+            this.docCount = response.data[0]._docCount;
+            return;
+        }
+
+        // TODO If you need to show an error message, set this.meta.errorMessage as needed.
+
+        // TODO Change this behavior as needed to handle your query results.
+
+        // The aggregation query response data will have a count field and all visualization fields.
+        this.responseData = response.data.map((item) => {
+            let label = item[this.options.sampleRequiredField.columnName] + (this.options.sampleOptionalField.columnName ? ' - ' +
+                item[this.options.sampleOptionalField.columnName] : '');
+
+            return {
+                count: item.count,
+                field: this.options.sampleRequiredField.columnName,
+                label: label,
+                prettyField: this.options.sampleRequiredField.prettyName,
+                value: item[this.options.sampleRequiredField.columnName]
+            };
+        });
+
+        this.page = 1;
+        this.updateActiveData();
+
+        // TODO Remove this part if you don't need a document count query.
+        if (this.responseData.length) {
+            this.runDocCountQuery();
+        } else {
+            this.docCount = 0;
+        }
+    }
+
+    /**
+     * Updates the fields for the visualization once databases and tables are set.
+     *
+     * @override
+     */
+    onUpdateFields() {
+        // Read the config bindings for the visualization.
+        this.options.sampleOptionalField = this.findFieldObject('sampleOptionalField');
+        this.options.sampleRequiredField = this.findFieldObject('sampleRequiredField');
+        // TODO Add or remove fields and properties as needed.
     }
 
     /**
@@ -554,7 +597,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
                 let field = this.findField(this.meta.fields, neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 if (this.isVisualizationFilterUnique(field.columnName, value)) {
-                    this.addVisualizationFilter(this.buildVisualizationFilter(neonFilter.id, field.columnName, field.prettyName, value));
+                    this.addVisualizationFilter(this.createVisualizationFilter(neonFilter.id, field.columnName, field.prettyName, value));
                 }
             }
         }
@@ -634,61 +677,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      */
     subOnResizeStop() {
         this.subcomponentObject.redraw();
-    }
-
-    /**
-     * Handles the query results for the visualization; updates and/or redraws any properties and/or sub-components as needed.
-     *
-     * @arg {object} response
-     * @override
-     */
-    onQuerySuccess(response: any) {
-        // TODO Remove this part if you don't need a document count query.
-        // Check for undefined because the count may be zero.
-        if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data[0]._docCount;
-            return;
-        }
-
-        // TODO If you need to show an error message, set this.meta.errorMessage as needed.
-
-        // TODO Change this behavior as needed to handle your query results.
-
-        // The aggregation query response data will have a count field and all visualization fields.
-        this.responseData = response.data.map((item) => {
-            let label = item[this.options.sampleRequiredField.columnName] + (this.options.sampleOptionalField.columnName ? ' - ' +
-                item[this.options.sampleOptionalField.columnName] : '');
-
-            return {
-                count: item.count,
-                field: this.options.sampleRequiredField.columnName,
-                label: label,
-                prettyField: this.options.sampleRequiredField.prettyName,
-                value: item[this.options.sampleRequiredField.columnName]
-            };
-        });
-
-        this.page = 1;
-        this.updateActiveData();
-
-        // TODO Remove this part if you don't need a document count query.
-        if (this.responseData.length) {
-            this.runDocCountQuery();
-        } else {
-            this.docCount = 0;
-        }
-    }
-
-    /**
-     * Updates the fields for the visualization once databases and tables are set.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        // Read the config bindings for the visualization.
-        this.options.sampleOptionalField = this.findFieldObject('sampleOptionalField');
-        this.options.sampleRequiredField = this.findFieldObject('sampleRequiredField');
-        // TODO Add or remove fields and properties as needed.
     }
 
     /**

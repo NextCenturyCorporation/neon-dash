@@ -41,7 +41,10 @@
             <input matInput placeholder="New State Name" maxlength="100" name="stateToSave" dividerColor="accent" [(ngModel)]="formData.stateToSave">
         </mat-form-field>
 
-        <button mat-raised-button class="neon-button-small" color="accent" (click)="saveState(formData.stateToSave)">Save State</button>
+        <button mat-raised-button class="neon-button-small" color="accent" (click)="saveState(formData.stateToSave)">
+                <span *ngIf="validateName(formData.stateToSave)">Save State</span>
+                <span *ngIf="!validateName(formData.stateToSave)">Overwrite State</span>
+            </button>
     </div>
 
     <div class="option-row">

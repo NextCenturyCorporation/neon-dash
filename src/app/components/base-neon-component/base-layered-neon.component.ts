@@ -54,6 +54,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * Common metadata about the database, and the table and any unshared filter of the layers
      */
     public meta: {
+        errorMessage: string,
         title: string,
         limit: number,
         newLimit: number,
@@ -106,6 +107,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         this.isLoading = 0;
 
         this.meta = {
+            errorMessage: '',
             title: '',
             limit: 0,
             newLimit: 0,

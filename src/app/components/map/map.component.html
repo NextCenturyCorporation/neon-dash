@@ -19,7 +19,7 @@
                 <div *ngIf="meta.errorMessage">
                     <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
-                        <div>{{ meta.errorMessage }}</div>
+                        <span>{{ meta.errorMessage }}</span>
                     </label>
                     <p></p>
                 </div>
@@ -27,7 +27,7 @@
                 <div *ngIf="getButtonText()">
                     <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
                         <mat-icon class="neon-icon-small">info</mat-icon>
-                        <div>{{ getButtonText() }}</div>
+                        <span>{{ getButtonText() }}</span>
                     </label>
                     <p></p>
                 </div>
@@ -143,6 +143,7 @@
 
     <div class="body-container" (click)="stopEventPropagation($event)">
         <div class="map-container" (click)="stopEventPropagation($event)" mouseWheel (mouseWheelUp)="mouseWheelUp($event)" (mouseWheelDown)="mouseWheelDown($event)">
+            <div class="overlay" id="text"> {{ getOverlayText() }} </div>
             <div #mapElement id="mapElement" (click)="stopEventPropagation($event)"></div>
             <div class="map-selection" *ngIf="false" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
         </div>
