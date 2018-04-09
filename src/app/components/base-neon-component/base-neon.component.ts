@@ -31,6 +31,7 @@ import * as _ from 'lodash';
 import { VisualizationService } from '../../services/visualization.service';
 import * as uuid from 'node-uuid';
 import { Color } from '../../services/color-scheme.service';
+import 'rxjs/add/operator/map';
 
 /**
  * Base component for all non-layered Neon visualizations.
@@ -611,7 +612,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Get an array of field objects from the key into the config options
      */
     findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
-        return this.injector.get(bindingKey, '').map((element) => this.getFieldObject(element, mappingKey));
+        try {
+            return this.injector.get(bindingKey, '').map((element) => this.getFieldObject(element, mappingKey));
+        } catch (e) {
+            return null;
+        }
     }
 
     getMapping(key: string): string {
