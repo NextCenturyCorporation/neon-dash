@@ -613,7 +613,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
         try {
-            return this.injector.get(bindingKey, '').map((element) => this.getFieldObject(element, mappingKey));
+            return this.injector.get(bindingKey, []).map((element) => this.getFieldObject(element, mappingKey));
         } catch (e) {
             return null;
         }

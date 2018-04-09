@@ -14,23 +14,10 @@
  *
  */
 import * as neon from 'neon-framework';
-import * as uuid from 'node-uuid';
 import * as _ from 'lodash';
 import { FilterService, ServiceFilter } from '../../app/services/filter.service';
 
 export class FilterMock extends FilterService {
-    createMockFilter(database: string, table: string, whereClause: neon.query.WhereClause,
-                     filterName: string | { visName: string; text: string }) {
-        let filter = new neon.query.Filter().selectFrom(database, table),
-            name = (typeof filterName === 'string') ? filterName :
-                (filterName.visName ? filterName.visName + ' - ' : '') + table + filterName.text ? ': ' + filterName.text : '';
-        filter.whereClause = whereClause;
-        if (filterName) {
-            filter = filter.name(name);
-        }
-        return filter;
-    }
-
     addFilter(messenger: neon.eventing.Messenger,
         ownerId: string,
         database: string,
@@ -41,16 +28,24 @@ export class FilterMock extends FilterService {
         onError: (resp: any) => any) {
 
         // avoid network call
-        let id = database + '-' + table + '-' + uuid.v4(),
-            filter = this.createMockFilter(database, table, whereClause, filterName);
-        this.getFilters().push(new ServiceFilter(id, ownerId, database, table, filter));
+        let id = database + '-' + table + '-' + filterName;
+        let filter = this.createNeonFilter(database, table, whereClause, this.getFilterNameString(database, table, filterName));
+        this.filters.push(new ServiceFilter(id, ownerId, database, table, filter));
 
         // don't do success call to avoid calling query chain
     }
 
+    // Override to avoid calls to the DatasetService.
+    getFilterNameString(database: string, table: string, filterName: string | {visName: string, text: string}): string {
+        if (typeof filterName === 'object') {
+            return (filterName.visName ? filterName.visName + ' - ' : '') + database + ' - ' + table +
+                (filterName.text ? ': ' + filterName.text : '');
+        }
+        return filterName;
+    }
+
     getLatestFilterId(): string {
-        let filters = this.getFilters();
-        return filters[filters.length - 1].id;
+        return this.filters[this.filters.length - 1].id;
     }
 
     replaceFilter(messenger: neon.eventing.Messenger,
@@ -63,10 +58,9 @@ export class FilterMock extends FilterService {
         onSuccess: (resp: any) => any,
         onError: (resp: any) => any) {
 
-        let filter = this.createMockFilter(database, table, whereClause, filterName);
-        let filters = this.getFilters(),
-            index = _.findIndex(filters, { id: id });
-        filters[index] = new ServiceFilter(id, ownerId, database, table, filter);
+        let filter = this.createNeonFilter(database, table, whereClause, this.getFilterNameString(database, table, filterName));
+        let index = _.findIndex(this.filters, { id: id });
+        this.filters[index] = new ServiceFilter(id, ownerId, database, table, filter);
 
         // don't do success call to avoid calling query chain
     }

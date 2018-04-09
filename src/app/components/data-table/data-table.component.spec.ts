@@ -121,7 +121,7 @@ describe('Component: DataTable', () => {
 
     it('addFilter should add filter', () => {
         addFilter('testDataField', 'Test Value', 'Test Data Field');
-        expect(component.getFilterData().length).toBe(1);
+        expect(component.getCloseableFilters().length).toBe(1);
         expect(getService(FilterService).getFilters().length).toBe(1);
         //Set another filter. Filter key must be different
         addFilter('testDataField2', 'Test Value2', 'Test Data Field 2');

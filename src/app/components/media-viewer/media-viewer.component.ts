@@ -110,16 +110,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Creates and returns the filter for the wiki viewer (null because the wiki viewer does not filter).
-     *
-     * @return {null}
-     * @override
-     */
-    createNeonFilterClauseEquals(database: string, table: string, fieldName: string | string[]) {
-        return null;
-    }
-
-    /**
      * Creates and returns the query for the wiki viewer.
      *
      * @return {neon.query.Query}
@@ -184,7 +174,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the list filters for the wiki viewer to ignore (null for no filters).
+     * Returns the list of filters for the wiki viewer to ignore (null for no filters).
      *
      * @return {null}
      * @override
@@ -205,31 +195,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns the list of filter objects (null for no filters).
      *
+     * @return {null}
+     * @override
      */
     getCloseableFilters(): any[] {
-        return;
-    }
-
-    /**
-     * Returns the list of filter fields for the wiki viewer (an empty array because the wiki viewer does not filter).
-     *
-     * @return {array}
-     * @override
-     */
-    getNeonFilterFields(): string[] {
-        return [];
-    }
-
-    /**
-     * Returns the option for the given property from the wiki viewer config.
-     *
-     * @arg {string} option
-     * @return {object}
-     * @override
-     */
-    getOptionFromConfig(option: string): any {
-        return this.optionsFromConfig[option];
+        return null;
     }
 
     /**
