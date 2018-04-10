@@ -589,14 +589,24 @@ export class DatasetService {
 
     public findMentionedFields(filter: neon.query.Filter): { database: string, table: string, field: string }[] {
         let findMentionedFieldsHelper = (clause: neon.query.WherePredicate) => {
-            if (clause instanceof neon.query.WhereClause) {
-                return [clause.lhs];
-            } else if (clause instanceof neon.query.BooleanClause) {
-                let foundFields = [];
+            switch (clause.type) {
+                case 'where': {
+                    return [clause.lhs];
+                }
+                case 'and': {
+                    let foundFields = [];
                 clause.whereClauses.forEach((innerClause) => {
                     foundFields = foundFields.concat(findMentionedFieldsHelper(innerClause));
                 });
                 return foundFields;
+                }
+                case 'or': {
+                    let foundFields = [];
+                clause.whereClauses.forEach((innerClause) => {
+                    foundFields = foundFields.concat(findMentionedFieldsHelper(innerClause));
+                });
+                return foundFields;
+                }
             }
         };
         let fields = findMentionedFieldsHelper(filter.whereClause);
