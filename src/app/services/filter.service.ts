@@ -58,7 +58,19 @@ export class FilterService {
      */
     public getFilterState(onSuccess?: () => any, onError?: (resp: any) => any) {
         neon.query.Filter.getFilterState('*', '*', (filters) => {
-            this.filters = filters;
+            this.filters = filters.map((filter) => {
+                return new ServiceFilter(filter.id, undefined, filter.dataSet.databaseName, filter.dataSet.tableName, filter.filter);
+            });
+            for (let filter of this.filters) {
+                this.replaceFilter(
+                    this.messenger,
+                    filter.id,
+                    filter.filter.ownerId,
+                    filter.filter.databaseName,
+                    filter.filter.tableName,
+                    filter.filter.whereClause,
+                    filter.filter.filterName);
+            }
             if (onSuccess) {
                 onSuccess();
             }
