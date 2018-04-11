@@ -7,7 +7,7 @@
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [{
-                "name": "verdi-rdf",
+                "name": "verdi",
                 "prettyName": "VERDI",
                 "tables": [{
                     "name": "normal",
@@ -21,12 +21,12 @@
             "relations": [
                 {"members": [
                     {
-                        "database": "verdi-rdf",
+                        "database": "verdi",
                         "table": "normal",
                         "field": "@id"
                     },
                     {
-                        "database": "verdi-rdf",
+                        "database": "verdi",
                         "table": "reified",
                         "field": "provenance"
                     }
@@ -40,7 +40,7 @@
             "type": "dataTable",
             "icon": "ViewData64",
             "sizex": 24,
-            "sizey": 6,
+            "sizey": 4,
             "minPixelx": 320,
             "minPixely": 240,
             "minSizex": 2,
@@ -49,8 +49,9 @@
             "selected": true,
             "bindings": {
                 "title": "Document",
-                "database": "verdi-rdf",
+                "database": "verdi",
                 "table": "normal",
+                "idField": "@id",
                 "sortField": "author",
                 "filterable": true,
                 "filterFields": ["@id"],
@@ -60,7 +61,8 @@
                     "author",
                     "date",
                     "docLocation",
-                    "title"
+                    "title",
+                    "docType"
                 ]
             },
             "row": 0,
@@ -71,7 +73,7 @@
                 "type": "dataTable",
                 "icon": "ViewData64",
                 "sizex": 8,
-                "sizey": 5,
+                "sizey": 4,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -80,7 +82,7 @@
                 "selected": true,
                 "bindings": {
                     "title": "Subject",
-                    "database": "verdi-rdf",
+                    "database": "verdi",
                     "table": "reified",
                     "sortField": "subject",
                     "idField": "@id",
@@ -103,7 +105,7 @@
                 "type": "dataTable",
                 "icon": "ViewData64",
                 "sizex": 8,
-                "sizey": 5,
+                "sizey": 4,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -111,7 +113,7 @@
                 "$$hashKey": "object:31",
                 "bindings": {
                     "title": "Predicate",
-                    "database": "verdi-rdf",
+                    "database": "verdi",
                     "table": "reified",
                     "sortField": "predicate",
                     "idField": "@id",
@@ -134,7 +136,7 @@
                 "type": "dataTable",
                 "icon": "ViewData64",
                 "sizex": 8,
-                "sizey": 5,
+                "sizey": 4,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -143,7 +145,7 @@
                 "selected": true,
                 "bindings": {
                     "title": "Object",
-                    "database": "verdi-rdf",
+                    "database": "verdi",
                     "table": "reified",
                     "sortField": "object",
                     "idField": "@id",
@@ -162,9 +164,9 @@
                 "col": 17
             },
             {
-                "name": "Wiki Viewer",
-                "type": "wikiViewer",
-                "icon": "WikiViewer",
+                "name": "Media Viewer",
+                "type": "mediaViewer",
+                "icon": "mediaViewer",
                 "sizex": 12,
                 "sizey": 8,
                 "minPixelx": 320,
@@ -174,9 +176,13 @@
                 "$$hashKey": "object:35",
                 "selected": true,
                 "bindings": {
-                    "title": "Wiki Viewer",
-                    "database": "verdi-rdf",
-                    "table": "normal"
+                    "id": "_id",
+                    "title": "Media Viewer",
+                    "database": "verdi",
+                    "table": "normal",
+                    "idField": "@id",
+                    "linkField": "docLocation",
+                    "typeField": "docType"
                 },
                 "row": 13,
                 "col": 0
@@ -195,7 +201,7 @@
                 "selected": true,
                 "bindings": {
                     "title": "Network Graph",
-                    "database": "verdi-rdf",
+                    "database": "verdi",
                     "table": "reified",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
@@ -222,7 +228,7 @@
                 "selected": true,
                 "bindings": {
                     "title": "Filter Builder",
-                    "database": "verdi-rdf",
+                    "database": "verdi",
                     "table": "reified"
                 },
                 "row": 22,
