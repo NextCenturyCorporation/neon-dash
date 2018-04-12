@@ -35,13 +35,24 @@ import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
 import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
-import { SampleOptions } from './sample.options';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
 import * as neon from 'neon-framework';
+
+// TODO Rename your visualization options!
+/**
+ * Manages configurable options for the specific visualization.
+ */
+export class SampleOptions extends BaseNeonOptions {
+    // TODO Add and remove properties as needed.  Use EMPTY_FIELD as the default for all fields.
+    public sampleOptionalField: FieldMetaData = EMPTY_FIELD;
+    public sampleRequiredField: FieldMetaData = EMPTY_FIELD;
+    public subcomponentType: string = 'Impl1';
+    public subcomponentTypes: string[] = ['Impl1', 'Impl2'];
+}
 
 // TODO Name your visualization!
 @Component({
@@ -62,13 +73,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
     // TODO Define properties as needed.  Made public so they can be used by unit tests.
 
-    // The filter set in the config file.
-    public configFilter: {
-        lhs: string,
-        operator: string,
-        rhs: string
-    };
-
     // The visualization filters.
     public filters: {
         id: string,
@@ -77,7 +81,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         value: string
     }[] = [];
 
-    // The configurable options for the visualization.
     public options: SampleOptions;
 
     // The data pagination properties.
@@ -96,7 +99,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     // TODO The subcomponent is here as a sample but it's not doing anything.  Use it or remove it!
     // The properties for the subcomponent.
     public subcomponentObject: AbstractSubcomponent;
-    public subcomponentTypes: string[] = ['Impl1', 'Impl2'];
 
     constructor(
         activeGridService: ActiveGridService,
@@ -121,14 +123,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             ref,
             visualizationService
         );
-
-        // TODO Initialize properties as needed.  Use the injector to get options set in the config file.
-        this.configFilter = this.injector.get('configFilter', null);
-        this.options = {
-            sampleOptionalField: this.emptyField,
-            sampleRequiredField: this.emptyField,
-            subcomponentType: this.injector.get('subcomponentType', this.subcomponentTypes[0])
-        };
     }
 
     // TODO Change arguments as needed.
@@ -144,13 +138,25 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
+     * Creates the options for the specific visualization.
+     *
+     * @override
+     */
+    createOptions() {
+        this.options = new SampleOptions();
+        // Set the non-fields config bindings for the visualization.
+        this.options.subcomponentType = this.injector.get('subcomponentType', this.options.subcomponentType);
+        // TODO Add or remove properties as needed.
+    }
+
+    /**
      * Creates and returns the query for the visualization.
      *
      * @return {neon.query.Query}
      * @override
      */
     createQuery(): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createWhere());
+        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createWhere());
 
         // TODO Change this behavior as needed to create your visualization query.  Here is a sample of a count aggregation query.
 
@@ -196,12 +202,12 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             clauses.push(neon.query.where(this.options.sampleOptionalField.columnName, '!=', null));
         }
 
-        if (this.configFilter) {
-            clauses.push(neon.query.where(this.configFilter.lhs, this.configFilter.operator, this.configFilter.rhs));
+        if (this.options.filter) {
+            clauses.push(neon.query.where(this.options.filter.lhs, this.options.filter.operator, this.options.filter.rhs));
         }
 
         if (this.hasUnsharedFilter()) {
-            clauses.push(neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+            clauses.push(neon.query.where(this.options.unsharedFilterField.columnName, '=', this.options.unsharedFilterValue));
         }
 
         return clauses.length > 1 ? neon.query.and.apply(neon.query, clauses) : clauses[0];
@@ -274,8 +280,8 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         if (this.activeData.length === this.responseData.length) {
             return 'Total ' + super.prettifyInteger(this.activeData.length);
         }
-        let begin = super.prettifyInteger((this.page - 1) * this.meta.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.meta.limit, this.responseData.length));
+        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
+        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.responseData.length));
         return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.responseData.length);
     }
 
@@ -315,6 +321,16 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
+     * Returns the options for the specific visualization.
+     *
+     * @return {BaseNeonOptions}
+     * @override
+     */
+    getOptions(): BaseNeonOptions {
+        return this.options;
+    }
+
+    /**
      * Returns the export fields for the visualization.
      *
      * @return {array}
@@ -342,7 +358,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
         // TODO Change the list of filter fields here as needed.
         // Get all the neon filters relevant to this visualization.
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             [this.options.sampleRequiredField.columnName]);
 
         let filterIdsToIgnore = [];
@@ -452,7 +468,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      */
     isValidQuery(): boolean {
         // TODO Add or remove fields and properties as needed.
-        return !!(this.meta.database.name && this.meta.table.name && this.options.sampleRequiredField.columnName);
+        return !!(this.options.database.name && this.options.table.name && this.options.sampleRequiredField.columnName);
     }
 
     // TODO Change arguments as needed.
@@ -484,7 +500,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             return;
         }
 
-        // TODO If you need to show an error message, set this.meta.errorMessage as needed.
+        // TODO If you need to show an error message, set this.options.errorMessage as needed.
 
         // TODO Change this behavior as needed to handle your query results.
 
@@ -514,15 +530,15 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Updates the fields for the visualization once databases and tables are set.
+     * Initializes all the field metadata for the specific visualization.
      *
      * @override
      */
     onUpdateFields() {
-        // Read the config bindings for the visualization.
-        this.options.sampleOptionalField = this.findFieldObject('sampleOptionalField');
-        this.options.sampleRequiredField = this.findFieldObject('sampleRequiredField');
-        // TODO Add or remove fields and properties as needed.
+        // Set the fields config bindings for the visualization.
+        this.options.sampleOptionalField = this.findFieldObject(this.options, 'sampleOptionalField');
+        this.options.sampleRequiredField = this.findFieldObject(this.options, 'sampleRequiredField');
+        // TODO Add or remove fields as needed.
     }
 
     /**
@@ -562,7 +578,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * Creates and runs the document count query.
      */
     runDocCountQuery() {
-        let query = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createWhere());
+        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createWhere());
 
         let ignoreFilters = this.getFiltersToIgnore();
         if (ignoreFilters && ignoreFilters.length) {
@@ -586,7 +602,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
         // TODO Change the list of filter fields here as needed.
         // Get all the neon filters relevant to this visualization.
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             [this.options.sampleRequiredField.columnName]);
 
         for (let neonFilter of neonFilters) {
@@ -594,7 +610,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
             // This will ignore a filter with multiple clauses.
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.meta.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 if (this.isVisualizationFilterUnique(field.columnName, value)) {
                     this.addVisualizationFilter(this.createVisualizationFilter(neonFilter.id, field.columnName, field.prettyName, value));
@@ -660,7 +676,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Initializes any properties and/or sub-components needed once databases, tables, fields, and other meta properties are set.
+     * Initializes any properties and/or sub-components needed once databases, tables, fields, and other options properties are set.
      *
      * @override
      */
@@ -683,9 +699,9 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      * Updates the pagination properties and the active data.
      */
     updateActiveData() {
-        let offset = (this.page - 1) * this.meta.limit;
-        this.activeData = this.responseData.slice(offset, (offset + this.meta.limit));
-        this.lastPage = (this.responseData.length <= (offset + this.meta.limit));
+        let offset = (this.page - 1) * this.options.limit;
+        this.activeData = this.responseData.slice(offset, (offset + this.options.limit));
+        this.lastPage = (this.responseData.length <= (offset + this.options.limit));
         this.refreshVisualization();
     }
 }

@@ -80,24 +80,23 @@ describe('Component: WikiViewer', () => {
         expect(component).toBeTruthy();
     }));
 
-    it('does have expected active properties', (() => {
-        expect(component.active).toEqual({
-            allowsTranslations: true,
-            id: '',
-            idField: new FieldMetaData(),
-            linkField: new FieldMetaData(),
-            textColor: '#111',
-            wikiName: [],
-            wikiText: []
-        });
-    }));
+    it('does set expected options properties', () => {
+        expect(component.options.idField).toEqual(component.emptyField);
+        expect(component.options.linkField).toEqual(component.emptyField);
+        expect(component.options.id).toEqual('');
+    });
+
+    it('does set expected class properties', () => {
+        expect(component.wikiName).toEqual([]);
+        expect(component.wikiText).toEqual([]);
+    });
 
     it('createQuery does return expected query', (() => {
-        component.meta.database = new DatabaseMetaData('testDatabase');
-        component.meta.table = new TableMetaData('testTable');
-        component.active.id = 'testId';
-        component.active.idField.columnName = 'testIdField';
-        component.active.linkField.columnName = 'testLinkField';
+        component.options.database = new DatabaseMetaData('testDatabase');
+        component.options.table = new TableMetaData('testTable');
+        component.options.id = 'testId';
+        component.options.idField = new FieldMetaData('testIdField');
+        component.options.linkField = new FieldMetaData('testLinkField');
 
         let query = new neon.query.Query()
             .selectFrom('testDatabase', 'testTable')
@@ -115,11 +114,11 @@ describe('Component: WikiViewer', () => {
 
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toBe('No Data');
-        component.active.wikiName = ['a'];
+        component.wikiName = ['a'];
         expect(component.getButtonText()).toBe('Total 1');
-        component.active.wikiName = ['a', 'b', 'c', 'd'];
+        component.wikiName = ['a', 'b', 'c', 'd'];
         expect(component.getButtonText()).toBe('Total 4');
-        component.active.wikiName = ['a', 'b'];
+        component.wikiName = ['a', 'b'];
         expect(component.getButtonText()).toBe('Total 2');
     });
 
@@ -131,10 +130,8 @@ describe('Component: WikiViewer', () => {
     });
 
     it('getExportFields does return expected array', (() => {
-        component.active.idField.columnName = 'testIdField';
-        component.active.idField.prettyName = 'Test ID Field';
-        component.active.linkField.columnName = 'testLinkField';
-        component.active.linkField.prettyName = 'Test Link Field';
+        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
 
         expect(component.getExportFields()).toEqual([{
             columnName: 'testIdField',
@@ -163,42 +160,44 @@ describe('Component: WikiViewer', () => {
     it('isValidQuery does return expected result', (() => {
         expect(component.isValidQuery()).toBe(false);
 
-        component.meta.database = new DatabaseMetaData('testDatabase');
+        component.options.database = new DatabaseMetaData('testDatabase');
         expect(component.isValidQuery()).toBe(false);
 
-        component.meta.table = new TableMetaData('testTable');
+        component.options.table = new TableMetaData('testTable');
         expect(component.isValidQuery()).toBe(false);
 
-        component.active.id = 'testId';
+        component.options.id = 'testId';
+        expect(component.isValidQuery()).toBe(false);
+        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.linkField).toEqual(new FieldMetaData());
+
+        component.options.idField = new FieldMetaData('testIdField');
         expect(component.isValidQuery()).toBe(false);
 
-        component.active.idField.columnName = 'testIdField';
-        expect(component.isValidQuery()).toBe(false);
-
-        component.active.linkField.columnName = 'testLinkField';
+        component.options.linkField = new FieldMetaData('testLinkField');
         expect(component.isValidQuery()).toBe(true);
     }));
 
     it('onQuerySuccess does set expected properties if response returns no data', (() => {
-        component.meta.errorMessage = 'testErrorMessage';
-        component.active.linkField.columnName = 'testLinkField';
-        component.active.wikiName = ['testName'];
-        component.active.wikiText = ['testText'];
+        component.errorMessage = 'testErrorMessage';
+        component.options.linkField.columnName = 'testLinkField';
+        component.wikiName = ['testName'];
+        component.wikiText = ['testText'];
 
         component.onQuerySuccess({
             data: []
         });
 
-        expect(component.meta.errorMessage).toBe('No Data');
-        expect(component.active.wikiName).toEqual([]);
-        expect(component.active.wikiText).toEqual([]);
+        expect(component.errorMessage).toBe('No Data');
+        expect(component.wikiName).toEqual([]);
+        expect(component.wikiText).toEqual([]);
     }));
 
     it('onQuerySuccess does call http.get and does set expected properties if response returns data',
         fakeAsync(inject([XHRBackend], (mockBackend) => {
 
-        component.meta.errorMessage = 'testErrorMessage';
-        component.active.linkField.columnName = 'testLinkField';
+        component.errorMessage = 'testErrorMessage';
+        component.options.linkField.columnName = 'testLinkField';
 
         mockBackend.connections.subscribe((connection) => {
             connection.mockRespond(new Response(new ResponseOptions({
@@ -221,19 +220,19 @@ describe('Component: WikiViewer', () => {
 
         // Wait for the HTTP response.
         tick(500);
-        expect(component.meta.errorMessage).toBe('');
-        expect(component.active.wikiName).toEqual(['Test Title']);
-        expect(component.active.wikiText.length).toBe(1);
-        expect(component.active.wikiText[0].toString()).toBe(
+        expect(component.errorMessage).toBe('');
+        expect(component.wikiName).toEqual(['Test Title']);
+        expect(component.wikiText.length).toBe(1);
+        expect(component.wikiText[0].toString()).toBe(
             'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)');
     })));
 
     it('onQuerySuccess does call http.get and does set expected properties if response failed',
         fakeAsync(inject([XHRBackend], (mockBackend) => {
 
-        component.active.linkField.columnName = 'testLinkField';
-        component.active.wikiName = ['testName'];
-        component.active.wikiText = ['testText'];
+        component.options.linkField.columnName = 'testLinkField';
+        component.wikiName = ['testName'];
+        component.wikiText = ['testText'];
 
         mockBackend.connections.subscribe((connection) => {
             connection.mockError(new Response(new ResponseOptions({
@@ -250,17 +249,17 @@ describe('Component: WikiViewer', () => {
 
         // Wait for the HTTP response.
         tick(500);
-        expect(component.meta.errorMessage).toBe('');
-        expect(component.active.wikiName).toEqual(['testLinkValue']);
-        expect(component.active.wikiText.length).toBe(1);
-        expect(component.active.wikiText[0].toString()).toBeTruthy();
+        expect(component.errorMessage).toBe('');
+        expect(component.wikiName).toEqual(['testLinkValue']);
+        expect(component.wikiText.length).toBe(1);
+        expect(component.wikiText[0].toString()).toBeTruthy();
     })));
 
     it('onQuerySuccess does call http.get multiple times and does set expected properties if response returns data with multiple links',
         fakeAsync(inject([XHRBackend], (mockBackend) => {
 
-        component.meta.errorMessage = 'testErrorMessage';
-        component.active.linkField.columnName = 'testLinkField';
+        component.errorMessage = 'testErrorMessage';
+        component.options.linkField.columnName = 'testLinkField';
 
         mockBackend.connections.subscribe((connection) => {
             if (connection.request.url === WikiViewerComponent.WIKI_LINK_PREFIX + 'testLinkValue1') {
@@ -298,19 +297,19 @@ describe('Component: WikiViewer', () => {
 
         // Wait for the HTTP response.
         tick(500);
-        expect(component.meta.errorMessage).toBe('');
-        expect(component.active.wikiName).toEqual(['Test Title 1', 'Test Title 2']);
-        expect(component.active.wikiText.length).toBe(2);
-        expect(component.active.wikiText[0].toString()).toBe(
+        expect(component.errorMessage).toBe('');
+        expect(component.wikiName).toEqual(['Test Title 1', 'Test Title 2']);
+        expect(component.wikiText.length).toBe(2);
+        expect(component.wikiText[0].toString()).toBe(
             'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)');
-        expect(component.active.wikiText[1].toString()).toBe(
+        expect(component.wikiText[1].toString()).toBe(
             'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)');
     })));
 
     it('onUpdateFields does set expected fields to empty strings because fields are empty', (() => {
         component.onUpdateFields();
-        expect(component.active.idField).toEqual(new FieldMetaData());
-        expect(component.active.linkField).toEqual(new FieldMetaData());
+        expect(component.options.idField).toEqual(new FieldMetaData());
+        expect(component.options.linkField).toEqual(new FieldMetaData());
     }));
 
     it('postInit does call executeQueryChain', (() => {
@@ -334,8 +333,8 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('subGetBindings does set expected bindings', (() => {
-        component.active.idField.columnName = 'testIdField';
-        component.active.linkField.columnName = 'testLinkField';
+        component.options.idField = new FieldMetaData('testIdField');
+        component.options.linkField = new FieldMetaData('testLinkField');
 
         let bindings = {};
         component.subGetBindings(bindings);
@@ -370,7 +369,7 @@ describe('Component: WikiViewer', () => {
         expect(header.nativeElement.textContent).toBe('Wiki Viewer');
     }));
 
-    it('does hide error-message in toolbar and sidenav if meta.errorMessage is undefined', (() => {
+    it('does hide error-message in toolbar and sidenav if errorMessage is undefined', (() => {
         fixture.detectChanges();
         let errorMessageInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .error-message'));
         expect(errorMessageInToolbar).toBeNull();
@@ -382,8 +381,8 @@ describe('Component: WikiViewer', () => {
         expect(errorMessageInSidenav).toBeNull();
     }));
 
-    it('does show error-message in toolbar and sidenav if meta.errorMessage is defined', async(() => {
-        component.meta.errorMessage = 'Test Error Message';
+    it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
+        component.errorMessage = 'Test Error Message';
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
@@ -481,7 +480,7 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('does show loading overlay if calling onQuerySuccess', fakeAsync(inject([XHRBackend], (mockBackend) => {
-        component.active.linkField.columnName = 'testLinkField';
+        component.options.linkField.columnName = 'testLinkField';
 
         mockBackend.connections.subscribe((connection) => {
             fixture.detectChanges();
@@ -525,7 +524,7 @@ describe('Component: WikiViewer', () => {
         expect(hiddenSpinner).not.toBeNull();
     })));
 
-    it('does hide wiki-text tabs if active.wikiText is empty', inject([DomSanitizer], (sanitizer) => {
+    it('does hide wiki-text tabs if wikiText is empty', inject([DomSanitizer], (sanitizer) => {
         fixture.detectChanges();
         let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
         expect(tabs.length).toBe(0);
@@ -534,18 +533,18 @@ describe('Component: WikiViewer', () => {
         expect(text.length).toBe(0);
     }));
 
-    it('does show wiki-text tabs if active.wikiText is not empty', async(inject([DomSanitizer], (sanitizer) => {
-        component.active.wikiName = ['Tab One', 'Tab Two'];
-        component.active.wikiText = [sanitizer.bypassSecurityTrustHtml('<p>one</p>'), sanitizer.bypassSecurityTrustHtml('<p>two</p>')];
+    it('does show wiki-text tabs if wikiText is not empty', async(inject([DomSanitizer], (sanitizer) => {
+        component.wikiName = ['Tab One', 'Tab Two'];
+        component.wikiText = [sanitizer.bypassSecurityTrustHtml('<p>one</p>'), sanitizer.bypassSecurityTrustHtml('<p>two</p>')];
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
             fixture.detectChanges();
 
-            expect(component.active.wikiText.length).toBe(2);
-            expect(component.active.wikiText[0].toString()).toBe(
+            expect(component.wikiText.length).toBe(2);
+            expect(component.wikiText[0].toString()).toBe(
                 'SafeValue must use [property]=binding: <p>one</p> (see http://g.co/ng/security#xss)');
-            expect(component.active.wikiText[1].toString()).toBe(
+            expect(component.wikiText[1].toString()).toBe(
                 'SafeValue must use [property]=binding: <p>two</p> (see http://g.co/ng/security#xss)');
 
             let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
@@ -602,30 +601,29 @@ describe('Component: WikiViewer with config', () => {
         fixture.detectChanges();
     });
 
-    it('does set expected meta properties', (() => {
-        expect(component.meta.database).toEqual(DatasetMock.DATABASES[0]);
-        expect(component.meta.databases).toEqual(DatasetMock.DATABASES);
-        expect(component.meta.table).toEqual(DatasetMock.TABLES[0]);
-        expect(component.meta.tables).toEqual(DatasetMock.TABLES);
-        expect(component.meta.fields).toEqual(DatasetMock.FIELDS);
+    it('does set expected superclass options properties', (() => {
+        expect(component.options.database).toEqual(DatasetMock.DATABASES[0]);
+        expect(component.options.databases).toEqual(DatasetMock.DATABASES);
+        expect(component.options.table).toEqual(DatasetMock.TABLES[0]);
+        expect(component.options.tables).toEqual(DatasetMock.TABLES);
+        expect(component.options.fields).toEqual(DatasetMock.FIELDS);
     }));
 
-    it('does set expected active properties', (() => {
-        expect(component.active).toEqual({
-            allowsTranslations: true,
-            id: 'testId',
-            idField: new FieldMetaData('testIdField', 'Test ID Field'),
-            linkField: new FieldMetaData('testLinkField', 'Test Link Field'),
-            textColor: '#111',
-            wikiName: [],
-            wikiText: []
-        });
-    }));
+    it('does set expected options properties', () => {
+        expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field'));
+        expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field'));
+        expect(component.options.id).toEqual('testId');
+    });
+
+    it('does set expected class properties', () => {
+        expect(component.wikiName).toEqual([]);
+        expect(component.wikiText).toEqual([]);
+    });
 
     it('onUpdateFields does set expected fields from config', (() => {
         component.onUpdateFields();
-        expect(component.active.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field'));
-        expect(component.active.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field'));
+        expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field'));
+        expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field'));
     }));
 
     it('does show header in toolbar with title from config', (() => {

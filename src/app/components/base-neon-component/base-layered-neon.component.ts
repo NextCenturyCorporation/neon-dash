@@ -19,18 +19,20 @@ import {
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
+
 import { ActiveGridService } from '../../services/active-grid.service';
+import { Color } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
+import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import { VisualizationService } from '../../services/visualization.service';
+
+import { EMPTY_FIELD, FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import { VisualizationService } from '../../services/visualization.service';
 import * as uuid from 'node-uuid';
-import { Color } from '../../services/color-scheme.service';
 
 /**
  * Base component for all non-layered Neon visualizations.
@@ -77,11 +79,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     public isLoading: number;
     public isExportable: boolean;
 
-    /**
-     * Just a blank FieldMetaData object.
-     * Meant to be used for a 'clear' option in field dropdowns
-     */
-    public emptyField = new FieldMetaData();
+    public emptyField = EMPTY_FIELD;
 
     constructor(
         private activeGridService: ActiveGridService,

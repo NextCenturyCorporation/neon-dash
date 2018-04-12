@@ -24,8 +24,10 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
+
 import { DomSanitizer, SafeHtml, SafeResourceUrl } from '@angular/platform-browser';
 import { Http } from '@angular/http';
+
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -33,10 +35,18 @@ import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
+
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+
+/**
+ * Manages configurable options for the specific visualization.
+ */
+export class MediaViewerOptions extends BaseNeonOptions {
+    // TODO
+}
 
 /**
  * A visualization that shows the content of a wikipedia page triggered through a select_id event.
@@ -54,6 +64,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
+
+    public options: MediaViewerOptions;
 
     public active: {
         allowsTranslations: boolean,
@@ -84,6 +96,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         super(activeGridService, connectionService, datasetService,
             filterService, exportService, injector, themesService, ref, visualizationService);
+
         this.optionsFromConfig = {
             database: this.injector.get('database', null),
             id: this.injector.get('id', null),
@@ -110,6 +123,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Creates the options for the specific visualization.
+     *
+     * @override
+     */
+    createOptions() {
+        this.options = new MediaViewerOptions();
+        // TODO
+    }
+
+    /**
      * Creates and returns the query for the wiki viewer.
      *
      * @return {neon.query.Query}
@@ -117,7 +140,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     createQuery(): neon.query.Query {
         let query = new neon.query.Query()
-            .selectFrom(this.meta.database.name, this.meta.table.name)
+            .selectFrom(this.options.database.name, this.options.table.name)
             .withFields([this.active.linkField.columnName]);
 
         let whereClauses = [
@@ -155,6 +178,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             headerText: this.headerText,
             infoText: this.infoText
         };
+    }
+
+    /**
+     * Returns the options for the specific visualization.
+     *
+     * @return {BaseNeonOptions}
+     * @override
+     */
+    getOptions(): BaseNeonOptions {
+        return this.options;
     }
 
     /**
@@ -212,7 +245,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     private getSelectIdCallback() {
         return (message) => {
-            if (message.database === this.meta.database.name && message.table === this.meta.table.name) {
+            if (message.database === this.options.database.name && message.table === this.options.table.name) {
                 this.active.id = Array.isArray(message.id) ? message.id[0] : message.id;
                 this.executeQueryChain();
             }
@@ -248,7 +281,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     isValidQuery(): boolean {
-        return !!(this.meta.database && this.meta.database.name && this.meta.table && this.meta.table.name && this.active.id &&
+        return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name && this.active.id &&
             this.active.idField && this.active.idField.columnName && this.active.linkField && this.active.linkField.columnName);
     }
 
@@ -264,28 +297,27 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
-                this.meta.errorMessage = '';
+                this.errorMessage = '';
                 this.isLoadingWikiPage = true;
                 let links = neonUtilities.deepFind(response.data[0], this.active.linkField.columnName);
                 this.retrieveWikiPage(Array.isArray(links) ? links : [links]);
             } else {
-                this.meta.errorMessage = 'No Data';
+                this.errorMessage = 'No Data';
                 this.refreshVisualization();
             }
         } catch (e) {
-            this.meta.errorMessage = 'Error';
+            this.errorMessage = 'Error';
             this.refreshVisualization();
         }
     }
 
     /**
-     * Updates the fields for the wiki viewer.
+     * Initializes all the field metadata for the specific visualization.
      *
      * @override
      */
     onUpdateFields() {
-        this.active.idField = this.findFieldObject('idField');
-        this.active.linkField = this.findFieldObject('linkField');
+        // TODO
     }
 
     /**

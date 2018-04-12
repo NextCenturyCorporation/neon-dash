@@ -95,27 +95,27 @@ describe('Component: DataTable', () => {
     }));
 
     it('createClause does return expected object', () => {
-        component.active.sortField = new FieldMetaData('testSortField');
+        component.options.sortField = new FieldMetaData('testSortField');
         expect(component.createClause()).toEqual(neon.query.where('testSortField', '!=', null));
 
-        component.meta.unsharedFilterField = new FieldMetaData('testFilterField');
-        component.meta.unsharedFilterValue = 'testFilterValue';
+        component.options.unsharedFilterField = new FieldMetaData('testFilterField');
+        component.options.unsharedFilterValue = 'testFilterValue';
         expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testSortField', '!=', null),
             neon.query.where('testFilterField', '=', 'testFilterValue')));
     });
 
     it('getButtonText does return expected string', () => {
-        component.meta.limit = 10;
+        component.options.limit = 10;
         expect(component.getButtonText()).toBe('No Data');
-        component.active.docCount = 10;
+        component.docCount = 10;
         expect(component.getButtonText()).toBe('Total 10');
-        component.active.docCount = 20;
+        component.docCount = 20;
         expect(component.getButtonText()).toBe('1 - 10 of 20');
-        component.active.page = 2;
+        component.page = 2;
         expect(component.getButtonText()).toBe('11 - 20 of 20');
-        component.meta.limit = 5;
+        component.options.limit = 5;
         expect(component.getButtonText()).toBe('6 - 10 of 20');
-        component.active.docCount = 5;
+        component.docCount = 5;
         expect(component.getButtonText()).toBe('Total 5');
     });
 

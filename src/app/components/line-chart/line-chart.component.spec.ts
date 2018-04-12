@@ -85,16 +85,16 @@ describe('Component: LineChart', () => {
         component.chart.data.labels = ['group1', 'group2'];
         expect(component.getButtonText()).toBe('Total 2');
 
-        component.meta.limit = 1;
+        component.options.limit = 1;
         expect(component.getButtonText()).toBe('1 of 2');
 
         component.chart.data.labels = ['group1', 'group2', 'group3', 'group4'];
         expect(component.getButtonText()).toBe('1 of 4');
 
-        component.meta.limit = 2;
+        component.options.limit = 2;
         expect(component.getButtonText()).toBe('2 of 4');
 
-        component.meta.limit = 4;
+        component.options.limit = 4;
         expect(component.getButtonText()).toBe('Total 4');
     });
 

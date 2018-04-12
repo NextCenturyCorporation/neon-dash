@@ -740,11 +740,7 @@ export class DatasetService {
                     });
                     tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
                         if (!hasField[fieldName]) {
-                            let newField: FieldMetaData = {
-                                columnName: fieldName,
-                                prettyName: fieldName,
-                                hide: false
-                            };
+                            let newField: FieldMetaData = new FieldMetaData(fieldName, fieldName, false);
                             table.fields.push(newField);
                         }
                     });
