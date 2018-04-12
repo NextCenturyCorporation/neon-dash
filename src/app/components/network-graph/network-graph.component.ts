@@ -25,17 +25,19 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
+
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
+import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { FieldMetaData } from '../../dataset';
 import { VisualizationService } from '../../services/visualization.service';
+
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 import * as shape from 'd3-shape';
 import 'd3-transition';
@@ -80,6 +82,16 @@ class Edge {
     ) {}
 }
 
+/**
+ * Manages configurable options for the specific visualization.
+ */
+export class NetworkGraphOptions extends BaseNeonOptions {
+    public isDirected: boolean = false;
+    public isReified: boolean = false;
+    public nodeField: FieldMetaData = EMPTY_FIELD;
+    public linkField: FieldMetaData = EMPTY_FIELD;
+}
+
 @Component({
     selector: 'app-network-graph',
     templateUrl: './network-graph.component.html',
@@ -87,31 +99,18 @@ class Edge {
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
-    OnDestroy, AfterViewInit {
-
+export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, OnDestroy, AfterViewInit {
     @ViewChild('graphElement') graphElement: ElementRef;
 
-    private filters: {
+    public filters: {
         id: string,
         key: string,
         value: string
     }[];
 
-    public active: {
-        nodeField: FieldMetaData, //[FieldMetaData] TODO Future support for multiple node and link fields
-        linkField: FieldMetaData, //[FieldMetaData]
-        linkFieldArray: FieldMetaData[],
-        aggregationField: FieldMetaData,
-        aggregationFieldHidden: boolean,
-        andFilters: boolean,
-        filterable: boolean,
-        data: any[],
-        aggregation: string,
-        isDirected: boolean,
-        isReified: boolean,
-        title: string
-    };
+    public options: NetworkGraphOptions;
+
+    public activeData: any[] = [];
 
     public graphData = new GraphData();
 
@@ -154,43 +153,45 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     schemeType: string = 'ordinal';
     selectedColorScheme: string;
 
-    private colorSchemeService: ColorSchemeService;
     private defaultActiveColor;
 
     queryTitle;
 
     private graph: vis.Network;
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
-        super(activeGridService, connectionService, datasetService, filterService,
-            exportService, injector, themesService, ref, visualizationService);
+    constructor(
+        activeGridService: ActiveGridService,
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        exportService: ExportService,
+        injector: Injector,
+        themesService: ThemesService,
+        protected colorSchemeService: ColorSchemeService,
+        ref: ChangeDetectorRef,
+        visualizationService: VisualizationService
+    ) {
 
-        this.active = {
-            nodeField: new FieldMetaData(),
-            linkField: new FieldMetaData(),
-            linkFieldArray: new Array<FieldMetaData>(),
-            aggregationField: new FieldMetaData(),
-            aggregationFieldHidden: true,
-            andFilters: true,
-            filterable: true,
-            data: [],
-            aggregation: 'count',
-            isDirected: this.injector.get('isDirected', false),
-            isReified: this.injector.get('isReified', false),
-            title: this.injector.get('title', '')
-        };
+        super(
+            activeGridService,
+            connectionService,
+            datasetService,
+            filterService,
+            exportService,
+            injector,
+            themesService,
+            ref,
+            visualizationService
+        );
 
         this.graphData = new GraphData();
 
         this.setInterpolationType('Bundle');
-
     }
 
     subNgOnInit() {
+        this.updateData();
         this.createQuery();
-        //this.updateData();
         //setInterval(this.updateData.bind(this), 2000);
 
         if (!this.fitContainer) {
@@ -222,8 +223,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     subGetBindings(bindings: any) {
-        bindings.nodeField = this.active.nodeField.columnName;
-        bindings.linkField = this.active.linkField.columnName;
+        bindings.nodeField = this.options.nodeField.columnName;
+        bindings.linkField = this.options.linkField.columnName;
     }
 
     ngAfterViewInit() {
@@ -268,15 +269,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     getExportFields() {
-        let valuePrettyName = this.active.aggregation +
-            (this.active.aggregationFieldHidden ? '' : '-' + this.active.aggregationField.prettyName);
-        valuePrettyName = valuePrettyName.charAt(0).toUpperCase() + valuePrettyName.slice(1);
         return [{
-            columnName: this.active.nodeField.columnName,
-            prettyName: this.active.nodeField.prettyName
+            columnName: this.options.nodeField.columnName,
+            prettyName: this.options.nodeField.prettyName
         }, {
-            columnName: 'value',
-            prettyName: valuePrettyName
+            columnName: this.options.linkField.columnName,
+            prettyName: this.options.linkField.prettyName
         }];
     }
 
@@ -303,24 +301,24 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     isValidQuery() {
         let valid = true;
-        valid = (this.meta.database && this.meta.database.name && valid);
-        valid = (this.meta.table && this.meta.table.name && valid);
-        valid = (this.active.nodeField && this.active.nodeField.columnName && valid);
-        valid = (this.active.linkField && this.active.linkField.columnName && valid);
+        valid = (this.options.database && this.options.database.name && valid);
+        valid = (this.options.table && this.options.table.name && valid);
+        valid = (this.options.nodeField && this.options.nodeField.columnName && valid);
+        valid = (this.options.linkField && this.options.linkField.columnName && valid);
 
         return valid;
     }
 
     createQuery(): neon.query.Query {
-        let databaseName = this.meta.database.name;
-        let tableName = this.meta.table.name;
+        let databaseName = this.options.database.name;
+        let tableName = this.options.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
-        let nodeField = this.active.nodeField.columnName;
-        let linkField = this.active.linkField.columnName;
+        let nodeField = this.options.nodeField.columnName;
+        let linkField = this.options.linkField.columnName;
         let whereClauses: neon.query.WherePredicate[] = [];
-        //whereClauses.push(neon.query.where(this.active.nodeField.columnName, '!=', null));
-        //whereClauses.push(neon.query.where(this.active.linkField.columnName, '!=', null));
-        let groupBy: any[] = [this.active.nodeField.columnName];
+        //whereClauses.push(neon.query.where(this.options.nodeField.columnName, '!=', null));
+        //whereClauses.push(neon.query.where(this.options.linkField.columnName, '!=', null));
+        let groupBy: any[] = [this.options.nodeField.columnName];
 
         let fields = [nodeField, linkField];
 
@@ -342,18 +340,15 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     }
 
     onQuerySuccess(response): void {
-        this.active.data = response.data;
+        this.activeData = response.data;
         this.resetGraphData();
-
-        let title;
-        title = this.active.title || 'Network Graph' + ' by ' + this.active.nodeField.columnName;
     }
 
     private resetGraphData() {
         this.graphData.nodes.clear();
         this.graphData.edges.clear();
 
-        let graphProperties = this.active.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
+        let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
 
         this.graph.setOptions({physics: {enabled: true}});
 
@@ -400,11 +395,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         //console.log('toggle expand', node);
     }
 
+    /**
+     * Initializes all the field metadata for the specific visualization.
+     *
+     * @override
+     */
     onUpdateFields() {
-        this.active.nodeField = this.findFieldObject('nodeField');
-        this.active.linkField = this.findFieldObject('linkField');
-        this.updateData();
-        //
+        this.options.nodeField = this.findFieldObject(this.options, 'nodeField');
+        this.options.linkField = this.findFieldObject(this.options, 'linkField');
     }
 
     addLocalFilters(filter) {
@@ -448,14 +446,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
     private createReifiedGraphProperties() {
         let graph = new GraphProperties();
 
-        for (const entry of this.active.data) {
+        for (const entry of this.activeData) {
             const subject = entry.subject,
                 predicate = entry.predicate,
                 object = entry.object;
 
             graph.addNode(new Node(subject, subject));
             graph.addNode(new Node(object, object));
-            graph.addEdge(new Edge(subject, object, predicate, {to: this.active.isDirected}));
+            graph.addEdge(new Edge(subject, object, predicate, {to: this.options.isDirected}));
 
             //TODO: add hover with other properties
         }
@@ -474,10 +472,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     private createTabularGraphProperties() {
         let graph = new GraphProperties(),
-            linkName = this.active.linkField.columnName,
-            nodeName = this.active.nodeField.columnName;
+            linkName = this.options.linkField.columnName,
+            nodeName = this.options.nodeField.columnName;
 
-        for (let entry of this.active.data) {
+        for (let entry of this.activeData) {
 
             //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
             let linkField = entry[linkName];
@@ -521,7 +519,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     handleChangeDirected() {
         let arrowUpdates: ArrowUpdate[] = this.graphData.edges.map(
-            (edge: ArrowUpdate) => ({id: edge.id, arrows: {to: this.active.isDirected}}),
+            (edge: ArrowUpdate) => ({id: edge.id, arrows: {to: this.options.isDirected}}),
             {fields: ['id', 'arrows']}
         );
         this.graphData.edges.update(arrowUpdates);
@@ -555,5 +553,26 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
         return {
             //
         };
+    }
+
+    /**
+     * Returns the options for the specific visualization.
+     *
+     * @return {BaseNeonOptions}
+     * @override
+     */
+    getOptions(): BaseNeonOptions {
+        return this.options;
+    }
+
+    /**
+     * Creates the options for the specific visualization.
+     *
+     * @override
+     */
+    createOptions() {
+        this.options = new NetworkGraphOptions();
+        this.options.isDirected = this.injector.get('isDirected', this.options.isDirected);
+        this.options.isReified = this.injector.get('isReified', this.options.isReified);
     }
 }

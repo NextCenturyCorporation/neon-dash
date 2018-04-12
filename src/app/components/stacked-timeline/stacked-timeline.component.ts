@@ -26,26 +26,38 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
+
 import { ActiveGridService } from '../../services/active-grid.service';
+import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
-import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
-import * as neon from 'neon-framework';
-import * as _ from 'lodash';
-import { DateBucketizer } from '../bucketizers/DateBucketizer';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { Bucketizer } from '../bucketizers/Bucketizer';
-import { StackedTimelineSelectorChart, TimelineSeries, TimelineData } from './stacked-timelineSelectorChart';
-import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import { VisualizationService } from '../../services/visualization.service';
 
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { Bucketizer } from '../bucketizers/Bucketizer';
+import { DateBucketizer } from '../bucketizers/DateBucketizer';
+import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
+import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { StackedTimelineSelectorChart, TimelineSeries, TimelineData } from './stacked-timelineSelectorChart';
+import { YearBucketizer } from '../bucketizers/YearBucketizer';
+import * as neon from 'neon-framework';
+import * as _ from 'lodash';
+
 declare let d3;
+
+/**
+ * Manages configurable options for the specific visualization.
+ */
+export class StackedTimelineOptions extends BaseNeonOptions {
+    public dateField: FieldMetaData = EMPTY_FIELD;
+    public granularity: string = 'day';
+    public groupField: FieldMetaData = EMPTY_FIELD;
+    public yLabel: string = 'Count';
+}
 
 @Component({
     selector: 'app-timeline',
@@ -61,54 +73,55 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     @ViewChild('svg') svg: ElementRef;
 
-    private filters: {
+    public filters: {
         id: string,
         field: string,
         prettyField: string,
         startDate: Date,
         endDate: Date,
         local: boolean
-    }[];
+    }[] = [];
 
-    public active: {
-        dateField: FieldMetaData,
-        data: {
-            value: number,
-            date: Date,
-            groupField: string
-        }[],
-        granularity: string,
-        groupField: FieldMetaData,
-        ylabel: string,
-        docCount: number
-    };
+    public options: StackedTimelineOptions;
 
-    private colorSchemeService: ColorSchemeService;
-    private timelineChart: StackedTimelineSelectorChart;
-    private timelineData: TimelineData;
-    private defaultActiveColor;
+    public activeData: {
+        value: number,
+        date: Date,
+        groupField: string
+    }[] = [];
+    public docCount: number = 0;
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
-        super(activeGridService, connectionService, datasetService, filterService,
-            exportService, injector, themesService, ref, visualizationService);
+    public defaultActiveColor;
+    public timelineChart: StackedTimelineSelectorChart;
+    public timelineData: TimelineData = new TimelineData();
 
-        this.colorSchemeService = colorSchemeSrv;
-        this.filters = [];
+    constructor(
+        activeGridService: ActiveGridService,
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        exportService: ExportService,
+        injector: Injector,
+        themesService: ThemesService,
+        protected colorSchemeService: ColorSchemeService,
+        ref: ChangeDetectorRef,
+        visualizationService: VisualizationService
+    ) {
 
-        this.active = {
-            dateField: new FieldMetaData(),
-            data: [],
-            granularity: this.injector.get('granularity', 'day'),
-            groupField: new FieldMetaData(),
-            ylabel: 'Count',
-            docCount: 0
-        };
+        super(
+            activeGridService,
+            connectionService,
+            datasetService,
+            filterService,
+            exportService,
+            injector,
+            themesService,
+            ref,
+            visualizationService
+        );
 
-        this.timelineData = new TimelineData();
-        this.timelineData.focusGranularityDifferent = this.active.granularity.toLowerCase() === 'minute';
-        this.timelineData.granularity = this.active.granularity;
+        this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
+        this.timelineData.granularity = this.options.granularity;
         this.timelineData.bucketizer = this.getBucketizer();
         this.enableRedrawAfterResize(true);
     }
@@ -132,7 +145,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             columnName: 'value',
             prettyName: 'Count'
         }];
-        switch (this.active.granularity) {
+        switch (this.options.granularity) {
             case 'minute':
                 fields.push({
                     columnName: 'minute',
@@ -167,9 +180,14 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         return fields;
     }
 
+    /**
+     * Initializes all the field metadata for the specific visualization.
+     *
+     * @override
+     */
     onUpdateFields() {
-        this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
-        this.active.groupField = this.findFieldObject('groupField');
+        this.options.dateField = this.findFieldObject(this.options, 'dateField', neonMappings.DATE);
+        this.options.groupField = this.findFieldObject(this.options, 'groupField');
     }
 
     addLocalFilter(id: string, field: string, prettyField: string, startDate: Date, endDate: Date, local?: boolean) {
@@ -186,8 +204,8 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     onTimelineSelection(startDate: Date, endDate: Date): void {
         let filter = {
             id: undefined,
-            field: this.active.dateField.columnName,
-            prettyField: this.active.dateField.prettyName,
+            field: this.options.dateField.columnName,
+            prettyField: this.options.dateField.prettyName,
             startDate: startDate,
             endDate: endDate,
             local: true
@@ -237,9 +255,9 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     isValidQuery() {
         let valid = true;
-        valid = (this.meta.database && this.meta.database.name && valid);
-        valid = (this.meta.table && this.meta.table.name && valid);
-        valid = (this.active.dateField && this.active.dateField.columnName && valid);
+        valid = (this.options.database && this.options.database.name && valid);
+        valid = (this.options.table && this.options.table.name && valid);
+        valid = (this.options.dateField && this.options.dateField.columnName && valid);
         return valid;
     }
 
@@ -249,24 +267,23 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
      * @return {any}
      */
     createClause(): any {
-        let clause = neon.query.where(this.active.dateField.columnName, '!=', null);
+        let clause = neon.query.where(this.options.dateField.columnName, '!=', null);
 
         if (this.hasUnsharedFilter()) {
-            clause = neon.query.and(clause, neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+            clause = neon.query.and(clause, neon.query.where(this.options.unsharedFilterField.columnName, '=',
+                this.options.unsharedFilterValue));
         }
 
         return clause;
     }
 
     createQuery(): neon.query.Query {
-        let databaseName = this.meta.database.name;
-        let tableName = this.meta.table.name;
-        let query = new neon.query.Query().selectFrom(databaseName, tableName);
+        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
         let whereClause = this.createClause();
-        let dateField = this.active.dateField.columnName;
+        let dateField = this.options.dateField.columnName;
         query = query.aggregate(neonVariables.MIN, dateField, 'date');
         let groupBys: any[] = [];
-        switch (this.active.granularity) {
+        switch (this.options.granularity) {
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
             case 'minute':
                 groupBys.push(new neon.query.GroupByFunctionClause('minute', dateField, 'minute'));
@@ -290,21 +307,21 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         query = query.where(whereClause);
         // Add the unshared filter field, if it exists
         if (this.hasUnsharedFilter()) {
-           query.where(neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+           query.where(neon.query.where(this.options.unsharedFilterField.columnName, '=', this.options.unsharedFilterValue));
         }
         return query.aggregate(neonVariables.COUNT, '*', 'value');
     }
 
     getDocCount() {
-        let countQuery = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createClause())
+        let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createClause())
             .aggregate(neonVariables.COUNT, '*', '_docCount');
         this.executeQuery(countQuery);
     }
 
     getFiltersToIgnore() {
         let ignoredFilterIds = [];
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
-            [this.active.dateField.columnName]);
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+            [this.options.dateField.columnName]);
 
         if (neonFilters && neonFilters.length > 0) {
             for (let neonFilter of neonFilters) {
@@ -321,14 +338,14 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
     onQuerySuccess(response) {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
-            this.active.docCount = response.data[0]._docCount;
+            this.docCount = response.data[0]._docCount;
         } else {
             // Convert all the dates into Date objects
             response.data.map((d) => {
                 d.date = new Date(d.date);
             });
 
-            this.active.data = response.data;
+            this.activeData = response.data;
             this.filterAndRefreshData();
             this.getDocCount();
         }
@@ -341,16 +358,16 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
      * @override
      */
     getButtonText() {
-        let shownCount = (this.active.data || []).reduce((sum, element) => {
+        let shownCount = (this.activeData || []).reduce((sum, element) => {
             return sum + element.value;
         }, 0);
         if (!shownCount) {
             return 'No Data';
         }
-        if (this.active.docCount <= shownCount) {
+        if (this.docCount <= shownCount) {
             return 'Total ' + super.prettifyInteger(shownCount);
         }
-        return super.prettifyInteger(shownCount) + ' of ' + super.prettifyInteger(this.active.docCount);
+        return super.prettifyInteger(shownCount) + ' of ' + super.prettifyInteger(this.docCount);
     }
 
     /**
@@ -370,9 +387,9 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
 
         // The query includes a sort, so it *should* be sorted.
         // Start date will be the first entry, and the end date will be the last
-        series.startDate = this.active.data[0].date;
-        let lastDate = this.active.data[this.active.data.length - 1].date;
-        series.endDate = d3.time[this.active.granularity]
+        series.startDate = this.activeData[0].date;
+        let lastDate = this.activeData[this.activeData.length - 1].date;
+        series.endDate = d3.time[this.options.granularity]
             .utc.offset(lastDate, 1);
 
         let filter = null;
@@ -391,11 +408,11 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                 series.data[i] = {
                     date: bucketDate,
                     value: 0,
-                    groupField: this.active.groupField
+                    groupField: this.options.groupField
                 };
             }
 
-            for (let row of this.active.data) {
+            for (let row of this.activeData) {
                 // Check if this should be in the focus data
                 // Focus data is not bucketized, just zeroed
                 if (filter) {
@@ -403,7 +420,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                         series.focusData.push({
                             date: this.zeroDate(row.date),
                             value: row.value,
-                            groupField: this.active.groupField
+                            groupField: this.options.groupField
                         });
                     }
                 }
@@ -416,14 +433,14 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             }
         } else {
             // No bucketizer, just add the data
-            for (let row of this.active.data) {
+            for (let row of this.activeData) {
                 // Check if this should be in the focus data
                 if (filter) {
                     if (filter.startDate <= row.date && filter.endDate >= row.date) {
                         series.focusData.push({
                             date: row.date,
                             value: row.value,
-                            groupField: this.active.groupField
+                            groupField: this.options.groupField
                         });
                     }
                 }
@@ -431,7 +448,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                 series.data.push({
                     date: row.date,
                     value: row.value,
-                    groupField: this.active.groupField
+                    groupField: this.options.groupField
                 });
             }
         }
@@ -461,14 +478,14 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     }
 
     handleChangeGranularity() {
-        this.timelineData.focusGranularityDifferent = this.active.granularity.toLowerCase() === 'minute';
+        this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
         this.timelineData.bucketizer = this.getBucketizer();
-        this.timelineData.granularity = this.active.granularity;
+        this.timelineData.granularity = this.options.granularity;
         this.logChangeAndStartQueryChain();
     }
 
     getBucketizer() {
-        switch (this.active.granularity.toLowerCase()) {
+        switch (this.options.granularity.toLowerCase()) {
             case 'minute':
             case 'hour':
             let bucketizer = new DateBucketizer();
@@ -488,14 +505,14 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
-            [this.active.dateField.columnName]);
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+            [this.options.dateField.columnName]);
 
         for (let neonFilter of neonFilters) {
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
-                let field = this.findField(this.meta.fields, neonFilter.filter.whereClause[0].lhs);
+                let field = this.findField(this.options.fields, neonFilter.filter.whereClause[0].lhs);
                 this.addLocalFilter(neonFilter.id, field.columnName, field.prettyName, whereClause.whereClauses[0].rhs,
                     whereClause.whereClauses[1].rhs);
             }
@@ -508,9 +525,9 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
     }
 
     subGetBindings(bindings: any) {
-        bindings.dateField = this.active.dateField.columnName;
-        bindings.granularity = this.active.granularity;
-        bindings.groupField = this.active.groupField.columnName;
+        bindings.dateField = this.options.dateField.columnName;
+        bindings.granularity = this.options.granularity;
+        bindings.groupField = this.options.groupField.columnName;
     }
 
     /**
@@ -540,5 +557,26 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             headerText: this.headerText,
             infoText: this.infoText
         };
+    }
+
+    /**
+     * Returns the options for the specific visualization.
+     *
+     * @return {BaseNeonOptions}
+     * @override
+     */
+    getOptions(): BaseNeonOptions {
+        return this.options;
+    }
+
+    /**
+     * Creates the options for the specific visualization.
+     *
+     * @override
+     */
+    createOptions() {
+        this.options = new StackedTimelineOptions();
+        this.options.granularity = this.injector.get('granularity', this.options.granularity);
+        this.options.yLabel = this.injector.get('yLabel', this.options.yLabel);
     }
 }

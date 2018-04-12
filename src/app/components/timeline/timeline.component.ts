@@ -26,26 +26,37 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
+
 import { ActiveGridService } from '../../services/active-grid.service';
+import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
-import { FieldMetaData } from '../../dataset';
-import { neonMappings, neonVariables } from '../../neon-namespaces';
-import * as neon from 'neon-framework';
-import * as _ from 'lodash';
-import { DateBucketizer } from '../bucketizers/DateBucketizer';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
-import { Bucketizer } from '../bucketizers/Bucketizer';
-import { TimelineSelectorChart, TimelineSeries, TimelineData } from './TimelineSelectorChart';
-import { YearBucketizer } from '../bucketizers/YearBucketizer';
 import { VisualizationService } from '../../services/visualization.service';
 
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { Bucketizer } from '../bucketizers/Bucketizer';
+import { DateBucketizer } from '../bucketizers/DateBucketizer';
+import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { MonthBucketizer } from '../bucketizers/MonthBucketizer';
+import { neonMappings, neonVariables } from '../../neon-namespaces';
+import { TimelineSelectorChart, TimelineSeries, TimelineData } from './TimelineSelectorChart';
+import { YearBucketizer } from '../bucketizers/YearBucketizer';
+import * as neon from 'neon-framework';
+import * as _ from 'lodash';
+
 declare let d3;
+
+/**
+ * Manages configurable options for the specific visualization.
+ */
+export class TimelineOptions extends BaseNeonOptions {
+    public dateField: FieldMetaData = EMPTY_FIELD;
+    public granularity: string = 'day';
+    public yLabel: string = 'Count';
+}
 
 @Component({
     selector: 'app-timeline',
@@ -61,56 +72,59 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     @ViewChild('svg') svg: ElementRef;
 
-    private filters: {
+    public filters: {
         id: string,
         field: string,
         prettyField: string,
         startDate: Date,
         endDate: Date,
         local: boolean
-    }[];
+    }[] = [];
 
-    public active: {
-        data: {
-            value: number,
-            date: Date
-        }[],
-        dateField: FieldMetaData,
-        granularity: string,
-        ylabel: string,
-        docCount: number
-    };
+    public options: TimelineOptions;
+
+    public activeData: {
+        value: number,
+        date: Date
+    }[] = [];
+    public docCount: number = 0;
 
     private chartDefaults: {
         activeColor: string,
         inactiveColor: string
     };
 
-    private colorSchemeService: ColorSchemeService;
-    private timelineChart: TimelineSelectorChart;
-    private timelineData: TimelineData;
-    private defaultActiveColor;
+    public defaultActiveColor;
+    public timelineChart: TimelineSelectorChart;
+    public timelineData: TimelineData = new TimelineData();
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
-        super(activeGridService, connectionService, datasetService, filterService,
-            exportService, injector, themesService, ref, visualizationService);
+    constructor(
+        activeGridService: ActiveGridService,
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        exportService: ExportService,
+        injector: Injector,
+        themesService: ThemesService,
+        protected colorSchemeService: ColorSchemeService,
+        ref: ChangeDetectorRef,
+        visualizationService: VisualizationService
+    ) {
 
-        this.colorSchemeService = colorSchemeSrv;
-        this.filters = [];
+        super(
+            activeGridService,
+            connectionService,
+            datasetService,
+            filterService,
+            exportService,
+            injector,
+            themesService,
+            ref,
+            visualizationService
+        );
 
-        this.active = {
-            data: [],
-            dateField: new FieldMetaData(),
-            granularity: this.injector.get('granularity', 'day'),
-            ylabel: 'Count',
-            docCount: 0
-        };
-
-        this.timelineData = new TimelineData();
-        this.timelineData.focusGranularityDifferent = this.active.granularity.toLowerCase() === 'minute';
-        this.timelineData.granularity = this.active.granularity;
+        this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
+        this.timelineData.granularity = this.options.granularity;
         this.timelineData.bucketizer = this.getBucketizer();
         this.enableRedrawAfterResize(true);
     }
@@ -130,8 +144,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     subGetBindings(bindings: any) {
-        bindings.dateField = this.active.dateField.columnName;
-        bindings.granularity = this.active.granularity;
+        bindings.dateField = this.options.dateField.columnName;
+        bindings.granularity = this.options.granularity;
     }
 
     getExportFields() {
@@ -139,7 +153,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             columnName: 'value',
             prettyName: 'Count'
         }];
-        switch (this.active.granularity) {
+        switch (this.options.granularity) {
             case 'minute':
                 fields.push({
                     columnName: 'minute',
@@ -174,8 +188,13 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return fields;
     }
 
+    /**
+     * Initializes all the field metadata for the specific visualization.
+     *
+     * @override
+     */
     onUpdateFields() {
-        this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
+        this.options.dateField = this.findFieldObject(this.options, 'dateField', neonMappings.DATE);
     }
 
     addLocalFilter(id: string, field: string, prettyField: string, startDate: Date, endDate: Date, local?: boolean) {
@@ -196,8 +215,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     onTimelineSelection(startDate: Date, endDate: Date): void {
         let filter = {
             id: undefined,
-            field: this.active.dateField.columnName,
-            prettyField: this.active.dateField.prettyName,
+            field: this.options.dateField.columnName,
+            prettyField: this.options.dateField.prettyName,
             startDate: startDate,
             endDate: endDate,
             local: true
@@ -247,9 +266,9 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     isValidQuery() {
         let valid = true;
-        valid = (this.meta.database && this.meta.database.name && valid);
-        valid = (this.meta.table && this.meta.table.name && valid);
-        valid = (this.active.dateField && this.active.dateField.columnName && valid);
+        valid = (this.options.database && this.options.database.name && valid);
+        valid = (this.options.table && this.options.table.name && valid);
+        valid = (this.options.dateField && this.options.dateField.columnName && valid);
         return valid;
     }
 
@@ -259,24 +278,23 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * @return {any}
      */
     createClause(): any {
-        let clause = neon.query.where(this.active.dateField.columnName, '!=', null);
+        let clause = neon.query.where(this.options.dateField.columnName, '!=', null);
 
         if (this.hasUnsharedFilter()) {
-            clause = neon.query.and(clause, neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+            clause = neon.query.and(clause, neon.query.where(this.options.unsharedFilterField.columnName, '=',
+                this.options.unsharedFilterValue));
         }
 
         return clause;
     }
 
     createQuery(): neon.query.Query {
-        let databaseName = this.meta.database.name;
-        let tableName = this.meta.table.name;
-        let query = new neon.query.Query().selectFrom(databaseName, tableName);
+        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
         let whereClause = this.createClause();
-        let dateField = this.active.dateField.columnName;
+        let dateField = this.options.dateField.columnName;
         query = query.aggregate(neonVariables.MIN, dateField, 'date');
         let groupBys: any[] = [];
-        switch (this.active.granularity) {
+        switch (this.options.granularity) {
             // Passthrough is intentional and expected!  falls through comments tell the linter that it is ok.
             case 'minute':
                 groupBys.push(new neon.query.GroupByFunctionClause('minute', dateField, 'minute'));
@@ -301,15 +319,15 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     getDocCount() {
-        let countQuery = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createClause())
+        let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createClause())
             .aggregate(neonVariables.COUNT, '*', '_docCount');
         this.executeQuery(countQuery);
     }
 
     getFiltersToIgnore() {
         let ignoredFilterIds = [];
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
-            [this.active.dateField.columnName]);
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+            [this.options.dateField.columnName]);
 
         for (let neonFilter of neonFilters) {
             // The data we want is in the whereClause's subclauses
@@ -324,10 +342,10 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
 
     onQuerySuccess(response) {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
-            this.active.docCount = response.data[0]._docCount;
+            this.docCount = response.data[0]._docCount;
         } else {
             // Convert all the dates into Date objects
-            this.active.data = response.data.map((item) => {
+            this.activeData = response.data.map((item) => {
                 item.date = new Date(item.date);
                 return item;
             });
@@ -344,16 +362,16 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     getButtonText() {
-        let shownCount = (this.active.data || []).reduce((sum, element) => {
+        let shownCount = (this.activeData || []).reduce((sum, element) => {
             return sum + element.value;
         }, 0);
         if (!shownCount) {
             return 'No Data';
         }
-        if (this.active.docCount <= shownCount) {
+        if (this.docCount <= shownCount) {
             return 'Total ' + super.prettifyInteger(shownCount);
         }
-        return super.prettifyInteger(shownCount) + ' of ' + super.prettifyInteger(this.active.docCount);
+        return super.prettifyInteger(shownCount) + ' of ' + super.prettifyInteger(this.docCount);
     }
 
     /**
@@ -371,12 +389,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             endDate: null
         };
 
-        if (this.active.data.length > 0) {
+        if (this.activeData.length > 0) {
             // The query includes a sort, so it *should* be sorted.
             // Start date will be the first entry, and the end date will be the last
-            series.startDate = this.active.data[0].date;
-            let lastDate = this.active.data[this.active.data.length - 1].date;
-            series.endDate = d3.time[this.active.granularity]
+            series.startDate = this.activeData[0].date;
+            let lastDate = this.activeData[this.activeData.length - 1].date;
+            series.endDate = d3.time[this.options.granularity]
                 .utc.offset(lastDate, 1);
 
             let filter = null;
@@ -398,7 +416,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                     };
                 }
 
-                for (let row of this.active.data) {
+                for (let row of this.activeData) {
                     // Check if this should be in the focus data
                     // Focus data is not bucketized, just zeroed
                     if (filter) {
@@ -418,7 +436,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 }
             } else {
                 // No bucketizer, just add the data
-                for (let row of this.active.data) {
+                for (let row of this.activeData) {
                     // Check if this should be in the focus data
                     if (filter) {
                         if (filter.startDate <= row.date && filter.endDate >= row.date) {
@@ -469,14 +487,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     handleChangeGranularity() {
-        this.timelineData.focusGranularityDifferent = this.active.granularity.toLowerCase() === 'minute';
+        this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
         this.timelineData.bucketizer = this.getBucketizer();
-        this.timelineData.granularity = this.active.granularity;
+        this.timelineData.granularity = this.options.granularity;
         this.logChangeAndStartQueryChain();
     }
 
     getBucketizer() {
-        switch (this.active.granularity.toLowerCase()) {
+        switch (this.options.granularity.toLowerCase()) {
             case 'minute':
             case 'hour':
             let bucketizer = new DateBucketizer();
@@ -496,14 +514,14 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     setupFilters() {
         // Get neon filters
         // See if any neon filters are local filters and set/clear appropriately
-        let neonFilters = this.filterService.getFiltersForFields(this.meta.database.name, this.meta.table.name,
-            [this.active.dateField.columnName]);
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+            [this.options.dateField.columnName]);
 
         for (let neonFilter of neonFilters) {
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
-                let field = this.findField(this.meta.fields, neonFilter.filter.whereClause[0].lhs);
+                let field = this.findField(this.options.fields, neonFilter.filter.whereClause[0].lhs);
                 this.addLocalFilter(neonFilter.id, field.columnName, field.prettyName, whereClause.whereClauses[0].rhs,
                     whereClause.whereClauses[1].rhs);
             }
@@ -544,5 +562,26 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             headerText: this.headerText,
             infoText: this.infoText
         };
+    }
+
+    /**
+     * Returns the options for the specific visualization.
+     *
+     * @return {BaseNeonOptions}
+     * @override
+     */
+    getOptions(): BaseNeonOptions {
+        return this.options;
+    }
+
+    /**
+     * Creates the options for the specific visualization.
+     *
+     * @override
+     */
+    createOptions() {
+        this.options = new TimelineOptions();
+        this.options.granularity = this.injector.get('granularity', this.options.granularity);
+        this.options.yLabel = this.injector.get('yLabel', this.options.yLabel);
     }
 }

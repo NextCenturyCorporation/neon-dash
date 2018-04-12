@@ -25,22 +25,36 @@ import {
     ViewContainerRef,
     ViewEncapsulation
 } from '@angular/core';
+
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
-import { FieldMetaData } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
-import * as neon from 'neon-framework';
-import * as _ from 'lodash';
-// import * as moment from 'moment';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
-import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
+import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { DocumentViewerSingleItemComponent } from '../document-viewer-single-item/document-viewer-single-item.component';
+import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import * as neon from 'neon-framework';
+import * as _ from 'lodash';
+
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
+
+/**
+ * Manages configurable options for the specific visualization.
+ */
+export class DocumentViewerOptions extends BaseNeonOptions {
+    public dataField: FieldMetaData = EMPTY_FIELD;
+    public dateField: FieldMetaData = EMPTY_FIELD;
+    public idField: FieldMetaData = EMPTY_FIELD;
+    public metadataFields: any[] = [];
+    public popoutFields: any[] = [];
+    public showSelect: boolean = false;
+    public showText: boolean = false;
+}
 
 @Component({
     selector: 'app-document-viewer',
@@ -56,37 +70,37 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     private singleItemRef: MatDialogRef<DocumentViewerSingleItemComponent>;
 
-    public active: {
-        data: any[],
-        dataField: FieldMetaData,
-        dateField: FieldMetaData,
-        docCount: number,
-        idField: FieldMetaData,
-        page: number,
-        metadataFields: any[], // Array of arrays. Each internal array is a row of metadata and contains {name, field} objects.
-        popoutFields: any[], // Same as metadataFields in format. Extra fields that will show in the single document popout window.
-        showSelect: boolean,
-        showText: boolean
-    };
+    public options: DocumentViewerOptions;
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        public viewContainerRef: ViewContainerRef, ref: ChangeDetectorRef, visualizationService: VisualizationService,
-        public dialog: MatDialog) {
-        super(activeGridService, connectionService, datasetService, filterService,
-            exportService, injector, themesService, ref, visualizationService);
-        this.active = {
-            data: [],
-            dataField: new FieldMetaData(),
-            dateField: new FieldMetaData(),
-            docCount: 0,
-            idField: new FieldMetaData(),
-            page: 1,
-            metadataFields: neonUtilities.flatten(this.injector.get('metadataFields', [])),
-            popoutFields: neonUtilities.flatten(this.injector.get('popoutFields', [])),
-            showSelect: this.injector.get('showSelect', false),
-            showText: this.injector.get('showText', false)
-        };
+    public activeData: any[] = [];
+    public docCount: number = 0;
+    public page: number = 1;
+
+    constructor(
+        activeGridService: ActiveGridService,
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        exportService: ExportService,
+        injector: Injector,
+        themesService: ThemesService,
+        public viewContainerRef: ViewContainerRef,
+        ref: ChangeDetectorRef,
+        visualizationService: VisualizationService,
+        public dialog: MatDialog
+    ) {
+
+        super(
+            activeGridService,
+            connectionService,
+            datasetService,
+            filterService,
+            exportService,
+            injector,
+            themesService,
+            ref,
+            visualizationService
+        );
     }
 
     subNgOnInit() {
@@ -103,38 +117,43 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     subGetBindings(bindings) {
         /*TODO: Fix 22001 Error
-        bindings.data = this.active.data;
-        bindings.dataField = this.active.dataField;
-        bindings.dateField = this.active.dateField;
-        bindings.docCount = this.active.docCount;
-        bindings.idField = this.active.idField;
-        bindings.page = this.active.page;
-        bindings.metadataFields = this.active.metadataFields;
-        bindings.popoutFields = this.active.popoutFields;
-        bindings.showSelect = this.active.showSelect;
-        bindings.showText = this.active.showText;
+        bindings.data = this.activeData;
+        bindings.dataField = this.options.dataField;
+        bindings.dateField = this.options.dateField;
+        bindings.docCount = this.docCount;
+        bindings.idField = this.options.idField;
+        bindings.page = this.page;
+        bindings.metadataFields = this.options.metadataFields;
+        bindings.popoutFields = this.options.popoutFields;
+        bindings.showSelect = this.options.showSelect;
+        bindings.showText = this.options.showText;
         */
     }
 
     getExportFields() {
         return [{
-            columnName: this.active.dataField.columnName,
-            prettyName: this.active.dataField.prettyName
+            columnName: this.options.dataField.columnName,
+            prettyName: this.options.dataField.prettyName
         },
         {
-            columnName: this.active.dateField.columnName,
-            prettyName: this.active.dateField.prettyName
+            columnName: this.options.dateField.columnName,
+            prettyName: this.options.dateField.prettyName
         },
         {
-            columnName: this.active.idField.columnName,
-            prettyName: this.active.idField.prettyName
+            columnName: this.options.idField.columnName,
+            prettyName: this.options.idField.prettyName
         }];
     }
 
+    /**
+     * Initializes all the field metadata for the specific visualization.
+     *
+     * @override
+     */
     onUpdateFields() {
-        this.active.dataField = this.findFieldObject('dataField');
-        this.active.dateField = this.findFieldObject('dateField');
-        this.active.idField = this.findFieldObject('idField');
+        this.options.dataField = this.findFieldObject(this.options, 'dataField');
+        this.options.dateField = this.findFieldObject(this.options, 'dateField');
+        this.options.idField = this.findFieldObject(this.options, 'idField');
     }
 
     getFilterText(filter) {
@@ -151,9 +170,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
 
     isValidQuery(): boolean {
         let valid = true;
-        valid = (this.meta.database && this.meta.database.name && valid);
-        valid = (this.meta.table && this.meta.table.name && valid);
-        valid = (this.active.dataField && this.active.dataField.columnName && valid);
+        valid = (this.options.database && this.options.database.name && valid);
+        valid = (this.options.table && this.options.table.name && valid);
+        valid = (this.options.dataField && this.options.dataField.columnName && valid);
         // We intentionally don't include dateField or idField in the validity check, because we're allowed to leave it null.
         return !!(valid);
     }
@@ -164,47 +183,44 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      * @return {any}
      */
     createClause(): any {
-        let clause = neon.query.where(this.active.dataField.columnName, '!=', null);
+        let clause = neon.query.where(this.options.dataField.columnName, '!=', null);
 
         if (this.hasUnsharedFilter()) {
-            clause = neon.query.and(clause, neon.query.where(this.meta.unsharedFilterField.columnName, '=', this.meta.unsharedFilterValue));
+            clause = neon.query.and(clause, neon.query.where(this.options.unsharedFilterField.columnName, '=',
+                this.options.unsharedFilterValue));
         }
 
         return clause;
     }
 
     createQuery() {
-        let databaseName = this.meta.database.name;
-        let tableName = this.meta.table.name;
-        let limit = this.meta.limit;
-        let offset = ((this.active.page) - 1) * limit;
-        let query = new neon.query.Query().selectFrom(databaseName, tableName);
+        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
         let whereClause = this.createClause();
-        let fields = this.active.metadataFields.map((item) => {
+        let fields = this.options.metadataFields.map((item) => {
             return item.field;
-        }).concat(this.active.dataField.columnName);
-        if (this.active.dateField.columnName) {
-            fields = fields.concat(this.active.dateField.columnName);
-            query = query.sortBy(this.active.dateField.columnName, neonVariables.DESCENDING);
+        }).concat(this.options.dataField.columnName);
+        if (this.options.dateField.columnName) {
+            fields = fields.concat(this.options.dateField.columnName);
+            query = query.sortBy(this.options.dateField.columnName, neonVariables.DESCENDING);
         }
-        if (this.active.idField.columnName) {
-            fields = fields.concat(this.active.idField.columnName);
+        if (this.options.idField.columnName) {
+            fields = fields.concat(this.options.idField.columnName);
         }
-        return query.where(whereClause).withFields(fields).limit(limit).offset(offset);
+        return query.where(whereClause).withFields(fields).limit(this.options.limit).offset((this.page - 1) * this.options.limit);
     }
 
     onQuerySuccess(response) {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
-            this.active.docCount = response.data[0]._docCount;
+            this.docCount = response.data[0]._docCount;
         } else {
-            let fields = this.active.metadataFields.map((item) => {
+            let fields = this.options.metadataFields.map((item) => {
                 return item.field;
-            }).concat(this.active.dataField.columnName);
-            if (this.active.dateField.columnName) {
-                fields = fields.concat(this.active.dateField.columnName);
+            }).concat(this.options.dataField.columnName);
+            if (this.options.dateField.columnName) {
+                fields = fields.concat(this.options.dateField.columnName);
             }
-            if (this.active.idField.columnName) {
-                fields = fields.concat(this.active.idField.columnName);
+            if (this.options.idField.columnName) {
+                fields = fields.concat(this.options.idField.columnName);
             }
             let data = response.data.map((element) => {
                 let elem = {};
@@ -213,13 +229,13 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
                 }
                 return elem;
             });
-            this.active.data = data;
+            this.activeData = data;
             this.getDocCount();
         }
     }
 
     getDocCount() {
-        let countQuery = new neon.query.Query().selectFrom(this.meta.database.name, this.meta.table.name).where(this.createClause())
+        let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createClause())
             .aggregate(neonVariables.COUNT, '*', '_docCount');
         this.executeQuery(countQuery);
     }
@@ -235,19 +251,19 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     getButtonText() {
-        if (!this.active.docCount) {
+        if (!this.docCount) {
             return 'No Data';
         }
-        if (this.active.docCount <= this.active.data.length) {
-            return 'Total ' + super.prettifyInteger(this.active.docCount);
+        if (this.docCount <= this.activeData.length) {
+            return 'Total ' + super.prettifyInteger(this.docCount);
         }
-        let begin = super.prettifyInteger((this.active.page - 1) * this.meta.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.active.page * this.meta.limit, this.active.docCount));
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.active.docCount);
+        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
+        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.docCount));
+        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.docCount);
     }
 
     setupFilters() {
-        this.active.page = 1;
+        this.page = 1;
         this.executeQueryChain();
     }
 
@@ -305,8 +321,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let config = new MatDialogConfig();
         config.data = {
             item: item,
-            textField: this.active.dataField.columnName,
-            metadataFields: this.active.metadataFields.concat(this.active.popoutFields)
+            textField: this.options.dataField.columnName,
+            metadataFields: this.options.metadataFields.concat(this.options.popoutFields)
         };
 
         this.singleItemRef = this.dialog.open(DocumentViewerSingleItemComponent, config);
@@ -323,18 +339,18 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      * @private
      */
     private selectSingleRecord(item) {
-        if (this.active.idField.columnName && item[this.active.idField.columnName]) {
-            this.publishSelectId(item[this.active.idField.columnName]);
+        if (this.options.idField.columnName && item[this.options.idField.columnName]) {
+            this.publishSelectId(item[this.options.idField.columnName]);
         }
     }
 
     nextPage() {
-        this.active.page += 1;
+        this.page += 1;
         this.executeQueryChain();
     }
 
     previousPage() {
-        this.active.page -= 1;
+        this.page -= 1;
         this.executeQueryChain();
     }
 
@@ -370,5 +386,28 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             headerText: this.headerText,
             infoText: this.infoText
         };
+    }
+
+    /**
+     * Returns the options for the specific visualization.
+     *
+     * @return {BaseNeonOptions}
+     * @override
+     */
+    getOptions(): BaseNeonOptions {
+        return this.options;
+    }
+
+    /**
+     * Creates the options for the specific visualization.
+     *
+     * @override
+     */
+    createOptions() {
+        this.options = new DocumentViewerOptions();
+        this.options.metadataFields = neonUtilities.flatten(this.injector.get('metadataFields', this.options.metadataFields));
+        this.options.popoutFields = neonUtilities.flatten(this.injector.get('popoutFields', this.options.popoutFields));
+        this.options.showSelect = this.injector.get('showSelect', this.options.showSelect);
+        this.options.showText = this.injector.get('showText', this.options.showText);
     }
 }
