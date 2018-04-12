@@ -7,7 +7,7 @@
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [{
-                "name": "verdi",
+                "name": "verdi-rdf",
                 "prettyName": "VERDI",
                 "tables": [{
                     "name": "normal",
@@ -21,12 +21,12 @@
             "relations": [
                 {"members": [
                     {
-                        "database": "verdi",
+                        "database": "verdi-rdf",
                         "table": "normal",
                         "field": "@id"
                     },
                     {
-                        "database": "verdi",
+                        "database": "verdi-rdf",
                         "table": "reified",
                         "field": "provenance"
                     }
@@ -49,7 +49,7 @@
             "selected": true,
             "bindings": {
                 "title": "Document",
-                "database": "verdi",
+                "database": "verdi-rdf",
                 "table": "normal",
                 "idField": "@id",
                 "sortField": "author",
@@ -82,7 +82,7 @@
                 "selected": true,
                 "bindings": {
                     "title": "Subject",
-                    "database": "verdi",
+                    "database": "verdi-rdf",
                     "table": "reified",
                     "sortField": "subject",
                     "idField": "@id",
@@ -113,7 +113,7 @@
                 "$$hashKey": "object:31",
                 "bindings": {
                     "title": "Predicate",
-                    "database": "verdi",
+                    "database": "verdi-rdf",
                     "table": "reified",
                     "sortField": "predicate",
                     "idField": "@id",
@@ -145,7 +145,7 @@
                 "selected": true,
                 "bindings": {
                     "title": "Object",
-                    "database": "verdi",
+                    "database": "verdi-rdf",
                     "table": "reified",
                     "sortField": "object",
                     "idField": "@id",
@@ -178,7 +178,7 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Media Viewer",
-                    "database": "verdi",
+                    "database": "verdi-rdf",
                     "table": "normal",
                     "idField": "@id",
                     "linkField": "docLocation",
@@ -201,7 +201,7 @@
                 "selected": true,
                 "bindings": {
                     "title": "Network Graph",
-                    "database": "verdi",
+                    "database": "verdi-rdf",
                     "table": "reified",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
@@ -228,7 +228,7 @@
                 "selected": true,
                 "bindings": {
                     "title": "Filter Builder",
-                    "database": "verdi",
+                    "database": "verdi-rdf",
                     "table": "reified"
                 },
                 "row": 22,
