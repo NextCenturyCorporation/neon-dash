@@ -102,7 +102,18 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     subGetBindings(bindings) {
-        // TODO
+        /*TODO: Fix 22001 Error
+        bindings.data = this.active.data;
+        bindings.dataField = this.active.dataField;
+        bindings.dateField = this.active.dateField;
+        bindings.docCount = this.active.docCount;
+        bindings.idField = this.active.idField;
+        bindings.page = this.active.page;
+        bindings.metadataFields = this.active.metadataFields;
+        bindings.popoutFields = this.active.popoutFields;
+        bindings.showSelect = this.active.showSelect;
+        bindings.showText = this.active.showText;
+        */
     }
 
     getExportFields() {

@@ -51,8 +51,7 @@ describe('Service: DatasetService', () => {
 
         expect(service.getDatasetWithName('d1')).toEqual({
             name: 'd1',
-            databases: [],
-            dateFilterKeys: {}
+            databases: []
         });
     }));
 });
