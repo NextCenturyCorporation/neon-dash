@@ -28,7 +28,8 @@ export class DatasetMock extends DatasetService {
         new FieldMetaData('testLatitudeField', 'Test Latitude Field'),
         new FieldMetaData('testLinkField', 'Test Link Field'),
         new FieldMetaData('testLongitudeField', 'Test Longitude Field'),
-        new FieldMetaData('testSizeField', 'Test Size Field')
+        new FieldMetaData('testSizeField', 'Test Size Field'),
+        new FieldMetaData('testTypeField', 'Test Type Field')
     ];
 
     public static TABLES: TableMetaData[] = [
