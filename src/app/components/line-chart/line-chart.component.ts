@@ -763,9 +763,10 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
                 if (!this.filters.length || this.filters[0].id !== neonFilter.id) {
+                    let field = this.findField(this.meta.fields, neonFilter.filter.whereClause[0].lhs);
                     this.filters = [{
-                        field: this.active.dateField.columnName,
-                        prettyField: this.active.dateField.prettyName,
+                        field: field.columnName,
+                        prettyField: field.prettyName,
                         startDate: whereClause.whereClauses[0].rhs,
                         endDate: whereClause.whereClauses[1].rhs,
                         id: neonFilter.id

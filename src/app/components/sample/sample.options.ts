@@ -14,7 +14,6 @@
  *
  */
 import { FieldMetaData } from '../../dataset';
-import { SubcomponentType } from './subcomponent.abstract';
 
 /**
  * Manages configurable options for the visualization.
@@ -23,5 +22,5 @@ export interface SampleOptions {
     // TODO Add and remove properties as needed.
     sampleOptionalField: FieldMetaData;
     sampleRequiredField: FieldMetaData;
-    subcomponentType: SubcomponentType;
+    subcomponentType: string;
 }
