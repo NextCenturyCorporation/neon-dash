@@ -411,7 +411,7 @@ describe('Component: MediaViewer', () => {
             expect(iconInSidenav).not.toBeNull();
             expect(iconInSidenav.nativeElement.textContent).toBe('error');
 
-            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message div'));
+            let errorMessageInSidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav .error-message span'));
             expect(errorMessageInSidenav).not.toBeNull();
             expect(errorMessageInSidenav.nativeElement.textContent.indexOf('Test Error Message') >= 0).toBe(true);
         });
@@ -529,7 +529,7 @@ describe('Component: MediaViewer', () => {
         expect(tabs.length).toBe(0);
     }));
 
-    it('does show tabs if active.documentArray is not empty and active showMedia is true', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show tabs if active.documentArray is not empty and active showMedia is true', async(inject([DomSanitizer], (sanitizer) =>  {
         component.active.documentArray = ['testLinkValue1', 'testLinkValue2'];
         component.showMedia = true;
         fixture.detectChanges();
@@ -538,6 +538,7 @@ describe('Component: MediaViewer', () => {
             fixture.detectChanges();
 
             expect(component.active.documentArray.length).toBe(2);
+
             let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
             expect(tabs.length).toBe(2);
             expect(tabs[0].nativeElement.textContent).toBe('testLinkValue1');
