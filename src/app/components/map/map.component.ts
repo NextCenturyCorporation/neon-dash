@@ -59,34 +59,56 @@ class UniqueLocationPoint {
 }
 
 export class MapLayer extends BaseNeonLayer {
-    public colorField: FieldMetaData = EMPTY_FIELD;
-    public dateField: FieldMetaData = EMPTY_FIELD;
-    public latitudeField: FieldMetaData = EMPTY_FIELD;
-    public longitudeField: FieldMetaData = EMPTY_FIELD;
-    public sizeField: FieldMetaData = EMPTY_FIELD;
+    public colorField: FieldMetaData;
+    public dateField: FieldMetaData;
+    public latitudeField: FieldMetaData;
+    public longitudeField: FieldMetaData;
+    public sizeField: FieldMetaData;
+
+    /**
+     * Initializes all the non-field options for the specific layer.
+     *
+     * @override
+     */
+    onInit() {
+        // Do nothing.
+    }
+
+    /**
+     * Initializes all the field options for the specific layer.
+     *
+     * @override
+     */
+    onInitFields() {
+        this.colorField = this.findFieldObject('colorField');
+        this.dateField = this.findFieldObject('dateField', neonMappings.DATE);
+        this.latitudeField = this.findFieldObject('latitudeField', neonMappings.LATITUDE);
+        this.longitudeField = this.findFieldObject('longitudeField', neonMappings.LONGITUDE);
+        this.sizeField = this.findFieldObject('sizeField');
+    }
 }
 
 export class MapOptions extends BaseNeonMultiLayerOptions {
-    public clustering: string = 'points';
-    public clusterPixelRange: number = 15;
+    public clustering: string;
+    public clusterPixelRange: number;
     public customServer: {
         useCustomServer: boolean,
         mapUrl: string,
         layer: string
-    } = null;
-    public disableCtrlZoom: boolean = false;
-    public hoverPopupEnabled: boolean = false;
+    };
+    public disableCtrlZoom: boolean;
+    public hoverPopupEnabled: boolean;
     public hoverSelect: {
         hoverTime: number;
-    } = null;
-    public minClusterSize: number = 5;
-    public singleColor: boolean = false;
-    public type: MapType | string = MapType.Leaflet;
+    };
+    public minClusterSize: number;
+    public singleColor: boolean;
+    public type: MapType | string;
 
-    public west: number = null;
-    public east: number = null;
-    public north: number = null;
-    public south: number = null;
+    public west: number;
+    public east: number;
+    public north: number;
+    public south: number;
 
     public layers: MapLayer[] = [];
 
@@ -98,6 +120,28 @@ export class MapOptions extends BaseNeonMultiLayerOptions {
      */
     public getLayers(): BaseNeonLayer[] {
         return this.layers;
+    }
+
+    /**
+     * Initializes all the options for the specific visualization.
+     *
+     * @override
+     */
+    public onInit() {
+        this.clustering = this.injector.get('clustering', 'points');
+        this.clusterPixelRange = this.injector.get('clusterPixelRange', 15);
+        this.customServer = this.injector.get('customServer', null);
+        this.disableCtrlZoom = this.injector.get('disableCtrlZoom', false);
+        this.hoverPopupEnabled = this.injector.get('hoverPopupEnabled', false);
+        this.hoverSelect = this.injector.get('hoverSelect', null);
+        this.minClusterSize = this.injector.get('minClusterSize', 5);
+        this.singleColor = this.injector.get('singleColor', false);
+        this.type = this.injector.get('mapType', MapType.Leaflet);
+
+        this.west = this.injector.get('west', null);
+        this.east = this.injector.get('east', null);
+        this.north = this.injector.get('north', null);
+        this.south = this.injector.get('south', null);
     }
 }
 
@@ -169,6 +213,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         );
 
         (<any> window).CESIUM_BASE_URL = 'assets/Cesium';
+
+        this.options = new MapOptions(this.injector, 'Map', 1000);
     }
 
     /**
@@ -188,7 +234,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     postInit() {
         // There is one layer automatically added
         for (let layer of this.injector.get('layers', [])) {
-            this.addEmptyLayer(layer);
+            this.addLayer(layer);
         }
 
         this.defaultActiveColor = this.getPrimaryThemeColor();
@@ -263,17 +309,16 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Creates and returns a new empty layer for the specific visualization.
+     * Adds a new empty layer for the specific visualization using the given config.
      *
-     * @return {BaseNeonLayer}
+     * @arg {any} config
      * @override
      */
-    createEmptyLayer(): BaseNeonLayer {
-        let layer: MapLayer = new MapLayer();
+    subAddLayer(config: any) {
+        let layer: MapLayer = new MapLayer(config, this.datasetService);
         this.options.layers.push(layer);
         this.docCount[this.options.layers.length - 1] = 0;
         this.filterVisible[this.options.layers.length - 1] = true;
-        return layer;
     }
 
     /**
@@ -307,21 +352,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     private removeFilterBox() {
         delete this.filterBoundingBox;
         return this.mapObject && this.mapObject.removeFilterBox();
-    }
-
-    /**
-     * Initializes all the field metadata for the given layer for the specific visualization.
-     *
-     * @arg {any} layer
-     * @arg {any} layerOptions
-     * @override
-     */
-    onUpdateFields(layer: any, layerOptions: any) {
-        layer.latitudeField = this.findFieldObject(layer, layerOptions, 'latitudeField', neonMappings.LATITUDE);
-        layer.longitudeField = this.findFieldObject(layer, layerOptions, 'longitudeField', neonMappings.LONGITUDE);
-        layer.sizeField = this.findFieldObject(layer, layerOptions, 'sizeField');
-        layer.colorField = this.findFieldObject(layer, layerOptions, 'colorField');
-        layer.dateField = this.findFieldObject(layer, layerOptions, 'dateField', neonMappings.DATE);
     }
 
     /**
@@ -918,16 +948,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns the default limit for the visualization.
-     *
-     * @return {number}
-     * @override
-     */
-    getDefaultLimit() {
-        return 1000;
-    }
-
-    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
@@ -951,30 +971,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         return this.options;
     }
 
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new MapOptions();
-
-        this.options.clustering = this.injector.get('clustering', this.options.clustering);
-        this.options.clusterPixelRange = this.injector.get('clusterPixelRange', this.options.clusterPixelRange);
-        this.options.customServer = this.injector.get('customServer', this.options.customServer);
-        this.options.disableCtrlZoom = this.injector.get('disableCtrlZoom', this.options.disableCtrlZoom);
-        this.options.hoverPopupEnabled = this.injector.get('hoverPopupEnabled', this.options.hoverPopupEnabled);
-        this.options.hoverSelect = this.injector.get('hoverSelect', this.options.hoverSelect);
-        this.options.minClusterSize = this.injector.get('minClusterSize', this.options.minClusterSize);
-        this.options.singleColor = this.injector.get('singleColor', this.options.singleColor);
-        this.options.type = this.injector.get('mapType', this.options.type);
-
-        this.options.west = this.injector.get('west', this.options.west);
-        this.options.east = this.injector.get('east', this.options.east);
-        this.options.north = this.injector.get('north', this.options.north);
-        this.options.south = this.injector.get('south', this.options.south);
-    }
-
     mouseWheelUp(_event) {
         if (_event.ctrlKey || _event.metaKey && !this.options.disableCtrlZoom && (this.options.type === 'Leaflet')) {
             this.mapObject.zoomIn();
@@ -982,6 +978,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             this.overlayOn(_event);
         }
     }
+
     mouseWheelDown(_event) {
         if (_event.ctrlKey || _event.metaKey && !this.options.disableCtrlZoom && (this.options.type === 'Leaflet')) {
             this.mapObject.zoomOut();
