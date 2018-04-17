@@ -94,7 +94,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     constructor(
         protected activeGridService: ActiveGridService,
         protected connectionService: ConnectionService,
-        public datasetService: DatasetService,
+        protected datasetService: DatasetService,
         protected filterService: FilterService,
         protected exportService: ExportService,
         protected injector: Injector,
@@ -586,14 +586,14 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {string} [mappingKey]
      * @return {FieldMetaData}
      */
-    getFieldObject(options: BaseNeonOptions, columnName: string, mappingKey?: string): FieldMetaData {
-        let fieldObject: FieldMetaData = columnName ? this.findField(options.fields, columnName) : undefined;
+    public getFieldObject(options: BaseNeonOptions, columnName: string, mappingKey?: string): FieldMetaData {
+        let field: FieldMetaData = columnName ? this.findField(options.fields, columnName) : undefined;
 
-        if (!fieldObject && mappingKey) {
-            fieldObject = this.findField(options.fields, this.getMapping(options, mappingKey));
+        if (!field && mappingKey) {
+            field = this.findField(options.fields, this.datasetService.getMapping(options.database.name, options.table.name, mappingKey));
         }
 
-        return fieldObject || new FieldMetaData();
+        return field || new FieldMetaData();
     }
 
     /**
@@ -603,11 +603,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {string} name
      * @return {FieldMetaData}
      */
-    findField(fields: FieldMetaData[], name: string): FieldMetaData {
-        let fieldArray = (!fields || !name) ? [] : fields.filter((field: FieldMetaData) => {
+    public findField(fields: FieldMetaData[], name: string): FieldMetaData {
+        let outputFields = (!fields || !name) ? [] : fields.filter((field: FieldMetaData) => {
             return field.columnName === name;
         });
-        return fieldArray.length ? fieldArray[0] : undefined;
+        return outputFields.length ? outputFields[0] : undefined;
     }
 
     /**
@@ -618,7 +618,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {string} [mappingKey]
      * @return {FieldMetaData}
      */
-    findFieldObject(options: BaseNeonOptions, bindingKey: string, mappingKey?: string): FieldMetaData {
+    public findFieldObject(options: BaseNeonOptions, bindingKey: string, mappingKey?: string): FieldMetaData {
         return this.getFieldObject(options, this.injector.get(bindingKey, ''), mappingKey);
     }
 
@@ -630,20 +630,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {string} [mappingKey]
      * @return {FieldMetaData}
      */
-    findFieldObjects(options: BaseNeonOptions, bindingKey: string, mappingKey?: string): FieldMetaData[] {
+    public findFieldObjects(options: BaseNeonOptions, bindingKey: string, mappingKey?: string): FieldMetaData[] {
         let bindings = this.injector.get(bindingKey, []);
         return (Array.isArray(bindings) ? bindings : []).map((element) => this.getFieldObject(options, element, mappingKey));
-    }
-
-    /**
-     * Returns the mapping from the database and table in the given options and the given key.
-     *
-     * @arg {BaseNeonOptions} options
-     * @arg {string} key
-     * @return {string}
-     */
-    getMapping(options: BaseNeonOptions, key: string): string {
-        return this.datasetService.getMapping(options.database.name, options.table.name, key);
     }
 
     /**
