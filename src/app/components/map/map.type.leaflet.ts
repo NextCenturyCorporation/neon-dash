@@ -13,8 +13,9 @@
  * limitations under the License.
  *
  */
-import { AbstractMap, BoundingBoxByDegrees, MapLayer, MapPoint, whiteString } from './map.type.abstract';
+import { AbstractMap, BoundingBoxByDegrees, MapPoint, whiteString } from './map.type.abstract';
 import { ElementRef } from '@angular/core';
+import { MapLayer } from './map.component';
 import * as L from 'leaflet';
 
 export class LeafletNeonMap extends AbstractMap {
@@ -37,19 +38,17 @@ export class LeafletNeonMap extends AbstractMap {
     private hiddenPoints = new Map();
 
     doCustomInitialization(mapContainer: ElementRef) {
-        let mapConfiguration = this.mapConfiguration.customServer,
-            leafletOptions = this.leafletOptions,
-            baseTileLayer = mapConfiguration && mapConfiguration.useCustomServer ?
-                L.tileLayer.wms(mapConfiguration.mapUrl, {
-                    layers: mapConfiguration.layer,
-                    transparent: true,
-                    minZoom: leafletOptions.minZoom
-                }) : new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    minZoom: leafletOptions.minZoom,
-                    attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
-                }),
+        let baseTileLayer = this.mapOptions.customServer && this.mapOptions.customServer.useCustomServer ?
+            L.tileLayer.wms(this.mapOptions.customServer.mapUrl, {
+                layers: this.mapOptions.customServer.layer,
+                transparent: true,
+                minZoom: this.leafletOptions.minZoom
+            }) : new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                minZoom: this.leafletOptions.minZoom,
+                attribution: '&copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+            }),
             monochrome = new L.TileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', {
-                minZoom: leafletOptions.minZoom,
+                minZoom: this.leafletOptions.minZoom,
                 attribution: 'Imagery from <a href="http://giscience.uni-hd.de/">' +
                 'GIScience Research Group @ University of Heidelberg</a> &mdash; Map data &copy; ' +
                 '<a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -62,8 +61,8 @@ export class LeafletNeonMap extends AbstractMap {
         this.map = new L.Map(mapContainer.nativeElement, this.leafletOptions).addLayer(baseTileLayer);
         if (this.areBoundsSet()) {
             this.map.fitBounds([
-                [this.mapConfiguration.north, this.mapConfiguration.west],
-                [this.mapConfiguration.south, this.mapConfiguration.east]
+                [this.mapOptions.north, this.mapOptions.west],
+                [this.mapOptions.south, this.mapOptions.east]
             ]);
         }
         this.layerControl = L.control.layers(baseLayers, {});
@@ -97,7 +96,7 @@ export class LeafletNeonMap extends AbstractMap {
                 },
                 circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
 
-            if (this.mapConfiguration.hoverPopupEnabled) {
+            if (this.mapOptions.hoverPopupEnabled) {
                 circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
             }
             group.addLayer(circle);
