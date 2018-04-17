@@ -17,7 +17,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
 
-import { MapComponent } from './map.component';
+import { MapComponent, MapLayer } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
@@ -35,7 +35,6 @@ import { AppMaterialModule } from '../../app.material.module';
 import { VisualizationService } from '../../services/visualization.service';
 import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
-import { MapLayer } from './map.component';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
@@ -71,6 +70,10 @@ class TestMapComponent extends MapComponent {
         this.options.type = -1;
         this.mapObject = new TestMap();
         return this.mapObject;
+    }
+
+    getDatasetService(): DatasetService {
+        return this.datasetService;
     }
 
     getFilterBoundingBox() {
@@ -132,17 +135,17 @@ class TestMap extends AbstractMap {
 }
 /* tslint:enable:component-class-suffix */
 
-function updateMapLayer1(component) {
+function updateMapLayer1(component: TestMapComponent) {
     component.docCount[0] = 1234;
 
-    component.options.layers[0] = new MapLayer();
+    component.options.layers[0] = new MapLayer({}, component.getDatasetService());
     component.options.layers[0].databases = [];
     component.options.layers[0].database = new DatabaseMetaData('testDatabase1');
     component.options.layers[0].fields = [];
     component.options.layers[0].tables = [];
     component.options.layers[0].table = new TableMetaData('testTable1');
     component.options.layers[0].title = 'Layer A';
-    component.options.layers[0].unsharedFilterField = {};
+    component.options.layers[0].unsharedFilterField = new FieldMetaData();
     component.options.layers[0].unsharedFilterValue = '';
 
     component.options.layers[0].colorField = new FieldMetaData('testColor1', 'Test Color 1');
@@ -152,17 +155,17 @@ function updateMapLayer1(component) {
     component.options.layers[0].sizeField = new FieldMetaData('testSize1', 'Test Size 1');
 }
 
-function updateMapLayer2(component) {
+function updateMapLayer2(component: TestMapComponent) {
     component.docCount[1] = 5678;
 
-    component.options.layers[1] = new MapLayer();
+    component.options.layers[1] = new MapLayer({}, component.getDatasetService());
     component.options.layers[1].databases = [];
     component.options.layers[1].database = new DatabaseMetaData('testDatabase2');
     component.options.layers[1].fields = [];
     component.options.layers[1].tables = [];
     component.options.layers[1].table = new TableMetaData('testTable2');
     component.options.layers[1].title = 'Layer B';
-    component.options.layers[1].unsharedFilterField = {};
+    component.options.layers[1].unsharedFilterField = new FieldMetaData();
     component.options.layers[1].unsharedFilterValue = '';
 
     component.options.layers[1].colorField = new FieldMetaData('testColor2', 'Test Color 2');
@@ -263,11 +266,7 @@ describe('Component: Map', () => {
         expect(component.options.layers[0].tables).toEqual([]);
         expect(component.options.layers[0].table).toEqual(new TableMetaData());
         expect(component.options.layers[0].fields).toEqual([]);
-        expect(component.options.layers[0].title).toEqual('New Map Layer');
-    });
-
-    it('onUpdateFields does set expected fields to empty strings because layers config is empty', () => {
-        component.onUpdateFields(component.options.layers[0], {});
+        expect(component.options.layers[0].title).toEqual('New Layer');
         expect(component.options.layers[0].colorField).toEqual(component.emptyField);
         expect(component.options.layers[0].dateField).toEqual(component.emptyField);
         expect(component.options.layers[0].latitudeField).toEqual(component.emptyField);
@@ -519,11 +518,10 @@ describe('Component: Map', () => {
         expect(mapSpy.calls.count()).toBe(1);
     });
 
-    it('createEmptyLayer creates new layer and updates filterVisible', () => {
-        let layer = component.createEmptyLayer();
+    it('subAddLayer creates new layer and updates docCount and filterVisible', () => {
+        let layer = component.subAddLayer({});
 
-        expect(component.options.layers[1]).toEqual(layer);
-        expect(component.options.layers[1].title).toEqual('');
+        expect(component.options.layers[1].title).toEqual('New Layer');
         expect(component.options.layers[1].colorField).toEqual(component.emptyField);
         expect(component.options.layers[1].dateField).toEqual(component.emptyField);
         expect(component.options.layers[1].latitudeField).toEqual(component.emptyField);
@@ -1176,15 +1174,6 @@ describe('Component: Map with config', () => {
         fixture.detectChanges();
     });
 
-    it('does have expected layers', () => {
-        expect(component.options.layers[0].databases).toEqual(DatasetMock.DATABASES);
-        expect(component.options.layers[0].database).toEqual(DatasetMock.DATABASES[0]);
-        expect(component.options.layers[0].tables).toEqual(DatasetMock.TABLES);
-        expect(component.options.layers[0].table).toEqual(DatasetMock.TABLES[0]);
-        expect(component.options.layers[0].fields).toEqual(DatasetMock.FIELDS);
-        expect(component.options.layers[0].title).toEqual('Test Layer Title');
-    });
-
     it('does have expected options', () => {
         expect(component.options.clustering).toEqual('clusters');
         expect(component.options.clusterPixelRange).toEqual(20);
@@ -1209,20 +1198,13 @@ describe('Component: Map with config', () => {
         expect(component.options.north).toEqual(4);
     });
 
-    it('onUpdateFields does set expected fields to layers config', () => {
-        component.options.layers[0].colorField = component.emptyField;
-        component.options.layers[0].dateField = component.emptyField;
-        component.options.layers[0].latitudeField = component.emptyField;
-        component.options.layers[0].longitudeField = component.emptyField;
-        component.options.layers[0].sizeField = component.emptyField;
-
-        component.onUpdateFields(component.options.layers[0], {
-            colorField: 'testColorField',
-            dateField: 'testDateField',
-            latitudeField: 'testLatitudeField',
-            longitudeField: 'testLongitudeField',
-            sizeField: 'testSizeField'
-        });
+    it('does have expected layers', () => {
+        expect(component.options.layers[0].databases).toEqual(DatasetMock.DATABASES);
+        expect(component.options.layers[0].database).toEqual(DatasetMock.DATABASES[0]);
+        expect(component.options.layers[0].tables).toEqual(DatasetMock.TABLES);
+        expect(component.options.layers[0].table).toEqual(DatasetMock.TABLES[0]);
+        expect(component.options.layers[0].fields).toEqual(DatasetMock.FIELDS);
+        expect(component.options.layers[0].title).toEqual('Test Layer Title');
         expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColorField', 'Test Color Field'));
         expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field'));
         expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testLatitudeField', 'Test Latitude Field'));
