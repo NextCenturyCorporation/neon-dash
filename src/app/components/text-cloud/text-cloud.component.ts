@@ -281,11 +281,13 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
+                let field = this.findField(this.meta.fields, neonFilter.filter.whereClause.lhs);
+                let value = neonFilter.filter.whereClause.rhs;
                 let filter = {
                     id: neonFilter.id,
-                    field: neonFilter.filter.whereClause.lhs,
-                    value: neonFilter.filter.whereClause.rhs,
-                    prettyField: neonFilter.filter.whereClause.lhs
+                    field: field.columnName,
+                    value: value,
+                    prettyField: field.prettyName
                 };
                 if (this.filterIsUnique(filter)) {
                     this.addLocalFilter(filter);

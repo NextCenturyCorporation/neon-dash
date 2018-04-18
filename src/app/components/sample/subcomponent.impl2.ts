@@ -13,50 +13,37 @@
  * limitations under the License.
  *
  */
+import { AbstractSubcomponent } from './subcomponent.abstract';
 import { ElementRef } from '@angular/core';
-import { SampleOptions } from './sample.options';
 
-export interface SubcomponentListener {
-    filterFromSubcomponent(text: string);
-}
-
-export abstract class AbstractSubcomponent {
-    protected options: SampleOptions;
-    protected listener: SubcomponentListener;
-
-    /**
-     * @constructor
-     * @arg {SampleOptions} options
-     * @arg {SubcomponentListener} listener
-     */
-    constructor(options: SampleOptions, listener: SubcomponentListener) {
-        this.options = options;
-        this.listener = listener;
-    }
+export class SubcomponentImpl2 extends AbstractSubcomponent {
 
     /**
      * Builds the subcomponent elements.
      *
      * @arg {ElementRef} elementRef
+     * @override
      */
-    abstract buildElements(elementRef: ElementRef);
+    buildElements(elementRef: ElementRef) {
+        // TODO
+    }
 
     /**
      * Destroys the subcomponent elements.
+     *
+     * @override
      */
-    abstract destroyElements();
+    destroyElements() {
+        // TODO
+    }
 
     /**
      * Updates the subcomponent data.
      *
      * @arg {array} data
+     * @override
      */
-    abstract updateData(data: any[]);
-
-    /**
-     * Redraws the subcomponent.
-     */
-    redraw() {
-        // Do nothing.
+    updateData(data: any[]) {
+        // TODO
     }
 }

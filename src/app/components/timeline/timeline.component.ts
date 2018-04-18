@@ -178,12 +178,12 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         this.active.dateField = this.findFieldObject('dateField', neonMappings.DATE);
     }
 
-    addLocalFilter(id: string, field: string, startDate: Date, endDate: Date, local?: boolean) {
+    addLocalFilter(id: string, field: string, prettyField: string, startDate: Date, endDate: Date, local?: boolean) {
         try {
             this.filters[0] = {
                 id: id,
                 field: field,
-                prettyField: field,
+                prettyField: prettyField,
                 startDate: new Date(startDate),
                 endDate: new Date(endDate),
                 local: local
@@ -503,7 +503,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
-                this.addLocalFilter(neonFilter.id, whereClause.whereClauses[0].lhs, whereClause.whereClauses[0].rhs,
+                let field = this.findField(this.meta.fields, neonFilter.filter.whereClause[0].lhs);
+                this.addLocalFilter(neonFilter.id, field.columnName, field.prettyName, whereClause.whereClauses[0].rhs,
                     whereClause.whereClauses[1].rhs);
             }
 

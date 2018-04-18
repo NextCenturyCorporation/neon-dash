@@ -42,10 +42,10 @@ export class ServiceFilter {
 @Injectable()
 export class FilterService {
 
-    private filters: ServiceFilter[];
-    private messenger: neon.eventing.Messenger;
+    protected filters: ServiceFilter[];
+    protected messenger: neon.eventing.Messenger;
 
-    constructor(private errorNotificationService: ErrorNotificationService, private datasetService: DatasetService) {
+    constructor(protected errorNotificationService: ErrorNotificationService, protected datasetService: DatasetService) {
         this.messenger = new neon.eventing.Messenger();
         this.filters = [];
     }
@@ -58,7 +58,19 @@ export class FilterService {
      */
     public getFilterState(onSuccess?: () => any, onError?: (resp: any) => any) {
         neon.query.Filter.getFilterState('*', '*', (filters) => {
-            this.filters = filters;
+            this.filters = filters.map((filter) => {
+                return new ServiceFilter(filter.id, undefined, filter.dataSet.databaseName, filter.dataSet.tableName, filter.filter);
+            });
+            for (let filter of this.filters) {
+                this.replaceFilter(
+                    this.messenger,
+                    filter.id,
+                    filter.filter.ownerId,
+                    filter.filter.databaseName,
+                    filter.filter.tableName,
+                    filter.filter.whereClause,
+                    filter.filter.filterName);
+            }
             if (onSuccess) {
                 onSuccess();
             }
@@ -72,21 +84,21 @@ export class FilterService {
     }
 
     /**
-     * Returns all filters matching the given comparitor object. The comparitor object can be as sparse
+     * Returns all filters matching the given comparator object. The comparator object can be as sparse
      * or as detailed as desired, and only filters matching every given field will be returned. If no parameter
      * is given, all filters are returned.
-     * @param {Object} [comparitor] The object to use as a filter for returning filters.
+     * @param {Object} [comparator] The object to use as a filter for returning filters.
      * @return {List} The list of all filters that match the given object.
      */
-    public getFilters(comparitor?: any): ServiceFilter[] {
+    public getFilters(comparator?: any): ServiceFilter[] {
         let matches = [];
         // Check the obvious case first to avoid unnecessary comparisons.
-        if (!comparitor) {
+        if (!comparator) {
             return this.filters;
         }
         for (let filter of this.filters) {
             // if unable to find mismatched values, must be equal
-            if (!Object.keys(comparitor).find((key) => !_.isEqual(comparitor[key], filter[key]))) {
+            if (!Object.keys(comparator).find((key) => !_.isEqual(comparator[key], filter[key]))) {
                 matches.push(filter);
             }
         }
@@ -133,7 +145,7 @@ export class FilterService {
         };
 
         let matchingFilters = [];
-        for (let filter of this.getFilters({database: database, table: table})) {
+        for (let filter of this.getFilters({ database: database, table: table })) {
             if (checkClauses(filter.filter.whereClause)) {
                 matchingFilters.push(filter);
             }
@@ -146,7 +158,7 @@ export class FilterService {
         database: string,
         table: string,
         whereClause: any,
-        filterName: string | {visName: string, text: string},
+        filterName: string | { visName: string, text: string },
         onSuccess?: (resp: any) => any,
         onError?: (resp: any) => any) {
 
@@ -181,7 +193,7 @@ export class FilterService {
         database: string,
         table: string,
         whereClause: any,
-        filterName: string | {visName: string, text: string},
+        filterName: string | { visName: string, text: string },
         onSuccess?: (resp: any) => any,
         onError?: (resp: any) => any) {
 
@@ -222,7 +234,7 @@ export class FilterService {
                 let index = _.findIndex(this.filters, { id: id });
                 this.filters[index] = new ServiceFilter(id, ownerId, database, table, filter, this.filters[index].siblings);
                 for (let i = newSiblings.length - 1; i >= 0; i--) {
-                    index = _.findIndex(this.filters, { id: newSiblings[i].id});
+                    index = _.findIndex(this.filters, { id: newSiblings[i].id });
                     this.filters[index] = newSiblings[i];
                 }
                 onSuccess(id); // Return the ID of the replaced filter.
@@ -239,7 +251,7 @@ export class FilterService {
         let siblings = baseFilter.siblings.concat(id);
         messenger.removeFilters(siblings,
             () => { // TODO - Actually care about what's returned here: a list of successfully removed filters.
-                    // Filters not included weren't successfully removed.
+                // Filters not included weren't successfully removed.
                 siblings.forEach((sibling) => {
                     for (let index = this.filters.length - 1; index >= 0; index--) {
                         if (this.filters[index].id === sibling) {
@@ -265,16 +277,15 @@ export class FilterService {
         }
     }
 
-    private getFilterNameString(database: string, table: string, filterName: string | {visName: string, text: string}): string {
+    protected getFilterNameString(database: string, table: string, filterName: string | { visName: string, text: string }): string {
         if (typeof filterName === 'object') {
             return (filterName.visName ? filterName.visName + ' - ' : '') + this.datasetService.getDatabaseWithName(database).prettyName +
                 ' - ' + this.datasetService.getTableWithName(database, table).prettyName + (filterName.text ? ': ' + filterName.text : '');
-        } else {
-            return filterName;
         }
+        return filterName;
     }
 
-    private createNeonFilter(database: string, table: string, whereClause: any, filterName: string): neon.query.Filter {
+    protected createNeonFilter(database: string, table: string, whereClause: any, filterName: string): neon.query.Filter {
         let filter = new neon.query.Filter().selectFrom(database, table);
         filter.whereClause = whereClause;
         if (filterName) {
@@ -283,11 +294,11 @@ export class FilterService {
         return filter;
     }
 
-    private createFilterId(database: string, table: string) {
+    protected createFilterId(database: string, table: string) {
         return database + '-' + table + '-' + uuid.v4();
     }
 
-    private createChildrenFromRelations(filter: neon.query.Filter): neon.query.Filter[] {
+    protected createChildrenFromRelations(filter: neon.query.Filter): neon.query.Filter[] {
         let mentionedFields = this.datasetService.findMentionedFields(filter);
         let relatedFieldMapping: any = new Map<string, any>();
         mentionedFields.forEach((field) => {
@@ -312,39 +323,39 @@ export class FilterService {
         return childFilters;
     }
 
-    private getPermutations(originalDb: string,
-                            originalTable: string,
-                            relatedFieldMapping: Map<string, { database: string, table: string, field: string }[]>):
-                            Map<{ database: string, table: string, field: string }, { database: string, table: string, field: string }>[] {
+    protected getPermutations(originalDb: string,
+        originalTable: string,
+        relatedFieldMapping: Map<string, { database: string, table: string, field: string }[]>):
+        Map<{ database: string, table: string, field: string }, { database: string, table: string, field: string }>[] {
 
-            let getPermutationHelper = (fields: any[], permutationToDate: Map<any, any>) => {
-                let currentPermutation = permutationToDate || new Map<any, any>();
-                if (fields.length > 0) {
-                    let currentField = fields[0];
-                    for (let option of currentField[1]) {
-                        let current = _.cloneDeep(currentPermutation);
-                        current.set({
-                            database: originalDb,
-                            table: originalTable,
-                            field: currentField[0]
-                        }, {
+        let getPermutationHelper = (fields: any[], permutationToDate: Map<any, any>) => {
+            let currentPermutation = permutationToDate || new Map<any, any>();
+            if (fields.length > 0) {
+                let currentField = fields[0];
+                for (let option of currentField[1]) {
+                    let current = _.cloneDeep(currentPermutation);
+                    current.set({
+                        database: originalDb,
+                        table: originalTable,
+                        field: currentField[0]
+                    }, {
                             database: option.database,
                             table: option.table,
                             field: option.field
                         });
-                        getPermutationHelper(fields.slice(1), current);
-                    }
-                } else {
-                    permutations.push(permutationToDate);
+                    getPermutationHelper(fields.slice(1), current);
                 }
-            };
-            let permutations = []; // List of maps from original field to new field.
-            let fieldList = Array.from(relatedFieldMapping.entries());
-            getPermutationHelper(fieldList, undefined);
-            return permutations;
+            } else {
+                permutations.push(permutationToDate);
+            }
+        };
+        let permutations = []; // List of maps from original field to new field.
+        let fieldList = Array.from(relatedFieldMapping.entries());
+        getPermutationHelper(fieldList, undefined);
+        return permutations;
     }
 
-    private adaptNeonFilterForNewDataset(filter: any,
+    protected adaptNeonFilterForNewDataset(filter: any,
         changeMap: Map<{ database: string, table: string, field: string }, { database: string, table: string, field: string }>): any {
 
         let replaceValues = (object, oldDb, oldTable, oldField, newDb, newTable, newField) => {
