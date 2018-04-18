@@ -86,10 +86,30 @@ class Edge {
  * Manages configurable options for the specific visualization.
  */
 export class NetworkGraphOptions extends BaseNeonOptions {
-    public isDirected: boolean = false;
-    public isReified: boolean = false;
-    public nodeField: FieldMetaData = EMPTY_FIELD;
-    public linkField: FieldMetaData = EMPTY_FIELD;
+    public isDirected: boolean;
+    public isReified: boolean;
+    public linkField: FieldMetaData;
+    public nodeField: FieldMetaData;
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        this.isDirected = this.injector.get('isDirected', false);
+        this.isReified = this.injector.get('isReified', false);
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        this.nodeField = this.findFieldObject('nodeField');
+        this.linkField = this.findFieldObject('linkField');
+    }
 }
 
 @Component({
@@ -183,6 +203,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             ref,
             visualizationService
         );
+
+        this.options = new NetworkGraphOptions(this.injector, this.datasetService, 'Network Graph', 500000);
 
         this.graphData = new GraphData();
 
@@ -395,16 +417,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         //console.log('toggle expand', node);
     }
 
-    /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        this.options.nodeField = this.findFieldObject(this.options, 'nodeField');
-        this.options.linkField = this.findFieldObject(this.options, 'linkField');
-    }
-
     addLocalFilters(filter) {
         //
     }
@@ -539,16 +551,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return [];
     }
 
-    /**
-     * Returns the default limit for the visualization.
-     *
-     * @return {number}
-     * @override
-     */
-    getDefaultLimit() {
-        return 500000;
-    }
-
     getElementRefs() {
         return {
             //
@@ -563,16 +565,5 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     getOptions(): BaseNeonOptions {
         return this.options;
-    }
-
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new NetworkGraphOptions();
-        this.options.isDirected = this.injector.get('isDirected', this.options.isDirected);
-        this.options.isReified = this.injector.get('isReified', this.options.isReified);
     }
 }

@@ -42,13 +42,36 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class DataTableOptions extends BaseNeonOptions {
-    public allColumnStatus: string = 'show';
-    public arrayFilterOperator: string = 'and';
-    public exceptionsToStatus: string[] = [];
-    public filterable: boolean = false;
-    public filterFields: FieldMetaData[] = [];
-    public idField: FieldMetaData = EMPTY_FIELD;
-    public sortField: FieldMetaData = EMPTY_FIELD;
+    public allColumnStatus: string;
+    public arrayFilterOperator: string;
+    public exceptionsToStatus: string[];
+    public filterable: boolean;
+    public filterFields: FieldMetaData[];
+    public idField: FieldMetaData;
+    public sortField: FieldMetaData;
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        this.allColumnStatus = this.injector.get('allColumnStatus', 'show');
+        this.arrayFilterOperator = this.injector.get('arrayFilterOperator', 'and');
+        this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
+        this.filterable = this.injector.get('filterable', false);
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        this.idField = this.findFieldObject('idField');
+        this.sortField = this.findFieldObject('sortField');
+        this.filterFields = this.findFieldObjects('filterFields');
+    }
 }
 
 @Component({
@@ -126,6 +149,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             visualizationService
         );
 
+        this.options = new DataTableOptions(this.injector, this.datasetService, 'Data Table', 100);
         this.enableRedrawAfterResize(true);
     }
 
@@ -187,17 +211,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.filterFields = this.options.filterFields;
         bindings.filterable = this.options.filterable;
         bindings.arrayFilterOperator = this.options.arrayFilterOperator;
-    }
-
-    /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        this.options.idField = this.findFieldObject(this.options, 'idField');
-        this.options.sortField = this.findFieldObject(this.options, 'sortField');
-        this.options.filterFields = this.findFieldObjects(this.options, 'filterFields');
     }
 
     headerIsInExceptions(header) {
@@ -449,7 +462,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.filters = [];
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 this.addLocalFilter({
                     id: neonFilter.id,
@@ -680,16 +693,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns the default limit for the visualization.
-     *
-     * @return {number}
-     * @override
-     */
-    getDefaultLimit() {
-        return 100;
-    }
-
-    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
@@ -711,18 +714,5 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getOptions(): BaseNeonOptions {
         return this.options;
-    }
-
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new DataTableOptions();
-        this.options.allColumnStatus = this.injector.get('allColumnStatus', this.options.allColumnStatus);
-        this.options.arrayFilterOperator = this.injector.get('arrayFilterOperator', this.options.arrayFilterOperator);
-        this.options.exceptionsToStatus = this.injector.get('exceptionsToStatus', this.options.exceptionsToStatus);
-        this.options.filterable = this.injector.get('filterable', this.options.filterable);
     }
 }

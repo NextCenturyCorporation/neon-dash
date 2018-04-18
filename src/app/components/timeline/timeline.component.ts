@@ -53,9 +53,28 @@ declare let d3;
  * Manages configurable options for the specific visualization.
  */
 export class TimelineOptions extends BaseNeonOptions {
-    public dateField: FieldMetaData = EMPTY_FIELD;
-    public granularity: string = 'day';
-    public yLabel: string = 'Count';
+    public dateField: FieldMetaData;
+    public granularity: string;
+    public yLabel: string;
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        this.granularity = this.injector.get('granularity', 'day');
+        this.yLabel = this.injector.get('yLabel', 'Count');
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        this.dateField = this.findFieldObject('dateField', neonMappings.DATE);
+    }
 }
 
 @Component({
@@ -123,6 +142,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             visualizationService
         );
 
+        this.options = new TimelineOptions(this.injector, this.datasetService, 'Timeline', 10);
+
         this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
         this.timelineData.granularity = this.options.granularity;
         this.timelineData.bucketizer = this.getBucketizer();
@@ -186,15 +207,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
                 /* falls through */
         }
         return fields;
-    }
-
-    /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        this.options.dateField = this.findFieldObject(this.options, 'dateField', neonMappings.DATE);
     }
 
     addLocalFilter(id: string, field: string, prettyField: string, startDate: Date, endDate: Date, local?: boolean) {
@@ -521,7 +533,7 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause[0].lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause[0].lhs);
                 this.addLocalFilter(neonFilter.id, field.columnName, field.prettyName, whereClause.whereClauses[0].rhs,
                     whereClause.whereClauses[1].rhs);
             }
@@ -572,16 +584,5 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     getOptions(): BaseNeonOptions {
         return this.options;
-    }
-
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new TimelineOptions();
-        this.options.granularity = this.injector.get('granularity', this.options.granularity);
-        this.options.yLabel = this.injector.get('yLabel', this.options.yLabel);
     }
 }

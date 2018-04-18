@@ -46,6 +46,26 @@ import * as neon from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
 
+export class TestOptions extends BaseNeonOptions {
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        // Do nothing.
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        // Do nothing.
+    }
+}
+
 @Component({
     selector: 'app-kebah-case',
     templateUrl: './base-neon.component.html',
@@ -55,7 +75,7 @@ import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
   })
 class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     public filters: any[] = [];
-    public options: BaseNeonOptions;
+    public options: TestOptions;
     constructor(
         activeGridService: ActiveGridService,
         connectionService: ConnectionService,
@@ -65,7 +85,8 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         injector: Injector,
         themesService: ThemesService,
         changeDetection: ChangeDetectorRef,
-        visualizationService: VisualizationService) {
+        visualizationService: VisualizationService
+    ) {
         super(
             activeGridService,
             connectionService,
@@ -77,6 +98,7 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
             changeDetection,
             visualizationService
         );
+        this.options = new TestOptions(this.injector, this.datasetService, 'TestName');
     }
 
     postInit() {
@@ -93,10 +115,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
 
     subGetBindings(bindings: any) {
         //
-    }
-
-    createOptions() {
-        this.options = new BaseNeonOptions();
     }
 
     createQuery() {
@@ -147,10 +165,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
 
     onQuerySuccess() {
         return new neon.query.Query();
-    }
-
-    onUpdateFields() {
-        //
     }
 
     refreshVisualization() {
@@ -288,14 +302,14 @@ describe('Component: base-neon', () => {
         expect(spy.calls.count()).toBe(1);
     }));
 
-    it('initFields does update fields and does call onUpdateFields', () => {
+    it('initFields does update fields and does call onInitFields', () => {
         let options = component.getOptions();
-        let spy = spyOn(component, 'onUpdateFields');
+        let spy = spyOn(options, 'onInitFields');
         options.databases = DatasetMock.DATABASES;
         options.database = DatasetMock.DATABASES[0];
         options.tables = DatasetMock.TABLES;
         options.table = DatasetMock.TABLES[0];
-        component.initFields(options);
+        options.initFields();
         expect(spy.calls.count()).toBe(1);
         expect(options.databases).toEqual(DatasetMock.DATABASES);
         expect(options.database).toEqual(DatasetMock.DATABASES[0]);
@@ -304,12 +318,12 @@ describe('Component: base-neon', () => {
         expect(options.fields).toEqual(DatasetMock.FIELDS);
     });
 
-    it('initTables does update tables and fields and does call onUpdateFields', () => {
+    it('initTables does update tables and fields and does call onInitFields', () => {
         let options = component.getOptions();
-        let spy = spyOn(component, 'onUpdateFields');
+        let spy = spyOn(options, 'onInitFields');
         options.databases = DatasetMock.DATABASES;
         options.database = DatasetMock.DATABASES[0];
-        component.initTables(options);
+        options.initTables();
         expect(spy.calls.count()).toBe(1);
         expect(options.databases).toEqual(DatasetMock.DATABASES);
         expect(options.database).toEqual(DatasetMock.DATABASES[0]);
@@ -318,10 +332,10 @@ describe('Component: base-neon', () => {
         expect(options.fields).toEqual(DatasetMock.FIELDS);
     });
 
-    it('initDatabases does update databases, tables, and fields and does call onUpdateFields', () => {
+    it('initDatabases does update databases, tables, and fields and does call onInitFields', () => {
         let options = component.getOptions();
-        let spy = spyOn(component, 'onUpdateFields');
-        component.initDatabases(options);
+        let spy = spyOn(options, 'onInitFields');
+        options.initDatabases();
         expect(spy.calls.count()).toBe(1);
         expect(options.databases).toEqual(DatasetMock.DATABASES);
         expect(options.database).toEqual(DatasetMock.DATABASES[0]);
@@ -330,9 +344,9 @@ describe('Component: base-neon', () => {
         expect(options.fields).toEqual(DatasetMock.FIELDS);
     });
 
-    it('handleChangeDatabase does update options and does call onUpdateFields and logChangeAndStartQueryChain', () => {
+    it('handleChangeDatabase does update options and does call onInitFields and logChangeAndStartQueryChain', () => {
         let options = component.getOptions();
-        let spyUpdate = spyOn(component, 'onUpdateFields');
+        let spyUpdate = spyOn(options, 'onInitFields');
         let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
         options.databases = DatasetMock.DATABASES;
         options.database = DatasetMock.DATABASES[0];
@@ -351,9 +365,9 @@ describe('Component: base-neon', () => {
         expect(options.unsharedFilterValue).toEqual('');
     });
 
-    it('handleChangeTable does update options and does call onUpdateFields and logChangeAndStartQueryChain', () => {
+    it('handleChangeTable does update options and does call onInitFields and logChangeAndStartQueryChain', () => {
         let options = component.getOptions();
-        let spyUpdate = spyOn(component, 'onUpdateFields');
+        let spyUpdate = spyOn(options, 'onInitFields');
         let spyLog = spyOn(component, 'logChangeAndStartQueryChain');
         options.databases = DatasetMock.DATABASES;
         options.database = DatasetMock.DATABASES[0];

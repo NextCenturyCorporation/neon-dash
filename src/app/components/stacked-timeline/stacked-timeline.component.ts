@@ -53,10 +53,30 @@ declare let d3;
  * Manages configurable options for the specific visualization.
  */
 export class StackedTimelineOptions extends BaseNeonOptions {
-    public dateField: FieldMetaData = EMPTY_FIELD;
-    public granularity: string = 'day';
-    public groupField: FieldMetaData = EMPTY_FIELD;
-    public yLabel: string = 'Count';
+    public dateField: FieldMetaData;
+    public granularity: string;
+    public groupField: FieldMetaData;
+    public yLabel: string;
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        this.granularity = this.injector.get('granularity', 'day');
+        this.yLabel = this.injector.get('yLabel', 'Count');
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        this.dateField = this.findFieldObject('dateField', neonMappings.DATE);
+        this.groupField = this.findFieldObject('groupField');
+    }
 }
 
 @Component({
@@ -120,6 +140,8 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             visualizationService
         );
 
+        this.options = new StackedTimelineOptions(this.injector, this.datasetService, 'Stacked Timeline', 10);
+
         this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
         this.timelineData.granularity = this.options.granularity;
         this.timelineData.bucketizer = this.getBucketizer();
@@ -178,16 +200,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
                 /* falls through */
         }
         return fields;
-    }
-
-    /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        this.options.dateField = this.findFieldObject(this.options, 'dateField', neonMappings.DATE);
-        this.options.groupField = this.findFieldObject(this.options, 'groupField');
     }
 
     addLocalFilter(id: string, field: string, prettyField: string, startDate: Date, endDate: Date, local?: boolean) {
@@ -512,7 +524,7 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
             // The data we want is in the whereClause's subclauses
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause[0].lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause[0].lhs);
                 this.addLocalFilter(neonFilter.id, field.columnName, field.prettyName, whereClause.whereClauses[0].rhs,
                     whereClause.whereClauses[1].rhs);
             }
@@ -567,16 +579,5 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
      */
     getOptions(): BaseNeonOptions {
         return this.options;
-    }
-
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new StackedTimelineOptions();
-        this.options.granularity = this.injector.get('granularity', this.options.granularity);
-        this.options.yLabel = this.injector.get('yLabel', this.options.yLabel);
     }
 }

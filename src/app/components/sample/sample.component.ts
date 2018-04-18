@@ -47,11 +47,34 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class SampleOptions extends BaseNeonOptions {
-    // TODO Add and remove properties as needed.  Use EMPTY_FIELD as the default for all fields.
-    public sampleOptionalField: FieldMetaData = EMPTY_FIELD;
-    public sampleRequiredField: FieldMetaData = EMPTY_FIELD;
-    public subcomponentType: string = 'Impl1';
+    // TODO Add and remove properties as needed.  Do NOT assign defaults to fields or else they will override onInitFields.
+    public sampleOptionalField: FieldMetaData;
+    public sampleRequiredField: FieldMetaData;
+    public subcomponentType: string;
     public subcomponentTypes: string[] = ['Impl1', 'Impl2'];
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        // Set the non-fields config bindings for the visualization.
+        this.subcomponentType = this.injector.get('subcomponentType', 'Impl1');
+        // TODO Add or remove properties as needed.
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        // Set the fields config bindings for the visualization.
+        this.sampleOptionalField = this.findFieldObject('sampleOptionalField');
+        this.sampleRequiredField = this.findFieldObject('sampleRequiredField');
+        // TODO Add or remove fields as needed.
+    }
 }
 
 // TODO Name your visualization!
@@ -123,6 +146,9 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
             ref,
             visualizationService
         );
+
+        // TODO Update the title and default limit for the visualization.
+        this.options = new SampleOptions(this.injector, this.datasetService, 'Sample', 10);
     }
 
     // TODO Change arguments as needed.
@@ -135,18 +161,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         this.filters = this.filters.filter((existingFilter) => {
             return existingFilter.id !== filter.id;
         }).concat(filter);
-    }
-
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new SampleOptions();
-        // Set the non-fields config bindings for the visualization.
-        this.options.subcomponentType = this.injector.get('subcomponentType', this.options.subcomponentType);
-        // TODO Add or remove properties as needed.
     }
 
     /**
@@ -293,17 +307,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
      */
     getCloseableFilters(): any[] {
         return this.filters;
-    }
-
-    // TODO Remove this function if the default limit for the visualization is 10.
-    /**
-     * Returns the default limit for the visualization.
-     *
-     * @return {number}
-     * @override
-     */
-    getDefaultLimit(): number {
-        return 50;
     }
 
     /**
@@ -530,18 +533,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
     }
 
     /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        // Set the fields config bindings for the visualization.
-        this.options.sampleOptionalField = this.findFieldObject(this.options, 'sampleOptionalField');
-        this.options.sampleRequiredField = this.findFieldObject(this.options, 'sampleRequiredField');
-        // TODO Add or remove fields as needed.
-    }
-
-    /**
      * Handles any post-initialization behavior needed with properties or sub-components for the visualization.
      *
      * @override
@@ -610,7 +601,7 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
 
             // This will ignore a filter with multiple clauses.
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 if (this.isVisualizationFilterUnique(field.columnName, value)) {
                     this.addVisualizationFilter(this.createVisualizationFilter(neonFilter.id, field.columnName, field.prettyName, value));

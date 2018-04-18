@@ -306,12 +306,6 @@ describe('Component: WikiViewer', () => {
             'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)');
     })));
 
-    it('onUpdateFields does set expected fields to empty strings because fields are empty', (() => {
-        component.onUpdateFields();
-        expect(component.options.idField).toEqual(new FieldMetaData());
-        expect(component.options.linkField).toEqual(new FieldMetaData());
-    }));
-
     it('postInit does call executeQueryChain', (() => {
         let spy = spyOn(component, 'executeQueryChain');
         component.postInit();
@@ -619,12 +613,6 @@ describe('Component: WikiViewer with config', () => {
         expect(component.wikiName).toEqual([]);
         expect(component.wikiText).toEqual([]);
     });
-
-    it('onUpdateFields does set expected fields from config', (() => {
-        component.onUpdateFields();
-        expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field'));
-        expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field'));
-    }));
 
     it('does show header in toolbar with title from config', (() => {
         fixture.detectChanges();

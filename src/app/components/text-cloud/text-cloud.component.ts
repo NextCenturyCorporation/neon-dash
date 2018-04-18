@@ -44,10 +44,30 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class TextCloudOptions extends BaseNeonOptions {
-    public aggregation: string = 'AVG';
-    public andFilters: boolean = true;
-    public dataField: FieldMetaData = EMPTY_FIELD;
-    public sizeField: FieldMetaData = EMPTY_FIELD;
+    public aggregation: string;
+    public andFilters: boolean;
+    public dataField: FieldMetaData;
+    public sizeField: FieldMetaData;
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        this.aggregation = this.injector.get('sizeAggregation', 'AVG');
+        this.andFilters = this.injector.get('andFilters', true);
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        this.dataField = this.findFieldObject('dataField');
+        this.sizeField = this.findFieldObject('sizeField');
+    }
 }
 
 @Component({
@@ -101,6 +121,8 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
             ref,
             visualizationService
         );
+
+        this.options = new TextCloudOptions(this.injector, this.datasetService, 'Text Cloud', 40);
     }
 
     subNgOnInit() {
@@ -139,16 +161,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
     private updateTextCloudSettings() {
         this.textCloud = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions('#aaaaaa', this.textColor));
-    }
-
-    /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        this.options.dataField = this.findFieldObject(this.options, 'dataField');
-        this.options.sizeField = this.findFieldObject(this.options, 'sizeField');
     }
 
     addLocalFilter(filter) {
@@ -266,7 +278,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
 
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 let filter = {
                     id: neonFilter.id,
@@ -357,16 +369,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
-     * Returns the default limit for the visualization.
-     *
-     * @return {number}
-     * @override
-     */
-    getDefaultLimit() {
-        return 40;
-    }
-
-    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
@@ -388,15 +390,5 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getOptions(): BaseNeonOptions {
         return this.options;
-    }
-
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new TextCloudOptions();
-        this.options.aggregation = this.injector.get('sizeAggregation', this.options.aggregation);
     }
 }
