@@ -112,15 +112,40 @@ export class BarDataSet {
  * Manages configurable options for the specific visualization.
  */
 export class BarChartOptions extends BaseNeonOptions {
-    public aggregation: string = 'count';
-    public aggregationField: FieldMetaData = EMPTY_FIELD;
-    public andFilters: boolean = true;
-    public colorField: FieldMetaData = EMPTY_FIELD;
-    public dataField: FieldMetaData = EMPTY_FIELD;
-    public scaleManually: boolean = false;
-    public scaleMax: string = '';
-    public scaleMin: string = '';
-    public type: string = 'bar';
+    public aggregation: string;
+    public aggregationField: FieldMetaData;
+    public andFilters: boolean;
+    public colorField: FieldMetaData;
+    public dataField: FieldMetaData;
+    public scaleManually: boolean;
+    public scaleMax: string;
+    public scaleMin: string;
+    public type: string;
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        this.aggregation = this.injector.get('aggregation', 'count');
+        this.andFilters = this.injector.get('andFilters', true);
+        this.scaleManually = this.injector.get('scaleManually', false);
+        this.scaleMax = this.injector.get('scaleMax', '');
+        this.scaleMin = this.injector.get('scaleMin', '');
+        this.type = this.injector.get('chartType', 'bar');
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        this.aggregationField = this.findFieldObject('aggregationField');
+        this.dataField = this.findFieldObject('dataField');
+        this.colorField = this.findFieldObject('colorField');
+    }
 }
 
 @Component({
@@ -205,6 +230,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             ref,
             visualizationService
         );
+
+        this.options = new BarChartOptions(this.injector, this.datasetService, 'Bar Chart', 10);
 
         this.onClick = this.onClick.bind(this);
 
@@ -478,17 +505,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
             this.refreshVisualization();
         }
-    }
-
-    /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        this.options.aggregationField = this.findFieldObject(this.options, 'aggregationField');
-        this.options.dataField = this.findFieldObject(this.options, 'dataField');
-        this.options.colorField = this.findFieldObject(this.options, 'colorField');
     }
 
     /**
@@ -931,7 +947,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         for (let neonFilter of neonFilters) {
             if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.findField(this.options.fields, neonFilter.filter.whereClause.lhs);
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
                 let filter = {
                     id: neonFilter.id,
@@ -1060,17 +1076,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     getOptions(): BaseNeonOptions {
         return this.options;
-    }
-
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new BarChartOptions();
-        this.options.aggregation = this.injector.get('aggregation', this.options.aggregation);
-        this.options.type = this.injector.get('chartType', this.options.type);
     }
 
     /**

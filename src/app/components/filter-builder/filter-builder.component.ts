@@ -37,6 +37,29 @@ import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-
 import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 
+/**
+ * Manages configurable options for the specific visualization.
+ */
+export class FilterBuilderOptions extends BaseNeonOptions {
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        // Do nothing.
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        // Do nothing.
+    }
+}
+
 @Component({
     selector: 'app-filter-builder',
     templateUrl: './filter-builder.component.html',
@@ -90,6 +113,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             visualizationService
         );
 
+        this.options = new FilterBuilderOptions(this.injector, this.datasetService, 'Filter Builder');
         this.isExportable = false;
     }
 
@@ -120,15 +144,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        // Do nothing.
-    }
-
-    /**
      * Sets the properties in the given bindings for the bar chart.
      *
      * @arg {object} bindings
@@ -142,7 +157,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     addBlankWhereClause() {
-        let clause: WhereClauseMetaData = new WhereClauseMetaData();
+        let clause: WhereClauseMetaData = new WhereClauseMetaData(this.injector, this.datasetService);
         clause.changeDatabase = this.options.database;
         clause.changeTable = this.options.table;
         clause.changeField = this.emptyField;
@@ -433,7 +448,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         clause.active = false;
         clause.database = clause.changeDatabase;
-        this.initTables(clause);
+        clause.initTables();
 
         if (this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey)) {
             this.updateFiltersOfKey(databaseTableFieldKey);
@@ -450,7 +465,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         clause.active = false;
         clause.table = clause.changeTable;
-        this.initFields(clause);
+        clause.initFields();
 
         if (this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey)) {
             this.updateFiltersOfKey(databaseTableFieldKey);
@@ -498,15 +513,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new BaseNeonOptions();
-    }
-
-    /**
      * Returns the validity of the given clause.
      *
      * @arg {WhereClauseMetaData} clause
@@ -530,6 +536,24 @@ class WhereClauseMetaData extends BaseNeonOptions {
     value: string;
     active: boolean;
     id: number;
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        // Do nothing.
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        // Do nothing.
+    }
 }
 
 class CustomFilter {

@@ -48,11 +48,32 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class LineChartOptions extends BaseNeonOptions {
-    public aggregation: string = 'count';
-    public aggregationField: FieldMetaData = EMPTY_FIELD;
-    public dateField: FieldMetaData = EMPTY_FIELD;
-    public granularity: string = 'day';
-    public groupField: FieldMetaData = EMPTY_FIELD;
+    public aggregation: string;
+    public aggregationField: FieldMetaData;
+    public dateField: FieldMetaData;
+    public granularity: string;
+    public groupField: FieldMetaData;
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        this.aggregation = this.injector.get('aggregation', 'count');
+        this.granularity = this.injector.get('granularity', 'day');
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        this.aggregationField = this.findFieldObject('aggregationField');
+        this.dateField = this.findFieldObject('dateField');
+        this.groupField = this.findFieldObject('groupField');
+    }
 }
 
 @Component({
@@ -150,6 +171,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             ref,
             visualizationService
         );
+
+        this.options = new LineChartOptions(this.injector, this.datasetService, 'Line Chart', 10);
 
         this.onHover = this.onHover.bind(this);
 
@@ -304,17 +327,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.groupField = this.options.groupField.columnName;
         bindings.aggregation = this.options.aggregation;
         bindings.aggregationField = this.options.aggregationField.columnName;
-    }
-
-    /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        this.options.aggregationField = this.findFieldObject(this.options, 'aggregationField');
-        this.options.dateField = this.findFieldObject(this.options, 'dateField');
-        this.options.groupField = this.findFieldObject(this.options, 'groupField');
     }
 
     legendItemSelected(data: any): void {
@@ -766,7 +778,7 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             let whereClause = neonFilter.filter.whereClause;
             if (whereClause && whereClause.whereClauses.length === 2) {
                 if (!this.filters.length || this.filters[0].id !== neonFilter.id) {
-                    let field = this.findField(this.options.fields, neonFilter.filter.whereClause[0].lhs);
+                    let field = this.options.findField(neonFilter.filter.whereClause[0].lhs);
                     this.filters = [{
                         field: field.columnName,
                         prettyField: field.prettyName,
@@ -835,16 +847,5 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getOptions(): BaseNeonOptions {
         return this.options;
-    }
-
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new LineChartOptions();
-        this.options.aggregation = this.injector.get('aggregation', this.options.aggregation);
-        this.options.granularity = this.injector.get('granularity', this.options.granularity);
     }
 }

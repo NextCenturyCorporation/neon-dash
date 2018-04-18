@@ -47,13 +47,36 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
  * Manages configurable options for the specific visualization.
  */
 export class DocumentViewerOptions extends BaseNeonOptions {
-    public dataField: FieldMetaData = EMPTY_FIELD;
-    public dateField: FieldMetaData = EMPTY_FIELD;
-    public idField: FieldMetaData = EMPTY_FIELD;
-    public metadataFields: any[] = [];
-    public popoutFields: any[] = [];
-    public showSelect: boolean = false;
-    public showText: boolean = false;
+    public dataField: FieldMetaData;
+    public dateField: FieldMetaData;
+    public idField: FieldMetaData;
+    public metadataFields: any[];
+    public popoutFields: any[];
+    public showSelect: boolean;
+    public showText: boolean;
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        this.metadataFields = neonUtilities.flatten(this.injector.get('metadataFields', []));
+        this.popoutFields = neonUtilities.flatten(this.injector.get('popoutFields', []));
+        this.showSelect = this.injector.get('showSelect', false);
+        this.showText = this.injector.get('showText', false);
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        this.dataField = this.findFieldObject('dataField');
+        this.dateField = this.findFieldObject('dateField');
+        this.idField = this.findFieldObject('idField');
+    }
 }
 
 @Component({
@@ -101,6 +124,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             ref,
             visualizationService
         );
+
+        this.options = new DocumentViewerOptions(this.injector, this.datasetService, 'Document Viewer', 50);
     }
 
     subNgOnInit() {
@@ -143,17 +168,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             columnName: this.options.idField.columnName,
             prettyName: this.options.idField.prettyName
         }];
-    }
-
-    /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        this.options.dataField = this.findFieldObject(this.options, 'dataField');
-        this.options.dateField = this.findFieldObject(this.options, 'dateField');
-        this.options.idField = this.findFieldObject(this.options, 'idField');
     }
 
     getFilterText(filter) {
@@ -365,16 +379,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Returns the default limit for the visualization.
-     *
-     * @return {number}
-     * @override
-     */
-    getDefaultLimit() {
-        return 50;
-    }
-
-    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
@@ -396,18 +400,5 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     getOptions(): BaseNeonOptions {
         return this.options;
-    }
-
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new DocumentViewerOptions();
-        this.options.metadataFields = neonUtilities.flatten(this.injector.get('metadataFields', this.options.metadataFields));
-        this.options.popoutFields = neonUtilities.flatten(this.injector.get('popoutFields', this.options.popoutFields));
-        this.options.showSelect = this.injector.get('showSelect', this.options.showSelect);
-        this.options.showText = this.injector.get('showText', this.options.showText);
     }
 }

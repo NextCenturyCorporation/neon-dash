@@ -99,12 +99,34 @@ class ScatterDataSet {
  * Manages configurable options for the specific visualization.
  */
 export class ScatterPlotOptions extends BaseNeonOptions {
-    public displayGridLines: boolean = true;
-    public displayTicks: boolean = true;
-    public colorField: FieldMetaData = EMPTY_FIELD;
-    public labelField: FieldMetaData = EMPTY_FIELD;
-    public xField: FieldMetaData = EMPTY_FIELD;
-    public yField: FieldMetaData = EMPTY_FIELD;
+    public colorField: FieldMetaData;
+    public displayGridLines: boolean;
+    public displayTicks: boolean;
+    public labelField: FieldMetaData;
+    public xField: FieldMetaData;
+    public yField: FieldMetaData;
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        this.displayGridLines = this.injector.get('displayGridLines', true);
+        this.displayTicks = this.injector.get('displayTicks', true);
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        this.colorField = this.findFieldObject('colorField');
+        this.labelField = this.findFieldObject('labelField');
+        this.xField = this.findFieldObject('xField');
+        this.yField = this.findFieldObject('yField');
+    }
 }
 
 @Component({
@@ -196,6 +218,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             ref,
             visualizationService
         );
+
+        this.options = new ScatterPlotOptions(this.injector, this.datasetService, 'Scatter Plot', 1000);
 
         this.onHover = this.onHover.bind(this);
         this.xAxisTickCallback = this.xAxisTickCallback.bind(this);
@@ -309,18 +333,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
         bindings.yField = this.options.yField.columnName;
         bindings.labelField = this.options.labelField.columnName;
         bindings.colorField = this.options.colorField.columnName;
-    }
-
-    /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        this.options.xField = this.findFieldObject(this.options, 'xField');
-        this.options.yField = this.findFieldObject(this.options, 'yField');
-        this.options.labelField = this.findFieldObject(this.options, 'labelField');
-        this.options.colorField = this.findFieldObject(this.options, 'colorField');
     }
 
     createFilter(key, startDate, endDate) {
@@ -760,16 +772,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the default limit for the visualization.
-     *
-     * @return {number}
-     * @override
-     */
-    getDefaultLimit() {
-        return 1000;
-    }
-
-    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
@@ -791,17 +793,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
      */
     getOptions(): BaseNeonOptions {
         return this.options;
-    }
-
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new ScatterPlotOptions();
-        this.options.displayGridLines = this.injector.get('displayGridLines', this.options.displayGridLines);
-        this.options.displayTicks = this.injector.get('displayTicks', this.options.displayTicks);
     }
 }
 

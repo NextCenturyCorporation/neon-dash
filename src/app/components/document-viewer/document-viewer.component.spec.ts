@@ -159,13 +159,6 @@ describe('Component: DocumentViewer', () => {
         ]);
     });
 
-    it('sets expected fields in onUpdateFields to empty strings because fields are empty', () => {
-        component.onUpdateFields();
-        expect(component.options.dataField).toEqual(new FieldMetaData());
-        expect(component.options.dataField).toEqual(new FieldMetaData());
-        expect(component.options.dataField).toEqual(new FieldMetaData());
-    });
-
     it('returns an empty string from getFilterText', () => {
         expect(component.getFilterText({})).toBe('');
         expect(component.getFilterText({
@@ -642,21 +635,6 @@ describe('Component: Document Viewer with Config', () => {
         expect(component.activeData).toEqual([]);
         expect(component.docCount).toBe(0);
         expect(component.page).toBe(1);
-    });
-
-    it('sets expected fields in onUpdateFields to fields from the config', () => {
-        let testDataField = new FieldMetaData('testDataField', 'Test Data Field');
-        let testDateField = new FieldMetaData('testDateField', 'Test Date Field');
-        let testIDField = new FieldMetaData('testIDField', 'Test ID Field');
-        let testTable = new TableMetaData('testTable', 'Test Table', [testDataField, testDateField, testIDField]);
-        let testDatabase = new DatabaseMetaData('testDatabase', 'Test Database');
-        testDatabase.tables = [testTable];
-        component.options.database = testDatabase;
-        component.options.table = testTable;
-        component.onUpdateFields();
-        expect(component.options.dataField).toEqual(new FieldMetaData('testDataField', 'Test Data Field'));
-        expect(component.options.dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field'));
-        expect(component.options.idField).toEqual(new FieldMetaData('testIDField', 'Test ID Field'));
     });
 
     it('getElementRefs does return expected object', () => {

@@ -78,7 +78,7 @@ export abstract class BaseNeonLayer {
      * @return {FieldMetaData}
      */
     public findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
-        return this.getFieldObject((this.config[bindingKey] || []), mappingKey);
+        return this.getFieldObject((this.config[bindingKey] || ''), mappingKey);
     }
 
     /**
@@ -205,10 +205,10 @@ export abstract class BaseNeonMultiLayerOptions {
     /**
      * @constructor
      * @arg {Injector} injector
-     * @arg {string} visualizationTitle
+     * @arg {string} [visualizationTitle='']
      * @arg {number} [defaultLimit=10]
      */
-    constructor(protected injector: Injector, visualizationTitle: string, defaultLimit: number = 10) {
+    constructor(protected injector: Injector, visualizationTitle: string = '', defaultLimit: number = 10) {
         this.filter = injector.get('configFilter', null);
         this.limit = injector.get('limit', defaultLimit);
         this.newLimit = this.limit;

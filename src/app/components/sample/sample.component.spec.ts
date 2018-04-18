@@ -222,12 +222,6 @@ describe('Component: Sample', () => {
         }]);
     });
 
-    it('createOptions does set options', () => {
-        component.options = null;
-        component.createOptions();
-        expect(component.options.constructor.name).toEqual(SampleOptions.name);
-    });
-
     it('createQuery does return expected query', () => {
         component.options.database = DatasetMock.DATABASES[0];
         component.options.table = DatasetMock.TABLES[0];
@@ -542,10 +536,6 @@ describe('Component: Sample', () => {
         }]);
     });
 
-    it('getDefaultLimit does return expected number', () => {
-        expect(component.getDefaultLimit()).toEqual(50);
-    });
-
     it('getElementRefs does return expected object', () => {
         let refs = component.getElementRefs();
         expect(refs.headerText).toBeDefined();
@@ -846,10 +836,15 @@ describe('Component: Sample', () => {
         expect(spy2.calls.count()).toEqual(0);
     });
 
-    it('onUpdateFields does not update options because no bindings are set', () => {
-        component.onUpdateFields();
-        expect(component.options.sampleOptionalField.columnName).toEqual('');
-        expect(component.options.sampleRequiredField.columnName).toEqual('');
+    it('onInit does set non-field options as expected', () => {
+        component.options.onInit();
+        expect(component.options.subcomponentType).toEqual('Impl1');
+    });
+
+    it('onInitFields does set field options as expected', () => {
+        component.options.onInitFields();
+        expect(component.options.sampleOptionalField).toEqual(component.emptyField);
+        expect(component.options.sampleRequiredField).toEqual(component.emptyField);
     });
 
     it('postInit does work as expected', () => {
@@ -1257,7 +1252,7 @@ describe('Component: Sample', () => {
 
             // Limit Input
             expect(inputs[1].attributes.placeholder).toBe('Sample Limit');
-            expect(inputs[1].nativeElement.value).toContain('50');
+            expect(inputs[1].nativeElement.value).toContain('10');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
@@ -1660,11 +1655,18 @@ describe('Component: Sample with config', () => {
         expect(component.subcomponentObject.constructor.name).toEqual(SubcomponentImpl2.name);
     });
 
-    it('onUpdateFields does set expected fields from config', () => {
-        component.options.sampleOptionalField = new FieldMetaData();
-        component.options.sampleRequiredField = new FieldMetaData();
+    it('onInit does set non-field options as expected from config bindings', () => {
+        component.options.subcomponentType = 'Impl1';
 
-        component.onUpdateFields();
+        component.options.onInit();
+        expect(component.options.subcomponentType).toEqual('Impl2');
+    });
+
+    it('onInitFields does set field options as expected from config bindings', () => {
+        component.options.sampleOptionalField = component.emptyField;
+        component.options.sampleRequiredField = component.emptyField;
+
+        component.options.onInitFields();
         expect(component.options.sampleOptionalField).toEqual(DatasetMock.COLOR_FIELD);
         expect(component.options.sampleRequiredField).toEqual(DatasetMock.GROUP_FIELD);
     });

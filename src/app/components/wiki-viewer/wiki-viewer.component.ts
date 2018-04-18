@@ -45,9 +45,28 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class WikiViewerOptions extends BaseNeonOptions {
-    public id: string = '';
-    public idField: FieldMetaData = EMPTY_FIELD;
-    public linkField: FieldMetaData = EMPTY_FIELD;
+    public id: string;
+    public idField: FieldMetaData;
+    public linkField: FieldMetaData;
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        this.id = this.injector.get('id', '');
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        this.idField = this.findFieldObject('idField');
+        this.linkField = this.findFieldObject('linkField');
+    }
 }
 
 /**
@@ -99,17 +118,9 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             visualizationService
         );
 
-        this.subscribeToSelectId(this.getSelectIdCallback());
-    }
+        this.options = new WikiViewerOptions(this.injector, this.datasetService, 'Wiki Viewer', 10);
 
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new WikiViewerOptions();
-        this.options.id = this.injector.get('id', this.options.id);
+        this.subscribeToSelectId(this.getSelectIdCallback());
     }
 
     /**
@@ -287,16 +298,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             this.errorMessage = 'Error';
             this.refreshVisualization();
         }
-    }
-
-    /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        this.options.idField = this.findFieldObject(this.options, 'idField');
-        this.options.linkField = this.findFieldObject(this.options, 'linkField');
     }
 
     /**

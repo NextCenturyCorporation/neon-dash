@@ -46,6 +46,24 @@ import * as neon from 'neon-framework';
  */
 export class MediaViewerOptions extends BaseNeonOptions {
     // TODO
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        // TODO
+    }
+
+    /**
+     * Initializes all the field options for the specific visualization.
+     *
+     * @override
+     */
+    onInitFields() {
+        // TODO
+    }
 }
 
 /**
@@ -116,20 +134,12 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             wikiName: [],
             wikiText: [],
             url: this.optionsFromConfig.url ? sanitizer.bypassSecurityTrustResourceUrl(this.optionsFromConfig.url) : ''
-    };
+        };
+
+        this.options = new MediaViewerOptions(this.injector, this.datasetService, 'Media Viewer');
 
         this.isLoadingWikiPage = false;
         this.subscribeToSelectId(this.getSelectIdCallback());
-    }
-
-    /**
-     * Creates the options for the specific visualization.
-     *
-     * @override
-     */
-    createOptions() {
-        this.options = new MediaViewerOptions();
-        // TODO
     }
 
     /**
@@ -309,15 +319,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             this.errorMessage = 'Error';
             this.refreshVisualization();
         }
-    }
-
-    /**
-     * Initializes all the field metadata for the specific visualization.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        // TODO
     }
 
     /**
