@@ -8,7 +8,7 @@
             </span>
             <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button *ngIf="active.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+        <button *ngIf="options.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -52,14 +52,14 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                    <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                    <mat-select placeholder="Link Field" [(ngModel)]="options.linkField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -70,22 +70,23 @@
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading || isLoadingWikiPage" [class.not-loading-overlay]="!isLoading && !isLoadingWikiPage">
-        <mat-spinner></mat-spinner>
+    <div [class.loading-overlay]="isLoading || isLoadingMedia" [class.not-loading-overlay]="!isLoading && !isLoadingMedia">
+        <mat-spinner ></mat-spinner>
     </div>
 
-    <mat-tab-group class="media-viewer" *ngIf="active.url == ''">
-            <mat-tab *ngFor="let text of active.wikiText; let i = index" [label]="getTabLabel(active.wikiName, i)">
-                <div class="wiki-text media-viewer-div">
-                    <iframe src="http://gizmodo.com" frameborder="0">
-                    </iframe>
+    <mat-tab-group class="media-viewer" *ngIf="options.url == '' && showMedia == true">
+            <mat-tab *ngFor="let document of documentArray; let i = index" [label]="getTabLabel(documentArray, i)">
+                <div class="media-viewer-div" [ngSwitch]="documentType">
+                    <img *ngSwitchCase="'img'" [src]="document" [alt]="options.linkField.prettyName" >
+                    <video *ngSwitchCase="'vid'" controls><source [src]="document"></video>
+                    <iframe *ngSwitchDefault [src]="sanitize(document)" frameborder="0"></iframe>
                 </div>
             </mat-tab>
     </mat-tab-group>
 
-    <div class="media-viewer" *ngIf="active.url != ''">
+    <div class="media-viewer" *ngIf="options.url != ''">
         <div class="media-viewer-div">
-            <iframe [src]="active.url" frameborder="0">
+            <iframe [src]="sanitize(options.url)" frameborder="0">
             </iframe>
         </div>
     </div>
