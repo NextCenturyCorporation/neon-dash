@@ -174,10 +174,6 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         return '';
     }
 
-    getVisualizationName() {
-        return 'Document Viewer';
-    }
-
     getFiltersToIgnore() {
         return null;
     }

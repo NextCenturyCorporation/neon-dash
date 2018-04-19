@@ -470,7 +470,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         if (queries) {
             return queries.map(mapFunction).filter((fo) => fo);
         } else {
-            console.error('SKIPPING EXPORT FOR ' + this.getVisualizationName());
+            console.error('SKIPPING EXPORT FOR ' + this.getOptions().title);
             return null;
         }
     }
@@ -555,11 +555,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
     abstract getFilterText(filter: any): string;
 
     /**
-     * Get the name of the visualization
-     */
-    abstract getVisualizationName(): string;
-
-    /**
      * Must return null for no filters.  Returning an empty array causes the
      * query to ignore ALL fitlers.
      */
@@ -575,7 +570,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      */
     addNeonFilter(layerIndex: number, executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate) {
         let filterName = {
-            visName: this.getVisualizationName(),
+            visName: this.getOptions().title,
             text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
@@ -611,7 +606,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         wherePredicate: neon.query.WherePredicate) {
 
         let filterName = {
-            visName: this.getVisualizationName(),
+            visName: this.getOptions().title,
             text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {

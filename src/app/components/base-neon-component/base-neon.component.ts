@@ -351,8 +351,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         // TODO this function needs to be changed  to abstract once we get through all the visualizations.
 
         let query = this.createQuery();
+        let exportName = this.getOptions().title;
         if (query) {
-            let exportName = this.getOptions().title;
             if (exportName) {
                 // replaceAll
                 exportName = exportName.split(':').join(' ');
@@ -379,7 +379,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
             return finalObject;
         } else {
-            console.error('SKIPPING EXPORT FOR ' + this.getVisualizationName());
+            console.error('SKIPPING EXPORT FOR ' + exportName);
             return null;
         }
 
@@ -467,11 +467,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     abstract getFilterText(filter: any): string;
 
     /**
-     * Get the name of the visualization
-     */
-    abstract getVisualizationName(): string;
-
-    /**
      * Must return null for no filters.  Returning an empty array causes the
      * query to ignore ALL fitlers.
      */
@@ -486,7 +481,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     addNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate) {
         let filterName = {
-            visName: this.getVisualizationName(),
+            visName: this.getOptions().title,
             text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
@@ -519,7 +514,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     replaceNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate) {
         let filterName = {
-            visName: this.getVisualizationName(),
+            visName: this.getOptions().title,
             text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {

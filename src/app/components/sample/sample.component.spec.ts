@@ -627,10 +627,6 @@ describe('Component: Sample', () => {
         expect(component.getOptions()).toEqual(component.options);
     });
 
-    it('getVisualizationName does return expected string', () => {
-        expect(component.getVisualizationName()).toEqual('Sample');
-    });
-
     it('goToNextPage does not update page or call updateActiveData if lastPage is true', () => {
         let spy = spyOn(component, 'updateActiveData');
         component.goToNextPage();

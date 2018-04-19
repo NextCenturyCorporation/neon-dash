@@ -386,17 +386,6 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         return filter.prettyField + ' = ' + filter.value;
     }
 
-    /**
-     * Returns the name for the visualization.
-     *
-     * @return {string}
-     * @override
-     */
-    getVisualizationName(): string {
-        // TODO Update!
-        return 'Sample';
-    }
-
     // TODO Remove this function if you don't need pagination.
     /**
      * Increases the page and updates the active data.

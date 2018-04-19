@@ -169,10 +169,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         }).concat([filter]);
     }
 
-    getVisualizationName(): string {
-        return 'Text Cloud';
-    }
-
     refreshVisualization() {
         this.createTextCloud();
     }

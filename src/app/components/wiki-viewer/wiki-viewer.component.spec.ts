@@ -153,10 +153,6 @@ describe('Component: WikiViewer', () => {
         })).toBe('');
     }));
 
-    it('getVisualizationName does return expected string', (() => {
-        expect(component.getVisualizationName()).toBe('Wiki Viewer');
-    }));
-
     it('isValidQuery does return expected result', (() => {
         expect(component.isValidQuery()).toBe(false);
 

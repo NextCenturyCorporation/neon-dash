@@ -254,16 +254,6 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns the name for the wiki viewer.
-     *
-     * @return {string}
-     * @override
-     */
-    getVisualizationName(): string {
-        return 'Wiki Viewer';
-    }
-
-    /**
      * Returns whether the wiki viewer query using the options data config is valid.
      *
      * @return {boolean}

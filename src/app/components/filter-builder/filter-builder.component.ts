@@ -198,7 +198,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                     clause.table.name,
                     this.createNeonFilter(clause.database.name, clause.table.name, clause.field.columnName),
                     {
-                        visName: this.getVisualizationName(),
+                        visName: this.options.title,
                         text: this.getFilterName(clause)
                     }
                 );
@@ -286,7 +286,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 sampleClause.table.name,
                 this.createNeonFilter(sampleClause.database.name, sampleClause.table.name, sampleClause.field.columnName),
                 {
-                    visName: this.getVisualizationName(),
+                    visName: this.options.title,
                     text: this.getFilterName(sampleClause)
                 },
                 onSuccess.bind(this),
@@ -299,7 +299,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 sampleClause.table.name,
                 this.createNeonFilter(sampleClause.database.name, sampleClause.table.name, sampleClause.field.columnName),
                 {
-                    visName: this.getVisualizationName(),
+                    visName: this.options.title,
                     text: this.getFilterName(sampleClause)
                 },
                 onSuccess.bind(this),
@@ -353,10 +353,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     removeFilter(filter: any) {
         // Do nothing.
-    }
-
-    getVisualizationName(): string {
-        return 'Custom Filters';
     }
 
     refreshVisualization() {

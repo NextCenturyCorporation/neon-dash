@@ -304,10 +304,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         //
     }
 
-    getVisualizationName(): string {
-        return 'Network Graph';
-    }
-
     getFilterText(filter) {
         // TODO
         return '';

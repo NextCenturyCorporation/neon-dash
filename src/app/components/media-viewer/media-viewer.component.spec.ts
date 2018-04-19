@@ -177,10 +177,6 @@ describe('Component: MediaViewer', () => {
 
     }));
 
-    it('getVisualizationName does return expected string', (() => {
-        expect(component.getVisualizationName()).toBe('Media Viewer');
-    }));
-
     it('isValidQuery does return expected result', (() => {
         expect(component.isValidQuery()).toBe(false);
 

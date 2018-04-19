@@ -554,16 +554,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns the bar chart's visualization name.
-     *
-     * @return {string}
-     * @override
-     */
-    getVisualizationName(): string {
-        return 'Bar Chart';
-    }
-
-    /**
      * Returns the bar chart filter text using the given filter object.
      *
      * @arg {object} filter

@@ -230,10 +230,6 @@ describe('Component: TextCloud', () => {
         }]);
     });
 
-    it('returns the expected value from getVisualizationName', () => {
-        expect(component.getVisualizationName()).toEqual('Text Cloud');
-    });
-
     it('has a refreshVisualization method that calls createTextCloud', () => {
         let createTextCloudHasBeenCalled = false;
         component.createTextCloud = () => {
