@@ -47,7 +47,7 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class SampleOptions extends BaseNeonOptions {
-    // TODO Add and remove properties as needed.  Do NOT assign defaults to fields or else they will override onInitFields.
+    // TODO Add and remove properties as needed.  Do NOT assign defaults to fields or else they will override updateFieldsOnTableChanged.
     public sampleOptionalField: FieldMetaData;
     public sampleRequiredField: FieldMetaData;
     public subcomponentType: string;
@@ -65,11 +65,11 @@ export class SampleOptions extends BaseNeonOptions {
     }
 
     /**
-     * Initializes all the field options for the specific visualization.
+     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
      *
      * @override
      */
-    onInitFields() {
+    updateFieldsOnTableChanged() {
         // Set the fields config bindings for the visualization.
         this.sampleOptionalField = this.findFieldObject('sampleOptionalField');
         this.sampleRequiredField = this.findFieldObject('sampleRequiredField');

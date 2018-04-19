@@ -117,11 +117,11 @@ export class ScatterPlotOptions extends BaseNeonOptions {
     }
 
     /**
-     * Initializes all the field options for the specific visualization.
+     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
      *
      * @override
      */
-    onInitFields() {
+    updateFieldsOnTableChanged() {
         this.colorField = this.findFieldObject('colorField');
         this.labelField = this.findFieldObject('labelField');
         this.xField = this.findFieldObject('xField');

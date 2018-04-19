@@ -75,11 +75,11 @@ export class MapLayer extends BaseNeonLayer {
     }
 
     /**
-     * Initializes all the field options for the specific layer.
+     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
      *
      * @override
      */
-    onInitFields() {
+    updateFieldsOnTableChanged() {
         this.colorField = this.findFieldObject('colorField');
         this.dateField = this.findFieldObject('dateField', neonMappings.DATE);
         this.latitudeField = this.findFieldObject('latitudeField', neonMappings.LATITUDE);

@@ -71,7 +71,7 @@ export abstract class BaseNeonOptions {
         this.newLimit = this.limit;
         this.title = injector.get('title', visualizationTitle);
         this.onInit();
-        this.initDatabases();
+        this.updateDatabases();
     }
 
     /**
@@ -129,9 +129,16 @@ export abstract class BaseNeonOptions {
     }
 
     /**
-     * Initializes all the database options, then calls initTables().
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @abstract
      */
-    public initDatabases() {
+    public abstract onInit(): void;
+
+    /**
+     * Updates all the database options, then calls updateTables().  Called on init.
+     */
+    public updateDatabases() {
         this.databases = this.datasetService.getDatabases();
         this.database = this.databases[0] || new DatabaseMetaData();
 
@@ -147,13 +154,13 @@ export abstract class BaseNeonOptions {
             }
         }
 
-        this.initTables();
+        this.updateTables();
     }
 
     /**
-     * Initializes all the field options, then calls onInitFields().
+     * Updates all the field options, then calls updateFieldsOnTableChanged().  Called on init and whenever the table is changed.
      */
-    public initFields() {
+    public updateFields() {
         if (this.database && this.table) {
             // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
             this.fields = this.datasetService.getSortedFields(this.database.name, this.table.name, true).filter((field) => {
@@ -164,13 +171,13 @@ export abstract class BaseNeonOptions {
         this.unsharedFilterField = new FieldMetaData();
         this.unsharedFilterValue = '';
 
-        this.onInitFields();
+        this.updateFieldsOnTableChanged();
     }
 
     /**
-     * Initializes all the table options, then calls initFields().
+     * Updates all the table options, then calls updateFields().  Called on init and whenever the database is changed.
      */
-    public initTables() {
+    public updateTables() {
         this.tables = this.database ? this.datasetService.getTables(this.database.name) : [];
         this.table = this.tables[0] || new TableMetaData();
 
@@ -186,22 +193,15 @@ export abstract class BaseNeonOptions {
             }
         }
 
-        this.initFields();
+        this.updateFields();
     }
-
-    /**
-     * Initializes all the non-field options for the specific visualization.
-     *
-     * @abstract
-     */
-    public abstract onInit(): void;
 
     /**
      * Initializes all the field options for the specific visualizations.
      *
      * @abstract
      */
-    public abstract onInitFields(): void;
+    public abstract updateFieldsOnTableChanged(): void;
 }
 
 /**
@@ -676,7 +676,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Updates tables, fields, and filters whenenver the database is changed and reruns the visualization query.
      */
     handleChangeDatabase() {
-        this.getOptions().initTables();
+        this.getOptions().updateTables();
         this.removeAllFilters(this.getCloseableFilters(), () => {
             this.setupFilters();
             this.handleChangeData();
@@ -687,7 +687,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Updates fields and filters whenever the table is changed and reruns the visualization query.
      */
     handleChangeTable() {
-        this.getOptions().initFields();
+        this.getOptions().updateFields();
         this.removeAllFilters(this.getCloseableFilters(), () => {
             this.setupFilters();
             this.handleChangeData();

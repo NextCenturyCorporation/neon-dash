@@ -137,11 +137,11 @@ export class BarChartOptions extends BaseNeonOptions {
     }
 
     /**
-     * Initializes all the field options for the specific visualization.
+     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
      *
      * @override
      */
-    onInitFields() {
+    updateFieldsOnTableChanged() {
         this.aggregationField = this.findFieldObject('aggregationField');
         this.dataField = this.findFieldObject('dataField');
         this.colorField = this.findFieldObject('colorField');
