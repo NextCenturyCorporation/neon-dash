@@ -60,11 +60,11 @@ export class TextCloudOptions extends BaseNeonOptions {
     }
 
     /**
-     * Initializes all the field options for the specific visualization.
+     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
      *
      * @override
      */
-    onInitFields() {
+    updateFieldsOnTableChanged() {
         this.dataField = this.findFieldObject('dataField');
         this.sizeField = this.findFieldObject('sizeField');
     }

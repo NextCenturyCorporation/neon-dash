@@ -837,8 +837,8 @@ describe('Component: Sample', () => {
         expect(component.options.subcomponentType).toEqual('Impl1');
     });
 
-    it('onInitFields does set field options as expected', () => {
-        component.options.onInitFields();
+    it('updateFieldsOnTableChanged does set field options as expected', () => {
+        component.options.updateFieldsOnTableChanged();
         expect(component.options.sampleOptionalField).toEqual(component.emptyField);
         expect(component.options.sampleRequiredField).toEqual(component.emptyField);
     });
@@ -1658,11 +1658,11 @@ describe('Component: Sample with config', () => {
         expect(component.options.subcomponentType).toEqual('Impl2');
     });
 
-    it('onInitFields does set field options as expected from config bindings', () => {
+    it('updateFieldsOnTableChanged does set field options as expected from config bindings', () => {
         component.options.sampleOptionalField = component.emptyField;
         component.options.sampleRequiredField = component.emptyField;
 
-        component.options.onInitFields();
+        component.options.updateFieldsOnTableChanged();
         expect(component.options.sampleOptionalField).toEqual(DatasetMock.COLOR_FIELD);
         expect(component.options.sampleRequiredField).toEqual(DatasetMock.GROUP_FIELD);
     });

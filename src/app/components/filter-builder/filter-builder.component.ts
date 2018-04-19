@@ -51,11 +51,11 @@ export class FilterBuilderOptions extends BaseNeonOptions {
     }
 
     /**
-     * Initializes all the field options for the specific visualization.
+     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
      *
      * @override
      */
-    onInitFields() {
+    updateFieldsOnTableChanged() {
         // Do nothing.
     }
 }
@@ -444,7 +444,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         clause.active = false;
         clause.database = clause.changeDatabase;
-        clause.initTables();
+        clause.updateTables();
 
         if (this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey)) {
             this.updateFiltersOfKey(databaseTableFieldKey);
@@ -461,7 +461,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         clause.active = false;
         clause.table = clause.changeTable;
-        clause.initFields();
+        clause.updateFields();
 
         if (this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey)) {
             this.updateFiltersOfKey(databaseTableFieldKey);
@@ -543,11 +543,11 @@ class WhereClauseMetaData extends BaseNeonOptions {
     }
 
     /**
-     * Initializes all the field options for the specific visualization.
+     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
      *
      * @override
      */
-    onInitFields() {
+    updateFieldsOnTableChanged() {
         // Do nothing.
     }
 }

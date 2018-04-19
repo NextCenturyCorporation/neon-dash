@@ -54,7 +54,7 @@ export abstract class BaseNeonLayer {
      */
     constructor(protected config: any, protected datasetService: DatasetService) {
         this.title = config.title || 'New Layer';
-        this.initDatabases();
+        this.updateDatabases();
     }
 
     /**
@@ -112,9 +112,16 @@ export abstract class BaseNeonLayer {
     }
 
     /**
-     * Initializes all the database options, then calls initTables().
+     * Initializes all the non-field options for the specific layer.
+     *
+     * @abstract
      */
-    public initDatabases() {
+    public abstract onInit(): void;
+
+    /**
+     * Updates all the database options, then calls updateTables().  Called on init.
+     */
+    public updateDatabases() {
         this.databases = this.datasetService.getDatabases();
         this.database = this.databases[0] || new DatabaseMetaData();
 
@@ -130,13 +137,13 @@ export abstract class BaseNeonLayer {
             }
         }
 
-        this.initTables();
+        this.updateTables();
     }
 
     /**
-     * Initializes all the field options, then calls onInitFields().
+     * Updates all the field options, then calls updateFieldsOnTableChanged().  Called on init and whenever the table is changed.
      */
-    public initFields() {
+    public updateFields() {
         if (this.database && this.table) {
             // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
             this.fields = this.datasetService.getSortedFields(this.database.name, this.table.name, true).filter((field) => {
@@ -147,13 +154,13 @@ export abstract class BaseNeonLayer {
         this.unsharedFilterField = new FieldMetaData();
         this.unsharedFilterValue = '';
 
-        this.onInitFields();
+        this.updateFieldsOnTableChanged();
     }
 
     /**
-     * Initializes all the table options, then calls initFields().
+     * Updates all the table options, then calls updateFields().  Called on init and whenever the database is changed.
      */
-    public initTables() {
+    public updateTables() {
         this.tables = this.database ? this.datasetService.getTables(this.database.name) : [];
         this.table = this.tables[0] || new TableMetaData();
 
@@ -169,22 +176,15 @@ export abstract class BaseNeonLayer {
             }
         }
 
-        this.initFields();
+        this.updateFields();
     }
 
     /**
-     * Initializes all the non-field options for the specific layer.
+     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
      *
      * @abstract
      */
-    public abstract onInit(): void;
-
-    /**
-     * Initializes all the field options for the specific layer.
-     *
-     * @abstract
-     */
-    public abstract onInitFields(): void;
+    public abstract updateFieldsOnTableChanged(): void;
 }
 
 /**
@@ -800,7 +800,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @arg {number} layerIndex
      */
     handleChangeDatabase(layerIndex: number) {
-        this.getOptions().getLayers()[layerIndex].initTables();
+        this.getOptions().getLayers()[layerIndex].updateTables();
         this.removeAllFilters(layerIndex, this.getCloseableFilters(), () => {
             this.setupFilters();
             this.handleChangeDataAtLayerIndex(layerIndex);
@@ -813,7 +813,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @arg {number} layerIndex
      */
     handleChangeTable(layerIndex: number) {
-        this.getOptions().getLayers()[layerIndex].initFields();
+        this.getOptions().getLayers()[layerIndex].updateFields();
         this.removeAllFilters(layerIndex, this.getCloseableFilters(), () => {
             this.setupFilters();
             this.handleChangeDataAtLayerIndex(layerIndex);
