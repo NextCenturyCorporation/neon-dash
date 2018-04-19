@@ -335,10 +335,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return true;
     }
 
-    getVisualizationName(): string {
-        return 'Data Chart';
-    }
-
     getFilterText(filter) {
         return filter.prettyKey + ' = ' + filter.value;
     }

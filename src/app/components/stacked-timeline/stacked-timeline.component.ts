@@ -257,10 +257,6 @@ export class StackedTimelineComponent extends BaseNeonComponent implements OnIni
         return filter.prettyField + ' from ' + begin + ' to ' + end;
     }
 
-    getVisualizationName() {
-        return 'Timeline';
-    }
-
     refreshVisualization() {
         this.timelineChart.redrawChart();
     }

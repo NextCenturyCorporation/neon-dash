@@ -166,10 +166,6 @@ describe('Component: DocumentViewer', () => {
         })).toBe('');
     });
 
-    it('returns the expected string from getVisualizationName', () => {
-        expect(component.getVisualizationName()).toBe('Document Viewer');
-    });
-
     it('returns null from getFiltersToIgnore', () => {
         expect(component.getFiltersToIgnore()).toBeNull();
     });

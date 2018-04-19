@@ -268,10 +268,6 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
         return filter.prettyField + ' from ' + begin + ' to ' + end;
     }
 
-    getVisualizationName() {
-        return 'Timeline';
-    }
-
     refreshVisualization() {
         this.timelineChart.redrawChart();
     }

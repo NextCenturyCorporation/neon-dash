@@ -155,10 +155,6 @@ class TestBaseNeonComponent extends BaseNeonComponent implements OnInit, OnDestr
         return this.options;
     }
 
-    getVisualizationName() {
-        return 'TestName';
-    }
-
     isValidQuery() {
         return true;
     }

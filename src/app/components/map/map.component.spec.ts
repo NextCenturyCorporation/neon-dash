@@ -745,10 +745,6 @@ describe('Component: Map', () => {
         })).toEqual('filterLatitude from 1 to 2 and filterLongitude from 3 to 4');
     });
 
-    it('getVisualizationName does return expected string', () => {
-        expect(component.getVisualizationName()).toEqual('Map');
-    });
-
     it('getFiltersToIgnore does return null', () => {
         expect(component.getFiltersToIgnore()).toEqual(null);
     });

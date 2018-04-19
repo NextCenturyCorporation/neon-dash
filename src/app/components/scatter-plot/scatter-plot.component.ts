@@ -538,10 +538,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             filter.yMin + ' to ' + filter.yMax;
     }
 
-    getVisualizationName() {
-        return 'Scatter Plot';
-    }
-
     refreshVisualization() {
         this.getChart().update();
     }

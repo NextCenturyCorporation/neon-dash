@@ -480,16 +480,6 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns the map's visualization name.
-     *
-     * @return {string}
-     * @override
-     */
-    getVisualizationName(): string {
-        return 'Map';
-    }
-
-    /**
      * Returns the list of filters for the map to ignore (null to ignore no filters).
      *
      * @return {null}

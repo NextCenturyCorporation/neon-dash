@@ -519,10 +519,6 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
         return filter.prettyField + ' from ' + begin + ' to ' + end;
     }
 
-    getVisualizationName() {
-        return 'Line Chart';
-    }
-
     refreshVisualization() {
         this.getChart().update();
     }

@@ -261,16 +261,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the name for the media viewer.
-     *
-     * @return {string}
-     * @override
-     */
-    getVisualizationName(): string {
-        return 'Media Viewer';
-    }
-
-    /**
      * Returns whether the media viewer query using the options data config is valid.
      *
      * @return {boolean}
