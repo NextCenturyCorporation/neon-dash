@@ -242,9 +242,27 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit,
 
     ngAfterViewInit() {
         // note: options is REQUIRED. Fails to initialize physics properly without at least empty object
-        let options: vis.Options = {layout: {randomSeed: 0}};
+        let options: vis.Options = {
+            layout: {randomSeed: 0},
+            edges: {
+                smooth: {
+                    enabled: false,
+                    type: 'dynamic',
+                    forceDirection: 'none',
+                    roundness: .5
+                }
+            },
+            physics: {
+                barnesHut: {
+                    gravitationalConstant: -30000,
+                    springLength: 250,
+                    springConstant: .01
+                },
+                timestep: 1
+            }
+        };
         this.graph = new vis.Network(this.graphElement.nativeElement, this.graphData, options);
-        this.graph.on('stabilized', (params) => this.graph.setOptions({physics: {enabled: false}}));
+        // this.graph.on('stabilized', (params) => this.graph.setOptions({physics: {enabled: false}}));
     }
 
     setInterpolationType(curveType) {
