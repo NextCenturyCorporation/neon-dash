@@ -32,7 +32,7 @@ import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
-import { FieldMetaData } from '../../dataset';
+import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
@@ -47,6 +47,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
     encapsulation: ViewEncapsulation.Emulated,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
+
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
@@ -67,6 +68,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     isLoadingMedia: boolean;
     showMedia: boolean = false;
     previousId: string;
+    mediaTypes: any = MediaTypes;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,

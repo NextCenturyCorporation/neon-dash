@@ -138,6 +138,10 @@ export const neonVisualizations: any[] = [{
     type: 'textCloud',
     icon: 'TagCloud64'
 }, {
+    name: 'Thumbnail Grid',
+    type: 'thumbnailGrid',
+    icon: 'ThumbnailGrid'
+}, {
     name: 'Timeline',
     type: 'timeline',
     icon: 'Timeline64'

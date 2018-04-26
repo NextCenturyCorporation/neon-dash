@@ -42,6 +42,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { ChartComponent } from '../chart/chart.component';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
+import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -63,6 +64,7 @@ describe('Component: VisualizationInjector', () => {
                 ScatterPlotComponent,
                 StackedTimelineComponent,
                 TextCloudComponent,
+                ThumbnailGridComponent,
                 TimelineComponent,
                 UnsharedFilterComponent,
                 VisualizationInjectorComponent,
