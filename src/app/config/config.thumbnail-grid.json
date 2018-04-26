@@ -1,0 +1,119 @@
+{
+    "datasets": [
+        {
+            "name": "VERDI TA1",
+            "connectOnLoad": true,
+            "layout": "verdi-ta1-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [{
+                "name": "verdi-rdf",
+                "prettyName": "VERDI",
+                "tables": [{
+                    "name": "normal",
+                    "prettyName": "Normal"
+                },
+                    {
+                        "name": "reified",
+                        "prettyName": "Reified"
+                    }]
+            }],
+            "relations": [
+                {"members": [
+                    {
+                        "database": "verdi-rdf",
+                        "table": "normal",
+                        "field": "@id"
+                    },
+                    {
+                        "database": "verdi-rdf",
+                        "table": "reified",
+                        "field": "provenance"
+                    }
+                ]}
+            ]
+        }
+    ],
+    "layouts": {
+        "verdi-ta1-layout": [{
+            "name": "Data Table",
+            "type": "dataTable",
+            "icon": "ViewData64",
+            "sizex": 24,
+            "sizey": 8,
+            "minPixelx": 320,
+            "minPixely": 240,
+            "minSizex": 2,
+            "minSizey": 2,
+            "$$hashKey": "object:31",
+            "selected": true,
+            "bindings": {
+                "title": "Document",
+                "database": "verdi-rdf",
+                "table": "normal",
+                "idField": "@id",
+                "sortField": "author",
+                "filterable": true,
+                "filterFields": ["@id"],
+                "allColumnStatus": "hide",
+                "exceptionsToStatus": [
+                    "@id",
+                    "author",
+                    "date",
+                    "docLocation",
+                    "title",
+                    "docType"
+                ]
+            },
+            "row": 0,
+            "col": 0
+        },
+            {
+                "name": "Thumbnail Grid",
+                "type": "thumbnailGrid",
+                "icon": "ThumbnailGrid",
+                "sizex": 24,
+                "sizey": 16,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4,
+                "$$hashKey": "object:35",
+                "selected": true,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Thumbnail Grid",
+                    "database": "verdi-rdf",
+                    "table": "normal",
+                    "idField": "@id",
+                    "linkField": "docLocation",
+                    "typeField": "docType",
+                    "nameField": "title",
+                    "dateField": "date"
+                },
+                "row": 13,
+                "col": 0
+            },
+            {
+                "name": "Filter Builder",
+                "type": "filterBuilder",
+                "icon": "CreateFilter64",
+                "sizex": 24,
+                "sizey": 4,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4,
+                "$$hashKey": "object:37",
+                "selected": true,
+                "bindings": {
+                    "title": "Filter Builder",
+                    "database": "verdi-rdf",
+                    "table": "reified"
+                },
+                "row": 22,
+                "col": 0
+            }
+        ]
+    }
+}

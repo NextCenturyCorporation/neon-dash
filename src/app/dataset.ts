@@ -108,3 +108,10 @@ export class Relation {
         field: string
     }[];
 }
+
+export const MediaTypes = {
+    image: 'img',
+    video: 'vid',
+    html: 'htm',
+    pdf: 'pdf'
+};

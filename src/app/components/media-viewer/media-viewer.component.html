@@ -77,8 +77,8 @@
     <mat-tab-group class="media-viewer" *ngIf="active.url == '' && showMedia == true">
             <mat-tab *ngFor="let document of active.documentArray; let i = index" [label]="getTabLabel(active.documentArray, i)">
                 <div class="media-viewer-div" [ngSwitch]="active.documentType">
-                    <img *ngSwitchCase="'img'" [src]="document" [alt]="active.linkField.prettyName" >
-                    <video *ngSwitchCase="'vid'" controls><source [src]="document"></video>
+                    <img *ngSwitchCase="mediaTypes.image" [src]="document" [alt]="active.linkField.prettyName" >
+                    <video *ngSwitchCase="mediaTypes.video" controls><source [src]="document"></video>
                     <iframe *ngSwitchDefault [src]="sanitize(document)" frameborder="0"></iframe>
                 </div>
             </mat-tab>
