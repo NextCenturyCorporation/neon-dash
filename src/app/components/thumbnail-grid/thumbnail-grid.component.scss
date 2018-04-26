@@ -1,0 +1,81 @@
+/*
+ * Copyright 2016 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ @import '../base-neon-component/base-neon.component.scss';
+
+.thumbnail-grid{
+    min-height: calc(100% - #{$vis-title-expected-height});
+    display: flex;
+    background-color: #efefef;
+    overflow: auto;
+}
+
+.thumbnail-grid-container{
+    height: 100%;
+    margin: .5em;
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.thumbnail-grid-div{
+    min-width: 128px;
+    min-height:100px;
+    display: flex;
+    flex-direction: column;
+    flex: 0 0;
+    font-size: 14px;
+    margin: .9em;
+    box-shadow: 0px 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12)
+}
+
+.thumbnail-grid-div mat-card, .thumbnail-grid-div mat-card-content{
+    padding: 0;
+    height: 100%;
+    color: #5a5a5a;
+}
+
+.title-bold{
+    font-weight: bold;
+}
+
+.thumbnail-view{
+    /*height:40%;*/
+    height:100%;
+    width: 100%;
+    word-wrap: break-word;
+    background-color: #dcfdff;
+    /*padding: .2em;*/
+}
+
+.thumbnail-details{
+    height:60%;
+    width:100%;
+    background-color: #ffffff;
+    word-wrap: break-word;
+    display: flex;
+    flex-direction: column;
+    /*padding: .2em;*/
+}
+
+.thumbnail-details p{
+    margin: .4em;
+}
+
+.thumbnail-details span{
+    display: flex;
+    flex-direction: column;
+}
+
+
