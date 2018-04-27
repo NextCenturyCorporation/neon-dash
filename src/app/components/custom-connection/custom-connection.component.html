@@ -1,0 +1,19 @@
+<div>
+    <div class="header">
+        <button (click)="dialogRef.close(close)">&times;</button>
+        <h4 class="title">Custom Dataset - {{ getCurrentStepTitle() }}</h4>
+    </div>
+    <div class="body">
+        <!-- <app-custom-connection-dataset-step #step [data]="data"></app-custom-connection-dataset-step>
+        <app-custom-connection-database-step #step [data]="data"></app-custom-connection-database-step>
+        <app-custom-connection-fields-step #step [data]="data"></app-custom-connection-fields-step>
+       <app-custom-connection-layout-step #step [data]="data"></app-custom-connection-layout-step> -->
+       <app-custom-connection-simple-setup-step #step [data]="data"></app-custom-connection-simple-setup-step>
+    </div>
+    <div class="footer">
+        <h4 class="pull-left">Step {{ getCurrentStepNumber() }} of {{ steps.length }}</h4>
+        <button (click)="dialogRef.close(close)">Cancel</button>
+        <button (click)="previousStep()" *ngIf="currentStepIndex > 0">Back</button>
+        <button (click)="nextStep()" [disabled]="!validateStep()">Create</button>
+    </div>
+</div>

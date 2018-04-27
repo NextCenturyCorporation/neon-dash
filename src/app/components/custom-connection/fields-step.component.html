@@ -1,0 +1,62 @@
+<div *ngFor="let database of data.selectedDatabases" [hidden]="!selected">
+    <div class="neon-well neon-well-dark" *ngFor="let table of database.tables">
+        <div class="row" (click)="toggleFieldMappingDisplay(database, table)" style="cursor: pointer;">
+            <div class="col-md-1">
+                <div class="no-margin">
+                    <span>
+                        <mat-icon class="neon-icon-small" *ngIf="!getFieldMappingDisplay(database, table)">keyboard_arrow_down</mat-icon>
+                        <mat-icon class="neon-icon-small" *ngIf="getFieldMappingDisplay(database, table)">keyboard_arrow_up</mat-icon>
+                    </span>
+                </div>
+            </div>
+
+            <div class="col-md-5">
+                <div class="no-margin">
+                    <label>Database: </label>
+                    <span>{{ database.prettyName }}</span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="no-margin">
+                    <label>Table: </label>
+                    <span>{{ table.prettyName }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="neon-well toggled-group" [hidden]="!getFieldMappingDisplay(database, table)">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label>Mapping</label>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label>Field</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row" *ngFor="let mapping of mappings">
+                <div class="col-md-6">
+                    <div class="form-group inner-group truncate">
+                        <span>{{ mapping.prettyName }}</span>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group inner-group">
+                        <select class="form-control"
+                            (ngModelChange)="onMappingSet($event)"
+                            [(ngModel)]="table.mappings[mapping.name]">
+                            <option value="">None</option>
+                            <option *ngFor="let field of table.fields" [ngValue]="field.columnName">{{ field.prettyName }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

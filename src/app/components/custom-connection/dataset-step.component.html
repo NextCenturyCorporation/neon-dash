@@ -1,0 +1,52 @@
+<div [hidden]="!selected">
+    <div class="row">
+        <div class="col-md5">
+            <div class="form-group">
+                <label>Dataset Name</label>
+                <input type="text"
+                    [ngClass]="{'ng-invalid': !datasetNameIsValid}"
+                    [(ngModel)]="datasetName"
+                    (ngModelChange)="validateDatasetName()"/>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group no-margin">
+                <label>&nbsp;</label>
+                <label class="bottom text-danger"
+                    [innerHtml]="datasetNameIsValid ? '' : 'Please enter a unique name.'"
+                    style="display: block;"></label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Datastore Type</label>
+                <select class="form-control" [(ngModel)]="datastoreType" (ngModelChange)="changeType()">
+                    <option value="mongo">Mongo</option>
+                    <option value="sparksql">Spark SQL</option>
+                    <option value="elasticsearch">Elasticsearch</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Datastore Host Name</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" [(ngModel)]="datastoreHost" (ngModelChange)="changeHost()"/>
+                    <span class="input-group-btn">
+                        <button class="btn btn-default"
+                            (click)="connectToServer()"
+                            [innerHtml]="isLoading ? 'Connecting' : isConnected ? 'Connected' : 'Connect'"
+                            [disabled]="isLoading || isConnected"></button>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <label class="error-label" *ngIf="error">Error connecting to datastore.</label>
+</div>
