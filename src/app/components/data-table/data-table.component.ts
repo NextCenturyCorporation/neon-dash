@@ -45,6 +45,7 @@ export class DataTableOptions extends BaseNeonOptions {
     public allColumnStatus: string;
     public arrayFilterOperator: string;
     public exceptionsToStatus: string[];
+    public fieldsConfig: any[];
     public filterable: boolean;
     public filterFields: FieldMetaData[];
     public idField: FieldMetaData;
@@ -59,6 +60,7 @@ export class DataTableOptions extends BaseNeonOptions {
         this.allColumnStatus = this.injector.get('allColumnStatus', 'show');
         this.arrayFilterOperator = this.injector.get('arrayFilterOperator', 'and');
         this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
+        this.fieldsConfig = this.injector.get('fieldsConfig', []);
         this.filterable = this.injector.get('filterable', false);
     }
 
@@ -88,6 +90,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     @ViewChild('table') table: any;
     @ViewChild('dragView') dragView: ElementRef;
+
+    private DEFAULT_COLUMN_WIDTH: number = 150;
 
     public filters: {
         id: string,
@@ -153,45 +157,71 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.enableRedrawAfterResize(true);
     }
 
-    subNgOnInit() {
+    initializeHeadersFromExceptionsToStatus() {
         let initialHeaderLimit = 25;
         let numHeaders = 0;
-        let defaultShowValue = this.options.allColumnStatus !== 'hide';
         let orderedHeaders = [];
         let unorderedHeaders = [];
-        if (defaultShowValue) {
-            for (let field of this.options.fields) {
-                this.headers.push({
-                    prop: field.columnName,
-                    name: field.prettyName,
-                    active: numHeaders < initialHeaderLimit,
+        let show = (this.options.allColumnStatus === 'show');
+
+        for (let fieldObject of this.options.fields) {
+            // If field is an exception, set active to oppositve of show status.
+            if (this.headerIsInExceptions(fieldObject)) {
+                orderedHeaders.push({
+                    prop: fieldObject.columnName,
+                    name: fieldObject.prettyName,
+                    active: !show && orderedHeaders.length < initialHeaderLimit,
                     style: {},
-                    width: 150
+                    width: this.DEFAULT_COLUMN_WIDTH
                 });
-                numHeaders++;
+            } else {
+                unorderedHeaders.push({
+                    prop: fieldObject.columnName,
+                    name: fieldObject.prettyName,
+                    active: show && unorderedHeaders.length < initialHeaderLimit,
+                    style: {},
+                    width: this.DEFAULT_COLUMN_WIDTH
+                });
             }
+        }
+        // Order fields in exceptions first.
+        orderedHeaders = this.sortOrderedHeaders(orderedHeaders);
+        this.headers = orderedHeaders.concat(unorderedHeaders);
+    }
+
+    initializeHeadersFromFieldsConfig() {
+        let existingFields = [];
+        for (let fieldConfig of this.options.fieldsConfig) {
+            let fieldObject = this.options.findField(fieldConfig.name);
+            if (fieldObject.columnName) {
+                existingFields.push(fieldObject.columnName);
+                this.headers.push({
+                    prop: fieldObject.columnName,
+                    name: fieldObject.prettyName,
+                    active: !fieldConfig.hide,
+                    style: {},
+                    width: this.DEFAULT_COLUMN_WIDTH
+                });
+            }
+        }
+        for (let fieldObject of this.options.fields) {
+            if (existingFields.indexOf(fieldObject.columnName) < 0) {
+                this.headers.push({
+                    prop: fieldObject.columnName,
+                    name: fieldObject.prettyName,
+                    active: (this.options.allColumnStatus === 'show'),
+                    style: {},
+                    width: this.DEFAULT_COLUMN_WIDTH
+                });
+            }
+        }
+    }
+
+    subNgOnInit() {
+        if (this.options.fieldsConfig.length) {
+            this.initializeHeadersFromFieldsConfig();
         } else {
-            for (let field of this.options.fields) {
-                if (this.headerIsInExceptions(field)) {
-                    orderedHeaders.push({
-                        prop: field.columnName,
-                        name: field.prettyName,
-                        active: orderedHeaders.length < initialHeaderLimit,
-                        style: {},
-                        width: 150
-                    });
-                } else {
-                    unorderedHeaders.push({
-                        prop: field.columnName,
-                        name: field.prettyName,
-                        active: false,
-                        style: {},
-                        width: 150
-                    });
-                }
-            }
-            orderedHeaders = this.sortOrderedHeaders(orderedHeaders);
-            this.headers = orderedHeaders.concat(unorderedHeaders);
+            this.initializeHeadersFromExceptionsToStatus();
         }
 
         this.recalculateActiveHeaders();
@@ -613,26 +643,24 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         this.selected.push(...selected);
 
         if (this.options.filterable) {
-            let object = this.responseData.filter((obj) =>
+            let dataObject = this.responseData.filter((obj) =>
                 obj[this.options.idField.columnName] === selected[0][this.options.idField.columnName])[0];
+
             this.options.filterFields.forEach((filterField: any) => {
-                let dataField = filterField.columnName;
-                let value = (this.options.idField.columnName.length === 0) ? selected[0][dataField] : object[dataField];
-                let key = dataField;
-                let prettyKey = filterField.prettyName;
-                let filter = this.createFilterObject(key, value, prettyKey);
+                let filterFieldObject = this.options.findField(filterField.columnName);
+                let value = (this.options.idField.columnName.length === 0) ? selected[0][filterFieldObject.columnName] :
+                    dataObject[filterFieldObject.columnName];
+                let filter = this.createFilterObject(filterFieldObject.columnName, value, filterFieldObject.prettyName);
 
                 if (value instanceof Array) {
                     if (this.options.arrayFilterOperator === 'and') {
                         value.forEach((element) => {
-                            let arrayFilter = this.createFilterObject(key, element, prettyKey);
-                            let whereClause = neon.query.where(arrayFilter.key, '=', arrayFilter.value);
+                            let arrayFilter = this.createFilterObject(filterFieldObject.columnName, element, filterFieldObject.prettyName);
+                            let whereClause = neon.query.where(arrayFilter.filterFieldObject.columnName, '=', arrayFilter.value);
                             this.addFilter(arrayFilter, whereClause);
                         });
                     } else {
-                        let clauses = value.map((val) =>
-                        neon.query.where(filter.key, '=', val)
-                    );
+                        let clauses = value.map((element) => neon.query.where(filter.key, '=', element));
                         let clause = neon.query.or.apply(neon.query, clauses);
                         this.addFilter(filter, clause);
                     }
