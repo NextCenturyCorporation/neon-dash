@@ -31,5 +31,9 @@
                 color: mat-contrast($primary, A100) !important;
             }
         }
+
+        .paragraphs {
+            display: block;
+        }
     }
 }
