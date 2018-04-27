@@ -74,26 +74,11 @@
         <mat-spinner ></mat-spinner>
     </div>
 
- <!--   <div #thumbnailGrid class="thumbnail-grid">
-        <div class="thumbnail-grid-container">
-            <div class="thumbnail-grid-div" *ngFor="let item of active.gridArray; let i = index">
-                <div class="thumbnail-image">
-                    <div class="thumbnail-canvas"></div>
-                </div>
-                <div class="thumbnail-details">
-                    <p><span class="title-bold">File Name</span><span>{{ item[active.nameField.columnName] }}</span></p>
-                    <p><span class="title-bold">Created</span><span>{{ item[active.dateField.columnName] }}</span></p>
-                    <p><span class="title-bold">File Type</span><span>{{ item[active.typeField.columnName] }}</span></p>
-                </div>
-            </div>
-        </div>
-    </div>-->
-
     <div #thumbnailGrid class="thumbnail-grid">
         <div class="thumbnail-grid-container">
             <div class="thumbnail-grid-div" *ngFor="let item of active.gridArray; let i = index" (click)="maximizeMedia(item[active.linkField.columnName])">
-                <div class="thumbnail-view">
-                </div>
+                <canvas class="thumbnail-view">
+                </canvas>
             </div>
         </div>
     </div>

@@ -14,6 +14,9 @@
  *
  */
  @import '../base-neon-component/base-neon.component.scss';
+.grid[_ngcontent-c0]{
+   font-size:12px !important;
+}
 
 .thumbnail-grid{
     min-height: calc(100% - #{$vis-title-expected-height});
@@ -30,20 +33,15 @@
 }
 
 .thumbnail-grid-div{
-    min-width: 128px;
-    min-height:100px;
+    min-width: 78px;
+    min-height:64px;
     display: flex;
     flex-direction: column;
     flex: 0 0;
-    font-size: 14px;
-    margin: .9em;
-    box-shadow: 0px 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12)
-}
-
-.thumbnail-grid-div mat-card, .thumbnail-grid-div mat-card-content{
-    padding: 0;
-    height: 100%;
-    color: #5a5a5a;
+    margin: .8em;
+    box-shadow: 0px 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    justify-content: center;
+    align-items: center;
 }
 
 .title-bold{
@@ -51,12 +49,8 @@
 }
 
 .thumbnail-view{
-    /*height:40%;*/
-    height:100%;
     width: 100%;
-    word-wrap: break-word;
-    background-color: #dcfdff;
-    /*padding: .2em;*/
+    height:100%;
 }
 
 .thumbnail-details{
@@ -66,7 +60,6 @@
     word-wrap: break-word;
     display: flex;
     flex-direction: column;
-    /*padding: .2em;*/
 }
 
 .thumbnail-details p{
