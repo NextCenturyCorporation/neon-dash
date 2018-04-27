@@ -61,7 +61,7 @@ export class TextCloud {
         }
 
         return data.map((item) => {
-            let weighting = item.value - lowest;
+            let weighting = (item.value === highest ? range : item.value - lowest);
             item.fontSize = this.size.start + (weighting * fontIncr) + this.size.unit;
 
             if (this.color) {
