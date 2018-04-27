@@ -1,0 +1,147 @@
+<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+        <div #headerText class="header text pull-left" [matTooltip]="meta.title" tooltip-position="below">{{ meta.title }}</div>
+        <span class="fill-remaining"></span>
+        <span #infoText class="info text">
+            <span class="error-message" *ngIf="meta.errorMessage" [matTooltip]="meta.errorMessage" tooltip-position="below">
+                {{ meta.errorMessage }}
+            </span>
+            <span *ngIf="!meta.errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+                {{ getButtonText() }}
+            </span>
+        </span>
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+            <mat-icon>settings</mat-icon>
+        </button>
+    </mat-toolbar>
+
+    <!-- Options menu -->
+    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+        <mat-card align="left">
+            <mat-card-content>
+                <div *ngIf="meta.errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
+                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <span>{{ meta.errorMessage }}</span>
+                    </label>ll
+                    <p></p>
+                </div>
+
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+                        <mat-icon class="neon-icon-small">info</mat-icon>
+                        <span>{{ getButtonText() }}</span>
+                    </label>
+                    <p></p>
+                </div>
+
+                <mat-form-field>
+                    <input matInput placeholder="Title" [(ngModel)]="meta.title" required="false">
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
+                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
+                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <!-- TODO Do you need fields?  Are they required or optional? -->
+                <mat-form-field>
+                    <mat-select placeholder="Document Text Field" [(ngModel)]="options.documentTextField" required="true" (ngModelChange)="handleChangeFilterField()"
+                        [disabled]="meta.fields.length == 0">
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <!-- TODO Do you need a limit? -->
+                <div mat-fill class="flex center">
+                    <mat-form-field>
+                        <input matInput placeholder="Document Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
+                <p></p>
+
+                <a class="icon-with-text tappable" (click)="addEmptyAnnotation()">
+                    <mat-icon class="neon-icon-small">add_circle</mat-icon>
+                    <div>Add Annotation</div>
+                </a>
+                <p></p>
+
+                <mat-toolbar>
+                    <span>Annotations</span>
+                </mat-toolbar>
+
+                <!-- TODO Do you need an unshared filter? -->
+                <app-unshared-filter [(meta)]="meta" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
+                <p></p>
+
+                <app-export-control [exportId]="exportId"></app-export-control>
+            </mat-card-content>
+        </mat-card>
+    </mat-sidenav>
+
+    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+        <mat-spinner></mat-spinner>
+    </div>
+
+    <!-- TODO Do you need a header for filters or other components (like a legend)? -->
+    <div class="filter-container" *ngIf="showFilterContainer()">
+        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+            <span class="filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" [matTooltip]="'Delete Filter ' + getFilterText(filter)"
+                tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                <mat-icon class="neon-icon-small">close</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <!-- TODO Remove the with-filter and/or with-footer classes if you don't need them. -->
+    <div class="body-container" [class.with-filter]="showFilterContainer()" [class.with-footer]="showFooterContainer()">
+
+        <mat-list class="annotation-viewer-list-container body-container" [class.with-footer]="options.docCount > meta.limit">
+            <div class="mat-list-item-text annotation-viewer-list-item" layout="column">
+                <!-- TODO Do not use <table> elements!  Use flex styling! -->
+                <table class="annotation-viewer-table">
+                    <ng-template ngFor let-item [ngForOf]="activeData">
+                        <tr class="document-row" (click)="onClick(item)">
+                            <td>{{ item }}</td>
+                        </tr>
+                        <tr>
+                            <td class="annotation-viewer-button-cell" colspan="100%">
+
+                                <hr/>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </table>
+            </div>
+        </mat-list>
+    </div>
+
+    <!-- TODO Do you need a footer for pagination or other components? -->
+    <div class="footer" *ngIf="showFooterContainer()">
+        <div class="footer-button-container">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
+                Previous
+            </button>
+            <span class="pagination-button-spacer"></span>
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary" (click)="goToNextPage()">
+                Next
+            </button>
+        </div>
+    </div>
+</mat-sidenav-container>
