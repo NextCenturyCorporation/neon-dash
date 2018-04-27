@@ -103,8 +103,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         let whereClauses = [];
         let query = new neon.query.Query()
             .selectFrom(this.meta.database.name, this.meta.table.name);
-/*            .withFields([this.active.linkField.columnName, this.active.typeField.columnName, this.active.idField.columnName,
-                this.active.nameField.columnName, this.active.dateField.columnName]);*/
 
         whereClauses.push(neon.query.where(this.active.linkField.columnName, '!=', null));
 
@@ -284,6 +282,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             }
         } catch (e) {
             this.meta.errorMessage = 'Error';
+            //console.log(e)
             this.refreshVisualization();
         }
     }
@@ -363,52 +362,51 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     private createMediaThumbnail() {
 
         let views = this.thumbnailGrid.nativeElement.querySelectorAll('.thumbnail-view'),
-            image : HTMLImageElement = new Image(),
-            video: HTMLVideoElement = document.createElement("video"),
-            embed: HTMLEmbedElement = document.createElement("embed"),
-            scale = .5,
-            width: number = 250,
-            height: number = 200,
-            thumbnail: any;
+            scale = .8,
+            width = 300,
+            height = 250;
 
         this.active.gridArray.map((grid, index) => {
-            //let context = views[index].getContext('2d');
-
-                let link = grid[this.active.linkField.columnName];
-                let type = grid[this.active.typeField.columnName];
+                let link = grid[this.active.linkField.columnName],
+                    type = grid[this.active.typeField.columnName],
+                    thumbnail = views[index].getContext('2d');
 
                 switch (type) {
                     case this.mediaTypes.image : {
-                        thumbnail = image;
+                        let image: HTMLImageElement = new Image(),
+                            w = width,
+                            h = height;
+                        image.src = link;
+                        image.onload = () => {
+                            if(image.width && image.width > 0){
+                                w = image.width * scale;
+                                h = image.height * scale;
+                            }
+                            thumbnail.drawImage(image, 0, 0, w, h);
+                        };
                         break;
                     }
                     case this.mediaTypes.video : {
-                        thumbnail = video;
+                        let video: HTMLVideoElement = document.createElement('video'),
+                            w = width,
+                            h = height;
+                        video.src = link;
+                        video.onloadeddata = () => {
+                            if(video.width && video.width > 0){
+                                w = video.width * scale;
+                                h = video.height * scale;
+                            }
+                            thumbnail.drawImage(video, 0, 0, w, h);
+                        };
+
                         break;
                     }
                     default : {
-                        thumbnail = embed;
+                        // todo: get thumbnails of documents, pdf, and other similar types of media.
                     }
                 }
 
-          //working with images only
-/*            thumbnail.onload = function() {
-                Promise.all([
-                    createImageBitmap(thumbnail, 0, 0, thumbnail.width, thumbnail.height),
-                    thumbnail.width,
-                    thumbnail.height
-                ]).then(function(values) {
-                    let w = values[1] * scale;
-                    let h = values[2] * scale;
-                    //context.drawImage(values[0], 0, 0, w, h);
-                });
-            };*/
-
-            thumbnail.src = link;
-            thumbnail.width = width * scale;
-            thumbnail.height = height * scale;
-            views[index].innerHTML = thumbnail.outerHTML;
-
+                views[index].innerHTML = thumbnail.outerHTML;
         });
     }
 
@@ -419,11 +417,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
 
-    maximizeMedia(link){
-        //console.log(link)
-        //todo: Show link in native viewer window.open(this.toDataURL());
+    maximizeMedia(link) {
+        window.open(link);
     }
-
 
     /**
      * Sets filters for the thumbnail grid (does nothing because the thumbnail grid does not filter).

@@ -1,9 +1,9 @@
 {
     "datasets": [
         {
-            "name": "VERDI TA1",
+            "name": "MUGGSY",
             "connectOnLoad": true,
-            "layout": "verdi-ta1-layout",
+            "layout": "muggsy-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [{
@@ -35,45 +35,66 @@
         }
     ],
     "layouts": {
-        "verdi-ta1-layout": [{
-            "name": "Data Table",
-            "type": "dataTable",
-            "icon": "ViewData64",
-            "sizex": 24,
-            "sizey": 8,
-            "minPixelx": 320,
-            "minPixely": 240,
-            "minSizex": 2,
-            "minSizey": 2,
-            "$$hashKey": "object:31",
-            "selected": true,
-            "bindings": {
-                "title": "Document",
-                "database": "verdi-rdf",
-                "table": "normal",
-                "idField": "@id",
-                "sortField": "author",
-                "filterable": true,
-                "filterFields": ["@id"],
-                "allColumnStatus": "hide",
-                "exceptionsToStatus": [
-                    "@id",
-                    "author",
-                    "date",
-                    "docLocation",
-                    "title",
-                    "docType"
-                ]
+        "muggsy-layout": [
+            {
+                "name": "Filter Builder",
+                "type": "filterBuilder",
+                "icon": "CreateFilter64",
+                "sizex": 24,
+                "sizey": 2,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4,
+                "$$hashKey": "object:37",
+                "selected": true,
+                "bindings": {
+                    "title": "Filter Builder",
+                    "database": "verdi-rdf",
+                    "table": "reified"
+                },
+                "row": 0,
+                "col": 0
             },
-            "row": 0,
-            "col": 0
-        },
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "sizex": 12,
+                "sizey": 10,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2,
+                "$$hashKey": "object:31",
+                "selected": true,
+                "bindings": {
+                    "title": "Document",
+                    "database": "verdi-rdf",
+                    "table": "normal",
+                    "idField": "@id",
+                    "sortField": "author",
+                    "filterable": true,
+                    "filterFields": ["@id"],
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "@id",
+                        "author",
+                        "date",
+                        "docLocation",
+                        "title",
+                        "docType"
+                    ]
+                },
+                "row": 12,
+                "col": 0
+            },
             {
                 "name": "Thumbnail Grid",
                 "type": "thumbnailGrid",
                 "icon": "ThumbnailGrid",
-                "sizex": 24,
-                "sizey": 16,
+                "sizex": 12,
+                "sizey": 10,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -91,28 +112,94 @@
                     "nameField": "title",
                     "dateField": "date"
                 },
-                "row": 13,
-                "col": 0
+                "row": 12,
+                "col": 13
             },
             {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "sizex": 24,
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "sizex": 6,
                 "sizey": 4,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
                 "minSizey": 4,
-                "$$hashKey": "object:37",
+                "$$hashKey": "object:31",
                 "selected": true,
                 "bindings": {
-                    "title": "Filter Builder",
+                    "title": "Known Object Classes",
                     "database": "verdi-rdf",
-                    "table": "reified"
+                    "table": "reified",
+                    "sortField": "subject",
+                    "idField": "@id",
+                    "arrayFilterOperator": "or",
+                    "filterable": true,
+                    "filterFields": [
+                        "subject",
+                        "provenance"
+                    ],
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "subject"
+                    ]
                 },
-                "row": 22,
+                "row":22,
                 "col": 0
+            },
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "sizex": 6,
+                "sizey": 4,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4,
+                "$$hashKey": "object:31",
+                "bindings": {
+                    "title": "Know Objects",
+                    "database": "verdi-rdf",
+                    "table": "reified",
+                    "sortField": "predicate",
+                    "idField": "@id",
+                    "arrayFilterOperator": "or",
+                    "filterable": true,
+                    "filterFields": [
+                        "predicate",
+                        "provenance"
+                    ],
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "predicate"
+                    ]
+                },
+                "row": 17,
+                "col": 7
+            },
+            {
+                "name": "Timeline",
+                "type": "timeline",
+                "icon": "Timeline64",
+                "sizex": 12,
+                "sizey": 4,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 6,
+                "$$hashKey": "object:36",
+                "selected": true,
+                "bindings": {
+                    "title": "Normal Time",
+                    "database": "ll_nepal_ux_out",
+                    "table": "tweet",
+                    "dateField": "createdAt",
+                    "granularity": "hour"
+                },
+                "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
+                "row": 22,
+                "col": 13
             }
         ]
     }
