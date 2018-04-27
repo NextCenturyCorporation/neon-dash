@@ -120,6 +120,7 @@ export class BarChartOptions extends BaseNeonOptions {
     public scaleManually: boolean;
     public scaleMax: string;
     public scaleMin: string;
+    public sortAlphabetically: boolean;
     public type: string;
 
     /**
@@ -133,6 +134,7 @@ export class BarChartOptions extends BaseNeonOptions {
         this.scaleManually = this.injector.get('scaleManually', false);
         this.scaleMax = this.injector.get('scaleMax', '');
         this.scaleMin = this.injector.get('scaleMin', '');
+        this.sortAlphabetically = this.injector.get('sortAlphabetically', false);
         this.type = this.injector.get('chartType', 'bar');
     }
 
@@ -673,6 +675,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 query.aggregate(neonVariables.COUNT, '*', 'value');
         }
 
+        if (this.options.sortAlphabetically) {
+            return query.sortBy(this.options.dataField.columnName, neonVariables.ASCENDING);
+        }
         return query.sortBy('value', neonVariables.DESCENDING);
     }
 
