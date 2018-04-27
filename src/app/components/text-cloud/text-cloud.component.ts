@@ -47,6 +47,8 @@ export class TextCloudOptions extends BaseNeonOptions {
     public aggregation: string;
     public andFilters: boolean;
     public dataField: FieldMetaData;
+    public paragraphs: boolean;
+    public showCounts: boolean;
     public sizeField: FieldMetaData;
 
     /**
@@ -57,6 +59,8 @@ export class TextCloudOptions extends BaseNeonOptions {
     onInit() {
         this.aggregation = this.injector.get('sizeAggregation', 'AVG');
         this.andFilters = this.injector.get('andFilters', true);
+        this.paragraphs = this.injector.get('paragraphs', false);
+        this.showCounts = this.injector.get('showCounts', false);
     }
 
     /**
