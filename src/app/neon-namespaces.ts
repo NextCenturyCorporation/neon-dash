@@ -111,6 +111,10 @@ export namespace neonVisualizationMinPixel { // jshint ignore:line
 }
 
 export const neonVisualizations: any[] = [{
+    name: 'AnnotationViewer',
+    type: 'annotationViewer',
+    icon: 'DocumentViewer64'
+}, {
     name: 'Bar Chart',
     type: 'barChart',
     icon: 'BarChart64'
