@@ -47,6 +47,7 @@ export class TextCloudOptions extends BaseNeonOptions {
     public aggregation: string;
     public andFilters: boolean;
     public dataField: FieldMetaData;
+    public ignoreSelf: boolean;
     public paragraphs: boolean;
     public showCounts: boolean;
     public sizeField: FieldMetaData;
@@ -59,6 +60,7 @@ export class TextCloudOptions extends BaseNeonOptions {
     onInit() {
         this.aggregation = this.injector.get('sizeAggregation', 'AVG');
         this.andFilters = this.injector.get('andFilters', true);
+        this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.paragraphs = this.injector.get('paragraphs', false);
         this.showCounts = this.injector.get('showCounts', false);
     }
@@ -149,6 +151,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.dataField = this.options.dataField.columnName;
         bindings.sizeField = this.options.sizeField.columnName;
         bindings.sizeAggregation = this.options.aggregation;
+        bindings.andFilters = this.options.andFilters;
+        bindings.ignoreSelf = this.options.ignoreSelf;
+        bindings.paragraphs = this.options.paragraphs;
+        bindings.showCounts = this.options.showCounts;
     }
 
     getExportFields() {
@@ -230,8 +236,27 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
+    /**
+     * Returns the list of filters for the visualization to ignore.
+     *
+     * @return {any[]}
+     * @override
+     */
     getFiltersToIgnore() {
-        return null;
+        if (!this.options.ignoreSelf) {
+            return null;
+        }
+
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+            [this.options.dataField.columnName]);
+
+        let ignoredFilterIds = neonFilters.filter((neonFilter) => {
+            return !neonFilter.filter.whereClause.whereClauses;
+        }).map((neonFilter) => {
+            return neonFilter.id;
+        });
+
+        return ignoredFilterIds.length ? ignoredFilterIds : null;
     }
 
     getTermsCount() {
@@ -293,8 +318,10 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         }
     }
 
-    isFilterSet(): boolean {
-        return this.filters.length > 0;
+    isFiltered(text: string): boolean {
+        return this.filters.some((filter) => {
+            return filter.value === text;
+        });
     }
 
     onClick(item) {
@@ -331,7 +358,7 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      * @override
      */
     getButtonText() {
-        if (!this.isFilterSet() && !this.termsCount) {
+        if (!this.filters.length && !this.termsCount) {
             return 'No Data';
         }
         if (this.termsCount <= this.activeData.length) {

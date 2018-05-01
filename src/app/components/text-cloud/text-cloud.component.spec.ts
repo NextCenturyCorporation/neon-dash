@@ -476,7 +476,6 @@ describe('Component: TextCloud', () => {
         component.options.table.name = 'testTable';
         component.options.dataField = new FieldMetaData('testDataField');
         component.setupFilters();
-        expect(component.isFilterSet()).toBeFalsy();
 
         let filterService = fixture.componentRef.injector.get(FilterService);
         filterService.getFiltersForFields = (database, table, fields): any[] => {
@@ -500,33 +499,6 @@ describe('Component: TextCloud', () => {
         };
 
         component.setupFilters();
-        expect(component.isFilterSet()).toBeTruthy();
-    });
-
-    it('has an isFilterSet method that properly checks for local filters', () => {
-        let filter1 = {
-            id: '1q2w-3e4r-5t6y-7u8i',
-            field: 'testDataField',
-            value: 'testValue',
-            translated: '',
-            prettyField: 'testDataField'
-        };
-        let filter2 = {
-            id: '0p9o-8i7u-6y5t-4r3e',
-            field: 'testDataField',
-            value: 'testValueTheSecond',
-            translated: '',
-            prettyField: 'testDataField'
-        };
-        expect(component.isFilterSet()).toBeFalsy();
-        component.addLocalFilter(filter1);
-        expect(component.isFilterSet()).toBeTruthy();
-        component.addLocalFilter(filter2);
-        expect(component.isFilterSet()).toBeTruthy();
-        component.removeFilter(filter1);
-        expect(component.isFilterSet()).toBeTruthy();
-        component.removeFilter(filter2);
-        expect(component.isFilterSet()).toBeFalsy();
     });
 
     it('has an onClick method that properly sets local and remote filters', () => {
@@ -540,14 +512,12 @@ describe('Component: TextCloud', () => {
         };
 
         expect(filterService.getFilters().length).toBe(0);
-        expect(component.isFilterSet()).toBeFalsy();
 
         component.onClick({
             key: 'testValue'
         });
 
         expect(serviceAddFilterHasBeenCalled).toBeTruthy();
-        expect(component.isFilterSet()).toBeTruthy();
         expect(component.getCloseableFilters()[0]).toEqual({
             id: undefined,
             field: 'testDataField',

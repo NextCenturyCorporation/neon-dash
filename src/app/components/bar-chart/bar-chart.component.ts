@@ -117,6 +117,7 @@ export class BarChartOptions extends BaseNeonOptions {
     public andFilters: boolean;
     public colorField: FieldMetaData;
     public dataField: FieldMetaData;
+    public ignoreSelf: boolean;
     public scaleManually: boolean;
     public scaleMax: string;
     public scaleMin: string;
@@ -131,6 +132,7 @@ export class BarChartOptions extends BaseNeonOptions {
     onInit() {
         this.aggregation = this.injector.get('aggregation', 'count');
         this.andFilters = this.injector.get('andFilters', true);
+        this.ignoreSelf = this.injector.get('ignoreSelf', true);
         this.scaleManually = this.injector.get('scaleManually', false);
         this.scaleMax = this.injector.get('scaleMax', '');
         this.scaleMin = this.injector.get('scaleMin', '');
@@ -440,6 +442,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         bindings.dataField = this.options.dataField.columnName;
         bindings.aggregation = this.options.aggregation;
         bindings.aggregationField = this.options.aggregationField.columnName;
+        bindings.andFilters = this.options.andFilters;
+        bindings.ignoreSelf = this.options.ignoreSelf;
     }
 
     /**
@@ -682,21 +686,25 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns the list of filters for the bar chart to ignore.
+     * Returns the list of filters for the visualization to ignore.
      *
-     * @return {any}
+     * @return {any[]}
      * @override
      */
     getFiltersToIgnore() {
-        // get relevant neon filters and check for filters that should be ignored and add that to query
+        if (!this.options.ignoreSelf) {
+            return null;
+        }
+
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             [this.options.dataField.columnName]);
-        let ignoredFilterIds = [];
-        for (let neonFilter of neonFilters) {
-            if (!neonFilter.filter.whereClause.whereClauses) {
-                ignoredFilterIds.push(neonFilter.id);
-            }
-        }
+
+        let ignoredFilterIds = neonFilters.filter((neonFilter) => {
+            return !neonFilter.filter.whereClause.whereClauses;
+        }).map((neonFilter) => {
+            return neonFilter.id;
+        });
+
         return ignoredFilterIds.length ? ignoredFilterIds : null;
     }
 
