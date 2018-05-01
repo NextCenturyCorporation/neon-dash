@@ -119,7 +119,7 @@
                 </div>
 
                 <mat-form-field>
-                    <mat-select placeholder="Map Type" [ngModel]="mapType" (ngModelChange)="handleChangeMapType($event)">
+                    <mat-select placeholder="Map Type" [ngModel]="options.type" (ngModelChange)="handleChangeMapType($event)">
                         <mat-option *ngFor="let type of mapTypes" [value]="type.value">{{ type.name }}</mat-option>
                     </mat-select>
                 </mat-form-field>

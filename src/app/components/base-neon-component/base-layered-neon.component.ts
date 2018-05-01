@@ -266,7 +266,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         protected filterService: FilterService,
         protected exportService: ExportService,
         protected injector: Injector,
-        protected themesService: ThemesService,
+        public themesService: ThemesService,
         public changeDetection: ChangeDetectorRef,
         protected visualizationService: VisualizationService
     ) {
