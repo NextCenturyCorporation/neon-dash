@@ -130,8 +130,8 @@
         <a (click)="onClick(item)" class="text" [class.paragraphs]="options.paragraphs" *ngFor="let item of activeData"
             [matTooltip]="'Count: ' + item.value" tooltip-position="below" [rel]="item.value"
             [ngStyle]="{'color': item.color, 'font-size': item.fontSize}">
-            <span>{{ item.key }}</span>
-            <span *ngIf="options.showCounts">({{ item.value }})</span>
+            <span [class.filter]="isFiltered(item.key)">{{ item.key }}</span>
+            <span [class.filter]="isFiltered(item.key)" *ngIf="options.showCounts">({{ item.value }})</span>
         </a>
     </div>
 </mat-sidenav-container>
