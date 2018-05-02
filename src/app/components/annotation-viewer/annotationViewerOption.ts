@@ -18,9 +18,9 @@ import { FieldMetaData } from '../../dataset';
 
 export class Annotation {
     annotationLabel: string;
-    startCharacterField: string;
-    endCharacterField: string;
-    textField: FieldMetaData;
+    startCharacterField: number;
+    endCharacterField: number;
+    textField: String;
     typeField: FieldMetaData;
 }
 
