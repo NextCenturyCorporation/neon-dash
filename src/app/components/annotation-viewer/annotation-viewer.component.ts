@@ -40,6 +40,7 @@ import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { Annotation, AnnotationViewerOptions } from './annotationViewerOption';
 import { ANNOTATIONS } from '@angular/core/src/util/decorators';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'app-annotation-viewer',
@@ -91,6 +92,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     constructor(
         activeGridService: ActiveGridService,
+        colorService: ColorSchemeService,
         connectionService: ConnectionService,
         datasetService: DatasetService,
         filterService: FilterService,
@@ -117,13 +119,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
         this.options = {
             documentTextField: this.injector.get('documentTextField', new FieldMetaData()),
-            annotations: [{
-                annotationLabel: '',
-                startCharacterField: '',
-                endCharacterField: '',
-                textField: new FieldMetaData(),
-                typeField: new FieldMetaData()
-            }],
+            annotations: [new Annotation()],
             anootationsInAnotherTable: false,
             annotationDatabase: new FieldMetaData(),
             annotationTable: new FieldMetaData(),
@@ -152,6 +148,17 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             let whereClause = neon.query.where(filter.field, '=', filter.value);
             this.addNeonFilter(true, filter, whereClause);
         }
+    }
+
+    createEmptyAnnotation() {
+        this.options.annotations = [];
+        this.options.annotations = [{
+                annotationLabel: '',
+                startCharacterField: 0,
+                endCharacterField: 0,
+                textField: '',
+                typeField: new FieldMetaData()
+        }];
     }
 
     filterIsUnique(filter) {
@@ -221,6 +228,12 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             });
         }
         return document;*/
+    }
+
+    findFieldInFieldList(fieldName, fieldList) {
+        return _.find(fieldList, function(field) {
+            return field.columnName === fieldName;
+        }) || new FieldMetaData();
     }
 
     /**

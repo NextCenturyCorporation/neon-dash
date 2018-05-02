@@ -23,7 +23,7 @@
                     <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
                         <span>{{ meta.errorMessage }}</span>
-                    </label>ll
+                    </label>
                     <p></p>
                 </div>
 
@@ -115,19 +115,13 @@
         <mat-list class="annotation-viewer-list-container body-container" [class.with-footer]="options.docCount > meta.limit">
             <div class="mat-list-item-text annotation-viewer-list-item" layout="column">
                 <!-- TODO Do not use <table> elements!  Use flex styling! -->
-                <table class="annotation-viewer-table">
+                <ul class="annotation-viewer-table">
                     <ng-template ngFor let-item [ngForOf]="activeData">
-                        <tr class="document-row" (click)="onClick(item)">
-                            <td>{{ item }}</td>
-                        </tr>
-                        <tr>
-                            <td class="annotation-viewer-button-cell" colspan="100%">
-
-                                <hr/>
-                            </td>
-                        </tr>
+                        <li class="document-row" (click)="onClick(item)">
+                            {{ item }}
+                        </li>
                     </ng-template>
-                </table>
+                </ul>
             </div>
         </mat-list>
     </div>

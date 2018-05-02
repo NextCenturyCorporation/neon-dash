@@ -2395,7 +2395,18 @@
                     "title": "Annotation Viewer",
                     "database": "haiti_4",
                     "table": "ui_output",
-                    "documentTextField": "originalText"
+                    "documentTextField": "originalText",
+                    "annotationViewerOptions": 
+                        {
+                            "annotations": [{
+                                "annotationLabel": "Jacmel",
+                                "startCharacterField": 0,
+                                "endCharacterField": 5,
+                                "textField": "Jacmel",
+                                "typeField": "LOC"
+                            }]
+                        }
+                    
                 },
                 "row": 0,
                 "col": 0
