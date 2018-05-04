@@ -75,7 +75,6 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
             database.tables = customDatabase.customTables.map((customTable) => customTable.table);
             return database;
         });
-        // Actually make the dataset. I'll handle this in a bit.
     }
 
     validateDatasetName(): void {

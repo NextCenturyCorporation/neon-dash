@@ -13,47 +13,50 @@
  * limitations under the License.
  *
  */
-import { Component, QueryList, ViewChildren, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
-import { ConnectionService } from '../../services/connection.service';
+import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
+import { ActiveGridService } from '../../services/active-grid.service';
+import { DatasetService } from '../../services/dataset.service';
 import { Dataset } from '../../dataset';
 import { MatDialogRef } from '@angular/material';
 
 import { CustomConnectionStep } from './custom-connection-step';
 import { CustomConnectionData } from './custom-connection-data';
 
+import * as neon from 'neon-framework';
+
 @Component({
     selector: 'app-custom-connection',
     templateUrl: 'custom-connection.component.html',
     styleUrls: ['custom-connection.component.scss']
 })
-export class CustomConnectionComponent implements OnInit, AfterViewInit, OnDestroy {
+export class CustomConnectionComponent implements AfterViewInit {
     public data: CustomConnectionData = new CustomConnectionData();
     public dialogRef: MatDialogRef<CustomConnectionComponent>;
+    @Output() datasetCreated: EventEmitter<any> = new EventEmitter<any>();
+
+    private datasetService: DatasetService;
+    private activeGridService: ActiveGridService;
+    private messenger: neon.eventing.Messenger;
 
     @ViewChildren('step') private stepQueryList: QueryList<CustomConnectionStep>;
     private steps: CustomConnectionStep[];
-    currentStep: CustomConnectionStep;
+    private currentStep: CustomConnectionStep;
     private currentStepIndex: number;
 
-    constructor(dialogRef: MatDialogRef<CustomConnectionComponent>) {
+    constructor(activeGridService: ActiveGridService, datasetService: DatasetService, dialogRef: MatDialogRef<CustomConnectionComponent>) {
         this.dialogRef = dialogRef;
+        this.activeGridService = activeGridService;
+        this.datasetService = datasetService;
+        this.messenger = new neon.eventing.Messenger();
+
         this.steps = [];
         this.currentStepIndex = 0;
-    }
-
-    ngOnInit() {
-        // Do nothing.
     }
 
     ngAfterViewInit() {
         this.steps = this.stepQueryList.toArray();
         this.steps.sort((a, b) => a.stepNumber - b.stepNumber);
         this.currentStep = this.steps[0];
-        //this.updateStepVisibility();
-    }
-
-    ngOnDestroy() {
-        // Do nothing.
     }
 
     previousStep() {
@@ -63,11 +66,26 @@ export class CustomConnectionComponent implements OnInit, AfterViewInit, OnDestr
     }
 
     nextStep() {
-        this.dialogRef.close();
         this.steps[this.currentStepIndex].onComplete();
-        this.currentStepIndex += 1;
-        this.currentStep = this.steps[this.currentStepIndex];
-        this.updateStepVisibility();
+        if (this.currentStepIndex >= this.steps.length - 1) {
+            this.createDataset();
+        } else {
+            this.currentStepIndex += 1;
+            this.currentStep = this.steps[this.currentStepIndex];
+            this.updateStepVisibility();
+        }
+    }
+
+    createDataset() {
+        let dataset = new Dataset(this.data.datasetName, this.data.datastoreType, this.data.datastoreHost);
+        dataset.databases = this.data.selectedDatabases;
+        this.datasetService.addDataset(dataset);
+        this.datasetService.setActiveDataset(dataset);
+
+        this.messenger.clearFiltersSilently();
+        this.activeGridService.clear();
+        this.datasetCreated.emit(dataset);
+        this.dialogRef.close();
     }
 
     validateStep() {
