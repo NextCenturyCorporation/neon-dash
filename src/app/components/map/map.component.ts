@@ -112,7 +112,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
     public disabledSet: [string[]] = [] as [string[]];
     protected defaultActiveColor: Color;
-    protected mapType: MapType | string;
+    public mapType: MapType | string;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -932,31 +932,41 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     mouseWheelUp(_event) {
         if (_event.ctrlKey || _event.metaKey && !this.active.disableCtrlZoom && (this.mapType === 'Leaflet')) {
             this.mapObject.zoomIn();
+        } else {
+            this.overlayOn(_event);
         }
-        this.overlayOn(_event);
     }
-
     mouseWheelDown(_event) {
         if (_event.ctrlKey || _event.metaKey && !this.active.disableCtrlZoom && (this.mapType === 'Leaflet')) {
             this.mapObject.zoomOut();
+        } else {
+            this.overlayOn(_event);
         }
-        this.overlayOn(_event);
     }
 
     overlayOn(_event) {
-        if (!(_event.ctrlKey || _event.metaKey) && !this.active.disableCtrlZoom && (this.mapType === 'Leaflet')) {
-            document.getElementById('overlay').style.zIndex = '1000';
-        }
+        document.getElementById('text').style.zIndex = '1000';
+
+        setTimeout(() => {
+            this.overlayOff(_event);
+        },
+            2000);
     }
 
     overlayOff(_event) {
-        document.getElementById('overlay').style.zIndex = '-1';
+        document.getElementById('text').style.zIndex = '-1';
     }
 
     getOverlayText() {
         let overlayText;
-        //TODO display ctrl or CMD based on operating system
-        overlayText = 'Use ctrl + scroll wheel to zoom';
+        let operatingSystem = navigator.platform;
+
+        if (operatingSystem.includes('Mac') || operatingSystem.includes('mac')) {
+            overlayText = 'Use ⌘ + scroll wheel to zoom';
+        } else {
+            overlayText = 'Use ctrl + scroll wheel to zoom';
+        }
+
         return overlayText;
     }
 }

@@ -125,7 +125,7 @@
     padding: 2px;
 }
 
- ::ng-deep datatable-body-cell[ng-reflect-is-selected="true"] {
+/deep/ .datatable-body-row.active .datatable-row-group {
    background: mat-color($primary);
    color: mat-color($white);
  }
