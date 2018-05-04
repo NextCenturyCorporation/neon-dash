@@ -24,8 +24,7 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import { DomSanitizer, SafeHtml, SafeResourceUrl } from '@angular/platform-browser';
-import { Http } from '@angular/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -39,7 +38,7 @@ import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
 /**
- * A visualization that shows the content of a wikipedia page triggered through a select_id event.
+ * A visualization that displays binary and text files triggered through a select_id event.
  */
 @Component({
     selector: 'app-media-viewer',
@@ -49,7 +48,6 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    static WIKI_LINK_PREFIX: string = 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=';
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
@@ -60,57 +58,40 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         id: string,
         idField: FieldMetaData,
         linkField: FieldMetaData,
-        textColor: string,
-        wikiName: string[],
-        wikiText: SafeHtml[],
+        typeField: FieldMetaData,
+        documentArray: string[],
+        documentType: string,
         url: SafeResourceUrl
     };
 
-    private optionsFromConfig: {
-        database: string,
-        id: string,
-        idField: string,
-        linkField: string,
-        table: string,
-        title: string,
-        url: string
-    };
-
-    isLoadingWikiPage: boolean;
+    isLoadingMedia: boolean;
+    showMedia: boolean = false;
+    previousId: string;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        ref: ChangeDetectorRef, visualizationService: VisualizationService, private http: Http, private sanitizer: DomSanitizer) {
+        ref: ChangeDetectorRef, visualizationService: VisualizationService, private sanitizer: DomSanitizer) {
 
         super(activeGridService, connectionService, datasetService,
             filterService, exportService, injector, themesService, ref, visualizationService);
-        this.optionsFromConfig = {
-            database: this.injector.get('database', null),
-            id: this.injector.get('id', null),
-            idField: this.injector.get('idField', null),
-            linkField: this.injector.get('linkField', null),
-            table: this.injector.get('table', null),
-            title: this.injector.get('title', null),
-            url: this.injector.get('url', null)
-        };
 
         this.active = {
             allowsTranslations: true,
-            id: this.optionsFromConfig.id || '',
+            id: this.injector.get('id', ''),
             idField: new FieldMetaData(),
             linkField: new FieldMetaData(),
-            textColor: '#111',
-            wikiName: [],
-            wikiText: [],
-            url: this.optionsFromConfig.url ? sanitizer.bypassSecurityTrustResourceUrl(this.optionsFromConfig.url) : ''
-    };
+            typeField: new FieldMetaData(),
+            documentArray: [],
+            documentType: '',
+            url: this.injector.get('url', '')
+        };
 
-        this.isLoadingWikiPage = false;
+        this.isLoadingMedia = false;
         this.subscribeToSelectId(this.getSelectIdCallback());
     }
 
     /**
-     * Creates and returns the query for the wiki viewer.
+     * Creates and returns the query for the media viewer.
      *
      * @return {neon.query.Query}
      * @override
@@ -118,7 +99,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     createQuery(): neon.query.Query {
         let query = new neon.query.Query()
             .selectFrom(this.meta.database.name, this.meta.table.name)
-            .withFields([this.active.linkField.columnName]);
+            .withFields([this.active.linkField.columnName, this.active.typeField.columnName, this.active.idField.columnName]);
 
         let whereClauses = [
             neon.query.where(this.active.idField.columnName, '=', this.active.id),
@@ -135,12 +116,12 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     getButtonText() {
-        if (!this.active.wikiName.length && !this.active.url) {
+        if ((!this.active.documentArray.length && !this.active.url) || !this.showMedia) {
             return 'No Data';
         } else if (this.active.url) {
             return '';
         }
-        return 'Total ' + super.prettifyInteger(this.active.wikiName.length);
+        return 'Total Files ' + super.prettifyInteger(this.active.documentArray.length);
     }
 
     /**
@@ -158,7 +139,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the wiki viewer export fields.
+     * Returns the media viewer export fields.
      *
      * @return {array}
      * @override
@@ -174,7 +155,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the list of filters for the wiki viewer to ignore (null for no filters).
+     * Returns the list filters for the media viewer to ignore (null for no filters).
      *
      * @return {null}
      * @override
@@ -195,10 +176,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the list of filter objects (null for no filters).
      *
-     * @return {null}
-     * @override
      */
     getCloseableFilters(): any[] {
         return null;
@@ -214,7 +192,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         return (message) => {
             if (message.database === this.meta.database.name && message.table === this.meta.table.name) {
                 this.active.id = Array.isArray(message.id) ? message.id[0] : message.id;
-                this.executeQueryChain();
+                this.showMedia = true;
+                this.previousId = '';
             }
         };
     }
@@ -227,47 +206,57 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @return {string}
      * @private
      */
-    private getTabLabel(names, index) { //TODO: fix duplicate tab issue
+    getTabLabel(names, index) {
         return names && names.length > index ? names[index] : '';
     }
 
     /**
-     * Returns the name for the wiki viewer.
+     * Returns the name for the media viewer.
      *
      * @return {string}
      * @override
      */
     getVisualizationName(): string {
-        return 'Wiki Viewer';
+        return 'Media Viewer';
     }
 
     /**
-     * Returns whether the wiki viewer query using the active data config is valid.
+     * Returns whether the media viewer query using the active data config is valid.
      *
      * @return {boolean}
      * @override
      */
     isValidQuery(): boolean {
         return !!(this.meta.database && this.meta.database.name && this.meta.table && this.meta.table.name && this.active.id &&
-            this.active.idField && this.active.idField.columnName && this.active.linkField && this.active.linkField.columnName);
+            this.active.idField && this.active.idField.columnName && this.active.linkField && this.active.linkField.columnName &&
+            this.active.typeField && this.active.typeField.columnName);
     }
 
     /**
-     * Handles the wiki viewer query results.
+     * Handles the media viewer query results and show/hide event for selecting/filtering and unfiltering documents.
      *
      * @arg {object} response
      * @override
      */
     onQuerySuccess(response: any) {
-        this.active.wikiName = [];
-        this.active.wikiText = [];
+        this.active.documentArray = [];
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.meta.errorMessage = '';
-                this.isLoadingWikiPage = true;
+                this.active.documentType = neonUtilities.deepFind(response.data[0], this.active.typeField.columnName);
+                this.isLoadingMedia = true;
                 let links = neonUtilities.deepFind(response.data[0], this.active.linkField.columnName);
-                this.retrieveWikiPage(Array.isArray(links) ? links : [links]);
+                this.retreiveMedia(Array.isArray(links) ?
+                    links : links.toString().search(/,/g) > -1 ?
+                    links.toString().split(',') : [links]);
+
+                if (this.previousId !== this.active.id) {
+                    this.previousId = this.active.id;
+                } else {
+                    this.showMedia = false;
+                }
+
             } else {
                 this.meta.errorMessage = 'No Data';
                 this.refreshVisualization();
@@ -279,17 +268,18 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Updates the fields for the wiki viewer.
+     * Updates the fields for the media viewer.
      *
      * @override
      */
     onUpdateFields() {
         this.active.idField = this.findFieldObject('idField');
         this.active.linkField = this.findFieldObject('linkField');
+        this.active.typeField = this.findFieldObject('typeField');
     }
 
     /**
-     * Initializes the wiki viewer by running its query.
+     * Initializes the media viewer by running its query.
      *
      * @override
      */
@@ -298,7 +288,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Refreshes the wiki viewer.
+     * Refreshes the media viewer.
      *
      * @override
      */
@@ -307,7 +297,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Removes the given filter from the wiki viewer (does nothing because the wiki viewer does not filter).
+     * Removes the given filter from the media viewer (does nothing because the media viewer does not filter).
      *
      * @arg {object} filter
      * @override
@@ -317,37 +307,24 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Retrieves the wiki pages recursively using the given array of links.  Refreshes the visualization once finished.
+     * Retrieves the media pages recursively using the given array of links.  Refreshes the visualization once finished.
      *
      * @arg {array} links
      * @private
      */
-    private retrieveWikiPage(links) {
+    private retreiveMedia(links) {
         if (!links.length) {
-            this.isLoadingWikiPage = false;
+            this.isLoadingMedia = false;
             this.refreshVisualization();
             return;
         }
 
-        this.http.get (MediaViewerComponent.WIKI_LINK_PREFIX + links[0]).toPromise().then((wikiResponse) => {
-            let responseObject = JSON.parse(wikiResponse.text());
-            if (responseObject.error) {
-                this.active.wikiName.push(links[0]);
-                this.active.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(responseObject.error.info));
-            } else {
-                this.active.wikiName.push(responseObject.parse.title);
-                this.active.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(responseObject.parse.text['*']));
-            }
-            this.retrieveWikiPage(links.slice(1));
-        }).catch((error) => {
-            this.active.wikiName.push(links[0]);
-            this.active.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(error));
-            this.retrieveWikiPage(links.slice(1));
-        });
+        this.active.documentArray.push(links[0]);
+        this.retreiveMedia(links.slice(1));
     }
 
     /**
-     * Sets filters for the wiki viewer (does nothing because the wiki viewer does not filter).
+     * Sets filters for the media viewer (does nothing because the media viewer does not filter).
      *
      * @override
      */
@@ -356,7 +333,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Sets the given bindings for the wiki viewer.
+     * Sets the given bindings for the media viewer.
      *
      * @arg {any} bindings
      * @override
@@ -367,7 +344,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Destroys any wiki viewer sub-components if needed.
+     * Destroys any media viewer sub-components if needed.
      *
      * @override
      */
@@ -376,7 +353,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Initializes any wiki viewer sub-components if needed.
+     * Initializes any media viewer sub-components if needed.
      *
      * @override
      */
@@ -384,7 +361,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         // Do nothing.
     }
 
-    sanitize(text) {
-        return this.sanitizer.bypassSecurityTrustHtml(text);
+    sanitize(url) {
+        return this.sanitizer.bypassSecurityTrustResourceUrl(url);
     }
 }
