@@ -149,9 +149,23 @@
 
     <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="docCount > options.limit">
         <div class="table-container">
-            <ngx-datatable #table class="material table" [rows]="activeData" [columnMode]="'force'" [columns]="activeHeaders" [headerHeight]="30" [footerHeight]="0"
-                [rowHeight]="25" [scrollbarH]="true" [scrollbarV]="true" [reorderable]="false" [selected]="selected" [selectionType]="'multi'" (resize)="onTableResize($event)" (select)="onSelect($event)">
+            <ngx-datatable #table class="material table" [class.skinny]="this.options.skinny"
+                [rows]="activeData"
+                [columnMode]="'force'"
+                [columns]="activeHeaders"
+                [headerHeight]="getTableHeaderHeight()"
+                [footerHeight]="0"
+                [rowClass]="getRowClassFunction()"
+                [rowHeight]="getTableRowHeight()"
+                [scrollbarH]="true"
+                [scrollbarV]="true"
+                [reorderable]="false"
+                [selected]="selected"
+                [selectionType]="'multi'"
+                (resize)="onTableResize($event)"
+                (select)="onSelect($event)">
             </ngx-datatable>
+
             <div *ngIf="showColumnSelector=='show'" class="column-selector">
                 <div class="column-selector-header"><span> Columns </span>
                     <button mat-icon-button class="column-selector-close" aria-label="Close" matTooltip="Close" tooltip-position="below" (click)="closeColumnSelector()">

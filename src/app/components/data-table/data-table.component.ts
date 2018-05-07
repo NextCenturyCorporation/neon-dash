@@ -49,6 +49,7 @@ export class DataTableOptions extends BaseNeonOptions {
     public filterable: boolean;
     public filterFields: FieldMetaData[];
     public idField: FieldMetaData;
+    public skinny: boolean;
     public sortField: FieldMetaData;
 
     /**
@@ -62,6 +63,7 @@ export class DataTableOptions extends BaseNeonOptions {
         this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
         this.fieldsConfig = this.injector.get('fieldsConfig', []);
         this.filterable = this.injector.get('filterable', false);
+        this.skinny = this.injector.get('skinny', false);
     }
 
     /**
@@ -366,7 +368,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getFilterText(filter) {
-        return filter.prettyKey + ' = ' + filter.value;
+        return filter.prettyField + ' = ' + filter.value;
     }
 
     refreshVisualization() {
@@ -660,24 +662,24 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                             this.addFilter(arrayFilter, whereClause);
                         });
                     } else {
-                        let clauses = value.map((element) => neon.query.where(filter.key, '=', element));
+                        let clauses = value.map((element) => neon.query.where(filter.field, '=', element));
                         let clause = neon.query.or.apply(neon.query, clauses);
                         this.addFilter(filter, clause);
                     }
                 } else {
-                    let clause = neon.query.where(filter.key, '=', filter.value);
+                    let clause = neon.query.where(filter.field, '=', filter.value);
                     this.addFilter(filter, clause);
                 }
             });
         }
     }
 
-    createFilterObject(key, value, prettyKey): any {
+    createFilterObject(field: string, value: string, prettyField: string): any {
         let filter = {
             id: undefined, // This will be set in the success callback of addNeonFilter.
-            key: key,
+            field: field,
             value: value,
-            prettyKey: prettyKey
+            prettyField: prettyField
         };
         return filter;
     }
@@ -738,5 +740,28 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getOptions(): BaseNeonOptions {
         return this.options;
+    }
+
+    getRowClassFunction() {
+        let self = this;
+        return function(row) {
+            let active = self.options.filterFields.some((filterField: any) => {
+                return self.filters.some((filter) => {
+                    return filterField.columnName && filterField.columnName === filter.field && row[filterField.columnName] === filter.value;
+                });
+            });
+
+            return {
+                active: active
+            };
+        };
+    }
+
+    getTableHeaderHeight() {
+        return this.options.skinny ? 20 : 30;
+    }
+
+    getTableRowHeight() {
+        return this.options.skinny ? 20 : 25;
     }
 }
