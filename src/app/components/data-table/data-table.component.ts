@@ -94,6 +94,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     @ViewChild('dragView') dragView: ElementRef;
 
     private DEFAULT_COLUMN_WIDTH: number = 150;
+    private MINIMUM_COLUMN_WIDTH: number = 100;
 
     public filters: {
         id: string,
@@ -273,15 +274,18 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let tableWidth = this.activeHeaders.reduce((sum, header: any) => {
             return sum + (this.headerWidths.get(header.prop) || 0);
         }, 0);
+
         // Subtract 30 to adjust for the margins and the scrollbar.
         let visualizationWidth = refs.visualization.nativeElement.clientWidth - 30;
-        if (visualizationWidth < tableWidth) {
+
+        // If the table is bigger than the visualization and the minimum table width (based on the number of columns and the minimum column
+        // width) is not bigger than the visualization, reduce the width of the columns to try to fit the table inside the visualization.
+        if ((visualizationWidth < tableWidth) && (visualizationWidth > this.activeHeaders.length * this.MINIMUM_COLUMN_WIDTH)) {
             // Start with the last column and work backward.
             for (let i = this.activeHeaders.length - 1; i >= 0; --i) {
                 let header: any = this.activeHeaders[i];
                 let oldHeaderWidth = this.headerWidths.get(header.prop) || 0;
-                // Minimum header size is 100.
-                let newHeaderWidth = Math.max(oldHeaderWidth - (tableWidth - visualizationWidth), 100);
+                let newHeaderWidth = Math.max(oldHeaderWidth - (tableWidth - visualizationWidth), this.MINIMUM_COLUMN_WIDTH);
                 this.headerWidths.set(header.prop, newHeaderWidth);
                 tableWidth = tableWidth - oldHeaderWidth + newHeaderWidth;
                 // Only shrink headers until the table fits inside the visualization.
@@ -747,7 +751,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return function(row) {
             let active = self.options.filterFields.some((filterField: any) => {
                 return self.filters.some((filter) => {
-                    return filterField.columnName && filterField.columnName === filter.field && row[filterField.columnName] === filter.value;
+                    return filterField.columnName && filterField.columnName === filter.field &&
+                        row[filterField.columnName] === filter.value;
                 });
             });
 
