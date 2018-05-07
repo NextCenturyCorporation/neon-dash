@@ -38,7 +38,7 @@ import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 import { FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import { Annotation, AnnotationViewerOptions } from './annotationViewerOption';
+import { Annotation, AnnotationFields, AnnotationViewerOptions, Data } from './annotationViewerOption';
 import { ANNOTATIONS } from '@angular/core/src/util/decorators';
 import * as _ from 'lodash';
 
@@ -123,24 +123,23 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             anootationsInAnotherTable: false,
             annotationDatabase: new FieldMetaData(),
             annotationTable: new FieldMetaData(),
-            annotationFields: [],
+            annotationFields: new AnnotationFields(),
             docCount: 0,
             documentIdFieldInAnnotationTable: {},
             documentIdFieldInDocumentTable: {},
             documentLimit: 50,
-            documents: [],
-            details: [],
+            data: [new Data()],
+            details: new FieldMetaData(),
             annotationViewerRequiredField: new FieldMetaData(),
             annotationViewerOptionalField: new FieldMetaData()
         };
-
     }
 
     onClick(item) {
         let filter = {
             id: undefined, // This will be set in the success callback of addNeonFilter.
             field: this.options.documentTextField.columnName,
-            value: item,
+            value: item.documents,
             prettyField: this.options.documentTextField.prettyName
         };
         if (this.filterIsUnique(filter)) {
@@ -153,11 +152,11 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     createEmptyAnnotation() {
         this.options.annotations = [];
         this.options.annotations = [{
-                annotationLabel: '',
-                startCharacterField: 0,
-                endCharacterField: 0,
-                textField: '',
-                typeField: new FieldMetaData()
+            annotationLabel: '',
+            startCharacterField: 0,
+            endCharacterField: 0,
+            textField: '',
+            typeField: ''
         }];
     }
 
@@ -179,15 +178,15 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * Returns the list of valid annotation definitions for this visualization.
      * @method getValidAnnotations
      * @return {Array}
-     * @private
+     * @private m
      */
     getValidAnnotations() {
-        //return this.options.filter( function
+        //
     }
 
     getValidDetails() {
-        return this.options.details.filter(function(detail) {
-            return this.isFieldValid(detail.field);
+        return this.options.data.filter(function(detail) {
+            return this.isFieldValid(detail.details);
         });
     }
 
@@ -477,6 +476,10 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = this.createClause();
 
+        let annotations = this.getValidAnnotations();
+
+        //console.log(filterWhereClauses);
+
         return query.where(whereClause);
     }
 
@@ -524,6 +527,16 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         return clauses.length > 1 ? neon.query.and.apply(neon.query, clauses) : clauses[0];
     }
 
+    addToAnnotationQuery(query, unsharedFilterWhereClause) {
+        let annotations = this.getValidAnnotations();
+        /*
+        let filterWhereClauses = this.options.annotations.map(function(annotation) {
+            return neon.query.and(neon.query.where(annotation.startCharacterField.columnName, '!=', null),
+                neon.query.where(annotation.endCharacterField.columnName, '!=', null));
+        });*/
+        //
+    }
+
     /**
      * Adds a filter for the given item both in neon and for the visualization or replaces all the existing filters if replaceAll is true.
      *
@@ -568,8 +581,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @override
      */
     getButtonText(): string {
-        if (this.options.documents.length) {
-            return 'Total ' + this.options.documents.length;
+        if (this.options.data.length) {
+            return 'Total ' + this.options.data.length;
         }
         if (!this.responseData.length || !this.activeData.length) {
             return 'No Data';
@@ -746,6 +759,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @override
      */
     onQuerySuccess(response: any) {
+        //console.log(response);
 
         // TODO Remove this part if you don't need a document count query.
         // Check for undefined because the count may be zero.
@@ -786,9 +800,21 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     updateDocuemnts(response) {
-        this.options.documents = [];
+
+        this.options.data = [];
         for (let document of response.data) {
-            this.options.documents.push(document[this.options.documentTextField.columnName]);
+            let data = {
+                documents: null,
+                annotations: [],
+                details: null
+            };
+            for (let annotation of document.annotations) {
+                data.annotations.push(annotation);
+            }
+            data.documents = document[this.options.documentTextField.columnName];
+            if (data.documents) {
+                this.options.data.push(data);
+            }
         }
         this.refreshVisualization();
     }
@@ -948,8 +974,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     updateActiveData() {
         let offset = (this.page - 1) * this.meta.limit;
-        this.activeData = this.options.documents.slice(offset, (offset + this.meta.limit));
-        this.lastPage = (this.options.documents.length <= (offset + this.meta.limit));
+        this.activeData = this.options.data.slice(offset, (offset + this.meta.limit));
+        this.lastPage = (this.options.data.length <= (offset + this.meta.limit));
         this.refreshVisualization();
+        //console.log(this.activeData);
     }
 }

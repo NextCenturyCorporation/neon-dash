@@ -118,7 +118,7 @@
                 <ul class="annotation-viewer-table">
                     <ng-template ngFor let-item [ngForOf]="activeData">
                         <li class="document-row" (click)="onClick(item)">
-                            {{ item }}
+                            {{ item.documents }}
                         </li>
                     </ng-template>
                 </ul>
@@ -126,7 +126,6 @@
         </mat-list>
     </div>
 
-    <!-- TODO Do you need a footer for pagination or other components? -->
     <div class="footer" *ngIf="showFooterContainer()">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
