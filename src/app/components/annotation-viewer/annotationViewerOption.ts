@@ -21,6 +21,13 @@ export class Annotation {
     startCharacterField: number;
     endCharacterField: number;
     textField: String;
+    typeField: string;
+}
+
+export class AnnotationFields {
+    startCharacterField: FieldMetaData;
+    endCharacterField: FieldMetaData;
+    textField: FieldMetaData;
     typeField: FieldMetaData;
 }
 
@@ -29,16 +36,22 @@ export class AnnotationViewerOptions {
     anootationsInAnotherTable: boolean;
     annotationDatabase: FieldMetaData;
     annotationTable: FieldMetaData;
-    annotationFields: any[];
+    annotationFields: AnnotationFields;
     docCount: number;
     documentIdFieldInAnnotationTable: {};
     documentIdFieldInDocumentTable: {};
     documentLimit: number;
     documentTextField: any;
-    documents: any[];
-    details: any[];
+    data: Data[];
+    details: FieldMetaData;
     annotationViewerRequiredField: any;
     annotationViewerOptionalField: any;
+}
+
+export class Data {
+    documents: any;
+    annotations: any[];
+    details: any;
 }
 
 export class Details {
