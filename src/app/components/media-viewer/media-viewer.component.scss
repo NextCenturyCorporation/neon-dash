@@ -15,19 +15,24 @@
  */
  @import '../base-neon-component/base-neon.component.scss';
 
-.media-viewer{
+.media-viewer {
     height: calc(100% - #{$vis-title-expected-height});
 }
 
-.media-viewer-div{
+.media-viewer-div {
     height: 100%;
 }
 
-.media-viewer-div iframe, video {
+.media-viewer-div iframe {
+    height: 100%;
     width: 100%;
-    height: 100%;
 }
 
+.media-viewer-div img,
+.media-viewer-div video {
+    height: auto;
+    width: auto;
+}
 
 /*TODO: ng-deep will be deprecated in the future. Need to find another workaround to shadow piercing due to angular shadow DOM boundaries*/
 .media-viewer ::ng-deep .mat-tab-body-wrapper {

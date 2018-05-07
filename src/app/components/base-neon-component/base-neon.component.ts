@@ -213,6 +213,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     private TEXT_MARGIN_WIDTH: number = 10;
     private TOOLBAR_PADDING_WIDTH: number = 20;
     private TOOLBAR_EXTRA_WIDTH: number = this.SETTINGS_BUTTON_WIDTH + this.TEXT_MARGIN_WIDTH + this.TOOLBAR_PADDING_WIDTH;
+    protected TOOLBAR_HEIGHT: number = 40;
+    protected VISUALIZATION_PADDING: number = 10;
 
     public id: string;
     protected messenger: neon.eventing.Messenger;

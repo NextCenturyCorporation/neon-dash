@@ -47,7 +47,11 @@ export class MediaViewerOptions extends BaseNeonOptions {
     public id: string;
     public idField: FieldMetaData;
     public linkField: FieldMetaData;
+    public linkPrefix: string;
+    public nameField: FieldMetaData;
+    public resize: boolean;
     public typeField: FieldMetaData;
+    public typeMap: any;
     public url: string;
 
     /**
@@ -57,6 +61,9 @@ export class MediaViewerOptions extends BaseNeonOptions {
      */
     onInit() {
         this.id = this.injector.get('id', '');
+        this.linkPrefix = this.injector.get('linkPrefix', '');
+        this.resize = this.injector.get('resize', true);
+        this.typeMap = this.injector.get('typeMap', {});
         this.url = this.injector.get('url', '');
     }
 
@@ -68,6 +75,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
     updateFieldsOnTableChanged() {
         this.idField = this.findFieldObject('idField');
         this.linkField = this.findFieldObject('linkField');
+        this.nameField = this.findFieldObject('nameField');
         this.typeField = this.findFieldObject('typeField');
     }
 }
@@ -83,14 +91,35 @@ export class MediaViewerOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
+    // Must have a ViewChild with a set function because the element is in an ngIf/ngFor.
+    private frame: ElementRef;
+    private image: ElementRef;
+    private video: ElementRef;
+
+    @ViewChild('frame') set frameViewChild(frame: ElementRef) {
+        this.frame = frame;
+        this.subOnResizeStop();
+    }
+    @ViewChild('image') set imageViewChild(image: ElementRef) {
+        this.image = image;
+        this.subOnResizeStop();
+    }
+    @ViewChild('video') set videoViewChild(video: ElementRef) {
+        this.video = video;
+        this.subOnResizeStop();
+    }
+
     public options: MediaViewerOptions;
 
-    public documentArray: string[] = [];
+    public documentArray: {
+        link: string,
+        name: string,
+        type: string
+    }[] = [];
     public documentType: string = '';
 
     public isLoadingMedia: boolean = false;
@@ -134,16 +163,24 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     createQuery(): neon.query.Query {
-        let query = new neon.query.Query()
-            .selectFrom(this.options.database.name, this.options.table.name)
-            .withFields([this.options.linkField.columnName, this.options.typeField.columnName, this.options.idField.columnName]);
+        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
+
+        let fields = [this.options.idField.columnName, this.options.linkField.columnName];
+
+        if (this.options.nameField.columnName) {
+            fields.push(this.options.nameField.columnName);
+        }
+
+        if (this.options.typeField.columnName) {
+            fields.push(this.options.typeField.columnName);
+        }
 
         let whereClauses = [
             neon.query.where(this.options.idField.columnName, '=', this.options.id),
             neon.query.where(this.options.linkField.columnName, '!=', null)
         ];
 
-        return query.where(neon.query.and.apply(query, whereClauses));
+        return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
     }
 
     /**
@@ -244,6 +281,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 this.options.id = Array.isArray(message.id) ? message.id[0] : message.id;
                 this.showMedia = true;
                 this.previousId = '';
+                this.executeQueryChain();
             }
         };
     }
@@ -268,8 +306,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     isValidQuery(): boolean {
         return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name && this.options.id &&
-            this.options.idField && this.options.idField.columnName && this.options.linkField && this.options.linkField.columnName &&
-            this.options.typeField && this.options.typeField.columnName);
+            this.options.idField && this.options.idField.columnName && this.options.linkField && this.options.linkField.columnName);
     }
 
     /**
@@ -284,12 +321,19 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.errorMessage = '';
-                this.documentType = neonUtilities.deepFind(response.data[0], this.options.typeField.columnName);
                 this.isLoadingMedia = true;
+
                 let links = neonUtilities.deepFind(response.data[0], this.options.linkField.columnName);
-                this.retreiveMedia(Array.isArray(links) ?
-                    links : links.toString().search(/,/g) > -1 ?
-                    links.toString().split(',') : [links]);
+                let names = this.options.nameField.columnName ? neonUtilities.deepFind(response.data[0],
+                    this.options.nameField.columnName) : [];
+                let types = this.options.typeField.columnName ? neonUtilities.deepFind(response.data[0],
+                    this.options.typeField.columnName) : '';
+
+                this.retreiveMedia(
+                    Array.isArray(links) ? links : (links.toString().search(/,/g) > -1 ? links.toString().split(',') : [links]),
+                    Array.isArray(names) ? names : (names.toString().search(/,/g) > -1 ? names.toString().split(',') : names),
+                    Array.isArray(types) ? types : (types.toString().search(/,/g) > -1 ? types.toString().split(',') : types)
+                );
 
                 if (this.previousId !== this.options.id) {
                     this.previousId = this.options.id;
@@ -339,17 +383,25 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * Retrieves the media pages recursively using the given array of links.  Refreshes the visualization once finished.
      *
      * @arg {array} links
+     * @arg {array|string} names
+     * @arg {array|string} types
      * @private
      */
-    private retreiveMedia(links) {
+    private retreiveMedia(links, names, types) {
         if (!links.length) {
             this.isLoadingMedia = false;
             this.refreshVisualization();
             return;
         }
 
-        this.documentArray.push(links[0]);
-        this.retreiveMedia(links.slice(1));
+        let typeFromConfig = this.options.typeMap[links[0].substring(links[0].lastIndexOf('.') + 1).toLowerCase()];
+
+        this.documentArray.push({
+            link: this.options.linkPrefix + links[0],
+            name: (Array.isArray(names) ? names[0] : names) || links[0],
+            type: (Array.isArray(types) ? types[0] : types) || typeFromConfig || ''
+        });
+        this.retreiveMedia(links.slice(1), Array.isArray(names) ? names.slice(1) : names, Array.isArray(types) ? types.slice(1) : types);
     }
 
     /**
@@ -388,6 +440,48 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     subNgOnInit() {
         // Do nothing.
+    }
+
+    subOnResizeStop() {
+        let refs = this.getElementRefs();
+
+        if (!this.options.resize) {
+            if (this.frame) {
+                this.frame.nativeElement.style.maxHeight = '';
+                this.frame.nativeElement.style.maxWidth = '';
+            }
+            if (this.image) {
+                this.image.nativeElement.style.maxHeight = '';
+                this.image.nativeElement.style.maxWidth = '';
+            }
+            if (this.video) {
+                this.video.nativeElement.style.maxHeight = '';
+                this.video.nativeElement.style.maxWidth = '';
+            }
+            return;
+        }
+
+        if (!refs.visualization) {
+            return;
+        }
+
+        if (this.frame) {
+            this.frame.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
+                this.VISUALIZATION_PADDING) + 'px';
+            this.frame.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING) + 'px';
+        }
+
+        if (this.image) {
+            this.image.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
+                this.VISUALIZATION_PADDING) + 'px';
+            this.image.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING) + 'px';
+        }
+
+        if (this.video) {
+            this.video.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT -
+                this.VISUALIZATION_PADDING) + 'px';
+            this.video.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING) + 'px';
+        }
     }
 
     sanitize(url) {
