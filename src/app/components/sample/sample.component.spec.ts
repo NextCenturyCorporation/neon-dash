@@ -139,7 +139,14 @@ describe('Component: Sample', () => {
         expect(component).toBeDefined();
     });
 
-    it('properties are set to expected defaults', () => {
+    it('options properties are set to expected defaults', () => {
+        expect(component.options.sampleOptionalField).toEqual(new FieldMetaData());
+        expect(component.options.sampleRequiredField).toEqual(new FieldMetaData());
+        expect(component.options.subcomponentType).toEqual('Impl1');
+        expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
+    });
+
+    it('class properties are set to expected defaults', () => {
         expect(component.activeData).toEqual([]);
         expect(component.docCount).toEqual(0);
         expect(component.filters).toEqual([]);
@@ -152,13 +159,6 @@ describe('Component: Sample', () => {
         expect(component.infoText).toBeDefined();
         expect(component.subcomponentElementRef).toBeDefined();
         expect(component.visualization).toBeDefined();
-
-        // Options
-        expect(component.options.filter).toEqual(null);
-        expect(component.options.sampleOptionalField).toEqual(new FieldMetaData());
-        expect(component.options.sampleRequiredField).toEqual(new FieldMetaData());
-        expect(component.options.subcomponentType).toEqual('Impl1');
-        expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
 
         // Subcomponent
         expect(component.subcomponentObject.constructor.name).toEqual(SubcomponentImpl1.name);
@@ -1606,6 +1606,7 @@ describe('Component: Sample with config', () => {
                 { provide: 'config', useValue: new NeonGTDConfig() },
                 { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
                 { provide: 'database', useValue: 'testDatabase2' },
+                { provide: 'limit', useValue: 1234 },
                 { provide: 'sampleOptionalField', useValue: 'testColorField' },
                 { provide: 'sampleRequiredField', useValue: 'testGroupField' },
                 { provide: 'subcomponentType', useValue: 'Impl2' },
@@ -1623,29 +1624,37 @@ describe('Component: Sample with config', () => {
         fixture.detectChanges();
     });
 
+    it('exists', () => {
+        expect(component).toBeDefined();
+    });
+
     it('superclass properties are set to expected values from config', () => {
         expect(component.options.database).toEqual(DatasetMock.DATABASES[1]);
         expect(component.options.table).toEqual(DatasetMock.TABLES[1]);
+        expect(component.options.limit).toEqual(1234);
+        expect(component.options.title).toEqual('Test Title');
+        expect(component.options.filter).toEqual({
+            lhs: 'testConfigFilterField',
+            operator: '=',
+            rhs: 'testConfigFilterValue'
+        });
     });
 
-    it('properties are set to expected values', () => {
+    it('options properties are set to expected values from config', () => {
+        expect(component.options.sampleOptionalField).toEqual(DatasetMock.COLOR_FIELD);
+        expect(component.options.sampleRequiredField).toEqual(DatasetMock.GROUP_FIELD);
+        expect(component.options.subcomponentType).toEqual('Impl2');
+        expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
+
+    });
+
+    it('class properties are set to expected values', () => {
         expect(component.activeData).toEqual([]);
         expect(component.docCount).toEqual(0);
         expect(component.filters).toEqual([]);
         expect(component.lastPage).toEqual(true);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([]);
-
-        // Options
-        expect(component.options.filter).toEqual({
-            lhs: 'testConfigFilterField',
-            operator: '=',
-            rhs: 'testConfigFilterValue'
-        });
-        expect(component.options.sampleOptionalField).toEqual(DatasetMock.COLOR_FIELD);
-        expect(component.options.sampleRequiredField).toEqual(DatasetMock.GROUP_FIELD);
-        expect(component.options.subcomponentType).toEqual('Impl2');
-        expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
 
         // Subcomponent
         expect(component.subcomponentObject.constructor.name).toEqual(SubcomponentImpl2.name);
@@ -1672,4 +1681,86 @@ describe('Component: Sample with config', () => {
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
     });
+
+    it('does show elements in sidenav options menu that have expected options', async(() => {
+        // Force the component to update all its selected elements.
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+
+            let inputs = fixture.debugElement.queryAll(
+                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
+            expect(inputs.length).toEqual(3);
+
+            // Title Input
+            expect(inputs[0].attributes.placeholder).toBe('Title');
+            expect(inputs[0].nativeElement.value).toContain('Test Title');
+
+            // Limit Input
+            expect(inputs[1].attributes.placeholder).toBe('Sample Limit');
+            expect(inputs[1].nativeElement.value).toContain('1234');
+
+            let selects = fixture.debugElement.queryAll(
+                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
+            expect(selects.length).toEqual(6);
+            let options;
+
+            // Database Dropdown
+            expect(selects[0].componentInstance.disabled).toEqual(false);
+            expect(selects[0].componentInstance.placeholder).toEqual('Database');
+            expect(selects[0].componentInstance.required).toEqual(true);
+            options = selects[0].componentInstance.options.toArray();
+            expect(options.length).toEqual(2);
+            expect(options[0].getLabel()).toEqual('Test Database 1');
+            expect(options[0].selected).toEqual(false);
+            expect(options[1].getLabel()).toEqual('Test Database 2');
+            expect(options[1].selected).toEqual(true);
+
+            // Table Dropdown
+            expect(selects[1].componentInstance.disabled).toEqual(false);
+            expect(selects[1].componentInstance.placeholder).toEqual('Table');
+            expect(selects[1].componentInstance.required).toEqual(true);
+            options = selects[1].componentInstance.options.toArray();
+            expect(options.length).toEqual(2);
+            expect(options[0].getLabel()).toEqual('Test Table 1');
+            expect(options[0].selected).toEqual(false);
+            expect(options[1].getLabel()).toEqual('Test Table 2');
+            expect(options[1].selected).toEqual(true);
+
+            // Sample Required Field Dropdown
+            expect(selects[2].componentInstance.disabled).toEqual(false);
+            expect(selects[2].componentInstance.placeholder).toEqual('Sample Required Field');
+            expect(selects[2].componentInstance.required).toEqual(true);
+            options = selects[2].componentInstance.options.toArray();
+            expect(options.length).toEqual(DatasetMock.FIELDS.length);
+            // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
+            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+                expect(options[i].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testGroupField');
+            }
+
+            // Sample Optional Field Dropdown
+            expect(selects[3].componentInstance.disabled).toEqual(false);
+            expect(selects[3].componentInstance.placeholder).toEqual('Sample Optional Field');
+            expect(selects[3].componentInstance.required).toEqual(false);
+            options = selects[3].componentInstance.options.toArray();
+            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            // Check for the empty field!
+            expect(options[0].getLabel()).toEqual('(None)');
+            // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
+            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testColorField');
+            }
+
+            // Subcomponent Type Dropdown
+            expect(selects[4].componentInstance.disabled).toEqual(false);
+            expect(selects[4].componentInstance.placeholder).toEqual('Subcomponent Type');
+            expect(selects[4].componentInstance.required).toEqual(true);
+            options = selects[4].componentInstance.options.toArray();
+            expect(options.length).toEqual(2);
+            expect(options[0].getLabel()).toEqual('Impl1');
+            expect(options[1].getLabel()).toEqual('Impl2');
+        });
+    }));
 });
