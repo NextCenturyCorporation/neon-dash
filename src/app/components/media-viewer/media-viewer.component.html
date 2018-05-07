@@ -65,6 +65,45 @@
                 </mat-form-field>
                 <p></p>
 
+                <mat-form-field>
+                    <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Type Field" [(ngModel)]="options.typeField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <input matInput placeholder="ID" [(ngModel)]="options.id" required="false">
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <input matInput placeholder="Link Prefix" [(ngModel)]="options.linkPrefix" required="false">
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <input matInput placeholder="URL" [(ngModel)]="options.url" required="false">
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Resize Media To Fit?" [(ngModel)]="options.resize" required="true" (ngModelChange)="subOnResizeStop()">
+                        <mat-option [value]="true">Yes</mat-option>
+                        <mat-option [value]="false">No</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
                 <app-export-control [exportId]="exportId"></app-export-control>
             </mat-card-content>
         </mat-card>
@@ -75,13 +114,13 @@
     </div>
 
     <mat-tab-group class="media-viewer" *ngIf="options.url == '' && showMedia == true">
-            <mat-tab *ngFor="let document of documentArray; let i = index" [label]="getTabLabel(documentArray, i)">
-                <div class="media-viewer-div" [ngSwitch]="documentType">
-                    <img *ngSwitchCase="'img'" [src]="document" [alt]="options.linkField.prettyName" >
-                    <video *ngSwitchCase="'vid'" controls><source [src]="document"></video>
-                    <iframe *ngSwitchDefault [src]="sanitize(document)" frameborder="0"></iframe>
-                </div>
-            </mat-tab>
+        <mat-tab *ngFor="let document of documentArray" [label]="document.name">
+            <div class="media-viewer-div" [ngSwitch]="document.type">
+                <img #image *ngSwitchCase="'img'" [src]="document.link" [alt]="options.linkField.prettyName" >
+                <video #video *ngSwitchCase="'vid'" controls><source [src]="document.link"></video>
+                <iframe #frame *ngSwitchDefault [src]="sanitize(document.link)" frameborder="0"></iframe>
+            </div>
+        </mat-tab>
     </mat-tab-group>
 
     <div class="media-viewer" *ngIf="options.url != ''">
