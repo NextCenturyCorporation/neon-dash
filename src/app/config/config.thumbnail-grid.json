@@ -1,39 +1,24 @@
 {
     "datasets": [
         {
-            "name": "MUGGSY",
+            "name": "Muggsy",
             "connectOnLoad": true,
             "layout": "muggsy-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [{
-                "name": "verdi-rdf",
-                "prettyName": "VERDI",
+                "name": "muggsy",
+                "prettyName": "Muggsy",
                 "tables": [{
-                    "name": "normal",
-                    "prettyName": "Normal"
+                    "name": "testProbs",
+                    "prettyName": "Test"
                 },
                     {
-                        "name": "reified",
-                        "prettyName": "Reified"
+                        "name": "trainProbs",
+                        "prettyName": "Train"
                     }]
-            }],
-            "relations": [
-                {"members": [
-                    {
-                        "database": "verdi-rdf",
-                        "table": "normal",
-                        "field": "@id"
-                    },
-                    {
-                        "database": "verdi-rdf",
-                        "table": "reified",
-                        "field": "provenance"
-                    }
-                ]}
-            ]
-        }
-    ],
+            }]
+        }],
     "layouts": {
         "muggsy-layout": [
             {
@@ -41,7 +26,7 @@
                 "type": "filterBuilder",
                 "icon": "CreateFilter64",
                 "sizex": 24,
-                "sizey": 2,
+                "sizey": 3,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -50,41 +35,42 @@
                 "selected": true,
                 "bindings": {
                     "title": "Filter Builder",
-                    "database": "verdi-rdf",
-                    "table": "reified"
+                    "database": "muggsy",
+                    "table": "trainProbs"
                 },
                 "row": 0,
                 "col": 0
             },
             {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
+                "name": "Thumbnail Grid",
+                "type": "thumbnailGrid",
+                "icon": "ThumbnailGrid",
                 "sizex": 12,
-                "sizey": 10,
+                "sizey": 12.7,
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2,
-                "$$hashKey": "object:31",
+                "minSizex": 4,
+                "minSizey": 4,
+                "$$hashKey": "object:35",
                 "selected": true,
                 "bindings": {
-                    "title": "Document",
-                    "database": "verdi-rdf",
-                    "table": "normal",
-                    "idField": "@id",
-                    "sortField": "author",
+                    "id": "_id",
+                    "title": "Training Results",
+                    "database": "muggsy",
+                    "table": "trainProbs",
+                    "idField": "chip_id",
+                    "linkField": "docLocation",
+                    "objectNameField": "ObjectName",
+                    "objectIdField": "ObjectID",
+                    "widthField": "ImageWidth",
+                    "heightField": "ImageHeight",
+                    "typeField": "docType",
+                    "categoryField": "PredictionCategory",
+                    "predictedNameField": "PredictedName",
+                    "percentField": "PredictedProbability",
+                    "sortField": "PredictedProbability",
                     "filterable": true,
-                    "filterFields": ["@id"],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "@id",
-                        "author",
-                        "date",
-                        "docLocation",
-                        "title",
-                        "docType"
-                    ]
+                    "filterFields": ["PredictionCategory","PredictedProbability"]
                 },
                 "row": 12,
                 "col": 0
@@ -94,7 +80,7 @@
                 "type": "thumbnailGrid",
                 "icon": "ThumbnailGrid",
                 "sizex": 12,
-                "sizey": 10,
+                "sizey": 12.7,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -103,102 +89,24 @@
                 "selected": true,
                 "bindings": {
                     "id": "_id",
-                    "title": "Thumbnail Grid",
-                    "database": "verdi-rdf",
-                    "table": "normal",
-                    "idField": "@id",
+                    "title": "Search Results",
+                    "database": "muggsy",
+                    "table": "testProbs",
+                    "idField": "chip_id",
                     "linkField": "docLocation",
+                    "objectNameField": "ObjectName",
+                    "objectIdField": "ObjectID",
+                    "widthField": "ImageWidth",
+                    "heightField": "ImageHeight",
                     "typeField": "docType",
-                    "nameField": "title",
-                    "dateField": "date"
+                    "categoryField": "PredictionCategory",
+                    "predictedNameField": "PredictedName",
+                    "percentField": "PredictedProbability",
+                    "sortField": "PredictedProbability",
+                    "filterable": true,
+                    "filterFields": ["PredictionCategory","PredictedProbability"]
                 },
                 "row": 12,
-                "col": 13
-            },
-            {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
-                "sizex": 6,
-                "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "selected": true,
-                "bindings": {
-                    "title": "Known Object Classes",
-                    "database": "verdi-rdf",
-                    "table": "reified",
-                    "sortField": "subject",
-                    "idField": "@id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "subject",
-                        "provenance"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "subject"
-                    ]
-                },
-                "row":22,
-                "col": 0
-            },
-            {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
-                "sizex": 6,
-                "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 4,
-                "$$hashKey": "object:31",
-                "bindings": {
-                    "title": "Know Objects",
-                    "database": "verdi-rdf",
-                    "table": "reified",
-                    "sortField": "predicate",
-                    "idField": "@id",
-                    "arrayFilterOperator": "or",
-                    "filterable": true,
-                    "filterFields": [
-                        "predicate",
-                        "provenance"
-                    ],
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "predicate"
-                    ]
-                },
-                "row": 17,
-                "col": 7
-            },
-            {
-                "name": "Timeline",
-                "type": "timeline",
-                "icon": "Timeline64",
-                "sizex": 12,
-                "sizey": 4,
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 6,
-                "minSizey": 6,
-                "$$hashKey": "object:36",
-                "selected": true,
-                "bindings": {
-                    "title": "Normal Time",
-                    "database": "ll_nepal_ux_out",
-                    "table": "tweet",
-                    "dateField": "createdAt",
-                    "granularity": "hour"
-                },
-                "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-                "row": 22,
                 "col": 13
             }
         ]
