@@ -14,31 +14,33 @@
  *
  */
  @import '../base-neon-component/base-neon.component.scss';
-.grid[_ngcontent-c0]{
-   font-size:12px !important;
+
+/deep/ .mat-drawer-content{
+    overflow: unset;
 }
 
 .thumbnail-grid{
-    min-height: calc(100% - #{$vis-title-expected-height});
+    //Includes the height of the header and paging footer
+    max-height: calc(100% - #{$vis-title-expected-height} * 2);
     display: flex;
-    background-color: #efefef;
+    background-color: #fafafa;
     overflow: auto;
 }
 
 .thumbnail-grid-container{
     height: 100%;
-    margin: .5em;
+    margin-top: .5em;
     display: flex;
     flex-flow: row wrap;
 }
 
 .thumbnail-grid-div{
-    min-width: 78px;
-    min-height:64px;
+    min-width: 114px;
+    min-height:84px;
     display: flex;
     flex-direction: column;
     flex: 0 0;
-    margin: .8em;
+    margin: .5em .7em;
     box-shadow: 0px 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
     justify-content: center;
     align-items: center;
@@ -50,25 +52,47 @@
 
 .thumbnail-view{
     width: 100%;
-    height:100%;
+    height:75%;
+}
+
+.blue-border{
+    border: .2em solid #2798ff;
+}
+
+.red-border{
+    border: .2em solid #ff0000;
 }
 
 .thumbnail-details{
-    height:60%;
+    height:25%;
     width:100%;
-    background-color: #ffffff;
+    background-color: #fafafa;
     word-wrap: break-word;
     display: flex;
     flex-direction: column;
+    font-size: .7em;
 }
 
 .thumbnail-details p{
-    margin: .4em;
+    margin: .2em;
+    display: inline-flex;
+    flex-flow: row nowrap;
+    max-width: 100%;
+    height: 2.5em;
 }
 
 .thumbnail-details span{
-    display: flex;
-    flex-direction: column;
+    white-space: nowrap;
 }
+
+
+.detail-ellipses{
+    flex:1;
+    white-space:pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 73%;
+}
+
 
 

@@ -8,7 +8,7 @@
             </span>
             <span *ngIf="!meta.errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
-        <button *ngIf="active.url == ''" mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
         </button>
     </mat-toolbar>
@@ -65,6 +65,63 @@
                 </mat-form-field>
                 <p></p>
 
+                <div mat-fill class="flex center">
+                    <mat-form-field>
+                        <input matInput placeholder="Row Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
+                <p></p>
+
+                Filtering:
+                <mat-button-toggle-group name="filtering" [(ngModel)]="active.filterable">
+                    <mat-button-toggle [value]="true">
+                        On
+                    </mat-button-toggle>
+                    <mat-button-toggle [value]="false">
+                        Off
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                Sorting:
+                <mat-button-toggle-group name="sorting" [(ngModel)]="active.ascending" (ngModelChange)="handleSortOrder()">
+                    <mat-button-toggle [value]="true">
+                        Asc
+                    </mat-button-toggle>
+                    <mat-button-toggle [value]="false">
+                        Desc
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Filter Fields" [(ngModel)]="active.filterFields"
+                                (ngModelChange)="handleChangeFilterField()"
+                                [disabled]="active.filterable == false"
+                                multiple>
+                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                Array Filter Operator:
+                <mat-button-toggle-group [(ngModel)]="active.arrayFilterOperator" [disabled]="active.filterable == false">
+                    <mat-button-toggle value="and">
+                        and
+                    </mat-button-toggle>
+                    <mat-button-toggle value="or">
+                        or
+                    </mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <app-unshared-filter [(meta)]="meta" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
+                <p></p>
+
                 <app-export-control [exportId]="exportId"></app-export-control>
             </mat-card-content>
         </mat-card>
@@ -75,11 +132,30 @@
     </div>
 
     <div #thumbnailGrid class="thumbnail-grid">
-        <div class="thumbnail-grid-container">
-            <div class="thumbnail-grid-div" *ngFor="let item of active.gridArray; let i = index" (click)="maximizeMedia(item[active.linkField.columnName])">
-                <canvas class="thumbnail-view">
-                </canvas>
-            </div>
+       <div class="thumbnail-grid-container">
+           <div class="thumbnail-grid-div" *ngFor="let item of active.pagingGrid; let i = index"  (click)="maximizeMedia(item[active.linkField.columnName])">
+                   <div class="thumbnail-details">
+                       <p [title]="getThumbnailTitle(item[active.objectNameField.columnName],item[active.predictedNameField.columnName], item[active.percentField.columnName])">
+                           <span class="detail-ellipses">{{ item[active.predictedNameField.columnName] }}</span>
+                           <span>{{ getThumbnailTitle("", "", item[active.percentField.columnName]) }}</span>
+                       </p>
+                   </div>
+                    <canvas class="thumbnail-view"></canvas>
+           </div>
+       </div>
+   </div>
+
+    <div class="footer" *ngIf="active.gridArray.length > meta.limit">
+        <div class="footer-button-container">
+            <button mat-raised-button [disabled]="active.page == 1" class="pagination-button previous-button" color="primary"
+                    (click)="previousPage()">
+                Previous
+            </button>
+            <span class="pagination-button-spacer"></span>
+            <button mat-raised-button [disabled]="active.lastPage" class="pagination-button next-button" color="primary"
+                    (click)="nextPage()">
+                Next
+            </button>
         </div>
     </div>
 

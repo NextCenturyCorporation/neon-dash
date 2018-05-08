@@ -33,7 +33,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { FieldMetaData, MediaTypes } from '../../dataset';
-import { neonUtilities } from '../../neon-namespaces';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
 
@@ -58,18 +58,28 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public active: {
         allowsTranslations: boolean,
         id: string,
+        page: number,
+        lastPage: boolean,
+        sortField: FieldMetaData,
+        filterFields: FieldMetaData[],
+        filterable: boolean,
+        ascending: boolean,
         idField: FieldMetaData,
         linkField: FieldMetaData,
+        objectNameField: FieldMetaData,
+        objectIdField: FieldMetaData,
+        classField: FieldMetaData,
         typeField: FieldMetaData,
-        nameField: FieldMetaData,
-        dateField: FieldMetaData,
-        gridArray: any[]
+        categoryField: FieldMetaData,
+        predictedNameField: FieldMetaData,
+        percentField: FieldMetaData,
+        gridArray: any[],
+        pagingGrid: any[]
     };
 
     isLoading: boolean;
+    scaleThumbnails: boolean;
     mediaTypes: any = MediaTypes;
-/*    showMedia: boolean = false;
-    previousId: string;*/
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -81,15 +91,27 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.active = {
             allowsTranslations: true,
             id: this.injector.get('id', ''),
+            page: 1,
+            lastPage: true,
+            sortField: new FieldMetaData(),
+            filterFields: [],
+            filterable: this.injector.get('filterable', false),
+            ascending: false,
             idField: new FieldMetaData(),
             linkField: new FieldMetaData(),
+            objectNameField: new FieldMetaData(),
+            objectIdField: new FieldMetaData(),
+            classField: new FieldMetaData(),
             typeField: new FieldMetaData(),
-            nameField: new FieldMetaData(),
-            dateField: new FieldMetaData(),
-            gridArray: []
+            categoryField: new FieldMetaData(),
+            predictedNameField: new FieldMetaData(),
+            percentField: new FieldMetaData(),
+            gridArray: [],
+            pagingGrid: []
         };
 
         this.isLoading = false;
+        this.scaleThumbnails = false;
         this.subscribeToSelectId(this.getSelectIdCallback());
     }
 
@@ -104,13 +126,13 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         let query = new neon.query.Query()
             .selectFrom(this.meta.database.name, this.meta.table.name);
 
-        whereClauses.push(neon.query.where(this.active.linkField.columnName, '!=', null));
+       whereClauses.push(neon.query.where(this.active.linkField.columnName, '!=', null));
 
         if (this.active.idField.columnName === this.active.id) {
            whereClauses.push(neon.query.where(this.active.idField.columnName, '=', this.active.id));
         }
 
-        return query.where(neon.query.and.apply(query, whereClauses));
+        return query.where(neon.query.and.apply(query, whereClauses)).sortBy(this.active.sortField.columnName, neonVariables.DESCENDING);
     }
 
     /**
@@ -124,7 +146,46 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             return 'No Data';
         }
 
-        return 'Total Items ' + super.prettifyInteger(this.active.gridArray.length);
+        if (this.active.gridArray.length <= this.meta.limit) {
+            return 'Total Items ' + super.prettifyInteger(this.active.gridArray.length);
+        }
+
+        let begin = super.prettifyInteger((this.active.page - 1) * this.meta.limit + 1),
+            end = super.prettifyInteger(Math.min(this.active.page * this.meta.limit, this.active.gridArray.length));
+
+        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.active.gridArray.length);
+    }
+
+    /**
+     * Increases the page and updates the bar chart data.
+     */
+    nextPage() {
+        if (!this.active.lastPage) {
+            this.active.page++;
+            this.updatePageData();
+        }
+    }
+
+    /**
+     * Decreases the page and updates the bar chart data.
+     */
+    previousPage() {
+        if (this.active.page !== 1) {
+            this.active.page--;
+            this.updatePageData();
+        }
+    }
+
+    /**
+     * Updates lastPage and the bar chart data using the page and limit.
+     */
+    updatePageData() {
+        let offset = (this.active.page - 1) * this.meta.limit;
+        this.active.lastPage = (this.active.gridArray.length <= (offset + this.meta.limit));
+        this.active.pagingGrid = this.active.gridArray.slice(offset,
+            Math.min(this.active.page * this.meta.limit, this.active.gridArray.length));
+        this.refreshVisualization();
+        this.createMediaThumbnail();
     }
 
     /**
@@ -196,8 +257,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         return (message) => {
             if (message.database === this.meta.database.name && message.table === this.meta.table.name) {
                 this.active.id = Array.isArray(message.id) ? message.id[0] : message.id;
-/*                this.showMedia = true;
-                this.previousId = '';*/
             }
         };
     }
@@ -224,6 +283,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         return 'Thumbnail Grid';
     }
 
+    getThumbnailTitle(truthTitle, predictionTitle, titlePercent): string {
+        if (predictionTitle) {
+            return 'Prediction : ' + predictionTitle + ' ' + (parseFloat(titlePercent) * 100).toFixed(1) + '%, Actual : ' + truthTitle;
+        } else {
+            return (parseFloat(titlePercent) * 100).toFixed(1) + '%';
+        }
+
+    }
+
     /**
      * Returns whether the thumbnail grid query using the active data config is valid.
      *
@@ -233,7 +301,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     isValidQuery(): boolean {
         return !!(this.meta.database && this.meta.database.name && this.meta.table && this.meta.table.name && this.active.id &&
             this.active.idField && this.active.idField.columnName && this.active.linkField && this.active.linkField.columnName &&
-            this.active.typeField && this.active.typeField.columnName);
+            this.active.sortField && this.active.sortField.columnName);
     }
 
     /**
@@ -243,22 +311,19 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     onQuerySuccess(response) {
-
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.active.gridArray = [];
                 this.meta.errorMessage = '';
                 this.isLoading = true;
-
                 response.data.map((d) => {
                     let item = {},
                         links: any;
                     for (let field of this.meta.fields) {
-
-                        if (field.type && field.columnName !== this.active.linkField.columnName) {
-                            item[field.columnName] = neonUtilities.deepFind(d, field.columnName);
-                        } else if (field.columnName === this.active.linkField.columnName) {
+                        if (field.columnName === this.active.linkField.columnName) {
                             links = this.getArrayValues(neonUtilities.deepFind(d, this.active.linkField.columnName));
+                        } else if (field.type) {
+                            item[field.columnName] = neonUtilities.deepFind(d, field.columnName);
                         }
                     }
 
@@ -266,15 +331,11 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         this.retreiveMedia(item, link);
                     }
                 });
-
+                this.active.page = 1;
+                this.active.lastPage = (this.active.gridArray.length <= this.meta.limit);
+                this.active.pagingGrid = this.active.gridArray.slice(0, this.meta.limit);
                 this.refreshVisualization();
                 this.createMediaThumbnail();
-
-/*                if (this.previousId !== this.active.id) {
-                    this.previousId = this.active.id;
-                } else {
-                    this.showMedia = false;
-                }*/
 
             } else {
                 this.meta.errorMessage = 'No Data';
@@ -282,7 +343,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             }
         } catch (e) {
             this.meta.errorMessage = 'Error';
-            //console.log(e)
             this.refreshVisualization();
         }
     }
@@ -295,9 +355,34 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     onUpdateFields() {
         this.active.idField = this.findFieldObject('idField');
         this.active.linkField = this.findFieldObject('linkField');
+        this.active.objectNameField = this.findFieldObject('objectNameField');
+        this.active.objectIdField = this.findFieldObject('objectIdField');
+        this.active.classField = this.findFieldObject('classField');
         this.active.typeField = this.findFieldObject('typeField');
-        this.active.nameField = this.findFieldObject('nameField');
-        this.active.dateField = this.findFieldObject('dateField');
+        this.active.categoryField = this.findFieldObject('categoryField');
+        this.active.percentField = this.findFieldObject('percentField');
+        this.active.predictedNameField = this.findFieldObject('predictedNameField');
+        this.active.sortField = this.findFieldObject('sortField');
+        this.active.filterFields = this.findFieldObjects('filterFields');
+    }
+
+    /**
+     * Sorts grid array in ascending or descending order based on the predicted probability
+     *
+     * @private
+     */
+    handleSortOrder() {
+        this.active.gridArray.sort((a, b) => {
+            if (this.active.ascending) {
+                return a[this.active.percentField.columnName] === b[this.active.percentField.columnName] ? 0
+                    : +(a[this.active.percentField.columnName] > b[this.active.percentField.columnName]) || -1;
+            } else {
+                return a[this.active.percentField.columnName] === b[this.active.percentField.columnName] ? 0
+                    : +(a[this.active.percentField.columnName] < b[this.active.percentField.columnName]) || -1;
+            }
+        });
+
+        this.updatePageData();
     }
 
     /**
@@ -329,7 +414,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Retrieves the thumbnail grid recursively using the given array of links.  Refreshes the visualization once finished.
+     * Retrieves the thumbnail grid using the given array of links.
      *
      * @arg {array} links
      * @private
@@ -337,7 +422,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     private retreiveMedia(item, link) {
         let gridIndex = this.active.gridArray.length > 0 ? this.active.gridArray.length : 0;
         let grid = Object.create(item);
-
         grid[this.active.linkField.columnName] = link;
         this.active.gridArray[gridIndex] = grid;
     }
@@ -360,54 +444,62 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     private createMediaThumbnail() {
-
-        let views = this.thumbnailGrid.nativeElement.querySelectorAll('.thumbnail-view'),
-            scale = .8,
+        //todo: when canvases lose focus the images disappear. May need to go back to div
+        let canvases = this.thumbnailGrid.nativeElement.querySelectorAll('.thumbnail-view'),
+            scale = .4,
             width = 300,
-            height = 250;
+            height = 185;
 
-        this.active.gridArray.map((grid, index) => {
-                let link = grid[this.active.linkField.columnName],
-                    type = grid[this.active.typeField.columnName],
-                    thumbnail = views[index].getContext('2d');
+        this.active.pagingGrid.map((grid, index) => {
+            let link = grid[this.active.linkField.columnName],
+                type = grid[this.active.typeField.columnName],
+                objectId = grid[this.active.objectIdField.columnName],
+                categoryId = grid[this.active.categoryField.columnName],
+                thumbnail = canvases[index].getContext('2d');
 
-                switch (type) {
-                    case this.mediaTypes.image : {
-                        let image: HTMLImageElement = new Image(),
-                            w = width,
-                            h = height;
-                        image.src = link;
-                        image.onload = () => {
-                            if(image.width && image.width > 0){
-                                w = image.width * scale;
-                                h = image.height * scale;
-                            }
-                            thumbnail.drawImage(image, 0, 0, w, h);
-                        };
-                        break;
-                    }
-                    case this.mediaTypes.video : {
-                        let video: HTMLVideoElement = document.createElement('video'),
-                            w = width,
-                            h = height;
-                        video.src = link;
-                        video.onloadeddata = () => {
-                            if(video.width && video.width > 0){
-                                w = video.width * scale;
-                                h = video.height * scale;
-                            }
-                            thumbnail.drawImage(video, 0, 0, w, h);
-                        };
+            switch (type) {
+                case this.mediaTypes.image : {
+                    let image: HTMLImageElement = new Image(),
+                        w = width,
+                        h = height;
+                    image.src = link;
+                    image.onload = () => {
+                        if (image.width && image.width > 0 && this.scaleThumbnails) {
+                            w = image.width * scale;
+                            h = image.height * scale;
+                        }
+                        thumbnail.drawImage(image, 0, 0, w, h);
 
-                        break;
-                    }
-                    default : {
-                        // todo: get thumbnails of documents, pdf, and other similar types of media.
-                    }
+                    };
+                    break;
                 }
+                case this.mediaTypes.video : {
+                    let video: HTMLVideoElement = document.createElement('video'),
+                        w = width,
+                        h = height;
+                    video.src = link;
+                    video.onloadeddata = () => {
+                        if (video.width && video.width > 0 && this.scaleThumbnails) {
+                            w = video.width * scale;
+                            h = video.height * scale;
+                        }
+                        thumbnail.drawImage(video, 0, 0, w, h);
+                    };
+                    break;
+                }
+                default : {
+                    // todo: get thumbnails of documents, pdf, and other similar types of media.
+                }
+            }
 
-                views[index].innerHTML = thumbnail.outerHTML;
+            if (objectId === categoryId) {
+                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'blue-border');
+            } else {
+                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'red-border');
+            }
         });
+
+        this.refreshVisualization();
     }
 
     /**
@@ -439,6 +531,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     subGetBindings(bindings: any) {
         bindings.idField = this.active.idField.columnName;
         bindings.linkField = this.active.linkField.columnName;
+        bindings.sortField = this.active.sortField.columnName;
+        bindings.filterFields = this.active.filterFields;
+        bindings.filterable = this.active.filterable;
     }
 
     /**
@@ -457,6 +552,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     subNgOnInit() {
         // Do nothing.
+    }
+
+    /**
+     * Returns the default limit for the visualization.
+     *
+     * @return {number}
+     */
+    getDefaultLimit(): number {
+        return 42;
     }
 
     sanitize(url) {
