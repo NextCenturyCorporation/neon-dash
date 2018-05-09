@@ -49,8 +49,11 @@ export class DataTableOptions extends BaseNeonOptions {
     public filterable: boolean;
     public filterFields: FieldMetaData[];
     public idField: FieldMetaData;
+    public ignoreSelf: boolean;
+    public singleFilter: boolean;
     public skinny: boolean;
     public sortField: FieldMetaData;
+    public sortDescending: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -63,7 +66,10 @@ export class DataTableOptions extends BaseNeonOptions {
         this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
         this.fieldsConfig = this.injector.get('fieldsConfig', []);
         this.filterable = this.injector.get('filterable', false);
+        this.ignoreSelf = this.injector.get('ignoreSelf', false);
+        this.singleFilter = this.injector.get('singleFilter', false);
         this.skinny = this.injector.get('skinny', false);
+        this.sortDescending = this.injector.get('sortDescending', true);
     }
 
     /**
@@ -242,8 +248,20 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.idField = this.options.idField.columnName;
         bindings.sortField = this.options.sortField.columnName;
         bindings.filterFields = this.options.filterFields;
-        bindings.filterable = this.options.filterable;
+
         bindings.arrayFilterOperator = this.options.arrayFilterOperator;
+        bindings.filterable = this.options.filterable;
+        bindings.ignoreSelf = this.options.ignoreSelf;
+        bindings.singleFilter = this.options.singleFilter;
+        bindings.skinny = this.options.skinny;
+        bindings.sortDescending = this.options.sortDescending;
+
+        bindings.fieldsConfig = this.headers.map((header) => {
+            return {
+                name: header.name,
+                hide: !header.active
+            };
+        });
     }
 
     headerIsInExceptions(header) {
@@ -416,13 +434,36 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let whereClause = this.createClause();
         return new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
             .where(whereClause)
-            .sortBy(this.options.sortField.columnName, neonVariables.DESCENDING)
+            .sortBy(this.options.sortField.columnName, this.options.sortDescending ? neonVariables.DESCENDING : neonVariables.ASCENDING)
             .limit(this.options.limit)
             .offset((this.page - 1) * this.options.limit);
     }
 
+    /**
+     * Returns the list of filters for the visualization to ignore.
+     *
+     * @return {any[]}
+     * @override
+     */
     getFiltersToIgnore() {
-        return null;
+        if (!this.options.ignoreSelf) {
+            return null;
+        }
+
+        let ignoredFilterIds = this.options.filterFields.reduce((filterIds, filterField: any) => {
+            let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+                [filterField.columnName]);
+
+            let fieldFilterIds = neonFilters.filter((neonFilter) => {
+                return !neonFilter.filter.whereClause.whereClauses;
+            }).map((neonFilter) => {
+                return neonFilter.id;
+            });
+
+            return filterIds.concat(fieldFilterIds);
+        }, []);
+
+        return ignoredFilterIds.length ? ignoredFilterIds : null;
     }
 
     arrayToString(arr) {
@@ -465,7 +506,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             let data = response.data.map((d) => {
                 let row = {};
                 for (let field of this.options.fields) {
-                    if (field.type) {
+                    if (field.type || field.columnName === '_id') {
                         row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
                     }
                 }
@@ -483,6 +524,12 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     getDocCount() {
         let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createClause())
             .aggregate(neonVariables.COUNT, '*', '_docCount');
+
+        let ignoreFilters = this.getFiltersToIgnore();
+        if (ignoreFilters && ignoreFilters.length) {
+            countQuery.ignoreFilters(ignoreFilters);
+        }
+
         this.executeQuery(countQuery);
     }
 
@@ -690,8 +737,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     addFilter(filter, clause) {
         if (this.filterIsUnique(filter)) {
-            this.addLocalFilter(filter);
-            this.addNeonFilter(true, filter, clause);
+            if (this.filters.length && this.options.singleFilter) {
+                filter.id = this.filters[0].id;
+                this.filters = [filter];
+                this.replaceNeonFilter(true, filter, clause);
+            } else {
+                this.addLocalFilter(filter);
+                this.addNeonFilter(true, filter, clause);
+            }
         }
     }
 
