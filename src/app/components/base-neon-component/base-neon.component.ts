@@ -480,8 +480,11 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {boolean} executeQueryChainOnSuccess
      * @arg {object} subclassFilter
      * @arg {neon.query.WherePredicate} wherePredicate
+     * @arg {function} [callback]
      */
-    addNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate) {
+    addNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
+        callback?: Function) {
+
         let filterName = {
             visName: this.getOptions().title,
             text: this.getFilterText(subclassFilter)
@@ -489,6 +492,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         let onSuccess = (resp: any) => {
             if (typeof resp === 'string') {
                 subclassFilter.id = resp;
+            }
+            if (callback) {
+                callback();
             }
             if (executeQueryChainOnSuccess) {
                 this.executeQueryChain();
@@ -503,6 +509,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             onSuccess.bind(this),
             () => {
                 console.error('filter failed to set');
+                if (callback) {
+                    callback();
+                }
             });
         this.changeDetection.detectChanges();
     }
@@ -513,13 +522,19 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {boolean} executeQueryChainOnSuccess
      * @arg {object} subclassFilter
      * @arg {neon.query.WherePredicate} wherePredicate
+     * @arg {function} [callback]
      */
-    replaceNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate) {
+    replaceNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
+        callback?: Function) {
+
         let filterName = {
             visName: this.getOptions().title,
             text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
+            if (callback) {
+                callback();
+            }
             if (executeQueryChainOnSuccess) {
                 this.executeQueryChain();
             }
@@ -534,6 +549,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             onSuccess.bind(this),
             () => {
                 console.error('filter failed to set');
+                if (callback) {
+                    callback();
+                }
             });
         this.changeDetection.detectChanges();
     }
@@ -849,15 +867,16 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.messenger.subscribe('select_id', callback);
     }
 
+    getHighlightThemeColor() {
+        let elements = document.getElementsByClassName('color-highlight');
+        let color = elements.length ? window.getComputedStyle(elements[0], null).getPropertyValue('color') : '';
+        return Color.fromRgbString(color || 'rgb(255, 255, 255)');
+    }
+
     getPrimaryThemeColor() {
-        let elems = document.getElementsByClassName('coloraccessor'),
-            style: string;
-        if (!elems.length) {
-            style = 'rgb(255, 255, 255)';
-        } else {
-            style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
-        }
-        return style && Color.fromRgbString(style);
+        let elements = document.getElementsByClassName('color-primary');
+        let color = elements.length ? window.getComputedStyle(elements[0], null).getPropertyValue('color') : '';
+        return Color.fromRgbString(color || 'rgb(255, 255, 255)');
     }
 
     getComputedStyle(nativeElement: any) {

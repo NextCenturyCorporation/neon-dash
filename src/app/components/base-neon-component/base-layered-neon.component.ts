@@ -953,15 +953,16 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         return '';
     }
 
+    getHighlightThemeColor() {
+        let elements = document.getElementsByClassName('color-highlight');
+        let color = elements.length ? window.getComputedStyle(elements[0], null).getPropertyValue('color') : '';
+        return Color.fromRgbString(color || 'rgb(255, 255, 255)');
+    }
+
     getPrimaryThemeColor() {
-        let elems = document.getElementsByClassName('coloraccessor'),
-            style: string;
-        if (!elems.length) {
-            style = 'rgb(255, 255, 255)';
-        } else {
-            style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
-        }
-        return style && Color.fromRgbString(style);
+        let elements = document.getElementsByClassName('color-primary');
+        let color = elements.length ? window.getComputedStyle(elements[0], null).getPropertyValue('color') : '';
+        return Color.fromRgbString(color || 'rgb(255, 255, 255)');
     }
 
     /**

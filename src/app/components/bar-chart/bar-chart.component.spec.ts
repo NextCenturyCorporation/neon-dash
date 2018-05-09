@@ -388,32 +388,27 @@ describe('Component: BarChart', () => {
     });
 
     it('refreshVisualization does not change dataset colors if no filters are set', () => {
-        let activeData = new BarDataSet(4);
-        activeData.label = 'group1';
-        activeData.color = new Color(255, 255, 255);
-        activeData.backgroundColor = ['', '', '', ''];
+        let activeData = new BarDataSet(4, 'group1', new Color(255, 255, 255), new Color(0, 0, 0));
         activeData.data = [10, 5, 1, 0];
+        expect(activeData.backgroundColor).toEqual(['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)']);
+        expect(activeData.hoverBackgroundColor).toEqual(['rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)']);
 
         component.activeData = [activeData];
 
         component.refreshVisualization();
 
         expect(component.selectedLabels).toEqual([]);
+        expect(activeData.backgroundColor).toEqual(['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)']);
+        expect(activeData.hoverBackgroundColor).toEqual(['rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)']);
         expect(component.activeData[0].backgroundColor).toEqual(['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)',
             'rgb(255,255,255)']);
     });
 
     it('refreshVisualization does change dataset colors and selectedLabels if filters are set', () => {
-        let activeData = new BarDataSet(4);
-        activeData.label = 'group1';
-        activeData.color = new Color(255, 255, 255);
-        activeData.backgroundColor = ['', '', '', ''];
+        let activeData = new BarDataSet(4, 'group1', new Color(255, 255, 255), new Color(0, 0, 0));
         activeData.data = [10, 5, 1, 0];
 
-        let barChartData = new BarDataSet(4);
-        barChartData.label = 'group1';
-        barChartData.color = new Color(255, 255, 255);
-        barChartData.backgroundColor = ['', '', '', ''];
+        let barChartData = new BarDataSet(4, 'group1', new Color(255, 255, 255), new Color(0, 0, 0));
         barChartData.data = [10, 5, 1, 0];
 
         component.activeData = [activeData];
@@ -427,7 +422,8 @@ describe('Component: BarChart', () => {
         component.refreshVisualization();
 
         expect(component.selectedLabels).toEqual(['group1']);
-        expect(component.activeData[0].backgroundColor).toEqual(['', '', '', '']);
+        expect(activeData.backgroundColor).toEqual(['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)']);
+        expect(activeData.hoverBackgroundColor).toEqual(['rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)']);
         expect(component.chartInfo.data.datasets[0].backgroundColor).toEqual(['rgba(255,255,255,0.3)', 'rgb(255,255,255)',
             'rgba(255,255,255,0.3)', 'rgba(255,255,255,0.3)']);
     });
@@ -505,10 +501,7 @@ describe('Component: BarChart', () => {
             }]
         });
 
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = '';
-        dataset1.color = new Color(255, 255, 255);
-        dataset1.backgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)'];
+        let dataset1 = new BarDataSet(4, '', new Color(255, 255, 255), new Color(255, 255, 255));
         dataset1.data = [10, 5, 1, 0];
 
         expect(component.bars).toEqual(['bar1', 'bar2', 'bar3', 'bar4']);
@@ -571,26 +564,21 @@ describe('Component: BarChart', () => {
             }]
         });
 
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'group1';
-        dataset1.color = new Color(31, 120, 180);
-        dataset1.backgroundColor = ['rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)'];
+        let dataset1 = new BarDataSet(4, 'group1', new Color(31, 120, 180), new Color(255, 255, 255));
         dataset1.data = [400, 40, 4, 0];
-        let dataset2 = new BarDataSet(4);
-        dataset2.label = 'group2';
-        dataset2.color = new Color(51, 160, 44);
-        dataset2.backgroundColor = ['rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)'];
+        expect(dataset1.backgroundColor).toEqual(['rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)']);
+
+        let dataset2 = new BarDataSet(4, 'group2', new Color(51, 160, 44), new Color(255, 255, 255));
         dataset2.data = [300, 30, 3, 0];
-        let dataset3 = new BarDataSet(4);
-        dataset3.label = 'group3';
-        dataset3.color = new Color(227, 26, 28);
-        dataset3.backgroundColor = ['rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)'];
+        expect(dataset2.backgroundColor).toEqual(['rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)']);
+
+        let dataset3 = new BarDataSet(4, 'group3', new Color(227, 26, 28), new Color(255, 255, 255));
         dataset3.data = [200, 20, 0, 2];
-        let dataset4 = new BarDataSet(4);
-        dataset4.label = 'group4';
-        dataset4.color = new Color(255, 127, 0);
-        dataset4.backgroundColor = ['rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)'];
+        expect(dataset3.backgroundColor).toEqual(['rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)']);
+
+        let dataset4 = new BarDataSet(4, 'group4', new Color(255, 127, 0), new Color(255, 255, 255));
         dataset4.data = [100, 10, 0, 0];
+        expect(dataset4.backgroundColor).toEqual(['rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)']);
 
         expect(component.bars).toEqual(['bar1', 'bar2', 'bar3', 'bar4']);
         expect(component.activeData).toEqual([dataset1, dataset2, dataset3, dataset4]);
@@ -614,10 +602,7 @@ describe('Component: BarChart', () => {
             }]
         });
 
-        let dataset1 = new BarDataSet(3);
-        dataset1.label = '';
-        dataset1.color = new Color(255, 255, 255);
-        dataset1.backgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)'];
+        let dataset1 = new BarDataSet(3, '', new Color(255, 255, 255), new Color(255, 255, 255));
         dataset1.data = [10, 5, 0];
 
         expect(component.bars).toEqual(['bar1', 'bar2', 'bar3']);
@@ -628,9 +613,7 @@ describe('Component: BarChart', () => {
     });
 
     it('updateBarChart does update colorFieldNames and chartInfo.data and does call refreshVisualization', () => {
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'segment1';
-        dataset1.color = new Color(0, 0, 0);
+        let dataset1 = new BarDataSet(4, 'segment1', new Color(0, 0, 0), new Color(255, 255, 255));
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)', 'rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
         dataset1.data = [41, 31, 21, 11];
 
@@ -648,14 +631,10 @@ describe('Component: BarChart', () => {
     });
 
     it('updateBarChart does work with multiple datasets', () => {
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'segment1';
-        dataset1.color = new Color(0, 0, 0);
+        let dataset1 = new BarDataSet(4, 'segment1', new Color(0, 0, 0), new Color(255, 255, 255));
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)', 'rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
         dataset1.data = [41, 31, 21, 11];
-        let dataset2 = new BarDataSet(4);
-        dataset2.label = 'segment2';
-        dataset2.color = new Color(5, 5, 5);
+        let dataset2 = new BarDataSet(4, 'segment2', new Color(5, 5, 5), new Color(255, 255, 255));
         dataset2.backgroundColor = ['rgb(6, 6, 6)', 'rgb(7, 7, 7)', 'rgb(8, 8, 8)', 'rgb(9, 9, 9)'];
         dataset2.data = [42, 32, 22, 12];
 
@@ -673,14 +652,10 @@ describe('Component: BarChart', () => {
     });
 
     it('updateBarChart does work with index', () => {
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'segment1';
-        dataset1.color = new Color(0, 0, 0);
+        let dataset1 = new BarDataSet(4, 'segment1', new Color(0, 0, 0), new Color(255, 255, 255));
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)', 'rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
         dataset1.data = [41, 31, 21, 11];
-        let dataset2 = new BarDataSet(4);
-        dataset2.label = 'segment2';
-        dataset2.color = new Color(5, 5, 5);
+        let dataset2 = new BarDataSet(4, 'segment2', new Color(5, 5, 5), new Color(255, 255, 255));
         dataset2.backgroundColor = ['rgb(6, 6, 6)', 'rgb(7, 7, 7)', 'rgb(8, 8, 8)', 'rgb(9, 9, 9)'];
         dataset2.data = [42, 32, 22, 12];
 
@@ -692,8 +667,10 @@ describe('Component: BarChart', () => {
         component.updateBarChart(2, 4);
 
         dataset1.backgroundColor = ['rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
+        dataset1.hoverBackgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)'];
         dataset1.data = [21, 11];
         dataset2.backgroundColor = ['rgb(8, 8, 8)', 'rgb(9, 9, 9)'];
+        dataset2.hoverBackgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)'];
         dataset2.data = [22, 12];
 
         expect(component.colorFieldNames).toEqual(['testColorField']);
@@ -703,14 +680,10 @@ describe('Component: BarChart', () => {
     });
 
     it('updateBarChart does work with limit', () => {
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'segment1';
-        dataset1.color = new Color(0, 0, 0);
+        let dataset1 = new BarDataSet(4, 'segment1', new Color(0, 0, 0), new Color(255, 255, 255));
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)', 'rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
         dataset1.data = [41, 31, 21, 11];
-        let dataset2 = new BarDataSet(4);
-        dataset2.label = 'segment2';
-        dataset2.color = new Color(5, 5, 5);
+        let dataset2 = new BarDataSet(4, 'segment2', new Color(5, 5, 5), new Color(255, 255, 255));
         dataset2.backgroundColor = ['rgb(6, 6, 6)', 'rgb(7, 7, 7)', 'rgb(8, 8, 8)', 'rgb(9, 9, 9)'];
         dataset2.data = [42, 32, 22, 12];
 
@@ -722,8 +695,10 @@ describe('Component: BarChart', () => {
         component.updateBarChart(0, 2);
 
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)'];
+        dataset1.hoverBackgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)'];
         dataset1.data = [41, 31];
         dataset2.backgroundColor = ['rgb(6, 6, 6)', 'rgb(7, 7, 7)'];
+        dataset2.hoverBackgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)'];
         dataset2.data = [42, 32];
 
         expect(component.colorFieldNames).toEqual(['testColorField']);
@@ -733,14 +708,10 @@ describe('Component: BarChart', () => {
     });
 
     it('updateBarChart does work with index and limit', () => {
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'segment1';
-        dataset1.color = new Color(0, 0, 0);
+        let dataset1 = new BarDataSet(4, 'segment1', new Color(0, 0, 0), new Color(255, 255, 255));
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)', 'rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
         dataset1.data = [41, 31, 21, 11];
-        let dataset2 = new BarDataSet(4);
-        dataset2.label = 'segment2';
-        dataset2.color = new Color(5, 5, 5);
+        let dataset2 = new BarDataSet(4, 'segment2', new Color(5, 5, 5), new Color(255, 255, 255));
         dataset2.backgroundColor = ['rgb(6, 6, 6)', 'rgb(7, 7, 7)', 'rgb(8, 8, 8)', 'rgb(9, 9, 9)'];
         dataset2.data = [42, 32, 22, 12];
 
@@ -752,8 +723,10 @@ describe('Component: BarChart', () => {
         component.updateBarChart(1, 2);
 
         dataset1.backgroundColor = ['rgb(2, 2, 2)', 'rgb(3, 3, 3)'];
+        dataset1.hoverBackgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)'];
         dataset1.data = [31, 21];
         dataset2.backgroundColor = ['rgb(7, 7, 7)', 'rgb(8, 8, 8)'];
+        dataset2.hoverBackgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)'];
         dataset2.data = [32, 22];
 
         expect(component.colorFieldNames).toEqual(['testColorField']);
@@ -763,14 +736,10 @@ describe('Component: BarChart', () => {
     });
 
     it('updateBarChart does not change bars or data in activeData', () => {
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'segment1';
-        dataset1.color = new Color(0, 0, 0);
+        let dataset1 = new BarDataSet(4, 'segment1', new Color(0, 0, 0), new Color(255, 255, 255));
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)', 'rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
         dataset1.data = [41, 31, 21, 11];
-        let dataset2 = new BarDataSet(4);
-        dataset2.label = 'segment2';
-        dataset2.color = new Color(5, 5, 5);
+        let dataset2 = new BarDataSet(4, 'segment2', new Color(5, 5, 5), new Color(255, 255, 255));
         dataset2.backgroundColor = ['rgb(6, 6, 6)', 'rgb(7, 7, 7)', 'rgb(8, 8, 8)', 'rgb(9, 9, 9)'];
         dataset2.data = [42, 32, 22, 12];
 
