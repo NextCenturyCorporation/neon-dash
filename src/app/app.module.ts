@@ -77,11 +77,8 @@ import { SimpleFilterComponent } from './components/simple-filter/simple-filter.
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
-// import { CustomConnectionDatabaseStepComponent } from './components/custom-connection/database-step.component';
-// import { CustomConnectionDatasetStepComponent } from './components/custom-connection/dataset-step.component';
-// import { CustomConnectionFieldsStepComponent } from './components/custom-connection/fields-step.component';
-// import { CustomConnectionLayoutStepComponent } from './components/custom-connection/layout-step.component';
 import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
 
 export function getAppConfig() {
@@ -99,10 +96,6 @@ export function getAppConfig() {
         ChartComponent,
         ConfigEditorComponent,
         CustomConnectionComponent,
-        // CustomConnectionDatabaseStepComponent,
-        // CustomConnectionDatasetStepComponent,
-        // CustomConnectionFieldsStepComponent,
-        // CustomConnectionLayoutStepComponent,
         CustomConnectionSimpleSetupStepComponent,
         DashboardOptionsComponent,
         DatasetSelectorComponent,
