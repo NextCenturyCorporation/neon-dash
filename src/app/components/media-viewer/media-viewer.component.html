@@ -70,22 +70,23 @@
         </mat-card>
     </mat-sidenav>
 
-    <div [class.loading-overlay]="isLoading || isLoadingWikiPage" [class.not-loading-overlay]="!isLoading && !isLoadingWikiPage">
-        <mat-spinner></mat-spinner>
+    <div [class.loading-overlay]="isLoading || isLoadingMedia" [class.not-loading-overlay]="!isLoading && !isLoadingMedia">
+        <mat-spinner ></mat-spinner>
     </div>
 
-    <mat-tab-group class="media-viewer" *ngIf="active.url == ''">
-            <mat-tab *ngFor="let text of active.wikiText; let i = index" [label]="getTabLabel(active.wikiName, i)">
-                <div class="wiki-text media-viewer-div">
-                    <iframe src="http://gizmodo.com" frameborder="0">
-                    </iframe>
+    <mat-tab-group class="media-viewer" *ngIf="active.url == '' && showMedia == true">
+            <mat-tab *ngFor="let document of active.documentArray; let i = index" [label]="getTabLabel(active.documentArray, i)">
+                <div class="media-viewer-div" [ngSwitch]="active.documentType">
+                    <img *ngSwitchCase="'img'" [src]="document" [alt]="active.linkField.prettyName" >
+                    <video *ngSwitchCase="'vid'" controls><source [src]="document"></video>
+                    <iframe *ngSwitchDefault [src]="sanitize(document)" frameborder="0"></iframe>
                 </div>
             </mat-tab>
     </mat-tab-group>
 
     <div class="media-viewer" *ngIf="active.url != ''">
         <div class="media-viewer-div">
-            <iframe [src]="active.url" frameborder="0">
+            <iframe [src]="sanitize(active.url)" frameborder="0">
             </iframe>
         </div>
     </div>
