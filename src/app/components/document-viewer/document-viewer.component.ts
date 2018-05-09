@@ -206,9 +206,11 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     createQuery() {
         let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
         let whereClause = this.createClause();
-        let fields = this.options.metadataFields.map((item) => {
+        let fields = [this.options.dataField.columnName].concat(this.options.metadataFields.map((item) => {
             return item.field;
-        }).concat(this.options.dataField.columnName);
+        })).concat(this.options.popoutFields.map((item) => {
+            return item.field;
+        }));
         if (this.options.dateField.columnName) {
             fields = fields.concat(this.options.dateField.columnName);
             query = query.sortBy(this.options.dateField.columnName, neonVariables.DESCENDING);
@@ -223,9 +225,11 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.docCount = response.data[0]._docCount;
         } else {
-            let fields = this.options.metadataFields.map((item) => {
+            let fields = [this.options.dataField.columnName].concat(this.options.metadataFields.map((item) => {
                 return item.field;
-            }).concat(this.options.dataField.columnName);
+            })).concat(this.options.popoutFields.map((item) => {
+                return item.field;
+            }));
             if (this.options.dateField.columnName) {
                 fields = fields.concat(this.options.dateField.columnName);
             }
@@ -331,6 +335,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         let config = new MatDialogConfig();
         config.data = {
             item: item,
+            showText: this.options.showText,
             textField: this.options.dataField.columnName,
             metadataFields: this.options.metadataFields.concat(this.options.popoutFields)
         };
