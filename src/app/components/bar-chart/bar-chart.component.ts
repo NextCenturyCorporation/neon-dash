@@ -55,22 +55,20 @@ export class BarData {
  * One set of bars to draw
  */
 export class BarDataSet {
-    // The name of the data set
-    label: string;
-    // The data
     data: number[] = [];
-    // The colors of the bars.
-    backgroundColor: string[] = [];
-    // The color of the data set
-    color: Color;
 
-    constructor(length?: number, color?: Color) {
+    // The backgroundColor, hoverBackgroundColor, and label properties are all used by ChartJS.
+    backgroundColor: string[] = [];
+    hoverBackgroundColor: string[] = [];
+
+    constructor(length: number, public label: string, public color: Color, public hoverColor: Color) {
         if (length) {
             for (let i = 0; i < length; i++) {
                 this.data[i] = 0;
+                this.backgroundColor[i] = this.color.toRgb();
+                this.hoverBackgroundColor[i] = this.hoverColor.toRgb();
             }
         }
-        this.color = color;
     }
 
     /**
@@ -208,7 +206,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     // Used to change the colors between active/inactive in the legend
     public selectedLabels: string[] = [];
     public colorFieldNames: string[] = [];
-    public defaultActiveColor;
+
+    public defaultBarColor;
+    public defaultHighlightColor;
 
     constructor(
         activeGridService: ActiveGridService,
@@ -321,7 +321,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             type: this.options.type,
             data: {
                 labels: [],
-                datasets: [new BarDataSet(0, this.defaultActiveColor)]
+                datasets: [new BarDataSet(0, '', this.defaultBarColor, this.defaultHighlightColor)]
             },
             options: {
                 responsive: true,
@@ -420,7 +420,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         //method twice, but for some reason it appears it only needs one call to work.
         this.handleChangeChartType();
 
-        this.defaultActiveColor = this.getPrimaryThemeColor();
+        this.defaultBarColor = this.getPrimaryThemeColor();
+        this.defaultHighlightColor = this.getHighlightThemeColor();
     }
 
     /**
@@ -771,13 +772,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             let barDataset = groupsToDatasets.get(barSegment);
 
             if (!barDataset) {
-                barDataset = new BarDataSet(this.bars.length);
-                barDataset.label = barSegment;
-                barDataset.color = colorFieldExists ? this.colorSchemeService.getColorFor(this.options.colorField.columnName, barSegment) :
-                    this.defaultActiveColor;
-                barDataset.backgroundColor = this.bars.map((bar) => {
-                    return barDataset.color.toRgb();
-                });
+                barDataset = new BarDataSet(this.bars.length, barSegment, (colorFieldExists ?
+                    this.colorSchemeService.getColorFor(this.options.colorField.columnName, barSegment) : this.defaultBarColor),
+                    this.defaultHighlightColor);
                 groupsToDatasets.set(barSegment, barDataset);
             }
 
@@ -831,9 +828,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let barChartData = new BarData();
         barChartData.labels = this.bars.slice(barIndex, barIndex + barLimit);
         barChartData.datasets = this.activeData.map((wholeDataset) => {
-            let limitedDataset = new BarDataSet(barChartData.labels.length);
-            limitedDataset.label = wholeDataset.label;
-            limitedDataset.color = wholeDataset.color;
+            let limitedDataset = new BarDataSet(barChartData.labels.length, wholeDataset.label, wholeDataset.color,
+                wholeDataset.hoverColor);
             limitedDataset.backgroundColor = wholeDataset.backgroundColor.slice(barIndex, barIndex + barLimit);
             limitedDataset.data = wholeDataset.data.slice(barIndex, barIndex + barLimit);
             return limitedDataset;
