@@ -125,6 +125,38 @@
                 </mat-button-toggle-group>
                 <p></p>
 
+                <mat-form-field>
+                    <mat-select placeholder="Ignore Own Filters" [(ngModel)]="options.ignoreSelf" required="true" (ngModelChange)="handleFiltersChangedEvent()">
+                        <mat-option [value]="true">Yes</mat-option>
+                        <mat-option [value]="false">No</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Allow Multiple Filters" [(ngModel)]="options.singleFilter" required="true" (ngModelChange)="handleFiltersChangedEvent()">
+                        <mat-option [value]="false">Yes</mat-option>
+                        <mat-option [value]="true">No</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Table Style" [(ngModel)]="options.skinny" required="true" (ngModelChange)="refreshVisualization()">
+                        <mat-option [value]="false">Normal</mat-option>
+                        <mat-option [value]="true">Skinny</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Sort" [(ngModel)]="options.sortDescending" required="true" (ngModelChange)="logChangeAndStartQueryChain()">
+                        <mat-option [value]="false">Ascending</mat-option>
+                        <mat-option [value]="true">Descending</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
                 <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 

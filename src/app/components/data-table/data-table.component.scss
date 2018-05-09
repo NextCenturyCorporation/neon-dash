@@ -83,6 +83,10 @@
         .datatable-filter-label {
             @extend %filter-label-shared;
         }
+
+        mat-icon {
+            @extend %filter-icon-shared;
+        }
     }
 }
 
@@ -161,7 +165,7 @@
 }
 
 /deep/ .datatable-body-row.active .datatable-row-group {
-    background: mat-color($primary);
+    background-color: mat-color($primary);
     color: mat-color($white);
 }
 
@@ -207,8 +211,8 @@
 
 /deep/ .datatable-body-row:hover,
 .skinny /deep/ .datatable-body-row:hover {
-    background: mat-color($primary);
-    color: mat-color($white);
+    background-color: #ffeb3b; /* mat-color-yellow-500 */
+    color: $black-87-opacity;
     cursor: pointer;
 }
 
