@@ -130,9 +130,17 @@ export class FilterService {
         return this.getFilters({ ownerId: ownerVisId });
     }
 
-    public getFiltersForFields(database: string, table: string, fields: string[]) {
+    /**
+     * Returns the list of Neon filter objects for the given database, table, and (optional) list of fields.
+     *
+     * @arg {string} database
+     * @arg {string} table
+     * @arg {array} [fields]
+     * @return {array}
+     */
+    public getFiltersForFields(database: string, table: string, fields?: string[]) {
         let checkClauses = (clause) => {
-            if (clause.type === 'where' && fields.indexOf(clause.lhs) >= 0) {
+            if (clause.type === 'where' && (!fields || fields.indexOf(clause.lhs) >= 0)) {
                 return true;
             } else if (clause.type !== 'where') {
                 for (let whereClause of clause.whereClauses) {

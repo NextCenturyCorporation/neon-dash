@@ -186,7 +186,7 @@ describe('Component: MediaViewer', () => {
         expect(component.getFiltersToIgnore()).toEqual(null);
     });
 
-    it('getFiltersToIgnore does return expected array of IDs if filters are set matching database/table/field', () => {
+    it('getFiltersToIgnore does return expected array of IDs if filters are set matching database/table', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
             neon.query.where('testIdField1', '!=', null), 'testFilterName1');
 
@@ -195,29 +195,27 @@ describe('Component: MediaViewer', () => {
         component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
+
+        component.options.idField = new FieldMetaData('testIdField2', 'Test ID Field 2');
+
+        expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
     });
 
-    it('getFiltersToIgnore does return null if no filters are set matching database/table/field', () => {
+    it('getFiltersToIgnore does return null if no filters are set matching database/table', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
             neon.query.where('testIdField1', '!=', null), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.idField = new FieldMetaData('testIdField2', 'Test ID Field 2');
-
-        // Test matching database/table but not field.
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
         component.options.database = DatasetMock.DATABASES[1];
+        component.options.table = DatasetMock.TABLES[0];
         component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
 
-        // Test matching database/field but not table.
+        // Test matching database but not table.
         expect(component.getFiltersToIgnore()).toEqual(null);
 
         component.options.database = DatasetMock.DATABASES[0];
         component.options.table = DatasetMock.TABLES[1];
 
-        // Test matching table/field but not database.
+        // Test matching table but not database.
         expect(component.getFiltersToIgnore()).toEqual(null);
     });
 
