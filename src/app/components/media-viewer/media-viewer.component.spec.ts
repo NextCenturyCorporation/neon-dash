@@ -39,10 +39,12 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
+import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
 
 describe('Component: MediaViewer', () => {
     let component: MediaViewerComponent;
     let fixture: ComponentFixture<MediaViewerComponent>;
+    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -56,7 +58,7 @@ describe('Component: MediaViewer', () => {
                 DatasetService,
                 ExportService,
                 ErrorNotificationService,
-                FilterService,
+                { provide: FilterService, useClass: FilterMock },
                 ThemesService,
                 VisualizationService,
                 Injector,
@@ -95,7 +97,6 @@ describe('Component: MediaViewer', () => {
     it('does have expected class properties', () => {
         expect(component.documentArray).toEqual([]);
         expect(component.isLoadingMedia).toEqual(false);
-        expect(component.showMedia).toEqual(false);
     });
 
     it('createQuery does return expected query', (() => {
@@ -123,12 +124,10 @@ describe('Component: MediaViewer', () => {
 
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toBe('No Data');
-        component.showMedia = false;
-        expect(component.getButtonText()).toBe('No Data');
-        component.showMedia = true;
         component.options.url = 'https://test.com';
         expect(component.getButtonText()).toBe('');
         component.documentArray = [{
+            border: '',
             link: 'a',
             name: 'a',
             type: ''
@@ -136,18 +135,22 @@ describe('Component: MediaViewer', () => {
         component.options.url = '';
         expect(component.getButtonText()).toBe('Total Files 1');
         component.documentArray = [{
+            border: '',
             link: 'a',
             name: 'a',
             type: ''
         }, {
+            border: '',
             link: 'b',
             name: 'b',
             type: ''
         }, {
+            border: '',
             link: 'c',
             name: 'c',
             type: ''
         }, {
+            border: '',
             link: 'd',
             name: 'd',
             type: ''
@@ -175,9 +178,48 @@ describe('Component: MediaViewer', () => {
         }]);
     }));
 
-    it('getFiltersToIgnore does return null', (() => {
-        expect(component.getFiltersToIgnore()).toBeNull();
-    }));
+    it('getFiltersToIgnore does return null if no filters are set', () => {
+        component.options.database = DatasetMock.DATABASES[0];
+        component.options.table = DatasetMock.TABLES[0];
+        component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
+
+        expect(component.getFiltersToIgnore()).toEqual(null);
+    });
+
+    it('getFiltersToIgnore does return expected array of IDs if filters are set matching database/table/field', () => {
+        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+            neon.query.where('testIdField1', '!=', null), 'testFilterName1');
+
+        component.options.database = DatasetMock.DATABASES[0];
+        component.options.table = DatasetMock.TABLES[0];
+        component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
+
+        expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
+    });
+
+    it('getFiltersToIgnore does return null if no filters are set matching database/table/field', () => {
+        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+            neon.query.where('testIdField1', '!=', null), 'testFilterName1');
+
+        component.options.database = DatasetMock.DATABASES[0];
+        component.options.table = DatasetMock.TABLES[0];
+        component.options.idField = new FieldMetaData('testIdField2', 'Test ID Field 2');
+
+        // Test matching database/table but not field.
+        expect(component.getFiltersToIgnore()).toEqual(null);
+
+        component.options.database = DatasetMock.DATABASES[1];
+        component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
+
+        // Test matching database/field but not table.
+        expect(component.getFiltersToIgnore()).toEqual(null);
+
+        component.options.database = DatasetMock.DATABASES[0];
+        component.options.table = DatasetMock.TABLES[1];
+
+        // Test matching table/field but not database.
+        expect(component.getFiltersToIgnore()).toEqual(null);
+    });
 
     it('getFilterText does return empty string', (() => {
         expect(component.getFilterText({})).toBe('');
@@ -223,6 +265,7 @@ describe('Component: MediaViewer', () => {
     it('onQuerySuccess does set expected properties if response returns no data', (() => {
         component.errorMessage = 'testErrorMessage';
         component.documentArray = [{
+            border: '',
             link: 'testLink',
             name: 'testName',
             type: ''
@@ -264,6 +307,7 @@ describe('Component: MediaViewer', () => {
             tick(500);
             expect(component.errorMessage).toBe('');
             expect(component.documentArray).toEqual([{
+                border: '',
                 link: 'testLinkValue',
                 name: 'testNameValue',
                 type: 'testTypeValue'
@@ -279,6 +323,7 @@ describe('Component: MediaViewer', () => {
             component.options.nameField = new FieldMetaData('testNameField');
             component.options.typeField = new FieldMetaData('testTypeField');
             component.documentArray = [{
+                border: '',
                 link: 'testLinkValue',
                 name: 'testNameValue',
                 type: 'testTypeValue'
@@ -304,6 +349,7 @@ describe('Component: MediaViewer', () => {
             tick(500);
             expect(component.errorMessage).toBe('');
             expect(component.documentArray).toEqual([{
+                border: '',
                 link: 'testLinkValue',
                 name: 'testNameValue',
                 type: 'testTypeValue'
@@ -346,10 +392,12 @@ describe('Component: MediaViewer', () => {
             tick(500);
             expect(component.errorMessage).toBe('');
             expect(component.documentArray).toEqual([{
+                border: '',
                 link: 'testLinkValue1',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             }, {
+                border: '',
                 link: 'testLinkValue2',
                 name: 'testNameValue',
                 type: 'testTypeValue'
@@ -392,10 +440,12 @@ describe('Component: MediaViewer', () => {
             tick(500);
             expect(component.errorMessage).toBe('');
             expect(component.documentArray).toEqual([{
+                border: '',
                 link: 'testLinkValue1',
                 name: 'testNameValue1',
                 type: 'testTypeValue1'
             }, {
+                border: '',
                 link: 'testLinkValue2',
                 name: 'testNameValue2',
                 type: 'testTypeValue2'
@@ -403,85 +453,143 @@ describe('Component: MediaViewer', () => {
         }))
     );
 
-    it('onQuerySuccess does use linkPrefix',
-        fakeAsync(inject([XHRBackend], (mockBackend) => {
-            component.errorMessage = 'testErrorMessage';
-            component.options.idField = new FieldMetaData('testIdField');
-            component.options.linkField = new FieldMetaData('testLinkField');
-            component.options.linkPrefix = 'prefix/';
+    it('onQuerySuccess does ignore empty links', fakeAsync(inject([XHRBackend], (mockBackend) => {
+        component.errorMessage = 'testErrorMessage';
+        component.options.idField = new FieldMetaData('testIdField');
+        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.linkPrefix = 'prefix/';
 
-            mockBackend.connections.subscribe((connection) => {
-                connection.mockRespond(new Response(new ResponseOptions({
-                    body: 'Test Document Link',
-                    status: 200
-                })));
-            });
+        mockBackend.connections.subscribe((connection) => {
+            connection.mockRespond(new Response(new ResponseOptions({
+                body: 'Test Document Link',
+                status: 200
+            })));
+        });
 
-            component.onQuerySuccess({
-                data: [{
-                    testIdField: 'testIdValue',
-                    testLinkField: 'testLinkValue'
-                }]
-            });
+        component.onQuerySuccess({
+            data: [{
+                testIdField: 'testIdValue',
+                testLinkField: ''
+            }]
+        });
 
-            // Wait for the HTTP response.
-            tick(500);
-            expect(component.errorMessage).toBe('');
-            expect(component.documentArray).toEqual([{
-                link: 'prefix/testLinkValue',
-                name: 'testLinkValue',
-                type: ''
-            }]);
-        }))
-    );
+        // Wait for the HTTP response.
+        tick(500);
+        expect(component.errorMessage).toBe('');
+        expect(component.documentArray).toEqual([]);
+    })));
 
-    it('onQuerySuccess does use typeMap',
-        fakeAsync(inject([XHRBackend], (mockBackend) => {
-            component.errorMessage = 'testErrorMessage';
-            component.options.idField = new FieldMetaData('testIdField');
-            component.options.linkField = new FieldMetaData('testLinkField');
-            component.options.typeMap = {
-                avi: 'vid',
-                jpg: 'img',
-                txt: 'txt'
-            };
+    it('onQuerySuccess does add border', fakeAsync(inject([XHRBackend], (mockBackend) => {
+        component.errorMessage = 'testErrorMessage';
+        component.options.idField = new FieldMetaData('testIdField');
+        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.border = true;
 
-            mockBackend.connections.subscribe((connection) => {
-                connection.mockRespond(new Response(new ResponseOptions({
-                    body: 'Test Document Link',
-                    status: 200
-                })));
-            });
+        mockBackend.connections.subscribe((connection) => {
+            connection.mockRespond(new Response(new ResponseOptions({
+                body: 'Test Document Link',
+                status: 200
+            })));
+        });
 
-            component.onQuerySuccess({
-                data: [{
-                    testIdField: 'testIdValue',
-                    testLinkField: ['video.avi', 'image.jpg', 'alpha.txt', 'other.xyz']
-                }]
-            });
+        component.onQuerySuccess({
+            data: [{
+                testIdField: 'testIdValue',
+                testLinkField: 'testLinkValue'
+            }]
+        });
 
-            // Wait for the HTTP response.
-            tick(500);
-            expect(component.errorMessage).toBe('');
-            expect(component.documentArray).toEqual([{
-                link: 'video.avi',
-                name: 'video.avi',
-                type: 'vid'
-            }, {
-                link: 'image.jpg',
-                name: 'image.jpg',
-                type: 'img'
-            }, {
-                link: 'alpha.txt',
-                name: 'alpha.txt',
-                type: 'txt'
-            }, {
-                link: 'other.xyz',
-                name: 'other.xyz',
-                type: ''
-            }]);
-        }))
-    );
+        // Wait for the HTTP response.
+        tick(500);
+        expect(component.errorMessage).toBe('');
+        expect(component.documentArray).toEqual([{
+            border: 'yellow',
+            link: 'testLinkValue',
+            name: 'testLinkValue',
+            type: ''
+        }]);
+    })));
+
+    it('onQuerySuccess does use linkPrefix', fakeAsync(inject([XHRBackend], (mockBackend) => {
+        component.errorMessage = 'testErrorMessage';
+        component.options.idField = new FieldMetaData('testIdField');
+        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.linkPrefix = 'prefix/';
+
+        mockBackend.connections.subscribe((connection) => {
+            connection.mockRespond(new Response(new ResponseOptions({
+                body: 'Test Document Link',
+                status: 200
+            })));
+        });
+
+        component.onQuerySuccess({
+            data: [{
+                testIdField: 'testIdValue',
+                testLinkField: 'testLinkValue'
+            }]
+        });
+
+        // Wait for the HTTP response.
+        tick(500);
+        expect(component.errorMessage).toBe('');
+        expect(component.documentArray).toEqual([{
+            border: '',
+            link: 'prefix/testLinkValue',
+            name: 'testLinkValue',
+            type: ''
+        }]);
+    })));
+
+    it('onQuerySuccess does use typeMap', fakeAsync(inject([XHRBackend], (mockBackend) => {
+        component.errorMessage = 'testErrorMessage';
+        component.options.idField = new FieldMetaData('testIdField');
+        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.typeMap = {
+            avi: 'vid',
+            jpg: 'img',
+            txt: 'txt'
+        };
+
+        mockBackend.connections.subscribe((connection) => {
+            connection.mockRespond(new Response(new ResponseOptions({
+                body: 'Test Document Link',
+                status: 200
+            })));
+        });
+
+        component.onQuerySuccess({
+            data: [{
+                testIdField: 'testIdValue',
+                testLinkField: ['video.avi', 'image.jpg', 'alpha.txt', 'other.xyz']
+            }]
+        });
+
+        // Wait for the HTTP response.
+        tick(500);
+        expect(component.errorMessage).toBe('');
+        expect(component.documentArray).toEqual([{
+            border: '',
+            link: 'video.avi',
+            name: 'video.avi',
+            type: 'vid'
+        }, {
+            border: '',
+            link: 'image.jpg',
+            name: 'image.jpg',
+            type: 'img'
+        }, {
+            border: '',
+            link: 'alpha.txt',
+            name: 'alpha.txt',
+            type: 'txt'
+        }, {
+            border: '',
+            link: 'other.xyz',
+            name: 'other.xyz',
+            type: ''
+        }]);
+    })));
 
     it('postInit does call executeQueryChain', (() => {
         let spy = spyOn(component, 'executeQueryChain');
@@ -504,14 +612,43 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('subGetBindings does set expected bindings', (() => {
+        let bindings = {};
+
+        component.subGetBindings(bindings);
+        expect(bindings).toEqual({
+            idField: '',
+            linkField: '',
+            nameField: '',
+            typeField: '',
+            border: false,
+            linkPrefix: '',
+            resize: true,
+            typeMap: {}
+        });
+
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.nameField = new FieldMetaData('testNameField');
+        component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.border = true;
+        component.options.linkPrefix = '/prefix';
+        component.options.resize = false;
+        component.options.typeMap = {
+            jpg: 'img'
+        };
 
-        let bindings = {};
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
             idField: 'testIdField',
-            linkField: 'testLinkField'
+            linkField: 'testLinkField',
+            nameField: 'testNameField',
+            typeField: 'testTypeField',
+            border: true,
+            linkPrefix: '/prefix',
+            resize: false,
+            typeMap: {
+                jpg: 'img'
+            }
         });
     }));
 
@@ -620,7 +757,7 @@ describe('Component: MediaViewer', () => {
             let options;
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toBe(7);
+            expect(selects.length).toBe(8);
 
             expect(selects[0].componentInstance.disabled).toEqual(true);
             expect(selects[0].componentInstance.placeholder).toEqual('Database');
@@ -661,12 +798,24 @@ describe('Component: MediaViewer', () => {
             expect(options[0].getLabel()).toEqual('(None)');
 
             expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('Resize Media To Fit?');
+            expect(selects[6].componentInstance.placeholder).toEqual('Resize Media');
             expect(selects[6].componentInstance.required).toEqual(true);
             options = selects[6].componentInstance.options.toArray();
             expect(options.length).toEqual(2);
             expect(options[0].getLabel()).toEqual('Yes');
+            expect(options[0].selected).toEqual(true);
             expect(options[1].getLabel()).toEqual('No');
+            expect(options[1].selected).toEqual(false);
+
+            expect(selects[7].componentInstance.disabled).toEqual(false);
+            expect(selects[7].componentInstance.placeholder).toEqual('Border');
+            expect(selects[7].componentInstance.required).toEqual(true);
+            options = selects[7].componentInstance.options.toArray();
+            expect(options.length).toEqual(2);
+            expect(options[0].getLabel()).toEqual('None');
+            expect(options[0].selected).toEqual(true);
+            expect(options[1].getLabel()).toEqual('Yellow');
+            expect(options[1].selected).toEqual(false);
         });
     }));
 
@@ -741,17 +890,18 @@ describe('Component: MediaViewer', () => {
         expect(tabs.length).toBe(0);
     }));
 
-    it('does show tabs if documentArray is not empty and showMedia is true', async(inject([DomSanitizer], (sanitizer) =>  {
+    it('does show tabs if documentArray is not empty', async(inject([DomSanitizer], (sanitizer) =>  {
         component.documentArray = [{
+            border: '',
             link: 'testLinkValue1',
             name: 'testNameValue1',
             type: ''
         }, {
+            border: '',
             link: 'testLinkValue2',
             name: 'testNameValue2',
             type: ''
         }];
-        component.showMedia = true;
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
@@ -769,10 +919,10 @@ describe('Component: MediaViewer', () => {
     })));
 
     it('does display image tag according to the img type', async(inject([DomSanitizer], (sanitizer) => {
-        component.showMedia = true;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         component.documentArray = [{
+            border: '',
             link: imgSrc,
             name: 'testName',
             type: 'img'
@@ -781,7 +931,7 @@ describe('Component: MediaViewer', () => {
 
         fixture.whenStable().then(() => {
             fixture.detectChanges();
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body .media-viewer-div'));
+            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
             expect(media.length).toBe(1);
             expect(media[0].nativeElement.innerHTML).toContain('<img');
             expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="' + component.options.linkField.prettyName + '"');
@@ -789,9 +939,9 @@ describe('Component: MediaViewer', () => {
     })));
 
     it('does display video tag according to the vid type', async(inject([DomSanitizer], (sanitizer) => {
-        component.showMedia = true;
         let vidSrc = 'https://youtu.be/Mxesac55Puo';
         component.documentArray = [{
+            border: '',
             link: vidSrc,
             name: 'testName',
             type: 'vid'
@@ -800,7 +950,7 @@ describe('Component: MediaViewer', () => {
 
         fixture.whenStable().then(() => {
             fixture.detectChanges();
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body .media-viewer-div'));
+            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
             expect(media.length).toBe(1);
             expect(media[0].nativeElement.innerHTML).toContain('<video');
             expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
@@ -808,9 +958,9 @@ describe('Component: MediaViewer', () => {
     })));
 
     it('does display iframe tag according to the txt type', async(inject([DomSanitizer], (sanitizer) => {
-        component.showMedia = true;
         let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
         component.documentArray = [{
+            border: '',
             link: docSrc,
             name: 'testName',
             type: 'txt'
@@ -819,7 +969,7 @@ describe('Component: MediaViewer', () => {
 
         fixture.whenStable().then(() => {
             fixture.detectChanges();
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body .media-viewer-div'));
+            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
             expect(media.length).toBe(1);
             expect(media[0].nativeElement.innerHTML).toContain('<iframe');
             expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
@@ -848,16 +998,17 @@ describe('Component: MediaViewer with config', () => {
                 VisualizationService,
                 Injector,
                 { provide: 'config', useValue: new NeonGTDConfig() },
+                { provide: 'title', useValue: 'Test Title' },
                 { provide: 'database', useValue: 'testDatabase1' },
                 { provide: 'table', useValue: 'testTable1' },
-                { provide: 'id', useValue: 'testId' },
                 { provide: 'idField', useValue: 'testIdField' },
                 { provide: 'linkField', useValue: 'testLinkField' },
-                { provide: 'linkPrefix', useValue: 'prefix/' },
                 { provide: 'nameField', useValue: 'testNameField' },
-                { provide: 'resize', useValue: false },
-                { provide: 'title', useValue: 'Test Title' },
                 { provide: 'typeField', useValue: 'testTypeField' },
+                { provide: 'border', useValue: true },
+                { provide: 'linkPrefix', useValue: 'prefix/' },
+                { provide: 'id', useValue: 'testId' },
+                { provide: 'resize', useValue: false },
                 { provide: 'typeMap', useValue: { jpg: 'img' } },
                 { provide: 'url', useValue: 'https://kafka.apache.org/intro' }
             ],
@@ -927,7 +1078,7 @@ describe('Component: MediaViewer with config', () => {
             let options;
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toBe(7);
+            expect(selects.length).toBe(8);
 
             expect(selects[0].componentInstance.disabled).toEqual(false);
             expect(selects[0].componentInstance.placeholder).toEqual('Database');
@@ -992,12 +1143,24 @@ describe('Component: MediaViewer with config', () => {
             }
 
             expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('Resize Media To Fit?');
+            expect(selects[6].componentInstance.placeholder).toEqual('Resize Media');
             expect(selects[6].componentInstance.required).toEqual(true);
             options = selects[6].componentInstance.options.toArray();
             expect(options.length).toEqual(2);
             expect(options[0].getLabel()).toEqual('Yes');
+            expect(options[0].selected).toEqual(false);
             expect(options[1].getLabel()).toEqual('No');
+            expect(options[1].selected).toEqual(true);
+
+            expect(selects[7].componentInstance.disabled).toEqual(false);
+            expect(selects[7].componentInstance.placeholder).toEqual('Border');
+            expect(selects[7].componentInstance.required).toEqual(true);
+            options = selects[7].componentInstance.options.toArray();
+            expect(options.length).toEqual(2);
+            expect(options[0].getLabel()).toEqual('None');
+            expect(options[0].selected).toEqual(false);
+            expect(options[1].getLabel()).toEqual('Yellow');
+            expect(options[1].selected).toEqual(true);
         });
     }));
 });
