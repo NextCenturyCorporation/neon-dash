@@ -97,9 +97,17 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Resize Media To Fit?" [(ngModel)]="options.resize" required="true" (ngModelChange)="subOnResizeStop()">
+                    <mat-select placeholder="Resize Media" [(ngModel)]="options.resize" required="true" (ngModelChange)="subOnResizeStop()">
                         <mat-option [value]="true">Yes</mat-option>
                         <mat-option [value]="false">No</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Border" [(ngModel)]="options.border" required="true">
+                        <mat-option [value]="false">None</mat-option>
+                        <mat-option [value]="true">Yellow</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
@@ -110,23 +118,23 @@
     </mat-sidenav>
 
     <div [class.loading-overlay]="isLoading || isLoadingMedia" [class.not-loading-overlay]="!isLoading && !isLoadingMedia">
-        <mat-spinner ></mat-spinner>
+        <mat-spinner></mat-spinner>
     </div>
 
-    <mat-tab-group class="media-viewer" *ngIf="options.url == '' && showMedia == true">
-        <mat-tab *ngFor="let document of documentArray" [label]="document.name">
-            <div class="media-viewer-div" [ngSwitch]="document.type">
-                <img #image *ngSwitchCase="'img'" [src]="document.link" [alt]="options.linkField.prettyName" >
-                <video #video *ngSwitchCase="'vid'" controls><source [src]="document.link"></video>
-                <iframe #frame *ngSwitchDefault [src]="sanitize(document.link)" frameborder="0"></iframe>
-            </div>
-        </mat-tab>
-    </mat-tab-group>
+    <div *ngIf="options.url == ''">
+        <div *ngIf="options.id && documentArray.length == 0" class="no-data-text">No Data: {{ options.id }}</div>
+        <mat-tab-group>
+            <mat-tab *ngFor="let document of documentArray" [label]="document.name">
+                <div [ngSwitch]="document.type">
+                    <img #image *ngSwitchCase="'img'" [class.border-yellow]="document.border === 'yellow'" [src]="document.link" [alt]="options.linkField.prettyName" >
+                    <video #video *ngSwitchCase="'vid'" [class.border-yellow]="document.border === 'yellow'" controls><source [src]="document.link"></video>
+                    <iframe #frame *ngSwitchDefault [class.border-yellow]="document.border === 'yellow'" [src]="sanitize(document.link)" frameborder="0"></iframe>
+                </div>
+            </mat-tab>
+        </mat-tab-group>
+    </div>
 
-    <div class="media-viewer" *ngIf="options.url != ''">
-        <div class="media-viewer-div">
-            <iframe [src]="sanitize(options.url)" frameborder="0">
-            </iframe>
-        </div>
+    <div class="full-height" *ngIf="options.url != ''">
+        <iframe [src]="sanitize(options.url)" frameborder="0"></iframe>
     </div>
 </mat-sidenav-container>
