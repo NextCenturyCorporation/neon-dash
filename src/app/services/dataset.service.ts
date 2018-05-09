@@ -80,18 +80,12 @@ export class DatasetService {
 
     static validateDatabases(dataset): void {
         let indexListToRemove = [];
-        dataset.dateFilterKeys = {};
         dataset.databases.forEach((database, index) => {
             if (!(database.name || database.tables || database.tables.length)) {
                 indexListToRemove.push(index);
             } else {
                 database.prettyName = database.prettyName || database.name;
                 DatasetService.validateTables(database);
-                // Initialize the date filter keys map for each database/table pair.
-                dataset.dateFilterKeys[database.name] = {};
-                database.tables.forEach((table) => {
-                    dataset.dateFilterKeys[database.name][table.name] = {};
-                });
             }
         });
         this.removeFromArray(dataset.databases, indexListToRemove);
@@ -155,19 +149,14 @@ export class DatasetService {
      * identifier used by the visualizations and each value is a field name.  Each relation is an Object with table
      * names as keys and field names as values.
      */
-    public setActiveDataset(dataset): void  {
+    public setActiveDataset(dataset): void {
         this.dataset.name = dataset.name || 'Unknown Dataset';
         this.dataset.layout = dataset.layout || '';
         this.dataset.datastore = dataset.datastore || '';
         this.dataset.hostname = dataset.hostname || '';
         this.dataset.databases = dataset.databases || [];
         this.dataset.options = dataset.options || {};
-        this.dataset.mapLayers = dataset.mapLayers || [];
-        this.dataset.mapConfig = dataset.mapConfig || {};
         this.dataset.relations = dataset.relations || [];
-        this.dataset.linkyConfig = dataset.linkyConfig || {};
-        this.dataset.dateFilterKeys = dataset.dateFilterKeys;
-        this.dataset.lineCharts = dataset.lineCharts || [];
 
         // Shutdown any previous update intervals.
         if (this.updateInterval) {
@@ -369,7 +358,7 @@ export class DatasetService {
             for (let table of database.tables) {
                 let success = true;
                 let fields = {};
-                if (keys  && keys.length > 0) {
+                if (keys && keys.length > 0) {
                     for (let key of keys) {
                         if (table.mappings[key]) {
                             fields[key] = table.mappings[key];
@@ -600,14 +589,18 @@ export class DatasetService {
 
     public findMentionedFields(filter: neon.query.Filter): { database: string, table: string, field: string }[] {
         let findMentionedFieldsHelper = (clause: neon.query.WherePredicate) => {
-            if (clause instanceof neon.query.WhereClause) {
-                return [clause.lhs];
-            } else if (clause instanceof neon.query.BooleanClause) {
-                let foundFields = [];
-                clause.whereClauses.forEach((innerClause) => {
-                    foundFields = foundFields.concat(findMentionedFieldsHelper(innerClause));
-                });
-                return foundFields;
+            switch (clause.type) {
+                case 'where': {
+                    return [(clause as neon.query.WhereClause).lhs];
+                }
+                case 'and':
+                case 'or': {
+                    let foundFields = [];
+                    (clause as neon.query.BooleanClause).whereClauses.forEach((innerClause) => {
+                        foundFields = foundFields.concat(findMentionedFieldsHelper(innerClause));
+                    });
+                    return foundFields;
+                }
             }
         };
         let fields = findMentionedFieldsHelper(filter.whereClause);
@@ -627,10 +620,10 @@ export class DatasetService {
     }
 
     public getEquivalentFields(database: string,
-                               table: string,
-                               field: string,
-                               mapping: Map<string, Map<string, { database: string, table: string, field: string }[]>>):
-                               Map<string, Map<string, { database: string, table: string, field: string }[]>> {
+        table: string,
+        field: string,
+        mapping: Map<string, Map<string, { database: string, table: string, field: string }[]>>):
+        Map<string, Map<string, { database: string, table: string, field: string }[]>> {
         let relatedFields: any = mapping;
 
         let found = this.findValueInRelations(database, table, field);
@@ -677,11 +670,11 @@ export class DatasetService {
         return database + '_' + table;
     }
     // Internal helper method to add a related field to the mapping of related fields, and returns true if it was added and false otherwise.
-    private addRelatedFieldToMapping(mapping: Map<string,  Map<string, { database: string, table: string, field: string }[]>>,
-                                     baseField: string,
-                                     database: string,
-                                     table: string,
-                                     field: string): boolean {
+    private addRelatedFieldToMapping(mapping: Map<string, Map<string, { database: string, table: string, field: string }[]>>,
+        baseField: string,
+        database: string,
+        table: string,
+        field: string): boolean {
         let dbAndTableKey = this.makeDbAndTableKey(database, table);
         if (mapping.get(dbAndTableKey) === undefined) {
             let newMap = new Map<string, { database: string, table: string, field: string }[]>();
@@ -713,7 +706,7 @@ export class DatasetService {
 
     // Internal helper method to find a field in relations.
     // Returns every member of every relation that contains the given database/table/field combination.
-    private findValueInRelations(db: string, t: string, f: string): {database: string, table: string, field: string}[] {
+    private findValueInRelations(db: string, t: string, f: string): { database: string, table: string, field: string }[] {
         let values = [];
         this.dataset.relations.forEach((relation) => {
             for (let x = relation.members.length - 1; x >= 0; x--) {
@@ -724,90 +717,6 @@ export class DatasetService {
             }
         });
         return values;
-    }
-
-    /**
-     * Returns the initial configuration parameters for the map with the given name in the active dataset.
-     * @param {String} name
-     * @return {Object}
-     */
-    public getMapConfig(name: string): Object {
-        return this.dataset.mapConfig[name] || {};
-    }
-
-    /**
-     * Sets the map layer configuration for the active dataset.
-     * @param {object} config A set of layer configuration objects.
-     */
-    public setMapLayers(config: any): void {
-        this.dataset.mapLayers = config;
-        this.updateDataset();
-    }
-
-    /**
-     * Adds a map layer configuration for the active dataset.
-     * @param {String} name A name to map to the given layers.
-     * @param {Array} layers A list of map layer configuration objects.
-     */
-    public addMapLayer(name: string, layers: string): void {
-        this.dataset.mapLayers[name] = layers;
-        this.updateDataset();
-    }
-
-    /**
-     * Returns the map layer configuration for the map with the given name in the active dataset.
-     * @return {Array}
-     */
-    public getMapLayers(name: string): any[] {
-        return this.dataset.mapLayers[name] || [];
-    }
-
-    /**
-     * Sets the line chart configuration for the active dataset.
-     * @param {Array<Object>} config A set of line chart configuration objects.
-     */
-    public setLineCharts(config: any[]): void {
-        this.dataset.lineCharts = config;
-        this.updateDataset();
-    }
-
-    /**
-     * Adds a line chart configuration for the active dataset.
-     * @param {String} chartName A name to map to the given charts.
-     * @param {Array} charts A list of line chart configuration objects.
-     */
-    public addLineChart(chartName: string, charts: Object[]): void {
-        this.dataset.lineCharts[chartName] = charts;
-        this.updateDataset();
-    }
-
-    /**
-     * Returns the line chart configuration for the the line chart with the given name in the active dataset.
-     * @return {Array}
-     */
-    public getLineCharts(name: string): Object {
-        return this.dataset.lineCharts[name] || [];
-    }
-
-    /**
-     * Returns the linky configuration for the active dataset.
-     * @return {Object}
-     */
-    public getLinkyConfig(): any {
-        return this.dataset.linkyConfig;
-    }
-
-    /**
-     * Sets the linky configuration for the active dataset.
-     * @param {Object} config A linky configuration object
-     * @param {Boolean} config.mentions If mentions should be linked
-     * @param {Boolean} config.hashtags If hashtags should be linked
-     * @param {Boolean} config.urls If URLs should be linked
-     * @param {String} config.linkTo Location where mentions and hashtags
-     * should be linked to. Options: "twitter", "instagram", "github"
-     */
-    public setLinkyConfig(config: Object): void {
-        this.dataset.linkyConfig = config;
     }
 
     /**
@@ -844,7 +753,7 @@ export class DatasetService {
                         }
                     });
                     pendingTypesRequests++;
-                    connection.getFieldTypes (database.name, table.name, (types) => {
+                    connection.getFieldTypes(database.name, table.name, (types) => {
                         for (let f of table.fields) {
                             if (types && types[f.columnName]) {
                                 f.type = types[f.columnName];

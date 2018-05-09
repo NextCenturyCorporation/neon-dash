@@ -989,6 +989,8 @@
 					"sortField": "documentCount",
 					"limit": "100",
 					"allColumnStatus": "hide",
+					"dataField" : "situationTitle",
+					"idField": "situationTitle",
 					"exceptionsToStatus": [
 							"situationTitle",
 						"documentCount"

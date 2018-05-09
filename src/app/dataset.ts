@@ -92,12 +92,7 @@ export class Dataset {
     hasUpdatedFields: boolean = false;
     layout: string = '';
     options: DatasetOptions = new DatasetOptions();
-    mapLayers: Object[] = undefined;
-    mapConfig: Object = undefined;
     relations: Relation[] = [];
-    linkyConfig: Object = undefined;
-    dateFilterKeys: Object = undefined;
-    lineCharts: Object[] = undefined;
 
     constructor(name?: string, datastore?: string, hostname?: string) {
         this.name = name;
