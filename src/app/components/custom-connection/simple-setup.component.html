@@ -1,116 +1,71 @@
 <div [hidden]="!selected">
-    <div class="row">
-        <div class="col-md5">
-            <div class="form-group">
-                <label>Dataset Name</label>
-                <input type="text"
-                    [ngClass]="{'ng-invalid': !datasetNameIsValid}"
-                    [(ngModel)]="data.datasetName"
-                    (ngModelChange)="validateDatasetName()"/>
-            </div>
-        </div>
+  <div class="modal__row modal__row--text">
+    <label class="modal__row-label">Dataset Name</label>
+    <input class="modal__input--medium" type="text" [ngClass]="{'ng-invalid': !datasetNameIsValid}" [(ngModel)]="data.datasetName"
+      (ngModelChange)="validateDatasetName()" placeholder="Please enter a unique name" />
+  </div>
 
-        <div class="col-md-6">
-            <div class="form-group no-margin">
-                <label>&nbsp;</label>
-                <label class="bottom text-danger"
-                    [innerHtml]="datasetNameIsValid ? '' : 'Please enter a unique name.'"
-                    style="display: block;"></label>
-            </div>
-        </div>
-    </div>
+  <div class="modal__row">
+    <label class="modal__row-label">Datastore Type</label>
+    <select class="modal__input--medium" [(ngModel)]="data.datastoreType" (ngModelChange)="changeType()">
+      <option value="mongo">Mongo</option>
+      <option value="sparksql">Spark SQL</option>
+      <option value="elasticsearch">Elasticsearch</option>
+    </select>
+  </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="form-group">
-                <label>Datastore Type</label>
-                <select class="form-control" [(ngModel)]="data.datastoreType" (ngModelChange)="changeType()">
-                    <option value="mongo">Mongo</option>
-                    <option value="sparksql">Spark SQL</option>
-                    <option value="elasticsearch">Elasticsearch</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="form-group">
-                <label>Datastore Host Name</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" [(ngModel)]="data.datastoreHost" (ngModelChange)="changeHost()"/>
-                    <span class="input-group-btn">
-                        <button class="btn btn-default"
-                            (click)="connectToServer()"
-                            [innerHtml]="isLoading ? 'Connecting' : isConnected ? 'Connected' : 'Connect'"
-                            [disabled]="isLoading || isConnected"></button>
-                    </span>
-                </div>
-            </div>
-        </div>
-    </div>
-
+  <div class="modal__row">
+    <label class="modal__row-label">Datastore Host Name</label>
+    <input class="modal__input--medium" type="text" [(ngModel)]="data.datastoreHost" (ngModelChange)="changeHost()" />
+    <span class="input-group-btn">
+      <button class="btn btn-default" (click)="connectToServer()" [innerHtml]="isLoading ? 'Connecting' : isConnected ? 'Connected' : 'Connect'"
+        [disabled]="isLoading || isConnected"></button>
+    </span>
     <label class="error-label" *ngIf="error">Error connecting to datastore.</label>
+  </div>
 
-    <hr>
-
-    <div class="col-md-5">
-        <div class="form-group">
-            <label>Database</label>
-            <select class="form-control"
-                (ngModelChange)="selectDatabase()"
-                [(ngModel)]="selectedDatabase.database"
-                [disabled]="data.allDatabases.length == 0">
-                <option value="" selected="true">Select Database</option>
-                <option *ngFor="let database of data.allDatabases" [ngValue]="database">{{database.name}}</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>Table</label>
-            <select class="form-control"
-                (ngModelChange)="selectTable()"
-                [(ngModel)]="selectedDatabase.selectedTable.table"
-                [disabled]="!selectedDatabase.database.name || selectedDatabase.database.tables.length == 0">
-                <option value="">Select Table</option>
-                <option *ngFor="let table of selectedDatabase.database.tables" [ngValue]="table">{{table.name}}</option>
-            </select>
-        </div>
-
-        <div class="form-group no-margin">
-            <button class="btn-small btn btn-default form-control"
-                (click)="addNewCustomDatabase()"
-                [disabled]="!selectedDatabase.database.name || !selectedDatabase.selectedTable.table.name">Add</button>
-        </div>
+  <div class="modal__row modal__row--slotted">
+    <div>
+      <label class="modal__row-label">Database</label>
+      <select (ngModelChange)="selectDatabase()" [(ngModel)]="selectedDatabase.database" [disabled]="data.allDatabases.length == 0">
+        <option value="" selected="true">Select Database</option>
+        <option *ngFor="let database of data.allDatabases" [ngValue]="database">{{ database.name }}</option>
+      </select>
     </div>
 
-    <div class="col-md-7 checkbox-group">
-        <label>
-            Databases Added
-            <i class="glyphicon glyphicon-question-sign"
-                data-placement="bottom"
-                data-toggle="tooltip"
-                title="{{tooltip}}"></i>
-        </label>
-        <div class="neon-well neon-well-dark">
-            <div *ngFor="let customDatabase of customDatabases">
-                <div *ngFor="let customTable of customDatabase.customTables">
-                    <input type="checkbox" [(ngModel)]="customTable.selected">
-                    <label class="checkbox-group-label">
-                        {{customDatabase.database.name}} : {{customTable.table.name}}
-                    </label>
-                </div>
-            </div>
-            
-            <div class="form-group" *ngIf="!customDatabases.length">
-                <span class="no-data">No Databases Set</span>
-            </div>
-        </div>
-
-        <div class="form-group no-margin">
-            <button class="btn-small btn btn-default form-control"
-                (click)="removeCustomDatabases()"
-                [disabled]="removeButtonDisabled()">
-                Remove Selected
-            </button>
-        </div>
+    <div>
+      <label class="modal__row-label">Table</label>
+      <select class="form-control" (ngModelChange)="selectTable()" [(ngModel)]="selectedDatabase.selectedTable.table" [disabled]="!selectedDatabase.database.name || selectedDatabase.database.tables.length == 0">
+        <option value="">Select Table</option>
+        <option *ngFor="let table of selectedDatabase.database.tables" [ngValue]="table">{{ table.name }}</option>
+      </select>
     </div>
+
+    <div>
+      <button class="btn-small btn btn-default form-control" (click)="addNewCustomDatabase()" [disabled]="!selectedDatabase.database.name || !selectedDatabase.selectedTable.table.name">Add</button>
+    </div>
+  </div>
+
+  <div class="modal__row">
+    <label class="modal__row-label">Data Sources
+      <i class="glyphicon glyphicon-question-sign" data-placement="bottom" data-toggle="tooltip" title="{{tooltip}}"></i>
+    </label>
+    <div class="modal__datasource-container">
+      <div *ngFor="let customDatabase of customDatabases">
+        <div *ngFor="let customTable of customDatabase.customTables" class="modal__datasource-list-item">
+          <label>
+            <input type="checkbox" [(ngModel)]="customTable.selected">
+            {{ customDatabase.database.name }} : {{ customTable.table.name }}
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal__row ">
+    <button class="btn-small btn btn-default form-control " (click)="removeCustomDatabases() " [disabled]="removeButtonDisabled() ">
+      Remove Selected
+    </button>
+  </div>
+
 </div>
