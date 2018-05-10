@@ -18,17 +18,17 @@ import { FieldMetaData } from '../../dataset';
 
 export class Annotation {
     annotationLabel: string;
-    startCharacterField: number;
-    endCharacterField: number;
-    textField: String;
+    startField: number;
+    endField: number;
+    textField: string;
     typeField: string;
 }
 
 export class AnnotationFields {
-    startCharacterField: FieldMetaData;
-    endCharacterField: FieldMetaData;
-    textField: FieldMetaData;
-    typeField: FieldMetaData;
+    startCharacterField: any;
+    endCharacterField: any;
+    textField: any;
+    typeField: any;
 }
 
 export class AnnotationViewerOptions {
@@ -52,6 +52,14 @@ export class Data {
     documents: any;
     annotations: any[];
     details: any;
+    parts: Part[];
+}
+
+export class Part {
+    annotation: boolean;
+    highlightColor: any;
+    text: string;
+    type: string;
 }
 
 export class Details {

@@ -118,7 +118,7 @@
                 <ul class="annotation-viewer-table">
                     <ng-template ngFor let-item [ngForOf]="activeData">
                         <li class="document-row" (click)="onClick(item)">
-                            {{ item.documents }}
+                            <span *ngFor="let parts of item.parts" [style.background-color]="parts.highlightColor" [matTooltip]="parts.type" tooltip-position="below">{{ parts.text }}</span>
                         </li>
                     </ng-template>
                 </ul>
