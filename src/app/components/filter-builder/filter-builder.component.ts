@@ -50,7 +50,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         andor: string,
         clauses: WhereClauseMetaData[],
         databaseTableFieldKeysToFilterIds: Map<string, string>,
-        operators: OperatorMetaData[]
+        operators: OperatorMetaData[],
+        multiFilter: boolean
     };
 
     private counter: number;
@@ -66,7 +67,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             andor: 'and',
             clauses: [],
             databaseTableFieldKeysToFilterIds: new Map<string, string>(),
-            operators: []
+            operators: [],
+            multiFilter: this.injector.get('multiFilter', false)
         };
 
         this.counter = -1;
@@ -89,9 +91,17 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                     let databaseTableFieldKey = this.getDatabaseTableFieldKey(database.name, table.name, field.columnName);
                     this.active.databaseTableFieldKeysToFilterIds.set(databaseTableFieldKey, '');
                 });
+
+                if(this.active.multiFilter){
+                    this.meta.table = table;
+                    this.addBlankWhereClause();
+                }
             });
         });
-        this.addBlankWhereClause();
+
+        if(!this.active.multiFilter){
+            this.addBlankWhereClause();
+        }
     }
 
     postInit() {
@@ -141,6 +151,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             active: false,
             id: ++this.counter
         };
+
         if (clause.database && clause.table) {
             this.active.clauses.push(clause);
         }
@@ -296,6 +307,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 clause.field.columnName);
             return databaseTableFieldKey === clauseDatabaseTableFieldKey && this.validateClause(clause) && clause.active;
         });
+
         let filterClauses = activeMatchingClauses.map((clause) => {
             let operator = clause.operator.value;
             let value: any = clause.value;

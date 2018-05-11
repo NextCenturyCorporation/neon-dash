@@ -10,12 +10,12 @@
                 "name": "muggsy",
                 "prettyName": "Muggsy",
                 "tables": [{
-                    "name": "testProbs",
-                    "prettyName": "Test"
+                    "name": "trainProbs",
+                    "prettyName": "Train"
                 },
                     {
-                        "name": "trainProbs",
-                        "prettyName": "Train"
+                        "name": "testProbs",
+                        "prettyName": "Test"
                     }]
             }]
         }],
@@ -36,7 +36,8 @@
                 "bindings": {
                     "title": "Filter Builder",
                     "database": "muggsy",
-                    "table": "trainProbs"
+                    "table": "trainProbs",
+                    "multiFilter": true
                 },
                 "row": 0,
                 "col": 0
@@ -70,7 +71,8 @@
                     "percentField": "PredictedProbability",
                     "sortField": "PredictedProbability",
                     "filterable": true,
-                    "filterFields": ["PredictionCategory","PredictedProbability"]
+                    "filterFields": ["PredictionCategory","PredictedProbability"],
+                    "scaleThumbnails": false
                 },
                 "row": 12,
                 "col": 0
@@ -89,7 +91,7 @@
                 "selected": true,
                 "bindings": {
                     "id": "_id",
-                    "title": "Search Results",
+                    "title": "Test Results",
                     "database": "muggsy",
                     "table": "testProbs",
                     "idField": "chip_id",
@@ -104,7 +106,8 @@
                     "percentField": "PredictedProbability",
                     "sortField": "PredictedProbability",
                     "filterable": true,
-                    "filterFields": ["PredictionCategory","PredictedProbability"]
+                    "filterFields": ["PredictionCategory","PredictedProbability"],
+                    "scaleThumbnails": false
                 },
                 "row": 12,
                 "col": 13
