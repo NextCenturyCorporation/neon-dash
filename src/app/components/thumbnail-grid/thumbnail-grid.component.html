@@ -1,12 +1,12 @@
 <mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [matTooltip]="meta.title" tooltip-position="below">{{ meta.title }}</div>
+        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
-            <span class="error-message" *ngIf="meta.errorMessage" [matTooltip]="meta.errorMessage" tooltip-position="below">
-                {{ meta.errorMessage }}
+            <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+                {{ errorMessage }}
             </span>
-            <span *ngIf="!meta.errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+            <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
@@ -16,10 +16,10 @@
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <div *ngIf="meta.errorMessage">
-                    <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
+                <div *ngIf="errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
-                        <span>{{ meta.errorMessage }}</span>
+                        <span>{{ errorMessage }}</span>
                     </label>
                     <p></p>
                 </div>
@@ -33,62 +33,90 @@
                 </div>
 
                 <mat-form-field>
-                    <input matInput placeholder="Title" [(ngModel)]="meta.title" required="false">
+                    <input matInput placeholder="Title" [(ngModel)]="options.title" required="false">
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    <mat-select placeholder="Database" [(ngModel)]="options.database" required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="options.databases.length < 2">
+                        <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    <mat-select placeholder="Table" [(ngModel)]="options.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="options.tables.length < 2">
+                        <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="ID Field" [(ngModel)]="active.idField" required="true" (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length < 1">
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    <mat-select placeholder="Category Field" [(ngModel)]="options.categoryField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Link Field" [(ngModel)]="active.linkField" required="true" (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length < 1">
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Actual Name Field" [(ngModel)]="active.objectNameField" required="true" (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length < 1">
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    <mat-select placeholder="Link Field" [(ngModel)]="options.linkField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Predicted Name Field" [(ngModel)]="active.predictedNameField" required="true" (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length < 1">
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    <mat-select placeholder="Actual ID Field" [(ngModel)]="options.objectIdField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Predicted Probability Field" [(ngModel)]="active.percentField" required="true" (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length < 1">
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    <mat-select placeholder="Actual Name Field" [(ngModel)]="options.objectNameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Predicted Name Field" [(ngModel)]="options.predictedNameField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Predicted Probability Field" [(ngModel)]="options.percentField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Sort Field" [(ngModel)]="options.sortField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Type Field" [(ngModel)]="options.typeField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Row Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Row Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
@@ -98,7 +126,7 @@
                 <p></p>
 
                 Sort by Probability:
-                <mat-button-toggle-group name="sorting" [(ngModel)]="active.ascending" (ngModelChange)="handleSortOrder()">
+                <mat-button-toggle-group name="sorting" [(ngModel)]="options.ascending" (ngModelChange)="handleSortOrder()">
                     <mat-button-toggle [value]="true">
                         Asc
                     </mat-button-toggle>
@@ -106,6 +134,22 @@
                         Desc
                     </mat-button-toggle>
                 </mat-button-toggle-group>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Filterable" [(ngModel)]="options.filterable" required="true">
+                        <mat-option [value]="true">Yes</mat-option>
+                        <mat-option [value]="false">No</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Scale Thumbnails" [(ngModel)]="options.scaleThumbnails" required="true" (ngModelChange)="updatePageData()">
+                        <mat-option [value]="true">Yes</mat-option>
+                        <mat-option [value]="false">No</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
@@ -119,11 +163,11 @@
 
     <div #thumbnailGrid class="thumbnail-grid">
        <div class="thumbnail-grid-container">
-           <div class="thumbnail-grid-div" *ngFor="let item of active.pagingGrid; let i = index"  (click)="maximizeMedia(item[active.linkField.columnName])">
+           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid; let i = index"  (click)="maximizeMedia(item[options.linkField.columnName])">
                    <div class="thumbnail-details">
-                       <p [title]="getThumbnailTitle(item[active.objectNameField.columnName],item[active.predictedNameField.columnName], item[active.percentField.columnName])">
-                           <span class="detail-ellipses">{{ item[active.predictedNameField.columnName] }}</span>
-                           <span>{{ getThumbnailTitle("", "", item[active.percentField.columnName]) }}</span>
+                       <p [title]="getThumbnailTitle(item[options.objectNameField.columnName],item[options.predictedNameField.columnName], item[options.percentField.columnName])">
+                           <span class="detail-ellipses">{{ item[options.predictedNameField.columnName] }}</span>
+                           <span>{{ getThumbnailTitle("", "", item[options.percentField.columnName]) }}</span>
                        </p>
                    </div>
                     <canvas class="thumbnail-view"></canvas>
@@ -131,14 +175,14 @@
        </div>
    </div>
 
-    <div class="footer" *ngIf="active.gridArray.length > meta.limit">
+    <div class="footer" *ngIf="gridArray.length > options.limit">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="active.page == 1" class="pagination-button previous-button" color="primary"
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
                     (click)="previousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="active.lastPage" class="pagination-button next-button" color="primary"
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
                     (click)="nextPage()">
                 Next
             </button>

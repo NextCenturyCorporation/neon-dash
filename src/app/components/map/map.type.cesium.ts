@@ -14,7 +14,8 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { AbstractMap, BoundingBoxByDegrees, MapLayer, MapPoint, whiteString } from './map.type.abstract';
+import { AbstractMap, BoundingBoxByDegrees, MapPoint, whiteString } from './map.type.abstract';
+import { MapLayer } from './map.component';
 import 'cesium/Build/Cesium/Cesium.js';
 declare var Cesium;
 
@@ -66,12 +67,11 @@ export class CesiumNeonMap extends AbstractMap {
             geocoder: false
         };
 
-        let customOptions = this.mapConfiguration.customServer;
-        if (customOptions && customOptions.useCustomServer) {
+        if (this.mapOptions.customServer && this.mapOptions.customServer.useCustomServer) {
             cesiumSettings.baseLayerPicker = false;
             cesiumSettings.imageryProvider = new Cesium.WebMapServiceImageryProvider({
-                url: this.mapConfiguration.customServer.mapUrl,
-                layers: this.mapConfiguration.customServer.layer,
+                url: this.mapOptions.customServer.mapUrl,
+                layers: this.mapOptions.customServer.layer,
                 parameters: {
                     transparent: true,
                     tiled: true,
@@ -106,10 +106,10 @@ export class CesiumNeonMap extends AbstractMap {
         let south = -90.0;
 
         if (this.areBoundsSet()) {
-            west = this.mapConfiguration.west;
-            east = this.mapConfiguration.east;
-            north = this.mapConfiguration.north;
-            south = this.mapConfiguration.south;
+            west = this.mapOptions.west;
+            east = this.mapOptions.east;
+            north = this.mapOptions.north;
+            south = this.mapOptions.south;
         }
 
         Cesium.BingMapsApi.defaultKey = ''; // remove console line concerning Bing maps
@@ -143,7 +143,7 @@ export class CesiumNeonMap extends AbstractMap {
 
         this.cesiumViewer = viewer;
 
-        this.popupEntity = this.mapConfiguration.hoverPopupEnabled && this.cesiumViewer.entities.add({
+        this.popupEntity = this.mapOptions.hoverPopupEnabled && this.cesiumViewer.entities.add({
                 label: {
                     show: false,
                     showBackground: true,
@@ -370,11 +370,11 @@ export class CesiumNeonMap extends AbstractMap {
         if (this.selection.selectionDown && end) {
             this.setEndPos(end);
             this.drawSelection();
-        } else if (end && (this.mapConfiguration.hoverPopupEnabled || this.mapConfiguration.hoverSelect)) {
+        } else if (end && (this.mapOptions.hoverPopupEnabled || this.mapOptions.hoverSelect)) {
             let viewer = this.cesiumViewer,
                 objectsAtLocation = viewer.scene.drillPick(end); // get all entities under mouse
 
-            if (this.mapConfiguration.hoverPopupEnabled) {
+            if (this.mapOptions.hoverPopupEnabled) {
                 let popup = this.popupEntity;
 
                 // ensure that an object exists at cursor and that it isn't one of the map-feature entities (eg. popup)
@@ -387,7 +387,7 @@ export class CesiumNeonMap extends AbstractMap {
                 }
             }
 
-            if (this.mapConfiguration.hoverSelect) {
+            if (this.mapOptions.hoverSelect) {
                 if (this.hoverTimeout) {
                     clearTimeout(this.hoverTimeout);
                     delete this.hoverTimeout;
@@ -397,7 +397,7 @@ export class CesiumNeonMap extends AbstractMap {
                     this.hoverTimeout = setTimeout(() => {
                         viewer.selectedEntity = objectsAtLocation[0].id;
                         delete this.hoverTimeout;
-                    }, this.mapConfiguration.hoverSelect.hoverTime);
+                    }, this.mapOptions.hoverSelect.hoverTime);
                 }
             }
         }
@@ -497,8 +497,8 @@ export class CesiumNeonMap extends AbstractMap {
         let enabled = true;
 
         dataSource.clustering.enabled = enabled;
-        dataSource.clustering.pixelRange = this.mapConfiguration.clusterPixelRange;
-        dataSource.clustering.minimumClusterSize = this.mapConfiguration.minClusterSize;
+        dataSource.clustering.pixelRange = this.mapOptions.clusterPixelRange;
+        dataSource.clustering.minimumClusterSize = this.mapOptions.minClusterSize;
 
         let removeListener;
         let pinBuilder = new Cesium.PinBuilder();

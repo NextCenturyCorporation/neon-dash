@@ -27,6 +27,7 @@ export class DatasetMock extends DatasetService {
     public static LATITUDE_FIELD = new FieldMetaData('testLatitudeField', 'Test Latitude Field');
     public static LINK_FIELD = new FieldMetaData('testLinkField', 'Test Link Field');
     public static LONGITUDE_FIELD = new FieldMetaData('testLongitudeField', 'Test Longitude Field');
+    public static NAME_FIELD = new FieldMetaData('testNameField', 'Test Name Field');
     public static SIZE_FIELD = new FieldMetaData('testSizeField', 'Test Size Field');
     public static TYPE_FIELD = new FieldMetaData('testTypeField', 'Test Type Field');
 
@@ -39,6 +40,7 @@ export class DatasetMock extends DatasetService {
         DatasetMock.LATITUDE_FIELD,
         DatasetMock.LINK_FIELD,
         DatasetMock.LONGITUDE_FIELD,
+        DatasetMock.NAME_FIELD,
         DatasetMock.SIZE_FIELD,
         DatasetMock.TYPE_FIELD
     ];

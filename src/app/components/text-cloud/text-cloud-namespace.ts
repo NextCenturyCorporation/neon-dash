@@ -19,10 +19,14 @@
  */
 
 export class TextCloud {
-    private options: TextCloudOptions;
+    private size: SizeOptions;
+    private color: ColorOptions;
 
-    constructor(options: TextCloudOptions) {
-        this.options = options;
+    constructor(size?: SizeOptions, color?: ColorOptions) {
+        this.size = size || new SizeOptions();
+        if (color) {
+            this.color = color;
+        }
     }
 
     createTextCloud(data: any[]): any[] {
@@ -48,20 +52,20 @@ export class TextCloud {
         }
 
         // Sizes
-        let fontIncr = (this.options.size.end - this.options.size.start) / range;
+        let fontIncr = (this.size.end - this.size.start) / range;
 
         // Colors
         let colorIncr;
-        if (this.options.color) {
-            colorIncr = this.colorIncrement(this.options.color, range);
+        if (this.color) {
+            colorIncr = this.colorIncrement(this.color, range);
         }
 
         return data.map((item) => {
-            let weighting = item.value - lowest;
-            item.fontSize = this.options.size.start + (weighting * fontIncr) + this.options.size.unit;
+            let weighting = (item.value === highest ? range : item.value - lowest);
+            item.fontSize = this.size.start + (weighting * fontIncr) + this.size.unit;
 
-            if (this.options.color) {
-                item.color = this.tagColor(this.options.color, colorIncr, weighting);
+            if (this.color) {
+                item.color = this.tagColor(this.color, colorIncr, weighting);
             }
             return item;
         });
@@ -103,18 +107,6 @@ export class TextCloud {
         }).join('');
     }
 
-}
-
-export class TextCloudOptions {
-    size: SizeOptions = new SizeOptions();
-    color: ColorOptions;
-
-    constructor(size?: SizeOptions, color?: ColorOptions) {
-        this.size = size || new SizeOptions();
-        if (color) {
-            this.color = color;
-        }
-    }
 }
 
 export class SizeOptions {

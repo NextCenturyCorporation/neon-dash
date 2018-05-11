@@ -46,6 +46,10 @@
     overflow-y: auto;
 }
 
-.coloraccessor {
+.color-primary {
     color: mat-color($primary);
+}
+
+.color-highlight {
+    color: $accent-bright;
 }
