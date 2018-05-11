@@ -178,12 +178,12 @@ describe('Component: MediaViewer', () => {
         }]);
     }));
 
-    it('getFiltersToIgnore does return null if no filters are set', () => {
+    it('getFiltersToIgnore does return empty array if no filters are set', () => {
         component.options.database = DatasetMock.DATABASES[0];
         component.options.table = DatasetMock.TABLES[0];
         component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
 
-        expect(component.getFiltersToIgnore()).toEqual(null);
+        expect(component.getFiltersToIgnore()).toEqual([]);
     });
 
     it('getFiltersToIgnore does return expected array of IDs if filters are set matching database/table', () => {
