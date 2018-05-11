@@ -92,14 +92,14 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                     this.active.databaseTableFieldKeysToFilterIds.set(databaseTableFieldKey, '');
                 });
 
-                if(this.active.multiFilter){
+                if (this.active.multiFilter) {
                     this.meta.table = table;
                     this.addBlankWhereClause();
                 }
             });
         });
 
-        if(!this.active.multiFilter){
+        if (!this.active.multiFilter) {
             this.addBlankWhereClause();
         }
     }
