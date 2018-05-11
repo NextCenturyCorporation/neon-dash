@@ -1,0 +1,616 @@
+datasets:
+  -
+    name: Medifor User Workbench 05-10-18
+    datastore: elasticsearch
+    hostname: localhost
+    layout: Workbench
+    connectOnLoad: true
+    databases:
+      -
+        name: nc2017_output_051018
+        prettyName: Scores
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+      -
+        name: nc2017_merged_051018
+        prettyName: Inputs
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+    relations:
+      -
+        members:
+          -
+            database: nc2017_output_051018
+            table: doc
+            field: image
+          -
+            database: nc2017_merged_051018
+            table: doc
+            field: ProbeBrowserFileName
+
+  -
+    name: NC2017 Development Dashboard 05-10-18
+    datastore: elasticsearch
+    hostname: localhost
+    layout: Development
+    databases:
+      -
+        name: nc2017_output_051018
+        prettyName: Scores
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+      -
+        name: nc2017_merged_051018
+        prettyName: Inputs
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+    relations:
+      -
+        members:
+          -
+            database: nc2017_output_051018
+            table: doc
+            field: image
+          -
+            database: nc2017_merged_051018
+            table: doc
+            field: ProbeBrowserFileName
+
+layouts:
+  Development:
+    -
+      col: 1
+      row: 1
+      sizex: 8
+      sizey: 6
+      type: dataTable
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        idField: _id
+        sortField: ProbeBrowserFileName
+        title: Input Media
+        filterable: true
+        ignoreSelf: true
+        singleFilter: true
+        skinny: true
+        sortDescending: false
+        allColumnStatus: hide
+        fieldsConfig:
+          -
+            name: ProbeBrowserFileName
+        filterFields:
+          -
+            ProbeBrowserFileName
+    -
+      col: 9
+      row: 1
+      sizex: 8
+      sizey: 6
+      type: mediaViewer
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        border: true
+        idField: _id
+        linkField: Source
+        linkPrefix: http://10.107.5.173:8000
+        nameField: ProbeFileID
+        title: Image / Video
+        typeMap:
+            arw: img
+            bmp: img
+            cr2: img
+            iiq: img
+            jpg: img
+            jpeg: img
+            nef: img
+            png: img
+            tif: img
+            avi: vid
+            mp4: vid
+    -
+      col: 17
+      row: 1
+      sizex: 8
+      sizey: 6
+      type: mediaViewer
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        border: true
+        idField: _id
+        linkField: MaskSource
+        linkPrefix: http://10.107.5.173:8000
+        nameField: ProbeFileID
+        title: Mask
+        typeMap:
+            arw: img
+            bmp: img
+            cr2: img
+            iiq: img
+            jpg: img
+            jpeg: img
+            nef: img
+            png: img
+            tif: img
+            avi: vid
+            mp4: vid
+
+    -
+      col: 1
+      row: 7
+      sizex: 8
+      sizey: 6
+      type: dataTable
+      bindings:
+        database: nc2017_output_051018
+        table: doc
+        idField: _id
+        sortField: image
+        title: Output Data
+        filterable: true
+        singleFilter: true
+        skinny: true
+        sortDescending: false
+        allColumnStatus: hide
+        fieldsConfig:
+          -
+            name: analytic
+          -
+            name: image
+          -
+            name: score
+        filterFields:
+          -
+            image
+    -
+      col: 9
+      row: 7
+      sizex: 8
+      sizey: 6
+      type: mediaViewer
+      bindings:
+        database: nc2017_output_051018
+        table: doc
+        border: true
+        idField: _id
+        linkField: mask
+        linkPrefix: http://10.107.5.173:8000
+        nameField: image
+        title: Output Mask
+        typeMap:
+            arw: img
+            bmp: img
+            cr2: img
+            iiq: img
+            jpg: img
+            jpeg: img
+            nef: img
+            png: img
+            tif: img
+            avi: vid
+            mp4: vid
+    -
+      col: 17
+      row: 7
+      sizex: 8
+      sizey: 10
+      type: barChart
+      bindings:
+        database: nc2017_output_051018
+        table: doc
+        dataField: analytic
+        aggregation: average
+        aggregationField: score
+        andFilters: false
+        chartType: horizontalBar
+        scaleManually: true
+        scaleMin: -1
+        scaleMax: 1
+        limit: 100
+        title: Output (AVG) per Analytic
+    -
+      col: 1
+      row: 13
+      sizex: 16
+      sizey: 4
+      type: barChart
+      bindings:
+        database: nc2017_output_051018
+        table: doc
+        dataField: rounded
+        sortAlphabetically: true
+        limit: 500
+        title: Number of Images per Rounded Indicator Score
+
+    -
+      col: 1
+      row: 17
+      sizex: 6
+      sizey: 3
+      type: textCloud
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        dataField: CameraID
+        title: Cameras
+        limit: 100
+        andFilters: false
+        ignoreSelf: true
+        paragraphs: true
+        showCounts: true
+    -
+      col: 1
+      row: 20
+      sizex: 6
+      sizey: 3
+      type: textCloud
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        dataField: Type
+        title: File Types
+        limit: 100
+        andFilters: false
+        ignoreSelf: true
+        paragraphs: true
+        showCounts: true
+    -
+      col: 7
+      row: 17
+      sizex: 6
+      sizey: 6
+      type: textCloud
+      bindings:
+        database: nc2017_output_051018
+        table: doc
+        dataField: analytic
+        title: Analytics
+        limit: 100
+        andFilters: false
+        ignoreSelf: true
+        paragraphs: true
+        showCounts: true
+    -
+      col: 13
+      row: 17
+      sizex: 6
+      sizey: 3
+      type: textCloud
+      bindings:
+        database: nc2017_output_051018
+        table: doc
+        dataField: run
+        title: Runs
+        limit: 100
+        andFilters: false
+        ignoreSelf: true
+        paragraphs: true
+        showCounts: true
+    -
+      col: 13
+      row: 20
+      sizex: 6
+      sizey: 3
+      type: textCloud
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        dataField: IsTarget
+        title: Is Manipulated?
+        andFilters: false
+        ignoreSelf: true
+        showCounts: true
+    -
+      col: 19
+      row: 17
+      sizex: 6
+      sizey: 6
+      type: textCloud
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        dataField: Manipulations
+        title: Manipulations
+        limit: 100
+        andFilters: false
+        ignoreSelf: true
+        paragraphs: true
+        showCounts: true
+
+    -
+      col: 1
+      row: 23
+      sizex: 12
+      sizey: 4
+      type: filterBuilder
+    -
+      col: 13
+      row: 23
+      sizex: 6
+      sizey: 4
+      type: textCloud
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        dataField: TaskID
+        title: Tasks
+        limit: 100
+        andFilters: false
+        ignoreSelf: true
+        paragraphs: true
+        showCounts: true
+    -
+      col: 19
+      row: 23
+      sizex: 6
+      sizey: 8
+      type: documentViewer
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        dataField: ProbeBrowserFileName
+        idField: _id
+        title: Test
+        limit: 100
+        showSelect: true
+        metadataFields:
+          -
+            name: Media
+            field: ProbeBrowserFileName
+        popoutFields:
+          -
+            name: Media File
+            field: ProbeBrowserFileName
+          -
+            name: Task
+            field: TaskID
+          -
+            name: Type
+            field: Type
+          -
+            name: Camera
+            field: CameraID
+          -
+            name: Height
+            field: ProbeHeight
+          -
+            name: Width
+            field: ProbeWidth
+          -
+            name: Is Manipulated?
+            field: IsTarget
+          -
+            name: Manipulations
+            field: Manipulations
+          -
+            name: Mask
+            field: ProbeMaskFileName
+
+  Workbench:
+    -
+      col: 1
+      row: 1
+      sizex: 8
+      sizey: 6
+      type: dataTable
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        idField: _id
+        sortField: ProbeBrowserFileName
+        title: Media Gallery
+        filterable: true
+        ignoreSelf: true
+        singleFilter: true
+        skinny: true
+        sortDescending: false
+        allColumnStatus: hide
+        fieldsConfig:
+          -
+            name: ProbeBrowserFileName
+        filterFields:
+          -
+            ProbeBrowserFileName
+    -
+      col: 9
+      row: 1
+      sizex: 8
+      sizey: 6
+      type: mediaViewer
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        border: true
+        idField: _id
+        linkField: Source
+        linkPrefix: http://10.107.5.173:8000
+        nameField: ProbeFileID
+        title: Media
+        typeMap:
+            arw: img
+            bmp: img
+            cr2: img
+            iiq: img
+            jpg: img
+            jpeg: img
+            nef: img
+            png: img
+            tif: img
+            avi: vid
+            mp4: vid
+    -
+      col: 17
+      row: 1
+      sizex: 8
+      sizey: 6
+      type: mediaViewer
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        border: true
+        idField: _id
+        linkField: MaskSource
+        linkPrefix: http://10.107.5.173:8000
+        nameField: ProbeFileID
+        title: TA2 Ground Truth Mask
+        typeMap:
+            arw: img
+            bmp: img
+            cr2: img
+            iiq: img
+            jpg: img
+            jpeg: img
+            nef: img
+            png: img
+            tif: img
+            avi: vid
+            mp4: vid
+
+    -
+      col: 1
+      row: 7
+      sizex: 8
+      sizey: 6
+      type: documentViewer
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        dataField: ProbeBrowserFileName
+        idField: _id
+        title: Media Metadata
+        limit: 100
+        showSelect: true
+        metadataFields:
+          -
+            name: Media
+            field: ProbeBrowserFileName
+          -
+            name: Medifor Task
+            field: TaskID
+          -
+            name: File Type
+            field: Type
+          -
+            name: Camera
+            field: CameraID
+          -
+            name: Height
+            field: ProbeHeight
+          -
+            name: Width
+            field: ProbeWidth
+    -
+      col: 1
+      row: 13
+      sizex: 8
+      sizey: 6
+      type: documentViewer
+      bindings:
+        database: nc2017_merged_051018
+        table: doc
+        dataField: ProbeBrowserFileName
+        idField: _id
+        title: Ground Truth Manipulations
+        limit: 100
+        showSelect: true
+        metadataFields:
+          -
+            name: Media
+            field: ProbeBrowserFileName
+          -
+            name: Is Manipulated?
+            field: IsTarget
+          -
+            name: Manipulations
+            field: Manipulations
+          -
+            name: Mask
+            field: ProbeMaskFileName
+    -
+      col: 9
+      row: 7
+      sizex: 8
+      sizey: 12
+      type: barChart
+      bindings:
+        database: nc2017_output_051018
+        table: doc
+        dataField: analytic
+        aggregation: average
+        aggregationField: score
+        andFilters: false
+        chartType: horizontalBar
+        scaleManually: true
+        scaleMin: -1
+        scaleMax: 1
+        limit: 100
+        title: Indicators
+    -
+      col: 17
+      row: 7
+      sizex: 8
+      sizey: 8
+      type: dataTable
+      bindings:
+        database: nc2017_output_051018
+        table: doc
+        idField: _id
+        sortField: image
+        title: Indicators
+        filterable: true
+        singleFilter: true
+        skinny: true
+        sortDescending: false
+        allColumnStatus: hide
+        fieldsConfig:
+          -
+            name: analytic
+          -
+            name: image
+          -
+            name: score
+        filterFields:
+          -
+            image
+    -
+      col: 17
+      row: 15
+      sizex: 8
+      sizey: 4
+      type: mediaViewer
+      bindings:
+        database: nc2017_output_051018
+        table: doc
+        border: true
+        idField: _id
+        linkField: mask
+        linkPrefix: http://10.107.5.173:8000
+        nameField: image
+        title: Indicator Mask Gallery
+        typeMap:
+            arw: img
+            bmp: img
+            cr2: img
+            iiq: img
+            jpg: img
+            jpeg: img
+            nef: img
+            png: img
+            tif: img
+            avi: vid
+            mp4: vid
+

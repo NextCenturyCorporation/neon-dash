@@ -1,12 +1,12 @@
 <mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [matTooltip]="meta.title" tooltip-position="below">{{ meta.title }}</div>
+        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
-            <span class="error-message" *ngIf="meta.errorMessage" [matTooltip]="meta.errorMessage" tooltip-position="below">
-                {{ meta.errorMessage }}
+            <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+                {{ errorMessage }}
             </span>
-            <span *ngIf="!meta.errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+            <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
@@ -16,10 +16,10 @@
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <div *ngIf="meta.errorMessage">
-                    <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
+                <div *ngIf="errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
-                        <span>{{ meta.errorMessage }}</span>
+                        <span>{{ errorMessage }}</span>
                     </label>
                     <p></p>
                 </div>
@@ -33,63 +33,63 @@
                 </div>
 
                 <mat-form-field>
-                    <input matInput placeholder="Title" [(ngModel)]="meta.title" required="false">
+                    <input matInput placeholder="Title" [(ngModel)]="options.title" required="false">
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Database" [(ngModel)]="meta.database" required="true"
-                                (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                        <mat-option *ngFor="let database of meta.databases"
+                    <mat-select placeholder="Database" [(ngModel)]="options.database" required="true"
+                                (ngModelChange)="handleChangeDatabase()" [disabled]="options.databases.length < 2">
+                        <mat-option *ngFor="let database of options.databases"
                                     [value]="database">{{ database.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true"
-                                (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    <mat-select placeholder="Table" [(ngModel)]="options.table" required="true"
+                                (ngModelChange)="handleChangeTable()" [disabled]="options.tables.length < 2">
+                        <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="X Axis Field" [(ngModel)]="active.xField" required="true"
-                                (ngModelChange)="handleChangeFilterField()" [disabled]="meta.fields.length == 0">
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    <mat-select placeholder="X Axis Field" [(ngModel)]="options.xField" required="true"
+                                (ngModelChange)="handleChangeFilterField()" [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Y Axis Field" [(ngModel)]="active.yField" required="true"
-                                (ngModelChange)="handleChangeFilterField()" [disabled]="meta.fields.length == 0">
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    <mat-select placeholder="Y Axis Field" [(ngModel)]="options.yField" required="true"
+                                (ngModelChange)="handleChangeFilterField()" [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Label Field" [(ngModel)]="active.labelField" required="true"
-                                (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    <mat-select placeholder="Label Field" [(ngModel)]="options.labelField" required="true"
+                                (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Color Field" [(ngModel)]="active.colorField"
-                               (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
+                    <mat-select placeholder="Color Field" [(ngModel)]="options.colorField"
+                               (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Point Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Point Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
@@ -98,7 +98,7 @@
                 </div>
                 <p></p>
 
-                <app-unshared-filter [(meta)]="meta" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
+                <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
@@ -111,7 +111,7 @@
     </div>
 
     <div #filterContainer class="filter-container">
-        <app-legend *ngIf="!!this.active.colorField.columnName" (itemSelected)="legendItemSelected($event)" [disabledList]="disabledSet"
+        <app-legend *ngIf="!!this.options.colorField.columnName" (itemSelected)="legendItemSelected($event)" [disabledList]="disabledSet"
             [fieldNames]="colorByFields"></app-legend>
 
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
@@ -123,7 +123,7 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="!!this.active.colorField.columnName || filters.length">
+    <div class="body-container" [class.with-filter]="!!this.options.colorField.columnName || filters.length">
         <div class="chart-container" #chartContainer (click)="stopEventPropagation($event)" (mousedown)="mouseDown($event)" (mouseleave)="mouseLeave($event)" (mouseup)="mouseUp($event)">
             <div class="chart-selection" *ngIf="selection.mouseDown" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x + selectionOffset.x, 'top.px':selection.y + selectionOffset.y}"></div>
             <app-chart class="chart" #scatter [type]="chart.type" [data]="chart.data" [options]="chart.options"></app-chart>

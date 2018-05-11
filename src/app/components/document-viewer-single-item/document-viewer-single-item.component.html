@@ -6,7 +6,7 @@
                 <td >{{ formatMetadataEntry(data.item, metadataElement) }}</td>
             </tr>
         </table>
-	    <p>{{ text }}</p>
+	    <p *ngIf="showText">{{ text }}</p>
 	</div>
 
     <div mat-fill class="flex">

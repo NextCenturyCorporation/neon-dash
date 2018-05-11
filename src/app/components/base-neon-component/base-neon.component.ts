@@ -19,18 +19,190 @@ import {
     Injector,
     ChangeDetectorRef
 } from '@angular/core';
+
 import { ActiveGridService } from '../../services/active-grid.service';
+import { Color } from '../../services/color-scheme.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
 import { ExportService } from '../../services/export.service';
+import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
-import { FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
-import * as neon from 'neon-framework';
-import * as _ from 'lodash';
 import { VisualizationService } from '../../services/visualization.service';
+
+import { EMPTY_FIELD, FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import * as neon from 'neon-framework';
 import * as uuid from 'node-uuid';
-import { Color } from '../../services/color-scheme.service';
+import * as _ from 'lodash';
+
+/**
+ * Manages configurable options for all visualizations.
+ */
+export abstract class BaseNeonOptions {
+    public databases: DatabaseMetaData[] = [];
+    public database: DatabaseMetaData;
+    public fields: FieldMetaData[] = [];
+    public limit: number;
+    public newLimit: number;
+    public tables: TableMetaData[] = [];
+    public table: TableMetaData;
+    public title: string;
+    public unsharedFilterField: FieldMetaData;
+    public unsharedFilterValue: string;
+
+    // The filter set in the config file.
+    public filter: {
+        lhs: string,
+        operator: string,
+        rhs: string
+    };
+
+    /**
+     * @constructor
+     * @arg {Injector} injector
+     * @arg {DatasetService} datasetService
+     * @arg {string} [visualizationTitle='']
+     * @arg {number} [defaultLimit=10]
+     */
+    constructor(protected injector: Injector, protected datasetService: DatasetService, visualizationTitle: string = '',
+        defaultLimit: number = 10) {
+
+        this.filter = injector.get('configFilter', null);
+        this.limit = injector.get('limit', defaultLimit);
+        this.newLimit = this.limit;
+        this.title = injector.get('title', visualizationTitle);
+        this.onInit();
+        this.updateDatabases();
+    }
+
+    /**
+     * Returns the field object with the given column name.
+     *
+     * @arg {string} columnName
+     * @return {FieldMetaData}
+     */
+    public findField(columnName: string): FieldMetaData {
+        let outputFields = this.fields.filter((field: FieldMetaData) => {
+            return field.columnName === columnName;
+        });
+        return outputFields.length ? outputFields[0] : undefined;
+    }
+
+    /**
+     * Returns the field object for the given binding / mapping key or an empty field object.
+     *
+     * @arg {string} bindingKey
+     * @arg {string} [mappingKey]
+     * @return {FieldMetaData}
+     */
+    public findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
+        return this.getFieldObject((this.injector.get(bindingKey, null) || ''), mappingKey);
+    }
+
+    /**
+     * Returns the array of field objects for the given binding / mapping key or an array of empty field objects.
+     *
+     * @arg {string} bindingKey
+     * @arg {string} [mappingKey]
+     * @return {FieldMetaData}
+     */
+    public findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
+        let bindings = this.injector.get(bindingKey, null) || [];
+        return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.getFieldObject(columnName, mappingKey));
+    }
+
+    /**
+     * Returns the field object for the given name or the given mapping key.
+     *
+     * @arg {string} columnName
+     * @arg {string} [mappingKey]
+     * @return {FieldMetaData}
+     * @private
+     */
+    private getFieldObject(columnName: string, mappingKey?: string): FieldMetaData {
+        let field = columnName ? this.findField(columnName) : undefined;
+
+        if (!field && mappingKey) {
+            field = this.findField(this.datasetService.getMapping(this.database.name, this.table.name, mappingKey));
+        }
+
+        return field || EMPTY_FIELD;
+    }
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @abstract
+     */
+    public abstract onInit(): void;
+
+    /**
+     * Updates all the database options, then calls updateTables().  Called on init.
+     */
+    public updateDatabases() {
+        this.databases = this.datasetService.getDatabases();
+        this.database = this.databases[0] || new DatabaseMetaData();
+
+        if (this.databases.length > 0) {
+            let configDatabase = this.injector.get('database', null);
+            if (configDatabase) {
+                for (let database of this.databases) {
+                    if (configDatabase === database.name) {
+                        this.database = database;
+                        break;
+                    }
+                }
+            }
+        }
+
+        this.updateTables();
+    }
+
+    /**
+     * Updates all the field options, then calls updateFieldsOnTableChanged().  Called on init and whenever the table is changed.
+     */
+    public updateFields() {
+        if (this.database && this.table) {
+            // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
+            this.fields = this.datasetService.getSortedFields(this.database.name, this.table.name, true).filter((field) => {
+                return (field && field.columnName);
+            });
+        }
+
+        this.unsharedFilterField = new FieldMetaData();
+        this.unsharedFilterValue = '';
+
+        this.updateFieldsOnTableChanged();
+    }
+
+    /**
+     * Updates all the table options, then calls updateFields().  Called on init and whenever the database is changed.
+     */
+    public updateTables() {
+        this.tables = this.database ? this.datasetService.getTables(this.database.name) : [];
+        this.table = this.tables[0] || new TableMetaData();
+
+        if (this.tables.length > 0) {
+            let configTable = this.injector.get('table', null);
+            if (configTable) {
+                for (let table of this.tables) {
+                    if (configTable === table.name) {
+                        this.table = table;
+                        break;
+                    }
+                }
+            }
+        }
+
+        this.updateFields();
+    }
+
+    /**
+     * Initializes all the field options for the specific visualizations.
+     *
+     * @abstract
+     */
+    public abstract updateFieldsOnTableChanged(): void;
+}
 
 /**
  * Base component for all non-layered Neon visualizations.
@@ -41,6 +213,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     private TEXT_MARGIN_WIDTH: number = 10;
     private TOOLBAR_PADDING_WIDTH: number = 20;
     private TOOLBAR_EXTRA_WIDTH: number = this.SETTINGS_BUTTON_WIDTH + this.TEXT_MARGIN_WIDTH + this.TOOLBAR_PADDING_WIDTH;
+    protected TOOLBAR_HEIGHT: number = 40;
+    protected VISUALIZATION_PADDING: number = 10;
 
     public id: string;
     protected messenger: neon.eventing.Messenger;
@@ -50,44 +224,26 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     private redrawAfterResize: boolean = false;
 
-    /**
-     * Common metadata about the database, table, and any unshared filters
-     */
-    public meta: {
-        title: string,
-        databases: DatabaseMetaData[],
-        database: DatabaseMetaData,
-        tables: TableMetaData[],
-        table: TableMetaData,
-        fields: FieldMetaData[],
-        unsharedFilterField: any,
-        unsharedFilterValue: string,
-        errorMessage: string,
-        limit: number,
-        newLimit: number
-    };
-
     public exportId: number;
 
-    public isLoading: boolean;
-    public isExportable: boolean;
+    public isLoading: boolean = false;
+    public isExportable: boolean = true;
 
-    /**
-     * Just a blank FieldMetaData object.
-     * Meant to be used for a 'clear' option in field dropdowns
-     */
-    public emptyField = new FieldMetaData();
+    public emptyField: FieldMetaData = EMPTY_FIELD;
+
+    public errorMessage: string = '';
 
     constructor(
-        private activeGridService: ActiveGridService,
-        private connectionService: ConnectionService,
-        private datasetService: DatasetService,
+        protected activeGridService: ActiveGridService,
+        protected connectionService: ConnectionService,
+        protected datasetService: DatasetService,
         protected filterService: FilterService,
-        private exportService: ExportService,
+        protected exportService: ExportService,
         protected injector: Injector,
         public themesService: ThemesService,
         public changeDetection: ChangeDetectorRef,
-        protected visualizationService: VisualizationService) {
+        protected visualizationService: VisualizationService
+    ) {
         // These assignments just eliminated unused warnings that occur even though the arguments are
         // automatically assigned to instance variables.
         this.exportService = this.exportService;
@@ -98,23 +254,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.themesService = themesService;
         this.changeDetection = changeDetection;
         this.messenger = new neon.eventing.Messenger();
-        this.isLoading = false;
-
-        this.meta = {
-            title: '',
-            databases: [],
-            database: new DatabaseMetaData(),
-            tables: [],
-            table: new TableMetaData(),
-            fields: [],
-            unsharedFilterField: new FieldMetaData(),
-            unsharedFilterValue: '',
-            errorMessage: '',
-            limit: 0,
-            newLimit: 0
-        };
-
-        this.isExportable = true;
         this.doExport = this.doExport.bind(this);
         this.getBindings = this.getBindings.bind(this);
         // Let the ID be a UUID
@@ -140,21 +279,24 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         for (let database of this.datasetService.getDatabases()) {
             this.outstandingDataQuery[database.name] = {};
         }
-        this.initDatabases(this.meta);
         try {
             this.setupFilters();
         } catch (e) {
             // Fails in unit tests - ignore.
         }
 
-        this.meta.title = this.injector.get('title', this.getVisualizationName());
-        this.meta.limit = this.injector.get('limit', this.getDefaultLimit());
-        this.meta.newLimit = this.meta.limit;
         this.subNgOnInit();
         this.exportId = (this.isExportable ? this.exportService.register(this.doExport) : null);
         this.initializing = false;
         this.postInit();
     }
+
+    /**
+     * Returns the options for the specific visualization.
+     *
+     * @return {BaseNeonOptions}
+     */
+    abstract getOptions(): BaseNeonOptions;
 
     /**
      * Method for anything that needs to be done once the visualization has been initialized
@@ -190,12 +332,12 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     getBindings(): any {
         let bindings = {
-            title: this.meta.title,
-            database: this.meta.database.name,
-            table: this.meta.table.name,
-            unsharedFilterField: this.meta.unsharedFilterField.columnName,
-            unsharedFilterValue: this.meta.unsharedFilterValue,
-            limit: this.meta.limit
+            title: this.getOptions().title,
+            database: this.getOptions().database.name,
+            table: this.getOptions().table.name,
+            unsharedFilterField: this.getOptions().unsharedFilterField.columnName,
+            unsharedFilterValue: this.getOptions().unsharedFilterValue,
+            limit: this.getOptions().limit
         };
 
         // Get the bindings from the subclass
@@ -211,8 +353,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         // TODO this function needs to be changed  to abstract once we get through all the visualizations.
 
         let query = this.createQuery();
+        let exportName = this.getOptions().title;
         if (query) {
-            let exportName = this.meta.title;
             if (exportName) {
                 // replaceAll
                 exportName = exportName.split(':').join(' ');
@@ -239,7 +381,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
             return finalObject;
         } else {
-            console.error('SKIPPING EXPORT FOR ' + this.getVisualizationName());
+            console.error('SKIPPING EXPORT FOR ' + exportName);
             return null;
         }
 
@@ -312,75 +454,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.subNgOnDestroy();
     }
 
-    /**
-     * Load all the database metadata, then call initTables()
-     *
-     * @arg {object} metaObject
-     */
-    initDatabases(metaObject: any) {
-        metaObject.databases = this.datasetService.getDatabases();
-        metaObject.database = metaObject.databases[0] || new DatabaseMetaData();
-
-        if (metaObject.databases.length > 0) {
-            let injectedDatabase = this.injector.get('database', null);
-            if (injectedDatabase) {
-                for (let database of metaObject.databases) {
-                    if (injectedDatabase === database.name) {
-                        metaObject.database = database;
-                        break;
-                    }
-                }
-            }
-
-            this.initTables(metaObject);
-        }
-    }
-
-    /**
-     * Load all the table metadata, then call initFields()
-     *
-     * @arg {object} metaObject
-     */
-    initTables(metaObject: any) {
-        metaObject.tables = this.datasetService.getTables(metaObject.database.name);
-        metaObject.table = metaObject.tables[0] || new TableMetaData();
-
-        if (metaObject.tables.length > 0) {
-            let injectedTable = this.injector.get('table', null);
-            if (injectedTable) {
-                for (let table of metaObject.tables) {
-                    if (injectedTable === table.name) {
-                        metaObject.table = table;
-                        break;
-                    }
-                }
-            }
-            this.initFields(metaObject);
-        }
-    }
-
-    /**
-     * Initialize all the field metadata
-     *
-     * @arg {object} metaObject
-     */
-    initFields(metaObject: any) {
-        // Sort the fields that are displayed in the dropdowns in the options menus alphabetically.
-        metaObject.fields = this.datasetService.getSortedFields(metaObject.database.name, metaObject.table.name, true).filter((field) => {
-            return (field && field.columnName);
-        });
-        metaObject.unsharedFilterField = new FieldMetaData();
-        metaObject.unsharedFilterValue = '';
-
-        this.onUpdateFields();
-    }
-
-    /**
-     * Called when any field metadata changes.
-     * This will be called once before initialization is complete
-     */
-    abstract onUpdateFields();
-
     stopEventPropagation(event) {
         if (event.stopPropagation) {
             event.stopPropagation();
@@ -396,11 +469,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     abstract getFilterText(filter: any): string;
 
     /**
-     * Get the name of the visualization
-     */
-    abstract getVisualizationName(): string;
-
-    /**
      * Must return null for no filters.  Returning an empty array causes the
      * query to ignore ALL fitlers.
      */
@@ -412,15 +480,21 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {boolean} executeQueryChainOnSuccess
      * @arg {object} subclassFilter
      * @arg {neon.query.WherePredicate} wherePredicate
+     * @arg {function} [callback]
      */
-    addNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate) {
+    addNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
+        callback?: Function) {
+
         let filterName = {
-            visName: this.getVisualizationName(),
+            visName: this.getOptions().title,
             text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
             if (typeof resp === 'string') {
                 subclassFilter.id = resp;
+            }
+            if (callback) {
+                callback();
             }
             if (executeQueryChainOnSuccess) {
                 this.executeQueryChain();
@@ -428,13 +502,16 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         };
         this.filterService.addFilter(this.messenger,
             this.id,
-            this.meta.database.name,
-            this.meta.table.name,
+            this.getOptions().database.name,
+            this.getOptions().table.name,
             wherePredicate,
             filterName,
             onSuccess.bind(this),
             () => {
                 console.error('filter failed to set');
+                if (callback) {
+                    callback();
+                }
             });
         this.changeDetection.detectChanges();
     }
@@ -445,13 +522,19 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @arg {boolean} executeQueryChainOnSuccess
      * @arg {object} subclassFilter
      * @arg {neon.query.WherePredicate} wherePredicate
+     * @arg {function} [callback]
      */
-    replaceNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate) {
+    replaceNeonFilter(executeQueryChainOnSuccess: boolean, subclassFilter: any, wherePredicate: neon.query.WherePredicate,
+        callback?: Function) {
+
         let filterName = {
-            visName: this.getVisualizationName(),
+            visName: this.getOptions().title,
             text: this.getFilterText(subclassFilter)
         };
         let onSuccess = (resp: any) => {
+            if (callback) {
+                callback();
+            }
             if (executeQueryChainOnSuccess) {
                 this.executeQueryChain();
             }
@@ -459,13 +542,16 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.filterService.replaceFilter(this.messenger,
             subclassFilter.id,
             this.id,
-            this.meta.database.name,
-            this.meta.table.name,
+            this.getOptions().database.name,
+            this.getOptions().table.name,
             wherePredicate,
             filterName,
             onSuccess.bind(this),
             () => {
                 console.error('filter failed to set');
+                if (callback) {
+                    callback();
+                }
             });
         this.changeDetection.detectChanges();
     }
@@ -531,8 +617,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @param query The query to execute
      */
     executeQuery(query: neon.query.Query) {
-        let database = this.meta.database.name;
-        let table = this.meta.table.name;
+        let database = this.getOptions().database.name;
+        let table = this.getOptions().table.name;
         let connection = this.connectionService.getActiveConnection();
 
         if (!connection) {
@@ -576,49 +662,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Returns FieldMetaData object with the given columnName
-     */
-    private getFieldObject(columnName: string, mappingKey?: string): FieldMetaData {
-        let fieldObject: FieldMetaData = columnName ? this.findField(this.meta.fields, columnName) : undefined;
-
-        if (!fieldObject && mappingKey) {
-            fieldObject = this.findField(this.meta.fields, this.getMapping(mappingKey));
-        }
-
-        return fieldObject || new FieldMetaData();
-    }
-    /**
-     * Returns the field object in the given list matching the given name.
-     *
-     * @arg {array} fields
-     * @arg {string} name
-     * @return {object}
-     */
-    findField(fields: FieldMetaData[], name: string): FieldMetaData {
-        return (!fields || !name) ? undefined : _.find(fields, (field: FieldMetaData) => {
-            return field.columnName === name;
-        });
-    }
-
-    /**
-     * Get field object from the key into the config options
-     */
-    findFieldObject(bindingKey: string, mappingKey?: string): FieldMetaData {
-        return this.getFieldObject(this.injector.get(bindingKey, ''), mappingKey);
-    }
-
-    /**
-     * Get an array of field objects from the key into the config options
-     */
-    findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
-        return this.injector.get(bindingKey, []).map((element) => this.getFieldObject(element, mappingKey));
-    }
-
-    getMapping(key: string): string {
-        return this.datasetService.getMapping(this.meta.database.name, this.meta.table.name, key);
-    }
-
-    /**
      * Called after the filters in the filter service have changed.
      * Defaults to calling setupFilters() then executeQueryChain()
      */
@@ -653,7 +696,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Updates tables, fields, and filters whenenver the database is changed and reruns the visualization query.
      */
     handleChangeDatabase() {
-        this.initTables(this.meta);
+        this.getOptions().updateTables();
         this.removeAllFilters(this.getCloseableFilters(), () => {
             this.setupFilters();
             this.handleChangeData();
@@ -664,7 +707,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Updates fields and filters whenever the table is changed and reruns the visualization query.
      */
     handleChangeTable() {
-        this.initFields(this.meta);
+        this.getOptions().updateFields();
         this.removeAllFilters(this.getCloseableFilters(), () => {
             this.setupFilters();
             this.handleChangeData();
@@ -699,16 +742,16 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Updates the limit and the visualization.
      */
     handleChangeLimit() {
-        if (this.isNumber(this.meta.newLimit)) {
-            let newLimit = parseFloat('' + this.meta.newLimit);
+        if (this.isNumber(this.getOptions().newLimit)) {
+            let newLimit = parseFloat('' + this.getOptions().newLimit);
             if (newLimit > 0) {
-                this.meta.limit = newLimit;
+                this.getOptions().limit = newLimit;
                 this.subHandleChangeLimit();
             } else {
-                this.meta.newLimit = this.meta.limit;
+                this.getOptions().newLimit = this.getOptions().limit;
             }
         } else {
-            this.meta.newLimit = this.meta.limit;
+            this.getOptions().newLimit = this.getOptions().limit;
         }
     }
 
@@ -732,10 +775,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @return {boolean}
      */
     hasUnsharedFilter(): boolean {
-        return this.meta.unsharedFilterField &&
-            this.meta.unsharedFilterField.columnName !== '' &&
-            this.meta.unsharedFilterValue &&
-            this.meta.unsharedFilterValue.trim() !== '';
+        return this.getOptions().unsharedFilterField && this.getOptions().unsharedFilterField.columnName !== '' &&
+            this.getOptions().unsharedFilterValue && this.getOptions().unsharedFilterValue.trim() !== '';
     }
 
     /**
@@ -810,8 +851,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     publishSelectId(id) {
         this.messenger.publish('select_id', {
-            database: this.meta.database.name,
-            table: this.meta.table.name,
+            database: this.getOptions().database.name,
+            table: this.getOptions().table.name,
             id: id
         });
     }
@@ -826,28 +867,20 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.messenger.subscribe('select_id', callback);
     }
 
+    getHighlightThemeColor() {
+        let elements = document.getElementsByClassName('color-highlight');
+        let color = elements.length ? window.getComputedStyle(elements[0], null).getPropertyValue('color') : '';
+        return Color.fromRgbString(color || 'rgb(255, 255, 255)');
+    }
+
     getPrimaryThemeColor() {
-        let elems = document.getElementsByClassName('coloraccessor'),
-            style: string;
-        if (!elems.length) {
-            style = 'rgb(255, 255, 255)';
-        } else {
-            style = window.getComputedStyle(elems[0], null).getPropertyValue('color');
-        }
-        return style && Color.fromRgbString(style);
+        let elements = document.getElementsByClassName('color-primary');
+        let color = elements.length ? window.getComputedStyle(elements[0], null).getPropertyValue('color') : '';
+        return Color.fromRgbString(color || 'rgb(255, 255, 255)');
     }
 
     getComputedStyle(nativeElement: any) {
         return window.getComputedStyle(nativeElement, null);
-    }
-
-    /**
-     * Returns the default limit for the visualization.
-     *
-     * @return {number}
-     */
-    getDefaultLimit(): number {
-        return 10;
     }
 
     /**

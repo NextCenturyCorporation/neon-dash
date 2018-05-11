@@ -31,6 +31,7 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
 
     private data: any;
     public text: any;
+    public showText: boolean;
     public metadata: any;
 
     constructor(@Inject(MAT_DIALOG_DATA) data: any, public themesService: ThemesService,
@@ -38,7 +39,8 @@ export class DocumentViewerSingleItemComponent implements OnInit, OnDestroy {
         this.messenger = new neon.eventing.Messenger();
         this.data = data;
         this.text = neonUtilities.deepFind(data.item, data.textField);
-        this.metadata = this.data.metadataFields;
+        this.showText = data.showText;
+        this.metadata = data.metadataFields;
     }
 
     ngOnInit() {
