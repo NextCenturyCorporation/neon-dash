@@ -101,50 +101,44 @@ describe('Component: BarChart', () => {
         expect(component).toBeTruthy();
     }));
 
-    it('Checks Active value', (() => {
-        expect(component.active.aggregationFieldHidden).toBe(true);
-        expect(component.active.andFilters).toBe(true);
-        expect(component.meta.limit).toBe(10);
-        expect(component.active.page).toBe(1);
-        expect(component.active.lastPage).toBe(true);
-        expect(component.active.filterable).toBe(true);
-        expect(component.active.aggregation).toBe('count');
-        expect(component.active.chartType).toBe('bar');
-        expect(component.active.labelCount).toBe(0);
-        expect(component.active.maxCount).toBe(0);
-        expect(component.active.minScale).toBeUndefined();
-        expect(component.active.maxScale).toBeUndefined();
-        expect(component.active.minSize).toEqual({
+    it('does have expected options properties', () => {
+        expect(component.options.aggregation).toBe('count');
+        expect(component.options.andFilters).toBe(true);
+        expect(component.options.limit).toBe(10);
+        expect(component.options.scaleMin).toBe('');
+        expect(component.options.scaleMax).toBe('');
+        expect(component.options.type).toBe('bar');
+
+        component.options.aggregation = 'test';
+        component.options.andFilters = false;
+        component.options.limit = 42;
+        component.options.type = 'testChart';
+
+        expect(component.options.aggregation).toBe('test');
+        expect(component.options.aggregationField).toEqual(component.emptyField);
+        expect(component.options.andFilters).toBe(false);
+        expect(component.options.andFilters).toBe(false);
+        expect(component.options.colorField).toEqual(component.emptyField);
+        expect(component.options.dataField).toEqual(component.emptyField);
+        expect(component.options.limit).toBe(42);
+        expect(component.options.type).toBe('testChart');
+    });
+
+    it('does have expected class properties', () => {
+        expect(component.labelCount).toBe(0);
+        expect(component.labelMax).toBe(0);
+        expect(component.lastPage).toBe(true);
+        expect(component.page).toBe(1);
+        expect(component.minSize).toEqual({
             height: 0,
             width: 0
         });
-        expect(component.active.bars).toEqual([]);
-        expect(component.active.seenBars).toEqual([]);
-
-        component.active.aggregationFieldHidden = false;
-        component.active.andFilters = false;
-        component.meta.limit = 42;
-        component.active.filterable = false;
-        component.active.aggregation = 'test';
-        component.active.chartType = 'testChart';
-
-        expect(component.active.aggregationFieldHidden).toBe(false);
-        expect(component.active.andFilters).toBe(false);
-        expect(component.meta.limit).toBe(42);
-        expect(component.active.filterable).toBe(false);
-        expect(component.active.aggregation).toBe('test');
-        expect(component.active.chartType).toBe('testChart');
-    }));
-
-    it('Handle change Aggregation method calls the correct function', (() => {
-        let spyExecuteQueryChain = spyOn(component, 'executeQueryChain');
-        component.handleChangeAggregation();
-        expect(spyExecuteQueryChain.calls.count()).toBe(1);
-    }));
+        expect(component.bars).toEqual([]);
+        expect(component.seenBars).toEqual([]);
+    });
 
     it('Checks for expected value from getExportFields', (() => {
-        component.active.dataField.columnName = 'Test datafield column';
-        component.active.dataField.prettyName = 'Test datafield prettyName';
+        component.options.dataField = new FieldMetaData('Test datafield column', 'Test datafield prettyName');
         let expectedObject = [{
             columnName: 'Test datafield column',
             prettyName: 'Test datafield prettyName'
@@ -161,13 +155,12 @@ describe('Component: BarChart', () => {
 
     it('Checks for expected query from createQuery', (() => {
         let spyQuerySuccess = spyOn(component, 'onQuerySuccess');
-        component.meta.database = new DatabaseMetaData('testDatabase');
-        component.meta.table = new TableMetaData('testTable');
-        component.active.dataField.columnName = 'Test datafield column';
+        component.options.database = new DatabaseMetaData('testDatabase');
+        component.options.table = new TableMetaData('testTable');
+        component.options.dataField = new FieldMetaData('Test datafield column', 'Test datafield prettyName');
         let groupBy: any[] = ['Test datafield column'];
 
-        let query = new neon.query.Query()
-            .selectFrom('testDatabase', 'testTable');
+        let query = new neon.query.Query().selectFrom('testDatabase', 'testTable');
 
         let whereClauses = [
             neon.query.where('Test datafield column', '!=', null)
@@ -187,56 +180,56 @@ describe('Component: BarChart', () => {
 
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toBe('No Data');
-        component.active.bars = ['a'];
+        component.bars = ['a'];
         expect(component.getButtonText()).toBe('Total 1');
 
-        component.active.bars = ['a', 'b'];
-        component.meta.limit = 10;
+        component.bars = ['a', 'b'];
+        component.options.limit = 10;
         expect(component.getButtonText()).toBe('Total 2');
-        component.meta.limit = 1;
+        component.options.limit = 1;
         expect(component.getButtonText()).toBe('1 of 2');
 
-        component.active.bars = ['a', 'b', 'c', 'd'];
-        component.meta.limit = 10;
+        component.bars = ['a', 'b', 'c', 'd'];
+        component.options.limit = 10;
         expect(component.getButtonText()).toBe('Total 4');
-        component.meta.limit = 4;
+        component.options.limit = 4;
         expect(component.getButtonText()).toBe('Total 4');
-        component.meta.limit = 2;
+        component.options.limit = 2;
         expect(component.getButtonText()).toBe('1 - 2 of 4');
-        component.active.page = 2;
+        component.page = 2;
         expect(component.getButtonText()).toBe('3 - 4 of 4');
     });
 
     it('handleChangeLimit does update limit and seenBars and does call logChangeAndStartQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
 
-        component.meta.newLimit = 1234;
-        component.active.seenBars = ['a', 'b', 'c', 'd'];
+        component.options.newLimit = 1234;
+        component.seenBars = ['a', 'b', 'c', 'd'];
 
         component.handleChangeLimit();
-        expect(component.meta.limit).toEqual(1234);
-        expect(component.active.seenBars).toEqual([]);
+        expect(component.options.limit).toEqual(1234);
+        expect(component.seenBars).toEqual([]);
         expect(spy.calls.count()).toBe(1);
 
-        component.meta.newLimit = 0;
+        component.options.newLimit = 0;
 
         component.handleChangeLimit();
-        expect(component.meta.limit).toEqual(1234);
-        expect(component.meta.newLimit).toEqual(1234);
-        expect(component.active.seenBars).toEqual([]);
+        expect(component.options.limit).toEqual(1234);
+        expect(component.options.newLimit).toEqual(1234);
+        expect(component.seenBars).toEqual([]);
         expect(spy.calls.count()).toBe(1);
     });
 
     it('handleChangeData does update seenBars and does call logChangeAndStartQueryChain', () => {
         let spy = spyOn(component, 'logChangeAndStartQueryChain');
-        component.active.seenBars = ['a', 'b', 'c', 'd'];
+        component.seenBars = ['a', 'b', 'c', 'd'];
         component.handleChangeData();
-        expect(component.active.seenBars).toEqual([]);
+        expect(component.seenBars).toEqual([]);
         expect(spy.calls.count()).toBe(1);
     });
 
     it('onClick does call add functions if filters is an empty array', () => {
-        component.active.dataField = new FieldMetaData('testDataField', 'Test Data Field');
+        component.options.dataField = new FieldMetaData('testDataField', 'Test Data Field');
         let spy2 = spyOn(component, 'addNeonFilter');
         let spy3 = spyOn(component, 'removeAllFilters');
         let spy4 = spyOn(component, 'replaceNeonFilter');
@@ -267,7 +260,7 @@ describe('Component: BarChart', () => {
     });
 
     it('onClick does change filters and does call replace function if filters is not an empty array and filter does match', () => {
-        component.active.dataField = new FieldMetaData('testDataField', 'Test Data Field');
+        component.options.dataField = new FieldMetaData('testDataField', 'Test Data Field');
         component.addLocalFilter({
             id: 1,
             field: 'otherField',
@@ -314,7 +307,7 @@ describe('Component: BarChart', () => {
             value: 'otherValue2'
         };
 
-        component.active.dataField = new FieldMetaData('testDataField', 'Test Data Field');
+        component.options.dataField = new FieldMetaData('testDataField', 'Test Data Field');
         component.addLocalFilter(filter1);
         component.addLocalFilter(filter2);
 
@@ -360,7 +353,7 @@ describe('Component: BarChart', () => {
     });
 
     it('onClick only uses first input element', () => {
-        component.active.dataField = new FieldMetaData('testDataField', 'Test Data Field');
+        component.options.dataField = new FieldMetaData('testDataField', 'Test Data Field');
         let spy2 = spyOn(component, 'addNeonFilter');
         let spy3 = spyOn(component, 'removeAllFilters');
         let spy4 = spyOn(component, 'replaceNeonFilter');
@@ -395,35 +388,30 @@ describe('Component: BarChart', () => {
     });
 
     it('refreshVisualization does not change dataset colors if no filters are set', () => {
-        let activeData = new BarDataSet(4);
-        activeData.label = 'group1';
-        activeData.color = new Color(255, 255, 255);
-        activeData.backgroundColor = ['', '', '', ''];
+        let activeData = new BarDataSet(4, 'group1', new Color(255, 255, 255), new Color(0, 0, 0));
         activeData.data = [10, 5, 1, 0];
+        expect(activeData.backgroundColor).toEqual(['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)']);
+        expect(activeData.hoverBackgroundColor).toEqual(['rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)']);
 
-        component.active.data = [activeData];
+        component.activeData = [activeData];
 
         component.refreshVisualization();
 
         expect(component.selectedLabels).toEqual([]);
-        expect(component.active.data[0].backgroundColor).toEqual(['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)',
+        expect(activeData.backgroundColor).toEqual(['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)']);
+        expect(activeData.hoverBackgroundColor).toEqual(['rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)']);
+        expect(component.activeData[0].backgroundColor).toEqual(['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)',
             'rgb(255,255,255)']);
     });
 
     it('refreshVisualization does change dataset colors and selectedLabels if filters are set', () => {
-        let activeData = new BarDataSet(4);
-        activeData.label = 'group1';
-        activeData.color = new Color(255, 255, 255);
-        activeData.backgroundColor = ['', '', '', ''];
+        let activeData = new BarDataSet(4, 'group1', new Color(255, 255, 255), new Color(0, 0, 0));
         activeData.data = [10, 5, 1, 0];
 
-        let barChartData = new BarDataSet(4);
-        barChartData.label = 'group1';
-        barChartData.color = new Color(255, 255, 255);
-        barChartData.backgroundColor = ['', '', '', ''];
+        let barChartData = new BarDataSet(4, 'group1', new Color(255, 255, 255), new Color(0, 0, 0));
         barChartData.data = [10, 5, 1, 0];
 
-        component.active.data = [activeData];
+        component.activeData = [activeData];
         component.chartInfo.data.labels = ['bar1', 'bar2', 'bar3', 'bar4'];
         component.chartInfo.data.datasets = [barChartData];
         component.addLocalFilter({
@@ -434,17 +422,18 @@ describe('Component: BarChart', () => {
         component.refreshVisualization();
 
         expect(component.selectedLabels).toEqual(['group1']);
-        expect(component.active.data[0].backgroundColor).toEqual(['', '', '', '']);
+        expect(activeData.backgroundColor).toEqual(['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)']);
+        expect(activeData.hoverBackgroundColor).toEqual(['rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)']);
         expect(component.chartInfo.data.datasets[0].backgroundColor).toEqual(['rgba(255,255,255,0.3)', 'rgb(255,255,255)',
             'rgba(255,255,255,0.3)', 'rgba(255,255,255,0.3)']);
     });
 
-    it('onQuerySuccess does update active.page and active.lastPage and does call updateBarChart', () => {
+    it('onQuerySuccess does update page and lastPage and does call updateBarChart', () => {
         let spy = spyOn(component, 'updateBarChart');
-        component.active.dataField = new FieldMetaData('testDataField');
-        component.meta.limit = 2;
-        component.active.page = 2;
-        component.active.lastPage = true;
+        component.options.dataField = new FieldMetaData('testDataField');
+        component.options.limit = 2;
+        component.page = 2;
+        component.lastPage = true;
 
         component.onQuerySuccess({
             data: [{
@@ -462,13 +451,13 @@ describe('Component: BarChart', () => {
             }]
         });
 
-        expect(component.active.page).toBe(1);
-        expect(component.active.lastPage).toBe(false);
+        expect(component.page).toBe(1);
+        expect(component.lastPage).toBe(false);
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([0, 2]);
 
-        component.meta.limit = 4;
-        component.active.page = 2;
+        component.options.limit = 4;
+        component.page = 2;
 
         component.onQuerySuccess({
             data: [{
@@ -486,15 +475,15 @@ describe('Component: BarChart', () => {
             }]
         });
 
-        expect(component.active.page).toBe(1);
-        expect(component.active.lastPage).toBe(true);
+        expect(component.page).toBe(1);
+        expect(component.lastPage).toBe(true);
         expect(spy.calls.count()).toBe(2);
         expect(spy.calls.argsFor(1)).toEqual([0, 4]);
     });
 
-    it('onQuerySuccess does update active.bars and active.data', () => {
+    it('onQuerySuccess does update bars and activeData', () => {
         let spy = spyOn(component, 'updateBarChart');
-        component.active.dataField = new FieldMetaData('testDataField');
+        component.options.dataField = new FieldMetaData('testDataField');
 
         component.onQuerySuccess({
             data: [{
@@ -512,14 +501,11 @@ describe('Component: BarChart', () => {
             }]
         });
 
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = '';
-        dataset1.color = new Color(255, 255, 255);
-        dataset1.backgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)'];
+        let dataset1 = new BarDataSet(4, '', new Color(255, 255, 255), new Color(255, 255, 255));
         dataset1.data = [10, 5, 1, 0];
 
-        expect(component.active.bars).toEqual(['bar1', 'bar2', 'bar3', 'bar4']);
-        expect(component.active.data).toEqual([dataset1]);
+        expect(component.bars).toEqual(['bar1', 'bar2', 'bar3', 'bar4']);
+        expect(component.activeData).toEqual([dataset1]);
 
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([0, 10]);
@@ -527,8 +513,8 @@ describe('Component: BarChart', () => {
 
     it('onQuerySuccess does work with color field', () => {
         let spy = spyOn(component, 'updateBarChart');
-        component.active.dataField = new FieldMetaData('testDataField');
-        component.active.colorField = new FieldMetaData('testColorField');
+        component.options.dataField = new FieldMetaData('testDataField');
+        component.options.colorField = new FieldMetaData('testColorField');
 
         component.onQuerySuccess({
             data: [{
@@ -578,29 +564,24 @@ describe('Component: BarChart', () => {
             }]
         });
 
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'group1';
-        dataset1.color = new Color(31, 120, 180);
-        dataset1.backgroundColor = ['rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)'];
+        let dataset1 = new BarDataSet(4, 'group1', new Color(31, 120, 180), new Color(255, 255, 255));
         dataset1.data = [400, 40, 4, 0];
-        let dataset2 = new BarDataSet(4);
-        dataset2.label = 'group2';
-        dataset2.color = new Color(51, 160, 44);
-        dataset2.backgroundColor = ['rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)'];
-        dataset2.data = [300, 30, 3, 0];
-        let dataset3 = new BarDataSet(4);
-        dataset3.label = 'group3';
-        dataset3.color = new Color(227, 26, 28);
-        dataset3.backgroundColor = ['rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)'];
-        dataset3.data = [200, 20, 0, 2];
-        let dataset4 = new BarDataSet(4);
-        dataset4.label = 'group4';
-        dataset4.color = new Color(255, 127, 0);
-        dataset4.backgroundColor = ['rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)'];
-        dataset4.data = [100, 10, 0, 0];
+        expect(dataset1.backgroundColor).toEqual(['rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)']);
 
-        expect(component.active.bars).toEqual(['bar1', 'bar2', 'bar3', 'bar4']);
-        expect(component.active.data).toEqual([dataset1, dataset2, dataset3, dataset4]);
+        let dataset2 = new BarDataSet(4, 'group2', new Color(51, 160, 44), new Color(255, 255, 255));
+        dataset2.data = [300, 30, 3, 0];
+        expect(dataset2.backgroundColor).toEqual(['rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)']);
+
+        let dataset3 = new BarDataSet(4, 'group3', new Color(227, 26, 28), new Color(255, 255, 255));
+        dataset3.data = [200, 20, 0, 2];
+        expect(dataset3.backgroundColor).toEqual(['rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)']);
+
+        let dataset4 = new BarDataSet(4, 'group4', new Color(255, 127, 0), new Color(255, 255, 255));
+        dataset4.data = [100, 10, 0, 0];
+        expect(dataset4.backgroundColor).toEqual(['rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)']);
+
+        expect(component.bars).toEqual(['bar1', 'bar2', 'bar3', 'bar4']);
+        expect(component.activeData).toEqual([dataset1, dataset2, dataset3, dataset4]);
 
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([0, 10]);
@@ -608,8 +589,8 @@ describe('Component: BarChart', () => {
 
     it('onQuerySuccess does add seenBars', () => {
         let spy = spyOn(component, 'updateBarChart');
-        component.active.dataField = new FieldMetaData('testDataField');
-        component.active.seenBars = ['bar2', 'bar3'];
+        component.options.dataField = new FieldMetaData('testDataField');
+        component.seenBars = ['bar2', 'bar3'];
 
         component.onQuerySuccess({
             data: [{
@@ -621,29 +602,24 @@ describe('Component: BarChart', () => {
             }]
         });
 
-        let dataset1 = new BarDataSet(3);
-        dataset1.label = '';
-        dataset1.color = new Color(255, 255, 255);
-        dataset1.backgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)'];
+        let dataset1 = new BarDataSet(3, '', new Color(255, 255, 255), new Color(255, 255, 255));
         dataset1.data = [10, 5, 0];
 
-        expect(component.active.bars).toEqual(['bar1', 'bar2', 'bar3']);
-        expect(component.active.data).toEqual([dataset1]);
+        expect(component.bars).toEqual(['bar1', 'bar2', 'bar3']);
+        expect(component.activeData).toEqual([dataset1]);
 
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([0, 10]);
     });
 
     it('updateBarChart does update colorFieldNames and chartInfo.data and does call refreshVisualization', () => {
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'segment1';
-        dataset1.color = new Color(0, 0, 0);
+        let dataset1 = new BarDataSet(4, 'segment1', new Color(0, 0, 0), new Color(255, 255, 255));
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)', 'rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
         dataset1.data = [41, 31, 21, 11];
 
-        component.active.bars = ['bar1', 'bar2', 'bar3', 'bar4'];
-        component.active.data = [dataset1];
-        component.active.colorField = new FieldMetaData('testColorField');
+        component.bars = ['bar1', 'bar2', 'bar3', 'bar4'];
+        component.activeData = [dataset1];
+        component.options.colorField = new FieldMetaData('testColorField');
         let spy = spyOn(component, 'refreshVisualization');
 
         component.updateBarChart(0, 4);
@@ -655,20 +631,16 @@ describe('Component: BarChart', () => {
     });
 
     it('updateBarChart does work with multiple datasets', () => {
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'segment1';
-        dataset1.color = new Color(0, 0, 0);
+        let dataset1 = new BarDataSet(4, 'segment1', new Color(0, 0, 0), new Color(255, 255, 255));
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)', 'rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
         dataset1.data = [41, 31, 21, 11];
-        let dataset2 = new BarDataSet(4);
-        dataset2.label = 'segment2';
-        dataset2.color = new Color(5, 5, 5);
+        let dataset2 = new BarDataSet(4, 'segment2', new Color(5, 5, 5), new Color(255, 255, 255));
         dataset2.backgroundColor = ['rgb(6, 6, 6)', 'rgb(7, 7, 7)', 'rgb(8, 8, 8)', 'rgb(9, 9, 9)'];
         dataset2.data = [42, 32, 22, 12];
 
-        component.active.bars = ['bar1', 'bar2', 'bar3', 'bar4'];
-        component.active.data = [dataset1, dataset2];
-        component.active.colorField = new FieldMetaData('testColorField');
+        component.bars = ['bar1', 'bar2', 'bar3', 'bar4'];
+        component.activeData = [dataset1, dataset2];
+        component.options.colorField = new FieldMetaData('testColorField');
         let spy = spyOn(component, 'refreshVisualization');
 
         component.updateBarChart(0, 4);
@@ -680,27 +652,25 @@ describe('Component: BarChart', () => {
     });
 
     it('updateBarChart does work with index', () => {
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'segment1';
-        dataset1.color = new Color(0, 0, 0);
+        let dataset1 = new BarDataSet(4, 'segment1', new Color(0, 0, 0), new Color(255, 255, 255));
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)', 'rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
         dataset1.data = [41, 31, 21, 11];
-        let dataset2 = new BarDataSet(4);
-        dataset2.label = 'segment2';
-        dataset2.color = new Color(5, 5, 5);
+        let dataset2 = new BarDataSet(4, 'segment2', new Color(5, 5, 5), new Color(255, 255, 255));
         dataset2.backgroundColor = ['rgb(6, 6, 6)', 'rgb(7, 7, 7)', 'rgb(8, 8, 8)', 'rgb(9, 9, 9)'];
         dataset2.data = [42, 32, 22, 12];
 
-        component.active.bars = ['bar1', 'bar2', 'bar3', 'bar4'];
-        component.active.data = [dataset1, dataset2];
-        component.active.colorField = new FieldMetaData('testColorField');
+        component.bars = ['bar1', 'bar2', 'bar3', 'bar4'];
+        component.activeData = [dataset1, dataset2];
+        component.options.colorField = new FieldMetaData('testColorField');
         let spy = spyOn(component, 'refreshVisualization');
 
         component.updateBarChart(2, 4);
 
         dataset1.backgroundColor = ['rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
+        dataset1.hoverBackgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)'];
         dataset1.data = [21, 11];
         dataset2.backgroundColor = ['rgb(8, 8, 8)', 'rgb(9, 9, 9)'];
+        dataset2.hoverBackgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)'];
         dataset2.data = [22, 12];
 
         expect(component.colorFieldNames).toEqual(['testColorField']);
@@ -710,27 +680,25 @@ describe('Component: BarChart', () => {
     });
 
     it('updateBarChart does work with limit', () => {
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'segment1';
-        dataset1.color = new Color(0, 0, 0);
+        let dataset1 = new BarDataSet(4, 'segment1', new Color(0, 0, 0), new Color(255, 255, 255));
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)', 'rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
         dataset1.data = [41, 31, 21, 11];
-        let dataset2 = new BarDataSet(4);
-        dataset2.label = 'segment2';
-        dataset2.color = new Color(5, 5, 5);
+        let dataset2 = new BarDataSet(4, 'segment2', new Color(5, 5, 5), new Color(255, 255, 255));
         dataset2.backgroundColor = ['rgb(6, 6, 6)', 'rgb(7, 7, 7)', 'rgb(8, 8, 8)', 'rgb(9, 9, 9)'];
         dataset2.data = [42, 32, 22, 12];
 
-        component.active.bars = ['bar1', 'bar2', 'bar3', 'bar4'];
-        component.active.data = [dataset1, dataset2];
-        component.active.colorField = new FieldMetaData('testColorField');
+        component.bars = ['bar1', 'bar2', 'bar3', 'bar4'];
+        component.activeData = [dataset1, dataset2];
+        component.options.colorField = new FieldMetaData('testColorField');
         let spy = spyOn(component, 'refreshVisualization');
 
         component.updateBarChart(0, 2);
 
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)'];
+        dataset1.hoverBackgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)'];
         dataset1.data = [41, 31];
         dataset2.backgroundColor = ['rgb(6, 6, 6)', 'rgb(7, 7, 7)'];
+        dataset2.hoverBackgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)'];
         dataset2.data = [42, 32];
 
         expect(component.colorFieldNames).toEqual(['testColorField']);
@@ -740,27 +708,25 @@ describe('Component: BarChart', () => {
     });
 
     it('updateBarChart does work with index and limit', () => {
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'segment1';
-        dataset1.color = new Color(0, 0, 0);
+        let dataset1 = new BarDataSet(4, 'segment1', new Color(0, 0, 0), new Color(255, 255, 255));
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)', 'rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
         dataset1.data = [41, 31, 21, 11];
-        let dataset2 = new BarDataSet(4);
-        dataset2.label = 'segment2';
-        dataset2.color = new Color(5, 5, 5);
+        let dataset2 = new BarDataSet(4, 'segment2', new Color(5, 5, 5), new Color(255, 255, 255));
         dataset2.backgroundColor = ['rgb(6, 6, 6)', 'rgb(7, 7, 7)', 'rgb(8, 8, 8)', 'rgb(9, 9, 9)'];
         dataset2.data = [42, 32, 22, 12];
 
-        component.active.bars = ['bar1', 'bar2', 'bar3', 'bar4'];
-        component.active.data = [dataset1, dataset2];
-        component.active.colorField = new FieldMetaData('testColorField');
+        component.bars = ['bar1', 'bar2', 'bar3', 'bar4'];
+        component.activeData = [dataset1, dataset2];
+        component.options.colorField = new FieldMetaData('testColorField');
         let spy = spyOn(component, 'refreshVisualization');
 
         component.updateBarChart(1, 2);
 
         dataset1.backgroundColor = ['rgb(2, 2, 2)', 'rgb(3, 3, 3)'];
+        dataset1.hoverBackgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)'];
         dataset1.data = [31, 21];
         dataset2.backgroundColor = ['rgb(7, 7, 7)', 'rgb(8, 8, 8)'];
+        dataset2.hoverBackgroundColor = ['rgb(255,255,255)', 'rgb(255,255,255)'];
         dataset2.data = [32, 22];
 
         expect(component.colorFieldNames).toEqual(['testColorField']);
@@ -769,27 +735,23 @@ describe('Component: BarChart', () => {
         expect(spy.calls.count()).toBe(1);
     });
 
-    it('updateBarChart does not change active.bars or data in active.data', () => {
-        let dataset1 = new BarDataSet(4);
-        dataset1.label = 'segment1';
-        dataset1.color = new Color(0, 0, 0);
+    it('updateBarChart does not change bars or data in activeData', () => {
+        let dataset1 = new BarDataSet(4, 'segment1', new Color(0, 0, 0), new Color(255, 255, 255));
         dataset1.backgroundColor = ['rgb(1, 1, 1)', 'rgb(2, 2, 2)', 'rgb(3, 3, 3)', 'rgb(4, 4, 4)'];
         dataset1.data = [41, 31, 21, 11];
-        let dataset2 = new BarDataSet(4);
-        dataset2.label = 'segment2';
-        dataset2.color = new Color(5, 5, 5);
+        let dataset2 = new BarDataSet(4, 'segment2', new Color(5, 5, 5), new Color(255, 255, 255));
         dataset2.backgroundColor = ['rgb(6, 6, 6)', 'rgb(7, 7, 7)', 'rgb(8, 8, 8)', 'rgb(9, 9, 9)'];
         dataset2.data = [42, 32, 22, 12];
 
-        component.active.bars = ['bar1', 'bar2', 'bar3', 'bar4'];
-        component.active.data = [dataset1, dataset2];
+        component.bars = ['bar1', 'bar2', 'bar3', 'bar4'];
+        component.activeData = [dataset1, dataset2];
 
         component.updateBarChart(2, 4);
 
-        expect(component.active.bars).toEqual(['bar1', 'bar2', 'bar3', 'bar4']);
-        expect(component.active.data.length).toBe(2);
-        expect(component.active.data[0].data).toEqual([41, 31, 21, 11]);
-        expect(component.active.data[1].data).toEqual([42, 32, 22, 12]);
+        expect(component.bars).toEqual(['bar1', 'bar2', 'bar3', 'bar4']);
+        expect(component.activeData.length).toBe(2);
+        expect(component.activeData[0].data).toEqual([41, 31, 21, 11]);
+        expect(component.activeData[1].data).toEqual([42, 32, 22, 12]);
     });
 
     it('formatNumber does round numbers and return strings', () => {
@@ -806,57 +768,57 @@ describe('Component: BarChart', () => {
     it('nextPage does increase page and does call updatePageData', () => {
         let spy = spyOn(component, 'updatePageData');
 
-        component.active.lastPage = false;
+        component.lastPage = false;
         component.nextPage();
-        expect(component.active.page).toBe(2);
+        expect(component.page).toBe(2);
         expect(spy.calls.count()).toBe(1);
 
-        component.active.lastPage = false;
+        component.lastPage = false;
         component.nextPage();
-        expect(component.active.page).toBe(3);
+        expect(component.page).toBe(3);
         expect(spy.calls.count()).toBe(2);
     });
 
     it('previousPage does decrease page and does call updatePageData', () => {
         let spy = spyOn(component, 'updatePageData');
-        component.active.page = 3;
+        component.page = 3;
 
         component.previousPage();
-        expect(component.active.page).toBe(2);
+        expect(component.page).toBe(2);
         expect(spy.calls.count()).toBe(1);
 
         component.previousPage();
-        expect(component.active.page).toBe(1);
+        expect(component.page).toBe(1);
         expect(spy.calls.count()).toBe(2);
     });
 
     it('updatePageData does update lastPage and does call updateBarChart', () => {
         let spy = spyOn(component, 'updateBarChart');
-        component.active.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
+        component.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'];
 
         component.updatePageData();
-        expect(component.active.lastPage).toBe(true);
+        expect(component.lastPage).toBe(true);
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([0, 10]);
 
-        component.meta.limit = 4;
+        component.options.limit = 4;
 
         component.updatePageData();
-        expect(component.active.lastPage).toBe(false);
+        expect(component.lastPage).toBe(false);
         expect(spy.calls.count()).toBe(2);
         expect(spy.calls.argsFor(1)).toEqual([0, 4]);
 
-        component.active.page = 2;
+        component.page = 2;
 
         component.updatePageData();
-        expect(component.active.lastPage).toBe(false);
+        expect(component.lastPage).toBe(false);
         expect(spy.calls.count()).toBe(3);
         expect(spy.calls.argsFor(2)).toEqual([4, 4]);
 
-        component.active.page = 3;
+        component.page = 3;
 
         component.updatePageData();
-        expect(component.active.lastPage).toBe(true);
+        expect(component.lastPage).toBe(true);
         expect(spy.calls.count()).toBe(4);
         expect(spy.calls.argsFor(3)).toEqual([8, 4]);
     });
@@ -875,8 +837,8 @@ describe('Component: BarChart', () => {
     });
 
     it('does have disabled previous page button if bars > limit and page is 1', async(() => {
-        component.active.bars = ['a', 'b', 'c', 'd'];
-        component.meta.limit = 2;
+        component.bars = ['a', 'b', 'c', 'd'];
+        component.options.limit = 2;
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
@@ -890,9 +852,9 @@ describe('Component: BarChart', () => {
     }));
 
     it('does have enabled previous page button if bars > limit and page is 2', async(() => {
-        component.active.bars = ['a', 'b', 'c', 'd'];
-        component.meta.limit = 2;
-        component.active.page = 2;
+        component.bars = ['a', 'b', 'c', 'd'];
+        component.options.limit = 2;
+        component.page = 2;
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
@@ -912,9 +874,9 @@ describe('Component: BarChart', () => {
     });
 
     it('does have disabled next page button if bars > limit and lastPage is true', async(() => {
-        component.active.bars = ['a', 'b', 'c', 'd'];
-        component.active.lastPage = true;
-        component.meta.limit = 2;
+        component.bars = ['a', 'b', 'c', 'd'];
+        component.lastPage = true;
+        component.options.limit = 2;
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
@@ -928,9 +890,9 @@ describe('Component: BarChart', () => {
     }));
 
     it('does have enabled next page button if bars > limit and lastPage is false', async(() => {
-        component.active.bars = ['a', 'b', 'c', 'd'];
-        component.active.lastPage = false;
-        component.meta.limit = 2;
+        component.bars = ['a', 'b', 'c', 'd'];
+        component.lastPage = false;
+        component.options.limit = 2;
 
         fixture.detectChanges();
         fixture.whenStable().then(() => {
@@ -943,173 +905,173 @@ describe('Component: BarChart', () => {
         });
     }));
 
-    it('subOnResizeStop with active.chartType=horizontalBar does update active.minSize', () => {
-        component.active.chartType = 'horizontalBar';
+    it('subOnResizeStop with options.type=horizontalBar does update minSize', () => {
+        component.options.type = 'horizontalBar';
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 20,
             width: 40
         });
 
-        component.active.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
-        component.active.labelCount = 8;
-        component.meta.limit = 12;
+        component.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
+        component.labelCount = 8;
+        component.options.limit = 12;
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 200,
             width: 240
         });
 
-        component.meta.limit = 6;
+        component.options.limit = 6;
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 110,
             width: 240
         });
 
-        component.active.labelCount = 4;
+        component.labelCount = 4;
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 110,
             width: 140
         });
 
-        component.active.bars = ['a', 'b'];
+        component.bars = ['a', 'b'];
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 50,
             width: 140
         });
     });
 
-    it('subOnResizeStop with active.chartType=bar does update active.minSize', () => {
+    it('subOnResizeStop with options.type=bar does update minSize', () => {
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 20,
             width: 40
         });
 
-        component.active.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
-        component.active.labelCount = 8;
-        component.meta.limit = 12;
+        component.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
+        component.labelCount = 8;
+        component.options.limit = 12;
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 140,
             width: 340
         });
 
-        component.meta.limit = 6;
+        component.options.limit = 6;
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 140,
             width: 190
         });
 
-        component.active.labelCount = 4;
+        component.labelCount = 4;
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 80,
             width: 190
         });
 
-        component.active.bars = ['a', 'b'];
+        component.bars = ['a', 'b'];
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 80,
             width: 90
         });
     });
 
-    it('subOnResizeStop with active.chartType=horizontalBar does update active.minSize', () => {
-        component.active.chartType = 'horizontalBar';
+    it('subOnResizeStop with options.type=horizontalBar does update minSize', () => {
+        component.options.type = 'horizontalBar';
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 20,
             width: 40
         });
 
-        component.active.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
-        component.active.labelCount = 8;
-        component.meta.limit = 12;
+        component.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
+        component.labelCount = 8;
+        component.options.limit = 12;
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 200,
             width: 240
         });
 
-        component.meta.limit = 6;
+        component.options.limit = 6;
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 110,
             width: 240
         });
 
-        component.active.labelCount = 4;
+        component.labelCount = 4;
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 110,
             width: 140
         });
 
-        component.active.bars = ['a', 'b'];
+        component.bars = ['a', 'b'];
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 50,
             width: 140
         });
     });
 
-    it('subOnResizeStop with active.chartType=bar does update active.minSize', () => {
+    it('subOnResizeStop with options.type=bar does update minSize', () => {
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 20,
             width: 40
         });
 
-        component.active.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
-        component.active.labelCount = 8;
-        component.meta.limit = 12;
+        component.bars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l'];
+        component.labelCount = 8;
+        component.options.limit = 12;
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 140,
             width: 340
         });
 
-        component.meta.limit = 6;
+        component.options.limit = 6;
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 140,
             width: 190
         });
 
-        component.active.labelCount = 4;
+        component.labelCount = 4;
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 80,
             width: 190
         });
 
-        component.active.bars = ['a', 'b'];
+        component.bars = ['a', 'b'];
 
         component.subOnResizeStop();
-        expect(component.active.minSize).toEqual({
+        expect(component.minSize).toEqual({
             height: 80,
             width: 90
         });
