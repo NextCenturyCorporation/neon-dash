@@ -124,7 +124,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         let query = new neon.query.Query()
             .selectFrom(this.meta.database.name, this.meta.table.name);
 
-
         whereClauses.push(neon.query.where(this.active.linkField.columnName, '!=', null));
 
         if (this.active.idField.columnName === this.active.id) {
@@ -520,7 +519,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         // Do nothing.
     }
 
-
     /**
      * Sets the given bindings for the thumbnail grid.
      *
@@ -558,7 +556,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @return {number}
      */
     getDefaultLimit(): number {
-        return 42;
+        return 49;
     }
 
     sanitize(url) {
