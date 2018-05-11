@@ -99,4 +99,4 @@ export const MediaTypes = {
     video: 'vid',
     html: 'htm',
     pdf: 'pdf'
-}
+};

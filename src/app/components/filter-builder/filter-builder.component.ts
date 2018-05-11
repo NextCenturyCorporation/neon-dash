@@ -41,13 +41,15 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class FilterBuilderOptions extends BaseNeonOptions {
+    public multiFilter: boolean;
+
     /**
      * Initializes all the non-field options for the specific visualization.
      *
      * @override
      */
     onInit() {
-        // Do nothing.
+        this.multiFilter = this.injector.get('multiFilter', false);
     }
 
     /**
@@ -71,7 +73,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
 
-    public options: BaseNeonOptions;
+    public options: FilterBuilderOptions;
 
     public andOr: string = 'and';
     public clauses: WhereClauseMetaData[] = [];
@@ -125,14 +127,14 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                     this.databaseTableFieldKeysToFilterIds.set(databaseTableFieldKey, '');
                 });
 
-                if (this.active.multiFilter) {
-                    this.meta.table = table;
+                if (this.options.multiFilter) {
+                    this.options.table = table;
                     this.addBlankWhereClause();
                 }
             });
         });
 
-        if (!this.active.multiFilter) {
+        if (!this.options.multiFilter) {
             this.addBlankWhereClause();
         }
     }
