@@ -60,10 +60,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         id: string,
         page: number,
         lastPage: boolean,
+        scaleThumbnails: boolean
         sortField: FieldMetaData,
-        filterFields: FieldMetaData[],
-        filterable: boolean,
         ascending: boolean,
+        filterable: boolean,
         idField: FieldMetaData,
         linkField: FieldMetaData,
         objectNameField: FieldMetaData,
@@ -78,7 +78,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     };
 
     isLoading: boolean;
-    scaleThumbnails: boolean;
     mediaTypes: any = MediaTypes;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
@@ -93,10 +92,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             id: this.injector.get('id', ''),
             page: 1,
             lastPage: true,
+            scaleThumbnails: this.injector.get('scaleThumbnails', false),
             sortField: new FieldMetaData(),
-            filterFields: [],
-            filterable: this.injector.get('filterable', false),
             ascending: false,
+            filterable: this.injector.get('filterable', false),
             idField: new FieldMetaData(),
             linkField: new FieldMetaData(),
             objectNameField: new FieldMetaData(),
@@ -111,7 +110,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         };
 
         this.isLoading = false;
-        this.scaleThumbnails = false;
         this.subscribeToSelectId(this.getSelectIdCallback());
     }
 
@@ -126,7 +124,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         let query = new neon.query.Query()
             .selectFrom(this.meta.database.name, this.meta.table.name);
 
-       whereClauses.push(neon.query.where(this.active.linkField.columnName, '!=', null));
+
+        whereClauses.push(neon.query.where(this.active.linkField.columnName, '!=', null));
 
         if (this.active.idField.columnName === this.active.id) {
            whereClauses.push(neon.query.where(this.active.idField.columnName, '=', this.active.id));
@@ -285,7 +284,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     getThumbnailTitle(truthTitle, predictionTitle, titlePercent): string {
         if (predictionTitle) {
-            return 'Prediction : ' + predictionTitle + ' ' + (parseFloat(titlePercent) * 100).toFixed(1) + '%, Actual : ' + truthTitle;
+            return 'Prediction : ' + predictionTitle + ', Actual : ' + truthTitle;
         } else {
             return (parseFloat(titlePercent) * 100).toFixed(1) + '%';
         }
@@ -363,7 +362,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.active.percentField = this.findFieldObject('percentField');
         this.active.predictedNameField = this.findFieldObject('predictedNameField');
         this.active.sortField = this.findFieldObject('sortField');
-        this.active.filterFields = this.findFieldObjects('filterFields');
     }
 
     /**
@@ -448,7 +446,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         let canvases = this.thumbnailGrid.nativeElement.querySelectorAll('.thumbnail-view'),
             scale = .4,
             width = 300,
-            height = 185;
+            height = 150;
 
         this.active.pagingGrid.map((grid, index) => {
             let link = grid[this.active.linkField.columnName],
@@ -464,7 +462,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         h = height;
                     image.src = link;
                     image.onload = () => {
-                        if (image.width && image.width > 0 && this.scaleThumbnails) {
+                        if (image.width && image.width > 0 && this.active.scaleThumbnails) {
                             w = image.width * scale;
                             h = image.height * scale;
                         }
@@ -479,7 +477,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         h = height;
                     video.src = link;
                     video.onloadeddata = () => {
-                        if (video.width && video.width > 0 && this.scaleThumbnails) {
+                        if (video.width && video.width > 0 && this.active.scaleThumbnails) {
                             w = video.width * scale;
                             h = video.height * scale;
                         }
@@ -522,6 +520,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         // Do nothing.
     }
 
+
     /**
      * Sets the given bindings for the thumbnail grid.
      *
@@ -532,7 +531,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.idField = this.active.idField.columnName;
         bindings.linkField = this.active.linkField.columnName;
         bindings.sortField = this.active.sortField.columnName;
-        bindings.filterFields = this.active.filterFields;
         bindings.filterable = this.active.filterable;
     }
 
