@@ -240,6 +240,12 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         }, {
             columnName: this.options.linkField.columnName,
             prettyName: this.options.linkField.prettyName
+        }, {
+            columnName: this.options.nameField.columnName,
+            prettyName: this.options.nameField.prettyName
+        }, {
+            columnName: this.options.typeField.columnName,
+            prettyName: this.options.typeField.prettyName
         }];
     }
 
@@ -273,13 +279,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the list of filter objects (null for no filters).
+     * Returns the list of filter objects.
      *
-     * @return {null}
+     * @return {array}
      * @override
      */
     getCloseableFilters(): any[] {
-        return null;
+        return [];
     }
 
     /**

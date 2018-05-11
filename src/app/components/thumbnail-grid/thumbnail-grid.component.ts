@@ -234,11 +234,32 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     getExportFields(): any[] {
         return [{
+            columnName: this.options.categoryField.columnName,
+            prettyName: this.options.categoryField.prettyName
+        }, {
             columnName: this.options.idField.columnName,
             prettyName: this.options.idField.prettyName
         }, {
             columnName: this.options.linkField.columnName,
             prettyName: this.options.linkField.prettyName
+        }, {
+            columnName: this.options.objectIdField.columnName,
+            prettyName: this.options.objectIdField.prettyName
+        }, {
+            columnName: this.options.objectNameField.columnName,
+            prettyName: this.options.objectNameField.prettyName
+        }, {
+            columnName: this.options.percentField.columnName,
+            prettyName: this.options.percentField.prettyName
+        }, {
+            columnName: this.options.predictedNameField.columnName,
+            prettyName: this.options.predictedNameField.prettyName
+        }, {
+            columnName: this.options.sortField.columnName,
+            prettyName: this.options.sortField.prettyName
+        }, {
+            columnName: this.options.typeField.columnName,
+            prettyName: this.options.typeField.prettyName
         }];
     }
 
