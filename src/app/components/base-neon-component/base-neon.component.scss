@@ -137,6 +137,7 @@ $footer-height: 40px;
     }
 
     %filter-reset-shared {
+        font-size: 14px;
         line-height: 20px;
         height: 20px;
         border-radius: 5px;
@@ -151,6 +152,11 @@ $footer-height: 40px;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
+
+    %filter-icon-shared {
+        padding: 2px 0;
+    }
+
     .filter-reset {
         @extend %filter-reset-shared;
         float: right;
@@ -159,6 +165,10 @@ $footer-height: 40px;
             @extend %filter-label-shared;
             float: left;
             max-width: 100px;
+        }
+
+        mat-icon {
+            @extend %filter-icon-shared;
         }
     }
 

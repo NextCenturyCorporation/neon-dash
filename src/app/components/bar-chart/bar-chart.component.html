@@ -1,12 +1,12 @@
 <mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
     <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
-        <div #headerText class="header text pull-left" [matTooltip]="meta.title" tooltip-position="below">{{ meta.title }}</div>
+        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
         <span class="fill-remaining"></span>
         <span #infoText class="info text">
-            <span class="error-message" *ngIf="meta.errorMessage" [matTooltip]="meta.errorMessage" tooltip-position="below">
-                {{ meta.errorMessage }}
+            <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
+                {{ errorMessage }}
             </span>
-            <span *ngIf="!meta.errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+            <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
@@ -16,10 +16,10 @@
     <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
         <mat-card align="left">
             <mat-card-content>
-                <div *ngIf="meta.errorMessage">
-                    <label class="icon-with-text error-message" [matTooltip]="meta.errorMessage" tooltip-position="below">
+                <div *ngIf="errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="errorMessage" tooltip-position="below">
                         <mat-icon class="neon-icon-small">error</mat-icon>
-                        <span>{{ meta.errorMessage }}</span>
+                        <span>{{ errorMessage }}</span>
                     </label>
                     <p></p>
                 </div>
@@ -33,39 +33,39 @@
                 </div>
 
                 <mat-form-field>
-                    <input matInput placeholder="Title" [(ngModel)]="meta.title" required="false">
+                    <input matInput placeholder="Title" [(ngModel)]="options.title" required="false">
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Database" [(ngModel)]="meta.database"
-                                required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="meta.databases.length < 2">
-                        <mat-option *ngFor="let database of meta.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    <mat-select placeholder="Database" [(ngModel)]="options.database"
+                                required="true" (ngModelChange)="handleChangeDatabase()" [disabled]="options.databases.length < 2">
+                        <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Table" [(ngModel)]="meta.table" required="true"
-                                (ngModelChange)="handleChangeTable()" [disabled]="meta.tables.length < 2">
-                        <mat-option *ngFor="let table of meta.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    <mat-select placeholder="Table" [(ngModel)]="options.table" required="true"
+                                (ngModelChange)="handleChangeTable()" [disabled]="options.tables.length < 2">
+                        <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Group Field" [(ngModel)]="active.dataField"
+                    <mat-select placeholder="Group Field" [(ngModel)]="options.dataField"
                                 required="true" (ngModelChange)="handleChangeFilterField()"
-                                [disabled]="meta.fields.length == 0">
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                                [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Aggregation" [(ngModel)]="active.aggregation"
-                                required="true" (ngModelChange)="handleChangeAggregation()"
-                                [disabled]="meta.fields.length == 0">
+                    <mat-select placeholder="Aggregation" [(ngModel)]="options.aggregation"
+                                required="true" (ngModelChange)="handleChangeData()"
+                                [disabled]="options.fields.length == 0">
                         <mat-option value="count">Count</mat-option>
                         <mat-option value="sum">Sum</mat-option>
                         <mat-option value="average">Average</mat-option>
@@ -75,26 +75,26 @@
                 </mat-form-field>
                 <p></p>
 
-                <mat-form-field *ngIf="!active.aggregationFieldHidden">
-                    <mat-select placeholder="Aggregation Field (Range)" [(ngModel)]="active.aggregationField"
-                                required="true" (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                <mat-form-field *ngIf="options.aggregation !== 'count'">
+                    <mat-select placeholder="Aggregation Field (Range)" [(ngModel)]="options.aggregationField"
+                                required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Color Field" [(ngModel)]="active.colorField"
-                               (ngModelChange)="handleChangeData()" [disabled]="meta.fields.length == 0">
+                    <mat-select placeholder="Color Field" [(ngModel)]="options.colorField"
+                               (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
-                        <mat-option *ngFor="let field of meta.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Group Limit" [(ngModel)]="meta.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Group Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
@@ -105,28 +105,28 @@
 
                 <label> Displayed Range </label>
                 <div class='radio-container' layout="row" mat-margin>
-                    <mat-radio-group ngDefaultControl [(ngModel)]="active.scaleManually" (change)="handleChangeScale()">
-                        <mat-radio-button ngDefaultControl [value]="false" [(ngModel)]="active.scaleManually">Auto-scale</mat-radio-button>
-                        <mat-radio-button ngDefaultControl [value]="true" [(ngModel)]="active.scaleManually" >Manual</mat-radio-button>
+                    <mat-radio-group ngDefaultControl [(ngModel)]="options.scaleManually" (change)="handleChangeScale()">
+                        <mat-radio-button ngDefaultControl [value]="false" [(ngModel)]="options.scaleManually">Auto-scale</mat-radio-button>
+                        <mat-radio-button ngDefaultControl [value]="true" [(ngModel)]="options.scaleManually" >Manual</mat-radio-button>
                     </mat-radio-group>
 
-                    <div *ngIf="active.scaleManually">
+                    <div *ngIf="options.scaleManually">
                         <p></p>
                         <div mat-fill class="flex center">
-                            <mat-form-field *ngIf='active.chartType == "bar"'>
-                                <input matInput placeholder="Y maximum" [(ngModel)]="active.maxScale" required="false">
+                            <mat-form-field *ngIf='options.type == "bar"'>
+                                <input matInput placeholder="Y maximum" [(ngModel)]="options.scaleMax" required="false">
                             </mat-form-field>
 
-                            <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
-                                <input matInput placeholder="X maximum" [(ngModel)]="active.maxScale" required="false">
+                            <mat-form-field *ngIf='options.type == "horizontalBar"'>
+                                <input matInput placeholder="X maximum" [(ngModel)]="options.scaleMax" required="false">
                             </mat-form-field>
 
-                            <mat-form-field *ngIf='active.chartType == "bar"'>
-                                <input matInput placeholder="Y minimum" [(ngModel)]="active.minScale" required="false">
+                            <mat-form-field *ngIf='options.type == "bar"'>
+                                <input matInput placeholder="Y minimum" [(ngModel)]="options.scaleMin" required="false">
                             </mat-form-field>
 
-                            <mat-form-field *ngIf='active.chartType == "horizontalBar"'>
-                                <input matInput placeholder="X minimum" [(ngModel)]="active.minScale" required="false">
+                            <mat-form-field *ngIf='options.type == "horizontalBar"'>
+                                <input matInput placeholder="X minimum" [(ngModel)]="options.scaleMin" required="false">
                             </mat-form-field>
 
                             <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeScale()">
@@ -139,14 +139,14 @@
 
                 <label> Chart Type </label>
                 <div class='radio-container' layout="row" mat-margin>
-                    <mat-radio-group ngDefaultControl [(ngModel)]="active.chartType" (change)="handleChangeChartType()">
-                        <mat-radio-button ngDefaultControl value="horizontalBar" [(ngModel)]="active.chartType">Horizontal</mat-radio-button>
-                        <mat-radio-button ngDefaultControl value="bar" [(ngModel)]="active.chartType">Vertical</mat-radio-button>
+                    <mat-radio-group ngDefaultControl [(ngModel)]="options.type" (change)="handleChangeChartType()">
+                        <mat-radio-button ngDefaultControl value="horizontalBar" [(ngModel)]="options.type">Horizontal</mat-radio-button>
+                        <mat-radio-button ngDefaultControl value="bar" [(ngModel)]="options.type">Vertical</mat-radio-button>
                     </mat-radio-group>
                 </div>
                 <p></p>
-                
-                <app-unshared-filter [(meta)]="meta" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
+
+                <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
@@ -159,7 +159,7 @@
     </div>
 
     <div class="filter-container">
-        <app-legend *ngIf="!!this.active.colorField.columnName" [activeList]="selectedLabels" [fieldNames]="colorFieldNames"></app-legend>
+        <app-legend *ngIf="!!this.options.colorField.columnName" [activeList]="selectedLabels" [fieldNames]="colorFieldNames"></app-legend>
 
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
@@ -170,20 +170,20 @@
         </div>
     </div>
 
-    <div class="body-container" [class.with-filter]="!!this.active.colorField.columnName || getCloseableFilters().length" [class.with-footer]="active.bars.length > meta.limit">
-        <div #chartContainer class="chart-container" [style.minHeight.px]="this.active.minSize.height" [style.minWidth.px]="this.active.minSize.width">
+    <div class="body-container" [class.with-filter]="!!this.options.colorField.columnName || getCloseableFilters().length" [class.with-footer]="bars.length > options.limit">
+        <div #chartContainer class="chart-container" [style.minHeight.px]="this.minSize.height" [style.minWidth.px]="this.minSize.width">
             <app-chart class="chart" #barChart [type]="chartInfo.type" [data]="chartInfo.data" [options]="chartInfo.options"></app-chart>
         </div>
     </div>
 
-    <div class="footer" *ngIf="active.bars.length > meta.limit">
+    <div class="footer" *ngIf="bars.length > options.limit">
         <div class="footer-button-container">
-            <button mat-raised-button [disabled]="active.page == 1" class="pagination-button previous-button" color="primary"
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
                 (click)="previousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
-            <button mat-raised-button [disabled]="active.lastPage" class="pagination-button next-button" color="primary"
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
                 (click)="nextPage()">
                 Next
             </button>
