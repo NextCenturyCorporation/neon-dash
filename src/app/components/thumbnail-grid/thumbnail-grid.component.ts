@@ -402,11 +402,11 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     handleSortOrder() {
         this.gridArray.sort((a, b) => {
             if (this.options.ascending) {
-                return a[this.options.percentField.columnName] === b[this.options.percentField.columnName] ? 0
-                    : +(a[this.options.percentField.columnName] > b[this.options.percentField.columnName]) || -1;
+                return a[this.options.sortField.columnName] === b[this.options.sortField.columnName] ? 0
+                    : +(a[this.options.sortField.columnName] > b[this.options.sortField.columnName]) || -1;
             } else {
-                return a[this.options.percentField.columnName] === b[this.options.percentField.columnName] ? 0
-                    : +(a[this.options.percentField.columnName] < b[this.options.percentField.columnName]) || -1;
+                return a[this.options.sortField.columnName] === b[this.options.sortField.columnName] ? 0
+                    : +(a[this.options.sortField.columnName] < b[this.options.sortField.columnName]) || -1;
             }
         });
 
@@ -547,7 +547,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     setupFilters() {
-        // Do nothing.
+        this.options.sortField.columnName = this.filterService.getFilters()[0].filter.whereClause.lhs;
+        this.options.sortField.prettyName = this.filterService.getFilters()[0].filter.whereClause.lhs;
+        this.handleSortOrder();
     }
 
     /**

@@ -71,7 +71,6 @@
                     "percentField": "PredictedProbability",
                     "sortField": "PredictedProbability",
                     "filterable": true,
-                    "filterFields": ["PredictionCategory","PredictedProbability"],
                     "scaleThumbnails": false
                 },
                 "row": 12,
@@ -106,7 +105,6 @@
                     "percentField": "PredictedProbability",
                     "sortField": "PredictedProbability",
                     "filterable": true,
-                    "filterFields": ["PredictionCategory","PredictedProbability"],
                     "scaleThumbnails": false
                 },
                 "row": 12,
