@@ -53,13 +53,15 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Category Field" [(ngModel)]="options.categoryField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                    <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -73,7 +75,15 @@
                 <p></p>
 
                 <mat-form-field>
+                    <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
                     <mat-select placeholder="Actual ID Field" [(ngModel)]="options.objectIdField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -81,20 +91,23 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Actual Name Field" [(ngModel)]="options.objectNameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Predicted Name Field" [(ngModel)]="options.predictedNameField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                    <mat-select placeholder="Predicted Name Field" [(ngModel)]="options.predictedNameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Predicted Probability Field" [(ngModel)]="options.percentField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                    <mat-select placeholder="Predicted Probability Field" [(ngModel)]="options.percentField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -108,7 +121,8 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Type Field" [(ngModel)]="options.typeField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                    <mat-select placeholder="Type Field" [(ngModel)]="options.typeField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -137,15 +151,17 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Filterable" [(ngModel)]="options.filterable" required="true">
-                        <mat-option [value]="true">Yes</mat-option>
-                        <mat-option [value]="false">No</mat-option>
+                    <mat-select placeholder="Crop and/or Scale" [(ngModel)]="options.cropAndScale" required="true" (ngModelChange)="updatePageData()">
+                        <mat-option [value]="''">None</mat-option>
+                        <mat-option [value]="'scale'">Scale</mat-option>
+                        <mat-option [value]="'crop'">Crop</mat-option>
+                        <mat-option [value]="'both'">Both</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Scale Thumbnails" [(ngModel)]="options.scaleThumbnails" required="true" (ngModelChange)="updatePageData()">
+                    <mat-select placeholder="Filterable" [(ngModel)]="options.filterable" required="true">
                         <mat-option [value]="true">Yes</mat-option>
                         <mat-option [value]="false">No</mat-option>
                     </mat-select>
@@ -163,14 +179,15 @@
 
     <div #thumbnailGrid class="thumbnail-grid">
        <div class="thumbnail-grid-container">
-           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid; let i = index"  (click)="maximizeMedia(item[options.linkField.columnName])">
-                   <div class="thumbnail-details">
-                       <p [title]="getThumbnailTitle(item[options.objectNameField.columnName],item[options.predictedNameField.columnName], item[options.percentField.columnName])">
-                           <span class="detail-ellipses">{{ item[options.predictedNameField.columnName] }}</span>
-                           <span>{{ getThumbnailTitle("", "", item[options.percentField.columnName]) }}</span>
-                       </p>
-                   </div>
-                    <canvas class="thumbnail-view"></canvas>
+           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid; let i = index" [matTooltip]="getThumbnailTitle(item)"
+               tooltip-position="below" (click)="maximizeMedia(item[options.linkField.columnName])">
+               <div class="thumbnail-details">
+                   <p>
+                       <span class="detail-ellipses">{{ getThumbnailLabel(item) }}</span>
+                       <span>{{ getThumbnailPercent(item) }}</span>
+                   </p>
+               </div>
+                <canvas class="thumbnail-view" height="100" width="100"></canvas>
            </div>
        </div>
    </div>
