@@ -1,0 +1,16 @@
+<div class="modal">
+  <div class="modal__heading">
+    Custom Dataset - {{ getCurrentStepTitle() }}
+  </div>
+
+  <div class="modal__content">
+    <app-custom-connection-simple-setup-step #step [data]="data"></app-custom-connection-simple-setup-step>
+  </div>
+
+  <div class="modal__footer">
+    <div>
+      <button class="modal__footer-button mat-raised-button mat-primary" (click)="dialogRef.close(close)">Cancel</button>
+      <button class="modal__footer-button mat-raised-button mat-primary" (click)="nextStep()" [disabled]="!validateStep()">Create</button>
+    </div>
+  </div>
+</div>
