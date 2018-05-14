@@ -84,6 +84,27 @@ export namespace neonMappings {
     export const URL = 'url';
 }
 
+export const neonCustomConnectionMappings: { name: string, prettyName: string }[] = [{
+        name: 'date',
+        prettyName: 'Date'
+    },
+    {
+        name: 'id',
+        prettyName: 'ID'
+    },
+    {
+        name: 'latitude',
+        prettyName: 'Latitude'
+    },
+    {
+        name: 'longitude',
+        prettyName: 'Longitude'
+    },
+    {
+        name: 'url',
+        prettyName: 'URL'
+}];
+
 export namespace neonVisualizationMinPixel { // jshint ignore:line
     export const x = 320;
     export const y = 240;

@@ -78,6 +78,9 @@ import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { NetworkGraphComponent } from './components/network-graph/network-graph.component';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 
+import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
+import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
+
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
     return window['appConfig'];
@@ -92,6 +95,8 @@ export function getAppConfig() {
         BarChartComponent,
         ChartComponent,
         ConfigEditorComponent,
+        CustomConnectionComponent,
+        CustomConnectionSimpleSetupStepComponent,
         DashboardOptionsComponent,
         DatasetSelectorComponent,
         DataTableComponent,
@@ -150,8 +155,8 @@ export function getAppConfig() {
             useFactory: getAppConfig
         }
     ],
-    entryComponents: [AppComponent, AddVisualizationComponent, DocumentViewerSingleItemComponent, FilterTrayComponent, SnackBarComponent,
-        ConfigEditorComponent, SimpleSnackBarComponent],
+    entryComponents: [AppComponent, AddVisualizationComponent, CustomConnectionComponent, DocumentViewerSingleItemComponent,
+        FilterTrayComponent, SnackBarComponent, ConfigEditorComponent, SimpleSnackBarComponent],
     bootstrap: [AppComponent]
 })
 
