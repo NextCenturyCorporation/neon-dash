@@ -22,7 +22,7 @@
 @import '../../../themes/neon-green-theme';
 
 $filter-container-height: 40px;
-$footer-height: 40px;
+$footer-height: 35px;
 
 .visualization-sidenav {
     height: 100%;
@@ -117,6 +117,10 @@ $footer-height: 40px;
 
             .pagination-button {
                 flex: 1 0 0;
+                /* Copied font size, height, and line height from neon-button-small in styles.scss */
+                font-size: 12px !important;
+                height: 25px !important;
+                line-height: 15px !important;
             }
 
             .pagination-button[disabled] {
