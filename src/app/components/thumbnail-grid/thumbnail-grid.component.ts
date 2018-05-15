@@ -551,13 +551,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     setupFilters() {
-        let newSortField = this.filterService.getFilters()[0].filter.whereClause.lhs;
+        let newSortField = this.filterService.getFilters()[0].filter.whereClause;
 
-        if(!isNaN(newSortField)){
-            this.options.sortField.columnName = newSortField;
-            this.options.sortField.prettyName = newSortField;
-        }
-        else{
+        if (!isNaN(newSortField.rhs)) {
+            this.options.sortField.columnName = newSortField.lhs;
+            this.options.sortField.prettyName = newSortField.lhs;
+        } else {
             this.options.sortField.columnName = this.options.percentField.columnName;
             this.options.sortField.prettyName = this.options.percentField.prettyName;
         }
