@@ -115,6 +115,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public page: number = 1;
 
     public isLoading: boolean = false;
+    public showGrid: boolean = true;
     public mediaTypes: any = MediaTypes;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
@@ -124,7 +125,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         super(activeGridService, connectionService, datasetService,
             filterService, exportService, injector, themesService, ref, visualizationService);
 
-        this.options = new ThumbnailGridOptions(this.injector, this.datasetService, 'Thumbnail Grid', 50);
+        this.options = new ThumbnailGridOptions(this.injector, this.datasetService, 'Thumbnail Grid', 30);
         this.subscribeToSelectId(this.getSelectIdCallback());
     }
 
@@ -197,6 +198,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.lastPage = (this.gridArray.length <= (offset + this.options.limit));
         this.pagingGrid = this.gridArray.slice(offset,
             Math.min(this.page * this.options.limit, this.gridArray.length));
+        this.showGrid = true;
         this.refreshVisualization();
         this.createMediaThumbnail();
     }
@@ -363,6 +365,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.gridArray = [];
                 this.errorMessage = '';
                 this.isLoading = true;
+                this.showGrid = true;
                 response.data.map((d) => {
                     let item = {},
                         links: any;
@@ -386,6 +389,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
             } else {
                 this.errorMessage = 'No Data';
+                this.showGrid = false;
                 this.refreshVisualization();
             }
         } catch (e) {
@@ -547,8 +551,16 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     setupFilters() {
-        this.options.sortField.columnName = this.filterService.getFilters()[0].filter.whereClause.lhs;
-        this.options.sortField.prettyName = this.filterService.getFilters()[0].filter.whereClause.lhs;
+        let newSortField = this.filterService.getFilters()[0].filter.whereClause.lhs;
+
+        if(!isNaN(newSortField)){
+            this.options.sortField.columnName = newSortField;
+            this.options.sortField.prettyName = newSortField;
+        }
+        else{
+            this.options.sortField.columnName = this.options.percentField.columnName;
+            this.options.sortField.prettyName = this.options.percentField.prettyName;
+        }
         this.handleSortOrder();
     }
 

@@ -162,8 +162,8 @@
     </div>
 
     <div #thumbnailGrid class="thumbnail-grid">
-       <div class="thumbnail-grid-container">
-           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid; let i = index"  (click)="maximizeMedia(item[options.linkField.columnName])">
+       <div class="thumbnail-grid-container" *ngIf="showGrid">
+           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid"  (click)="maximizeMedia(item[options.linkField.columnName])">
                    <div class="thumbnail-details">
                        <p [title]="getThumbnailTitle(item[options.objectNameField.columnName],item[options.predictedNameField.columnName], item[options.sortField.columnName])">
                            <span class="detail-ellipses">{{ item[options.predictedNameField.columnName] }}</span>
