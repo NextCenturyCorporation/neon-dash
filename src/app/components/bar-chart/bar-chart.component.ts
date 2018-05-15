@@ -121,6 +121,7 @@ export class BarChartOptions extends BaseNeonOptions {
     public scaleMin: string;
     public sortAlphabetically: boolean;
     public type: string;
+    public yPercentage: number;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -136,6 +137,7 @@ export class BarChartOptions extends BaseNeonOptions {
         this.scaleMin = this.injector.get('scaleMin', '');
         this.sortAlphabetically = this.injector.get('sortAlphabetically', false);
         this.type = this.injector.get('chartType', 'bar');
+        this.yPercentage = this.injector.get('yPercentage', 0.2);
     }
 
     /**
@@ -241,8 +243,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         // Margin for the y-axis labels.
         let LABELS_MARGIN = 20;
-        // Percentage of the chart for the y-axis labels specified by the UX team.
-        let LABELS_PERCENTAGE = 0.2;
         // Margin for the tooltip labels.
         let TOOLTIPS_MARGIN = 20;
 
@@ -266,7 +266,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         let resizeXLabel = (scaleInstance) => {
             // Set the left padding to equal the Y label width plus the margin.  Set the X label width accordingly.
-            let yLabelMaxWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth);
+            let yLabelMaxWidth = Math.floor(this.options.yPercentage * this.chartModule.getNativeElement().clientWidth);
             scaleInstance.paddingLeft = Math.min(yLabelMaxWidth, calculateYLabelWidth()) + LABELS_MARGIN;
             scaleInstance.paddingRight = 10;
             scaleInstance.width = this.chartModule.getNativeElement().clientWidth - scaleInstance.paddingLeft - scaleInstance.paddingRight;
@@ -274,7 +274,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         let resizeYLabel = (scaleInstance) => {
             // Set the Y label width to either its minimum needed width or a percentage of the chart width (whatever is lower).
-            let yLabelMaxWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth);
+            let yLabelMaxWidth = Math.floor(this.options.yPercentage * this.chartModule.getNativeElement().clientWidth);
             scaleInstance.width = Math.min(yLabelMaxWidth, calculateYLabelWidth());
         };
 
@@ -308,7 +308,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         };
 
         let truncateYLabelText = (text) => {
-            let containerWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth - LABELS_MARGIN);
+            let containerWidth = Math.floor(this.options.yPercentage * this.chartModule.getNativeElement().clientWidth - LABELS_MARGIN);
             return truncateText(containerWidth, text);
         };
 
@@ -445,6 +445,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         bindings.aggregationField = this.options.aggregationField.columnName;
         bindings.andFilters = this.options.andFilters;
         bindings.ignoreSelf = this.options.ignoreSelf;
+        bindings.yPercentage = this.options.yPercentage;
     }
 
     /**

@@ -126,14 +126,6 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Ignore Own Filters" [(ngModel)]="options.ignoreSelf" required="true" (ngModelChange)="handleFiltersChangedEvent()">
-                        <mat-option [value]="true">Yes</mat-option>
-                        <mat-option [value]="false">No</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
                     <mat-select placeholder="Allow Multiple Filters" [(ngModel)]="options.singleFilter" required="true" (ngModelChange)="handleFiltersChangedEvent()">
                         <mat-option [value]="false">Yes</mat-option>
                         <mat-option [value]="true">No</mat-option>
@@ -142,17 +134,25 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Table Style" [(ngModel)]="options.skinny" required="true" (ngModelChange)="refreshVisualization()">
-                        <mat-option [value]="false">Normal</mat-option>
-                        <mat-option [value]="true">Skinny</mat-option>
+                    <mat-select placeholder="Ignore Own Filters" [(ngModel)]="options.ignoreSelf" required="true" (ngModelChange)="handleFiltersChangedEvent()">
+                        <mat-option [value]="true">Yes</mat-option>
+                        <mat-option [value]="false">No</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Sort" [(ngModel)]="options.sortDescending" required="true" (ngModelChange)="logChangeAndStartQueryChain()">
+                    <mat-select placeholder="Sort" [(ngModel)]="options.sortDescending" required="true" (ngModelChange)="handleChangeData()">
                         <mat-option [value]="false">Ascending</mat-option>
                         <mat-option [value]="true">Descending</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Table Style" [(ngModel)]="options.skinny" required="true" (ngModelChange)="refreshVisualization()">
+                        <mat-option [value]="false">Normal</mat-option>
+                        <mat-option [value]="true">Skinny</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>

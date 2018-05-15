@@ -104,24 +104,16 @@ describe('Component: BarChart', () => {
     it('does have expected options properties', () => {
         expect(component.options.aggregation).toBe('count');
         expect(component.options.andFilters).toBe(true);
+        expect(component.options.ignoreSelf).toBe(true);
         expect(component.options.limit).toBe(10);
         expect(component.options.scaleMin).toBe('');
         expect(component.options.scaleMax).toBe('');
         expect(component.options.type).toBe('bar');
+        expect(component.options.yPercentage).toBe(0.2);
 
-        component.options.aggregation = 'test';
-        component.options.andFilters = false;
-        component.options.limit = 42;
-        component.options.type = 'testChart';
-
-        expect(component.options.aggregation).toBe('test');
         expect(component.options.aggregationField).toEqual(component.emptyField);
-        expect(component.options.andFilters).toBe(false);
-        expect(component.options.andFilters).toBe(false);
         expect(component.options.colorField).toEqual(component.emptyField);
         expect(component.options.dataField).toEqual(component.emptyField);
-        expect(component.options.limit).toBe(42);
-        expect(component.options.type).toBe('testChart');
     });
 
     it('does have expected class properties', () => {
