@@ -235,19 +235,29 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     getExportFields(): any[] {
-        return [{
+        let fields = [{
             columnName: this.options.idField.columnName,
             prettyName: this.options.idField.prettyName
         }, {
             columnName: this.options.linkField.columnName,
             prettyName: this.options.linkField.prettyName
-        }, {
-            columnName: this.options.nameField.columnName,
-            prettyName: this.options.nameField.prettyName
-        }, {
-            columnName: this.options.typeField.columnName,
-            prettyName: this.options.typeField.prettyName
         }];
+
+        if (this.options.nameField.columnName) {
+            fields.push({
+                columnName: this.options.nameField.columnName,
+                prettyName: this.options.nameField.prettyName
+            });
+        }
+
+        if (this.options.typeField.columnName) {
+            fields.push({
+                columnName: this.options.typeField.columnName,
+                prettyName: this.options.typeField.prettyName
+            });
+        }
+
+        return fields;
     }
 
     /**
