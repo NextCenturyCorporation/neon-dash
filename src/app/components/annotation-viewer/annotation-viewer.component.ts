@@ -311,12 +311,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         return document;*/
     }
 
-    findFieldInFieldList(fieldName, fieldList) {
-        return _.find(fieldList, function(field) {
-            return field.columnName === fieldName;
-        }) || new FieldMetaData();
-    }
-
     /**
      * Saves the annotations and mentions from the given data item in the given document object.
      * @method saveAnnotations
