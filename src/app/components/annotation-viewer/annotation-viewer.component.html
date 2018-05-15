@@ -1,0 +1,167 @@
+<mat-sidenav-container #visualization class="visualization-sidenav" [class.neon-green-dark-theme]="themesService.getCurrentTheme().id === 'neon-green-dark-theme'">
+    <mat-toolbar class="neon-toolbar-thin" color="header" layout-align="space-between center" flex>
+        <div #headerText class="header text pull-left" [matTooltip]="options.title" tooltip-position="below">{{ options.title }}</div>
+        <span class="fill-remaining"></span>
+        <span #infoText class="info text">
+            <span class="error-message" *ngIf="options.errorMessage" [matTooltip]="options.errorMessage" tooltip-position="below">
+                {{ options.errorMessage }}
+            </span>
+            <span *ngIf="!options.errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+                {{ getButtonText() }}
+            </span>
+        </span>
+        <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
+            <mat-icon>settings</mat-icon>
+        </button>
+    </mat-toolbar>
+
+    <!-- Options menu -->
+    <mat-sidenav #optionsMenu align="end" class="visualization-sidenav-options">
+        <mat-card align="left">
+            <mat-card-content>
+                <div *ngIf="options.errorMessage">
+                    <label class="icon-with-text error-message" [matTooltip]="options.errorMessage" tooltip-position="below">
+                        <mat-icon class="neon-icon-small">error</mat-icon>
+                        <span>{{ options.errorMessage }}</span>
+                    </label>
+                    <p></p>
+                </div>
+
+                <div *ngIf="getButtonText()">
+                    <label class="icon-with-text data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+                        <mat-icon class="neon-icon-small">info</mat-icon>
+                        <span>{{ getButtonText() }}</span>
+                    </label>
+                    <p></p>
+                </div>
+
+                <mat-form-field>
+                    <input matInput placeholder="Title" [(ngModel)]="options.title" required="false">
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Database" [(ngModel)]="options.database" required="true" (ngModelChange)="handleChangeDatabase()"
+                        [disabled]="options.databases.length < 2">
+                        <mat-option *ngFor="let database of options.databases" [value]="database">{{ database.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Table" [(ngModel)]="options.table" required="true" (ngModelChange)="handleChangeTable()" [disabled]="options.tables.length < 2">
+                        <mat-option *ngFor="let table of options.tables" [value]="table">{{ table.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <!-- TODO Do you need fields?  Are they required or optional? -->
+                <mat-form-field>
+                    <mat-select placeholder="Document Text Field" [(ngModel)]="options.documentTextField" required="true" (ngModelChange)="handleChangeFilterField()"
+                        [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <!-- TODO Do you need a limit? -->
+                <div mat-fill class="flex center">
+                    <mat-form-field>
+                        <input matInput placeholder="Document Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
+                <p></p>
+                <mat-toolbar style="cursor: pointer;">
+                    <span>Annotations</span>
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeFilterField()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </mat-toolbar>
+                <!--- 
+                <mat-form-field>
+                    <mat-select placeholder="Annotation Start Character Field" [(ngModel)]="options.annotationFields.startCharacterField" required="true"
+                        [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.columnName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+
+
+                <mat-form-field>
+                    <mat-select placeholder="Annotation End Character Field" [(ngModel)]="options.annotationFields.endCharacterField" required="true"
+                        [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Annotation Text Field" [(ngModel)]="options.annotationFields.textField" required="true" [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Annotation Type Field" [(ngModel)]="options.annotationFields.typeField" required="true" [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <!-- TODO Do you need an unshared filter? -->
+                <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
+                <p></p>
+
+                <app-export-control [exportId]="exportId"></app-export-control>
+            </mat-card-content>
+        </mat-card>
+    </mat-sidenav>
+
+    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+        <mat-spinner></mat-spinner>
+    </div>
+
+    <!-- TODO Do you need a header for filters or other components (like a legend)? -->
+    <div class="filter-container" *ngIf="showFilterContainer()">
+        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+            <span class="filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" [matTooltip]="'Delete Filter ' + getFilterText(filter)"
+                tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                <mat-icon class="neon-icon-small">close</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <!-- TODO Remove the with-filter and/or with-footer classes if you don't need them. -->
+    <div class="body-container" [class.with-filter]="showFilterContainer()" [class.with-footer]="showFooterContainer()">
+
+        <mat-list class="annotation-viewer-list-container body-container" [class.with-footer]="options.docCount > options.limit">
+            <div class="mat-list-item-text annotation-viewer-list-item" layout="column">
+                <!-- TODO Do not use <table> elements!  Use flex styling! -->
+                <ul class="annotation-viewer-table">
+                    <ng-template ngFor let-item [ngForOf]="activeData">
+                        <li class="document-row" (click)="onClick(item)">
+                            <span *ngFor="let parts of item.parts" [style.background-color]="parts.highlightColor" [matTooltip]="parts.type" tooltip-position="below">{{ parts.text }}</span>
+                        </li>
+                    </ng-template>
+                </ul>
+            </div>
+        </mat-list>
+    </div>
+
+    <div class="footer" *ngIf="showFooterContainer()">
+        <div class="footer-button-container">
+            <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary" (click)="goToPreviousPage()">
+                Previous
+            </button>
+            <span class="pagination-button-spacer"></span>
+            <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary" (click)="goToNextPage()">
+                Next
+            </button>
+        </div>
+    </div>
+</mat-sidenav-container>
