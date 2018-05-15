@@ -44,7 +44,7 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class MediaViewerOptions extends BaseNeonOptions {
-    public border: boolean;
+    public border: string;
     public id: string;
     public idField: FieldMetaData;
     public linkField: FieldMetaData;
@@ -61,7 +61,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
      * @override
      */
     onInit() {
-        this.border = this.injector.get('border', false);
+        this.border = this.injector.get('border', '');
         this.id = this.injector.get('id', '');
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.resize = this.injector.get('resize', true);
@@ -250,15 +250,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the list filters for the media viewer to ignore.
+     * Returns the list filters for the visualization to ignore.
      *
-     * @return {any[]}
+     * @return {array|null}
      * @override
      */
     getFiltersToIgnore(): any[] {
+        // Ignore all the filters for the database and the table so it always shows the selected items.
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name);
 
-        let ignoredFilterIds = neonFilters.filter((neonFilter) => {
+        let ignoredFilterIds = !this.options.id ? [] : neonFilters.filter((neonFilter) => {
             return !neonFilter.filter.whereClause.whereClauses;
         }).map((neonFilter) => {
             return neonFilter.id;
@@ -415,9 +416,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         if (links[0]) {
             let typeFromConfig = this.options.typeMap[links[0].substring(links[0].lastIndexOf('.') + 1).toLowerCase()];
-            // TODO Add a boolean borderField with border options:  true = red, false = yellow
+            // TODO Add a boolean borderField with border options like:  true = red, false = yellow
             this.documentArray.push({
-                border: this.options.border ? 'yellow' : '',
+                border: this.options.border,
                 link: this.options.linkPrefix + links[0],
                 name: (Array.isArray(names) ? names[0] : names) || links[0],
                 type: (Array.isArray(types) ? types[0] : types) || typeFromConfig || ''

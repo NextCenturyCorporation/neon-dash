@@ -122,16 +122,36 @@
     </div>
 
     <div *ngIf="options.url == ''">
-        <div *ngIf="options.id && documentArray.length == 0" class="no-data-text">No Data: {{ options.id }}</div>
-        <mat-tab-group>
+        <div *ngIf="options.id && documentArray.length == 0" class="viewer-text">No Data: {{ options.id }}</div>
+
+        <mat-tab-group *ngIf="documentArray.length > 1">
             <mat-tab *ngFor="let document of documentArray" [label]="document.name">
                 <div [ngSwitch]="document.type">
-                    <img #image *ngSwitchCase="mediaTypes.image" [class.border-yellow]="document.border === 'yellow'" [src]="document.link" [alt]="options.linkField.prettyName" >
-                    <video #video *ngSwitchCase="mediaTypes.video" [class.border-yellow]="document.border === 'yellow'" controls><source [src]="document.link"></video>
-                    <iframe #frame *ngSwitchDefault [class.border-yellow]="document.border === 'yellow'" [src]="sanitize(document.link)" frameborder="0"></iframe>
+                    <img #image *ngSwitchCase="mediaTypes.image" [src]="document.link" [alt]="options.linkField.prettyName"
+                        [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
+                    <video #video *ngSwitchCase="mediaTypes.video" controls
+                        [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
+                        <source [src]="document.link">
+                    </video>
+                    <iframe #frame *ngSwitchDefault [src]="sanitize(document.link)" frameborder="0"
+                        [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
+                    </iframe>
                 </div>
             </mat-tab>
         </mat-tab-group>
+
+        <div class="full-height" *ngIf="documentArray.length == 1" [ngSwitch]="documentArray[0].type">
+            <div class="viewer-text">{{ documentArray[0].name }}</div>
+            <img #image *ngSwitchCase="mediaTypes.image" [src]="documentArray[0].link" [alt]="options.linkField.prettyName"
+                [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
+            <video #video *ngSwitchCase="mediaTypes.video" controls
+                [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
+                <source [src]="documentArray[0].link">
+            </video>
+            <iframe #frame *ngSwitchDefault [src]="sanitize(documentArray[0].link)" frameborder="0"
+                [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
+            </iframe>
+        </div>
     </div>
 
     <div class="full-height" *ngIf="options.url != ''">
