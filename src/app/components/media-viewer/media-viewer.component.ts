@@ -128,7 +128,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }[] = [];
 
     public isLoadingMedia: boolean = false;
-    public previousId: string;
+    public previousId: string = '';
     public mediaTypes: any = MediaTypes;
 
     constructor(
@@ -310,8 +310,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         return (message) => {
             if (message.database === this.options.database.name && message.table === this.options.table.name) {
                 this.options.id = Array.isArray(message.id) ? message.id[0] : message.id;
-                this.previousId = '';
-                if (this.options.id) {
+                if (this.options.id !== this.previousId) {
+                    this.documentArray = [];
+                    this.previousId = this.options.id;
                     this.executeQueryChain();
                 }
             }
@@ -366,11 +367,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     Array.isArray(names) ? names : (names.toString().search(/,/g) > -1 ? names.toString().split(',') : names),
                     Array.isArray(types) ? types : (types.toString().search(/,/g) > -1 ? types.toString().split(',') : types)
                 );
-
-                if (this.previousId !== this.options.id) {
-                    this.previousId = this.options.id;
-                }
-
             } else {
                 this.errorMessage = 'No Data';
                 this.refreshVisualization();
