@@ -28,7 +28,7 @@
         <div class="main-container">
             <div class="clause-container" *ngFor="let clause of clauses">
                 <div class="clause-form-container">
-                    <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
+                    <mat-form-field class="neon-form-field-flex-5 neon-form-field">
                         <mat-select placeholder="Database" [(ngModel)]="clause.changeDatabase"
                                     required="true" (ngModelChange)="handleChangeDatabaseOfClause(clause)"
                                     [disabled]="clause.databases.length < 2">
@@ -36,7 +36,7 @@
                         </mat-select>
                     </mat-form-field>
 
-                    <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
+                    <mat-form-field class="neon-form-field-flex-5 neon-form-field">
                         <mat-select placeholder="Table" [(ngModel)]="clause.changeTable"
                                     required="true" (ngModelChange)="handleChangeTableOfClause(clause)"
                                     [disabled]="clause.tables.length < 2">
@@ -44,7 +44,7 @@
                         </mat-select>
                     </mat-form-field>
 
-                    <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
+                    <mat-form-field class="neon-form-field-flex-5 neon-form-field">
                         <mat-select placeholder="Field" [(ngModel)]="clause.changeField"
                                     required="true" (ngModelChange)="handleChangeFieldOfClause(clause)"
                                     [disabled]="clause.fields.length == 0">
@@ -52,7 +52,7 @@
                         </mat-select>
                     </mat-form-field>
 
-                    <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
+                    <mat-form-field class="neon-form-field-flex-5 neon-form-field">
                         <mat-select placeholder="Operator" [(ngModel)]="clause.operator"
                                     required="true" (ngModelChange)="handleChangeDataOfClause(clause)"
                                     [disabled]="operators.length == 0">
@@ -60,25 +60,25 @@
                         </mat-select>
                     </mat-form-field>
 
-                    <mat-form-field class="neon-form-field-flex-5 neon-form-field-large">
+                    <mat-form-field class="neon-form-field-flex-5 neon-form-field">
                         <input matInput placeholder="Value" [(ngModel)]="clause.value" (input)="handleChangeDataOfClause(clause)" (keyup.enter)="activateClause(clause)">
                     </mat-form-field>
                 </div>
 
                 <div class="clause-button-container">
-                    <button mat-icon-button class="neon-icon-button-large clause-button" (click)="activateClause(clause)"
+                    <button mat-icon-button class="neon-icon-button clause-button" (click)="activateClause(clause)"
                             [disabled]="!validateClause(clause)" matTooltip="Update Filter" tooltip-position="below" *ngIf="!clause.active">
-                        <mat-icon class="neon-icon-large">refresh</mat-icon>
+                        <mat-icon class="neon-icon">refresh</mat-icon>
                     </button>
 
-                    <button mat-icon-button class="neon-icon-button-large clause-button active" (click)="activateClause(clause)"
+                    <button mat-icon-button class="neon-icon-button clause-button active" (click)="activateClause(clause)"
                             matTooltip="Filter is Active" tooltip-position="below" *ngIf="clause.active">
-                        <mat-icon class="neon-icon-large">check_circle</mat-icon>
+                        <mat-icon class="neon-icon">check_circle</mat-icon>
                     </button>
 
-                    <button mat-icon-button class="neon-icon-button-large clause-button" (click)="removeClause(clause)"
+                    <button mat-icon-button class="neon-icon-button clause-button" (click)="removeClause(clause)"
                             matTooltip="Remove Filter" tooltip-position="below">
-                        <mat-icon class="neon-icon-large">delete</mat-icon>
+                        <mat-icon class="neon-icon">delete</mat-icon>
                     </button>
                 </div>
             </div>
