@@ -44,6 +44,7 @@ import {
     AddVisualizationComponent,
     SimpleSnackBarComponent
 } from './components/add-visualization/add-visualization.component';
+import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AppComponent } from './app.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { ChartComponent } from './components/chart/chart.component';
@@ -91,6 +92,7 @@ export function getAppConfig() {
     declarations: [
         AboutNeonComponent,
         AddVisualizationComponent,
+        AnnotationViewerComponent,
         AppComponent,
         BarChartComponent,
         ChartComponent,
