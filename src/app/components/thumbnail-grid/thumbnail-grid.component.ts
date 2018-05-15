@@ -61,6 +61,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public predictedNameField: FieldMetaData;
     public scaleThumbnails: boolean; // Deprecated - Use cropAndScale = 'scale'
     public sortField: FieldMetaData;
+    public styleClass: string;
     public textMap: any;
     public typeField: FieldMetaData;
     public typeMap: any;
@@ -78,6 +79,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
         this.scaleThumbnails = this.injector.get('scaleThumbnails', false); // Deprecated - Use cropAndScale = 'scale'
+        this.styleClass = this.injector.get('styleClass', '');
         this.textMap = this.injector.get('textMap', {});
         this.typeMap = this.injector.get('typeMap', {});
     }
@@ -114,8 +116,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
 })
 
 export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-
-    private CELL_SIZE: number = 100.0;
+    private CANVAS_SIZE: number = 100.0;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
@@ -174,10 +175,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             this.filters = [filter];
             this.addNeonFilter(true, filter, clause);
         } else if (this.filters.length === 1) {
-            let exists = this.filters.some((existingFilter) => {
-                return filter.field === this.filters[0].field && filter.value === this.filters[0].value;
-            });
-            if (!exists) {
+            if (!this.filterExists(filter.field, filter.value)) {
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
                 this.replaceNeonFilter(true, filter, clause);
@@ -240,6 +238,20 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         return query.where(neon.query.and.apply(query, whereClauses)).sortBy(this.options.sortField.columnName, this.options.ascending ?
             neonVariables.ASCENDING : neonVariables.DESCENDING);
+    }
+
+    /**
+     * Returns whether a visualization filter object with the given field and value strings exists in the list of visualization filters.
+     *
+     * @arg {string} field
+     * @arg {string} value
+     * @return {boolean}
+     * @private
+     */
+    filterExists(field: string, value: string) {
+        return this.filters.some((existingFilter) => {
+            return field === existingFilter.field && value === existingFilter.value;
+        });
     }
 
     /**
@@ -614,7 +626,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 thumbnail = canvases[index].getContext('2d');
 
             thumbnail.fillStyle = '#ffffff';
-            thumbnail.fillRect(0, 0, this.CELL_SIZE, this.CELL_SIZE);
+            thumbnail.fillRect(0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
 
             switch (type) {
                 case this.mediaTypes.image : {
@@ -624,17 +636,17 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         if (this.options.cropAndScale === 'both') {
                             // Use the MIN to crop the scale
                             let size = Math.min(image.width, image.height);
-                            let multiplier = this.CELL_SIZE / size;
+                            let multiplier = this.CANVAS_SIZE / size;
                             thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
                         } else if (this.options.cropAndScale === 'crop') {
                             thumbnail.drawImage(image, 0, 0, image.width, image.height);
                         } else if (this.options.cropAndScale === 'scale' || this.options.scaleThumbnails) {
                             // Use the MAX to scale
                             let size = Math.max(image.width, image.height);
-                            let multiplier = this.CELL_SIZE / size;
+                            let multiplier = this.CANVAS_SIZE / size;
                             thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
                         } else {
-                            thumbnail.drawImage(image, 0, 0, this.CELL_SIZE, this.CELL_SIZE);
+                            thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
                         }
 
                     };
@@ -647,17 +659,17 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         if (this.options.cropAndScale === 'both') {
                             // Use the MIN to crop the scale
                             let size = Math.min(video.width, video.height);
-                            let multiplier = this.CELL_SIZE / size;
+                            let multiplier = this.CANVAS_SIZE / size;
                             thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
                         } else if (this.options.cropAndScale === 'crop') {
                             thumbnail.drawImage(video, 0, 0, video.width, video.height);
                         } else if (this.options.cropAndScale === 'scale' || this.options.scaleThumbnails) {
                             // Use the MAX to scale
                             let size = Math.max(video.width, video.height);
-                            let multiplier = this.CELL_SIZE / size;
+                            let multiplier = this.CANVAS_SIZE / size;
                             thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
                         } else {
-                            thumbnail.drawImage(video, 0, 0, this.CELL_SIZE, this.CELL_SIZE);
+                            thumbnail.drawImage(video, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
                         }
                     };
                     break;
@@ -722,10 +734,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     prettyField: field.prettyName,
                     value: value
                 };
-                let exists = this.filters.some((existingFilter) => {
-                    return filter.field === this.filters[0].field && filter.value === this.filters[0].value;
-                });
-                if (!exists) {
+                if (!this.filterExists(filter.field, filter.value)) {
                     this.filters.push(filter);
                 }
             }
