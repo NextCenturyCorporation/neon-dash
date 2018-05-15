@@ -19,14 +19,6 @@
     overflow: unset;
 }
 
-.thumbnail-grid{
-    //Includes the height of the header and paging footer
-    max-height: calc(100% - #{$vis-title-expected-height} * 2);
-    display: flex;
-    background-color: #fafafa;
-    overflow: auto;
-}
-
 .thumbnail-grid-container{
     height: 100%;
     display: flex;
@@ -98,7 +90,26 @@
     border: 5px solid #f44336; /* mat-color-red-500 */
 }
 
+.selected canvas.with-border,
+.selectable:hover canvas.with-border,
 .border-mat-yellow {
     border: 5px solid #ffeb3b; /* mat-color-yellow-500 */
 }
 
+.style2 {
+    .thumbnail-grid-div {
+        margin: 5px;
+
+        .thumbnail-details {
+            font-size: 12px;
+            height: 15px;
+            line-height: 15px;
+            min-height: 15px;
+
+            p {
+                height: unset;
+                margin: 0;
+            }
+        }
+    }
+}

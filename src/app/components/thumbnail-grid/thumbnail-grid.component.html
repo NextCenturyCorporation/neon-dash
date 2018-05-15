@@ -99,7 +99,7 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                    <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -193,16 +193,17 @@
     </div>
 
     <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > options.limit">
-       <div class="thumbnail-grid-container">
-           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid; let i = index" [matTooltip]="getThumbnailTitle(item)"
-               tooltip-position="below" (click)="selectGridItem(item)">
+       <div class="thumbnail-grid-container" [class.style2]="options.styleClass == 'style2'">
+           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid; let i = index" [matTooltip]="getThumbnailTitle(item)" tooltip-position="below" (click)="selectGridItem(item)"
+               [class.selected]="options.filterField.columnName && filterExists(options.filterField.columnName, item[options.filterField.columnName])"
+               [class.selectable]="options.filterField.columnName || options.idField.columnName || options.openOnMouseClick">
                <div class="thumbnail-details">
                    <p>
                        <span class="detail-ellipses">{{ getThumbnailLabel(item) }}</span>
                        <span>{{ getThumbnailPercent(item) }}</span>
                    </p>
                </div>
-                <canvas class="thumbnail-view" height="100" width="100"></canvas>
+                <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"></canvas>
            </div>
        </div>
    </div>
