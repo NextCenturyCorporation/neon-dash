@@ -104,14 +104,6 @@
                 </mat-form-field>
                 <p></p>
 
-                <mat-form-field>
-                    <mat-select placeholder="Border" [(ngModel)]="options.border" required="true">
-                        <mat-option [value]="false">None</mat-option>
-                        <mat-option [value]="true">Yellow</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
                 <app-export-control [exportId]="exportId"></app-export-control>
             </mat-card-content>
         </mat-card>
@@ -140,7 +132,7 @@
             </mat-tab>
         </mat-tab-group>
 
-        <div class="full-height" *ngIf="documentArray.length == 1" [ngSwitch]="documentArray[0].type">
+        <div class="full-height single-medium" *ngIf="documentArray.length == 1" [ngSwitch]="documentArray[0].type">
             <div class="viewer-text">{{ documentArray[0].name }}</div>
             <img #image *ngSwitchCase="mediaTypes.image" [src]="documentArray[0].link" [alt]="options.linkField.prettyName"
                 [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">

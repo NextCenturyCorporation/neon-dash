@@ -194,10 +194,10 @@
 
     <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > options.limit">
        <div class="thumbnail-grid-container" [class.style2]="options.styleClass == 'style2'">
-           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid; let i = index" [matTooltip]="getThumbnailTitle(item)" tooltip-position="below" (click)="selectGridItem(item)"
-               [class.selected]="options.filterField.columnName && filterExists(options.filterField.columnName, item[options.filterField.columnName])"
-               [class.selectable]="options.filterField.columnName || options.idField.columnName || options.openOnMouseClick">
-               <div class="thumbnail-details">
+           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid; let i = index" [matTooltip]="getThumbnailTitle(item)"
+               tooltip-position="below" (click)="selectGridItem(item)" [class.selectable]="isSelectable()"
+               [class.selected]="isSelected(item)" [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
+               <div class="thumbnail-details" *ngIf="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
                    <p>
                        <span class="detail-ellipses">{{ getThumbnailLabel(item) }}</span>
                        <span>{{ getThumbnailPercent(item) }}</span>

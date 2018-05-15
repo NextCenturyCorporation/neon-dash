@@ -30,7 +30,6 @@
     flex-direction: column;
     flex: 0 0;
     margin: .5em .7em;
-    justify-content: center;
     align-items: center;
 }
 
@@ -98,7 +97,12 @@
 
 .style2 {
     .thumbnail-grid-div {
+        height: 110px;
         margin: 5px;
+
+        &.with-text {
+            height: 125px;
+        }
 
         .thumbnail-details {
             font-size: 12px;
