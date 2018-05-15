@@ -48,7 +48,6 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public border: string;
     public categoryField: FieldMetaData;
     public cropAndScale: string;
-    public filterable: boolean;
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
@@ -57,6 +56,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public nameField: FieldMetaData;
     public objectIdField: FieldMetaData;
     public objectNameField: FieldMetaData;
+    public openOnMouseClick: boolean;
     public percentField: FieldMetaData;
     public predictedNameField: FieldMetaData;
     public scaleThumbnails: boolean; // Deprecated - Use cropAndScale = 'scale'
@@ -74,9 +74,9 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.ascending = this.injector.get('ascending', false);
         this.border = this.injector.get('border', '');
         this.cropAndScale = this.injector.get('cropAndScale', '');
-        this.filterable = this.injector.get('filterable', false);
         this.id = this.injector.get('id', '');
         this.linkPrefix = this.injector.get('linkPrefix', '');
+        this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
         this.scaleThumbnails = this.injector.get('scaleThumbnails', false); // Deprecated - Use cropAndScale = 'scale'
         this.textMap = this.injector.get('textMap', {});
         this.typeMap = this.injector.get('typeMap', {});
@@ -122,6 +122,13 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('thumbnailGrid') thumbnailGrid: ElementRef;
 
+    public filters: {
+        id: string,
+        field: string,
+        prettyField: string,
+        value: string
+    }[] = [];
+
     public options: ThumbnailGridOptions;
 
     public gridArray: any[] = [];
@@ -142,6 +149,45 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         this.options = new ThumbnailGridOptions(this.injector, this.datasetService, 'Thumbnail Grid', 50);
         this.subscribeToSelectId(this.getSelectIdCallback());
+    }
+
+    /**
+     * Creates Neon and visualization filter objects for the given text.
+     *
+     * @arg {string} text
+     */
+    createFilter(text: string) {
+        if (!this.options.filterField.columnName) {
+            return;
+        }
+
+        let filter = {
+            id: undefined,
+            field: this.options.filterField.columnName,
+            prettyField: this.options.filterField.prettyName,
+            value: text
+        };
+
+        let clause = neon.query.where(filter.field, '=', filter.value);
+
+        if (!this.filters.length) {
+            this.filters = [filter];
+            this.addNeonFilter(true, filter, clause);
+        } else if (this.filters.length === 1) {
+            let exists = this.filters.some((existingFilter) => {
+                return filter.field === this.filters[0].field && filter.value === this.filters[0].value;
+            });
+            if (!exists) {
+                filter.id = this.filters[0].id;
+                this.filters = [filter];
+                this.replaceNeonFilter(true, filter, clause);
+            }
+        } else {
+            this.removeAllFilters([].concat(this.filters), () => {
+                this.filters = [filter];
+                this.addNeonFilter(true, filter, clause);
+            });
+        }
     }
 
     /**
@@ -192,7 +238,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             whereClauses.push(neon.query.where(this.options.idField.columnName, '=', this.options.id));
         }
 
-        return query.where(neon.query.and.apply(query, whereClauses)).sortBy(this.options.sortField.columnName, neonVariables.DESCENDING);
+        return query.where(neon.query.and.apply(query, whereClauses)).sortBy(this.options.sortField.columnName, this.options.ascending ?
+            neonVariables.ASCENDING : neonVariables.DESCENDING);
     }
 
     /**
@@ -249,13 +296,13 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Returns the list of filter objects.
+     * Returns the list of filter objects for the visualization.
      *
      * @return {array}
      * @override
      */
     getCloseableFilters(): any[] {
-        return [];
+        return this.filters;
     }
 
     /**
@@ -326,7 +373,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         // Ignore all the filters for the database and the table so it always shows the selected items.
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name);
 
-        let ignoredFilterIds = !this.options.id ? [] : neonFilters.filter((neonFilter) => {
+        let ignoredFilterIds = !this.options.id && !this.filters.length ? [] : neonFilters.filter((neonFilter) => {
             return !neonFilter.filter.whereClause.whereClauses;
         }).map((neonFilter) => {
             return neonFilter.id;
@@ -336,14 +383,14 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Returns the text for the given filter.
+     * Returns the text for the given filter object.
      *
      * @arg {object} filter
      * @return {string}
      * @override
      */
     getFilterText(filter: any): string {
-        return '';
+        return filter.prettyField + ' = ' + filter.value;
     }
 
     /**
@@ -443,7 +490,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     for (let field of this.options.fields) {
                         if (field.columnName === this.options.linkField.columnName) {
                             links = this.getArrayValues(neonUtilities.deepFind(d, this.options.linkField.columnName) || '');
-                        } else if (field.type) {
+                        } else if (field.type || field.columnName === '_id') {
                             item[field.columnName] = neonUtilities.deepFind(d, field.columnName);
                         }
                     }
@@ -474,6 +521,12 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     handleSortOrder() {
+        // A sort field overrides sort-by-percentage.
+        if (this.options.sortField.columnName) {
+            this.handleChangeData();
+            return;
+        }
+
         this.gridArray.sort((a, b) => {
             if (this.options.ascending) {
                 return a[this.options.percentField.columnName] === b[this.options.percentField.columnName] ? 0
@@ -506,13 +559,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Removes the given filter from the thumbnail grid (does nothing because the thumbnail grid does not filter).
+     * Removes the given filter from this visualization.
      *
      * @arg {object} filter
      * @override
      */
-    removeFilter() {
-        // Do nothing.
+    removeFilter(filter: any) {
+        this.filters = this.filters.filter((existingFilter: any) => {
+            return existingFilter.id !== filter.id;
+        });
     }
 
     /**
@@ -551,7 +606,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         this.pagingGrid.map((grid, index) => {
             let link = grid[this.options.linkField.columnName];
-            let typeFromConfig = this.options.typeMap[link.substring(link.lastIndexOf('.') + 1).toLowerCase()];
+            let fileType = link.substring(link.lastIndexOf('.') + 1).toLowerCase();
+            let typeFromConfig = this.options.typeMap[fileType];
             let type = grid[this.options.typeField.columnName] || typeFromConfig,
                 objectId = grid[this.options.objectIdField.columnName],
                 categoryId = grid[this.options.categoryField.columnName],
@@ -565,22 +621,20 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     let image: HTMLImageElement = new Image();
                     image.src = link;
                     image.onload = () => {
-                        if (image.height && image.width) {
-                            if (this.options.cropAndScale === 'both') {
-                                // Use the MIN to crop the scale
-                                let size = Math.min(image.width, image.height);
-                                let multiplier = this.CELL_SIZE / size;
-                                thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
-                            } else if (this.options.cropAndScale === 'crop') {
-                                thumbnail.drawImage(image, 0, 0, image.width, image.height);
-                            } else if (this.options.cropAndScale === 'scale' || this.options.scaleThumbnails) {
-                                // Use the MAX to scale
-                                let size = Math.max(image.width, image.height);
-                                let multiplier = this.CELL_SIZE / size;
-                                thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
-                            } else {
-                                thumbnail.drawImage(image, 0, 0, this.CELL_SIZE, this.CELL_SIZE);
-                            }
+                        if (this.options.cropAndScale === 'both') {
+                            // Use the MIN to crop the scale
+                            let size = Math.min(image.width, image.height);
+                            let multiplier = this.CELL_SIZE / size;
+                            thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                        } else if (this.options.cropAndScale === 'crop') {
+                            thumbnail.drawImage(image, 0, 0, image.width, image.height);
+                        } else if (this.options.cropAndScale === 'scale' || this.options.scaleThumbnails) {
+                            // Use the MAX to scale
+                            let size = Math.max(image.width, image.height);
+                            let multiplier = this.CELL_SIZE / size;
+                            thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                        } else {
+                            thumbnail.drawImage(image, 0, 0, this.CELL_SIZE, this.CELL_SIZE);
                         }
 
                     };
@@ -590,28 +644,29 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     let video: HTMLVideoElement = document.createElement('video');
                     video.src = link;
                     video.onloadeddata = () => {
-                        if (video.height && video.width && this.options.scaleThumbnails) {
-                            if (this.options.cropAndScale === 'both') {
-                                // Use the MIN to crop the scale
-                                let size = Math.min(video.width, video.height);
-                                let multiplier = this.CELL_SIZE / size;
-                                thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
-                            } else if (this.options.cropAndScale === 'crop') {
-                                thumbnail.drawImage(video, 0, 0, video.width, video.height);
-                            } else if (this.options.cropAndScale === 'scale' || this.options.scaleThumbnails) {
-                                // Use the MAX to scale
-                                let size = Math.max(video.width, video.height);
-                                let multiplier = this.CELL_SIZE / size;
-                                thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
-                            } else {
-                                thumbnail.drawImage(video, 0, 0, this.CELL_SIZE, this.CELL_SIZE);
-                            }
+                        if (this.options.cropAndScale === 'both') {
+                            // Use the MIN to crop the scale
+                            let size = Math.min(video.width, video.height);
+                            let multiplier = this.CELL_SIZE / size;
+                            thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                        } else if (this.options.cropAndScale === 'crop') {
+                            thumbnail.drawImage(video, 0, 0, video.width, video.height);
+                        } else if (this.options.cropAndScale === 'scale' || this.options.scaleThumbnails) {
+                            // Use the MAX to scale
+                            let size = Math.max(video.width, video.height);
+                            let multiplier = this.CELL_SIZE / size;
+                            thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                        } else {
+                            thumbnail.drawImage(video, 0, 0, this.CELL_SIZE, this.CELL_SIZE);
                         }
                     };
                     break;
                 }
                 default : {
                     // todo: get thumbnails of documents, pdf, and other similar types of media.
+                    thumbnail.fillStyle = '#111111';
+                    thumbnail.font = '20px Helvetica Neue';
+                    thumbnail.fillText(fileType.toUpperCase(), 10, 30);
                 }
             }
 
@@ -630,23 +685,51 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Show link in native viewer
+     * Selects the given grid item.
      *
-     * @arg {array} links
+     * @arg {object} item
      * @private
      */
-
-    maximizeMedia(link) {
-        window.open(link);
+    selectGridItem(item) {
+        if (this.options.idField.columnName) {
+            this.publishSelectId(item[this.options.idField.columnName]);
+        }
+        if (this.options.filterField.columnName) {
+            this.createFilter(item[this.options.filterField.columnName]);
+        }
+        if (this.options.openOnMouseClick) {
+            window.open(item[this.options.linkField.columnName]);
+        }
     }
 
     /**
-     * Sets filters for the thumbnail grid (does nothing because the thumbnail grid does not filter).
+     * Sets filters for the visualization.
      *
      * @override
      */
     setupFilters() {
-        // Do nothing.
+        let neonFilters = this.options.filterField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
+            this.options.table.name, [this.options.filterField.columnName]) : [];
+        this.filters = [];
+
+        for (let neonFilter of neonFilters) {
+            if (!neonFilter.filter.whereClause.whereClauses) {
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
+                let value = neonFilter.filter.whereClause.rhs;
+                let filter = {
+                    id: neonFilter.id,
+                    field: field.columnName,
+                    prettyField: field.prettyName,
+                    value: value
+                };
+                let exists = this.filters.some((existingFilter) => {
+                    return filter.field === this.filters[0].field && filter.value === this.filters[0].value;
+                });
+                if (!exists) {
+                    this.filters.push(filter);
+                }
+            }
+        }
     }
 
     /**
@@ -669,10 +752,11 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.typeField = this.options.typeField.columnName;
 
         bindings.ascending = this.options.ascending;
+        bindings.border = this.options.border;
         bindings.cropAndScale = this.options.cropAndScale;
-        bindings.filterable = this.options.filterable;
         bindings.id = this.options.id;
         bindings.linkPrefix = this.options.linkPrefix;
+        bindings.openOnMouseClick = this.options.openOnMouseClick;
         bindings.textMap = this.options.textMap;
         bindings.typeMap = this.options.typeMap;
     }

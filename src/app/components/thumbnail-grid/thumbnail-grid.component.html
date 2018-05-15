@@ -52,7 +52,31 @@
                 <p></p>
 
                 <mat-form-field>
+                    <mat-select placeholder="Actual ID Field" [(ngModel)]="options.objectIdField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Actual Name Field" [(ngModel)]="options.objectNameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
                     <mat-select placeholder="Category Field" [(ngModel)]="options.categoryField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Filter Field" [(ngModel)]="options.filterField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -76,22 +100,6 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Actual ID Field" [(ngModel)]="options.objectIdField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="emptyField">(None)</mat-option>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Actual Name Field" [(ngModel)]="options.objectNameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -139,17 +147,6 @@
                 </div>
                 <p></p>
 
-                Sort by Probability:
-                <mat-button-toggle-group name="sorting" [(ngModel)]="options.ascending" (ngModelChange)="handleSortOrder()">
-                    <mat-button-toggle [value]="true">
-                        Asc
-                    </mat-button-toggle>
-                    <mat-button-toggle [value]="false">
-                        Desc
-                    </mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
                 <mat-form-field>
                     <mat-select placeholder="Crop and/or Scale" [(ngModel)]="options.cropAndScale" required="true" (ngModelChange)="updatePageData()">
                         <mat-option [value]="''">None</mat-option>
@@ -161,9 +158,17 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Filterable" [(ngModel)]="options.filterable" required="true">
+                    <mat-select placeholder="Open Image/Video on Mouse Click" [(ngModel)]="options.openOnMouseClick" required="true">
                         <mat-option [value]="true">Yes</mat-option>
                         <mat-option [value]="false">No</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Sort" [(ngModel)]="options.ascending" required="true" (ngModelChange)="handleSortOrder()">
+                        <mat-option [value]="true">Ascending</mat-option>
+                        <mat-option [value]="false">Descending</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
@@ -177,10 +182,20 @@
         <mat-spinner ></mat-spinner>
     </div>
 
-    <div #thumbnailGrid class="thumbnail-grid">
+    <div class="filter-container">
+        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+            <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
+            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
+                    [matTooltip]="'Delete Filter ' + getFilterText(filter)" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                <mat-icon class="neon-icon-small">close</mat-icon>
+            </button>
+        </div>
+    </div>
+
+    <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > options.limit">
        <div class="thumbnail-grid-container">
            <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid; let i = index" [matTooltip]="getThumbnailTitle(item)"
-               tooltip-position="below" (click)="maximizeMedia(item[options.linkField.columnName])">
+               tooltip-position="below" (click)="selectGridItem(item)">
                <div class="thumbnail-details">
                    <p>
                        <span class="detail-ellipses">{{ getThumbnailLabel(item) }}</span>
