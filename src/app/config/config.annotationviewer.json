@@ -265,18 +265,27 @@
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [{
-                "name": "haiti_4",
-                "prettyName": "Haiti Data",
-                "tables": [{
-                    "name": "ui_output",
-                    "prettyName": "UI Output",
-                    "mappings": {
-                        "date": "createdAt",
-                        "latitude": "geoLocations.lat",
-                        "longitude": "geoLocations.lon"
-                    }
-                }]
-            }],
+                    "name": "haiti_4",
+                    "prettyName": "Haiti Data",
+                    "tables": [{
+                        "name": "ui_output",
+                        "prettyName": "UI Output",
+                        "mappings": {
+                            "date": "createdAt",
+                            "latitude": "geoLocations.lat",
+                            "longitude": "geoLocations.lon"
+                        }
+                    }]
+                },
+                {
+                    "name": "haiti_5_annotations",
+                    "prettyName": "Annotation Data",
+                    "tables": [{
+                        "name": "ui_output",
+                        "prettyName": "UI Output"
+                    }]
+                }
+            ],
             "options": {
                 "checkForCoordinateValidation": "null_values",
                 "simpleFilter": {
@@ -2393,20 +2402,16 @@
                 "selected": true,
                 "bindings": {
                     "title": "Annotation Viewer",
-                    "database": "haiti_4",
+                    "database": "haiti_5_annotations",
                     "table": "ui_output",
                     "documentTextField": "originalText",
-                    "annotationViewerOptions": 
-                        {
-                            "annotations": [{
-                                "annotationLabel": "Jacmel",
-                                "startCharacterField": 0,
-                                "endCharacterField": 5,
-                                "textField": "Jacmel",
-                                "typeField": "LOC"
-                            }]
-                        }
-                    
+                    "annotationFields": {
+                        "startCharacterField": "start",
+                        "endCharacterField": "end",
+                        "textField": "text",
+                        "typeField": "type"
+                    }
+
                 },
                 "row": 0,
                 "col": 0
