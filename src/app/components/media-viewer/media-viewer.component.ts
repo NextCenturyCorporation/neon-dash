@@ -182,7 +182,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         let whereClauses = [
             neon.query.where(this.options.idField.columnName, '=', this.options.id),
-            neon.query.where(this.options.linkField.columnName, '!=', null)
+            neon.query.where(this.options.linkField.columnName, '!=', null),
+            neon.query.where(this.options.linkField.columnName, '!=', '')
         ];
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
@@ -259,7 +260,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         // Ignore all the filters for the database and the table so it always shows the selected items.
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name);
 
-        let ignoredFilterIds = !this.options.id ? [] : neonFilters.filter((neonFilter) => {
+        let ignoredFilterIds = neonFilters.filter((neonFilter) => {
             return !neonFilter.filter.whereClause.whereClauses;
         }).map((neonFilter) => {
             return neonFilter.id;

@@ -149,7 +149,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             filterService, exportService, injector, themesService, ref, visualizationService);
 
         this.options = new ThumbnailGridOptions(this.injector, this.datasetService, 'Thumbnail Grid', 50);
-        this.subscribeToSelectId(this.getSelectIdCallback());
     }
 
     /**
@@ -207,6 +206,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             fields.push(this.options.filterField.columnName);
         }
 
+        if (this.options.idField.columnName) {
+            fields.push(this.options.idField.columnName);
+        }
+
         if (this.options.nameField.columnName) {
             fields.push(this.options.nameField.columnName);
         }
@@ -228,13 +231,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }
 
         let whereClauses = [
-            neon.query.where(this.options.linkField.columnName, '!=', null)
+            neon.query.where(this.options.linkField.columnName, '!=', null),
+            neon.query.where(this.options.linkField.columnName, '!=', '')
         ];
-
-        if (this.options.idField.columnName && this.options.id) {
-            fields.push(this.options.idField.columnName);
-            whereClauses.push(neon.query.where(this.options.idField.columnName, '=', this.options.id));
-        }
 
         return query.where(neon.query.and.apply(query, whereClauses)).sortBy(this.options.sortField.columnName, this.options.ascending ?
             neonVariables.ASCENDING : neonVariables.DESCENDING);
@@ -382,10 +381,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     getFiltersToIgnore(): any[] {
-        // Ignore all the filters for the database and the table so it always shows the selected items.
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name);
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+            this.options.filterField.columnName ? [this.options.filterField.columnName] : []);
 
-        let ignoredFilterIds = !this.options.id && !this.filters.length ? [] : neonFilters.filter((neonFilter) => {
+        let ignoredFilterIds = neonFilters.filter((neonFilter) => {
             return !neonFilter.filter.whereClause.whereClauses;
         }).map((neonFilter) => {
             return neonFilter.id;
@@ -413,26 +412,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     getOptions(): BaseNeonOptions {
         return this.options;
-    }
-
-    /**
-     * Creates and returns the callback function for a select_id event.
-     *
-     * @return {function}
-     * @private
-     */
-    private getSelectIdCallback() {
-        return (message) => {
-            if (message.source === this.id) {
-                return;
-            }
-            if (message.database === this.options.database.name && message.table === this.options.table.name) {
-                this.options.id = Array.isArray(message.id) ? message.id[0] : message.id;
-                if (this.options.id) {
-                    this.executeQueryChain();
-                }
-            }
-        };
     }
 
     getThumbnailLabel(item): string {
@@ -550,6 +529,26 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         });
 
         this.updatePageData();
+    }
+
+    /**
+     * Returns whether items are selectable (filterable).
+     *
+     * @return {boolean}
+     */
+    isSelectable() {
+        return this.options.filterField.columnName || this.options.idField.columnName || this.options.openOnMouseClick;
+    }
+
+    /**
+     * Returns whether the given item is selected (filtered).
+     *
+     * @arg {object} item
+     * @return {boolean}
+     */
+    isSelected(item) {
+        return (this.options.filterField.columnName && this.filterExists(this.options.filterField.columnName,
+            item[this.options.filterField.columnName]));
     }
 
     /**
@@ -763,7 +762,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.ascending = this.options.ascending;
         bindings.border = this.options.border;
         bindings.cropAndScale = this.options.cropAndScale;
-        bindings.id = this.options.id;
         bindings.linkPrefix = this.options.linkPrefix;
         bindings.openOnMouseClick = this.options.openOnMouseClick;
         bindings.textMap = this.options.textMap;
