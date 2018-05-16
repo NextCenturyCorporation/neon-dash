@@ -385,7 +385,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.lastPage = (this.gridArray.length <= this.options.limit);
                 this.pagingGrid = this.gridArray.slice(0, this.options.limit);
                 this.refreshVisualization();
-                this.createMediaThumbnail();
+                this.handleSortOrder();
 
             } else {
                 this.errorMessage = 'No Data';
@@ -560,7 +560,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             this.options.sortField.columnName = this.options.percentField.columnName;
             this.options.sortField.prettyName = this.options.percentField.prettyName;
         }
-        this.handleSortOrder();
+        this.updatePageData();
     }
 
     /**
