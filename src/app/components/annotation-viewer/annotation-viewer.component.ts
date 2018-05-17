@@ -73,27 +73,15 @@ export class AnnotationViewerOptions extends BaseNeonOptions {
 
     errorMessage: string;
 
+    singleColor: boolean;
+
     onInit() {
-        this.annotationFields = this.injector.get('annotationFields');
-        //this.annotationFields.startCharacterField = neonUtilities.deepFind(this.injector.get('annotationFields'), 'start');
-        /*
-        this.annotationFields.startCharacterField = this.injector.get('startCharacterField');
-        this.annotationFields.endCharacterField = this.injector.get('endCharacterField');
-        this.annotationFields.textField = this.injector.get('textField');
-        this.annotationFields.typeField = this.injector.get('typeField');
-        //*/
+        this.annotationFields = this.injector.get('annotationFields', '');
         this.documentTextField = this.injector.get('documentTextField', '');
+        this.singleColor = this.injector.get('singleColor', false);
     }
 
     updateFieldsOnTableChanged() {
-        this.annotationFields = this.injector.get('annotationFields');
-        //this.annotationFields = this.findFieldObject('annotationFields');
-        /*
-        this.annotationFields.startCharacterField = this.findFieldObject('start', neonMappings.START);
-        this.annotationFields.endCharacterField = this.findFieldObject('endCharacterField', neonMappings.END);
-        this.annotationFields.textField = this.findFieldObject('textField', neonMappings.TEXT);
-        this.annotationFields.typeField = this.findFieldObject('typeField', neonMappings.TYPE);
-        //*/
         this.documentTextField = this.findFieldObject('documentTextField');
 
     }
@@ -167,6 +155,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public responseData: any[] = [];
 
     public colorList: any[] = [];
+
+    public seenTypes: string[] = [];
+    public disabledSet: [string[]] = [] as [string[]];
 
     constructor(
         activeGridService: ActiveGridService,
@@ -443,11 +434,13 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                         annotation[annotationType]).toRgba(0.4);
                     currentPart.highlightColor = highlightColor;
                     currentPart.text = annotation[annotationText];
-                    //console.log(annotation['start']);
-                    //console.log(annotation['text']);
                     currentPart.annotation = true;
                     currentPart.type = annotation[annotationType];
                     annotationsPartList.push(currentPart);
+
+                    if (!this.seenTypes.includes(currentPart.type)) {
+                        this.seenTypes.push(currentPart.type);
+                    }
                 }
             }
 
@@ -822,6 +815,24 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         return !this.filters.some((existingFilter) => {
             return existingFilter.field === field && existingFilter.value === value;
         });
+    }
+
+    legendItemSelected(event: any) {
+        let fieldName: string = event.fieldName;
+        let value: string = event.value;
+        let currentlyActive: boolean = event.currentlyActive;
+
+        if (currentlyActive) {
+
+            // Mark it as disabled
+            this.disabledSet.push([fieldName, value]);
+        } else {
+
+            // Mark it as active again
+            this.disabledSet = this.disabledSet.filter((set) => {
+                return !(set[0] === fieldName && set[1] === value);
+            }) as [string[]];
+        }
     }
 
     /**

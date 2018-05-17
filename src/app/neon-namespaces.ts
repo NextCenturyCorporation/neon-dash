@@ -111,7 +111,7 @@ export namespace neonVisualizationMinPixel { // jshint ignore:line
 }
 
 export const neonVisualizations: any[] = [{
-    name: 'AnnotationViewer',
+    name: 'Annotation Viewer',
     type: 'annotationViewer',
     icon: 'DocumentViewer64'
 }, {
