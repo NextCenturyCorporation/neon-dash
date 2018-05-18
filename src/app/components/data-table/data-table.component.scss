@@ -209,12 +209,14 @@
     }
 }
 
-/deep/ .datatable-body-row:hover .datatable-row-group,
-/deep/ .datatable-body-row.active:hover .datatable-row-group,
-.skinny /deep/ .datatable-body-row:hover .datatable-row-group,
-.skinny /deep/ .datatable-body-row.active:hover .datatable-row-group {
-    background-color: #ffeb3b; /* mat-color-yellow-500 */
-    color: $black-87-opacity;
-    cursor: pointer;
+.selectable {
+    /deep/ .datatable-body-row:hover .datatable-row-group,
+    /deep/ .datatable-body-row.active:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.active:hover .datatable-row-group {
+        background-color: #ffeb3b; /* mat-color-yellow-500 */
+        color: $black-87-opacity;
+        cursor: pointer;
+    }
 }
 
