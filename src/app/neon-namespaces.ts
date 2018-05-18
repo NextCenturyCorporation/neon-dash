@@ -67,9 +67,6 @@ export namespace neonUtilities {
                 return pieces;
             }
             itemToReturn = itemToReturn ? itemToReturn[path[i]] : undefined;
-            if (!itemToReturn) {
-                return undefined;
-            }
         }
         return itemToReturn;
     }
