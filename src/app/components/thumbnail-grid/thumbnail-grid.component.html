@@ -200,7 +200,7 @@
                <div class="thumbnail-details" *ngIf="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
                    <p>
                        <span class="detail-ellipses">{{ getThumbnailLabel(item) }}</span>
-                       <span>{{ getThumbnailPercent(item) }}</span>
+                       <span class="detail-percentage">{{ getThumbnailPercent(item) }}</span>
                    </p>
                </div>
                 <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"></canvas>
