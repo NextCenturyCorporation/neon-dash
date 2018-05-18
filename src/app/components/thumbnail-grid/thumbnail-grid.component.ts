@@ -172,17 +172,17 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         if (!this.filters.length) {
             this.filters = [filter];
-            this.addNeonFilter(true, filter, clause);
+            this.addNeonFilter(false, filter, clause);
         } else if (this.filters.length === 1) {
             if (!this.filterExists(filter.field, filter.value)) {
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
-                this.replaceNeonFilter(true, filter, clause);
+                this.replaceNeonFilter(false, filter, clause);
             }
         } else {
             this.removeAllFilters([].concat(this.filters), () => {
                 this.filters = [filter];
-                this.addNeonFilter(true, filter, clause);
+                this.addNeonFilter(false, filter, clause);
             });
         }
     }
@@ -235,8 +235,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             neon.query.where(this.options.linkField.columnName, '!=', '')
         ];
 
-        return query.where(neon.query.and.apply(query, whereClauses)).sortBy(this.options.sortField.columnName, this.options.ascending ?
-            neonVariables.ASCENDING : neonVariables.DESCENDING);
+        return query.withFields(fields).where(neon.query.and.apply(query, whereClauses))
+            .sortBy(this.options.sortField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
     }
 
     /**
@@ -426,7 +426,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     getThumbnailPercent(item): string {
         if (this.options.percentField.columnName) {
-            return (parseFloat(item[this.options.percentField.columnName]) * 100).toFixed(1) + '%';
+            let percentage = parseFloat(item[this.options.percentField.columnName]) * 100;
+            // Do not add '.0' if the percentage is an integer.
+            return (percentage % 1 ? percentage.toFixed(1) : percentage.toFixed(0)) + '%';
         }
         return '';
     }
