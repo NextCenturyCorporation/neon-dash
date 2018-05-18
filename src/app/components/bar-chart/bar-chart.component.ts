@@ -303,7 +303,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         };
 
         let truncateXLabelText = (text) => {
-            let containerWidth = Math.floor(this.chartModule.getNativeElement().clientWidth / this.chartInfo.data.labels.length);
+            let xLabelCount = (this.options.type === 'bar' ? Math.min(this.bars.length, this.options.limit) : this.labelCount);
+            let containerWidth = Math.floor(this.chartModule.getNativeElement().clientWidth / xLabelCount);
             return truncateText(containerWidth, text);
         };
 
