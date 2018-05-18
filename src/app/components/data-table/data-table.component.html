@@ -57,6 +57,7 @@
                     <mat-select placeholder="ID Field" [(ngModel)]="options.idField"
                                 required="false" (ngModelChange)="handleChangeData()"
                                 [disabled]="options.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -182,6 +183,7 @@
     <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="docCount > options.limit">
         <div class="table-container">
             <ngx-datatable #table class="material table" [class.skinny]="this.options.skinny"
+                [class.selectable]="options.filterable || options.idField.columnName"
                 [rows]="activeData"
                 [columnMode]="'force'"
                 [columns]="activeHeaders"
