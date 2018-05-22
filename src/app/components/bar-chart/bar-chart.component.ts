@@ -117,6 +117,7 @@ export class BarChartOptions extends BaseNeonOptions {
     public dataField: FieldMetaData;
     public ignoreSelf: boolean;
     public logScale: boolean;
+    public saveSeenBars: boolean;
     public scaleManually: boolean;
     public scaleMax: string;
     public scaleMin: string;
@@ -134,6 +135,7 @@ export class BarChartOptions extends BaseNeonOptions {
         this.andFilters = this.injector.get('andFilters', true);
         this.ignoreSelf = this.injector.get('ignoreSelf', true);
         this.logScale = this.injector.get('logScale', false);
+        this.saveSeenBars = this.injector.get('saveSeenBars', true);
         this.scaleManually = this.injector.get('scaleManually', false);
         this.scaleMax = this.injector.get('scaleMax', '');
         this.scaleMin = this.injector.get('scaleMin', '');
@@ -447,8 +449,16 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         bindings.aggregation = this.options.aggregation;
         bindings.aggregationField = this.options.aggregationField.columnName;
         bindings.andFilters = this.options.andFilters;
+        bindings.chartType = this.options.type;
+        bindings.colorField = this.options.colorField.columnName;
+        bindings.dataField = this.options.dataField.columnName;
         bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.logScale = this.options.logScale;
+        bindings.saveSeenBars = this.options.saveSeenBars;
+        bindings.scaleManually = this.options.scaleManually;
+        bindings.scaleMax = this.options.scaleMax;
+        bindings.scaleMin = this.options.scaleMin;
+        bindings.sortAlphabetically = this.options.sortAlphabetically;
         bindings.yPercentage = this.options.yPercentage;
     }
 
@@ -685,9 +695,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 query.aggregate(neonVariables.COUNT, '*', 'value');
         }
 
-        if (this.options.sortAlphabetically) {
-            return query.sortBy(this.options.dataField.columnName, neonVariables.ASCENDING);
-        }
+        // This sort is overridden because the response data will be resorted.
         return query.sortBy('value', neonVariables.DESCENDING);
     }
 
@@ -740,7 +748,18 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 seenData.push(item);
             }
         }
-        let data = response.data.concat(seenData);
+
+        // Sort here because neon.query.Query.sortBy does not sort strings like NaN in the response data.
+        let data = response.data.concat(seenData).sort((itemA, itemB) => {
+            let valueA = (typeof itemA.value === 'number') ? itemA.value : 0;
+            let valueB = (typeof itemB.value === 'number') ? itemB.value : 0;
+            if (this.options.sortAlphabetically || valueA === valueB) {
+                let labelA = itemA[this.options.dataField.columnName];
+                let labelB = itemB[this.options.dataField.columnName];
+                return (labelA < labelB ? -1 : (labelB < labelA ? 1 : 0));
+            }
+            return valueB - valueA;
+        });
 
         // Update the bars from the data.
         for (let item of data) {
@@ -751,7 +770,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             }
 
             // Add any labels that we haven't seen before to our "seen values" list so we have them for next time.
-            if (this.seenBars.indexOf(barLabel) < 0) {
+            if (this.options.saveSeenBars && this.seenBars.indexOf(barLabel) < 0) {
                 this.seenBars.push(barLabel);
             }
 
@@ -783,7 +802,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 groupsToDatasets.set(barSegment, barDataset);
             }
 
-            barDataset.data[this.bars.indexOf(barLabel)] = item.value;
+            barDataset.data[this.bars.indexOf(barLabel)] = (typeof item.value === 'number') ? item.value : 0;
         }
 
         this.activeData = Array.from(groupsToDatasets.values());
