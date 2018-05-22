@@ -106,6 +106,8 @@ describe('Component: BarChart', () => {
         expect(component.options.andFilters).toBe(true);
         expect(component.options.ignoreSelf).toBe(true);
         expect(component.options.limit).toBe(10);
+        expect(component.options.logScale).toBe(false);
+        expect(component.options.scaleManually).toBe(false);
         expect(component.options.scaleMin).toBe('');
         expect(component.options.scaleMax).toBe('');
         expect(component.options.type).toBe('bar');
