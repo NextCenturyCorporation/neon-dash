@@ -851,6 +851,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     publishSelectId(id) {
         this.messenger.publish('select_id', {
+            source: this.id,
             database: this.getOptions().database.name,
             table: this.getOptions().table.name,
             id: id
