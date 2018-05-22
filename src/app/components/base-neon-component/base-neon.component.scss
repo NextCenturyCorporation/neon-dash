@@ -132,8 +132,12 @@ $footer-height: 35px;
     }
 
     .visualization-sidenav-options {
-        min-width: 320px;
-        max-width: 450px;
+        max-width: calc(100% - 20px);
+
+        mat-card {
+            min-width: 240px;
+            max-width: 240px;
+        }
 
         mat-form-field, mat-input, mat-select, table {
             width: 100%;
@@ -207,6 +211,9 @@ $footer-height: 35px;
         height: 20px;
         line-height: 20px;
         margin-bottom: 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
 
