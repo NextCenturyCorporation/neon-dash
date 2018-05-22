@@ -171,6 +171,14 @@
                 <p></p>
 
                 <mat-form-field>
+                    <mat-select placeholder="Save Seen Bars" [(ngModel)]="options.saveSeenBars" required="true" (ngModelChange)="handleChangeData()">
+                        <mat-option [value]="true">Yes</mat-option>
+                        <mat-option [value]="false">No</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
                     <mat-select placeholder="Sort" [(ngModel)]="options.sortAlphabetically" required="true" (ngModelChange)="handleChangeData()">
                         <mat-option [value]="true">Alphabetically</mat-option>
                         <mat-option [value]="false">Numerically</mat-option>
