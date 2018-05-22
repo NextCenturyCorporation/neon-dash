@@ -14,43 +14,31 @@
  *
  */
 export class FieldMetaData {
-    columnName: string = '';
-    prettyName: string = '';
-    hide: boolean;
-    type?: string;
-
-    constructor(columnName?: string, prettyName?: string, hide?: boolean, type?: string) {
-        this.columnName = columnName || '';
-        this.prettyName = prettyName || '';
-        this.hide = hide || false;
-        this.type = type || '';
-    }
+    constructor(
+        public columnName: string = '',
+        public prettyName: string = '',
+        public hide: boolean = false,
+        public type: string = ''
+    ) {}
 }
 
-export class TableMetaData {
-    name: string = '';
-    prettyName: string = '';
-    fields: FieldMetaData[];
-    mappings: TableMappings;
+export const EMPTY_FIELD = new FieldMetaData();
 
-    constructor(name?: string, prettyName?: string, fields?: FieldMetaData[], mappings?: TableMappings) {
-        this.name = name || '';
-        this.prettyName = prettyName || '';
-        this.fields = fields || [];
-        this.mappings = mappings || {};
-    }
+export class TableMetaData {
+    constructor(
+        public name: string = '',
+        public prettyName: string = '',
+        public fields: FieldMetaData[] = [],
+        public mappings: TableMappings = {}
+    ) {}
 }
 
 export class DatabaseMetaData {
-    name: string = '';
-    prettyName: string = '';
-    tables: TableMetaData[];
-
-    constructor(name?: string, prettyName?: string, tables?: TableMetaData[]) {
-        this.name = name || '';
-        this.prettyName = prettyName || '';
-        this.tables = tables || [];
-    }
+    constructor(
+        public name: string = '',
+        public prettyName: string = '',
+        public tables: TableMetaData[] = []
+    ) {}
 }
 
 export class DatasetOptions {
@@ -84,21 +72,18 @@ export class SimpleFilter {
 }
 
 export class Dataset {
-    name: string = '';
-    datastore: string = '';
-    hostname: string = '';
-    connectOnLoad: boolean = false;
-    databases: DatabaseMetaData[] = [];
-    hasUpdatedFields: boolean = false;
-    layout: string = '';
-    options: DatasetOptions = new DatasetOptions();
-    relations: Relation[] = [];
+    public connectOnLoad: boolean = false;
+    public databases: DatabaseMetaData[] = [];
+    public hasUpdatedFields: boolean = false;
+    public layout: string = '';
+    public options: DatasetOptions = new DatasetOptions();
+    public relations: Relation[] = [];
 
-    constructor(name?: string, datastore?: string, hostname?: string) {
-        this.name = name;
-        this.datastore = datastore;
-        this.hostname = hostname;
-    }
+    constructor(
+        public name: string = '',
+        public datastore: string = '',
+        public hostname: string = ''
+    ) {}
 }
 
 export class Relation {
@@ -108,3 +93,10 @@ export class Relation {
         field: string
     }[];
 }
+
+export const MediaTypes = {
+    image: 'img',
+    video: 'vid',
+    html: 'htm',
+    pdf: 'pdf'
+};

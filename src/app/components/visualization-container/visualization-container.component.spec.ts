@@ -45,6 +45,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { ChartComponent } from '../chart/chart.component';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
+import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -70,6 +71,7 @@ describe('Component: VisualizationContainer', () => {
                 ScatterPlotComponent,
                 StackedTimelineComponent,
                 TextCloudComponent,
+                ThumbnailGridComponent,
                 TimelineComponent,
                 UnsharedFilterComponent,
                 VisualizationContainerComponent,
