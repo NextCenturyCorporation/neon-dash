@@ -24,8 +24,10 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
+
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Http } from '@angular/http';
+
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -33,10 +35,39 @@ import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
-import { FieldMetaData } from '../../dataset';
+
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import { BaseNeonComponent } from '../base-neon-component/base-neon.component';
+
+/**
+ * Manages configurable options for the specific visualization.
+ */
+export class WikiViewerOptions extends BaseNeonOptions {
+    public id: string;
+    public idField: FieldMetaData;
+    public linkField: FieldMetaData;
+
+    /**
+     * Initializes all the non-field options for the specific visualization.
+     *
+     * @override
+     */
+    onInit() {
+        this.id = this.injector.get('id', '');
+    }
+
+    /**
+     * Updates all the field options for the specific visualization.  Called on init and whenever the table is changed.
+     *
+     * @override
+     */
+    updateFieldsOnTableChanged() {
+        this.idField = this.findFieldObject('idField');
+        this.linkField = this.findFieldObject('linkField');
+    }
+}
 
 /**
  * A visualization that shows the content of a wikipedia page triggered through a select_id event.
@@ -55,35 +86,40 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
-    public active: {
-        allowsTranslations: boolean,
-        id: string,
-        idField: FieldMetaData,
-        linkField: FieldMetaData,
-        textColor: string,
-        wikiName: string[],
-        wikiText: SafeHtml[]
-    };
+    public options: WikiViewerOptions;
 
-    isLoadingWikiPage: boolean;
+    public isLoadingWikiPage: boolean = false;
+    public wikiName: string[] = [];
+    public wikiText: SafeHtml[] = [];
 
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        ref: ChangeDetectorRef, visualizationService: VisualizationService, private http: Http, private sanitizer: DomSanitizer) {
+    constructor(
+        activeGridService: ActiveGridService,
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        exportService: ExportService,
+        injector: Injector,
+        themesService: ThemesService,
+        ref: ChangeDetectorRef,
+        visualizationService: VisualizationService,
+        protected http: Http,
+        protected sanitizer: DomSanitizer
+    ) {
 
-        super(activeGridService, connectionService, datasetService,
-            filterService, exportService, injector, themesService, ref, visualizationService);
+        super(
+            activeGridService,
+            connectionService,
+            datasetService,
+            filterService,
+            exportService,
+            injector,
+            themesService,
+            ref,
+            visualizationService
+        );
 
-        this.active = {
-            allowsTranslations: true,
-            id: this.injector.get('id', ''),
-            idField: new FieldMetaData(),
-            linkField: new FieldMetaData(),
-            textColor: '#111',
-            wikiName: [],
-            wikiText: []
-        };
-        this.isLoadingWikiPage = false;
+        this.options = new WikiViewerOptions(this.injector, this.datasetService, 'Wiki Viewer', 10);
+
         this.subscribeToSelectId(this.getSelectIdCallback());
     }
 
@@ -95,12 +131,12 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     createQuery(): neon.query.Query {
         let query = new neon.query.Query()
-            .selectFrom(this.meta.database.name, this.meta.table.name)
-            .withFields([this.active.linkField.columnName]);
+            .selectFrom(this.options.database.name, this.options.table.name)
+            .withFields([this.options.linkField.columnName]);
 
         let whereClauses = [
-            neon.query.where(this.active.idField.columnName, '=', this.active.id),
-            neon.query.where(this.active.linkField.columnName, '!=', null)
+            neon.query.where(this.options.idField.columnName, '=', this.options.id),
+            neon.query.where(this.options.linkField.columnName, '!=', null)
         ];
 
         return query.where(neon.query.and.apply(query, whereClauses));
@@ -113,10 +149,10 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @override
      */
     getButtonText() {
-        if (!this.active.wikiName.length) {
+        if (!this.wikiName.length) {
             return 'No Data';
         }
-        return 'Total ' + super.prettifyInteger(this.active.wikiName.length);
+        return 'Total ' + super.prettifyInteger(this.wikiName.length);
     }
 
     /**
@@ -144,6 +180,16 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
+     * Returns the options for the specific visualization.
+     *
+     * @return {BaseNeonOptions}
+     * @override
+     */
+    getOptions(): BaseNeonOptions {
+        return this.options;
+    }
+
+    /**
      * Returns the wiki viewer export fields.
      *
      * @return {array}
@@ -151,11 +197,11 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     getExportFields(): any[] {
         return [{
-            columnName: this.active.idField.columnName,
-            prettyName: this.active.idField.prettyName
+            columnName: this.options.idField.columnName,
+            prettyName: this.options.idField.prettyName
         }, {
-            columnName: this.active.linkField.columnName,
-            prettyName: this.active.linkField.prettyName
+            columnName: this.options.linkField.columnName,
+            prettyName: this.options.linkField.prettyName
         }];
     }
 
@@ -188,8 +234,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      */
     private getSelectIdCallback() {
         return (message) => {
-            if (message.database === this.meta.database.name && message.table === this.meta.table.name) {
-                this.active.id = Array.isArray(message.id) ? message.id[0] : message.id;
+            if (message.database === this.options.database.name && message.table === this.options.table.name) {
+                this.options.id = Array.isArray(message.id) ? message.id[0] : message.id;
                 this.executeQueryChain();
             }
         };
@@ -208,24 +254,14 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
     }
 
     /**
-     * Returns the name for the wiki viewer.
-     *
-     * @return {string}
-     * @override
-     */
-    getVisualizationName(): string {
-        return 'Wiki Viewer';
-    }
-
-    /**
-     * Returns whether the wiki viewer query using the active data config is valid.
+     * Returns whether the wiki viewer query using the options data config is valid.
      *
      * @return {boolean}
      * @override
      */
     isValidQuery(): boolean {
-        return !!(this.meta.database && this.meta.database.name && this.meta.table && this.meta.table.name && this.active.id &&
-            this.active.idField && this.active.idField.columnName && this.active.linkField && this.active.linkField.columnName);
+        return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name && this.options.id &&
+            this.options.idField && this.options.idField.columnName && this.options.linkField && this.options.linkField.columnName);
     }
 
     /**
@@ -235,33 +271,23 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @override
      */
     onQuerySuccess(response: any) {
-        this.active.wikiName = [];
-        this.active.wikiText = [];
+        this.wikiName = [];
+        this.wikiText = [];
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
-                this.meta.errorMessage = '';
+                this.errorMessage = '';
                 this.isLoadingWikiPage = true;
-                let links = neonUtilities.deepFind(response.data[0], this.active.linkField.columnName);
+                let links = neonUtilities.deepFind(response.data[0], this.options.linkField.columnName);
                 this.retrieveWikiPage(Array.isArray(links) ? links : [links]);
             } else {
-                this.meta.errorMessage = 'No Data';
+                this.errorMessage = 'No Data';
                 this.refreshVisualization();
             }
         } catch (e) {
-            this.meta.errorMessage = 'Error';
+            this.errorMessage = 'Error';
             this.refreshVisualization();
         }
-    }
-
-    /**
-     * Updates the fields for the wiki viewer.
-     *
-     * @override
-     */
-    onUpdateFields() {
-        this.active.idField = this.findFieldObject('idField');
-        this.active.linkField = this.findFieldObject('linkField');
     }
 
     /**
@@ -308,16 +334,16 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         this.http.get (WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).toPromise().then((wikiResponse) => {
             let responseObject = JSON.parse(wikiResponse.text());
             if (responseObject.error) {
-                this.active.wikiName.push(links[0]);
-                this.active.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(responseObject.error.info));
+                this.wikiName.push(links[0]);
+                this.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(responseObject.error.info));
             } else {
-                this.active.wikiName.push(responseObject.parse.title);
-                this.active.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(responseObject.parse.text['*']));
+                this.wikiName.push(responseObject.parse.title);
+                this.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(responseObject.parse.text['*']));
             }
             this.retrieveWikiPage(links.slice(1));
         }).catch((error) => {
-            this.active.wikiName.push(links[0]);
-            this.active.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(error));
+            this.wikiName.push(links[0]);
+            this.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(error));
             this.retrieveWikiPage(links.slice(1));
         });
     }
@@ -338,8 +364,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
      * @override
      */
     subGetBindings(bindings: any) {
-        bindings.idField = this.active.idField.columnName;
-        bindings.linkField = this.active.linkField.columnName;
+        bindings.idField = this.options.idField.columnName;
+        bindings.linkField = this.options.linkField.columnName;
     }
 
     /**

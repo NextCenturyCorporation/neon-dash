@@ -86,11 +86,11 @@ describe('Component: Timeline', () => {
     });
 
     it('createClause does return expected object', () => {
-        component.active.dateField = new FieldMetaData('testDateField');
+        component.options.dateField = new FieldMetaData('testDateField');
         expect(component.createClause()).toEqual(neon.query.where('testDateField', '!=', null));
 
-        component.meta.unsharedFilterField = new FieldMetaData('testFilterField');
-        component.meta.unsharedFilterValue = 'testFilterValue';
+        component.options.unsharedFilterField = new FieldMetaData('testFilterField');
+        component.options.unsharedFilterValue = 'testFilterValue';
         expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testDateField', '!=', null),
             neon.query.where('testFilterField', '=', 'testFilterValue')));
     });
@@ -98,14 +98,14 @@ describe('Component: Timeline', () => {
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toBe('No Data');
 
-        component.active.data = [{
+        component.activeData = [{
             date: new Date(),
             value: 0
         }];
         expect(component.getButtonText()).toBe('No Data');
 
-        component.active.docCount = 2;
-        component.active.data = [{
+        component.docCount = 2;
+        component.activeData = [{
             date: new Date(),
             value: 1
         }, {
@@ -114,10 +114,10 @@ describe('Component: Timeline', () => {
         }];
         expect(component.getButtonText()).toBe('Total 2');
 
-        component.active.docCount = 6;
+        component.docCount = 6;
         expect(component.getButtonText()).toBe('2 of 6');
 
-        component.active.data = [{
+        component.activeData = [{
             date: new Date(),
             value: 3
         }, {

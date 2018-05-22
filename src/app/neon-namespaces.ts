@@ -67,9 +67,6 @@ export namespace neonUtilities {
                 return pieces;
             }
             itemToReturn = itemToReturn ? itemToReturn[path[i]] : undefined;
-            if (!itemToReturn) {
-                return undefined;
-            }
         }
         return itemToReturn;
     }
@@ -116,7 +113,7 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'Media Viewer',
     type: 'mediaViewer',
-    icon: 'MediaViewer'
+    icon: 'MediaViewer64'
 }, {
     name: 'Network Graph',
     type: 'networkGraph',
@@ -124,7 +121,7 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'Sample',
     type: 'sample',
-    icon: 'DocumentViewer64'
+    icon: 'Neon64'
 }, {
     name: 'Scatter Plot',
     type: 'scatterPlot',
@@ -137,6 +134,10 @@ export const neonVisualizations: any[] = [{
     name: 'Text Cloud',
     type: 'textCloud',
     icon: 'TagCloud64'
+}, {
+    name: 'Thumbnail Grid',
+    type: 'thumbnailGrid',
+    icon: 'ThumbnailGrid'
 }, {
     name: 'Timeline',
     type: 'timeline',

@@ -47,13 +47,13 @@ const HTTP_PROVIDERS = [
 ];
 
 const EMPTY_CONFIG = {
-  dashboard: {},
-  help: {},
-  datasets: [],
-  layouts: {
-      default: []
-  },
-  customFilters: {}
+    dashboard: {},
+    help: {},
+    datasets: [],
+    layouts: {
+        default: []
+    },
+    customFilters: {}
 };
 
 let neonConfigErrors = [];
@@ -83,8 +83,6 @@ function handleConfigJsonError(error) {
         console.error(error);
         showError('Error reading config.json: ' + error.message);
     }
-    showError('Cannot find valid config.yaml or config.json.');
-    bootstrapWithData(EMPTY_CONFIG);
 }
 
 function loadConfigJson() {
@@ -147,16 +145,16 @@ function validateConfig(config) {
 }
 
 function bootstrapWithData(configFromFile) {
-  let configObject = validateConfig(configFromFile);
-  let errors = neonConfigErrors;
-  neonConfigErrors = null;
-  if (errors && errors.length > 0) {
-      configObject.errors = errors;
-  }
-  /* tslint:disable:no-string-literal */
-  window['appConfig'] = configObject;
-  /* tslint:enable:no-string-literal */
-  return platformBrowserDynamic().bootstrapModule(AppModule);
+    let configObject = validateConfig(configFromFile);
+    let errors = neonConfigErrors;
+    neonConfigErrors = null;
+    if (errors && errors.length > 0) {
+        configObject.errors = errors;
+    }
+    /* tslint:disable:no-string-literal */
+    window['appConfig'] = configObject;
+    /* tslint:enable:no-string-literal */
+    return platformBrowserDynamic().bootstrapModule(AppModule);
 }
 
 function showError(error) {
@@ -167,13 +165,17 @@ function showError(error) {
 }
 
 neon.ready(function() {
-  neon.setNeonServerUrl('../neon');
-  let config;
-  config = loadConfigJson().then(bootstrapWithData, function(error1) {
-    handleConfigJsonError(error1);
-    loadConfigYaml().then(bootstrapWithData, function(error2) {
-      handleConfigYamlError(error2);
-      loadConfigFromPropertyService().then(bootstrapWithData, handleConfigPropertyServiceError);
-});
+    neon.setNeonServerUrl('../neon');
+    let config;
+    config = loadConfigJson().then(bootstrapWithData, function(error1) {
+        handleConfigJsonError(error1);
+        loadConfigYaml().then(bootstrapWithData, function(error2) {
+            handleConfigYamlError(error2);
+            loadConfigFromPropertyService().then(bootstrapWithData, function(error3) {
+                handleConfigPropertyServiceError(error3);
+                showError('Cannot find valid config.json or config.yaml.');
+                bootstrapWithData(EMPTY_CONFIG);
+            });
+        });
   });
 });
