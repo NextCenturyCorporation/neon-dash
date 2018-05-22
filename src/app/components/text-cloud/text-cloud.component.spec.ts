@@ -169,67 +169,6 @@ describe('Component: TextCloud', () => {
         }]);
     });
 
-    it('addLocalFilter does add the given filter', () => {
-        component.addLocalFilter({
-            id: '1234567890',
-            field: 'testDataField1',
-            value: 'Test Value 1',
-            prettyField: 'Test Data Field 1'
-        });
-        expect(component.getCloseableFilters()).toEqual([{
-            id: '1234567890',
-            field: 'testDataField1',
-            value: 'Test Value 1',
-            prettyField: 'Test Data Field 1'
-        }]);
-
-        component.addLocalFilter({
-            id: '9876543210',
-            field: 'testDataField2',
-            value: 'Test Value 2',
-            prettyField: 'Test Data Field 2'
-        });
-        expect(component.getCloseableFilters()).toEqual([{
-            id: '1234567890',
-            field: 'testDataField1',
-            value: 'Test Value 1',
-            prettyField: 'Test Data Field 1'
-        }, {
-            id: '9876543210',
-            field: 'testDataField2',
-            value: 'Test Value 2',
-            prettyField: 'Test Data Field 2'
-        }]);
-    });
-
-    it('addLocalFilter does replace the existing filter if the given filter has the same ID', () => {
-        component.addLocalFilter({
-            id: '1234567890',
-            field: 'testDataField1',
-            value: 'Test Value 1',
-            prettyField: 'Test Data Field 1'
-        });
-        expect(component.getCloseableFilters()).toEqual([{
-            id: '1234567890',
-            field: 'testDataField1',
-            value: 'Test Value 1',
-            prettyField: 'Test Data Field 1'
-        }]);
-
-        component.addLocalFilter({
-            id: '1234567890',
-            field: 'testDataField2',
-            value: 'Test Value 2',
-            prettyField: 'Test Data Field 2'
-        });
-        expect(component.getCloseableFilters()).toEqual([{
-            id: '1234567890',
-            field: 'testDataField2',
-            value: 'Test Value 2',
-            prettyField: 'Test Data Field 2'
-        }]);
-    });
-
     it('has a refreshVisualization method that calls createTextCloud', () => {
         let createTextCloudHasBeenCalled = false;
         component.createTextCloud = () => {
@@ -521,8 +460,9 @@ describe('Component: TextCloud', () => {
         expect(component.getCloseableFilters()[0]).toEqual({
             id: undefined,
             field: 'testDataField',
-            value: 'testValue',
-            prettyField: 'testDataField'
+            prettyField: 'testDataField',
+            translated: '',
+            value: 'testValue'
         });
     });
 
@@ -530,17 +470,19 @@ describe('Component: TextCloud', () => {
         let filter1 = {
             id: '12345',
             field: 'testDataField',
-            value: 'Value 1',
-            prettyField: 'testDataField'
+            prettyField: 'testDataField',
+            translated: '',
+            value: 'Value 1'
         };
         let filter2 = {
             id: '67890',
             field: 'testDataField',
-            value: 'Value 1',
-            prettyField: 'testDataField'
+            prettyField: 'testDataField',
+            translated: '',
+            value: 'Value 1'
         };
         expect(component.filterIsUnique(filter2)).toBeTruthy();
-        component.addLocalFilter(filter1);
+        component.filters.push(filter1);
         expect(component.filterIsUnique(filter2)).toBeFalsy();
         filter2.field = 'testOtherField';
         expect(component.filterIsUnique(filter2)).toBeTruthy();
@@ -588,24 +530,26 @@ describe('Component: TextCloud', () => {
         let filter1 = {
             id: '12345',
             field: 'testDataField',
-            value: 'Value 1',
-            prettyField: 'testDataField'
+            prettyField: 'testDataField',
+            translated: '',
+            value: 'Value 1'
         };
         let filter2 = {
             id: '67890',
             field: 'testDataField',
-            value: 'Value 1',
-            prettyField: 'testDataField'
+            prettyField: 'testDataField',
+            translated: '',
+            value: 'Value 1'
         };
 
         expect(component.getCloseableFilters()).toEqual([]);
-        component.addLocalFilter(filter1);
+        component.filters.push(filter1);
         expect(component.getCloseableFilters()).toEqual([filter1]);
-        component.addLocalFilter(filter2);
+        component.filters.push(filter2);
         expect(component.getCloseableFilters()).toEqual([filter1, filter2]);
         component.removeFilter(filter1);
         expect(component.getCloseableFilters()).toEqual([filter2]);
-        component.addLocalFilter(filter1);
+        component.filters.push(filter1);
         expect(component.getCloseableFilters()).toEqual([filter2, filter1]);
         component.removeFilter(filter1);
         component.removeFilter(filter2);
@@ -616,24 +560,26 @@ describe('Component: TextCloud', () => {
         let filter1 = {
             id: '12345',
             field: 'testDataField',
-            value: 'Value 1',
-            prettyField: 'testDataField'
+            prettyField: 'testDataField',
+            translated: '',
+            value: 'Value 1'
         };
         let filter2 = {
             id: '67890',
             field: 'testDataField',
-            value: 'Value 1',
-            prettyField: 'testDataField'
+            prettyField: 'testDataField',
+            translated: '',
+            value: 'Value 1'
         };
 
         expect(component.getCloseableFilters()).toEqual([]);
-        component.addLocalFilter(filter1);
+        component.filters.push(filter1);
         expect(component.getCloseableFilters()).toEqual([filter1]);
-        component.addLocalFilter(filter2);
+        component.filters.push(filter2);
         expect(component.getCloseableFilters()).toEqual([filter1, filter2]);
         component.removeFilter(filter1);
         expect(component.getCloseableFilters()).toEqual([filter2]);
-        component.addLocalFilter(filter1);
+        component.filters.push(filter1);
         expect(component.getCloseableFilters()).toEqual([filter2, filter1]);
         component.removeFilter(filter1);
         component.removeFilter(filter2);

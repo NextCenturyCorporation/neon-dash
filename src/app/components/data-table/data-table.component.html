@@ -57,6 +57,7 @@
                     <mat-select placeholder="ID Field" [(ngModel)]="options.idField"
                                 required="false" (ngModelChange)="handleChangeData()"
                                 [disabled]="options.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -82,25 +83,52 @@
                 </div>
                 <p></p>
 
-                Column Selector:
-                <mat-button-toggle-group #columnSelectorToggle="matButtonToggleGroup" [(ngModel)]="showColumnSelector">
-                    <mat-button-toggle value="show">
-                        Show
-                    </mat-button-toggle>
-                    <mat-button-toggle value="hide">
-                        Hide
-                    </mat-button-toggle>
+                <span class="toggle-text">Allow Multiple Filters:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.singleFilter" (ngModelChange)="handleFiltersChangedEvent()">
+                    <mat-button-toggle [value]="false">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="true">No</mat-button-toggle>
                 </mat-button-toggle-group>
                 <p></p>
 
-                Filtering:
-                <mat-button-toggle-group name="filtering" [(ngModel)]="options.filterable">
-                    <mat-button-toggle [value]="true">
-                        On
-                    </mat-button-toggle>
-                    <mat-button-toggle [value]="false">
-                        Off
-                    </mat-button-toggle>
+                <span class="toggle-text">Filterable:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.filterable">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Ignore Own Filters:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleFiltersChangedEvent()">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Show Data Matching:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [disabled]="!options.filterable" [(ngModel)]="options.arrayFilterOperator" (ngModelChange)="handleFiltersChangedEvent()">
+                    <mat-button-toggle value="and">All Filters</mat-button-toggle>
+                    <mat-button-toggle value="or">Any Filters</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Show Column Selector:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="showColumnSelector">
+                    <mat-button-toggle value="show">Yes</mat-button-toggle>
+                    <mat-button-toggle value="hide">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Sort:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortDescending" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">Ascending</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Descending</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Table Style:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.skinny" (ngModelChange)="refreshVisualization()">
+                    <mat-button-toggle [value]="false">Normal</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Skinny</mat-button-toggle>
                 </mat-button-toggle-group>
                 <p></p>
 
@@ -110,49 +138,6 @@
                                 [disabled]="!options.filterable"
                                 multiple>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                Array Filter Operator:
-                <mat-button-toggle-group [(ngModel)]="options.arrayFilterOperator" [disabled]="!options.filterable">
-                    <mat-button-toggle value="and">
-                        and
-                    </mat-button-toggle>
-                    <mat-button-toggle value="or">
-                        or
-                    </mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Allow Multiple Filters" [(ngModel)]="options.singleFilter" required="true" (ngModelChange)="handleFiltersChangedEvent()">
-                        <mat-option [value]="false">Yes</mat-option>
-                        <mat-option [value]="true">No</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Ignore Own Filters" [(ngModel)]="options.ignoreSelf" required="true" (ngModelChange)="handleFiltersChangedEvent()">
-                        <mat-option [value]="true">Yes</mat-option>
-                        <mat-option [value]="false">No</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Sort" [(ngModel)]="options.sortDescending" required="true" (ngModelChange)="handleChangeData()">
-                        <mat-option [value]="false">Ascending</mat-option>
-                        <mat-option [value]="true">Descending</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Table Style" [(ngModel)]="options.skinny" required="true" (ngModelChange)="refreshVisualization()">
-                        <mat-option [value]="false">Normal</mat-option>
-                        <mat-option [value]="true">Skinny</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
@@ -182,6 +167,7 @@
     <div class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="docCount > options.limit">
         <div class="table-container">
             <ngx-datatable #table class="material table" [class.skinny]="this.options.skinny"
+                [class.selectable]="options.filterable || options.idField.columnName"
                 [rows]="activeData"
                 [columnMode]="'force'"
                 [columns]="activeHeaders"
