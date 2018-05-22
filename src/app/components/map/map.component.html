@@ -106,14 +106,12 @@
                         </mat-form-field>
                         <p></p>
 
-                        <mat-button-toggle-group #clustering="matButtonToggleGroup" [(ngModel)]="options.clustering" (ngModelChange)="handleChangeData()">
-                            <mat-button-toggle value="points">
-                                Points
-                            </mat-button-toggle>
-                            <mat-button-toggle value="clusters">
-                                Clusters
-                            </mat-button-toggle>
+                        <span class="toggle-text">Type:</span>
+                        <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.clustering" (ngModelChange)="handleChangeData()">
+                            <mat-button-toggle [value]="true">Points</mat-button-toggle>
+                            <mat-button-toggle [value]="false">Clusters</mat-button-toggle>
                         </mat-button-toggle-group>
+                        <p></p>
                     </div>
                     <p></p>
                 </div>
