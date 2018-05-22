@@ -67,9 +67,6 @@ export namespace neonUtilities {
                 return pieces;
             }
             itemToReturn = itemToReturn ? itemToReturn[path[i]] : undefined;
-            if (!itemToReturn) {
-                return undefined;
-            }
         }
         return itemToReturn;
     }
@@ -162,6 +159,10 @@ export const neonVisualizations: any[] = [{
     name: 'Text Cloud',
     type: 'textCloud',
     icon: 'TagCloud64'
+}, {
+    name: 'Thumbnail Grid',
+    type: 'thumbnailGrid',
+    icon: 'ThumbnailGrid'
 }, {
     name: 'Timeline',
     type: 'timeline',

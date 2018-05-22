@@ -114,7 +114,8 @@ describe('Component: MediaViewer', () => {
 
         let whereClauses = [
             neon.query.where('testIdField', '=', 'testId'),
-            neon.query.where('testLinkField', '!=', null)
+            neon.query.where('testLinkField', '!=', null),
+            neon.query.where('testLinkField', '!=', '')
         ];
 
         query.where(neon.query.and.apply(query, whereClauses));
@@ -178,7 +179,7 @@ describe('Component: MediaViewer', () => {
         }]);
     }));
 
-    it('getFiltersToIgnore does return null if no filters are set', () => {
+    it('getFiltersToIgnore does return empty array if no filters are set', () => {
         component.options.database = DatasetMock.DATABASES[0];
         component.options.table = DatasetMock.TABLES[0];
         component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
@@ -227,7 +228,7 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('getCloseableFilters does return null', (() => {
-        expect(component.getCloseableFilters()).toBeNull();
+        expect(component.getCloseableFilters()).toEqual([]);
     }));
 
     it('getTabLabel does return expected tab label', (() => {
@@ -481,7 +482,7 @@ describe('Component: MediaViewer', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.border = true;
+        component.options.border = 'grey';
 
         mockBackend.connections.subscribe((connection) => {
             connection.mockRespond(new Response(new ResponseOptions({
@@ -501,7 +502,7 @@ describe('Component: MediaViewer', () => {
         tick(500);
         expect(component.errorMessage).toBe('');
         expect(component.documentArray).toEqual([{
-            border: 'yellow',
+            border: 'grey',
             link: 'testLinkValue',
             name: 'testLinkValue',
             type: ''
@@ -618,7 +619,7 @@ describe('Component: MediaViewer', () => {
             linkField: '',
             nameField: '',
             typeField: '',
-            border: false,
+            border: '',
             linkPrefix: '',
             resize: true,
             typeMap: {}
@@ -628,7 +629,7 @@ describe('Component: MediaViewer', () => {
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.nameField = new FieldMetaData('testNameField');
         component.options.typeField = new FieldMetaData('testTypeField');
-        component.options.border = true;
+        component.options.border = 'grey';
         component.options.linkPrefix = '/prefix';
         component.options.resize = false;
         component.options.typeMap = {
@@ -641,7 +642,7 @@ describe('Component: MediaViewer', () => {
             linkField: 'testLinkField',
             nameField: 'testNameField',
             typeField: 'testTypeField',
-            border: true,
+            border: 'grey',
             linkPrefix: '/prefix',
             resize: false,
             typeMap: {
@@ -738,24 +739,27 @@ describe('Component: MediaViewer', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toBe(4);
+            expect(inputs.length).toBe(5);
 
             expect(inputs[0].attributes.placeholder).toEqual('Title');
             expect(inputs[0].nativeElement.value).toEqual('Media Viewer');
 
-            expect(inputs[1].attributes.placeholder).toEqual('ID');
+            expect(inputs[1].attributes.placeholder).toEqual('Border');
             expect(inputs[1].nativeElement.value).toEqual('');
 
-            expect(inputs[2].attributes.placeholder).toEqual('Link Prefix');
+            expect(inputs[2].attributes.placeholder).toEqual('ID');
             expect(inputs[2].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toEqual('URL');
+            expect(inputs[3].attributes.placeholder).toEqual('Link Prefix');
             expect(inputs[3].nativeElement.value).toEqual('');
+
+            expect(inputs[4].attributes.placeholder).toEqual('URL');
+            expect(inputs[4].nativeElement.value).toEqual('');
 
             let options;
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toBe(8);
+            expect(selects.length).toBe(6);
 
             expect(selects[0].componentInstance.disabled).toEqual(true);
             expect(selects[0].componentInstance.placeholder).toEqual('Database');
@@ -794,26 +798,6 @@ describe('Component: MediaViewer', () => {
             options = selects[5].componentInstance.options.toArray();
             expect(options.length).toEqual(1);
             expect(options[0].getLabel()).toEqual('(None)');
-
-            expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('Resize Media');
-            expect(selects[6].componentInstance.required).toEqual(true);
-            options = selects[6].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Yes');
-            expect(options[0].selected).toEqual(true);
-            expect(options[1].getLabel()).toEqual('No');
-            expect(options[1].selected).toEqual(false);
-
-            expect(selects[7].componentInstance.disabled).toEqual(false);
-            expect(selects[7].componentInstance.placeholder).toEqual('Border');
-            expect(selects[7].componentInstance.required).toEqual(true);
-            options = selects[7].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('None');
-            expect(options[0].selected).toEqual(true);
-            expect(options[1].getLabel()).toEqual('Yellow');
-            expect(options[1].selected).toEqual(false);
         });
     }));
 
@@ -916,7 +900,7 @@ describe('Component: MediaViewer', () => {
         });
     })));
 
-    it('does display image tag according to the img type', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show single image tag according to the image type', async(inject([DomSanitizer], (sanitizer) => {
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         component.documentArray = [{
@@ -929,6 +913,33 @@ describe('Component: MediaViewer', () => {
 
         fixture.whenStable().then(() => {
             fixture.detectChanges();
+            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+            expect(media.length).toBe(1);
+            expect(media[0].nativeElement.innerHTML).toContain('<img');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="' + component.options.linkField.prettyName + '"');
+        });
+    })));
+
+    it('does show multiple image tags in tabs according to the image type', async(inject([DomSanitizer], (sanitizer) => {
+        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
+        component.documentArray = [{
+            border: '',
+            link: imgSrc,
+            name: 'testName',
+            type: 'img'
+        }, {
+            border: '',
+            link: imgSrc,
+            name: 'testName',
+            type: 'img'
+        }];
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+            expect(tabs.length).toBe(2);
             let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
             expect(media.length).toBe(1);
             expect(media[0].nativeElement.innerHTML).toContain('<img');
@@ -936,7 +947,7 @@ describe('Component: MediaViewer', () => {
         });
     })));
 
-    it('does display video tag according to the vid type', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show single video tag according to the video type', async(inject([DomSanitizer], (sanitizer) => {
         let vidSrc = 'https://youtu.be/Mxesac55Puo';
         component.documentArray = [{
             border: '',
@@ -948,6 +959,32 @@ describe('Component: MediaViewer', () => {
 
         fixture.whenStable().then(() => {
             fixture.detectChanges();
+            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+            expect(media.length).toBe(1);
+            expect(media[0].nativeElement.innerHTML).toContain('<video');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
+        });
+    })));
+
+    it('does show multiple video tags in tabs according to the video type', async(inject([DomSanitizer], (sanitizer) => {
+        let vidSrc = 'https://youtu.be/Mxesac55Puo';
+        component.documentArray = [{
+            border: '',
+            link: vidSrc,
+            name: 'testName',
+            type: 'vid'
+        }, {
+            border: '',
+            link: vidSrc,
+            name: 'testName',
+            type: 'vid'
+        }];
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+            expect(tabs.length).toBe(2);
             let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
             expect(media.length).toBe(1);
             expect(media[0].nativeElement.innerHTML).toContain('<video');
@@ -955,18 +992,44 @@ describe('Component: MediaViewer', () => {
         });
     })));
 
-    it('does display iframe tag according to the txt type', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show single iframe tag according to the empty type', async(inject([DomSanitizer], (sanitizer) => {
         let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
         component.documentArray = [{
             border: '',
             link: docSrc,
             name: 'testName',
-            type: 'txt'
+            type: ''
         }];
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
             fixture.detectChanges();
+            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+            expect(media.length).toBe(1);
+            expect(media[0].nativeElement.innerHTML).toContain('<iframe');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
+        });
+    })));
+
+    it('does show multiple iframe tags in tabs according to the empty type', async(inject([DomSanitizer], (sanitizer) => {
+        let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
+        component.documentArray = [{
+            border: '',
+            link: docSrc,
+            name: 'testName',
+            type: ''
+        }, {
+            border: '',
+            link: docSrc,
+            name: 'testName',
+            type: ''
+        }];
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+            expect(tabs.length).toBe(2);
             let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
             expect(media.length).toBe(1);
             expect(media[0].nativeElement.innerHTML).toContain('<iframe');
@@ -1003,7 +1066,7 @@ describe('Component: MediaViewer with config', () => {
                 { provide: 'linkField', useValue: 'testLinkField' },
                 { provide: 'nameField', useValue: 'testNameField' },
                 { provide: 'typeField', useValue: 'testTypeField' },
-                { provide: 'border', useValue: true },
+                { provide: 'border', useValue: 'grey' },
                 { provide: 'linkPrefix', useValue: 'prefix/' },
                 { provide: 'id', useValue: 'testId' },
                 { provide: 'resize', useValue: false },
@@ -1032,6 +1095,7 @@ describe('Component: MediaViewer with config', () => {
     });
 
     it('does have expected class options properties', () => {
+        expect(component.options.border).toEqual('grey');
         expect(component.options.id).toEqual('testId');
         expect(component.options.linkPrefix).toEqual('prefix/');
         expect(component.options.resize).toEqual(false);
@@ -1059,24 +1123,27 @@ describe('Component: MediaViewer with config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toBe(4);
+            expect(inputs.length).toBe(5);
 
             expect(inputs[0].attributes.placeholder).toEqual('Title');
             expect(inputs[0].nativeElement.value).toEqual('Test Title');
 
-            expect(inputs[1].attributes.placeholder).toEqual('ID');
-            expect(inputs[1].nativeElement.value).toEqual('testId');
+            expect(inputs[1].attributes.placeholder).toEqual('Border');
+            expect(inputs[1].nativeElement.value).toEqual('grey');
 
-            expect(inputs[2].attributes.placeholder).toEqual('Link Prefix');
-            expect(inputs[2].nativeElement.value).toEqual('prefix/');
+            expect(inputs[2].attributes.placeholder).toEqual('ID');
+            expect(inputs[2].nativeElement.value).toEqual('testId');
 
-            expect(inputs[3].attributes.placeholder).toEqual('URL');
-            expect(inputs[3].nativeElement.value).toEqual('https://kafka.apache.org/intro');
+            expect(inputs[3].attributes.placeholder).toEqual('Link Prefix');
+            expect(inputs[3].nativeElement.value).toEqual('prefix/');
+
+            expect(inputs[4].attributes.placeholder).toEqual('URL');
+            expect(inputs[4].nativeElement.value).toEqual('https://kafka.apache.org/intro');
 
             let options;
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toBe(8);
+            expect(selects.length).toBe(6);
 
             expect(selects[0].componentInstance.disabled).toEqual(false);
             expect(selects[0].componentInstance.placeholder).toEqual('Database');
@@ -1139,26 +1206,6 @@ describe('Component: MediaViewer with config', () => {
                 expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testTypeField');
             }
-
-            expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('Resize Media');
-            expect(selects[6].componentInstance.required).toEqual(true);
-            options = selects[6].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Yes');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('No');
-            expect(options[1].selected).toEqual(true);
-
-            expect(selects[7].componentInstance.disabled).toEqual(false);
-            expect(selects[7].componentInstance.placeholder).toEqual('Border');
-            expect(selects[7].componentInstance.required).toEqual(true);
-            options = selects[7].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('None');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('Yellow');
-            expect(options[1].selected).toEqual(true);
         });
     }));
 });

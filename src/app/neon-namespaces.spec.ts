@@ -270,4 +270,19 @@ describe('NeonUtilities', () => {
             }]
         }, 'key2.keyD.innerKey')).toEqual(['innerValue1', 'innerValue2']);
     });
+
+    it('returns the expected falsey object from deepFind', () => {
+        expect(neonUtilities.deepFind({
+            key: 0
+        }, 'key')).toEqual(0);
+        expect(neonUtilities.deepFind({
+            key: ''
+        }, 'key')).toEqual('');
+        expect(neonUtilities.deepFind({
+            key: false
+        }, 'key')).toEqual(false);
+        expect(neonUtilities.deepFind({
+            key: null
+        }, 'key')).toEqual(null);
+    });
 });

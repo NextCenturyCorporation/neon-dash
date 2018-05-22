@@ -22,7 +22,7 @@
 @import '../../../themes/neon-green-theme';
 
 $filter-container-height: 40px;
-$footer-height: 40px;
+$footer-height: 35px;
 
 .visualization-sidenav {
     height: 100%;
@@ -117,6 +117,10 @@ $footer-height: 40px;
 
             .pagination-button {
                 flex: 1 0 0;
+                /* Copied font size, height, and line height from neon-button-small in styles.scss */
+                font-size: 12px !important;
+                height: 25px !important;
+                line-height: 15px !important;
             }
 
             .pagination-button[disabled] {
@@ -128,8 +132,12 @@ $footer-height: 40px;
     }
 
     .visualization-sidenav-options {
-        min-width: 320px;
-        max-width: 450px;
+        max-width: calc(100% - 20px);
+
+        mat-card {
+            min-width: 240px;
+            max-width: 240px;
+        }
 
         mat-form-field, mat-input, mat-select, table {
             width: 100%;
@@ -196,6 +204,16 @@ $footer-height: 40px;
         font-size: 14px;
         line-height: 20px;
         color: mat-color($fade);
+    }
+
+    .toggle-text {
+        display: block;
+        height: 20px;
+        line-height: 20px;
+        margin-bottom: 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 }
 

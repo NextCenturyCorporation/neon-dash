@@ -33,6 +33,7 @@ import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 
 import { NeonGridItem } from '../../neon-grid-item';
 import { VisualizationService } from '../../services/visualization.service';
+import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 
 @Component({
     selector: 'app-visualization-injector',
@@ -50,6 +51,7 @@ import { VisualizationService } from '../../services/visualization.service';
         ScatterPlotComponent,
         StackedTimelineComponent,
         TextCloudComponent,
+        ThumbnailGridComponent,
         TimelineComponent,
         WikiViewerComponent
     ],
@@ -121,6 +123,7 @@ export class VisualizationInjectorComponent {
             case 'scatterPlot': return ScatterPlotComponent;
             case 'stackedTimeline': return StackedTimelineComponent;
             case 'textCloud': return TextCloudComponent;
+            case 'thumbnailGrid': return ThumbnailGridComponent;
             case 'timeline': return TimelineComponent;
             case 'wikiViewer': return WikiViewerComponent;
 

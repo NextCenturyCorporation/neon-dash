@@ -69,6 +69,7 @@ import { NetworkGraphComponent } from './components/network-graph/network-graph.
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
+import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
 
 describe('App: NeonGtd', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -101,6 +102,7 @@ describe('App: NeonGtd', () => {
                 SimpleFilterComponent,
                 StackedTimelineComponent,
                 TextCloudComponent,
+                ThumbnailGridComponent,
                 TimelineComponent,
                 UnsharedFilterComponent,
                 VisualizationContainerComponent,

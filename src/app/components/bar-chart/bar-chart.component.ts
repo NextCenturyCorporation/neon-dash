@@ -116,11 +116,14 @@ export class BarChartOptions extends BaseNeonOptions {
     public colorField: FieldMetaData;
     public dataField: FieldMetaData;
     public ignoreSelf: boolean;
+    public logScale: boolean;
+    public saveSeenBars: boolean;
     public scaleManually: boolean;
     public scaleMax: string;
     public scaleMin: string;
     public sortAlphabetically: boolean;
     public type: string;
+    public yPercentage: number;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -131,11 +134,14 @@ export class BarChartOptions extends BaseNeonOptions {
         this.aggregation = this.injector.get('aggregation', 'count');
         this.andFilters = this.injector.get('andFilters', true);
         this.ignoreSelf = this.injector.get('ignoreSelf', true);
+        this.logScale = this.injector.get('logScale', false);
+        this.saveSeenBars = this.injector.get('saveSeenBars', true);
         this.scaleManually = this.injector.get('scaleManually', false);
         this.scaleMax = this.injector.get('scaleMax', '');
         this.scaleMin = this.injector.get('scaleMin', '');
         this.sortAlphabetically = this.injector.get('sortAlphabetically', false);
         this.type = this.injector.get('chartType', 'bar');
+        this.yPercentage = this.injector.get('yPercentage', 0.2);
     }
 
     /**
@@ -241,8 +247,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         // Margin for the y-axis labels.
         let LABELS_MARGIN = 20;
-        // Percentage of the chart for the y-axis labels specified by the UX team.
-        let LABELS_PERCENTAGE = 0.2;
         // Margin for the tooltip labels.
         let TOOLTIPS_MARGIN = 20;
 
@@ -266,7 +270,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         let resizeXLabel = (scaleInstance) => {
             // Set the left padding to equal the Y label width plus the margin.  Set the X label width accordingly.
-            let yLabelMaxWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth);
+            let yLabelMaxWidth = Math.floor(this.options.yPercentage * this.chartModule.getNativeElement().clientWidth);
             scaleInstance.paddingLeft = Math.min(yLabelMaxWidth, calculateYLabelWidth()) + LABELS_MARGIN;
             scaleInstance.paddingRight = 10;
             scaleInstance.width = this.chartModule.getNativeElement().clientWidth - scaleInstance.paddingLeft - scaleInstance.paddingRight;
@@ -274,7 +278,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         let resizeYLabel = (scaleInstance) => {
             // Set the Y label width to either its minimum needed width or a percentage of the chart width (whatever is lower).
-            let yLabelMaxWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth);
+            let yLabelMaxWidth = Math.floor(this.options.yPercentage * this.chartModule.getNativeElement().clientWidth);
             scaleInstance.width = Math.min(yLabelMaxWidth, calculateYLabelWidth());
         };
 
@@ -309,7 +313,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         };
 
         let truncateYLabelText = (text) => {
-            let containerWidth = Math.floor(LABELS_PERCENTAGE * this.chartModule.getNativeElement().clientWidth - LABELS_MARGIN);
+            let containerWidth = Math.floor(this.options.yPercentage * this.chartModule.getNativeElement().clientWidth - LABELS_MARGIN);
             return truncateText(containerWidth, text);
         };
 
@@ -419,7 +423,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         //then the chart will not resize with the widget. Resizing works again after any subsequent type-switch. So if we call
         //this at the outset of the program, the chart should always resize correctly. I would think we'd need to call this
         //method twice, but for some reason it appears it only needs one call to work.
-        this.handleChangeChartType();
+        this.handleChangeBarChartObject();
 
         this.defaultBarColor = this.getPrimaryThemeColor();
         this.defaultHighlightColor = this.getHighlightThemeColor();
@@ -445,7 +449,17 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         bindings.aggregation = this.options.aggregation;
         bindings.aggregationField = this.options.aggregationField.columnName;
         bindings.andFilters = this.options.andFilters;
+        bindings.chartType = this.options.type;
+        bindings.colorField = this.options.colorField.columnName;
+        bindings.dataField = this.options.dataField.columnName;
         bindings.ignoreSelf = this.options.ignoreSelf;
+        bindings.logScale = this.options.logScale;
+        bindings.saveSeenBars = this.options.saveSeenBars;
+        bindings.scaleManually = this.options.scaleManually;
+        bindings.scaleMax = this.options.scaleMax;
+        bindings.scaleMin = this.options.scaleMin;
+        bindings.sortAlphabetically = this.options.sortAlphabetically;
+        bindings.yPercentage = this.options.yPercentage;
     }
 
     /**
@@ -681,9 +695,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 query.aggregate(neonVariables.COUNT, '*', 'value');
         }
 
-        if (this.options.sortAlphabetically) {
-            return query.sortBy(this.options.dataField.columnName, neonVariables.ASCENDING);
-        }
+        // This sort is overridden because the response data will be resorted.
         return query.sortBy('value', neonVariables.DESCENDING);
     }
 
@@ -736,7 +748,18 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 seenData.push(item);
             }
         }
-        let data = response.data.concat(seenData);
+
+        // Sort here because neon.query.Query.sortBy does not sort strings like NaN in the response data.
+        let data = response.data.concat(seenData).sort((itemA, itemB) => {
+            let valueA = (typeof itemA.value === 'number') ? itemA.value : 0;
+            let valueB = (typeof itemB.value === 'number') ? itemB.value : 0;
+            if (this.options.sortAlphabetically || valueA === valueB) {
+                let labelA = itemA[this.options.dataField.columnName];
+                let labelB = itemB[this.options.dataField.columnName];
+                return (labelA < labelB ? -1 : (labelB < labelA ? 1 : 0));
+            }
+            return valueB - valueA;
+        });
 
         // Update the bars from the data.
         for (let item of data) {
@@ -747,7 +770,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             }
 
             // Add any labels that we haven't seen before to our "seen values" list so we have them for next time.
-            if (this.seenBars.indexOf(barLabel) < 0) {
+            if (this.options.saveSeenBars && this.seenBars.indexOf(barLabel) < 0) {
                 this.seenBars.push(barLabel);
             }
 
@@ -779,7 +802,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 groupsToDatasets.set(barSegment, barDataset);
             }
 
-            barDataset.data[this.bars.indexOf(barLabel)] = item.value;
+            barDataset.data[this.bars.indexOf(barLabel)] = (typeof item.value === 'number') ? item.value : 0;
         }
 
         this.activeData = Array.from(groupsToDatasets.values());
@@ -795,6 +818,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         this.labelMax = counts.reduce((a, b) => {
             return Math.max(a, b);
         }, 0);
+
+        // Must change the scale (linear or logarithmic) based on the labelMax.
+        this.handleChangeBarChartObject(true);
 
         if (!this.options.scaleManually) {
             let maxCountLength = ('' + Math.ceil(this.labelMax)).length;
@@ -863,12 +889,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Updates the bar chart type and redraws the bar chart.
+     * Updates the bar chart object and redraws the bar chart.
+     *
+     * @arg {boolean} doNotRefresh
      */
-    handleChangeChartType() {
+    handleChangeBarChartObject(doNotRefresh?: boolean) {
         if (!this.chartModule.chart) {
             return;
         }
+
+        // Update axis type.
+        this.chartInfo.options.scales.xAxes[0].type = (this.options.type === 'horizontalBar' ? (this.options.logScale &&
+            this.labelMax > 10 ?  'logarithmic' : 'linear') : 'category');
+        this.chartInfo.options.scales.yAxes[0].type = (this.options.type === 'bar' ? (this.options.logScale && this.labelMax > 10 ?
+            'logarithmic' : 'linear') : 'category');
 
         let barData = this.chartInfo.data;
         let barOptions = this.chartInfo.options;
@@ -890,9 +924,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         };
         this.chartModule.chart = clonedChart;
 
-        this.handleChangeScale();
+        this.handleChangeScale(doNotRefresh);
 
-        this.refreshVisualization();
+        if (!doNotRefresh) {
+            this.refreshVisualization();
+        }
 
     }
 
@@ -914,8 +950,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
     /**
      * Updates the graph scale and reruns the bar chart query.
+     *
+     * @arg {boolean} doNotQuery
      */
-    handleChangeScale() {
+    handleChangeScale(doNotQuery?: boolean) {
         if (this.options.scaleManually) {
             if (this.options.scaleMax === '' || isNaN(Number(this.options.scaleMax))) {
                 this.setGraphMaximum(undefined); // not usable input, so default to automatic scaling
@@ -930,7 +968,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             }
         }
 
-        this.logChangeAndStartQueryChain();
+        if (!doNotQuery) {
+            this.logChangeAndStartQueryChain();
+        }
     }
 
     /**
