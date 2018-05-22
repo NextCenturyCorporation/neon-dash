@@ -36,7 +36,7 @@ import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
+import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
@@ -44,7 +44,7 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class MediaViewerOptions extends BaseNeonOptions {
-    public border: boolean;
+    public border: string;
     public id: string;
     public idField: FieldMetaData;
     public linkField: FieldMetaData;
@@ -61,7 +61,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
      * @override
      */
     onInit() {
-        this.border = this.injector.get('border', false);
+        this.border = this.injector.get('border', '');
         this.id = this.injector.get('id', '');
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.resize = this.injector.get('resize', true);
@@ -128,7 +128,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }[] = [];
 
     public isLoadingMedia: boolean = false;
-    public previousId: string;
+    public previousId: string = '';
+    public mediaTypes: any = MediaTypes;
 
     constructor(
         activeGridService: ActiveGridService,
@@ -181,7 +182,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         let whereClauses = [
             neon.query.where(this.options.idField.columnName, '=', this.options.id),
-            neon.query.where(this.options.linkField.columnName, '!=', null)
+            neon.query.where(this.options.linkField.columnName, '!=', null),
+            neon.query.where(this.options.linkField.columnName, '!=', '')
         ];
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
@@ -233,22 +235,39 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     getExportFields(): any[] {
-        return [{
+        let fields = [{
             columnName: this.options.idField.columnName,
             prettyName: this.options.idField.prettyName
         }, {
             columnName: this.options.linkField.columnName,
             prettyName: this.options.linkField.prettyName
         }];
+
+        if (this.options.nameField.columnName) {
+            fields.push({
+                columnName: this.options.nameField.columnName,
+                prettyName: this.options.nameField.prettyName
+            });
+        }
+
+        if (this.options.typeField.columnName) {
+            fields.push({
+                columnName: this.options.typeField.columnName,
+                prettyName: this.options.typeField.prettyName
+            });
+        }
+
+        return fields;
     }
 
     /**
-     * Returns the list filters for the media viewer to ignore.
+     * Returns the list filters for the visualization to ignore.
      *
-     * @return {any[]}
+     * @return {array|null}
      * @override
      */
     getFiltersToIgnore(): any[] {
+        // Ignore all the filters for the database and the table so it always shows the selected items.
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name);
 
         let ignoredFilterIds = neonFilters.filter((neonFilter) => {
@@ -272,13 +291,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the list of filter objects (null for no filters).
+     * Returns the list of filter objects.
      *
-     * @return {null}
+     * @return {array}
      * @override
      */
     getCloseableFilters(): any[] {
-        return null;
+        return [];
     }
 
     /**
@@ -291,8 +310,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         return (message) => {
             if (message.database === this.options.database.name && message.table === this.options.table.name) {
                 this.options.id = Array.isArray(message.id) ? message.id[0] : message.id;
-                this.previousId = '';
-                if (this.options.id) {
+                if (this.options.id !== this.previousId) {
+                    this.documentArray = [];
+                    this.previousId = this.options.id;
                     this.executeQueryChain();
                 }
             }
@@ -347,11 +367,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     Array.isArray(names) ? names : (names.toString().search(/,/g) > -1 ? names.toString().split(',') : names),
                     Array.isArray(types) ? types : (types.toString().search(/,/g) > -1 ? types.toString().split(',') : types)
                 );
-
-                if (this.previousId !== this.options.id) {
-                    this.previousId = this.options.id;
-                }
-
             } else {
                 this.errorMessage = 'No Data';
                 this.refreshVisualization();
@@ -408,9 +423,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         if (links[0]) {
             let typeFromConfig = this.options.typeMap[links[0].substring(links[0].lastIndexOf('.') + 1).toLowerCase()];
-            // TODO Add a boolean borderField with border options:  true = red, false = yellow
+            // TODO Add a boolean borderField with border options like:  true = red, false = yellow
             this.documentArray.push({
-                border: this.options.border ? 'yellow' : '',
+                border: this.options.border,
                 link: this.options.linkPrefix + links[0],
                 name: (Array.isArray(names) ? names[0] : names) || links[0],
                 type: (Array.isArray(types) ? types[0] : types) || typeFromConfig || ''

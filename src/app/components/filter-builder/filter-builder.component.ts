@@ -41,13 +41,15 @@ import * as neon from 'neon-framework';
  * Manages configurable options for the specific visualization.
  */
 export class FilterBuilderOptions extends BaseNeonOptions {
+    public multiFilter: boolean;
+
     /**
      * Initializes all the non-field options for the specific visualization.
      *
      * @override
      */
     onInit() {
-        // Do nothing.
+        this.multiFilter = this.injector.get('multiFilter', false);
     }
 
     /**
@@ -71,7 +73,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
 
-    public options: BaseNeonOptions;
+    public options: FilterBuilderOptions;
 
     public andOr: string = 'and';
     public clauses: WhereClauseMetaData[] = [];
@@ -124,9 +126,17 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                     let databaseTableFieldKey = this.getDatabaseTableFieldKey(database.name, table.name, field.columnName);
                     this.databaseTableFieldKeysToFilterIds.set(databaseTableFieldKey, '');
                 });
+
+                if (this.options.multiFilter) {
+                    this.options.table = table;
+                    this.addBlankWhereClause();
+                }
             });
         });
-        this.addBlankWhereClause();
+
+        if (!this.options.multiFilter) {
+            this.addBlankWhereClause();
+        }
     }
 
     postInit() {
@@ -326,6 +336,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 clause.field.columnName);
             return databaseTableFieldKey === clauseDatabaseTableFieldKey && this.validateClause(clause) && clause.active;
         });
+
         let filterClauses = activeMatchingClauses.map((clause) => {
             let operator = clause.operator.value;
             let value: any = clause.value;

@@ -82,6 +82,11 @@
                 <p></p>
 
                 <mat-form-field>
+                    <input matInput placeholder="Border" [(ngModel)]="options.border" required="false">
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
                     <input matInput placeholder="ID" [(ngModel)]="options.id" required="false">
                 </mat-form-field>
                 <p></p>
@@ -96,20 +101,11 @@
                 </mat-form-field>
                 <p></p>
 
-                <mat-form-field>
-                    <mat-select placeholder="Resize Media" [(ngModel)]="options.resize" required="true" (ngModelChange)="subOnResizeStop()">
-                        <mat-option [value]="true">Yes</mat-option>
-                        <mat-option [value]="false">No</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Border" [(ngModel)]="options.border" required="true">
-                        <mat-option [value]="false">None</mat-option>
-                        <mat-option [value]="true">Yellow</mat-option>
-                    </mat-select>
-                </mat-form-field>
+                <span class="toggle-text">Resize:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.resize" (ngModelChange)="subOnResizeStop()">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>
@@ -122,16 +118,36 @@
     </div>
 
     <div *ngIf="options.url == ''">
-        <div *ngIf="options.id && documentArray.length == 0" class="no-data-text">No Data: {{ options.id }}</div>
-        <mat-tab-group>
+        <div *ngIf="options.id && documentArray.length == 0" class="viewer-text">No Data: {{ options.id }}</div>
+
+        <mat-tab-group *ngIf="documentArray.length > 1">
             <mat-tab *ngFor="let document of documentArray" [label]="document.name">
                 <div [ngSwitch]="document.type">
-                    <img #image *ngSwitchCase="'img'" [class.border-yellow]="document.border === 'yellow'" [src]="document.link" [alt]="options.linkField.prettyName" >
-                    <video #video *ngSwitchCase="'vid'" [class.border-yellow]="document.border === 'yellow'" controls><source [src]="document.link"></video>
-                    <iframe #frame *ngSwitchDefault [class.border-yellow]="document.border === 'yellow'" [src]="sanitize(document.link)" frameborder="0"></iframe>
+                    <img #image *ngSwitchCase="mediaTypes.image" [src]="document.link" [alt]="options.linkField.prettyName"
+                        [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
+                    <video #video *ngSwitchCase="mediaTypes.video" controls
+                        [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
+                        <source [src]="document.link">
+                    </video>
+                    <iframe #frame *ngSwitchDefault [src]="sanitize(document.link)" frameborder="0"
+                        [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
+                    </iframe>
                 </div>
             </mat-tab>
         </mat-tab-group>
+
+        <div class="full-height single-medium" *ngIf="documentArray.length == 1" [ngSwitch]="documentArray[0].type">
+            <div class="viewer-text">{{ documentArray[0].name }}</div>
+            <img #image *ngSwitchCase="mediaTypes.image" [src]="documentArray[0].link" [alt]="options.linkField.prettyName"
+                [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
+            <video #video *ngSwitchCase="mediaTypes.video" controls
+                [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
+                <source [src]="documentArray[0].link">
+            </video>
+            <iframe #frame *ngSwitchDefault [src]="sanitize(documentArray[0].link)" frameborder="0"
+                [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
+            </iframe>
+        </div>
     </div>
 
     <div class="full-height" *ngIf="options.url != ''">

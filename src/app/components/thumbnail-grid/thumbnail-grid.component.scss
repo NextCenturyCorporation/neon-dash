@@ -1,0 +1,124 @@
+/*
+ * Copyright 2016 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+ @import '../base-neon-component/base-neon.component.scss';
+
+/deep/ .mat-drawer-content{
+    overflow: unset;
+}
+
+.thumbnail-grid-container{
+    height: 100%;
+    display: flex;
+    flex-flow: row wrap;
+}
+
+.thumbnail-grid-div{
+    display: flex;
+    flex-direction: column;
+    flex: 0 0;
+    margin: .5em .7em;
+    align-items: center;
+}
+
+.title-bold{
+    font-weight: bold;
+}
+
+.thumbnail-view{
+    width: auto;
+    height: auto;
+    box-shadow: 0px 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+}
+
+.blue-border{
+    border: .2em solid #2798ff;
+}
+
+.red-border{
+    border: .2em solid #ff0000;
+}
+
+.thumbnail-details{
+    height:25%;
+    width:100%;
+    background-color: #fafafa;
+    word-wrap: break-word;
+    display: flex;
+    flex-direction: column;
+    font-size: .7em;
+}
+
+.thumbnail-details p{
+    margin: .2em;
+    display: inline-flex;
+    flex-flow: row nowrap;
+    height: 1.5em;
+    width: 110px;
+}
+
+.thumbnail-details span{
+    white-space: nowrap;
+}
+
+.detail-ellipses{
+    flex:1;
+    white-space:pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 75px;
+}
+
+.detail-percentage {
+    text-align: end;
+    width: 35px;
+}
+
+.border-mat-grey {
+    border: 5px solid #9e9e9e; /* mat-color-grey-500 */
+}
+
+.border-mat-red {
+    border: 5px solid #f44336; /* mat-color-red-500 */
+}
+
+.selected canvas.with-border,
+.selectable:hover canvas.with-border,
+.border-mat-yellow {
+    border: 5px solid #ffeb3b; /* mat-color-yellow-500 */
+}
+
+.style2 {
+    .thumbnail-grid-div {
+        height: 110px;
+        margin: 5px;
+
+        &.with-text {
+            height: 125px;
+        }
+
+        .thumbnail-details {
+            font-size: 12px;
+            height: 15px;
+            line-height: 15px;
+            min-height: 15px;
+
+            p {
+                height: unset;
+                margin: 0;
+            }
+        }
+    }
+}

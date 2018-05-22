@@ -173,12 +173,6 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         this.textCloud = new TextCloud(new SizeOptions(80, 140, '%'), new ColorOptions('#aaaaaa', this.textColor));
     }
 
-    addLocalFilter(filter) {
-        this.filters = this.filters.filter((existingFilter) => {
-            return existingFilter.id !== filter.id;
-        }).concat([filter]);
-    }
-
     refreshVisualization() {
         this.createTextCloud();
     }
@@ -308,11 +302,12 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
                 let filter = {
                     id: neonFilter.id,
                     field: field.columnName,
-                    value: value,
-                    prettyField: field.prettyName
+                    prettyField: field.prettyName,
+                    translated: '',
+                    value: value
                 };
                 if (this.filterIsUnique(filter)) {
-                    this.addLocalFilter(filter);
+                    this.filters.push(filter);
                 }
             }
         }
@@ -328,13 +323,23 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
         let filter = {
             id: undefined, // This will be set in the success callback of addNeonFilter.
             field: this.options.dataField.columnName,
-            value: item.key,
-            prettyField: this.options.dataField.prettyName
+            prettyField: this.options.dataField.prettyName,
+            translated: '',
+            value: item.key
         };
-        if (this.filterIsUnique(filter)) {
-            this.addLocalFilter(filter);
+        if (!this.filters.length) {
+            this.filters.push(filter);
             let whereClause = neon.query.where(filter.field, '=', filter.value);
             this.addNeonFilter(true, filter, whereClause);
+        } else if (this.filterIsUnique(filter)) {
+            filter.id = this.filters[0].id;
+            this.filters.push(filter);
+            let whereClauses = this.filters.map((existingFilter) => {
+                return neon.query.where(existingFilter.field, '=', existingFilter.value);
+            });
+            let whereClause = whereClauses.length === 1 ? whereClauses[0] : (this.options.andFilters ? neon.query.and.apply(neon.query,
+                whereClauses) : neon.query.or.apply(neon.query, whereClauses));
+            this.replaceNeonFilter(true, filter, whereClause);
         }
     }
 
