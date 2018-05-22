@@ -116,6 +116,7 @@ export class BarChartOptions extends BaseNeonOptions {
     public colorField: FieldMetaData;
     public dataField: FieldMetaData;
     public ignoreSelf: boolean;
+    public logScale: boolean;
     public scaleManually: boolean;
     public scaleMax: string;
     public scaleMin: string;
@@ -132,6 +133,7 @@ export class BarChartOptions extends BaseNeonOptions {
         this.aggregation = this.injector.get('aggregation', 'count');
         this.andFilters = this.injector.get('andFilters', true);
         this.ignoreSelf = this.injector.get('ignoreSelf', true);
+        this.logScale = this.injector.get('logScale', false);
         this.scaleManually = this.injector.get('scaleManually', false);
         this.scaleMax = this.injector.get('scaleMax', '');
         this.scaleMin = this.injector.get('scaleMin', '');
@@ -419,7 +421,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         //then the chart will not resize with the widget. Resizing works again after any subsequent type-switch. So if we call
         //this at the outset of the program, the chart should always resize correctly. I would think we'd need to call this
         //method twice, but for some reason it appears it only needs one call to work.
-        this.handleChangeChartType();
+        this.handleChangeBarChartObject();
 
         this.defaultBarColor = this.getPrimaryThemeColor();
         this.defaultHighlightColor = this.getHighlightThemeColor();
@@ -446,6 +448,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         bindings.aggregationField = this.options.aggregationField.columnName;
         bindings.andFilters = this.options.andFilters;
         bindings.ignoreSelf = this.options.ignoreSelf;
+        bindings.logScale = this.options.logScale;
         bindings.yPercentage = this.options.yPercentage;
     }
 
@@ -797,6 +800,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             return Math.max(a, b);
         }, 0);
 
+        // Must change the scale (linear or logarithmic) based on the labelMax.
+        this.handleChangeBarChartObject(true);
+
         if (!this.options.scaleManually) {
             let maxCountLength = ('' + Math.ceil(this.labelMax)).length;
             let stepSize = Math.pow(10, maxCountLength - 1);
@@ -864,12 +870,20 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Updates the bar chart type and redraws the bar chart.
+     * Updates the bar chart object and redraws the bar chart.
+     *
+     * @arg {boolean} doNotRefresh
      */
-    handleChangeChartType() {
+    handleChangeBarChartObject(doNotRefresh?: boolean) {
         if (!this.chartModule.chart) {
             return;
         }
+
+        // Update axis type.
+        this.chartInfo.options.scales.xAxes[0].type = (this.options.type === 'horizontalBar' ? (this.options.logScale &&
+            this.labelMax > 10 ?  'logarithmic' : 'linear') : 'category');
+        this.chartInfo.options.scales.yAxes[0].type = (this.options.type === 'bar' ? (this.options.logScale && this.labelMax > 10 ?
+            'logarithmic' : 'linear') : 'category');
 
         let barData = this.chartInfo.data;
         let barOptions = this.chartInfo.options;
@@ -891,9 +905,11 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         };
         this.chartModule.chart = clonedChart;
 
-        this.handleChangeScale();
+        this.handleChangeScale(doNotRefresh);
 
-        this.refreshVisualization();
+        if (!doNotRefresh) {
+            this.refreshVisualization();
+        }
 
     }
 
@@ -915,8 +931,10 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
     /**
      * Updates the graph scale and reruns the bar chart query.
+     *
+     * @arg {boolean} doNotQuery
      */
-    handleChangeScale() {
+    handleChangeScale(doNotQuery?: boolean) {
         if (this.options.scaleManually) {
             if (this.options.scaleMax === '' || isNaN(Number(this.options.scaleMax))) {
                 this.setGraphMaximum(undefined); // not usable input, so default to automatic scaling
@@ -931,7 +949,9 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             }
         }
 
-        this.logChangeAndStartQueryChain();
+        if (!doNotQuery) {
+            this.logChangeAndStartQueryChain();
+        }
     }
 
     /**

@@ -139,7 +139,7 @@
 
                 <label> Chart Type </label>
                 <div class='radio-container' layout="row" mat-margin>
-                    <mat-radio-group ngDefaultControl [(ngModel)]="options.type" (change)="handleChangeChartType()">
+                    <mat-radio-group ngDefaultControl [(ngModel)]="options.type" (change)="handleChangeBarChartObject()">
                         <mat-radio-button ngDefaultControl value="horizontalBar" [(ngModel)]="options.type">Horizontal</mat-radio-button>
                         <mat-radio-button ngDefaultControl value="bar" [(ngModel)]="options.type">Vertical</mat-radio-button>
                     </mat-radio-group>
@@ -158,6 +158,14 @@
                     <mat-select placeholder="Ignore Own Filters" [(ngModel)]="options.ignoreSelf" required="true" (ngModelChange)="handleFiltersChangedEvent()">
                         <mat-option [value]="true">Yes</mat-option>
                         <mat-option [value]="false">No</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Log Scale" [(ngModel)]="options.logScale" required="true" (ngModelChange)="handleChangeBarChartObject()">
+                        <mat-option [value]="false">No</mat-option>
+                        <mat-option [value]="true">Yes</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
