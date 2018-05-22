@@ -139,11 +139,62 @@
 
                 <label> Chart Type </label>
                 <div class='radio-container' layout="row" mat-margin>
-                    <mat-radio-group ngDefaultControl [(ngModel)]="options.type" (change)="handleChangeChartType()">
+                    <mat-radio-group ngDefaultControl [(ngModel)]="options.type" (change)="handleChangeBarChartObject()">
                         <mat-radio-button ngDefaultControl value="horizontalBar" [(ngModel)]="options.type">Horizontal</mat-radio-button>
                         <mat-radio-button ngDefaultControl value="bar" [(ngModel)]="options.type">Vertical</mat-radio-button>
                     </mat-radio-group>
                 </div>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Filter Behavior" [(ngModel)]="options.andFilters" required="true" (ngModelChange)="handleFiltersChangedEvent()">
+                        <mat-option [value]="true">AND</mat-option>
+                        <mat-option [value]="false">OR</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Ignore Own Filters" [(ngModel)]="options.ignoreSelf" required="true" (ngModelChange)="handleFiltersChangedEvent()">
+                        <mat-option [value]="true">Yes</mat-option>
+                        <mat-option [value]="false">No</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Log Scale" [(ngModel)]="options.logScale" required="true" (ngModelChange)="handleChangeBarChartObject()">
+                        <mat-option [value]="false">No</mat-option>
+                        <mat-option [value]="true">Yes</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Save Seen Bars" [(ngModel)]="options.saveSeenBars" required="true" (ngModelChange)="handleChangeData()">
+                        <mat-option [value]="true">Yes</mat-option>
+                        <mat-option [value]="false">No</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Sort" [(ngModel)]="options.sortAlphabetically" required="true" (ngModelChange)="handleChangeData()">
+                        <mat-option [value]="true">Alphabetically</mat-option>
+                        <mat-option [value]="false">Numerically</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Y-Axis Percentage" [(ngModel)]="options.yPercentage" required="true" (ngModelChange)="refreshVisualization()">
+                        <mat-option [value]="0.1">0.1</mat-option>
+                        <mat-option [value]="0.2">0.2</mat-option>
+                        <mat-option [value]="0.3">0.3</mat-option>
+                        <mat-option [value]="0.4">0.4</mat-option>
+                        <mat-option [value]="0.5">0.5</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
