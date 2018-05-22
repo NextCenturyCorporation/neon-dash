@@ -6,7 +6,9 @@
             <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
                 {{ errorMessage }}
             </span>
-            <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+            <span *ngIf="!errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+                {{ getButtonText() }}
+            </span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
@@ -25,7 +27,7 @@
                 </div>
 
                 <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
+                    <label class="icon-with-text data-info" [matTooltip]="getButtonText()" tooltip-position="below">
                         <mat-icon class="neon-icon-small">info</mat-icon>
                         <span>{{ getButtonText() }}</span>
                     </label>
@@ -148,29 +150,36 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Crop and/or Scale" [(ngModel)]="options.cropAndScale" required="true" (ngModelChange)="updatePageData()">
-                        <mat-option [value]="''">None</mat-option>
-                        <mat-option [value]="'scale'">Scale</mat-option>
-                        <mat-option [value]="'crop'">Crop</mat-option>
-                        <mat-option [value]="'both'">Both</mat-option>
-                    </mat-select>
+                    <input matInput placeholder="Border" [(ngModel)]="options.border" required="false">
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Open Image/Video on Mouse Click" [(ngModel)]="options.openOnMouseClick" required="true">
-                        <mat-option [value]="true">Yes</mat-option>
-                        <mat-option [value]="false">No</mat-option>
-                    </mat-select>
+                    <input matInput placeholder="Link Prefix" [(ngModel)]="options.linkPrefix" required="false">
                 </mat-form-field>
                 <p></p>
 
-                <mat-form-field>
-                    <mat-select placeholder="Sort" [(ngModel)]="options.ascending" required="true" (ngModelChange)="handleSortOrder()">
-                        <mat-option [value]="true">Ascending</mat-option>
-                        <mat-option [value]="false">Descending</mat-option>
-                    </mat-select>
-                </mat-form-field>
+                <span class="toggle-text">Crop or Scale:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.cropAndScale" (ngModelChange)="updatePageData()">
+                    <mat-button-toggle value="">None</mat-button-toggle>
+                    <mat-button-toggle value="scale">Scale</mat-button-toggle>
+                    <mat-button-toggle value="crop">Crop</mat-button-toggle>
+                    <mat-button-toggle value="both">Both</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Open Media on Mouse Click:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.openOnMouseClick">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Sort:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ascending" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="true">Ascending</mat-button-toggle>
+                    <mat-button-toggle [value]="false">Descending</mat-button-toggle>
+                </mat-button-toggle-group>
                 <p></p>
 
                 <app-export-control [exportId]="exportId"></app-export-control>

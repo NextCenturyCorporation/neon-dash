@@ -245,8 +245,10 @@ body {
         height: 25px !important;
     }
 
-    &:hover {
-        background-color: $accent-bright !important;
+    &:not([disabled]) {
+        &:hover {
+            background-color: $accent-bright !important;
+        }
     }
 }
 
@@ -313,6 +315,7 @@ body {
         height: 15px !important;
         line-height: 15px !important;
         padding: 5px 0 !important;
+        width: unset;
     }
 
     .mat-form-field-underline {
