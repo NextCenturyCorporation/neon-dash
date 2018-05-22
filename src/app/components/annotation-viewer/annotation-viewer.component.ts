@@ -92,6 +92,7 @@ export class Data {
     annotations: any[];
     details: any;
     parts: Part[];
+    validAnnotations: boolean;
 }
 
 export class Part {
@@ -411,6 +412,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             let annotationsList = document.annotations;
             let annotationsPartList = [];
 
+            //console.log(document);
+
             if (!annotationsList.length) {
                 let part = new Part();
                 part.text = document.documents;
@@ -443,9 +446,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     }
                 }
             }
-
-            //console.log(annotationStartIndex);
-            //console.log(annotationEndIndex);
 
             for (let index = 0; index < annotationsPartList.length; index++) {
                 //If the first annotation is the very first text
@@ -817,10 +817,18 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         });
     }
 
+    updateLegend() {
+        let seenTypes: string[] = [];
+
+        this.seenTypes = seenTypes;
+    }
+
     legendItemSelected(event: any) {
         let fieldName: string = event.fieldName;
         let value: string = event.value;
         let currentlyActive: boolean = event.currentlyActive;
+
+        //console.log('Legend was clicked!');
 
         if (currentlyActive) {
 
@@ -869,6 +877,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             };
         });
 
+        this.disabledSet = [] as [string[]];
+
         this.page = 1;
         this.updateDocuemnts(response);
         this.updateActiveData();
@@ -889,10 +899,13 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 documents: null,
                 annotations: [],
                 details: null,
-                parts: []
+                parts: [],
+                validAnnotations: null
             };
-            for (let annotation of document.annotations) {
-                data.annotations.push(annotation);
+            if (document.annotations) {
+                for (let annotation of document.annotations) {
+                    data.annotations.push(annotation);
+                }
             }
             data.documents = document[this.options.documentTextField.columnName];
             if (data.documents) {
@@ -1039,10 +1052,14 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * Updates the pagination properties and the active data.
      */
     updateActiveData() {
+        this.activeData = [];
         let offset = (this.page - 1) * this.options.limit;
         this.activeData = this.options.data.slice(offset, (offset + this.options.limit));
         this.lastPage = (this.options.data.length <= (offset + this.options.limit));
         this.createDisplayObjects(this.activeData);
+        //console.log(this.activeData);
+        //console.log(this.seenTypes);
+        this.updateLegend();
         this.refreshVisualization();
     }
 }

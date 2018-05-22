@@ -129,7 +129,10 @@
 
     <div class=" legend-container ">
         <div *ngIf="!options.singleColor">
-            <app-legend [fieldNames]="seenTypes" [disabledSets]="disabledSet" (itemSelected)="legendItemSelected($event)"></app-legend>
+            <app-legend [fieldNames]="seenTypes"
+            [activeList]="seenTypes" 
+            [disabledSets]="disabledSet"
+            (itemSelected)="legendItemSelected($event)"></app-legend>
         </div>
     </div>
 
