@@ -6,7 +6,9 @@
             <span class="error-message" *ngIf="errorMessage" [matTooltip]="errorMessage" tooltip-position="below">
                 {{ errorMessage }}
             </span>
-            <span *ngIf="!errorMessage" [matTooltip]="getButtonText()" tooltip-position="below">{{ getButtonText() }}</span>
+            <span *ngIf="!errorMessage" class="data-info" [matTooltip]="getButtonText()" tooltip-position="below">
+                {{ getButtonText() }}
+            </span>
         </span>
         <button mat-icon-button aria-label="Settings" matTooltip="Open/Close the Options Menu" tooltip-position="below" (click)="optionsMenu.toggle();">
             <mat-icon>settings</mat-icon>
@@ -25,7 +27,7 @@
                 </div>
 
                 <div *ngIf="getButtonText()">
-                    <label class="icon-with-text" [matTooltip]="getButtonText()" tooltip-position="below">
+                    <label class="icon-with-text data-info" [matTooltip]="getButtonText()" tooltip-position="below">
                         <mat-icon class="neon-icon-small">info</mat-icon>
                         <span>{{ getButtonText() }}</span>
                     </label>
