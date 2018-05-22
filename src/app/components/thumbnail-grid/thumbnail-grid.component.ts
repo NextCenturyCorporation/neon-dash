@@ -74,7 +74,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     onInit() {
         this.ascending = this.injector.get('ascending', false);
         this.border = this.injector.get('border', '');
-        this.cropAndScale = this.injector.get('cropAndScale', '');
+        this.cropAndScale = this.injector.get('cropAndScale', '') || '';
         this.id = this.injector.get('id', '');
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);

@@ -201,6 +201,13 @@ $footer-height: 35px;
         line-height: 20px;
         color: mat-color($fade);
     }
+
+    .toggle-text {
+        display: block;
+        height: 20px;
+        line-height: 20px;
+        margin-bottom: 5px;
+    }
 }
 
 .neon-green-dark-theme {

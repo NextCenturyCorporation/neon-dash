@@ -739,24 +739,27 @@ describe('Component: MediaViewer', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toBe(4);
+            expect(inputs.length).toBe(5);
 
             expect(inputs[0].attributes.placeholder).toEqual('Title');
             expect(inputs[0].nativeElement.value).toEqual('Media Viewer');
 
-            expect(inputs[1].attributes.placeholder).toEqual('ID');
+            expect(inputs[1].attributes.placeholder).toEqual('Border');
             expect(inputs[1].nativeElement.value).toEqual('');
 
-            expect(inputs[2].attributes.placeholder).toEqual('Link Prefix');
+            expect(inputs[2].attributes.placeholder).toEqual('ID');
             expect(inputs[2].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toEqual('URL');
+            expect(inputs[3].attributes.placeholder).toEqual('Link Prefix');
             expect(inputs[3].nativeElement.value).toEqual('');
+
+            expect(inputs[4].attributes.placeholder).toEqual('URL');
+            expect(inputs[4].nativeElement.value).toEqual('');
 
             let options;
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toBe(7);
+            expect(selects.length).toBe(6);
 
             expect(selects[0].componentInstance.disabled).toEqual(true);
             expect(selects[0].componentInstance.placeholder).toEqual('Database');
@@ -795,16 +798,6 @@ describe('Component: MediaViewer', () => {
             options = selects[5].componentInstance.options.toArray();
             expect(options.length).toEqual(1);
             expect(options[0].getLabel()).toEqual('(None)');
-
-            expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('Resize Media');
-            expect(selects[6].componentInstance.required).toEqual(true);
-            options = selects[6].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Yes');
-            expect(options[0].selected).toEqual(true);
-            expect(options[1].getLabel()).toEqual('No');
-            expect(options[1].selected).toEqual(false);
         });
     }));
 
@@ -1130,24 +1123,27 @@ describe('Component: MediaViewer with config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toBe(4);
+            expect(inputs.length).toBe(5);
 
             expect(inputs[0].attributes.placeholder).toEqual('Title');
             expect(inputs[0].nativeElement.value).toEqual('Test Title');
 
-            expect(inputs[1].attributes.placeholder).toEqual('ID');
-            expect(inputs[1].nativeElement.value).toEqual('testId');
+            expect(inputs[1].attributes.placeholder).toEqual('Border');
+            expect(inputs[1].nativeElement.value).toEqual('grey');
 
-            expect(inputs[2].attributes.placeholder).toEqual('Link Prefix');
-            expect(inputs[2].nativeElement.value).toEqual('prefix/');
+            expect(inputs[2].attributes.placeholder).toEqual('ID');
+            expect(inputs[2].nativeElement.value).toEqual('testId');
 
-            expect(inputs[3].attributes.placeholder).toEqual('URL');
-            expect(inputs[3].nativeElement.value).toEqual('https://kafka.apache.org/intro');
+            expect(inputs[3].attributes.placeholder).toEqual('Link Prefix');
+            expect(inputs[3].nativeElement.value).toEqual('prefix/');
+
+            expect(inputs[4].attributes.placeholder).toEqual('URL');
+            expect(inputs[4].nativeElement.value).toEqual('https://kafka.apache.org/intro');
 
             let options;
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toBe(7);
+            expect(selects.length).toBe(6);
 
             expect(selects[0].componentInstance.disabled).toEqual(false);
             expect(selects[0].componentInstance.placeholder).toEqual('Database');
@@ -1210,16 +1206,6 @@ describe('Component: MediaViewer with config', () => {
                 expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testTypeField');
             }
-
-            expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('Resize Media');
-            expect(selects[6].componentInstance.required).toEqual(true);
-            options = selects[6].componentInstance.options.toArray();
-            expect(options.length).toEqual(2);
-            expect(options[0].getLabel()).toEqual('Yes');
-            expect(options[0].selected).toEqual(false);
-            expect(options[1].getLabel()).toEqual('No');
-            expect(options[1].selected).toEqual(true);
         });
     }));
 });
