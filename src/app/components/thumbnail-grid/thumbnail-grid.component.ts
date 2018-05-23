@@ -55,6 +55,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public percentField: FieldMetaData;
     public predictedNameField: FieldMetaData;
     public scaleThumbnails: boolean;
+    public detailedThumbnails: boolean;
     public sortField: FieldMetaData;
     public typeField: FieldMetaData;
 
@@ -68,6 +69,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.filterable = this.injector.get('filterable', false);
         this.id = this.injector.get('id', '');
         this.scaleThumbnails = this.injector.get('scaleThumbnails', false);
+        this.detailedThumbnails = this.injector.get('detailedThumbnails', false);
     }
 
     /**
@@ -584,6 +586,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.filterable = this.options.filterable;
         bindings.id = this.options.id;
         bindings.scaleThumbnails = this.options.scaleThumbnails;
+        bindings.detailedThumbnails = this.options.detailedThumbnails;
     }
 
     /**

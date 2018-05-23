@@ -164,13 +164,15 @@
     <div #thumbnailGrid class="thumbnail-grid">
        <div class="thumbnail-grid-container" *ngIf="showGrid">
            <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid"  (click)="maximizeMedia(item[options.linkField.columnName])">
-                   <div class="thumbnail-details">
+<!--                   <div class="thumbnail-details">
                        <p [title]="getThumbnailTitle(item[options.objectNameField.columnName],item[options.predictedNameField.columnName], item[options.sortField.columnName])">
                            <span class="detail-ellipses">{{ item[options.predictedNameField.columnName] }}</span>
                            <span>{{ getThumbnailTitle("", "", item[options.sortField.columnName]) }}</span>
                        </p>
                    </div>
-                    <canvas class="thumbnail-view"></canvas>
+                    <canvas class="thumbnail-view"></canvas>-->
+                    <app-thumbnail-contracted-details class="thumbnail-grid-div" *ngIf="!detailedThumbnails" [item]="item" [options]="options"></app-thumbnail-contracted-details>
+                    <app-thumbnail-expanded-details class="thumbnail-grid-div" *ngIf="detailedThumbnails" [item]="item" [options]="options"></app-thumbnail-expanded-details>
            </div>
        </div>
    </div>
