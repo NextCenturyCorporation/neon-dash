@@ -127,21 +127,20 @@
 
     <!-- TODO Do you need a header for filters or other components (like a legend)? -->
 
-    <div class=" legend-container ">
-        <div *ngIf="!options.singleColor">
-            <app-legend [fieldNames]="seenTypes"
+    <div class=" top-container ">
+        <div class="legend-container" *ngIf="showLegendContainer()">
+            <app-legend [fieldNames]="colorByFields"
             [disabledSets]="disabledSet"
             (itemSelected)="legendItemSelected($event)"></app-legend>
         </div>
-    </div>
-
-    <div class="filter-container" *ngIf="showFilterContainer()">
-        <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
-            <span class="filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
-            <button mat-icon-button class="neon-icon-button-small" aria-label="Close" [matTooltip]="'Delete Filter ' + getFilterText(filter)"
-                tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
-                <mat-icon class="neon-icon-small">close</mat-icon>
-            </button>
+        <div class="filter-container" *ngIf="showFilterContainer()">
+            <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
+                <span class="filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.value }}</span>
+                <button mat-icon-button class="neon-icon-button-small" aria-label="Close" [matTooltip]="'Delete Filter ' + getFilterText(filter)"
+                    tooltip-position="below" (click)="removeLocalFilterFromLocalAndNeon(filter, true, true)">
+                    <mat-icon class="neon-icon-small">close</mat-icon>
+                </button>
+            </div>
         </div>
     </div>
 
