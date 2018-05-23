@@ -188,7 +188,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         this.configFilter = this.injector.get('configFilter', null);
 
         this.options = new AnnotationViewerOptions(this.injector, this.datasetService, 'Annotation Viewer', 50);
-        //console.log(this.options);
     }
 
     getOptions(): BaseNeonOptions {
@@ -366,19 +365,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Updates the colors for the types in the given document annotation object
-     * and the mentions in the given list of document letter objects.
-     * @method updateDocumentAnnotationColors
-     * @param {Object} typeField
-     * @param {Object} annotation
-     * @param {Array} letters
-     * @private
-     */
-    updateDocumentAnnotationColors(typeField, annotation, letters) {
-        //
-    }
-
-    /**
      * Saves the details from the given data item in the given document object.
      * @method saveDetails
      * @param {Object} dataItem
@@ -390,10 +376,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     /**
-     * Creates the part objects shown in the display for the given document object using the mention objects
-     * from its list of letter objects.
+     * Creates the part objects shown in the display for the given document object
      * @method createDisplayObjects
-     * @param {Object} document
+     * @param {Object} data
      * @private
      */
     createDisplayObjects(data) {
@@ -442,7 +427,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     annotationsPartList.push(currentPart);
 
                     if (!this.seenTypes.includes(currentPart.type)) {
-                        this.seenTypes.push(currentPart.type);
+                        let type: string;
+                        type = currentPart.type;
+                        this.seenTypes.push(type);
                     }
                 }
             }
@@ -755,11 +742,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @override
      */
     getVisualizationName(): string {
-        // TODO Update!
         return 'Annotation Viewer';
     }
 
-    // TODO Remove this function if you don't need pagination.
     /**
      * Increases the page and updates the active data.
      */
@@ -770,7 +755,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         }
     }
 
-    // TODO Remove this function if you don't need pagination.
     /**
      * Decreases the page and updates the active data.
      */
@@ -818,9 +802,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     updateLegend() {
-        let seenTypes: string[] = [];
-
-        this.seenTypes = seenTypes;
+        //let seenTypes: string[] = [];
+        //this.seenTypes = seenTypes;
+        this.seenTypes.sort();
     }
 
     legendItemSelected(event: any) {
@@ -1059,6 +1043,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         this.createDisplayObjects(this.activeData);
         //console.log(this.activeData);
         //console.log(this.seenTypes);
+        //this.seenTypes = ['LOC', 'NEED', 'ORG', 'PER'];
         this.updateLegend();
         this.refreshVisualization();
     }
