@@ -159,6 +159,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     public seenTypes: string[] = [];
     public disabledSet: [string[]] = [] as [string[]];
+    public colorByFields: string[] = [];
 
     constructor(
         activeGridService: ActiveGridService,
@@ -432,6 +433,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                         this.seenTypes.push(type);
                     }
                 }
+                this.colorByFields = this.seenTypes;
             }
 
             for (let index = 0; index < annotationsPartList.length; index++) {
@@ -825,6 +827,28 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 return !(set[0] === fieldName && set[1] === value);
             }) as [string[]];
         }
+
+        this.updateLegendColor();
+    }
+
+    updateLegendColor() {
+        for (let data of this.activeData) {
+            for (let part of data.parts) {
+
+                let disabledValues = this.disabledSet.map((function(set) {
+                    return set[1];
+                }));
+
+                if (disabledValues.includes(part.type)) {
+                    part.highlightColor = 'rgb(255,255,255)';
+                } else {
+                    if (part.highlightColor && part.highlightColor.includes('rgb(255,255,255')) {
+                        part.highlightColor = this.colorSchemaService.getColorFor(part.type, part.type).toRgba(0.4);
+                    }
+                }
+
+            }
+        }
     }
 
     /**
@@ -985,6 +1009,14 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         return !!this.getCloseableFilters().length;
     }
 
+    showLegendContainer(): boolean {
+        let showLegend = false;
+        if (!this.options.singleColor && this.colorByFields.length > 0) {
+            showLegend = true;
+        }
+        return showLegend;
+    }
+
     /**
      * Returns whether any components are shown in the footer-container.
      *
@@ -1041,9 +1073,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         this.activeData = this.options.data.slice(offset, (offset + this.options.limit));
         this.lastPage = (this.options.data.length <= (offset + this.options.limit));
         this.createDisplayObjects(this.activeData);
-        //console.log(this.activeData);
-        //console.log(this.seenTypes);
-        //this.seenTypes = ['LOC', 'NEED', 'ORG', 'PER'];
         this.updateLegend();
         this.refreshVisualization();
     }
