@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Next Century Corporation
+ * Copyright 2016 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,16 +13,23 @@
  * limitations under the License.
  *
  */
-import { TestBed, inject } from '@angular/core/testing';
-import { ActiveGridService } from './active-grid.service';
-import { initializeTestBed } from '../../testUtils/initializeTestBed';
+@import '../base-neon-component/base-neon.component.scss';
 
-describe('Service: ActiveGrid', () => {
-    initializeTestBed({
-        providers: [ActiveGridService]
-    });
+.document-row {
+    list-style-type: none;
+    border-bottom:grey solid 1px;
+    padding: 5px;
+}
 
-    it('should be injectable', inject([ActiveGridService], (service: ActiveGridService) => {
-      expect(service).toBeTruthy();
-    }));
-});
+.annotation-viewer-table {
+    padding: 5px;
+    margin: 0;
+}
+
+.legend-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    position: absolute;
+    z-index: 1000; 
+}

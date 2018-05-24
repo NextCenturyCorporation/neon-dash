@@ -29,6 +29,7 @@ import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
 import * as neon from 'neon-framework';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 const databaseName = 'database';
 const tableName = 'table';

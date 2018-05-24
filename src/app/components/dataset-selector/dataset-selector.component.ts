@@ -233,21 +233,18 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      */
     updateLayout(loadDashboardState: boolean) {
         let layoutName = this.datasetService.getLayout();
+        let layout = this.layouts[layoutName] || [];
 
         // Clear any old filters prior to loading the new layout and dataset.
         this.messenger.clearFiltersSilently();
-
-        // Use the default layout (if it exists) for custom datasets or datasets without a layout.
-        if (!layoutName || !this.layouts[layoutName]) {
-            layoutName = 'default';
-        }
 
         // Clear the old grid items;
         this.activeGridService.clear();
 
         // Recreate the layout each time to ensure all visualizations are using the new dataset.
-        for (let layout of this.layouts[layoutName]) {
-            let item = _.cloneDeep(layout);
+        // Use an empty array of visualizations if the new dataset has no defined layout.
+        for (let layoutItem of layout) {
+            let item = _.cloneDeep(layoutItem);
             item.gridItemConfig = {
                 row: item.row,
                 col: item.col,
@@ -260,7 +257,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             this.activeGridService.addItem(item);
         }
 
-        this.gridItemsChanged.emit(this.layouts[layoutName].length);
+        this.gridItemsChanged.emit(layout.length);
         this.activeDatasetChanged.emit(this.activeDataset);
         this.parameterService.addFiltersFromUrl(!loadDashboardState);
     }

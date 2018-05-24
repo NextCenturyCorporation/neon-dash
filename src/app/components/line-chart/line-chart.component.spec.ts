@@ -36,40 +36,42 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { VisualizationService } from '../../services/visualization.service';
 import { ChartComponent } from '../chart/chart.component';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: LineChart', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: LineChartComponent;
     let fixture: ComponentFixture<LineChartComponent>;
 
+    initializeTestBed({
+        declarations: [
+            LineChartComponent,
+            LegendComponent,
+            ExportControlComponent,
+            ChartComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            FilterService,
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            ThemesService,
+            ColorSchemeService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: testConfig }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                LineChartComponent,
-                LegendComponent,
-                ExportControlComponent,
-                ChartComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                FilterService,
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                ThemesService,
-                ColorSchemeService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: testConfig }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(LineChartComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

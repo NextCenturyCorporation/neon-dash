@@ -45,6 +45,7 @@ import { basename } from 'path';
 import * as neon from 'neon-framework';
 import { OnDestroy } from '@angular/core/src/metadata/lifecycle_hooks';
 import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 export class TestOptions extends BaseNeonOptions {
     /**
@@ -199,34 +200,34 @@ describe('Component: base-neon', () => {
     let component: BaseNeonComponent;
     let fixture: ComponentFixture<BaseNeonComponent>;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                TestBaseNeonComponent,
-                ExportControlComponent
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                {
-                    provide: DatasetService,
-                    useClass: DatasetMock
-                },
-                FilterService,
-                ExportService,
-                Injector,
-                ThemesService,
-                VisualizationService,
-                ErrorNotificationService,
-                { provide: 'config', useValue: testConfig }
-            ]
-        });
+    initializeTestBed({
+        declarations: [
+            TestBaseNeonComponent,
+            ExportControlComponent
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            {
+                provide: DatasetService,
+                useClass: DatasetMock
+            },
+            FilterService,
+            ExportService,
+            Injector,
+            ThemesService,
+            VisualizationService,
+            ErrorNotificationService,
+            { provide: 'config', useValue: testConfig }
+        ]
+    });
 
+    beforeEach(() => {
         fixture = TestBed.createComponent(TestBaseNeonComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
