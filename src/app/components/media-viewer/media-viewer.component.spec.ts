@@ -1103,10 +1103,10 @@ describe('Component: MediaViewer with config', () => {
             jpg: 'img'
         });
         expect(component.options.url).toEqual('https://kafka.apache.org/intro');
-        expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field'));
-        expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field'));
-        expect(component.options.nameField).toEqual(new FieldMetaData('testNameField', 'Test Name Field'));
-        expect(component.options.typeField).toEqual(new FieldMetaData('testTypeField', 'Test Type Field'));
+        expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field', false, 'string'));
+        expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field', false, 'string'));
+        expect(component.options.nameField).toEqual(new FieldMetaData('testNameField', 'Test Name Field', false, 'string'));
+        expect(component.options.typeField).toEqual(new FieldMetaData('testTypeField', 'Test Type Field', false, 'string'));
     });
 
     it('does show header in toolbar with title from config', (() => {
