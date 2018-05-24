@@ -43,6 +43,7 @@ import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 // Must define the test component.
 @Component({
@@ -105,31 +106,32 @@ describe('Component: Sample', () => {
     let fixture: ComponentFixture<TestSampleComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
+    initializeTestBed({
+        declarations: [
+            TestSampleComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetMock },
+            ErrorNotificationService,
+            ExportService,
+            { provide: FilterService, useClass: FilterMock },
+            ThemesService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                TestSampleComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                { provide: DatasetService, useClass: DatasetMock },
-                ErrorNotificationService,
-                ExportService,
-                { provide: FilterService, useClass: FilterMock },
-                ThemesService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule
-            ]
-        });
         fixture = TestBed.createComponent(TestSampleComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -588,6 +590,10 @@ describe('Component: Sample', () => {
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('getFiltersToIgnore does return null if no filters are set matching database/table/field', () => {
@@ -612,6 +618,10 @@ describe('Component: Sample', () => {
 
         // Test matching table/field but not database.
         expect(component.getFiltersToIgnore()).toEqual(null);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('getFilterText does return expected string', () => {
@@ -935,6 +945,10 @@ describe('Component: Sample', () => {
             .where(neon.query.where('testRequiredField1', '!=', null)).ignoreFilters(['testDatabase1-testTable1-testFilterName1'])
             .aggregate(neonVariables.COUNT, '*', '_docCount');
         expect(spy.calls.argsFor(0)).toEqual([query]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does not do anything if no filter exists', () => {
@@ -963,6 +977,10 @@ describe('Component: Sample', () => {
             prettyField: 'Test Required Field 1',
             value: 'value1'
         }]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does not add neon filter with non-matching database/table/field', () => {
@@ -992,6 +1010,10 @@ describe('Component: Sample', () => {
         // Test matching table/field but not table.
         component.setupFilters();
         expect(component.filters).toEqual([]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does not add neon filter matching existing filter field/value', () => {
@@ -1013,6 +1035,10 @@ describe('Component: Sample', () => {
             prettyField: 'Test Required Field 1',
             value: 'value1'
         }]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does remove previous filters', () => {
@@ -1037,6 +1063,10 @@ describe('Component: Sample', () => {
             prettyField: 'Test Required Field 1',
             value: 'value1'
         }]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does ignore neon filters with multiple clauses', () => {
@@ -1054,6 +1084,10 @@ describe('Component: Sample', () => {
 
         component.setupFilters();
         expect(component.filters).toEqual([]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('showFilterContainer does return expected boolean', () => {
@@ -1586,39 +1620,40 @@ describe('Component: Sample with config', () => {
     let fixture: ComponentFixture<TestSampleComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
+    initializeTestBed({
+        declarations: [
+            TestSampleComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetMock },
+            ErrorNotificationService,
+            ExportService,
+            { provide: FilterService, useClass: FilterMock },
+            ThemesService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
+            { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'limit', useValue: 1234 },
+            { provide: 'sampleOptionalField', useValue: 'testColorField' },
+            { provide: 'sampleRequiredField', useValue: 'testGroupField' },
+            { provide: 'subcomponentType', useValue: 'Impl2' },
+            { provide: 'table', useValue: 'testTable2' },
+            { provide: 'title', useValue: 'Test Title' }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                TestSampleComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                { provide: DatasetService, useClass: DatasetMock },
-                ErrorNotificationService,
-                ExportService,
-                { provide: FilterService, useClass: FilterMock },
-                ThemesService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
-                { provide: 'database', useValue: 'testDatabase2' },
-                { provide: 'limit', useValue: 1234 },
-                { provide: 'sampleOptionalField', useValue: 'testColorField' },
-                { provide: 'sampleRequiredField', useValue: 'testGroupField' },
-                { provide: 'subcomponentType', useValue: 'Impl2' },
-                { provide: 'table', useValue: 'testTable2' },
-                { provide: 'title', useValue: 'Test Title' }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule
-            ]
-        });
         fixture = TestBed.createComponent(TestSampleComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

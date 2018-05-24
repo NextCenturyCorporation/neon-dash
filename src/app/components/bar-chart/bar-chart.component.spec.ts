@@ -41,6 +41,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 import { LegendComponent } from '../legend/legend.component';
 import { ChartComponent } from '../chart/chart.component';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 class TestDatasetService extends DatasetService {
     constructor() {
@@ -63,35 +64,36 @@ describe('Component: BarChart', () => {
     let component: BarChartComponent;
     let fixture: ComponentFixture<BarChartComponent>;
 
+    initializeTestBed({
+        declarations: [
+            ChartComponent,
+            LegendComponent,
+            BarChartComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            FilterService,
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            VisualizationService,
+            ThemesService,
+            Injector,
+            ColorSchemeService,
+            { provide: 'config', useValue: testConfig }
+        ],
+        imports: [
+            BrowserAnimationsModule,
+            AppMaterialModule,
+            FormsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ChartComponent,
-                LegendComponent,
-                BarChartComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                FilterService,
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                VisualizationService,
-                ThemesService,
-                Injector,
-                ColorSchemeService,
-                { provide: 'config', useValue: testConfig }
-            ],
-            imports: [
-                BrowserAnimationsModule,
-                AppMaterialModule,
-                FormsModule
-            ]
-        });
         fixture = TestBed.createComponent(BarChartComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

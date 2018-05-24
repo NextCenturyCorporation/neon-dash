@@ -38,6 +38,8 @@ import { neonVariables } from '../../neon-namespaces';
 
 import * as neon from 'neon-framework';
 import { ChartComponent } from '../chart/chart.component';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
 
 class TestDatasetService extends DatasetService {
     constructor() {
@@ -59,38 +61,40 @@ class TestDatasetService extends DatasetService {
 describe('Component: TextCloud', () => {
     let component: TextCloudComponent;
     let fixture: ComponentFixture<TextCloudComponent>;
+    let getService = (type: any) => fixture.debugElement.injector.get(type);
+
+    initializeTestBed({
+        declarations: [
+            ChartComponent,
+            TextCloudComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent,
+            ChartComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            {
+                provide: DatasetService,
+                useClass: TestDatasetService
+            },
+            { provide: FilterService, useClass: FilterMock },
+            ExportService,
+            TranslationService,
+            VisualizationService,
+            ErrorNotificationService,
+            ThemesService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
 
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ChartComponent,
-                TextCloudComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent,
-                ChartComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                {
-                    provide: DatasetService,
-                    useClass: TestDatasetService
-                },
-                FilterService,
-                ExportService,
-                TranslationService,
-                VisualizationService,
-                ErrorNotificationService,
-                ThemesService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(TextCloudComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -410,53 +414,19 @@ describe('Component: TextCloud', () => {
         expect(calledExecuteQuery).toBeTruthy();
     });
 
-    it('properly sets up filters in setupFilters', () => {
-        component.options.database.name = 'testDatabase';
-        component.options.table.name = 'testTable';
-        component.options.dataField = new FieldMetaData('testDataField');
-        component.setupFilters();
-
-        let filterService = fixture.componentRef.injector.get(FilterService);
-        filterService.getFiltersForFields = (database, table, fields): any[] => {
-            return [{
-                id: '1234567890',
-                ownerId: '12345',
-                database: 'testDatabase',
-                table: 'testTable',
-                filter: {
-                    filterName: '',
-                    databaseName: 'testDatabase',
-                    tableName: 'testTable',
-                    whereClause: {
-                        type: 'where',
-                        lhs: 'testDataField',
-                        operator: '=',
-                        rhs: 'Value'
-                    }
-                }
-            }];
-        };
-
-        component.setupFilters();
-    });
-
     it('has an onClick method that properly sets local and remote filters', () => {
         component.options.database.name = 'testDatabase';
         component.options.table.name = 'testTable';
         component.options.dataField = new FieldMetaData('testDataField', 'testDataField');
-        let filterService = fixture.componentRef.injector.get(FilterService);
-        let serviceAddFilterHasBeenCalled = false;
-        filterService.addFilter = () => {
-            serviceAddFilterHasBeenCalled = true;
-        };
+        let spy = spyOn(component, 'addNeonFilter');
 
-        expect(filterService.getFilters().length).toBe(0);
+        expect(component.getCloseableFilters().length).toBe(0);
 
         component.onClick({
             key: 'testValue'
         });
 
-        expect(serviceAddFilterHasBeenCalled).toBeTruthy();
+        expect(spy.calls.count()).toEqual(1);
         expect(component.getCloseableFilters()[0]).toEqual({
             id: undefined,
             field: 'testDataField',
@@ -607,43 +577,44 @@ describe('Component: Textcloud with config', () => {
     let component: TextCloudComponent;
     let fixture: ComponentFixture<TextCloudComponent>;
 
+    initializeTestBed({
+        declarations: [
+            ChartComponent,
+            TextCloudComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            { provide: FilterService, useClass: FilterMock },
+            ExportService,
+            TranslationService,
+            VisualizationService,
+            ErrorNotificationService,
+            ThemesService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: 'title', useValue: 'Textcloud with Config Title' },
+            { provide: 'database', useValue: 'testDatabase' },
+            { provide: 'table', useValue: 'testTable' },
+            { provide: 'dataField', useValue: 'testDataField' },
+            { provide: 'configFilter', useValue: null },
+            { provide: 'unsharedFilterField', useValue: 'testUnsharedFilterField' },
+            { provide: 'unsharedFilterValue', useValue: 'testUnsharedFilterValue' },
+            { provide: 'sizeField', useValue: 'testSizeField' },
+            { provide: 'sizeAggregation', useValue: 'COUNT' },
+            { provide: 'limit', useValue: 25 }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ChartComponent,
-                TextCloudComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                FilterService,
-                ExportService,
-                TranslationService,
-                VisualizationService,
-                ErrorNotificationService,
-                ThemesService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: 'title', useValue: 'Textcloud with Config Title' },
-                { provide: 'database', useValue: 'testDatabase' },
-                { provide: 'table', useValue: 'testTable' },
-                { provide: 'dataField', useValue: 'testDataField' },
-                { provide: 'configFilter', useValue: null },
-                { provide: 'unsharedFilterField', useValue: 'testUnsharedFilterField' },
-                { provide: 'unsharedFilterValue', useValue: 'testUnsharedFilterValue' },
-                { provide: 'sizeField', useValue: 'testSizeField' },
-                { provide: 'sizeAggregation', useValue: 'COUNT' },
-                { provide: 'limit', useValue: 25 }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(TextCloudComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -675,49 +646,50 @@ describe('Component: Textcloud with config including configFilter', () => {
     let component: TextCloudComponent;
     let fixture: ComponentFixture<TextCloudComponent>;
 
+    initializeTestBed({
+        declarations: [
+            ChartComponent,
+            TextCloudComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            { provide: FilterService, useClass: FilterMock },
+            ExportService,
+            TranslationService,
+            VisualizationService,
+            ErrorNotificationService,
+            ThemesService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: 'title', useValue: 'Textcloud with Config Title' },
+            { provide: 'database', useValue: 'testDatabase' },
+            { provide: 'table', useValue: 'testTable' },
+            { provide: 'dataField', useValue: 'testDataField' },
+            { provide: 'configFilter', useValue: {
+                use: true,
+                lhs: 'testConfigFilterField',
+                operator: '=',
+                rhs: 'testConfigFilterValue'
+            }
+            },
+            { provide: 'unsharedFilterField', useValue: 'testUnsharedFilterField' },
+            { provide: 'unsharedFilterValue', useValue: 'testUnsharedFilterValue' },
+            { provide: 'sizeField', useValue: 'testSizeField' },
+            { provide: 'sizeAggregation', useValue: 'COUNT' },
+            { provide: 'limit', useValue: 25 }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ChartComponent,
-                TextCloudComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                FilterService,
-                ExportService,
-                TranslationService,
-                VisualizationService,
-                ErrorNotificationService,
-                ThemesService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: 'title', useValue: 'Textcloud with Config Title' },
-                { provide: 'database', useValue: 'testDatabase' },
-                { provide: 'table', useValue: 'testTable' },
-                { provide: 'dataField', useValue: 'testDataField' },
-                { provide: 'configFilter', useValue: {
-                        use: true,
-                        lhs: 'testConfigFilterField',
-                        operator: '=',
-                        rhs: 'testConfigFilterValue'
-                    }
-                },
-                { provide: 'unsharedFilterField', useValue: 'testUnsharedFilterField' },
-                { provide: 'unsharedFilterValue', useValue: 'testUnsharedFilterValue' },
-                { provide: 'sizeField', useValue: 'testSizeField' },
-                { provide: 'sizeAggregation', useValue: 'COUNT' },
-                { provide: 'limit', useValue: 25 }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(TextCloudComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
