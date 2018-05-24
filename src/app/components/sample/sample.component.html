@@ -97,6 +97,13 @@
                 </mat-form-field>
                 <p></p>
 
+                <span class="toggle-text">Sort:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortDescending" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">Ascending</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Descending</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
                 <!-- TODO Do you need an unshared filter? -->
                 <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()"
                     (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
