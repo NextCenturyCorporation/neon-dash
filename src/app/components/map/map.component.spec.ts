@@ -1201,10 +1201,12 @@ describe('Component: Map with config', () => {
         expect(component.options.layers[0].table).toEqual(DatasetMock.TABLES[0]);
         expect(component.options.layers[0].fields).toEqual(DatasetMock.FIELDS);
         expect(component.options.layers[0].title).toEqual('Test Layer Title');
-        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColorField', 'Test Color Field'));
-        expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field'));
-        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testLatitudeField', 'Test Latitude Field'));
-        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testLongitudeField', 'Test Longitude Field'));
-        expect(component.options.layers[0].sizeField).toEqual(new FieldMetaData('testSizeField', 'Test Size Field'));
+        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColorField', 'Test Color Field', false, 'string'));
+        expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field', false, 'date'));
+        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testLatitudeField', 'Test Latitude Field', false,
+            'float'));
+        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testLongitudeField', 'Test Longitude Field', false,
+            'float'));
+        expect(component.options.layers[0].sizeField).toEqual(new FieldMetaData('testSizeField', 'Test Size Field', false, 'float'));
     });
 });
