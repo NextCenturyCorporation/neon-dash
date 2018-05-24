@@ -37,41 +37,43 @@ import { AppMaterialModule } from '../../app.material.module';
 import { VisualizationService } from '../../services/visualization.service';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { ChartComponent } from '../chart/chart.component';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: ScatterPlot', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: ScatterPlotComponent;
     let fixture: ComponentFixture<ScatterPlotComponent>;
 
+    initializeTestBed({
+        declarations: [
+            ScatterPlotComponent,
+            LegendComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent,
+            ChartComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            FilterService,
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            VisualizationService,
+            ThemesService,
+            ColorSchemeService,
+            Injector,
+            { provide: 'config', useValue: testConfig }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ScatterPlotComponent,
-                LegendComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent,
-                ChartComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                FilterService,
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                VisualizationService,
-                ThemesService,
-                ColorSchemeService,
-                Injector,
-                { provide: 'config', useValue: testConfig }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(ScatterPlotComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

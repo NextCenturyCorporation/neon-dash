@@ -39,6 +39,7 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
 import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
 import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 function webgl_support(): any {
     try {
@@ -198,33 +199,34 @@ describe('Component: Map', () => {
             component.filterByLocation(box);
         };
 
+    initializeTestBed({
+        declarations: [
+            TestMapComponent,
+            LegendComponent,
+            ExportControlComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            { provide: FilterService, useClass: FilterMock },
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            VisualizationService,
+            ThemesService,
+            Injector,
+            ColorSchemeService,
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                TestMapComponent,
-                LegendComponent,
-                ExportControlComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                { provide: FilterService, useClass: FilterMock },
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                VisualizationService,
-                ThemesService,
-                Injector,
-                ColorSchemeService,
-                { provide: 'config', useValue: new NeonGTDConfig() }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(TestMapComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -425,6 +427,10 @@ describe('Component: Map', () => {
             expected = neon.query.and.apply(neon.query, filterClauses);
 
         expect(whereClauses).toEqual(expected);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('should remove filter when clicked', () => {
@@ -439,6 +445,10 @@ describe('Component: Map', () => {
         let xEl = getDebug('.filter-reset .mat-icon-button');
         xEl.triggerEventHandler('click', null);
         expect(getService(FilterService).getFilters().length).toBe(0);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('should add layer when new layer button is clicked', () => {
@@ -1114,57 +1124,58 @@ describe('Component: Map with config', () => {
     let component: TestMapComponent;
     let fixture: ComponentFixture<TestMapComponent>;
 
+    initializeTestBed({
+        declarations: [
+            TestMapComponent,
+            LegendComponent,
+            ExportControlComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetMock },
+            { provide: FilterService, useClass: FilterMock },
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            VisualizationService,
+            ThemesService,
+            Injector,
+            ColorSchemeService,
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: 'database', useValue: 'testDatabase1' },
+            { provide: 'table', useValue: 'testTable1' },
+            { provide: 'layers', useValue: [{
+                colorField: 'testColorField',
+                dateField: 'testDateField',
+                latitudeField: 'testLatitudeField',
+                longitudeField: 'testLongitudeField',
+                sizeField: 'testSizeField',
+                title: 'Test Layer Title'
+            }] },
+            { provide: 'limit', useValue: 9999 },
+            { provide: 'clustering', useValue: 'clusters' },
+            { provide: 'clusterPixelRange', useValue: 20 },
+            { provide: 'customServer', useValue: { mapUrl: 'testUrl', layer: 'testLayer' } },
+            { provide: 'disableCtrlZoom', useValue: true },
+            { provide: 'hoverPopupEnabled', useValue: true },
+            { provide: 'hoverSelect', useValue: { hoverTime: 5 } },
+            { provide: 'minClusterSize', useValue: 10 },
+            { provide: 'singleColor', useValue: true },
+            { provide: 'west', useValue: 1 },
+            { provide: 'east', useValue: 2 },
+            { provide: 'south', useValue: 3 },
+            { provide: 'north', useValue: 4 },
+            { provide: 'title', useValue: 'Test Title' }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                TestMapComponent,
-                LegendComponent,
-                ExportControlComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                { provide: DatasetService, useClass: DatasetMock },
-                { provide: FilterService, useClass: FilterMock },
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                VisualizationService,
-                ThemesService,
-                Injector,
-                ColorSchemeService,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: 'database', useValue: 'testDatabase1' },
-                { provide: 'table', useValue: 'testTable1' },
-                { provide: 'layers', useValue: [{
-                    colorField: 'testColorField',
-                    dateField: 'testDateField',
-                    latitudeField: 'testLatitudeField',
-                    longitudeField: 'testLongitudeField',
-                    sizeField: 'testSizeField',
-                    title: 'Test Layer Title'
-                }] },
-                { provide: 'limit', useValue: 9999 },
-                { provide: 'clustering', useValue: 'clusters' },
-                { provide: 'clusterPixelRange', useValue: 20 },
-                { provide: 'customServer', useValue: { mapUrl: 'testUrl', layer: 'testLayer' } },
-                { provide: 'disableCtrlZoom', useValue: true },
-                { provide: 'hoverPopupEnabled', useValue: true },
-                { provide: 'hoverSelect', useValue: { hoverTime: 5 } },
-                { provide: 'minClusterSize', useValue: 10 },
-                { provide: 'singleColor', useValue: true },
-                { provide: 'west', useValue: 1 },
-                { provide: 'east', useValue: 2 },
-                { provide: 'south', useValue: 3 },
-                { provide: 'north', useValue: 4 },
-                { provide: 'title', useValue: 'Test Title' }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(TestMapComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
