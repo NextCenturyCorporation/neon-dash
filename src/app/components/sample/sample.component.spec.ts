@@ -137,13 +137,10 @@ describe('Component: Sample', () => {
         fixture.detectChanges();
     });
 
-    it('exists', () => {
-        expect(component).toBeDefined();
-    });
-
-    it('options properties are set to expected defaults', () => {
+    it('class options properties are set to expected defaults', () => {
         expect(component.options.sampleOptionalField).toEqual(new FieldMetaData());
         expect(component.options.sampleRequiredField).toEqual(new FieldMetaData());
+        expect(component.options.sortDescending).toEqual(false);
         expect(component.options.subcomponentType).toEqual('Impl1');
         expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
     });
@@ -555,14 +552,6 @@ describe('Component: Sample', () => {
         }]);
 
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testOptionalField1',
-            prettyName: 'Test Optional Field 1'
-        }, {
-            columnName: '',
-            prettyName: ''
-        }]);
-
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         expect(component.getExportFields()).toEqual([{
             columnName: 'testOptionalField1',
@@ -576,6 +565,7 @@ describe('Component: Sample', () => {
     it('getFiltersToIgnore does return null if no filters are set', () => {
         component.options.database = DatasetMock.DATABASES[0];
         component.options.table = DatasetMock.TABLES[0];
+        component.options.fields = DatasetMock.FIELDS;
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -587,6 +577,7 @@ describe('Component: Sample', () => {
 
         component.options.database = DatasetMock.DATABASES[0];
         component.options.table = DatasetMock.TABLES[0];
+        component.options.fields = DatasetMock.FIELDS;
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
@@ -602,6 +593,7 @@ describe('Component: Sample', () => {
 
         component.options.database = DatasetMock.DATABASES[0];
         component.options.table = DatasetMock.TABLES[0];
+        component.options.fields = DatasetMock.FIELDS;
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField2', 'Test Required Field 2');
 
         // Test matching database/table but not field.
@@ -743,7 +735,7 @@ describe('Component: Sample', () => {
         expect(component.isVisualizationFilterUnique('field1', 'value2')).toEqual(true);
     });
 
-    it('onQuerySuccess with aggregation query data does update expected properties call expected functions', () => {
+    it('onQuerySuccess with aggregation query data does update expected properties and call expected functions', () => {
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.page = 2;
         let spy1 = spyOn(component, 'updateActiveData');
@@ -776,7 +768,7 @@ describe('Component: Sample', () => {
         expect(spy2.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with empty aggregation query data does update expected properties call expected functions', () => {
+    it('onQuerySuccess with empty aggregation query data does update expected properties and call expected functions', () => {
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.page = 2;
         let spy1 = spyOn(component, 'updateActiveData');
@@ -791,7 +783,7 @@ describe('Component: Sample', () => {
         expect(spy2.calls.count()).toEqual(0);
     });
 
-    it('onQuerySuccess with aggregation query data and optional field does update expected properties call expected functions', () => {
+    it('onQuerySuccess with aggregation query data and optional field does update expected properties and call expected functions', () => {
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.page = 2;
@@ -1117,17 +1109,23 @@ describe('Component: Sample', () => {
         component.subGetBindings(bindings1);
         expect(bindings1).toEqual({
             sampleOptionalField: '',
-            sampleRequiredField: ''
+            sampleRequiredField: '',
+            sortDescending: false,
+            subcomponentType: 'Impl1'
         });
 
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
+        component.options.sortDescending = true;
+        component.options.subcomponentType = 'Impl2';
 
         let bindings2 = {};
         component.subGetBindings(bindings2);
         expect(bindings2).toEqual({
             sampleOptionalField: 'testOptionalField1',
-            sampleRequiredField: 'testRequiredField1'
+            sampleRequiredField: 'testRequiredField1',
+            sortDescending: true,
+            subcomponentType: 'Impl2'
         });
     });
 
@@ -1180,13 +1178,15 @@ describe('Component: Sample', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('does show toolbar and sidenav', () => {
+    it('does show toolbar and sidenav and body-container', () => {
         let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
         expect(container).not.toBeNull();
         let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
         expect(toolbar).not.toBeNull();
         let sidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav'));
         expect(sidenav).not.toBeNull();
+        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container'));
+        expect(bodyContainer).not.toBeNull();
     });
 
     it('does show header in toolbar with visualization title', () => {
@@ -1345,6 +1345,18 @@ describe('Component: Sample', () => {
             expect(options.length).toEqual(2);
             expect(options[0].getLabel()).toEqual('Impl1');
             expect(options[1].getLabel()).toEqual('Impl2');
+
+            let toggles = fixture.debugElement.queryAll(
+                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
+            expect(toggles.length).toEqual(2);
+
+            expect(toggles[0].componentInstance.value).toEqual(false);
+            expect(toggles[0].nativeElement.textContent).toContain('Ascending');
+            expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[1].componentInstance.value).toEqual(true);
+            expect(toggles[1].nativeElement.textContent).toContain('Descending');
+            expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
         });
     }));
 
@@ -1439,11 +1451,6 @@ describe('Component: Sample', () => {
             expect(filterIcons[1].nativeElement.textContent).toEqual('close');
         });
     }));
-
-    it('does show body-container', () => {
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container'));
-        expect(bodyContainer).not.toBeNull();
-    });
 
     it('does show doc-count', async(() => {
         let docCount = fixture.debugElement.query(By.css('mat-sidenav-container .body-container .doc-count'));
@@ -1642,6 +1649,7 @@ describe('Component: Sample with config', () => {
             { provide: 'limit', useValue: 1234 },
             { provide: 'sampleOptionalField', useValue: 'testColorField' },
             { provide: 'sampleRequiredField', useValue: 'testGroupField' },
+            { provide: 'sortDescending', useValue: true },
             { provide: 'subcomponentType', useValue: 'Impl2' },
             { provide: 'table', useValue: 'testTable2' },
             { provide: 'title', useValue: 'Test Title' }
@@ -1659,10 +1667,6 @@ describe('Component: Sample with config', () => {
         fixture.detectChanges();
     });
 
-    it('exists', () => {
-        expect(component).toBeDefined();
-    });
-
     it('superclass properties are set to expected values from config', () => {
         expect(component.options.database).toEqual(DatasetMock.DATABASES[1]);
         expect(component.options.table).toEqual(DatasetMock.TABLES[1]);
@@ -1675,30 +1679,21 @@ describe('Component: Sample with config', () => {
         });
     });
 
-    it('options properties are set to expected values from config', () => {
+    it('class properties are set to expected values from config', () => {
         expect(component.options.sampleOptionalField).toEqual(DatasetMock.COLOR_FIELD);
         expect(component.options.sampleRequiredField).toEqual(DatasetMock.GROUP_FIELD);
+        expect(component.options.sortDescending).toEqual(true);
         expect(component.options.subcomponentType).toEqual('Impl2');
         expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
-
-    });
-
-    it('class properties are set to expected values', () => {
-        expect(component.activeData).toEqual([]);
-        expect(component.docCount).toEqual(0);
-        expect(component.filters).toEqual([]);
-        expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([]);
-
-        // Subcomponent
         expect(component.subcomponentObject.constructor.name).toEqual(SubcomponentImpl2.name);
     });
 
     it('onInit does set non-field options as expected from config bindings', () => {
+        component.options.sortDescending = false;
         component.options.subcomponentType = 'Impl1';
 
         component.options.onInit();
+        expect(component.options.sortDescending).toEqual(true);
         expect(component.options.subcomponentType).toEqual('Impl2');
     });
 
@@ -1796,6 +1791,18 @@ describe('Component: Sample with config', () => {
             expect(options.length).toEqual(2);
             expect(options[0].getLabel()).toEqual('Impl1');
             expect(options[1].getLabel()).toEqual('Impl2');
+
+            let toggles = fixture.debugElement.queryAll(
+                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
+            expect(toggles.length).toEqual(2);
+
+            expect(toggles[0].componentInstance.value).toEqual(false);
+            expect(toggles[0].nativeElement.textContent).toContain('Ascending');
+            expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[1].componentInstance.value).toEqual(true);
+            expect(toggles[1].nativeElement.textContent).toContain('Descending');
+            expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
         });
     }));
 });
