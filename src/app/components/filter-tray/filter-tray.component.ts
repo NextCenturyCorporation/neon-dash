@@ -88,7 +88,7 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
 
             // remove filters with empty string names
             let filterList = _.filter(filters, (filter) => {
-                return (filter.filter.filterName && filter.filter.filterName !== '');
+                return (filter.filter.filterName && filter.filter.filterName !== '' && filter.ownerId !== undefined);
             });
 
             let result = {};
