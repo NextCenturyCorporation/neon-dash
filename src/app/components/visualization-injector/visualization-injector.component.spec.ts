@@ -44,43 +44,42 @@ import { ChartComponent } from '../chart/chart.component';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: VisualizationInjector', () => {
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                AnnotationViewerComponent,
-                ChartComponent,
-                BarChartComponent,
-                DataTableComponent,
-                DocumentViewerComponent,
-                ExportControlComponent,
-                FilterBuilderComponent,
-                LegendComponent,
-                LineChartComponent,
-                MapComponent,
-                MediaViewerComponent,
-                NetworkGraphComponent,
-                SampleComponent,
-                ScatterPlotComponent,
-                StackedTimelineComponent,
-                TextCloudComponent,
-                ThumbnailGridComponent,
-                TimelineComponent,
-                UnsharedFilterComponent,
-                VisualizationInjectorComponent,
-                WikiViewerComponent
-            ],
-            providers: [ComponentFactoryResolver],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                NgxDatatableModule,
-                NgxGraphModule,
-                BrowserAnimationsModule
-            ]
-        });
+    initializeTestBed({
+        declarations: [
+            AnnotationViewerComponent,
+            ChartComponent,
+            BarChartComponent,
+            DataTableComponent,
+            DocumentViewerComponent,
+            ExportControlComponent,
+            FilterBuilderComponent,
+            LegendComponent,
+            LineChartComponent,
+            MapComponent,
+            MediaViewerComponent,
+            NetworkGraphComponent,
+            SampleComponent,
+            ScatterPlotComponent,
+            StackedTimelineComponent,
+            TextCloudComponent,
+            ThumbnailGridComponent,
+            TimelineComponent,
+            UnsharedFilterComponent,
+            VisualizationInjectorComponent,
+            WikiViewerComponent
+        ],
+        providers: [ComponentFactoryResolver],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            NgxDatatableModule,
+            NgxGraphModule,
+            BrowserAnimationsModule
+        ]
     });
 
     it('should create an instance', inject([ComponentFactoryResolver],

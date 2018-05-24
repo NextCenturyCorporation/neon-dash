@@ -20,6 +20,7 @@ import { HttpModule } from '@angular/http';
 import { AboutNeonComponent } from './about-neon.component';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { AppMaterialModule } from '../../app.material.module';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: AboutNeonComponent', () => {
 
@@ -40,21 +41,21 @@ describe('Component: AboutNeonComponent', () => {
         }
     };
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                AboutNeonComponent
-            ],
-            imports: [
-                HttpModule,
-                AppMaterialModule
-            ],
-            providers: [
-                { provide: 'config', useValue: testConfig },
-                { provide: 'neon', useValue: neonStub }
-            ]
-        });
+    initializeTestBed({
+        declarations: [
+            AboutNeonComponent
+        ],
+        imports: [
+            HttpModule,
+            AppMaterialModule
+        ],
+        providers: [
+            { provide: 'config', useValue: testConfig },
+            { provide: 'neon', useValue: neonStub }
+        ]
+    });
 
+    beforeEach(() => {
         fixture = TestBed.createComponent(AboutNeonComponent);
         component = fixture.componentInstance;
     });

@@ -34,37 +34,39 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { VisualizationService } from '../../services/visualization.service';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: Filter Builder', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: FilterBuilderComponent;
     let fixture: ComponentFixture<FilterBuilderComponent>;
 
+    initializeTestBed({
+        declarations: [
+            FilterBuilderComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            FilterService,
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            VisualizationService,
+            ThemesService,
+            Injector,
+            { provide: 'config', useValue: testConfig }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            NgxDatatableModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                FilterBuilderComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                FilterService,
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                VisualizationService,
-                ThemesService,
-                Injector,
-                { provide: 'config', useValue: testConfig }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                NgxDatatableModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(FilterBuilderComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

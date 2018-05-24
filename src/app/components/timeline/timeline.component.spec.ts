@@ -40,6 +40,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { TranslationService } from '../../services/translation.service';
 import { VisualizationService } from '../../services/visualization.service';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 let d3 = require('../../../assets/d3.min.js');
 
@@ -48,34 +49,35 @@ describe('Component: Timeline', () => {
     let component: TimelineComponent;
     let fixture: ComponentFixture<TimelineComponent>;
 
+    initializeTestBed({
+        declarations: [
+            ChartComponent,
+            TimelineComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            FilterService,
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            VisualizationService,
+            ThemesService,
+            ColorSchemeService,
+            Injector,
+            { provide: 'config', useValue: testConfig }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ChartComponent,
-                TimelineComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                FilterService,
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                VisualizationService,
-                ThemesService,
-                ColorSchemeService,
-                Injector,
-                { provide: 'config', useValue: testConfig }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(TimelineComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

@@ -102,6 +102,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -140,7 +141,7 @@
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Row Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
+                        <input matInput placeholder="Thumbnail Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
@@ -182,16 +183,19 @@
                 </mat-button-toggle-group>
                 <p></p>
 
+                <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
+                <p></p>
+
                 <app-export-control [exportId]="exportId"></app-export-control>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
 
     <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
-        <mat-spinner ></mat-spinner>
+        <mat-spinner></mat-spinner>
     </div>
 
-    <div class="filter-container">
+    <div class="filter-container" *ngIf="getCloseableFilters().length">
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
@@ -201,9 +205,9 @@
         </div>
     </div>
 
-    <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > options.limit">
+    <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > pagingGrid.length">
        <div class="thumbnail-grid-container" [class.style2]="options.styleClass == 'style2'">
-           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid; let i = index" [matTooltip]="getThumbnailTitle(item)"
+           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [matTooltip]="getThumbnailTitle(item)"
                tooltip-position="below" (click)="selectGridItem(item)" [class.selectable]="isSelectable()"
                [class.selected]="isSelected(item)" [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
                <div class="thumbnail-details" *ngIf="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
@@ -217,15 +221,15 @@
        </div>
    </div>
 
-    <div class="footer" *ngIf="gridArray.length > options.limit">
+    <div class="footer" *ngIf="gridArray.length > pagingGrid.length">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                    (click)="previousPage()">
+                    (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
             <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
-                    (click)="nextPage()">
+                    (click)="goToNextPage()">
                 Next
             </button>
         </div>
