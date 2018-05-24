@@ -26,29 +26,28 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: FilterTray', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                FilterTrayComponent
-            ],
-            providers: [
-                ActiveGridService,
-                FilterService,
-                ThemesService,
-                DatasetService,
-                ErrorNotificationService,
-                { provide: 'config', useValue: testConfig }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
+    initializeTestBed({
+        declarations: [
+            FilterTrayComponent
+        ],
+        providers: [
+            ActiveGridService,
+            FilterService,
+            ThemesService,
+            DatasetService,
+            ErrorNotificationService,
+            { provide: 'config', useValue: testConfig }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
     });
 
     it('should create an instance', inject([ActiveGridService, FilterService, ThemesService],

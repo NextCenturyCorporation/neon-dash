@@ -15,15 +15,14 @@
  */
 import { TestBed, inject } from '@angular/core/testing';
 import { ErrorNotificationService } from './error-notification.service';
+import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('Service: Export', () => {
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [ErrorNotificationService]
+    initializeTestBed({
+        providers: [ErrorNotificationService]
     });
-  });
 
-  it('should ...', inject([ErrorNotificationService], (service: ErrorNotificationService) => {
-    expect(service).toBeTruthy();
-  }));
+    it('should ...', inject([ErrorNotificationService], (service: ErrorNotificationService) => {
+        expect(service).toBeTruthy();
+    }));
 });

@@ -15,15 +15,14 @@
  */
 import { TestBed, inject } from '@angular/core/testing';
 import { ExportService } from './export.service';
+import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('Service: Export', () => {
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [ExportService]
+    initializeTestBed({
+        providers: [ExportService]
     });
-  });
 
-  it('should ...', inject([ExportService], (service: ExportService) => {
-    expect(service).toBeTruthy();
-  }));
+    it('should ...', inject([ExportService], (service: ExportService) => {
+        expect(service).toBeTruthy();
+    }));
 });

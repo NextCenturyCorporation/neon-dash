@@ -47,52 +47,54 @@ import { AppMaterialModule } from '../../app.material.module';
 import { ChartComponent } from '../chart/chart.component';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: VisualizationContainerComponent;
     let fixture: ComponentFixture<VisualizationContainerComponent>;
 
+    initializeTestBed({
+        declarations: [
+            ChartComponent,
+            AnnotationViewerComponent,
+            BarChartComponent,
+            ChartComponent,
+            DataTableComponent,
+            DocumentViewerComponent,
+            ExportControlComponent,
+            FilterBuilderComponent,
+            LegendComponent,
+            LineChartComponent,
+            MapComponent,
+            MediaViewerComponent,
+            NetworkGraphComponent,
+            SampleComponent,
+            ScatterPlotComponent,
+            StackedTimelineComponent,
+            TextCloudComponent,
+            ThumbnailGridComponent,
+            TimelineComponent,
+            UnsharedFilterComponent,
+            VisualizationContainerComponent,
+            VisualizationInjectorComponent,
+            WikiViewerComponent
+        ],
+        providers: [
+            ActiveGridService,
+            VisualizationService,
+            { provide: 'config', useValue: testConfig }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            NgxDatatableModule,
+            NgxGraphModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                AnnotationViewerComponent,
-                ChartComponent,
-                BarChartComponent,
-                ChartComponent,
-                DataTableComponent,
-                DocumentViewerComponent,
-                ExportControlComponent,
-                FilterBuilderComponent,
-                LegendComponent,
-                LineChartComponent,
-                MapComponent,
-                MediaViewerComponent,
-                NetworkGraphComponent,
-                SampleComponent,
-                ScatterPlotComponent,
-                StackedTimelineComponent,
-                TextCloudComponent,
-                ThumbnailGridComponent,
-                TimelineComponent,
-                UnsharedFilterComponent,
-                VisualizationContainerComponent,
-                VisualizationInjectorComponent,
-                WikiViewerComponent
-            ],
-            providers: [
-                ActiveGridService,
-                VisualizationService,
-                { provide: 'config', useValue: testConfig }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                NgxDatatableModule,
-                NgxGraphModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(VisualizationContainerComponent);
         component = fixture.componentInstance;
     });
