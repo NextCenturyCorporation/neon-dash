@@ -42,7 +42,6 @@ import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
 import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
-/*
 
 describe('Component: ThumbnailGrid', () => {
     let component: ThumbnailGridComponent;
@@ -1213,7 +1212,7 @@ describe('Component: ThumbnailGrid', () => {
             testObjectNameField: 'myObjectName',
             testPercentField: 0.1234,
             testPredictedNameField: 'myPredictedName'
-        })).toEqual('myName Prediction : myPredictedName 12.3% Actual : myObjectName');
+        })).toEqual('myName, Prediction : myPredictedName, Actual : myObjectName');
     });
 
     it('getThumbnailTitle does use textMap', () => {
@@ -1233,12 +1232,12 @@ describe('Component: ThumbnailGrid', () => {
             testObjectNameField: 'myObjectName',
             testPercentField: 0.1234,
             testPredictedNameField: 'myPredictedName'
-        })).toEqual('MyNameText : myName MyPredictionText : myPredictedName MyPercentageText : 12.3% MyActualText : myObjectName');
+        })).toEqual('MyNameText : myName, MyPredictionText : myPredictedName, MyActualText : myObjectName');
     });
 
     it('goToNextPage does not update page or call updatePageData if lastPage is true', () => {
         let spy = spyOn(component, 'updatePageData');
-        component.nextPage();
+        component.goToNextPage();
 
         expect(component.page).toEqual(1);
         expect(spy.calls.count()).toEqual(0);
@@ -1248,18 +1247,18 @@ describe('Component: ThumbnailGrid', () => {
         let spy = spyOn(component, 'updatePageData');
         component.lastPage = false;
 
-        component.nextPage();
+        component.goToNextPage();
         expect(component.page).toEqual(2);
         expect(spy.calls.count()).toEqual(1);
 
-        component.nextPage();
+        component.goToNextPage();
         expect(component.page).toEqual(3);
         expect(spy.calls.count()).toEqual(2);
     });
 
     it('goToPreviousPage does not update page or call updatePageData if page is 1', () => {
         let spy = spyOn(component, 'updatePageData');
-        component.previousPage();
+        component.goToPreviousPage();
 
         expect(component.page).toEqual(1);
         expect(spy.calls.count()).toEqual(0);
@@ -1269,11 +1268,11 @@ describe('Component: ThumbnailGrid', () => {
         let spy = spyOn(component, 'updatePageData');
         component.page = 3;
 
-        component.previousPage();
+        component.goToPreviousPage();
         expect(component.page).toEqual(2);
         expect(spy.calls.count()).toEqual(1);
 
-        component.previousPage();
+        component.goToPreviousPage();
         expect(component.page).toEqual(1);
         expect(spy.calls.count()).toEqual(2);
     });
@@ -2177,4 +2176,3 @@ describe('Component: ThumbnailGrid with config', () => {
         });
     }));
 });
-*/

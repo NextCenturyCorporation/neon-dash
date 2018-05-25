@@ -183,6 +183,9 @@
                 </mat-button-toggle-group>
                 <p></p>
 
+                <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
+                <p></p>
+
                 <app-export-control [exportId]="exportId"></app-export-control>
             </mat-card-content>
         </mat-card>
@@ -192,7 +195,7 @@
         <mat-spinner></mat-spinner>
     </div>
 
-    <div class="filter-container">
+    <div class="filter-container" *ngIf="getCloseableFilters().length">
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
             <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
@@ -202,7 +205,7 @@
         </div>
     </div>
 
-    <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > options.limit">
+    <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > pagingGrid.length">
        <div class="thumbnail-grid-container" *ngIf="showGrid" [class.style2]="options.styleClass == 'style2'">
            <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [title]="getThumbnailTitle(item)"
                (click)="selectGridItem(item)" [class.selectable]="isSelectable()"
@@ -218,15 +221,15 @@
        </div>
    </div>
 
-    <div class="footer" *ngIf="gridArray.length > options.limit">
+    <div class="footer" *ngIf="gridArray.length > pagingGrid.length">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
-                    (click)="previousPage()">
+                    (click)="goToPreviousPage()">
                 Previous
             </button>
             <span class="pagination-button-spacer"></span>
             <button mat-raised-button [disabled]="lastPage" class="pagination-button next-button" color="primary"
-                    (click)="nextPage()">
+                    (click)="goToNextPage()">
                 Next
             </button>
         </div>
