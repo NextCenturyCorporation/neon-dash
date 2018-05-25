@@ -21,6 +21,7 @@
     ],
     "exclude": [
         "test.ts",
+        "testUtils/*",
         "**/*.spec.ts",
         "node_modules"
     ]
