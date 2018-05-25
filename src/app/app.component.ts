@@ -31,6 +31,7 @@ import { FilterTrayComponent } from './components/filter-tray/filter-tray.compon
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 
 import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
+import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 
 @Component({
     selector: 'app-root',
@@ -49,6 +50,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public showAbout: boolean = true;
     public showAddVisualizationButton: boolean = false;
     public showFilterTrayButton: boolean = false;
+    public showCustomConnectionButton: boolean = false;
 
     public gridItems: NeonGridItem[] = [];
 
@@ -77,12 +79,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     /* A reference to the dialog for the filter tray. */
     private filterTrayDialogRef: MatDialogRef<FilterTrayComponent>;
 
+    /* A reference to the dialog for the custom connection dialog. */
+    private customConnectionDialogRef: MatDialogRef<CustomConnectionComponent>;
+
     constructor(public datasetService: DatasetService, public themesService: ThemesService,
         private activeGridService: ActiveGridService, public dialog: MatDialog,
         public viewContainerRef: ViewContainerRef, @Inject('config') private neonConfig: NeonGTDConfig, public snackBar: MatSnackBar) {
         // TODO: Default to false and set to true only after a dataset has been selected.
         this.showAddVisualizationButton = true;
         this.showFilterTrayButton = true;
+        this.showCustomConnectionButton = true;
         this.datasets = this.datasetService.getDatasets();
         this.themesService = themesService;
         this.neonConfig = neonConfig;
@@ -123,6 +129,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);
         this.filterTrayDialogRef.afterClosed().subscribe(() => {
+            this.filterTrayDialogRef = null;
+        });
+    }
+
+    openCustomConnectionDialog() {
+        let config = new MatDialogConfig();
+        config.viewContainerRef = this.viewContainerRef;
+
+        this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);
+        this.customConnectionDialogRef.afterClosed().subscribe(() => {
             this.filterTrayDialogRef = null;
         });
     }

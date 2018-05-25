@@ -285,6 +285,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
                 this.refreshVisualization();
             }
         } catch (e) {
+            this.isLoadingWikiPage = false;
             this.errorMessage = 'Error';
             this.refreshVisualization();
         }

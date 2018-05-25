@@ -37,6 +37,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { TranslationService } from '../../services/translation.service';
 import { VisualizationService } from '../../services/visualization.service';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 class TestDatasetService extends DatasetService {
     constructor() {
@@ -71,32 +72,33 @@ describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
+    initializeTestBed({
+        declarations: [
+            DocumentViewerComponent,
+            ExportControlComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            ErrorNotificationService,
+            ExportService,
+            FilterService,
+            ThemesService,
+            TranslationService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule,
+            HttpModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                DocumentViewerComponent,
-                ExportControlComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                ErrorNotificationService,
-                ExportService,
-                FilterService,
-                ThemesService,
-                TranslationService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule,
-                HttpModule
-            ]
-        });
         fixture = TestBed.createComponent(DocumentViewerComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -548,57 +550,58 @@ describe('Component: Document Viewer with Config', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                DocumentViewerComponent,
-                ExportControlComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                {
-                    provide: DatasetService,
-                    useClass: TestDatasetService
+    initializeTestBed({
+        declarations: [
+            DocumentViewerComponent,
+            ExportControlComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            {
+                provide: DatasetService,
+                useClass: TestDatasetService
+            },
+            ErrorNotificationService,
+            ExportService,
+            FilterService,
+            ThemesService,
+            TranslationService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: 'title', useValue: 'Document Viewer Title' },
+            { provide: 'database', useValue: 'testDatabase' },
+            { provide: 'table', useValue: 'testTable' },
+            { provide: 'dataField', useValue: 'testDataField' },
+            { provide: 'dateField', useValue: 'testDateField' },
+            { provide: 'idField', useValue: 'testIDField' },
+            { provide: 'metadataFields', useValue: [
+                [{
+                    name: 'Single Item Metadata Row',
+                    field: 'singleItemMetadataRow'
+                }],
+                [{
+                    name: 'First of Multiple Item Metadata Row',
+                    field: 'firstOfMultipleItemMetadataRow'
                 },
-                ErrorNotificationService,
-                ExportService,
-                FilterService,
-                ThemesService,
-                TranslationService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: 'title', useValue: 'Document Viewer Title' },
-                { provide: 'database', useValue: 'testDatabase' },
-                { provide: 'table', useValue: 'testTable' },
-                { provide: 'dataField', useValue: 'testDataField' },
-                { provide: 'dateField', useValue: 'testDateField' },
-                { provide: 'idField', useValue: 'testIDField' },
-                { provide: 'metadataFields', useValue: [
-                    [{
-                        name: 'Single Item Metadata Row',
-                        field: 'singleItemMetadataRow'
-                    }],
-                    [{
-                        name: 'First of Multiple Item Metadata Row',
-                        field: 'firstOfMultipleItemMetadataRow'
-                    },
-                    {
-                        name: 'Second of Multiple Item Metadata Row',
-                        field: 'secondOfMultipleItemMetadataRow'
-                    }]
-                ]},
-                { provide: 'popoutFields', useValue: null },
-                { provide: 'limit', useValue: 25 }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule,
-                HttpModule
-            ]
-        });
+                {
+                    name: 'Second of Multiple Item Metadata Row',
+                    field: 'secondOfMultipleItemMetadataRow'
+                }]
+            ]},
+            { provide: 'popoutFields', useValue: null },
+            { provide: 'limit', useValue: 25 }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule,
+            HttpModule
+        ]
+    });
+
+    beforeEach(() => {
         fixture = TestBed.createComponent(DocumentViewerComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

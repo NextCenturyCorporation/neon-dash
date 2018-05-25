@@ -18,19 +18,17 @@ import { Dataset } from '../dataset';
 import { DatasetService } from './dataset.service';
 import { ActiveGridService } from './active-grid.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
+import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('Service: DatasetService', () => {
     let testConfig = new NeonGTDConfig();
 
-    beforeEach(() => {
-
-        TestBed.configureTestingModule({
-            providers: [
-                ActiveGridService,
-                DatasetService,
-                { provide: 'config', useValue: testConfig }
-            ]
-        });
+    initializeTestBed({
+        providers: [
+            ActiveGridService,
+            DatasetService,
+            { provide: 'config', useValue: testConfig }
+        ]
     });
 
     it('should be injectable', inject([DatasetService], (service: DatasetService) => {
