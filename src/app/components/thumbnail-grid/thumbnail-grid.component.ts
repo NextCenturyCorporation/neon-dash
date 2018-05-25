@@ -226,10 +226,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             fields.push(this.options.objectNameField.columnName);
         }
 
-        if (this.options.predictedNameField.columnName) {
-            fields.push(this.options.predictedNameField.columnName);
-        }
-
         if (this.options.percentField.columnName) {
             fields.push(this.options.percentField.columnName);
         }
@@ -627,7 +623,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     let image: HTMLImageElement = new Image();
                     image.src = link;
                     image.onload = () => {
-                        switch(this.options.cropAndScale) {
+                        switch (this.options.cropAndScale) {
                             case 'both' : {
                                 // Use the MIN to crop the scale
                                 let size = Math.min(image.width, image.height);
@@ -657,7 +653,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     let video: HTMLVideoElement = document.createElement('video');
                     video.src = link;
                     video.onloadeddata = () => {
-                        switch(this.options.cropAndScale) {
+                        switch (this.options.cropAndScale) {
                             case 'both' : {
                                 // Use the MIN to crop the scale
                                 let size = Math.min(video.width, video.height);
