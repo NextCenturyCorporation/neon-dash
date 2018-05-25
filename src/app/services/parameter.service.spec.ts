@@ -20,22 +20,21 @@ import { DatasetService } from './dataset.service';
 import { ConnectionService } from './connection.service';
 import { FilterService } from './filter.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
+import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('Service: Parameter', () => {
 
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            providers: [
-                ParameterService,
-                ErrorNotificationService,
-                DatasetService,
-                ConnectionService,
-                FilterService,
-                { provide: 'config', useValue: testConfig }
-            ]
-        });
+    initializeTestBed({
+        providers: [
+            ParameterService,
+            ErrorNotificationService,
+            DatasetService,
+            ConnectionService,
+            FilterService,
+            { provide: 'config', useValue: testConfig }
+        ]
     });
 
     it('should ...', inject([ParameterService], (service: ParameterService) => {

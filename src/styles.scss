@@ -132,8 +132,16 @@ body {
     background-position: -256px 0
 }
 
+.icon-MediaViewer64 {
+    background-position: -124px -256px;
+}
+
+.icon-Neon64 {
+    background-position: -124px -256px;
+}
+
 .icon-NetworkGraph64 {
-    background-position: -64px -64px
+    background-position: -128px -192px
 }
 
 .icon-News64 {
@@ -176,24 +184,6 @@ body {
     background-position: -5px -320px
 }
 /* End Icons */
-
-/* Old Icons - Can we delete them? */
-.icon-Bar-Chart {
-    background-position: -128px -64px
-}
-
-.icon-Create-Filter {
-    background-position: -128px 0
-}
-
-.icon-Line-Chart {
-    background-position: 0 -64px
-}
-
-.icon-Pie-Chart {
-    background-position: -64px 0
-}
-/* End Old Icons */
 
 .icon-container {
     justify-content: center;
@@ -255,8 +245,10 @@ body {
         height: 25px !important;
     }
 
-    &:hover {
-        background-color: $accent-bright !important;
+    &:not([disabled]) {
+        &:hover {
+            background-color: $accent-bright !important;
+        }
     }
 }
 
@@ -323,6 +315,7 @@ body {
         height: 15px !important;
         line-height: 15px !important;
         padding: 5px 0 !important;
+        width: unset;
     }
 
     .mat-form-field-underline {

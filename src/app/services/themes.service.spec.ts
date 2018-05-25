@@ -15,15 +15,14 @@
  */
 import { TestBed, inject } from '@angular/core/testing';
 import { ThemesService } from './themes.service';
+import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('Service: Themes', () => {
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [ThemesService]
+    initializeTestBed({
+        providers: [ThemesService]
     });
-  });
 
-  it('should ...', inject([ThemesService], (service: ThemesService) => {
-    expect(service).toBeTruthy();
-  }));
+    it('should ...', inject([ThemesService], (service: ThemesService) => {
+        expect(service).toBeTruthy();
+    }));
 });

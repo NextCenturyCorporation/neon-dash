@@ -20,21 +20,25 @@
     height: calc(100% - #{$vis-title-expected-height});
 }
 
-.no-data-text {
-    font-size: 14px;
-    line-height: 20px;
+.viewer-text {
+    font-size: 12px;
+    line-height: 15px;
     padding: 5px;
 }
 
-iframe, img, video {
+iframe.with-border, img.with-border, video.with-border {
     border: 5px solid mat-color($white);
 }
 
-iframe.border-red, img.border-red, video.border-red {
+iframe.border-mat-grey, img.border-mat-grey, video.border-mat-grey {
+    border-color: #9e9e9e; /* mat-color-grey-500 */
+}
+
+iframe.border-mat-red, img.border-mat-red, video.border-mat-red {
     border-color: #f44336; /* mat-color-red-500 */
 }
 
-iframe.border-yellow, img.border-yellow, video.border-yellow {
+iframe.border-mat-yellow, img.border-mat-yellow, video.border-mat-yellow {
     border-color: #ffeb3b; /* mat-color-yellow-500 */
 }
 

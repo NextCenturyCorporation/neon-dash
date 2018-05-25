@@ -103,47 +103,87 @@
                 </div>
                 <p></p>
 
-                <label> Displayed Range </label>
-                <div class='radio-container' layout="row" mat-margin>
-                    <mat-radio-group ngDefaultControl [(ngModel)]="options.scaleManually" (change)="handleChangeScale()">
-                        <mat-radio-button ngDefaultControl [value]="false" [(ngModel)]="options.scaleManually">Auto-scale</mat-radio-button>
-                        <mat-radio-button ngDefaultControl [value]="true" [(ngModel)]="options.scaleManually" >Manual</mat-radio-button>
-                    </mat-radio-group>
+                <span class="toggle-text">Ignore Own Filters:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleFiltersChangedEvent()">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
 
-                    <div *ngIf="options.scaleManually">
-                        <p></p>
-                        <div mat-fill class="flex center">
-                            <mat-form-field *ngIf='options.type == "bar"'>
-                                <input matInput placeholder="Y maximum" [(ngModel)]="options.scaleMax" required="false">
-                            </mat-form-field>
+                <span class="toggle-text">Log Scale:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.logScale" (ngModelChange)="handleChangeBarChartObject()">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
 
-                            <mat-form-field *ngIf='options.type == "horizontalBar"'>
-                                <input matInput placeholder="X maximum" [(ngModel)]="options.scaleMax" required="false">
-                            </mat-form-field>
+                <span class="toggle-text">Range:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.scaleManually" (ngModelChange)="handleChangeScale()">
+                    <mat-button-toggle [value]="false">Automatic</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Manual</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
 
-                            <mat-form-field *ngIf='options.type == "bar"'>
-                                <input matInput placeholder="Y minimum" [(ngModel)]="options.scaleMin" required="false">
-                            </mat-form-field>
+                <div mat-fill class="flex center">
+                    <mat-form-field *ngIf='options.type == "bar"' style="margin-right: 10px;">
+                        <input matInput placeholder="Y Minimum" [disabled]="!options.scaleManually" [(ngModel)]="options.scaleMin" required="false">
+                    </mat-form-field>
 
-                            <mat-form-field *ngIf='options.type == "horizontalBar"'>
-                                <input matInput placeholder="X minimum" [(ngModel)]="options.scaleMin" required="false">
-                            </mat-form-field>
+                    <mat-form-field *ngIf='options.type == "horizontalBar"' style="margin-right: 10px;">
+                        <input matInput placeholder="X Minimum" [disabled]="!options.scaleManually" [(ngModel)]="options.scaleMin" required="false">
+                    </mat-form-field>
 
-                            <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeScale()">
-                                <mat-icon>refresh</mat-icon>
-                            </button>
-                        </div>
-                    </div>
+                    <mat-form-field *ngIf='options.type == "bar"'>
+                        <input matInput placeholder="Y Maximum" [disabled]="!options.scaleManually" [(ngModel)]="options.scaleMax" required="false">
+                    </mat-form-field>
+
+                    <mat-form-field *ngIf='options.type == "horizontalBar"'>
+                        <input matInput placeholder="X Maximum" [disabled]="!options.scaleManually" [(ngModel)]="options.scaleMax" required="false">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" [disabled]="!options.scaleManually" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeScale()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
                 </div>
                 <p></p>
 
-                <label> Chart Type </label>
-                <div class='radio-container' layout="row" mat-margin>
-                    <mat-radio-group ngDefaultControl [(ngModel)]="options.type" (change)="handleChangeChartType()">
-                        <mat-radio-button ngDefaultControl value="horizontalBar" [(ngModel)]="options.type">Horizontal</mat-radio-button>
-                        <mat-radio-button ngDefaultControl value="bar" [(ngModel)]="options.type">Vertical</mat-radio-button>
-                    </mat-radio-group>
-                </div>
+                <span class="toggle-text">Save Previously Seen Bars:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.saveSeenBars" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Show Data Matching:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.andFilters" (ngModelChange)="handleFiltersChangedEvent()">
+                    <mat-button-toggle [value]="true">All Filters</mat-button-toggle>
+                    <mat-button-toggle [value]="false">Any Filters</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Sort:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.sortAlphabetically" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">Numerically</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Alphabetically</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Type:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.type" (ngModelChange)="handleChangeBarChartObject()">
+                    <mat-button-toggle value="horizontalBar">Horizontal</mat-button-toggle>
+                    <mat-button-toggle value="bar">Vertical</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <mat-form-field>
+                    <mat-select placeholder="Y-Axis Labels Percentage" [(ngModel)]="options.yPercentage" (ngModelChange)="refreshVisualization()">
+                        <mat-option [value]="0.1">10%</mat-option>
+                        <mat-option [value]="0.2">20%</mat-option>
+                        <mat-option [value]="0.3">30%</mat-option>
+                        <mat-option [value]="0.4">40%</mat-option>
+                        <mat-option [value]="0.5">50%</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()" (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>

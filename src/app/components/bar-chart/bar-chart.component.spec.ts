@@ -41,6 +41,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { Color, ColorSchemeService } from '../../services/color-scheme.service';
 import { LegendComponent } from '../legend/legend.component';
 import { ChartComponent } from '../chart/chart.component';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 class TestDatasetService extends DatasetService {
     constructor() {
@@ -63,35 +64,36 @@ describe('Component: BarChart', () => {
     let component: BarChartComponent;
     let fixture: ComponentFixture<BarChartComponent>;
 
+    initializeTestBed({
+        declarations: [
+            ChartComponent,
+            LegendComponent,
+            BarChartComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            FilterService,
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            VisualizationService,
+            ThemesService,
+            Injector,
+            ColorSchemeService,
+            { provide: 'config', useValue: testConfig }
+        ],
+        imports: [
+            BrowserAnimationsModule,
+            AppMaterialModule,
+            FormsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ChartComponent,
-                LegendComponent,
-                BarChartComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                FilterService,
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                VisualizationService,
-                ThemesService,
-                Injector,
-                ColorSchemeService,
-                { provide: 'config', useValue: testConfig }
-            ],
-            imports: [
-                BrowserAnimationsModule,
-                AppMaterialModule,
-                FormsModule
-            ]
-        });
         fixture = TestBed.createComponent(BarChartComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -104,24 +106,18 @@ describe('Component: BarChart', () => {
     it('does have expected options properties', () => {
         expect(component.options.aggregation).toBe('count');
         expect(component.options.andFilters).toBe(true);
+        expect(component.options.ignoreSelf).toBe(true);
         expect(component.options.limit).toBe(10);
+        expect(component.options.logScale).toBe(false);
+        expect(component.options.scaleManually).toBe(false);
         expect(component.options.scaleMin).toBe('');
         expect(component.options.scaleMax).toBe('');
         expect(component.options.type).toBe('bar');
+        expect(component.options.yPercentage).toBe(0.2);
 
-        component.options.aggregation = 'test';
-        component.options.andFilters = false;
-        component.options.limit = 42;
-        component.options.type = 'testChart';
-
-        expect(component.options.aggregation).toBe('test');
         expect(component.options.aggregationField).toEqual(component.emptyField);
-        expect(component.options.andFilters).toBe(false);
-        expect(component.options.andFilters).toBe(false);
         expect(component.options.colorField).toEqual(component.emptyField);
         expect(component.options.dataField).toEqual(component.emptyField);
-        expect(component.options.limit).toBe(42);
-        expect(component.options.type).toBe('testChart');
     });
 
     it('does have expected class properties', () => {

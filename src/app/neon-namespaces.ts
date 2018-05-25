@@ -67,9 +67,6 @@ export namespace neonUtilities {
                 return pieces;
             }
             itemToReturn = itemToReturn ? itemToReturn[path[i]] : undefined;
-            if (!itemToReturn) {
-                return undefined;
-            }
         }
         return itemToReturn;
     }
@@ -84,12 +81,37 @@ export namespace neonMappings {
     export const URL = 'url';
 }
 
+export const neonCustomConnectionMappings: { name: string, prettyName: string }[] = [{
+        name: 'date',
+        prettyName: 'Date'
+    },
+    {
+        name: 'id',
+        prettyName: 'ID'
+    },
+    {
+        name: 'latitude',
+        prettyName: 'Latitude'
+    },
+    {
+        name: 'longitude',
+        prettyName: 'Longitude'
+    },
+    {
+        name: 'url',
+        prettyName: 'URL'
+}];
+
 export namespace neonVisualizationMinPixel { // jshint ignore:line
     export const x = 320;
     export const y = 240;
 }
 
 export const neonVisualizations: any[] = [{
+    name: 'Annotation Viewer',
+    type: 'annotationViewer',
+    icon: 'DocumentViewer64'
+}, {
     name: 'Bar Chart',
     type: 'barChart',
     icon: 'BarChart64'
@@ -116,7 +138,7 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'Media Viewer',
     type: 'mediaViewer',
-    icon: 'MediaViewer'
+    icon: 'MediaViewer64'
 }, {
     name: 'Network Graph',
     type: 'networkGraph',
@@ -124,7 +146,7 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'Sample',
     type: 'sample',
-    icon: 'DocumentViewer64'
+    icon: 'Neon64'
 }, {
     name: 'Scatter Plot',
     type: 'scatterPlot',

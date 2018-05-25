@@ -15,12 +15,11 @@
  */
 import { TestBed, inject } from '@angular/core/testing';
 import { ActiveGridService } from './active-grid.service';
+import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('Service: ActiveGrid', () => {
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            providers: [ActiveGridService]
-        });
+    initializeTestBed({
+        providers: [ActiveGridService]
     });
 
     it('should be injectable', inject([ActiveGridService], (service: ActiveGridService) => {

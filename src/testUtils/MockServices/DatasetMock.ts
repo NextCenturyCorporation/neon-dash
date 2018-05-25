@@ -20,21 +20,25 @@ import { DatasetService } from '../../app/services/dataset.service';
 import { NeonGTDConfig } from '../../app/neon-gtd-config';
 
 export class DatasetMock extends DatasetService {
-    public static COLOR_FIELD = new FieldMetaData('testColorField', 'Test Color Field');
-    public static DATE_FIELD = new FieldMetaData('testDateField', 'Test Date Field');
-    public static GROUP_FIELD = new FieldMetaData('testGroupField', 'Test Group Field');
-    public static ID_FIELD = new FieldMetaData('testIdField', 'Test ID Field');
-    public static LATITUDE_FIELD = new FieldMetaData('testLatitudeField', 'Test Latitude Field');
-    public static LINK_FIELD = new FieldMetaData('testLinkField', 'Test Link Field');
-    public static LONGITUDE_FIELD = new FieldMetaData('testLongitudeField', 'Test Longitude Field');
-    public static NAME_FIELD = new FieldMetaData('testNameField', 'Test Name Field');
-    public static SIZE_FIELD = new FieldMetaData('testSizeField', 'Test Size Field');
-    public static TYPE_FIELD = new FieldMetaData('testTypeField', 'Test Type Field');
+    public static COLOR_FIELD = new FieldMetaData('testColorField', 'Test Color Field', false, 'string');
+    public static DATE_FIELD = new FieldMetaData('testDateField', 'Test Date Field', false, 'date');
+    public static FILTER_FIELD = new FieldMetaData('testFilterField', 'Test Filter Field', false, 'string');
+    public static GROUP_FIELD = new FieldMetaData('testGroupField', 'Test Group Field', false, 'string');
+    public static ID_FIELD = new FieldMetaData('testIdField', 'Test ID Field', false, 'string');
+    public static LATITUDE_FIELD = new FieldMetaData('testLatitudeField', 'Test Latitude Field', false, 'float');
+    public static LINK_FIELD = new FieldMetaData('testLinkField', 'Test Link Field', false, 'string');
+    public static LONGITUDE_FIELD = new FieldMetaData('testLongitudeField', 'Test Longitude Field', false, 'float');
+    public static NAME_FIELD = new FieldMetaData('testNameField', 'Test Name Field', false, 'string');
+    public static SIZE_FIELD = new FieldMetaData('testSizeField', 'Test Size Field', false, 'float');
+    public static SORT_FIELD = new FieldMetaData('testSortField', 'Test Sort Field', false, 'string');
+    public static TYPE_FIELD = new FieldMetaData('testTypeField', 'Test Type Field', false, 'string');
+    public static ES_ID_FIELD = new FieldMetaData('_id', '_id', false, '');
 
     // Keep in alphabetical order.
     public static FIELDS: FieldMetaData[] = [
         DatasetMock.COLOR_FIELD,
         DatasetMock.DATE_FIELD,
+        DatasetMock.FILTER_FIELD,
         DatasetMock.GROUP_FIELD,
         DatasetMock.ID_FIELD,
         DatasetMock.LATITUDE_FIELD,
@@ -42,7 +46,9 @@ export class DatasetMock extends DatasetService {
         DatasetMock.LONGITUDE_FIELD,
         DatasetMock.NAME_FIELD,
         DatasetMock.SIZE_FIELD,
-        DatasetMock.TYPE_FIELD
+        DatasetMock.SORT_FIELD,
+        DatasetMock.TYPE_FIELD,
+        DatasetMock.ES_ID_FIELD
     ];
 
     public static TABLES: TableMetaData[] = [

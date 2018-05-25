@@ -39,38 +39,40 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: WikiViewer', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 
+    initializeTestBed({
+        declarations: [
+            WikiViewerComponent,
+            ExportControlComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            ExportService,
+            ErrorNotificationService,
+            FilterService,
+            ThemesService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            // Mock for testing Http
+            { provide: XHRBackend, useClass: MockBackend }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule,
+            HttpModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                WikiViewerComponent,
-                ExportControlComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                ExportService,
-                ErrorNotificationService,
-                FilterService,
-                ThemesService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                // Mock for testing Http
-                { provide: XHRBackend, useClass: MockBackend }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule,
-                HttpModule
-            ]
-        });
         fixture = TestBed.createComponent(WikiViewerComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -195,7 +197,7 @@ describe('Component: WikiViewer', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.linkField.columnName = 'testLinkField';
 
-        mockBackend.connections.subscribe((connection) => {
+        let subscription = mockBackend.connections.subscribe((connection) => {
             connection.mockRespond(new Response(new ResponseOptions({
                 body: JSON.stringify({
                     parse: {
@@ -221,6 +223,7 @@ describe('Component: WikiViewer', () => {
         expect(component.wikiText.length).toBe(1);
         expect(component.wikiText[0].toString()).toBe(
             'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)');
+        subscription.unsubscribe();
     })));
 
     it('onQuerySuccess does call http.get and does set expected properties if response failed',
@@ -230,7 +233,7 @@ describe('Component: WikiViewer', () => {
         component.wikiName = ['testName'];
         component.wikiText = ['testText'];
 
-        mockBackend.connections.subscribe((connection) => {
+        let subscription = mockBackend.connections.subscribe((connection) => {
             connection.mockError(new Response(new ResponseOptions({
                 body: 'Test Error Message',
                 status: 500
@@ -249,6 +252,7 @@ describe('Component: WikiViewer', () => {
         expect(component.wikiName).toEqual(['testLinkValue']);
         expect(component.wikiText.length).toBe(1);
         expect(component.wikiText[0].toString()).toBeTruthy();
+        subscription.unsubscribe();
     })));
 
     it('onQuerySuccess does call http.get multiple times and does set expected properties if response returns data with multiple links',
@@ -257,7 +261,7 @@ describe('Component: WikiViewer', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.linkField.columnName = 'testLinkField';
 
-        mockBackend.connections.subscribe((connection) => {
+        let subscription = mockBackend.connections.subscribe((connection) => {
             if (connection.request.url === WikiViewerComponent.WIKI_LINK_PREFIX + 'testLinkValue1') {
                 connection.mockRespond(new Response(new ResponseOptions({
                     body: JSON.stringify({
@@ -300,6 +304,7 @@ describe('Component: WikiViewer', () => {
             'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)');
         expect(component.wikiText[1].toString()).toBe(
             'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)');
+        subscription.unsubscribe();
     })));
 
     it('postInit does call executeQueryChain', (() => {
@@ -469,51 +474,6 @@ describe('Component: WikiViewer', () => {
         });
     }));
 
-    it('does show loading overlay if calling onQuerySuccess', fakeAsync(inject([XHRBackend], (mockBackend) => {
-        component.options.linkField.columnName = 'testLinkField';
-
-        mockBackend.connections.subscribe((connection) => {
-            fixture.detectChanges();
-
-            fixture.whenStable().then(() => {
-                fixture.detectChanges();
-
-                let loadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay'));
-                expect(loadingOverlay).not.toBeNull();
-
-                let spinner = fixture.debugElement.query(By.css('mat-sidenav-container .loading-overlay mat-spinner'));
-                expect(spinner).not.toBeNull();
-
-                connection.mockRespond(new Response(new ResponseOptions({
-                    body: JSON.stringify({
-                        parse: {
-                            text: {
-                                '*': ''
-                            },
-                            title: ''
-                        }
-                    })
-                })));
-            });
-        });
-
-        component.onQuerySuccess({
-            data: [{
-                testLinkField: 'testLinkValue'
-            }]
-        });
-
-        // Wait for the HTTP response.
-        tick(500);
-        fixture.detectChanges();
-
-        let hiddenLoadingOverlay = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay'));
-        expect(hiddenLoadingOverlay).not.toBeNull();
-
-        let hiddenSpinner = fixture.debugElement.query(By.css('mat-sidenav-container .not-loading-overlay mat-spinner'));
-        expect(hiddenSpinner).not.toBeNull();
-    })));
-
     it('does hide wiki-text tabs if wikiText is empty', inject([DomSanitizer], (sanitizer) => {
         fixture.detectChanges();
         let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
@@ -555,37 +515,38 @@ describe('Component: WikiViewer with config', () => {
     let component: WikiViewerComponent;
     let fixture: ComponentFixture<WikiViewerComponent>;
 
+    initializeTestBed({
+        declarations: [
+            WikiViewerComponent,
+            ExportControlComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetMock },
+            ExportService,
+            ErrorNotificationService,
+            FilterService,
+            ThemesService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: 'database', useValue: 'testDatabase1' },
+            { provide: 'table', useValue: 'testTable1' },
+            { provide: 'id', useValue: 'testId' },
+            { provide: 'idField', useValue: 'testIdField' },
+            { provide: 'linkField', useValue: 'testLinkField' },
+            { provide: 'title', useValue: 'Test Title' }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule,
+            HttpModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                WikiViewerComponent,
-                ExportControlComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                { provide: DatasetService, useClass: DatasetMock },
-                ExportService,
-                ErrorNotificationService,
-                FilterService,
-                ThemesService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: 'database', useValue: 'testDatabase1' },
-                { provide: 'table', useValue: 'testTable1' },
-                { provide: 'id', useValue: 'testId' },
-                { provide: 'idField', useValue: 'testIdField' },
-                { provide: 'linkField', useValue: 'testLinkField' },
-                { provide: 'title', useValue: 'Test Title' }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule,
-                HttpModule
-            ]
-        });
         fixture = TestBed.createComponent(WikiViewerComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -600,8 +561,8 @@ describe('Component: WikiViewer with config', () => {
     }));
 
     it('does set expected options properties', () => {
-        expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field'));
-        expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field'));
+        expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field', false, 'string'));
+        expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field', false, 'string'));
         expect(component.options.id).toEqual('testId');
     });
 

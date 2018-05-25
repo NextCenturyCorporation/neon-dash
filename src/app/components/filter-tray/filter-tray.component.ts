@@ -86,9 +86,9 @@ export class FilterTrayComponent implements OnInit, OnDestroy {
         if (filters.length > 0) {
             // We only want unique filter names to eliminate display of multiple filters created by filter service
 
-            // remove filters with empty string names
+            // remove filters with empty string names and those without an owner ID (which are created by relations).
             let filterList = _.filter(filters, (filter) => {
-                return (filter.filter.filterName && filter.filter.filterName !== '');
+                return (filter.filter.filterName && filter.filter.filterName !== '' && filter.ownerId !== undefined);
             });
 
             let result = {};

@@ -33,38 +33,39 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { VisualizationService } from '../../services/visualization.service';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: DashboardOptionsComponent', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let fixture: ComponentFixture<DashboardOptionsComponent>;
     let component: DashboardOptionsComponent;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                DashboardOptionsComponent,
-                ExportControlComponent
-            ],
-            imports: [
-                FormsModule,
-                AppMaterialModule,
-                BrowserAnimationsModule
-            ],
-            providers: [
-                ConnectionService,
-                DatasetService,
-                ErrorNotificationService,
-                VisualizationService,
-                ExportService,
-                MatSnackBar,
-                ParameterService,
-                ThemesService,
-                ViewContainerRef,
-                FilterService,
-                { provide: 'config', useValue: testConfig }
-            ]
-        });
+    initializeTestBed({
+        declarations: [
+            DashboardOptionsComponent,
+            ExportControlComponent
+        ],
+        imports: [
+            FormsModule,
+            AppMaterialModule,
+            BrowserAnimationsModule
+        ],
+        providers: [
+            ConnectionService,
+            DatasetService,
+            ErrorNotificationService,
+            VisualizationService,
+            ExportService,
+            MatSnackBar,
+            ParameterService,
+            ThemesService,
+            ViewContainerRef,
+            FilterService,
+            { provide: 'config', useValue: testConfig }
+        ]
+    });
 
+    beforeEach(() => {
         fixture = TestBed.createComponent(DashboardOptionsComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

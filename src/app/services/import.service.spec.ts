@@ -15,13 +15,11 @@
  */
 import { TestBed, inject } from '@angular/core/testing';
 import { ImportService } from './import.service';
+import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('Service: Import', () => {
-
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            providers: [ ImportService ]
-        });
+    initializeTestBed({
+        providers: [ ImportService ]
     });
 
     it('should ...', inject([ImportService], (service: ImportService) => {
