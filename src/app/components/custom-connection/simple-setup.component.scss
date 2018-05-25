@@ -1,0 +1,43 @@
+.modal__row {
+  padding: 12px 0 6px 0;
+}
+
+.modal__row--slotted {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.modal__row--slotted div {
+  flex-grow: 1;
+}
+
+.modal__row-label {
+  display: block;
+  padding-bottom: 3px;
+  // font-size: 0.8rem;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+.modal__row-label--info {
+  padding-top: 6px;
+  // font-size: 0.8rem;
+  font-style: italic;
+}
+
+.modal__input--medium {
+  width: 60%;
+}
+
+.modal__datasource-container {
+  border: solid 1px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+  border-radius: 2px;
+  height: 140px;
+  overflow-y: auto;
+}
+
+.modal__datasource-list-item {
+  font-size: 0.8rem;
+  padding: 6px 6px 0 6px;
+}

@@ -13,16 +13,12 @@
  * limitations under the License.
  *
  */
-import { TestBed, inject } from '@angular/core/testing';
-import { ActiveGridService } from './active-grid.service';
-import { initializeTestBed } from '../../testUtils/initializeTestBed';
+import { TableMetaData, DatabaseMetaData } from '../../dataset';
 
-describe('Service: ActiveGrid', () => {
-    initializeTestBed({
-        providers: [ActiveGridService]
-    });
-
-    it('should be injectable', inject([ActiveGridService], (service: ActiveGridService) => {
-      expect(service).toBeTruthy();
-    }));
-});
+export class CustomConnectionData {
+    public datasetName: string = '';
+    public datastoreType: string = 'mongo';
+    public datastoreHost: string = 'localhost';
+    public allDatabases: DatabaseMetaData[] = [];
+    public selectedDatabases: DatabaseMetaData[] = [];
+}

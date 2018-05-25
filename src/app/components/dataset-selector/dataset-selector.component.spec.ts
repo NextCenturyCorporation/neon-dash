@@ -26,39 +26,39 @@ import { ErrorNotificationService } from '../../services/error-notification.serv
 import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: DatasetSelector', () => {
+    let testConfig: NeonGTDConfig = new NeonGTDConfig();
+    let fixture: ComponentFixture<DatasetSelectorComponent>;
+    let component: DatasetSelectorComponent;
 
-  let testConfig: NeonGTDConfig = new NeonGTDConfig();
-  let fixture: ComponentFixture<DatasetSelectorComponent>;
-  let component: DatasetSelectorComponent;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      declarations: [
-        DatasetSelectorComponent
-      ],
-      providers: [
-        ActiveGridService,
-        ConnectionService,
-        DatasetService,
-        ParameterService,
-        ErrorNotificationService,
-        FilterService,
-        { provide: 'config', useValue: testConfig }
-      ],
-      imports: [
-        FormsModule,
-        AppMaterialModule,
-        BrowserAnimationsModule
-      ]
+    initializeTestBed({
+        declarations: [
+            DatasetSelectorComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            ParameterService,
+            ErrorNotificationService,
+            FilterService,
+            { provide: 'config', useValue: testConfig }
+        ],
+        imports: [
+            FormsModule,
+            AppMaterialModule,
+            BrowserAnimationsModule
+        ]
     });
 
-    fixture = TestBed.createComponent(DatasetSelectorComponent);
-    component = fixture.componentInstance;
-  });
+    beforeEach(() => {
+        fixture = TestBed.createComponent(DatasetSelectorComponent);
+        component = fixture.componentInstance;
+    });
 
-  it('should create an instance', async(() => {
-    expect(component).toBeTruthy();
-  }));
+    it('should create an instance', async(() => {
+        expect(component).toBeTruthy();
+    }));
 });
