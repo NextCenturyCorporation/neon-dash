@@ -19,7 +19,6 @@ import { By, DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, fakeAsync, inject, TestBed, tick } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
-import { HttpModule, Response, ResponseOptions, XHRBackend } from '@angular/http';
 import { Injector } from '@angular/core';
 import { MockBackend } from '@angular/http/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -42,40 +41,39 @@ import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
 import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: ThumbnailGrid', () => {
     let component: ThumbnailGridComponent;
     let fixture: ComponentFixture<ThumbnailGridComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
+    initializeTestBed({
+        declarations: [
+            ThumbnailGridComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetMock },
+            ExportService,
+            ErrorNotificationService,
+            { provide: FilterService, useClass: FilterMock },
+            ThemesService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ThumbnailGridComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                { provide: DatasetService, useClass: DatasetMock },
-                ExportService,
-                ErrorNotificationService,
-                { provide: FilterService, useClass: FilterMock },
-                ThemesService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                // Mock for testing Http
-                { provide: XHRBackend, useClass: MockBackend }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule,
-                HttpModule
-            ]
-        });
         fixture = TestBed.createComponent(ThumbnailGridComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -1075,6 +1073,10 @@ describe('Component: ThumbnailGrid', () => {
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('getFiltersToIgnore does return null if no filters are set matching database/table/field', () => {
@@ -1100,6 +1102,10 @@ describe('Component: ThumbnailGrid', () => {
 
         // Test matching table/field but not database.
         expect(component.getFiltersToIgnore()).toEqual(null);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('getFiltersToIgnore does return expected array of IDs if no filterField is set', () => {
@@ -1114,6 +1120,10 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1',
             'testDatabase1-testTable1-testFilterName2']);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('getFilterText does return expected string', () => {
@@ -1656,6 +1666,10 @@ describe('Component: ThumbnailGrid', () => {
             prettyField: 'Test Filter Field',
             value: 'value1'
         }]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does not add neon filter with non-matching database/table/field', () => {
@@ -1683,6 +1697,10 @@ describe('Component: ThumbnailGrid', () => {
         // Test matching table/field but not table.
         component.setupFilters();
         expect(component.filters).toEqual([]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does not add neon filter matching existing filter field/value', () => {
@@ -1704,6 +1722,10 @@ describe('Component: ThumbnailGrid', () => {
             prettyField: 'Test Filter Field',
             value: 'value1'
         }]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does remove previous filters', () => {
@@ -1728,6 +1750,10 @@ describe('Component: ThumbnailGrid', () => {
             prettyField: 'Test Filter Field',
             value: 'value1'
         }]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does ignore neon filters with multiple clauses', () => {
@@ -1743,6 +1769,10 @@ describe('Component: ThumbnailGrid', () => {
 
         component.setupFilters();
         expect(component.filters).toEqual([]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('subGetBindings does set expected properties in bindings', () => {
@@ -1865,57 +1895,57 @@ describe('Component: ThumbnailGrid with config', () => {
     let component: ThumbnailGridComponent;
     let fixture: ComponentFixture<ThumbnailGridComponent>;
 
+    initializeTestBed({
+        declarations: [
+            ThumbnailGridComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetMock },
+            ExportService,
+            ErrorNotificationService,
+            { provide: FilterService, useClass: FilterMock },
+            ThemesService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'table', useValue: 'testTable2' },
+            { provide: 'configFilter', useValue: {lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
+            { provide: 'limit', useValue: 10 },
+            { provide: 'ascending', useValue: true },
+            { provide: 'border', useValue: 'grey' },
+            { provide: 'cropAndScale', useValue: 'both' },
+            { provide: 'id', useValue: 'testId' },
+            { provide: 'linkPrefix', useValue: 'prefix/' },
+            { provide: 'openOnMouseClick', useValue: false },
+            { provide: 'styleClass', useValue: 'style2' },
+            { provide: 'textMap', useValue: { actual: 'Truth', percentage: 'Score' } },
+            { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } },
+            { provide: 'categoryField', useValue: 'testGroupField' },
+            { provide: 'filterField', useValue: 'testFilterField' },
+            { provide: 'idField', useValue: 'testIdField' },
+            { provide: 'linkField', useValue: 'testLinkField' },
+            { provide: 'nameField', useValue: 'testNameField' },
+            { provide: 'objectIdField', useValue: 'testIdField' },
+            { provide: 'objectNameField', useValue: 'testNameField' },
+            { provide: 'percentField', useValue: 'testSizeField' },
+            { provide: 'predictedNameField', useValue: 'testNameField' },
+            { provide: 'sortField', useValue: 'testSortField' },
+            { provide: 'typeField', useValue: 'testTypeField' },
+            { provide: 'title', useValue: 'Test Title' }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ThumbnailGridComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                { provide: DatasetService, useClass: DatasetMock },
-                ExportService,
-                ErrorNotificationService,
-                { provide: FilterService, useClass: FilterMock },
-                ThemesService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: 'database', useValue: 'testDatabase2' },
-                { provide: 'table', useValue: 'testTable2' },
-                { provide: 'configFilter', useValue: {lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
-                { provide: 'limit', useValue: 10 },
-                { provide: 'ascending', useValue: true },
-                { provide: 'border', useValue: 'grey' },
-                { provide: 'cropAndScale', useValue: 'both' },
-                { provide: 'id', useValue: 'testId' },
-                { provide: 'linkPrefix', useValue: 'prefix/' },
-                { provide: 'openOnMouseClick', useValue: false },
-                { provide: 'styleClass', useValue: 'style2' },
-                { provide: 'textMap', useValue: { actual: 'Truth', percentage: 'Score' } },
-                { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } },
-                { provide: 'categoryField', useValue: 'testGroupField' },
-                { provide: 'filterField', useValue: 'testFilterField' },
-                { provide: 'idField', useValue: 'testIdField' },
-                { provide: 'linkField', useValue: 'testLinkField' },
-                { provide: 'nameField', useValue: 'testNameField' },
-                { provide: 'objectIdField', useValue: 'testIdField' },
-                { provide: 'objectNameField', useValue: 'testNameField' },
-                { provide: 'percentField', useValue: 'testSizeField' },
-                { provide: 'predictedNameField', useValue: 'testNameField' },
-                { provide: 'sortField', useValue: 'testSortField' },
-                { provide: 'typeField', useValue: 'testTypeField' },
-                { provide: 'title', useValue: 'Test Title' }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule,
-                HttpModule
-            ]
-        });
         fixture = TestBed.createComponent(ThumbnailGridComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
