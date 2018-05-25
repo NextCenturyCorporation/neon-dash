@@ -20,7 +20,6 @@
 }
 
 .thumbnail-grid-container{
-    height: 100%;
     display: flex;
     flex-flow: row wrap;
 }
@@ -29,7 +28,7 @@
     display: flex;
     flex-direction: column;
     flex: 0 0;
-    margin: .5em .7em;
+    margin: .4em;
     align-items: center;
 }
 
@@ -52,8 +51,8 @@
 }
 
 .thumbnail-details{
-    height:25%;
-    width:100%;
+    height:1.6em;
+    width:92%;
     background-color: #fafafa;
     word-wrap: break-word;
     display: flex;
@@ -65,8 +64,6 @@
     margin: .2em;
     display: inline-flex;
     flex-flow: row nowrap;
-    height: 1.5em;
-    width: 110px;
 }
 
 .thumbnail-details span{
@@ -101,6 +98,10 @@
 }
 
 .style2 {
+    .thumbnail-grid-container{
+        height: 100%;
+    }
+
     .thumbnail-grid-div {
         height: 110px;
         margin: 5px;
