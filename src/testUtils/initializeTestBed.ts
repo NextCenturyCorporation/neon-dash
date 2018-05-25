@@ -14,7 +14,6 @@
  *
  */
 import { async, TestBed } from '@angular/core/testing';
-import { afterAll, beforeAll } from 'jasmine-core';
 
 export const initializeTestBed = (config) => {
     // From https://github.com/angular/angular/issues/12409#issuecomment-314814671
