@@ -52,6 +52,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
+    public ignoreSelf: boolean;
     public linkField: FieldMetaData;
     public linkPrefix: string;
     public nameField: FieldMetaData;
@@ -76,6 +77,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.border = this.injector.get('border', '');
         this.cropAndScale = this.injector.get('cropAndScale', '') || '';
         this.id = this.injector.get('id', '');
+        this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
         this.styleClass = this.injector.get('styleClass', '');
@@ -173,20 +175,21 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         };
 
         let clause = neon.query.where(filter.field, '=', filter.value);
+        let runQuery = !this.options.ignoreSelf;
 
         if (!this.filters.length) {
             this.filters = [filter];
-            this.addNeonFilter(false, filter, clause);
+            this.addNeonFilter(runQuery, filter, clause);
         } else if (this.filters.length === 1) {
             if (!this.filterExists(filter.field, filter.value)) {
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
-                this.replaceNeonFilter(false, filter, clause);
+                this.replaceNeonFilter(runQuery, filter, clause);
             }
         } else {
             this.removeAllFilters([].concat(this.filters), () => {
                 this.filters = [filter];
-                this.addNeonFilter(false, filter, clause);
+                this.addNeonFilter(runQuery, filter, clause);
             });
         }
     }
@@ -390,6 +393,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     getFiltersToIgnore(): any[] {
+        if (!this.options.ignoreSelf) {
+            return null;
+        }
+
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             this.options.filterField.columnName ? [this.options.filterField.columnName] : undefined);
 
@@ -756,6 +763,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.categoryField = this.options.categoryField.columnName;
         bindings.filterField = this.options.filterField.columnName;
         bindings.idField = this.options.idField.columnName;
+        bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.linkField = this.options.linkField.columnName;
         bindings.nameField = this.options.nameField.columnName;
         bindings.objectIdField = this.options.objectIdField.columnName;
