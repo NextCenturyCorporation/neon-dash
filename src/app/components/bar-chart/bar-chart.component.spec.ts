@@ -43,22 +43,6 @@ import { LegendComponent } from '../legend/legend.component';
 import { ChartComponent } from '../chart/chart.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
-class TestDatasetService extends DatasetService {
-    constructor() {
-        super(new NeonGTDConfig());
-        let testDatabase = new DatabaseMetaData('testDatabase', 'Test Database');
-        testDatabase.tables = [
-            new TableMetaData('testTable', 'Test Table', [
-                new FieldMetaData('testIdField', 'Test ID Field'),
-                new FieldMetaData('testLinkField', 'Test Link Field')
-            ])
-        ];
-        this.setActiveDataset({
-            databases: [testDatabase]
-        });
-    }
-}
-
 describe('Component: BarChart', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: BarChartComponent;
