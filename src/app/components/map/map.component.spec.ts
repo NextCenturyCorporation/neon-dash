@@ -37,8 +37,8 @@ import { By } from '@angular/platform-browser';
 import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
-import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
-import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 function webgl_support(): any {
@@ -209,7 +209,7 @@ describe('Component: Map', () => {
             ActiveGridService,
             ConnectionService,
             DatasetService,
-            { provide: FilterService, useClass: FilterMock },
+            { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
             TranslationService,
             ErrorNotificationService,
@@ -1133,8 +1133,8 @@ describe('Component: Map with config', () => {
         providers: [
             ActiveGridService,
             ConnectionService,
-            { provide: DatasetService, useClass: DatasetMock },
-            { provide: FilterService, useClass: FilterMock },
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
             TranslationService,
             ErrorNotificationService,
@@ -1206,11 +1206,11 @@ describe('Component: Map with config', () => {
     });
 
     it('does have expected layers', () => {
-        expect(component.options.layers[0].databases).toEqual(DatasetMock.DATABASES);
-        expect(component.options.layers[0].database).toEqual(DatasetMock.DATABASES[0]);
-        expect(component.options.layers[0].tables).toEqual(DatasetMock.TABLES);
-        expect(component.options.layers[0].table).toEqual(DatasetMock.TABLES[0]);
-        expect(component.options.layers[0].fields).toEqual(DatasetMock.FIELDS);
+        expect(component.options.layers[0].databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(component.options.layers[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(component.options.layers[0].tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.options.layers[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.options.layers[0].fields).toEqual(DatasetServiceMock.FIELDS);
         expect(component.options.layers[0].title).toEqual('Test Layer Title');
         expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColorField', 'Test Color Field', false, 'string'));
         expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field', false, 'date'));

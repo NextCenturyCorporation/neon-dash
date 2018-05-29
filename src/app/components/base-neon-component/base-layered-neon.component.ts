@@ -909,9 +909,9 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
         let database = this.getOptions().getLayers()[layerIndex].database.name;
         let table = this.getOptions().getLayers()[layerIndex].table.name;
-        this.filterService.removeFilter(
+        this.filterService.removeFilters(
             this.messenger,
-            filter.id,
+            [filter.id],
             () => {
                 this.removeFilter(filter);
                 if (requery) {
