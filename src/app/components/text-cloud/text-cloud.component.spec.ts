@@ -39,8 +39,8 @@ import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { ChartComponent } from '../chart/chart.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
-import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
-import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 
 describe('Component: TextCloud', () => {
     let component: TextCloudComponent;
@@ -60,9 +60,9 @@ describe('Component: TextCloud', () => {
             ConnectionService,
             {
                 provide: DatasetService,
-                useClass: DatasetMock
+                useClass: DatasetServiceMock
             },
-            { provide: FilterService, useClass: FilterMock },
+            { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
             TranslationService,
             VisualizationService,
@@ -572,7 +572,7 @@ describe('Component: Textcloud with config', () => {
             ActiveGridService,
             ConnectionService,
             DatasetService,
-            { provide: FilterService, useClass: FilterMock },
+            { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
             TranslationService,
             VisualizationService,
@@ -641,7 +641,7 @@ describe('Component: Textcloud with config including configFilter', () => {
             ActiveGridService,
             ConnectionService,
             DatasetService,
-            { provide: FilterService, useClass: FilterMock },
+            { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
             TranslationService,
             VisualizationService,

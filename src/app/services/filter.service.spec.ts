@@ -22,7 +22,7 @@ import { ErrorNotificationService } from './error-notification.service';
 import { DatasetService } from './dataset.service';
 import { FilterService, ServiceFilter } from './filter.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
-import { DatasetMock } from '../../testUtils/MockServices/DatasetMock';
+import { DatasetServiceMock } from '../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 import * as neon from 'neon-framework';
@@ -129,7 +129,7 @@ describe('Service: Filter', () => {
 
     initializeTestBed({
         providers: [
-            { provide: DatasetService, useClass: DatasetMock },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             ErrorNotificationService,
             { provide: FilterService, useClass: TestFilterService },
             { provide: 'config', useValue: new NeonGTDConfig() }
@@ -600,7 +600,7 @@ describe('Service: Filter with existing filters', () => {
 
     initializeTestBed({
         providers: [
-            { provide: DatasetService, useClass: DatasetMock },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             ErrorNotificationService,
             { provide: FilterService, useClass: TestFilterServiceWithFilters },
             { provide: 'config', useValue: new NeonGTDConfig() }

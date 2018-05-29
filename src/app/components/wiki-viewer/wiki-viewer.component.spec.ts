@@ -38,7 +38,7 @@ import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
-import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: WikiViewer', () => {
@@ -523,7 +523,7 @@ describe('Component: WikiViewer with config', () => {
         providers: [
             ActiveGridService,
             ConnectionService,
-            { provide: DatasetService, useClass: DatasetMock },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
             ErrorNotificationService,
             FilterService,
@@ -553,11 +553,11 @@ describe('Component: WikiViewer with config', () => {
     });
 
     it('does set expected superclass options properties', (() => {
-        expect(component.options.database).toEqual(DatasetMock.DATABASES[0]);
-        expect(component.options.databases).toEqual(DatasetMock.DATABASES);
-        expect(component.options.table).toEqual(DatasetMock.TABLES[0]);
-        expect(component.options.tables).toEqual(DatasetMock.TABLES);
-        expect(component.options.fields).toEqual(DatasetMock.FIELDS);
+        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
     }));
 
     it('does set expected options properties', () => {
@@ -594,19 +594,19 @@ describe('Component: WikiViewer with config', () => {
         expect(placeholders[0].nativeElement.textContent).toContain('Title');
 
         // Don't directly test the two arrays because it's causing an overflow error!
-        expect(selects[0].componentInstance.options.toArray().length).toEqual(DatasetMock.DATABASES.length);
+        expect(selects[0].componentInstance.options.toArray().length).toEqual(DatasetServiceMock.DATABASES.length);
         expect(selects[0].componentInstance.disabled).toBe(false);
         expect(placeholders[1].nativeElement.textContent).toContain('Database');
 
-        expect(selects[1].componentInstance.options.toArray().length).toEqual(DatasetMock.TABLES.length);
+        expect(selects[1].componentInstance.options.toArray().length).toEqual(DatasetServiceMock.TABLES.length);
         expect(selects[1].componentInstance.disabled).toBe(false);
         expect(placeholders[2].nativeElement.textContent).toContain('Table');
 
-        expect(selects[2].componentInstance.options.toArray().length).toEqual(DatasetMock.FIELDS.length);
+        expect(selects[2].componentInstance.options.toArray().length).toEqual(DatasetServiceMock.FIELDS.length);
         expect(selects[2].componentInstance.disabled).toBe(false);
         expect(placeholders[3].nativeElement.textContent).toContain('ID Field');
 
-        expect(selects[3].componentInstance.options.toArray().length).toEqual(DatasetMock.FIELDS.length);
+        expect(selects[3].componentInstance.options.toArray().length).toEqual(DatasetServiceMock.FIELDS.length);
         expect(selects[3].componentInstance.disabled).toBe(false);
         expect(placeholders[4].nativeElement.textContent).toContain('Link Field');
 

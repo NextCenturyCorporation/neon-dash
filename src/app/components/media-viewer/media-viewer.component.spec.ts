@@ -37,8 +37,8 @@ import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
-import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
-import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: MediaViewer', () => {
@@ -57,7 +57,7 @@ describe('Component: MediaViewer', () => {
             DatasetService,
             ExportService,
             ErrorNotificationService,
-            { provide: FilterService, useClass: FilterMock },
+            { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
             VisualizationService,
             Injector,
@@ -178,19 +178,19 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('getFiltersToIgnore does return empty array if no filters are set', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
 
         expect(component.getFiltersToIgnore()).toEqual(null);
     });
 
     it('getFiltersToIgnore does return expected array of IDs if filters are set matching database/table', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField1', '!=', null), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
@@ -201,18 +201,18 @@ describe('Component: MediaViewer', () => {
     });
 
     it('getFiltersToIgnore does return null if no filters are set matching database/table', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField1', '!=', null), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[1];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[1];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
 
         // Test matching database but not table.
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[1];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[1];
 
         // Test matching table but not database.
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -915,7 +915,7 @@ describe('Component: MediaViewer with config', () => {
         providers: [
             ActiveGridService,
             ConnectionService,
-            { provide: DatasetService, useClass: DatasetMock },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
             ErrorNotificationService,
             FilterService,
@@ -951,11 +951,11 @@ describe('Component: MediaViewer with config', () => {
     });
 
     it('does set expected superclass options properties', () => {
-        expect(component.options.database).toEqual(DatasetMock.DATABASES[0]);
-        expect(component.options.databases).toEqual(DatasetMock.DATABASES);
-        expect(component.options.table).toEqual(DatasetMock.TABLES[0]);
-        expect(component.options.tables).toEqual(DatasetMock.TABLES);
-        expect(component.options.fields).toEqual(DatasetMock.FIELDS);
+        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
         expect(component.options.title).toEqual('Test Title');
     });
 
@@ -1034,42 +1034,42 @@ describe('Component: MediaViewer with config', () => {
             expect(selects[2].componentInstance.placeholder).toEqual('ID Field');
             expect(selects[2].componentInstance.required).toEqual(true);
             options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length);
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testIdField');
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testIdField');
             }
 
             expect(selects[3].componentInstance.disabled).toEqual(false);
             expect(selects[3].componentInstance.placeholder).toEqual('Link Field');
             expect(selects[3].componentInstance.required).toEqual(true);
             options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length);
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testLinkField');
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testLinkField');
             }
 
             expect(selects[4].componentInstance.disabled).toEqual(false);
             expect(selects[4].componentInstance.placeholder).toEqual('Name Field');
             expect(selects[4].componentInstance.required).toEqual(false);
             options = selects[4].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testNameField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testNameField');
             }
 
             expect(selects[5].componentInstance.disabled).toEqual(false);
             expect(selects[5].componentInstance.placeholder).toEqual('Type Field');
             expect(selects[5].componentInstance.required).toEqual(false);
             options = selects[5].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testTypeField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testTypeField');
             }
         });
     }));
