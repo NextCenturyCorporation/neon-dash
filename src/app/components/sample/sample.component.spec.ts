@@ -38,8 +38,8 @@ import { VisualizationService } from '../../services/visualization.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
-import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
@@ -115,10 +115,10 @@ describe('Component: Sample', () => {
         providers: [
             ActiveGridService,
             ConnectionService,
-            { provide: DatasetService, useClass: DatasetMock },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             ErrorNotificationService,
             ExportService,
-            { provide: FilterService, useClass: FilterMock },
+            { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
             VisualizationService,
             Injector,
@@ -222,8 +222,8 @@ describe('Component: Sample', () => {
     });
 
     it('createQuery does return expected query', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         expect(component.createQuery()).toEqual(new neon.query.Query()
@@ -233,8 +233,8 @@ describe('Component: Sample', () => {
     });
 
     it('createQuery does return expected query with sampleOptionalField', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
 
@@ -297,8 +297,8 @@ describe('Component: Sample', () => {
     });
 
     it('filterOnItem does add new filter to empty array and call addNeonFilter', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         let spy = spyOn(component, 'addNeonFilter');
 
         component.filterOnItem({
@@ -322,8 +322,8 @@ describe('Component: Sample', () => {
     });
 
     it('filterOnItem does add new filter to non-empty array and call addNeonFilter', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.filters = [{
             id: 'idA',
             field: 'field2',
@@ -358,8 +358,8 @@ describe('Component: Sample', () => {
     });
 
     it('filterOnItem does not add new filter or call addNeonFilter if matching filter exists', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.filters = [{
             id: 'idB',
             field: 'field1',
@@ -384,8 +384,8 @@ describe('Component: Sample', () => {
     });
 
     it('filterOnItem with replaceAll does add new filter to empty array and call addNeonFilter', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         let spy = spyOn(component, 'addNeonFilter');
 
         component.filterOnItem({
@@ -409,8 +409,8 @@ describe('Component: Sample', () => {
     });
 
     it('filterOnItem with replaceAll does replace existing filter in single element array and call replaceNeonFilter', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.filters = [{
             id: 'idA',
             field: 'field2',
@@ -442,8 +442,8 @@ describe('Component: Sample', () => {
     });
 
     it('filterOnItem with replaceAll and a multiple element array and call removeAllFilters', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.filters = [{
             id: 'idB',
             field: 'field2',
@@ -563,21 +563,21 @@ describe('Component: Sample', () => {
     });
 
     it('getFiltersToIgnore does return null if no filters are set', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         expect(component.getFiltersToIgnore()).toEqual(null);
     });
 
     it('getFiltersToIgnore does return expected array of IDs if filters are set matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '!=', null), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
@@ -588,25 +588,25 @@ describe('Component: Sample', () => {
     });
 
     it('getFiltersToIgnore does return null if no filters are set matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '!=', null), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField2', 'Test Required Field 2');
 
         // Test matching database/table but not field.
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.options.database = DatasetMock.DATABASES[1];
+        component.options.database = DatasetServiceMock.DATABASES[1];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         // Test matching database/field but not table.
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[1];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[1];
 
         // Test matching table/field but not database.
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -710,10 +710,10 @@ describe('Component: Sample', () => {
     it('isValidQuery does return expected boolean', () => {
         expect(component.isValidQuery()).toEqual(false);
 
-        component.options.database = DatasetMock.DATABASES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
         expect(component.isValidQuery()).toEqual(false);
 
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         expect(component.isValidQuery()).toEqual(false);
 
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
@@ -909,8 +909,8 @@ describe('Component: Sample', () => {
     });
 
     it('runDocCountQuery does call executeQuery', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         let spy = spyOn(component, 'executeQuery');
 
@@ -922,11 +922,11 @@ describe('Component: Sample', () => {
     });
 
     it('runDocCountQuery does add ignoreFilters to query', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '!=', null), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         let spy = spyOn(component, 'executeQuery');
@@ -944,8 +944,8 @@ describe('Component: Sample', () => {
     });
 
     it('setupFilters does not do anything if no filter exists', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
@@ -954,11 +954,11 @@ describe('Component: Sample', () => {
     });
 
     it('setupFilters does add neon filter to filters', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '=', 'value1'), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
@@ -976,11 +976,11 @@ describe('Component: Sample', () => {
     });
 
     it('setupFilters does not add neon filter with non-matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '=', 'value1'), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1'),
             new FieldMetaData('testRequiredField2', 'Test Required Field 2')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField2', 'Test Required Field 2');
@@ -989,15 +989,15 @@ describe('Component: Sample', () => {
         component.setupFilters();
         expect(component.filters).toEqual([]);
 
-        component.options.database = DatasetMock.DATABASES[1];
+        component.options.database = DatasetServiceMock.DATABASES[1];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         // Test matching database/field but not table.
         component.setupFilters();
         expect(component.filters).toEqual([]);
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[1];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[1];
 
         // Test matching table/field but not table.
         component.setupFilters();
@@ -1009,14 +1009,14 @@ describe('Component: Sample', () => {
     });
 
     it('setupFilters does not add neon filter matching existing filter field/value', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '=', 'value1'), 'testFilterName1');
 
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '=', 'value1'), 'testFilterName2');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
@@ -1034,11 +1034,11 @@ describe('Component: Sample', () => {
     });
 
     it('setupFilters does remove previous filters', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '=', 'value1'), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.filters = [{
@@ -1062,14 +1062,14 @@ describe('Component: Sample', () => {
     });
 
     it('setupFilters does ignore neon filters with multiple clauses', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.and.apply(neon.query, [
                 neon.query.where('testRequiredField1', '=', 'value1'),
                 neon.query.where('testRequiredField1', '=', 'value2')
             ]), 'testFilterName2');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1'),
             new FieldMetaData('testRequiredField2', 'Test Required Field 2')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField2', 'Test Required Field 2');
@@ -1316,10 +1316,10 @@ describe('Component: Sample', () => {
             expect(selects[2].componentInstance.placeholder).toEqual('Sample Required Field');
             expect(selects[2].componentInstance.required).toEqual(true);
             options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
             // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i].selected).toEqual(false);
             }
 
@@ -1328,12 +1328,12 @@ describe('Component: Sample', () => {
             expect(selects[3].componentInstance.placeholder).toEqual('Sample Optional Field');
             expect(selects[3].componentInstance.required).toEqual(false);
             options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             // Check for the empty field!
             expect(options[0].getLabel()).toEqual('(None)');
             // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(false);
             }
 
@@ -1636,10 +1636,10 @@ describe('Component: Sample with config', () => {
         providers: [
             ActiveGridService,
             ConnectionService,
-            { provide: DatasetService, useClass: DatasetMock },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             ErrorNotificationService,
             ExportService,
-            { provide: FilterService, useClass: FilterMock },
+            { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
             VisualizationService,
             Injector,
@@ -1668,8 +1668,8 @@ describe('Component: Sample with config', () => {
     });
 
     it('superclass properties are set to expected values from config', () => {
-        expect(component.options.database).toEqual(DatasetMock.DATABASES[1]);
-        expect(component.options.table).toEqual(DatasetMock.TABLES[1]);
+        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
         expect(component.options.limit).toEqual(1234);
         expect(component.options.title).toEqual('Test Title');
         expect(component.options.filter).toEqual({
@@ -1680,8 +1680,8 @@ describe('Component: Sample with config', () => {
     });
 
     it('class properties are set to expected values from config', () => {
-        expect(component.options.sampleOptionalField).toEqual(DatasetMock.COLOR_FIELD);
-        expect(component.options.sampleRequiredField).toEqual(DatasetMock.GROUP_FIELD);
+        expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.COLOR_FIELD);
+        expect(component.options.sampleRequiredField).toEqual(DatasetServiceMock.GROUP_FIELD);
         expect(component.options.sortDescending).toEqual(true);
         expect(component.options.subcomponentType).toEqual('Impl2');
         expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
@@ -1702,8 +1702,8 @@ describe('Component: Sample with config', () => {
         component.options.sampleRequiredField = component.emptyField;
 
         component.options.updateFieldsOnTableChanged();
-        expect(component.options.sampleOptionalField).toEqual(DatasetMock.COLOR_FIELD);
-        expect(component.options.sampleRequiredField).toEqual(DatasetMock.GROUP_FIELD);
+        expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.COLOR_FIELD);
+        expect(component.options.sampleRequiredField).toEqual(DatasetServiceMock.GROUP_FIELD);
     });
 
     it('does show header in toolbar with visualization title from config', () => {
@@ -1762,11 +1762,11 @@ describe('Component: Sample with config', () => {
             expect(selects[2].componentInstance.placeholder).toEqual('Sample Required Field');
             expect(selects[2].componentInstance.required).toEqual(true);
             options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
             // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testGroupField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testGroupField');
             }
 
             // Sample Optional Field Dropdown
@@ -1774,13 +1774,13 @@ describe('Component: Sample with config', () => {
             expect(selects[3].componentInstance.placeholder).toEqual('Sample Optional Field');
             expect(selects[3].componentInstance.required).toEqual(false);
             options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             // Check for the empty field!
             expect(options[0].getLabel()).toEqual('(None)');
             // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testColorField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testColorField');
             }
 
             // Subcomponent Type Dropdown

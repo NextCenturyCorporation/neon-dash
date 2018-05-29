@@ -37,7 +37,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { TranslationService } from '../../services/translation.service';
 import { VisualizationService } from '../../services/visualization.service';
-import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 /*
@@ -541,7 +541,7 @@ describe('Component: Document Viewer with Config', () => {
             ConnectionService,
             {
                 provide: DatasetService,
-                useClass: DatasetMock
+                useClass: DatasetServiceMock
             },
             ErrorNotificationService,
             ExportService,
@@ -589,9 +589,9 @@ describe('Component: Document Viewer with Config', () => {
     });
 
     it('has expected options properties after config is loaded', () => {
-        expect(component.options.dataField).toEqual(DatasetMock.TEXT_FIELD);
-        expect(component.options.dateField).toEqual(DatasetMock.DATE_FIELD);
-        expect(component.options.idField).toEqual(DatasetMock.ID_FIELD);
+        expect(component.options.dataField).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(component.options.dateField).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(component.options.idField).toEqual(DatasetServiceMock.ID_FIELD);
         expect(component.options.metadataFields).toEqual([
             {
                 name: 'Single Item Metadata Row',
