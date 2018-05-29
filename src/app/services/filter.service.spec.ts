@@ -124,7 +124,6 @@ class TestFilterServiceWithFilters extends TestFilterService {
 
 describe('Service: Filter', () => {
     let service;
-    let http;
     let backend;
 
     initializeTestBed({
@@ -140,9 +139,8 @@ describe('Service: Filter', () => {
         ]
     });
 
-    beforeEach(inject([FilterService, HttpClient, HttpTestingController], (filterService, httpClient, httpTestingController) => {
+    beforeEach(inject([FilterService, HttpTestingController], (filterService, httpTestingController) => {
         service = filterService;
-        http = httpClient;
         backend = httpTestingController;
     }));
 

@@ -19,7 +19,6 @@ import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import * as neon from 'neon-framework';
@@ -74,8 +73,7 @@ describe('Component: DocumentViewer', () => {
         imports: [
             AppMaterialModule,
             BrowserAnimationsModule,
-            FormsModule,
-            HttpModule
+            FormsModule
         ]
     });
 
@@ -577,8 +575,7 @@ describe('Component: Document Viewer with Config', () => {
         imports: [
             AppMaterialModule,
             BrowserAnimationsModule,
-            FormsModule,
-            HttpModule
+            FormsModule
         ]
     });
 

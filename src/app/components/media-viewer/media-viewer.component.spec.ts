@@ -20,7 +20,6 @@ import { async, ComponentFixture, inject, TestBed } from '@angular/core/testing'
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
-import { MockBackend } from '@angular/http/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import {} from 'jasmine-core';
