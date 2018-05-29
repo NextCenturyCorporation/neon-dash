@@ -510,9 +510,9 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @arg {string} databaseTableFieldKey
      */
     removeFilterById(databaseTableFieldKey: string) {
-        this.filterService.removeFilter(
+        this.filterService.removeFilters(
             this.messenger,
-            this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey),
+            [this.databaseTableFieldKeysToFilterIds.get(databaseTableFieldKey)],
             () => {
                 this.databaseTableFieldKeysToFilterIds.set(databaseTableFieldKey, '');
             }
