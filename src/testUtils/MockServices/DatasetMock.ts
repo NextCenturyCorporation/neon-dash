@@ -29,6 +29,8 @@ export class DatasetMock extends DatasetService {
     public static LINK_FIELD = new FieldMetaData('testLinkField', 'Test Link Field', false, 'string');
     public static LONGITUDE_FIELD = new FieldMetaData('testLongitudeField', 'Test Longitude Field', false, 'float');
     public static NAME_FIELD = new FieldMetaData('testNameField', 'Test Name Field', false, 'string');
+    public static RELATION_FIELD_A = new FieldMetaData('testRelationFieldA', 'Test Relation Field A', false, 'string');
+    public static RELATION_FIELD_B = new FieldMetaData('testRelationFieldB', 'Test Relation Field B', false, 'string');
     public static SIZE_FIELD = new FieldMetaData('testSizeField', 'Test Size Field', false, 'float');
     public static SORT_FIELD = new FieldMetaData('testSortField', 'Test Sort Field', false, 'string');
     public static TYPE_FIELD = new FieldMetaData('testTypeField', 'Test Type Field', false, 'string');
@@ -45,6 +47,8 @@ export class DatasetMock extends DatasetService {
         DatasetMock.LINK_FIELD,
         DatasetMock.LONGITUDE_FIELD,
         DatasetMock.NAME_FIELD,
+        DatasetMock.RELATION_FIELD_A,
+        DatasetMock.RELATION_FIELD_B,
         DatasetMock.SIZE_FIELD,
         DatasetMock.SORT_FIELD,
         DatasetMock.TYPE_FIELD,
@@ -64,7 +68,28 @@ export class DatasetMock extends DatasetService {
     constructor() {
         super(new NeonGTDConfig());
         this.setActiveDataset({
-            databases: DatasetMock.DATABASES
+            databases: DatasetMock.DATABASES,
+            relations: [{
+                members: [{
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testRelationFieldA'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testRelationFieldA'
+                }]
+            }, {
+                members: [{
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testRelationFieldB'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testRelationFieldB'
+                }]
+            }]
         });
     }
 }
