@@ -16,12 +16,12 @@
 import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By, DomSanitizer } from '@angular/platform-browser';
-import { async, ComponentFixture, fakeAsync, inject, TestBed, tick } from '@angular/core/testing';
+import { async, ComponentFixture, fakeAsync, inject, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
-import { HttpModule, Response, ResponseOptions, XHRBackend } from '@angular/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpTestingController, HttpClientTestingModule } from '@angular/common/http/testing';
 import { Injector } from '@angular/core';
-import { MockBackend } from '@angular/http/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import {} from 'jasmine-core';
@@ -60,15 +60,14 @@ describe('Component: WikiViewer', () => {
             ThemesService,
             VisualizationService,
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
-            // Mock for testing Http
-            { provide: XHRBackend, useClass: MockBackend }
+            { provide: 'config', useValue: new NeonGTDConfig() }
         ],
         imports: [
             AppMaterialModule,
             BrowserAnimationsModule,
             FormsModule,
-            HttpModule
+            HttpClientModule,
+            HttpClientTestingModule
         ]
     });
 
@@ -192,23 +191,10 @@ describe('Component: WikiViewer', () => {
     }));
 
     it('onQuerySuccess does call http.get and does set expected properties if response returns data',
-        fakeAsync(inject([XHRBackend], (mockBackend) => {
+        (inject([HttpTestingController], (backend) => {
 
         component.errorMessage = 'testErrorMessage';
         component.options.linkField.columnName = 'testLinkField';
-
-        let subscription = mockBackend.connections.subscribe((connection) => {
-            connection.mockRespond(new Response(new ResponseOptions({
-                body: JSON.stringify({
-                    parse: {
-                        text: {
-                            '*': '<p>Test Content</p>'
-                        },
-                        title: 'Test Title'
-                    }
-                })
-            })));
-        });
 
         component.onQuerySuccess({
             data: [{
@@ -216,29 +202,34 @@ describe('Component: WikiViewer', () => {
             }]
         });
 
-        // Wait for the HTTP response.
-        tick(500);
+        let request = backend.expectOne({
+            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue',
+            method: 'GET'
+        });
+        request.flush({
+            body: JSON.stringify({
+                parse: {
+                    text: {
+                        '*': '<p>Test Content</p>'
+                    },
+                    title: 'Test Title'
+                }
+            })
+        });
+
         expect(component.errorMessage).toBe('');
         expect(component.wikiName).toEqual(['Test Title']);
         expect(component.wikiText.length).toBe(1);
         expect(component.wikiText[0].toString()).toBe(
             'SafeValue must use [property]=binding: <p>Test Content</p> (see http://g.co/ng/security#xss)');
-        subscription.unsubscribe();
     })));
 
     it('onQuerySuccess does call http.get and does set expected properties if response failed',
-        fakeAsync(inject([XHRBackend], (mockBackend) => {
+        (inject([HttpTestingController], (backend) => {
 
         component.options.linkField.columnName = 'testLinkField';
         component.wikiName = ['testName'];
         component.wikiText = ['testText'];
-
-        let subscription = mockBackend.connections.subscribe((connection) => {
-            connection.mockError(new Response(new ResponseOptions({
-                body: 'Test Error Message',
-                status: 500
-            })));
-        });
 
         component.onQuerySuccess({
             data: [{
@@ -246,48 +237,28 @@ describe('Component: WikiViewer', () => {
             }]
         });
 
-        // Wait for the HTTP response.
-        tick(500);
+        let request = backend.expectOne({
+            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue',
+            method: 'GET'
+        });
+        request.flush({
+            error: {
+                code: 'Missing Title',
+                info: 'The page you specified doesn\'t exist.'
+            }
+        });
+
         expect(component.errorMessage).toBe('');
         expect(component.wikiName).toEqual(['testLinkValue']);
         expect(component.wikiText.length).toBe(1);
-        expect(component.wikiText[0].toString()).toBeTruthy();
-        subscription.unsubscribe();
+        expect(component.wikiText[0]).toEqual('Missing Title: The page you specified doesn\'t exist.');
     })));
 
     it('onQuerySuccess does call http.get multiple times and does set expected properties if response returns data with multiple links',
-        fakeAsync(inject([XHRBackend], (mockBackend) => {
+        (inject([HttpTestingController], (backend) => {
 
         component.errorMessage = 'testErrorMessage';
         component.options.linkField.columnName = 'testLinkField';
-
-        let subscription = mockBackend.connections.subscribe((connection) => {
-            if (connection.request.url === WikiViewerComponent.WIKI_LINK_PREFIX + 'testLinkValue1') {
-                connection.mockRespond(new Response(new ResponseOptions({
-                    body: JSON.stringify({
-                        parse: {
-                            text: {
-                                '*': '<p>Test Content 1</p>'
-                            },
-                            title: 'Test Title 1'
-                        }
-                    })
-                })));
-            }
-
-            if (connection.request.url === WikiViewerComponent.WIKI_LINK_PREFIX + 'testLinkValue2') {
-                connection.mockRespond(new Response(new ResponseOptions({
-                    body: JSON.stringify({
-                        parse: {
-                            text: {
-                                '*': '<p>Test Content 2</p>'
-                            },
-                            title: 'Test Title 2'
-                        }
-                    })
-                })));
-            }
-        });
 
         component.onQuerySuccess({
             data: [{
@@ -295,8 +266,36 @@ describe('Component: WikiViewer', () => {
             }]
         });
 
-        // Wait for the HTTP response.
-        tick(500);
+        let request1 = backend.expectOne({
+            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue1',
+            method: 'GET'
+        });
+        request1.flush({
+            body: JSON.stringify({
+                parse: {
+                    text: {
+                        '*': '<p>Test Content 1</p>'
+                    },
+                    title: 'Test Title 1'
+                }
+            })
+        });
+
+        let request2 = backend.expectOne({
+            url: 'https://en.wikipedia.org/w/api.php?action=parse&format=json&origin=*&prop=text&page=testLinkValue2',
+            method: 'GET'
+        });
+        request2.flush({
+            body: JSON.stringify({
+                parse: {
+                    text: {
+                        '*': '<p>Test Content 2</p>'
+                    },
+                    title: 'Test Title 2'
+                }
+            })
+        });
+
         expect(component.errorMessage).toBe('');
         expect(component.wikiName).toEqual(['Test Title 1', 'Test Title 2']);
         expect(component.wikiText.length).toBe(2);
@@ -304,7 +303,6 @@ describe('Component: WikiViewer', () => {
             'SafeValue must use [property]=binding: <p>Test Content 1</p> (see http://g.co/ng/security#xss)');
         expect(component.wikiText[1].toString()).toBe(
             'SafeValue must use [property]=binding: <p>Test Content 2</p> (see http://g.co/ng/security#xss)');
-        subscription.unsubscribe();
     })));
 
     it('postInit does call executeQueryChain', (() => {
@@ -542,7 +540,8 @@ describe('Component: WikiViewer with config', () => {
             AppMaterialModule,
             BrowserAnimationsModule,
             FormsModule,
-            HttpModule
+            HttpClientModule,
+            HttpClientTestingModule
         ]
     });
 

@@ -20,7 +20,6 @@ import { async, ComponentFixture, fakeAsync, inject, TestBed, tick } from '@angu
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
-import { MockBackend } from '@angular/http/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { neonVariables } from '../../neon-namespaces';
 
