@@ -79,6 +79,7 @@ export class AnnotationViewerOptions extends BaseNeonOptions {
         this.annotationFields = this.injector.get('annotationFields', '');
         this.documentTextField = this.injector.get('documentTextField', '');
         this.singleColor = this.injector.get('singleColor', false);
+        this.documentLimit = this.injector.get('documentLimit', 50);
     }
 
     updateFieldsOnTableChanged() {
@@ -254,8 +255,32 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @return {Array}
      * @private m
      */
-    getValidAnnotations() {
+    getValidAnnotations(data) {
         //
+    }
+
+    doesAnnotationExist(data) {
+        let document = data;
+        let isValid = false;
+        let annotationsList = data.annotations;
+
+        let documentText = data.documents;
+        if (!annotationsList.length || annotationsList.length < 1) {
+            isValid = false;
+        } else {
+            let annotation = annotationsList[0];
+            let text = document.documents;
+            //let textObject = document.documents.columnName;
+            if (text instanceof Array) {
+                text = text[0].substring(annotation.start, annotation.end);
+            } else {
+                text = text.substring(annotation.start, annotation.end);
+            }
+            if (text.includes(annotation.text)) {
+                isValid = true;
+            }
+        }
+        return isValid;
     }
 
     getValidDetails() {
@@ -399,8 +424,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             let annotationsPartList = [];
 
             //console.log(document);
-
-            if (!annotationsList.length) {
+            //console.log(this.doesAnnotationExist(document));
+            if (!this.doesAnnotationExist(document)) {
                 let part = new Part();
                 part.text = document.documents;
                 part.annotation = false;
@@ -544,11 +569,11 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         //return query.groupBy(aggregationFields).aggregate(neonVariables.COUNT, '*', 'count').sortBy('count', neonVariables.DESCENDING);
         let databaseName = this.options.database.name;
         let tableName = this.options.table.name;
-        let limit = this.options.limit;
+        let limit = this.options.documentLimit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let whereClause = this.createClause();
 
-        let annotations = this.getValidAnnotations();
+        //let annotations = this.getValidAnnotations();
 
         return query.where(whereClause);
     }
@@ -648,8 +673,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         if (this.activeData.length === this.responseData.length) {
             return 'Total ' + super.prettifyInteger(this.activeData.length);
         }
-        let begin = super.prettifyInteger((this.page - 1) * this.options.limit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.options.limit, this.responseData.length));
+        let begin = super.prettifyInteger((this.page - 1) * this.options.documentLimit + 1);
+        let end = super.prettifyInteger(Math.min(this.page * this.options.documentLimit, this.responseData.length));
         return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.responseData.length);
     }
 
@@ -886,6 +911,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         });
 
         this.disabledSet = [] as [string[]];
+        this.colorByFields = [];
 
         this.page = 1;
         this.updateDocuemnts(response);
@@ -1069,9 +1095,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     updateActiveData() {
         this.activeData = [];
-        let offset = (this.page - 1) * this.options.limit;
-        this.activeData = this.options.data.slice(offset, (offset + this.options.limit));
-        this.lastPage = (this.options.data.length <= (offset + this.options.limit));
+        let offset = (this.page - 1) * this.options.documentLimit;
+        this.activeData = this.options.data.slice(offset, (offset + this.options.documentLimit));
+        this.lastPage = (this.options.data.length <= (offset + this.options.documentLimit));
         this.createDisplayObjects(this.activeData);
         this.updateLegend();
         this.refreshVisualization();
