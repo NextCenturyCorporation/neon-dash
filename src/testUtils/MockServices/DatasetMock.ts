@@ -33,6 +33,7 @@ export class DatasetMock extends DatasetService {
     public static RELATION_FIELD_B = new FieldMetaData('testRelationFieldB', 'Test Relation Field B', false, 'string');
     public static SIZE_FIELD = new FieldMetaData('testSizeField', 'Test Size Field', false, 'float');
     public static SORT_FIELD = new FieldMetaData('testSortField', 'Test Sort Field', false, 'string');
+    public static TEXT_FIELD = new FieldMetaData('testTextField', 'Test Text Field', false, 'string');
     public static TYPE_FIELD = new FieldMetaData('testTypeField', 'Test Type Field', false, 'string');
     public static ES_ID_FIELD = new FieldMetaData('_id', '_id', false, '');
 
@@ -51,6 +52,7 @@ export class DatasetMock extends DatasetService {
         DatasetMock.RELATION_FIELD_B,
         DatasetMock.SIZE_FIELD,
         DatasetMock.SORT_FIELD,
+        DatasetMock.TEXT_FIELD,
         DatasetMock.TYPE_FIELD,
         DatasetMock.ES_ID_FIELD
     ];
