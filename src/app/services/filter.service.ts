@@ -41,13 +41,16 @@ export class ServiceFilter {
 
 @Injectable()
 export class FilterService {
+    protected filters: ServiceFilter[] = [];
+    protected messenger: neon.eventing.Messenger = new neon.eventing.Messenger();
 
-    protected filters: ServiceFilter[];
-    protected messenger: neon.eventing.Messenger;
+    constructor(
+        protected errorNotificationService: ErrorNotificationService,
+        protected datasetService: DatasetService
+    ) {}
 
-    constructor(protected errorNotificationService: ErrorNotificationService, protected datasetService: DatasetService) {
-        this.messenger = new neon.eventing.Messenger();
-        this.filters = [];
+    protected getDatabaseFilterState(onSuccess: (filterList: any[]) => any, onError: (response: any) => any) {
+        neon.query.Filter.getFilterState('*', '*', onSuccess, onError);
     }
 
     /**
@@ -57,7 +60,7 @@ export class FilterService {
      * @method getFilterState
      */
     public getFilterState(onSuccess?: () => any, onError?: (resp: any) => any) {
-        neon.query.Filter.getFilterState('*', '*', (filters) => {
+        this.getDatabaseFilterState((filters) => {
             this.filters = filters.map((filter) => {
                 return new ServiceFilter(filter.id, undefined, filter.dataSet.databaseName, filter.dataSet.tableName, filter.filter);
             });
@@ -107,22 +110,18 @@ export class FilterService {
 
     /**
      * Convenience method to get a filter by its string ID.
-     * @param {String} [filterId] The ID of the filter to return.
+     * @param {String} filterId The ID of the filter to return.
      * @return The filter with the given ID, or undefined if none exists.
      * @method getFilterById
      */
     public getFilterById(filterId: string): ServiceFilter {
         let matches = this.getFilters({ id: filterId });
-        if (matches.length === 0) {
-            return undefined;
-        } else {
-            return matches[0];
-        }
+        return matches.length ? matches[0] : undefined;
     }
 
     /**
      * Convenience method to get all filters with the given owner.
-     * @param {String} [ownerVisId] The ID of the visualization whose filters to get.
+     * @param {String} ownerVisId The ID of the visualization whose filters to get.
      * @return {List} The filters belonging to the give nvisualization.
      * @method getFiltersByOwner
      */
@@ -135,12 +134,12 @@ export class FilterService {
      *
      * @arg {string} database
      * @arg {string} table
-     * @arg {array} [fields]
+     * @arg {array} [fields=[]]
      * @return {array}
      */
-    public getFiltersForFields(database: string, table: string, fields?: string[]) {
+    public getFiltersForFields(database: string, table: string, fields: string[] = []) {
         let checkClauses = (clause) => {
-            if (clause.type === 'where' && (!fields || fields.indexOf(clause.lhs) >= 0)) {
+            if (clause.type === 'where' && (!fields.length || fields.indexOf(clause.lhs) >= 0)) {
                 return true;
             } else if (clause.type !== 'where') {
                 for (let whereClause of clause.whereClauses) {
@@ -170,11 +169,11 @@ export class FilterService {
         onSuccess?: (resp: any) => any,
         onError?: (resp: any) => any) {
 
-        let filter = this.createNeonFilter(database, table, whereClause, this.getFilterNameString(database, table, filterName));
-        let id = database + '-' + table + '-' + uuid.v4();
+        let filter = this.createNeonFilter(database, table, whereClause, this.createFilterName(database, table, filterName));
+        let id = this.createFilterId(database, table);
         let serviceFilters = [new ServiceFilter(id, ownerId, database, table, filter)];
-        this.createChildrenFromRelations(filter).forEach((sibling) => {
-            let sibId = sibling.databaseName + '-' + sibling.tableName + '-' + uuid.v4();
+        this.createChildrenFromRelations(filter, filterName).forEach((sibling) => {
+            let sibId = this.createFilterId(sibling.databaseName, sibling.tableName);
             serviceFilters.push(new ServiceFilter(sibId, undefined, sibling.databaseName, sibling.tableName, sibling));
         });
         for (let sib = serviceFilters.length - 1; sib >= 0; sib--) {
@@ -205,13 +204,13 @@ export class FilterService {
         onSuccess?: (resp: any) => any,
         onError?: (resp: any) => any) {
 
-        let filter = this.createNeonFilter(database, table, whereClause, this.getFilterNameString(database, table, filterName));
+        let filter = this.createNeonFilter(database, table, whereClause, this.createFilterName(database, table, filterName));
         let originalIndex = this.filters.findIndex((f) => f.id === id);
         if (originalIndex === -1) { // If for some reason the filter we're trying to replacew doesn't exist, add it.
             return this.addFilter(messenger, ownerId, database, table, whereClause, filterName, onSuccess, onError);
         }
         let siblingIds = this.filters[originalIndex].siblings;
-        let newFilters = this.createChildrenFromRelations(filter);
+        let newFilters = this.createChildrenFromRelations(filter, filterName);
         let newSiblings = [];
         let idAndFilterList = [[id, filter]];
 
@@ -220,9 +219,9 @@ export class FilterService {
         // Also add that sibling's id and the new filter to idAndFilterList.
         for (let i = siblingIds.length - 1; i >= 0; i--) {
             let oldSib = this.filters.find((fil) => fil.id === siblingIds[i]);
-            for (let i2 = newFilters.length - 1; i2 >= 0; i2--) {
-                if (newFilters[i2].databaseName === oldSib.database && newFilters[i2].tableName === oldSib.table) {
-                    let newNeonFilter = newFilters.splice(i2, 1)[0];
+            for (let j = newFilters.length - 1; j >= 0; j--) {
+                if (newFilters[j].databaseName === oldSib.database && newFilters[j].tableName === oldSib.table) {
+                    let newNeonFilter = newFilters.splice(j, 1)[0];
                     idAndFilterList.push([oldSib.id, newNeonFilter]);
                     newSiblings.push(new ServiceFilter(
                         oldSib.id,
@@ -251,13 +250,18 @@ export class FilterService {
             onError);
     }
 
-    public removeFilter(messenger: neon.eventing.Messenger,
+    protected removeFilter(messenger: neon.eventing.Messenger,
         id: string,
         onSuccess?: (resp: any) => any,
         onError?: (resp: any) => any) {
 
         let baseFilter = this.filters.find((filter) => filter.id === id);
-        let siblings = baseFilter.siblings.concat(id);
+        let siblings = baseFilter ? baseFilter.siblings.concat(id) : [];
+
+        if (!siblings.length) {
+            return;
+        }
+
         messenger.removeFilters(siblings,
             () => { // TODO - Actually care about what's returned here: a list of successfully removed filters.
                 // Filters not included weren't successfully removed.
@@ -286,7 +290,7 @@ export class FilterService {
         }
     }
 
-    protected getFilterNameString(database: string, table: string, filterName: string | { visName: string, text: string }): string {
+    protected createFilterName(database: string, table: string, filterName: string | { visName: string, text: string }): string {
         if (typeof filterName === 'object') {
             return (filterName.visName ? filterName.visName + ' - ' : '') + this.datasetService.getDatabaseWithName(database).prettyName +
                 ' - ' + this.datasetService.getTableWithName(database, table).prettyName + (filterName.text ? ': ' + filterName.text : '');
@@ -307,7 +311,9 @@ export class FilterService {
         return database + '-' + table + '-' + uuid.v4();
     }
 
-    protected createChildrenFromRelations(filter: neon.query.Filter): neon.query.Filter[] {
+    protected createChildrenFromRelations(filter: neon.query.Filter,
+        filterName: string | { visName: string, text: string}): neon.query.Filter[] {
+
         let mentionedFields = this.datasetService.findMentionedFields(filter);
         let relatedFieldMapping: any = new Map<string, any>();
         mentionedFields.forEach((field) => {
@@ -325,7 +331,9 @@ export class FilterService {
             } else {
                 let permutations = this.getPermutations(filter.databaseName, filter.tableName, value);
                 permutations.forEach((permutation) => {
-                    childFilters.push(this.adaptNeonFilterForNewDataset(filter, permutation));
+                    let childFilter = this.adaptNeonFilterForNewDataset(filter, permutation);
+                    childFilter.filterName = this.createFilterName(childFilter.databaseName, childFilter.tableName, filterName);
+                    childFilters.push(childFilter);
                 });
             }
         });
