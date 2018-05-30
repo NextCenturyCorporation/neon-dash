@@ -2405,12 +2405,11 @@
                     "database": "haiti_5_annotations",
                     "table": "ui_output",
                     "documentTextField": "originalText",
-                    "annotationFields": {
-                        "startCharacterField": "start",
-                        "endCharacterField": "end",
-                        "textField": "text",
-                        "typeField": "type"
-                    }
+                    "startCharacterField": "annotations.start",
+                    "endCharacterField": "annotations.end",
+                    "textField": "annotations.text",
+                    "typeField": "annotations.type"
+
 
                 },
                 "row": 0,
