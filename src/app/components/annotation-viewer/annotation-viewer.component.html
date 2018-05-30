@@ -83,15 +83,15 @@
                 </mat-toolbar>
 
                 <mat-form-field>
-                    <mat-select placeholder="Annotation Start Character Field" [(ngModel)]="options.annotationFields.startCharacterField" required="true"
+                    <mat-select placeholder="Annotation Start Character Field" [(ngModel)]="options.startCharacterField" required="true"
                         [disabled]="options.fields.length == 0">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.columnName }}</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
 
 
                 <mat-form-field>
-                    <mat-select placeholder="Annotation End Character Field" [(ngModel)]="options.annotationFields.endCharacterField" required="true"
+                    <mat-select placeholder="Annotation End Character Field" [(ngModel)]="options.endCharacterField" required="true"
                         [disabled]="options.fields.length == 0">
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
@@ -99,14 +99,14 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Annotation Text Field" [(ngModel)]="options.annotationFields.textField" required="true" [disabled]="options.fields.length == 0">
+                    <mat-select placeholder="Annotation Text Field" [(ngModel)]="options.textField" required="true" [disabled]="options.fields.length == 0">
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Annotation Type Field" [(ngModel)]="options.annotationFields.typeField" required="true" [disabled]="options.fields.length == 0">
+                    <mat-select placeholder="Annotation Type Field" [(ngModel)]="options.typeField" required="true" [disabled]="options.fields.length == 0">
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>

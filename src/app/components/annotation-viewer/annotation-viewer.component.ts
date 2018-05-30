@@ -61,7 +61,10 @@ export class AnnotationViewerOptions extends BaseNeonOptions {
     annotationsInAnotherTable: boolean;
     annotationDatabase: FieldMetaData;
     annotationTable: FieldMetaData;
-    annotationFields: AnnotationFields;
+    startCharacterField: FieldMetaData;
+    endCharacterField: FieldMetaData;
+    textField: FieldMetaData;
+    typeField: FieldMetaData;
 
     docCount: number;
     documentIdFieldInAnnotationTable: {};
@@ -76,7 +79,7 @@ export class AnnotationViewerOptions extends BaseNeonOptions {
     singleColor: boolean;
 
     onInit() {
-        this.annotationFields = this.injector.get('annotationFields', '');
+
         this.documentTextField = this.injector.get('documentTextField', '');
         this.singleColor = this.injector.get('singleColor', false);
         this.documentLimit = this.injector.get('documentLimit', 50);
@@ -84,7 +87,10 @@ export class AnnotationViewerOptions extends BaseNeonOptions {
 
     updateFieldsOnTableChanged() {
         this.documentTextField = this.findFieldObject('documentTextField');
-
+        this.startCharacterField = this.findFieldObject('startCharacterField');
+        this.endCharacterField = this.findFieldObject('endCharacterField');
+        this.textField = this.findFieldObject('textField');
+        this.typeField = this.findFieldObject('typeField');
     }
 }
 
@@ -273,7 +279,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             //let textObject = document.documents.columnName;
             if (text instanceof Array) {
                 text = text[0].substring(annotation.start, annotation.end);
-            } else {
+            } else if (text) {
                 text = text.substring(annotation.start, annotation.end);
             }
             if (text.includes(annotation.text)) {
@@ -419,37 +425,36 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
             let annotationStartIndex = [];
             let annotationEndIndex = [];
+            let annotationTextList = [];
+            let annotationTypeList = [];
 
             let annotationsList = document.annotations;
             let annotationsPartList = [];
 
             //console.log(document);
-            //console.log(this.doesAnnotationExist(document));
             if (!this.doesAnnotationExist(document)) {
                 let part = new Part();
                 part.text = document.documents;
                 part.annotation = false;
                 document.parts.push(part);
             } else {
+                annotationStartIndex = neonUtilities.deepFind(document, this.options.startCharacterField.columnName);
+                annotationEndIndex = neonUtilities.deepFind(document, this.options.endCharacterField.columnName);
+                annotationTextList = neonUtilities.deepFind(document, this.options.textField.columnName);
+                annotationTypeList = neonUtilities.deepFind(document, this.options.typeField.columnName);
                 //Breaks annotations into parts
-                for (let annotation of annotationsList) {
-                    let annotationStart = this.options.annotationFields.startCharacterField.toString();
-                    //neonUtilities.deepFind(annotation, this.options.annotationFields.startCharacterField.columnName);
-                    let annotationEnd = this.options.annotationFields.endCharacterField.toString();
-                    let annotationText = this.options.annotationFields.textField.toString();
-                    let annotationType = this.options.annotationFields.typeField.toString();
-
-                    annotationStartIndex.push(annotation[annotationStart]);
-                    annotationEndIndex.push(annotation[annotationEnd]);
-                    //console.log(neonUtilities.deepFind(annotation, annotationStart));
-
+                for (let index = 0; index < annotationStartIndex.length; index ++) {
                     let currentPart = new Part();
-                    let highlightColor = this.colorSchemaService.getColorFor(annotation[annotationType],
-                        annotation[annotationType]).toRgba(0.4);
+                    let currentStart = annotationStartIndex[index];
+                    let currentEnd = annotationEndIndex[index];
+                    let currentText = annotationTextList[index];
+                    let currentType = annotationTypeList[index];
+                    let highlightColor = this.colorSchemaService.getColorFor(currentType, currentType).toRgba(0.4);
+
                     currentPart.highlightColor = highlightColor;
-                    currentPart.text = annotation[annotationText];
+                    currentPart.text = currentText;
                     currentPart.annotation = true;
-                    currentPart.type = annotation[annotationType];
+                    currentPart.type = currentType;
                     annotationsPartList.push(currentPart);
 
                     if (!this.seenTypes.includes(currentPart.type)) {
@@ -838,8 +843,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         let fieldName: string = event.fieldName;
         let value: string = event.value;
         let currentlyActive: boolean = event.currentlyActive;
-
-        //console.log('Legend was clicked!');
 
         if (currentlyActive) {
 
