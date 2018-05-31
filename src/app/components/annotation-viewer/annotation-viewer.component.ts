@@ -669,9 +669,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @override
      */
     getButtonText(): string {
-        if (this.options.data.length) {
-            return 'Total ' + this.options.data.length;
-        }
         if (!this.responseData.length || !this.activeData.length) {
             return 'No Data';
         }
