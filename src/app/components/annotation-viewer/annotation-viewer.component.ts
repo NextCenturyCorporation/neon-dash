@@ -76,6 +76,8 @@ export class AnnotationViewerOptions extends BaseNeonOptions {
 
     errorMessage: string;
 
+    ignoreSelf: boolean;
+
     singleColor: boolean;
 
     onInit() {
@@ -735,10 +737,10 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @override
      */
     getFiltersToIgnore(): string[] {
-        // TODO Do you want the visualization to ignore its own filters?  If not, just return null.
+        if (!this.options.ignoreSelf) {
+            return null;
+        }
 
-        // TODO Change the list of filter fields here as needed.
-        // Get all the neon filters relevant to this visualization.
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             [this.options.documentTextField.columnName]);
 
