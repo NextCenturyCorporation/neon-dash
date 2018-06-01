@@ -15,15 +15,15 @@
  */
 @import '../base-neon-component/base-neon.component.scss';
 
+.annotation-viewer-table {
+    padding: 5px;
+    margin: 0;
+}
+
 .document-row {
     list-style-type: none;
     border-bottom:grey solid 1px;
     padding: 5px;
-}
-
-.annotation-viewer-table {
-    padding: 5px;
-    margin: 0;
 }
 
 .legend-container {
