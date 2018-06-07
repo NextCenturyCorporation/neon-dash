@@ -2,6 +2,7 @@
 	"datasets": [
 		{
 			"name": "VERDI TA2",
+            "icon": "assets/images/verdi-favicon.ico",
 			"connectOnLoad": true,
 			"layout": "verdi-ta2-layout",
 			"datastore": "elasticsearch",
