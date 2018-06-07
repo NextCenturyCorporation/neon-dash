@@ -106,9 +106,9 @@ Running the application requires a functioning Neon deployment.  Links to the Ne
 
 Neon and  are made available by [Next Century][18] under the [Apache 2 Open Source License][16]. You may freely download, use, and modify, in whole or in part, the source code or release packages. Any restrictions or attribution requirements are spelled out in the license file. Neon and  attribution information can be found in the LICENSE.TXT file and licenses folder in each of the [Neon Git Repository][neon] and [ Git Repository][neon-dash]. For more information about the Apache license, please visit the [The Apache Software Foundation’s License FAQ][17].
 
-##References
+## References
 
-VERDI Icon : ArtsyBee, CC0 Creative Commons, uploaded 7 February 2016, *lion-1181521_960_720.png*, <[19]> 
+VERDI Icon : ArtsyBee, CC0 Creative Commons, uploaded 7 February 2016, *lion-1181521_960_720.png*, [19]
 
 ## Additional Information
 
