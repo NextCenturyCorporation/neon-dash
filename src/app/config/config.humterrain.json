@@ -1,0 +1,101 @@
+{
+	"datasets": [
+		{
+			"name": "Human Terrain",
+			"connectOnLoad": false,
+			"layout": "TA1-ELISA-layout",
+			"datastore": "elasticsearch",
+			"hostname": "localhost",
+			"databases": [
+				{
+					"name": "ll_nepal_simplified_03_08",
+					"prettyName": "Human Terrain",
+					"tables": [
+						{
+							"name": "annotations2",
+							"prettyName": "Annotations",
+							"mappings": {
+								"date": "createdAt"
+							}
+						}
+					]
+				}
+			],
+			"options": {
+				"checkForCoordinateValidation": "null_values",
+				"colorMaps": {
+					"ll_nepal_simplified": {
+						"mapping": {
+							"entities.entityType": {
+								"LOC": "#98DF8A",
+								"ORG": "#FF9896",
+								"PER": "#AEC7E8"
+							},
+							"types": {
+								
+							}
+						}
+					}
+				},
+				"simpleFilter": {
+					"databaseName": "ll_nepal_simplified_03_08",
+					"tableName": "annotations2",
+					"fieldName": "translatedText",
+					"placeHolder": "Search"
+				}
+			}
+		}
+	],
+	"layouts": {
+
+				"TA1-ELISA-layout": [
+			{
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 16,
+				"sizey": 2,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
+				"selected": true,
+				"bindings": {
+					"title": "Filter Builder",
+					"database": "ll_nepal_simplified_03_08",
+					"table": "annotations2"
+				},
+				"row": 0,
+				"col": 0
+			},
+			{
+				"name": "Data Table",
+				"type": "dataTable",
+				"icon": "ViewData64",
+				"sizex": 8,
+				"sizey": 12,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 7,
+				"minSizey": 3,
+				"$$hashKey": "object:43",
+				"selected": true,
+				"bindings": {
+					"title": "Documents",
+					"database": "ll_nepal_simplified_03_08",
+					"table": "annotations2",
+					"sortField": "createdAt",
+					"limit": "100",
+					"allColumnStatus": "hide",
+					"exceptionsToStatus": [
+						"createdAt",
+						"translatedText"
+					]
+				},
+				"row": 0,
+				"col": 17
+			}
+		]
+		}
+	}
