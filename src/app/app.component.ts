@@ -73,6 +73,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         limit_to_screen: true
     };
 
+    public projectTitle: string = 'Neon';
+    public projectIcon: any = 'assets/images/favicon.ico';
+
     /* A reference to the dialog for adding visualizations. */
     private addVisDialogRef: MatDialogRef<AddVisualizationComponent>;
 
@@ -94,6 +97,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.neonConfig = neonConfig;
         this.snackBar = snackBar;
 
+
         if (neonConfig.errors && neonConfig.errors.length > 0) {
             let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
                 viewContainerRef: this.viewContainerRef
@@ -101,14 +105,18 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             snackBarRef.instance.snackBarRef = snackBarRef;
             snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
         }
+
+        if (this.datasets && this.datasets.length > 0) {
+            this.projectTitle = this.datasets[0].name ? this.datasets[0].name : this.projectTitle;
+            this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon: this.projectIcon;
+        }
+
+        this.changeFavicon();
+
     }
 
     gridItemsToString(): string {
         return JSON.stringify(this.gridItems);
-    }
-
-    getDatasets(): Dataset[] {
-        return this.datasets;
     }
 
     openAddVisualizationDialog() {
@@ -195,5 +203,26 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
          * let str = `row: ${event.row} col: ${event.col} sizex: ${event.sizex} sizey: ${event.sizey}`;
          * console.log(str);
          */
+    }
+
+    changeFavicon() {
+        let favicon = document.createElement('link'),
+            faviconShortcut = document.createElement('link'),
+            title = document.createElement('title'),
+            head = document.querySelector('head');
+
+        favicon.setAttribute('rel', 'icon');
+        favicon.setAttribute('type', 'image/x-icon');
+        favicon.setAttribute('href', this.projectIcon);
+
+        faviconShortcut.setAttribute('rel', 'shortcut icon');
+        faviconShortcut.setAttribute('type', 'image/x-icon');
+        faviconShortcut.setAttribute('href', this.projectIcon);
+
+        title.innerText = this.projectTitle;
+
+        head.appendChild(favicon);
+        head.appendChild(faviconShortcut);
+        head.appendChild(title);
     }
 }
