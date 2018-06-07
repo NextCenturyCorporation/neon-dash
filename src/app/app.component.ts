@@ -97,7 +97,6 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.neonConfig = neonConfig;
         this.snackBar = snackBar;
 
-
         if (neonConfig.errors && neonConfig.errors.length > 0) {
             let snackBarRef: any = this.snackBar.openFromComponent(SnackBarComponent, {
                 viewContainerRef: this.viewContainerRef
@@ -117,6 +116,10 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     gridItemsToString(): string {
         return JSON.stringify(this.gridItems);
+    }
+
+    getDatasets(): Dataset[] {
+        return this.datasets;
     }
 
     openAddVisualizationDialog() {
