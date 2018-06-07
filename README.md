@@ -108,7 +108,7 @@ Neon and  are made available by [Next Century][18] under the [Apache 2 Open Sour
 
 ## References
 
-VERDI Icon : ArtsyBee, CC0 Creative Commons, uploaded 7 February 2016, *lion-1181521_960_720.png*, [19]
+VERDI Icon : ArtsyBee, CC0 Creative Commons, uploaded 7 February 2016, [*lion-1181521_960_720.png*][19]
 
 ## Additional Information
 
