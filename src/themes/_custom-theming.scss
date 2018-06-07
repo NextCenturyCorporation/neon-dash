@@ -10,6 +10,7 @@ $white-6-opacity: rgba(white, 0.06);
 
 // Our bright accent color, as selected by UX.  Also known as:  $4DBEC2
 $accent-bright: rgb(77, 190, 194);
+$accent-bright-opacity: rgba(77, 190, 194, 0.2);
 
 // These are from the timeline and stacked timeline
 $text-shadow-color: #FFFFFF;
@@ -84,7 +85,7 @@ $mat-grey1: (
 	    A200: $black-87-opacity,
 	    A400: $black-87-opacity,
 	    A700: $white-87-opacity,
-  	)	
+  	)
 );
 
 $mat-grey2: (
@@ -115,7 +116,7 @@ $mat-grey2: (
 	    A200: $black-87-opacity,
 	    A400: $black-87-opacity,
 	    A700: $white-87-opacity,
-  	)	
+  	)
 );
 
 $mat-grey3: (
@@ -146,7 +147,7 @@ $mat-grey3: (
 	    A200: $black-87-opacity,
 	    A400: $black-87-opacity,
 	    A700: $white-87-opacity,
-  	)	
+  	)
 );
 
 $mat-grey4:(

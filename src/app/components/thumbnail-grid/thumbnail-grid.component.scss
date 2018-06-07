@@ -129,9 +129,9 @@
 .thumbnail-tweets{
     display:flex;
     flex-direction:row;
-    border: solid 2px darkgray;
+    border-bottom: solid 1px darkgray;
     width: 20em;
-    padding:.2em;
+    padding: 0em .4em .6em .4em;
     flex: 0 0;
     justify-content: space-between;
     max-height:113px;
