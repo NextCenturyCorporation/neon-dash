@@ -217,13 +217,15 @@
            <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [title]="getThumbnailTitle(item)"
                (click)="selectGridItem(item)" [class.selectable]="isSelectable()"
                [class.selected]="isSelected(item)" [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
-               <div class="thumbnail-details" *ngIf="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
+<!--               <div class="thumbnail-details" *ngIf="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
                    <p>
                        <span class="detail-ellipses">{{ getThumbnailLabel(item) }}</span>
                        <span class="detail-percentage">{{ getThumbnailPercent(item) }}</span>
                    </p>
                </div>
-                <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"></canvas>
+                <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"></canvas>-->
+               <app-thumbnail-contracted-details *ngIf="!options.detailedThumbnails" [label]="getThumbnailLabel(item)" [percent]="getThumbnailPercent(item)" [options]="options"></app-thumbnail-contracted-details>
+               <app-thumbnail-expanded-details *ngIf="options.detailedThumbnails" [item]="item" [options]="options"></app-thumbnail-expanded-details>
            </div>
        </div>
    </div>

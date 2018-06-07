@@ -1,8 +1,9 @@
-    <div class="thumbnail-image">
-        <canvas class="thumbnail-canvas"></canvas>
+
+<div class="thumbnail-tweets">
+    <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"></canvas>
+    <div class="thumbnail-tweet-details">
+        <p>This is the Header</p>
+        <p class="tweet-ellipses">These are the details and I am trying to max out the words so that I can see if the ellipses will work how I would like it to. This is still not long enough. How about now?</p>
+        <p><span class="text-highlight">Jane Doe</span> - 8/12/2018</p>
     </div>
-    <div class="thumbnail-details">
-        <p><span class="title-bold">Date</span><span>{{ item[options.nameField.columnName] }}</span></p>
-        <p><span class="title-bold">Created By</span><span>{{ item[options.dateField.columnName] }}</span></p>
-        <p><span class="title-bold">Tweet</span><span>{{ item[options.typeField.columnName] }}</span></p>
-    </div>
+</div>

@@ -61,6 +61,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public openOnMouseClick: boolean;
     public percentField: FieldMetaData;
     public predictedNameField: FieldMetaData;
+    public detailedThumbnails: boolean;
     public sortField: FieldMetaData;
     public styleClass: string;
     public textMap: any;
@@ -83,6 +84,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.styleClass = this.injector.get('styleClass', '');
         this.textMap = this.injector.get('textMap', {});
         this.typeMap = this.injector.get('typeMap', {});
+        this.detailedThumbnails = this.injector.get('detailedThumbnails', false);
     }
 
     /**
@@ -780,6 +782,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.openOnMouseClick = this.options.openOnMouseClick;
         bindings.textMap = this.options.textMap;
         bindings.typeMap = this.options.typeMap;
+        bindings.detailedThumbnails = this.options.detailedThumbnails;
     }
 
     /**
