@@ -74,7 +74,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     };
 
     public projectTitle: string = 'Neon';
-    public projectIcon: any = 'assets/images/favicon.ico';
+    public projectIcon: string = 'favicon.ico?v=2';
 
     /* A reference to the dialog for adding visualizations. */
     private addVisDialogRef: MatDialogRef<AddVisualizationComponent>;
@@ -107,7 +107,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         if (this.datasets && this.datasets.length > 0) {
             this.projectTitle = this.datasets[0].name ? this.datasets[0].name : this.projectTitle;
-            this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon: this.projectIcon;
+            this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon : this.projectIcon;
         }
 
         this.changeFavicon();
