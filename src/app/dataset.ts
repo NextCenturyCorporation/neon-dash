@@ -82,7 +82,8 @@ export class Dataset {
     constructor(
         public name: string = '',
         public datastore: string = '',
-        public hostname: string = ''
+        public hostname: string = '',
+        public icon: string = ''
     ) {}
 }
 
