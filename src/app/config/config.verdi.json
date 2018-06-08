@@ -1,42 +1,48 @@
 {
     "datasets": [
         {
+            "title": "VERDI",
             "name": "VERDI TA1",
-            "icon": "assets/VERDI/ml-favicon.ico",
+            "icon": "assets/images/verdi-favicon.ico",
             "connectOnLoad": true,
             "layout": "verdi-ta1-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
-            "databases": [{
-                "name": "verdi-rdf",
-                "prettyName": "VERDI",
-                "tables": [{
-                    "name": "normal",
-                    "prettyName": "Normal"
-                },
-                    {
-                        "name": "reified",
-                        "prettyName": "Reified"
-                    }]
-            }],
+            "databases": [
+                {
+                    "name": "verdi-rdf",
+                    "prettyName": "VERDI",
+                    "tables": [
+                        {
+                            "name": "normal",
+                            "prettyName": "Normal"
+                        },
+                        {
+                            "name": "reified",
+                            "prettyName": "Reified"
+                        }
+                    ]
+                }
+            ],
             "relations": [
-                {"members": [
-                    {
-                        "database": "verdi-rdf",
-                        "table": "normal",
-                        "field": "@id"
-                    },
-                    {
-                        "database": "verdi-rdf",
-                        "table": "reified",
-                        "field": "provenance"
-                    }
-                ]}
+                {
+                    "members": [
+                        {
+                            "database": "verdi-rdf",
+                            "table": "normal",
+                            "field": "@id"
+                        },
+                        {
+                            "database": "verdi-rdf",
+                            "table": "reified",
+                            "field": "provenance"
+                        }
+                    ]
+                }
             ]
         },
         {
             "name": "VERDI TA2",
-            "icon": "assets/VERDI/ml-favicon.ico",
             "connectOnLoad": true,
             "layout": "verdi-ta2-layout",
             "datastore": "elasticsearch",
@@ -53,7 +59,6 @@
         },
         {
             "name": "VERDI TA3",
-            "icon": "assets/VERDI/ml-favicon.ico",
             "connectOnLoad": true,
             "layout": "verdi-ta3-layout",
             "datastore": "elasticsearch",
@@ -107,6 +112,8 @@
                     "idField": "@id",
                     "sortField": "author",
                     "filterable": true,
+                    "ignoreSelf": true,
+                    "singleFilter": true,
                     "filterFields": [
                         "@id"
                     ],
@@ -521,4 +528,3 @@
         ]
     }
 }
-
