@@ -1,7 +1,7 @@
 {
     "datasets": [
         {
-            "name": "VERDI TA1",
+            "name": "VERDI TA3",
             "icon": "assets/VERDI/ml-favicon.ico",
             "connectOnLoad": true,
             "layout": "verdi-ta3-layout",
@@ -116,7 +116,7 @@
                     "objectNameField": "author",
                     "objectIdField": "author",
                     "typeField": "docType",
-                    "categoryField": "title",
+                    "border": "grey",
                     "predictedNameField": "title",
                     "percentField": "date",
                     "sortField": "title",
