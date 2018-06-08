@@ -126,7 +126,7 @@
 }
 
 
-.thumbnail-tweets{
+.thumbnail-flags{
     display:flex;
     flex-direction:row;
     border-bottom: solid 1px darkgray;
@@ -137,7 +137,7 @@
     max-height:113px;
 }
 
-.thumbnail-tweet-details{
+.thumbnail-flag-details{
     max-width:65%;
     overflow-wrap: break-word;
     word-wrap: break-word;
@@ -156,7 +156,7 @@
     }
 }
 
-.tweet-ellipses {
+.flag-ellipses {
     max-height: 50%;
     text-overflow: ellipsis;
     overflow: hidden;
