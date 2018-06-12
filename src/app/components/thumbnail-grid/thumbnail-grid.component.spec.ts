@@ -1921,7 +1921,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'styleClass', useValue: 'style2' },
             { provide: 'textMap', useValue: { actual: 'Truth', percentage: 'Score' } },
             { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } },
-            { provide: 'categoryField', useValue: 'testGroupField' },
+            { provide: 'categoryField', useValue: 'testCategoryField' },
             { provide: 'filterField', useValue: 'testFilterField' },
             { provide: 'idField', useValue: 'testIdField' },
             { provide: 'linkField', useValue: 'testLinkField' },
@@ -1979,7 +1979,7 @@ describe('Component: ThumbnailGrid with config', () => {
             mov: 'vid'
         });
 
-        expect(component.options.categoryField).toEqual(new FieldMetaData('testGroupField', 'Test Group Field', false, 'string'));
+        expect(component.options.categoryField).toEqual(new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string'));
         expect(component.options.filterField).toEqual(new FieldMetaData('testFilterField', 'Test Filter Field', false, 'string'));
         expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field', false, 'string'));
         expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field', false, 'string'));
@@ -2075,7 +2075,7 @@ describe('Component: ThumbnailGrid with config', () => {
             expect(options[0].getLabel()).toEqual('(None)');
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
                 expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testGroupField');
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testCategoryField');
             }
 
             expect(selects[5].componentInstance.disabled).toEqual(false);
