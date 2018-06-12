@@ -48,6 +48,7 @@ import { ChartComponent } from '../chart/chart.component';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { NewsFeedComponent } from '../news-feed/news-feed.component';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -69,6 +70,7 @@ describe('Component: VisualizationContainer', () => {
             MapComponent,
             MediaViewerComponent,
             NetworkGraphComponent,
+            NewsFeedComponent,
             SampleComponent,
             ScatterPlotComponent,
             StackedTimelineComponent,

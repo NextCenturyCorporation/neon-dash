@@ -45,6 +45,7 @@ import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { NewsFeedComponent } from '../news-feed/news-feed.component';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -62,6 +63,7 @@ describe('Component: VisualizationInjector', () => {
             MapComponent,
             MediaViewerComponent,
             NetworkGraphComponent,
+            NewsFeedComponent,
             SampleComponent,
             ScatterPlotComponent,
             StackedTimelineComponent,

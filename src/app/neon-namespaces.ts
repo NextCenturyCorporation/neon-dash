@@ -144,6 +144,10 @@ export const neonVisualizations: any[] = [{
     type: 'networkGraph',
     icon: 'NetworkGraph64'
 }, {
+    name: 'News Feed',
+    type: 'newsFeed',
+    icon: 'NewsFeed'
+}, {
     name: 'Sample',
     type: 'sample',
     icon: 'Neon64'

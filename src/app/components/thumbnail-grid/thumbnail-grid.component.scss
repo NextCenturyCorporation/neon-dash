@@ -26,10 +26,13 @@
 
 .thumbnail-grid-div{
     display: flex;
-    flex-direction: column;
-    flex: 0 0;
+    flex: 1 auto;
     margin: .4em;
     align-items: center;
+}
+
+.flex-grow{
+    flex: 1 auto;
 }
 
 .title-bold{
@@ -40,6 +43,7 @@
     width: auto;
     height: auto;
     box-shadow: 0px 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    margin-right: 12px;
 }
 
 .blue-border{
@@ -130,10 +134,8 @@
     display:flex;
     flex-direction:row;
     border-bottom: solid 1px darkgray;
-    width: 20em;
     padding: 0em .4em .6em .4em;
     flex: 0 0;
-    justify-content: space-between;
     max-height:113px;
 }
 

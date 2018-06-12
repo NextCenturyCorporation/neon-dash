@@ -54,6 +54,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public idField: FieldMetaData;
     public ignoreSelf: boolean;
     public linkField: FieldMetaData;
+    public dateField: FieldMetaData;
     public linkPrefix: string;
     public nameField: FieldMetaData;
     public objectIdField: FieldMetaData;
@@ -97,6 +98,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.filterField = this.findFieldObject('filterField');
         this.idField = this.findFieldObject('idField');
         this.linkField = this.findFieldObject('linkField');
+        this.dateField = this.findFieldObject('dateField');
         this.nameField = this.findFieldObject('nameField');
         this.objectIdField = this.findFieldObject('objectIdField');
         this.objectNameField = this.findFieldObject('objectNameField');
@@ -243,6 +245,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             fields.push(this.options.typeField.columnName);
         }
 
+        if (this.options.dateField.columnName) {
+            fields.push(this.options.dateField.columnName);
+        }
+
         let whereClauses = [
             neon.query.where(this.options.linkField.columnName, '!=', null),
             neon.query.where(this.options.linkField.columnName, '!=', '')
@@ -364,6 +370,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }, {
             columnName: this.options.linkField.columnName,
             prettyName: this.options.linkField.prettyName
+        }, {
+            columnName: this.options.dateField.columnName,
+            prettyName: this.options.dateField.prettyName
         }, {
             columnName: this.options.nameField.columnName,
             prettyName: this.options.nameField.prettyName
@@ -767,6 +776,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.idField = this.options.idField.columnName;
         bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.linkField = this.options.linkField.columnName;
+        bindings.dateField = this.options.dateField.columnName;
         bindings.nameField = this.options.nameField.columnName;
         bindings.objectIdField = this.options.objectIdField.columnName;
         bindings.objectNameField = this.options.objectNameField.columnName;

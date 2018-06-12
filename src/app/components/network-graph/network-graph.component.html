@@ -88,6 +88,10 @@
         </mat-card>
     </mat-sidenav>
 
+    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+        <mat-spinner></mat-spinner>
+    </div>
+
     <div class="body-container" (click)="stopEventPropagation($event)">
         <div class="graph-container" (click)="stopEventPropagation($event)">
             <div #graphElement id="graphElement" (click)="stopEventPropagation($event)"></div>

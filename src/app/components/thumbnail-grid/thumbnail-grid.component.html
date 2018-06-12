@@ -225,7 +225,7 @@
                </div>
                 <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"></canvas>-->
                <app-thumbnail-contracted-details *ngIf="!options.detailedThumbnails" [label]="getThumbnailLabel(item)" [percent]="getThumbnailPercent(item)" [options]="options"></app-thumbnail-contracted-details>
-               <app-thumbnail-expanded-details *ngIf="options.detailedThumbnails" [item]="item" [options]="options"></app-thumbnail-expanded-details>
+               <app-thumbnail-expanded-details class="flex-grow" *ngIf="options.detailedThumbnails" [item]="item" [options]="options"></app-thumbnail-expanded-details>
            </div>
        </div>
    </div>
