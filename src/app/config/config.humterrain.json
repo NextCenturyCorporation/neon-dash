@@ -2,13 +2,13 @@
 	"datasets": [
 		{
 			"name": "Human Terrain",
-			"connectOnLoad": false,
+			"connectOnLoad": true,
 			"layout": "TA1-ELISA-layout",
 			"datastore": "elasticsearch",
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "ll_nepal_simplified_03_08",
+					"name": "ll_nepal_06_14_1",
 					"prettyName": "Human Terrain",
 					"tables": [
 						{
@@ -38,7 +38,7 @@
 					}
 				},
 				"simpleFilter": {
-					"databaseName": "ll_nepal_simplified_03_08",
+					"databaseName": "ll_nepal_06_14_1",
 					"tableName": "annotations2",
 					"fieldName": "translatedText",
 					"placeHolder": "Search"
@@ -63,7 +63,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Filter Builder",
-					"database": "ll_nepal_simplified_03_08",
+					"database": "ll_nepal_06_14_1",
 					"table": "annotations2"
 				},
 				"row": 0,
@@ -83,7 +83,7 @@
 				"selected": true,
 				"bindings": {
 					"title": "Documents",
-					"database": "ll_nepal_simplified_03_08",
+					"database": "ll_nepal_06_14_1",
 					"table": "annotations2",
 					"sortField": "createdAt",
 					"limit": "100",
@@ -95,6 +95,29 @@
 				},
 				"row": 0,
 				"col": 17
+			},{
+				"name": "Network Graph",
+				"type": "networkGraph",
+				"icon": "Graph64",
+				"sizex": 16,
+				"sizey": 10,
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 6,
+				"minSizey": 5,
+				"$$hashKey": "object:43",
+				"selected": true,
+				"bindings": {
+					"title": "Network Graph",
+					"database": "ll_nepal_06_14_1",
+					"table": "annotations2",
+					"isDirected": true,
+					"nodeColorField": "enrichedEnities.entity_type",
+					"nodeField": "entities",
+					"linkField": "enrichedEnities.mention_head"
+				},
+				"row": 15,
+				"col": 0			
 			}
 		]
 		}
