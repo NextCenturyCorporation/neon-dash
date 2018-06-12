@@ -286,7 +286,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             // Format number strings first.
             let formatted = this.formatNumber(text);
             // Subtract three characters for the ellipsis.
-            let truncated = ('' + text).substring(0, ('' + text).length - 3);
+            let truncated = ('' + formatted).substring(0, ('' + formatted).length - 3);
             let elementWidth = calculateTextWidth(formatted + suffix);
 
             if (!elementWidth || elementWidth < 0 || !containerWidth || containerWidth < 0 || elementWidth < containerWidth) {
