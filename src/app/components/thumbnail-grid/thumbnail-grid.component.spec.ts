@@ -811,10 +811,7 @@ describe('Component: ThumbnailGrid', () => {
 
         let fields = ['testLinkField', 'testSortField'];
 
-        let wherePredicate = neon.query.and.apply(neon.query, [
-            neon.query.where('testLinkField', '!=', null),
-            neon.query.where('testLinkField', '!=', '')
-        ]);
+        let wherePredicate = neon.query.where('testLinkField', '!=', null);
 
         expect(component.createQuery()).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)

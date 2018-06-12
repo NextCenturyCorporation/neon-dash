@@ -182,8 +182,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         let whereClauses = [
             neon.query.where(this.options.idField.columnName, '=', this.options.id),
-            neon.query.where(this.options.linkField.columnName, '!=', null),
-            neon.query.where(this.options.linkField.columnName, '!=', '')
+            neon.query.where(this.options.linkField.columnName, '!=', null)
         ];
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));

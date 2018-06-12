@@ -240,12 +240,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             fields.push(this.options.typeField.columnName);
         }
 
-        let whereClauses = [
-            neon.query.where(this.options.linkField.columnName, '!=', null),
-            neon.query.where(this.options.linkField.columnName, '!=', '')
-        ];
-
-        return query.withFields(fields).where(neon.query.and.apply(query, whereClauses))
+        return query.withFields(fields).where(this.options.linkField.columnName, '!=', null)
             .sortBy(this.options.sortField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
     }
 
