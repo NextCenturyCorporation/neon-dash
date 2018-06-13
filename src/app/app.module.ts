@@ -45,6 +45,7 @@ import {
     SimpleSnackBarComponent
 } from './components/add-visualization/add-visualization.component';
 import { AppComponent } from './app.component';
+import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { ChartComponent } from './components/chart/chart.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
@@ -90,6 +91,7 @@ export function getAppConfig() {
         AboutNeonComponent,
         AddVisualizationComponent,
         AppComponent,
+        AggregationComponent,
         BarChartComponent,
         ChartComponent,
         ConfigEditorComponent,
