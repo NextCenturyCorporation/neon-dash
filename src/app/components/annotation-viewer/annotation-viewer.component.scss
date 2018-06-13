@@ -24,6 +24,10 @@
     list-style-type: none;
     border-bottom:grey solid 1px;
     padding: 5px;
+
+    &:hover {
+        cursor: pointer;
+    }
 }
 
 .legend-container {
