@@ -2,7 +2,7 @@
     "datasets": [
         {
             "title": "VERDI",
-            "name": "VERDI TA1",
+            "name": "VERDI LDC TA1",
             "icon": "assets/images/verdi-favicon.ico",
             "connectOnLoad": true,
             "layout": "verdi-ta1-layout",
@@ -42,7 +42,7 @@
             ]
         },
         {
-            "name": "VERDI TA2",
+            "name": "VERDI LDC TA2",
             "connectOnLoad": true,
             "layout": "verdi-ta2-layout",
             "datastore": "elasticsearch",
@@ -58,36 +58,68 @@
             }]
         },
         {
-            "name": "VERDI TA3",
+            "title": "VERDI",
+            "name": "VERDI LDC TA3",
+            "icon": "assets/images/verdi-favicon.ico",
             "connectOnLoad": true,
             "layout": "verdi-ta3-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
-            "databases": [{
-                "name": "verdi-support",
-                "prettyName": "VERDI",
-                "tables": [{
-                    "name": "hypothesis_info",
-                    "prettyName": "Hypothesis Info"
-                },
-                    {
-                        "name": "parent_children",
-                        "prettyName": "Parent Children"
-                    }]
-            }],
-            "relations": [
-                {"members": [
-                    {
-                        "database": "verdi-support",
-                        "table": "hypothesis_info",
-                        "field": "hypothesis_id"
+            "databases": [
+                {
+                    "name": "verdi-support",
+                    "prettyName": "VERDI",
+                    "tables": [{
+                        "name": "hypothesis_info",
+                        "prettyName": "Hypothesis Info"
                     },
-                    {
-                        "database": "verdi-support",
-                        "table": "parent_children",
-                        "field": "id"
-                    }
-                ]}
+                        {
+                            "name": "parent_children",
+                            "prettyName": "Parent Children"
+                        }]
+                },
+                {
+                    "name": "verdi-rdf",
+                    "prettyName": "VERDI",
+                    "tables": [{
+                        "name": "normal",
+                        "prettyName": "Normal"
+                    },
+                        {
+                            "name": "reified",
+                            "prettyName": "Reified"
+                        }]
+                }
+            ],
+            "relations": [
+                {
+                    "members": [
+                        {
+                            "database": "verdi-support",
+                            "table": "hypothesis_info",
+                            "field": "hypothesis_id"
+                        },
+                        {
+                            "database": "verdi-rdf",
+                            "table": "reified",
+                            "field": "hypothesis"
+                        }
+                    ]
+                },
+                {
+                    "members": [
+                        {
+                            "database": "verdi-support",
+                            "table": "parent_children",
+                            "field": "id"
+                        },
+                        {
+                            "database": "verdi-rdf",
+                            "table": "reified",
+                            "field": "provenance"
+                        }
+                    ]
+                }
             ]
         }
     ],
@@ -440,30 +472,32 @@
         ],
         "verdi-ta3-layout": [
             {
-                "name": "Document Viewer",
-                "type": "documentViewer",
-                "icon": "DocumentViewer64",
+                "name": "News Feed",
+                "type": "newsFeed",
+                "icon": "NewsFeed",
                 "sizex": 6,
                 "sizey": 15.5,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 6,
                 "minSizey": 5,
-                "$$hashKey": "object:25",
+                "$$hashKey": "object:72",
                 "selected": true,
                 "bindings": {
                     "title": "Hypotheses",
                     "database": "verdi-support",
                     "table": "hypothesis_info",
-                    "documentTextField": "hypothesis",
-                    "documentLimit": 50,
-                    "annotationsInAnotherTable": false,
-                    "annotationDatabase": "",
-                    "annotationTable": "",
-                    "annotations": [],
-                    "details": []
+                    "idField": "hypothesis_id",
+                    "linkField": "",
+                    "dateField": "date",
+                    "primaryTitleField":"topic_name",
+                    "secondaryTitleField":"",
+                    "contentField":"hypothesis",
+                    "filterField": "hypothesis_id",
+                    "sortField": "id",
+                    "ignoreSelf": false,
+                    "multiFilter": true
                 },
-                "id": "hypothesis_id",
                 "row": 0,
                 "col": 0
             },
@@ -481,15 +515,19 @@
                 "selected": true,
                 "bindings": {
                     "title": "Network Graph",
-                    "database": "verdi-support",
-                    "table": "hypothesis_info",
+                    "database": "verdi-rdf",
+                    "table": "reified",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
                     "colorField": "",
-                    "nodeField": "topic_name",
-                    "linkField": "id",
+                    "nodeField": "provenance",
+                    "linkField": "object",
                     "isReified": true,
-                    "isDirected": true
+                    "isDirected": true,
+                    "showOnlyFiltered": true,
+                    "filterFields": ["hypothesis", "provenance"],
+                    "idField": "@id",
+                    "id": "_id"
                 },
                 "row": 0,
                 "col": 7
@@ -515,12 +553,15 @@
                     "linkField": "url",
                     "dateField": "download_date",
                     "objectNameField": "",
-                    "objectIdField": "",
+                    "objectIdField": "parent_uid",
                     "typeField": "dtyp",
                     "predictedNameField": "",
                     "percentField": "",
-                    "sortField": "id",
-                    "detailedThumbnails": true
+                    "sortField": "dtyp",
+                    "filterField": "id",
+                    "ascending": true,
+                    "detailedThumbnails": true,
+                    "limit":8
                 },
                 "row": 0,
                 "col": 19
