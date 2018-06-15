@@ -37,7 +37,7 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { ThemesService } from '../../services/themes.service';
 import { TranslationService } from '../../services/translation.service';
 import { VisualizationService } from '../../services/visualization.service';
-import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { By } from '@angular/platform-browser';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
@@ -58,7 +58,7 @@ describe('Component: DataTable', () => {
             ActiveGridService,
             ConnectionService,
             DatasetService,
-            { provide: FilterService, useClass: FilterMock },
+            { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
             TranslationService,
             ErrorNotificationService,
