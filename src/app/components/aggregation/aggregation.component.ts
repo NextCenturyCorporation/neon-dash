@@ -139,6 +139,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     public filters: {
         id: string,
         field: string | { x: string, y: string },
+        label: string,
         prettyField: string | { x: string, y: string },
         value: string | { beginX: number, endX: number } | { beginX: number, beginY: number, endX: number, endY: number }
     }[] = [];
@@ -217,8 +218,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         type: 'table'
     }];
 
-    public defaultGroupColor: Color;
-    public defaultHoverColor: Color;
+    public legendActiveGroups: any[] = [];
+    public legendFields: any[] = [];
+    public legendGroups: any[] = [];
 
     public xList: any[] = [];
     public yList: any[] = [];
@@ -261,7 +263,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     addOrReplaceFilter(filter: any, neonFilter: neon.query.WherePredicate, doNotReplace: boolean = false) {
         if (doNotReplace) {
             // If the new filter is unique, add the filter to the existing filters in both neon and the visualization.
-            if (this.isVisualizationFilterUnique(filter.field, filter.value)) {
+            if (!this.findMatchingFilters(filter.field, filter.label, filter.value).length) {
                 this.addVisualizationFilter(filter);
                 this.addNeonFilter(true, filter, neonFilter);
             }
@@ -375,6 +377,20 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns the list of visualization filter objects matching the given properties.
+     *
+     * @arg {any} field
+     * @arg {string} label
+     * @arg {any} value
+     * @return {any[]}
+     */
+    findMatchingFilters(field: any, label: string, value: any): any[] {
+        return this.filters.filter((existingFilter) => {
+            return _.isEqual(existingFilter.field, field) && _.isEqual(existingFilter.value, value) && existingFilter.label === label;
+        });
+    }
+
+    /**
      * Creates and returns the text for the settings button and menu.
      *
      * @return {string}
@@ -462,10 +478,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         }
 
         // Get all the neon filters relevant to this visualization.
-        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+        let xNeonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             [this.options.xField.columnName].concat(this.options.type === 'scatter-xy' ? this.options.yField.columnName : []));
+        let groupNeonFilters = this.options.groupField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
+            this.options.table.name, [this.options.groupField.columnName]) : [];
 
-        let filterIdsToIgnore = neonFilters.map((neonFilter) => {
+        let filterIdsToIgnore = xNeonFilters.concat(groupNeonFilters).map((neonFilter) => {
             return neonFilter.id;
         }).filter((neonFilterId) => {
             return this.filters.some((existingFilter) => {
@@ -484,9 +502,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     getFilterText(filter: any): string {
-        if (typeof filter.value === 'string' || typeof filter.value === 'number' || typeof filter.value === 'boolean') {
-            return filter.prettyField + ' = ' + filter.value;
-        }
         if (filter.value.beginX && filter.value.endX) {
             let xText = filter.value.beginX + ' to ' + filter.value.endX;
             if (this.options.xField.type === 'date') {
@@ -499,17 +514,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }
             return filter.prettyField + ' from ' + xText;
         }
-        return '';
-    }
-
-    /**
-     * Returns the summary for the given filter value shown in the grey filter box.
-     *
-     * @arg {any} value
-     * @return {string}
-     */
-    getFilterValueSummary(value: any): string {
-        return (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') ? ('' + value) : 'Filter';
+        return filter.prettyField + ' is ' + filter.label;
     }
 
     /**
@@ -583,6 +588,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     handleChangeData() {
+        this.legendActiveGroups = [];
+        this.legendGroups = [];
+        this.legendFields = [];
         super.handleChangeData();
     }
 
@@ -601,6 +609,29 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             }
             this.initializeSubcomponent();
             this.handleChangeData();
+        }
+    }
+
+    /**
+     * Handles a selected item in the legend.
+     *
+     * @arg {any} event
+     */
+    handleLegendItemSelected(event) {
+        if (event.value && this.options.groupField.columnName) {
+            let matching = this.findMatchingFilters(this.options.groupField.columnName, 'not ' + event.value, event.value);
+            if (!matching.length) {
+                let neonFilter = neon.query.where(this.options.groupField.columnName, '!=', event.value);
+                this.addOrReplaceFilter({
+                    id: undefined,
+                    field: this.options.groupField.columnName,
+                    label: 'not ' + event.value,
+                    prettyField: this.options.groupField.prettyName,
+                    value: event.value
+                }, neonFilter, true);
+            } else {
+                this.removeFilter(matching[0]);
+            }
         }
     }
 
@@ -706,19 +737,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns whether a visualization filter object in the filter list matching the given properties exists.
-     *
-     * @arg {any} field
-     * @arg {any} value
-     * @return {boolean}
-     */
-    isVisualizationFilterUnique(field: any, value: any): boolean {
-        return !this.filters.some((existingFilter) => {
-            return _.isEqual(existingFilter.field, field) && _.isEqual(existingFilter.value, value);
-        });
-    }
-
-    /**
      * Returns whether the given subcomponent type requires both X and Y fields.
      *
      * @arg {string} type
@@ -751,7 +769,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         let yExists = new Map<any, boolean>();
         let groupsToColors = new Map<string, Color>();
         if (!this.options.groupField.columnName) {
-            groupsToColors.set(this.DEFAULT_GROUP, this.defaultGroupColor);
+            groupsToColors.set(this.DEFAULT_GROUP, this.colorSchemeService.getColorFor('', this.DEFAULT_GROUP));
         }
 
         let findGroupColor = (group: string): Color => {
@@ -844,6 +862,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             });
         }
 
+        if (!this.legendGroups.length) {
+            this.legendGroups = Array.from(groupsToColors.keys());
+        }
+
+        let groups = Array.from(groupsToColors.keys());
+        this.legendActiveGroups = this.legendGroups.filter((group) => {
+            return groups.indexOf(group) >= 0;
+        });
+
         this.xList = Array.from(xExists.keys());
         this.yList = Array.from(yExists.keys());
         this.updateActiveData();
@@ -855,9 +882,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     postInit() {
-        this.defaultGroupColor = this.getPrimaryThemeColor();
-        this.defaultHoverColor = this.getHighlightThemeColor();
-
         this.selectedAreaOffset.y = Number.parseInt(this.subcomponentHtml.nativeElement.style.paddingTop || '0');
         this.selectedAreaOffset.x = Number.parseInt(this.subcomponentHtml.nativeElement.style.paddingLeft || '0');
 
@@ -883,34 +907,19 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
         if (this.subcomponentObject) {
             let isXY = this.isXYSubcomponent(this.options.type);
-            let xAxisType = findAxisType(this.options.xField.type);
-            let yAxisType = !isXY ? 'number' : findAxisType(this.options.yField.type);
-
-            this.xList.sort((a, b) => {
-                if (xAxisType === 'date') {
-                    return new Date(a).getTime() - new Date(b).getTime();
-                }
-                return (xAxisType === 'number' ? (a - b) : (a < b ? -1 : (a > b ? 1 : 0)));
-            });
-
-            this.yList.sort((a, b) => {
-                if (yAxisType === 'date') {
-                    return new Date(a).getTime() - new Date(b).getTime();
-                }
-                return (yAxisType === 'number' ? (a - b) : (a < b ? -1 : (a > b ? 1 : 0)));
-            });
-
             this.subcomponentObject.draw(this.activeData, {
                 aggregationField: isXY ? undefined : this.options.aggregationField.prettyName,
                 aggregationLabel: isXY ? undefined : this.options.aggregation,
                 dataLength: this.activeData.length,
-                xAxis: xAxisType,
+                xAxis: findAxisType(this.options.xField.type),
                 xList: this.xList,
-                yAxis: yAxisType,
+                yAxis: !isXY ? 'number' : findAxisType(this.options.yField.type),
                 yList: this.yList
             });
             this.subOnResizeStop();
         }
+
+        this.legendFields = this.options.groupField.columnName ? [this.options.groupField.columnName] : [''];
     }
 
     /**
@@ -934,15 +943,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     setupFilters() {
         // TODO
-    }
-
-    /**
-     * Returns whether any components are shown in the filter-container.
-     *
-     * @return {boolean}
-     */
-    showFilterContainer(): boolean {
-        return !!this.getCloseableFilters().length;
     }
 
     /**
@@ -975,6 +975,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.addOrReplaceFilter({
             id: undefined,
             field: this.options.xField.columnName,
+            label: '' + item,
             prettyField: this.options.xField.prettyName,
             value: item
         }, neonFilter, doNotReplace);
@@ -991,8 +992,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     subcomponentFilterBounds(beginX: any, beginY, endX: any, endY, doNotReplace: boolean = false) {
-        // TODO Save selectedArea if ignoreSelf is true.  Must update on resize.
-        this.selectedArea = null;
+        if (!this.options.ignoreSelf) {
+            this.selectedArea = null;
+        }
 
         let neonFilter = neon.query.and.apply(neon.query, [
             neon.query.where(this.options.xField.columnName, '>=', beginX),
@@ -1006,6 +1008,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 x: this.options.xField.columnName,
                 y: this.options.yField.columnName
             },
+            label: '',
             prettyField: {
                 x: this.options.xField.prettyName,
                 y: this.options.yField.prettyName
@@ -1028,8 +1031,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     subcomponentFilterDomain(beginX: any, endX: any, doNotReplace: boolean = false) {
-        // TODO Save selectedArea if ignoreSelf is true.  Must update on resize.
-        this.selectedArea = null;
+        if (!this.options.ignoreSelf) {
+            this.selectedArea = null;
+        }
 
         let neonFilter = neon.query.and.apply(neon.query, [
             neon.query.where(this.options.xField.columnName, '>=', beginX),
@@ -1038,6 +1042,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.addOrReplaceFilter({
             id: undefined,
             field: this.options.xField.columnName,
+            label: '',
             prettyField: this.options.xField.prettyName,
             value: {
                 beginX: beginX,
@@ -1115,6 +1120,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     subHandleChangeLimit() {
+        this.legendActiveGroups = [];
+        this.legendGroups = [];
+        this.legendFields = [];
         super.subHandleChangeLimit();
     }
 
@@ -1147,6 +1155,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (this.subcomponentObject) {
             this.minimumDimensions = this.subcomponentObject.getMinimumDimensions();
             this.subcomponentObject.redraw();
+            // TODO Update selectedArea.
         }
     }
 
