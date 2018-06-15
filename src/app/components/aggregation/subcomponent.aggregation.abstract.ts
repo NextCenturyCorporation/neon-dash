@@ -33,7 +33,7 @@ export interface AggregationSubcomponentListener {
      *
      * @abstract
      */
-    subcomponentDeselect();
+    subcomponentRequestsDeselect();
 
     /**
      * Filters the given item.
@@ -42,7 +42,7 @@ export interface AggregationSubcomponentListener {
      * @arg {boolean} [doNotReplace=false]
      * @abstract
      */
-    subcomponentFilter(item: any, doNotReplace?: boolean);
+    subcomponentRequestsFilter(item: any, doNotReplace?: boolean);
 
     /**
      * Filters the given bounds.
@@ -54,7 +54,7 @@ export interface AggregationSubcomponentListener {
      * @arg {boolean} [doNotReplace=false]
      * @abstract
      */
-    subcomponentFilterBounds(beginX: any, beginY: any, endX: any, endY: any, doNotReplace?: boolean);
+    subcomponentRequestsFilterOnBounds(beginX: any, beginY: any, endX: any, endY: any, doNotReplace?: boolean);
 
     /**
      * Filters the given domain.
@@ -64,7 +64,7 @@ export interface AggregationSubcomponentListener {
      * @arg {boolean} [doNotReplace=false]
      * @abstract
      */
-    subcomponentFilterDomain(beginX: any, endX: any, doNotReplace?: boolean);
+    subcomponentRequestsFilterOnDomain(beginX: any, endX: any, doNotReplace?: boolean);
 
     /**
      * Redraws the component.
@@ -72,7 +72,7 @@ export interface AggregationSubcomponentListener {
      * @arg {event} [event]
      * @abstract
      */
-    subcomponentRedraw(event?);
+    subcomponentRequestsRedraw(event?);
 
     /**
      * Selects the given area.
@@ -83,7 +83,7 @@ export interface AggregationSubcomponentListener {
      * @arg {number} height
      * @abstract
      */
-    subcomponentSelect(x: number, y: number, width: number, height: number);
+    subcomponentRequestsSelect(x: number, y: number, width: number, height: number);
 }
 
 export abstract class AbstractAggregationSubcomponent {
