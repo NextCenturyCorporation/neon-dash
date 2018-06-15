@@ -419,7 +419,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     for (let field of this.options.fields) {
                         if (field.columnName === this.options.filterField.columnName) {
                             this.queryArray.push(neonUtilities.deepFind(d, this.options.filterField.columnName));
-                        } else if (field.type || field.columnName === '_id') {
+                        }
+                        if (field.type || field.columnName === '_id') {
                             let value = neonUtilities.deepFind(d, field.columnName);
                             if (typeof value !== 'undefined') {
                                 item[field.columnName] = value;
