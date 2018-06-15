@@ -688,12 +688,12 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             let endValueY = chart.scales['y-axis-0'].getValueForPixel(this.selectedBounds.endY);
 
             let beginLabelX, beginLabelY, endLabelX, endLabelY;
-            if (chart.options.scales.xAxes[0].type === 'category') {
+            if (this.findAxisTypeX() === 'string') {
                 beginLabelX = chart.scales['x-axis-0'].getLabelForIndex(beginValueX, 0);
                 endLabelX = chart.scales['x-axis-0'].getLabelForIndex(endValueX, 0);
                 beginLabelX = beginLabelX < endLabelX ? beginLabelX : endLabelX;
                 endLabelX = beginLabelX > endLabelX ? beginLabelX : endLabelX;
-            } else if (chart.options.scales.xAxes[0].type === 'time') {
+            } else if (this.findAxisTypeX() === 'date') {
                 beginLabelX = new Date(Math.min(beginValueX, endValueX));
                 endLabelX = new Date(Math.max(beginValueX, endValueX));
             } else {
@@ -701,7 +701,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 endLabelX = Math.max(beginValueX, endValueX);
             }
 
-            if (chart.options.scales.yAxes[0].type === 'category') {
+            if (this.findAxisTypeY() === 'string') {
                 beginLabelY = chart.scales['y-axis-0'].getLabelForIndex(beginValueY, 0);
                 endLabelY = chart.scales['y-axis-0'].getLabelForIndex(endValueY, 0);
                 beginLabelY = beginLabelY < endLabelY ? beginLabelY : endLabelY;
@@ -784,9 +784,13 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 this.selectedDomain.endIndex), 0);
             let endLabelX = chart.scales['x-axis-0'].getLabelForIndex(Math.max(this.selectedDomain.beginIndex,
                 this.selectedDomain.endIndex), 0);
-            if (chart.options.scales.xAxes[0].type === 'time') {
+            if (this.findAxisTypeX() === 'date') {
                 beginLabelX = new Date(beginLabelX);
                 endLabelX = new Date(endLabelX);
+            }
+            if (this.findAxisTypeX() === 'number') {
+                beginLabelX = Number(beginLabelX.replace(/,/g, '');
+                endLabelX = Number(endLabelX.replace(/,/g, '');
             }
 
             this.listener.subcomponentRequestsFilterOnDomain(beginLabelX, endLabelX);

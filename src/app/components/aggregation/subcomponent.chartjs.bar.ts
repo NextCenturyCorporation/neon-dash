@@ -138,14 +138,15 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      * @override
      */
     protected finalizeChartOptions(chartOptions: any, meta: any): any {
-        // Use a category axis for date data, but save the true type.
+        // Use a category axis for number and date data, but save the true type.
         this.axisTypeX = this.horizontal ? meta.yAxis : meta.xAxis;
         this.axisTypeY = this.horizontal ? meta.xAxis : meta.yAxis;
 
-        chartOptions.scales.xAxes[0].type = (this.axisTypeX === 'number' ? (this.options.logScaleX && meta.dataLength > 10 ? 'logarithmic' :
-            'linear') : 'category');
-        chartOptions.scales.yAxes[0].type = (this.axisTypeY === 'number' ? (this.options.logScaleY && meta.dataLength > 10 ? 'logarithmic' :
-            'linear') : 'category');
+        // Force the x-axis (or y-axis in horizontal charts) to be category.
+        chartOptions.scales.xAxes[0].type = !this.horizontal ? 'category' : (this.axisTypeX === 'number' ?
+            (this.options.logScaleX && meta.dataLength > 10 ? 'logarithmic' : 'linear') : 'category');
+        chartOptions.scales.yAxes[0].type = this.horizontal ? 'category' : (this.axisTypeY === 'number' ?
+            (this.options.logScaleY && meta.dataLength > 10 ? 'logarithmic' : 'linear') : 'category');
         chartOptions.scales.xAxes[0].barPercentage = 0.9;
         chartOptions.scales.yAxes[0].barPercentage = 0.9;
         chartOptions.scales.xAxes[0].categoryPercentage = 0.9;
