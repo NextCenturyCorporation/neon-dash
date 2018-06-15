@@ -84,6 +84,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.cropAndScale).toEqual('');
         expect(component.options.id).toEqual('');
         expect(component.options.linkPrefix).toEqual('');
+        expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.openOnMouseClick).toEqual(true);
         expect(component.options.styleClass).toEqual('');
         expect(component.options.textMap).toEqual({});
@@ -376,7 +377,7 @@ describe('Component: ThumbnailGrid', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(8);
+            expect(toggles.length).toEqual(10);
 
             expect(toggles[0].componentInstance.value).toEqual('');
             expect(toggles[0].nativeElement.textContent).toContain('None');
@@ -396,19 +397,27 @@ describe('Component: ThumbnailGrid', () => {
 
             expect(toggles[4].componentInstance.value).toEqual(true);
             expect(toggles[4].nativeElement.textContent).toContain('Yes');
-            expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[5].componentInstance.value).toEqual(false);
             expect(toggles[5].nativeElement.textContent).toContain('No');
-            expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[6].componentInstance.value).toEqual(true);
-            expect(toggles[6].nativeElement.textContent).toContain('Ascending');
-            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            expect(toggles[6].nativeElement.textContent).toContain('Yes');
+            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[7].componentInstance.value).toEqual(false);
-            expect(toggles[7].nativeElement.textContent).toContain('Descending');
-            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles[7].nativeElement.textContent).toContain('No');
+            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[8].componentInstance.value).toEqual(true);
+            expect(toggles[8].nativeElement.textContent).toContain('Ascending');
+            expect(toggles[8].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[9].componentInstance.value).toEqual(false);
+            expect(toggles[9].nativeElement.textContent).toContain('Descending');
+            expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
         });
     }));
 
@@ -702,6 +711,34 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([true, {
+            id: undefined,
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        }, neon.query.where('testFilterField', '=', 'test text')]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(0);
+    });
+
+    it('createFilter with ignoreSelf=true and no existing filters does not query', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeAllFilters');
+
+        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.ignoreSelf = true;
+
+        component.createFilter('test text');
+
+        expect(component.filters).toEqual([{
+            id: undefined,
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        }]);
+
+        expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([false, {
             id: undefined,
             field: 'testFilterField',
@@ -736,6 +773,40 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([true, {
+            id: 'idA',
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        }, neon.query.where('testFilterField', '=', 'test text')]);
+        expect(spy3.calls.count()).toEqual(0);
+    });
+
+    it('createFilter with ignoreSelf=true and one existing filter does not query', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeAllFilters');
+
+        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.ignoreSelf = true;
+        component.filters = [{
+            id: 'idA',
+            field: 'field1',
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }];
+
+        component.createFilter('test text');
+
+        expect(component.filters).toEqual([{
+            id: 'idA',
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        }]);
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
         expect(spy2.calls.argsFor(0)).toEqual([false, {
             id: 'idA',
             field: 'testFilterField',
@@ -751,6 +822,65 @@ describe('Component: ThumbnailGrid', () => {
         let spy3 = spyOn(component, 'removeAllFilters');
 
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.filters = [{
+            id: 'idA',
+            field: 'field1',
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }, {
+            id: 'idB',
+            field: 'field2',
+            prettyField: 'prettyField2',
+            value: 'value2'
+        }];
+
+        component.createFilter('test text');
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(1);
+        let args = spy3.calls.argsFor(0);
+        expect(args[0]).toEqual([{
+            id: 'idA',
+            field: 'field1',
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }, {
+            id: 'idB',
+            field: 'field2',
+            prettyField: 'prettyField2',
+            value: 'value2'
+        }]);
+
+        // Run the callback.
+        expect(typeof args[1]).toEqual('function');
+        args[1]();
+
+        expect(component.filters).toEqual([{
+            id: undefined,
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        }]);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([true, {
+            id: undefined,
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'test text'
+        }, neon.query.where('testFilterField', '=', 'test text')]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(1);
+    });
+
+    it('createFilter with ignoreSelf=true and multiple existing filters does not query', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeAllFilters');
+
+        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.ignoreSelf = true;
         component.filters = [{
             id: 'idA',
             field: 'field1',
@@ -1060,9 +1190,13 @@ describe('Component: ThumbnailGrid', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
 
         expect(component.getFiltersToIgnore()).toEqual(null);
+
+        component.options.ignoreSelf = true;
+
+        expect(component.getFiltersToIgnore()).toEqual(null);
     });
 
-    it('getFiltersToIgnore does return expected array of IDs if filters are set matching database/table/field', () => {
+    it('getFiltersToIgnore does return null if filters are set because ignoreSelf=false', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '!=', null), 'testFilterName1');
 
@@ -1071,6 +1205,23 @@ describe('Component: ThumbnailGrid', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
 
+        expect(component.getFiltersToIgnore()).toEqual(null);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
+    });
+
+    it('getFiltersToIgnore with ignoreSelf=true does return expected array of IDs if filters are set matching database/table/field', () => {
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testFilterField', '!=', null), 'testFilterName1');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.ignoreSelf = true;
+
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
 
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
@@ -1078,7 +1229,7 @@ describe('Component: ThumbnailGrid', () => {
         }));
     });
 
-    it('getFiltersToIgnore does return null if no filters are set matching database/table/field', () => {
+    it('getFiltersToIgnore with ignoreSelf=true does return null if no filters are set matching database/table/field', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '!=', null), 'testFilterName1');
 
@@ -1086,6 +1237,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.filterField = new FieldMetaData('testField', 'Test Field');
+        component.options.ignoreSelf = true;
 
         // Test matching database/table but not field.
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -1107,12 +1259,13 @@ describe('Component: ThumbnailGrid', () => {
         }));
     });
 
-    it('getFiltersToIgnore does return expected array of IDs if no filterField is set', () => {
+    it('getFiltersToIgnore with ignoreSelf=true does return expected array of IDs if no filterField is set', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testField1', '!=', null), 'testFilterName1');
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testField2', '!=', null), 'testFilterName2');
 
+        component.options.ignoreSelf = true;
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
@@ -1221,7 +1374,7 @@ describe('Component: ThumbnailGrid', () => {
             testObjectNameField: 'myObjectName',
             testPercentField: 0.1234,
             testPredictedNameField: 'myPredictedName'
-        })).toEqual('myName Prediction : myPredictedName 12.3% Actual : myObjectName');
+        })).toEqual('myName, Prediction : myPredictedName, Actual : myObjectName');
     });
 
     it('getThumbnailTitle does use textMap', () => {
@@ -1241,7 +1394,7 @@ describe('Component: ThumbnailGrid', () => {
             testObjectNameField: 'myObjectName',
             testPercentField: 0.1234,
             testPredictedNameField: 'myPredictedName'
-        })).toEqual('MyNameText : myName MyPredictionText : myPredictedName MyPercentageText : 12.3% MyActualText : myObjectName');
+        })).toEqual('MyNameText : myName, MyPredictionText : myPredictedName, MyActualText : myObjectName');
     });
 
     it('goToNextPage does not update page or call updatePageData if lastPage is true', () => {
@@ -1784,6 +1937,7 @@ describe('Component: ThumbnailGrid', () => {
             cropAndScale: '',
             filterField: '',
             idField: '',
+            ignoreSelf: false,
             linkField: '',
             linkPrefix: '',
             nameField: '',
@@ -1812,6 +1966,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.ascending = true;
         component.options.border = 'grey';
         component.options.cropAndScale = 'both';
+        component.options.ignoreSelf = true;
         component.options.linkPrefix = 'prefix/';
         component.options.openOnMouseClick = false;
         component.options.textMap = {
@@ -1832,6 +1987,7 @@ describe('Component: ThumbnailGrid', () => {
             cropAndScale: 'both',
             filterField: 'testFilterField',
             idField: 'testIdField',
+            ignoreSelf: true,
             linkField: 'testLinkField',
             linkPrefix: 'prefix/',
             nameField: 'testNameField',
@@ -1919,6 +2075,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'border', useValue: 'grey' },
             { provide: 'cropAndScale', useValue: 'both' },
             { provide: 'id', useValue: 'testId' },
+            { provide: 'ignoreSelf', useValue: true },
             { provide: 'linkPrefix', useValue: 'prefix/' },
             { provide: 'openOnMouseClick', useValue: false },
             { provide: 'styleClass', useValue: 'style2' },
@@ -1970,6 +2127,7 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(component.options.border).toEqual('grey');
         expect(component.options.cropAndScale).toEqual('both');
         expect(component.options.id).toEqual('testId');
+        expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.linkPrefix).toEqual('prefix/');
         expect(component.options.openOnMouseClick).toEqual(false);
         expect(component.options.styleClass).toEqual('style2');
@@ -2169,7 +2327,7 @@ describe('Component: ThumbnailGrid with config', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(8);
+            expect(toggles.length).toEqual(10);
 
             expect(toggles[0].componentInstance.value).toEqual('');
             expect(toggles[0].nativeElement.textContent).toContain('None');
@@ -2189,19 +2347,27 @@ describe('Component: ThumbnailGrid with config', () => {
 
             expect(toggles[4].componentInstance.value).toEqual(true);
             expect(toggles[4].nativeElement.textContent).toContain('Yes');
-            expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[5].componentInstance.value).toEqual(false);
             expect(toggles[5].nativeElement.textContent).toContain('No');
-            expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[6].componentInstance.value).toEqual(true);
-            expect(toggles[6].nativeElement.textContent).toContain('Ascending');
-            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles[6].nativeElement.textContent).toContain('Yes');
+            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[7].componentInstance.value).toEqual(false);
-            expect(toggles[7].nativeElement.textContent).toContain('Descending');
-            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            expect(toggles[7].nativeElement.textContent).toContain('No');
+            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[8].componentInstance.value).toEqual(true);
+            expect(toggles[8].nativeElement.textContent).toContain('Ascending');
+            expect(toggles[8].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[9].componentInstance.value).toEqual(false);
+            expect(toggles[9].nativeElement.textContent).toContain('Descending');
+            expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
         });
     }));
 });
