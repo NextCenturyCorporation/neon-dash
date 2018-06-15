@@ -20,7 +20,6 @@ import { async, ComponentFixture, fakeAsync, inject, TestBed, tick } from '@angu
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
-import { MockBackend } from '@angular/http/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { neonVariables } from '../../neon-namespaces';
 
@@ -39,8 +38,8 @@ import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
-import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
-import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: ThumbnailGrid', () => {
@@ -57,10 +56,10 @@ describe('Component: ThumbnailGrid', () => {
         providers: [
             ActiveGridService,
             ConnectionService,
-            { provide: DatasetService, useClass: DatasetMock },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
             ErrorNotificationService,
-            { provide: FilterService, useClass: FilterMock },
+            { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
             VisualizationService,
             Injector,
@@ -261,10 +260,10 @@ describe('Component: ThumbnailGrid', () => {
             expect(selects[2].componentInstance.placeholder).toEqual('Actual ID Field');
             expect(selects[2].componentInstance.required).toEqual(false);
             options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(false);
             }
 
@@ -272,10 +271,10 @@ describe('Component: ThumbnailGrid', () => {
             expect(selects[3].componentInstance.placeholder).toEqual('Actual Name Field');
             expect(selects[3].componentInstance.required).toEqual(false);
             options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(false);
             }
 
@@ -283,10 +282,10 @@ describe('Component: ThumbnailGrid', () => {
             expect(selects[4].componentInstance.placeholder).toEqual('Category Field');
             expect(selects[4].componentInstance.required).toEqual(false);
             options = selects[4].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(false);
             }
 
@@ -294,10 +293,10 @@ describe('Component: ThumbnailGrid', () => {
             expect(selects[5].componentInstance.placeholder).toEqual('Filter Field');
             expect(selects[5].componentInstance.required).toEqual(false);
             options = selects[5].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(false);
             }
 
@@ -305,10 +304,10 @@ describe('Component: ThumbnailGrid', () => {
             expect(selects[6].componentInstance.placeholder).toEqual('ID Field');
             expect(selects[6].componentInstance.required).toEqual(false);
             options = selects[6].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(false);
             }
 
@@ -316,9 +315,9 @@ describe('Component: ThumbnailGrid', () => {
             expect(selects[7].componentInstance.placeholder).toEqual('Link Field');
             expect(selects[7].componentInstance.required).toEqual(true);
             options = selects[7].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length);
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i].selected).toEqual(false);
             }
 
@@ -326,10 +325,10 @@ describe('Component: ThumbnailGrid', () => {
             expect(selects[8].componentInstance.placeholder).toEqual('Name Field');
             expect(selects[8].componentInstance.required).toEqual(false);
             options = selects[8].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(false);
             }
 
@@ -337,10 +336,10 @@ describe('Component: ThumbnailGrid', () => {
             expect(selects[9].componentInstance.placeholder).toEqual('Predicted Name Field');
             expect(selects[9].componentInstance.required).toEqual(false);
             options = selects[9].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(false);
             }
 
@@ -348,10 +347,10 @@ describe('Component: ThumbnailGrid', () => {
             expect(selects[10].componentInstance.placeholder).toEqual('Predicted Probability Field');
             expect(selects[10].componentInstance.required).toEqual(false);
             options = selects[10].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(false);
             }
 
@@ -359,9 +358,9 @@ describe('Component: ThumbnailGrid', () => {
             expect(selects[11].componentInstance.placeholder).toEqual('Sort Field');
             expect(selects[11].componentInstance.required).toEqual(true);
             options = selects[11].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length);
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i].selected).toEqual(false);
             }
 
@@ -369,10 +368,10 @@ describe('Component: ThumbnailGrid', () => {
             expect(selects[12].componentInstance.placeholder).toEqual('Type Field');
             expect(selects[12].componentInstance.required).toEqual(false);
             options = selects[12].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(false);
             }
 
@@ -935,8 +934,8 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('createQuery does return expected query', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
 
@@ -1186,9 +1185,9 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('getFiltersToIgnore does return null if no filters are set', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
@@ -1198,15 +1197,12 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('getFiltersToIgnore does return null if filters are set because ignoreSelf=false', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '!=', null), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
-
-        expect(component.getFiltersToIgnore()).toEqual(null);
-
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
 
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -1217,12 +1213,12 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('getFiltersToIgnore with ignoreSelf=true does return expected array of IDs if filters are set matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '!=', null), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.ignoreSelf = true;
 
@@ -1234,26 +1230,26 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('getFiltersToIgnore with ignoreSelf=true does return null if no filters are set matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '!=', null), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.filterField = new FieldMetaData('testField', 'Test Field');
         component.options.ignoreSelf = true;
 
         // Test matching database/table but not field.
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.options.database = DatasetMock.DATABASES[1];
+        component.options.database = DatasetServiceMock.DATABASES[1];
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
 
         // Test matching database/field but not table.
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[1];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[1];
 
         // Test matching table/field but not database.
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -1264,15 +1260,15 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('getFiltersToIgnore with ignoreSelf=true does return expected array of IDs if no filterField is set', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testField1', '!=', null), 'testFilterName1');
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testField2', '!=', null), 'testFilterName2');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
         component.options.ignoreSelf = true;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1',
             'testDatabase1-testTable1-testFilterName2']);
@@ -1493,10 +1489,10 @@ describe('Component: ThumbnailGrid', () => {
     it('isValidQuery does return expected boolean', () => {
         expect(component.isValidQuery()).toEqual(false);
 
-        component.options.database = DatasetMock.DATABASES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
         expect(component.isValidQuery()).toEqual(false);
 
-        component.options.table = DatasetMock.TABLES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         expect(component.isValidQuery()).toEqual(false);
 
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
@@ -1507,7 +1503,7 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('onQuerySuccess with aggregation query data does update expected properties and call expected functions', () => {
-        component.options.fields = DatasetMock.FIELDS;
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.errorMessage = 'Previous Error Message';
         component.lastPage = false;
@@ -1569,7 +1565,7 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('onQuerySuccess with empty aggregation query data does update expected properties and call expected functions', () => {
-        component.options.fields = DatasetMock.FIELDS;
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.errorMessage = 'Previous Error Message';
         component.lastPage = false;
@@ -1595,7 +1591,7 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('onQuerySuccess with limited aggregation query data does update expected properties and call expected functions', () => {
-        component.options.fields = DatasetMock.FIELDS;
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.limit = 1;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.errorMessage = 'Previous Error Message';
@@ -1652,7 +1648,7 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('onQuerySuccess with link prefix does update expected properties and call expected functions', () => {
-        component.options.fields = DatasetMock.FIELDS;
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.options.linkPrefix = 'prefix/';
         let spy1 = spyOn(component, 'refreshVisualization');
@@ -1797,23 +1793,23 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('setupFilters does not do anything if no filter exists', () => {
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
-        component.options.filterField = DatasetMock.FILTER_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
 
         component.setupFilters();
         expect(component.filters).toEqual([]);
     });
 
     it('setupFilters does add neon filter to filters', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '=', 'value1'), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
-        component.options.filterField = DatasetMock.FILTER_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
 
         component.setupFilters();
         expect(component.filters).toEqual([{
@@ -1829,26 +1825,26 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('setupFilters does not add neon filter with non-matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '=', 'value1'), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
 
         // Test matching database/table but not field.
         component.setupFilters();
         expect(component.filters).toEqual([]);
 
-        component.options.database = DatasetMock.DATABASES[1];
-        component.options.filterField = DatasetMock.FILTER_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[1];
+        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
 
         // Test matching database/field but not table.
         component.setupFilters();
         expect(component.filters).toEqual([]);
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[1];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[1];
 
         // Test matching table/field but not table.
         component.setupFilters();
@@ -1860,16 +1856,16 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('setupFilters does not add neon filter matching existing filter field/value', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '=', 'value1'), 'testFilterName1');
 
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '=', 'value1'), 'testFilterName2');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
-        component.options.filterField = DatasetMock.FILTER_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
 
         component.setupFilters();
         expect(component.filters).toEqual([{
@@ -1885,13 +1881,13 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('setupFilters does remove previous filters', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '=', 'value1'), 'testFilterName1');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.fields = DatasetMock.FIELDS;
-        component.options.filterField = DatasetMock.FILTER_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
         component.filters = [{
             id: 'idA',
             field: 'testFilterField',
@@ -1913,15 +1909,15 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('setupFilters does ignore neon filters with multiple clauses', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.and.apply(neon.query, [
                 neon.query.where('testFilterField', '=', 'value1'),
                 neon.query.where('testFilterField', '=', 'value2')
             ]), 'testFilterName2');
 
-        component.options.database = DatasetMock.DATABASES[0];
-        component.options.table = DatasetMock.TABLES[0];
-        component.options.filterField = DatasetMock.FILTER_FIELD;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.filterField = DatasetServiceMock.FILTER_FIELD;
 
         component.setupFilters();
         expect(component.filters).toEqual([]);
@@ -2063,10 +2059,10 @@ describe('Component: ThumbnailGrid with config', () => {
         providers: [
             ActiveGridService,
             ConnectionService,
-            { provide: DatasetService, useClass: DatasetMock },
+            { provide: DatasetService, useClass: DatasetServiceMock },
             ExportService,
             ErrorNotificationService,
-            { provide: FilterService, useClass: FilterMock },
+            { provide: FilterService, useClass: FilterServiceMock },
             ThemesService,
             VisualizationService,
             Injector,
@@ -2112,11 +2108,11 @@ describe('Component: ThumbnailGrid with config', () => {
     });
 
     it('does have expected superclass options properties', () => {
-        expect(component.options.database).toEqual(DatasetMock.DATABASES[1]);
-        expect(component.options.databases).toEqual(DatasetMock.DATABASES);
-        expect(component.options.table).toEqual(DatasetMock.TABLES[1]);
-        expect(component.options.tables).toEqual(DatasetMock.TABLES);
-        expect(component.options.fields).toEqual(DatasetMock.FIELDS);
+        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
         expect(component.options.limit).toEqual(10);
         expect(component.options.title).toEqual('Test Title');
         expect(component.options.filter).toEqual({
@@ -2214,119 +2210,119 @@ describe('Component: ThumbnailGrid with config', () => {
             expect(selects[2].componentInstance.placeholder).toEqual('Actual ID Field');
             expect(selects[2].componentInstance.required).toEqual(false);
             options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testIdField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testIdField');
             }
 
             expect(selects[3].componentInstance.disabled).toEqual(false);
             expect(selects[3].componentInstance.placeholder).toEqual('Actual Name Field');
             expect(selects[3].componentInstance.required).toEqual(false);
             options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testNameField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testNameField');
             }
 
             expect(selects[4].componentInstance.disabled).toEqual(false);
             expect(selects[4].componentInstance.placeholder).toEqual('Category Field');
             expect(selects[4].componentInstance.required).toEqual(false);
             options = selects[4].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testGroupField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testGroupField');
             }
 
             expect(selects[5].componentInstance.disabled).toEqual(false);
             expect(selects[5].componentInstance.placeholder).toEqual('Filter Field');
             expect(selects[5].componentInstance.required).toEqual(false);
             options = selects[5].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testFilterField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testFilterField');
             }
 
             expect(selects[6].componentInstance.disabled).toEqual(false);
             expect(selects[6].componentInstance.placeholder).toEqual('ID Field');
             expect(selects[6].componentInstance.required).toEqual(false);
             options = selects[6].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testIdField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testIdField');
             }
 
             expect(selects[7].componentInstance.disabled).toEqual(false);
             expect(selects[7].componentInstance.placeholder).toEqual('Link Field');
             expect(selects[7].componentInstance.required).toEqual(true);
             options = selects[7].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length);
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testLinkField');
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testLinkField');
             }
 
             expect(selects[8].componentInstance.disabled).toEqual(false);
             expect(selects[8].componentInstance.placeholder).toEqual('Name Field');
             expect(selects[8].componentInstance.required).toEqual(false);
             options = selects[8].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testNameField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testNameField');
             }
 
             expect(selects[9].componentInstance.disabled).toEqual(false);
             expect(selects[9].componentInstance.placeholder).toEqual('Predicted Name Field');
             expect(selects[9].componentInstance.required).toEqual(false);
             options = selects[9].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testNameField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testNameField');
             }
 
             expect(selects[10].componentInstance.disabled).toEqual(false);
             expect(selects[10].componentInstance.placeholder).toEqual('Predicted Probability Field');
             expect(selects[10].componentInstance.required).toEqual(false);
             options = selects[10].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testSizeField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testSizeField');
             }
 
             expect(selects[11].componentInstance.disabled).toEqual(false);
             expect(selects[11].componentInstance.placeholder).toEqual('Sort Field');
             expect(selects[11].componentInstance.required).toEqual(true);
             options = selects[11].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length);
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testSortField');
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testSortField');
             }
 
             expect(selects[12].componentInstance.disabled).toEqual(false);
             expect(selects[12].componentInstance.placeholder).toEqual('Type Field');
             expect(selects[12].componentInstance.required).toEqual(false);
             options = selects[12].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testTypeField');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testTypeField');
             }
 
             let toggles = fixture.debugElement.queryAll(

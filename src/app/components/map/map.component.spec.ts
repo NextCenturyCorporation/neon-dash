@@ -15,7 +15,14 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    Injector,
+    ViewEncapsulation
+} from '@angular/core';
 
 import { MapComponent, MapLayer } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
@@ -60,11 +67,29 @@ function webgl_support(): any {
 })
 
 class TestMapComponent extends MapComponent {
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-                filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-                colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
-        super(activeGridService, connectionService, datasetService, filterService, exportService, injector,
-            themesService, colorSchemeSrv, ref, visualizationService);
+    constructor(
+        activeGridService: ActiveGridService,
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        exportService: ExportService,
+        injector: Injector,
+        themesService: ThemesService,
+        colorSchemeSrv: ColorSchemeService,
+        ref: ChangeDetectorRef,
+        visualizationService: VisualizationService
+    ) {
+        super(
+            activeGridService,
+            connectionService,
+            datasetService,
+            filterService,
+            exportService,
+            injector,
+            themesService,
+            colorSchemeSrv,
+            ref,
+            visualizationService);
     }
 
     assignTestMap() {
@@ -296,10 +321,10 @@ describe('Component: Map', () => {
             datasets = [
                 {
                     data: [
-                        {lat: 0, lng: 0, category: 'a'},
-                        {lat: 0, lng: 0, category: 'b'},
-                        {lat: 0, lng: 0, category: 'c'},
-                        {lat: 0, lng: 0, category: 'd'}
+                        { lat: 0, lng: 0, category: 'a' },
+                        { lat: 0, lng: 0, category: 'b' },
+                        { lat: 0, lng: 0, category: 'c' },
+                        { lat: 0, lng: 0, category: 'd' }
                     ],
                     expected: [
                         new MapPoint(
@@ -311,10 +336,10 @@ describe('Component: Map', () => {
                 },
                 {
                     data: [
-                        {lat: 0, lng: 0, category: 'a'},
-                        {lat: 0, lng: 1, category: 'b'},
-                        {lat: 0, lng: 2, category: 'c'},
-                        {lat: 0, lng: 3, category: 'd'}
+                        { lat: 0, lng: 0, category: 'a' },
+                        { lat: 0, lng: 1, category: 'b' },
+                        { lat: 0, lng: 2, category: 'c' },
+                        { lat: 0, lng: 3, category: 'd' }
                     ],
                     expected: [
                         new MapPoint(
@@ -341,8 +366,8 @@ describe('Component: Map', () => {
                 },
                 {
                     data: [
-                        {lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a'},
-                        {lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b'}
+                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a' },
+                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b' }
                     ],
                     expected: [
                         new MapPoint(
@@ -354,8 +379,8 @@ describe('Component: Map', () => {
                 },
                 {
                     data: [
-                        {lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a'},
-                        {lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b'}
+                        { lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a' },
+                        { lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b' }
                     ],
                     expected: [
                         new MapPoint(
@@ -774,7 +799,7 @@ describe('Component: Map', () => {
 
         let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
         let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
-                .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testColor1', 'testSize1', 'testDate1']).limit(5678);
+            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testColor1', 'testSize1', 'testDate1']).limit(5678);
 
         expect(component.createQuery(0)).toEqual(query1);
 
@@ -782,7 +807,7 @@ describe('Component: Map', () => {
 
         let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
         let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2))
-                .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testColor2', 'testSize2', 'testDate2']).limit(5678);
+            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testColor2', 'testSize2', 'testDate2']).limit(5678);
 
         expect(component.createQuery(1)).toEqual(query2);
     });
@@ -1102,7 +1127,7 @@ describe('Component: Map', () => {
 
         let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
         let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
-                .aggregate('count', '*', '_docCount');
+            .aggregate('count', '*', '_docCount');
 
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([0, query1]);
@@ -1113,7 +1138,7 @@ describe('Component: Map', () => {
 
         let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
         let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2))
-                .aggregate('count', '*', '_docCount');
+            .aggregate('count', '*', '_docCount');
 
         expect(spy.calls.count()).toBe(2);
         expect(spy.calls.argsFor(1)).toEqual([1, query2]);
@@ -1145,14 +1170,16 @@ describe('Component: Map with config', () => {
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase1' },
             { provide: 'table', useValue: 'testTable1' },
-            { provide: 'layers', useValue: [{
-                colorField: 'testColorField',
-                dateField: 'testDateField',
-                latitudeField: 'testLatitudeField',
-                longitudeField: 'testLongitudeField',
-                sizeField: 'testSizeField',
-                title: 'Test Layer Title'
-            }] },
+            {
+                provide: 'layers', useValue: [{
+                    colorField: 'testColorField',
+                    dateField: 'testDateField',
+                    latitudeField: 'testLatitudeField',
+                    longitudeField: 'testLongitudeField',
+                    sizeField: 'testSizeField',
+                    title: 'Test Layer Title'
+                }]
+            },
             { provide: 'limit', useValue: 9999 },
             { provide: 'clustering', useValue: 'clusters' },
             { provide: 'clusterPixelRange', useValue: 20 },

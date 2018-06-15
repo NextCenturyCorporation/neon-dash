@@ -1,7 +1,7 @@
 {
 	"datasets": [
 		{
-			"name": "Central African Republic Data",
+			"name": "ELISA Central African Republic Data",
 			"connectOnLoad": true,
 			"layout": "TA0-layout",
 			"datastore": "elasticsearch",
@@ -253,7 +253,7 @@
 					"database": "elisa_car_1",
 					"table": "annotations",
 					"dateField": "createdAt",
-					"granularity": "hour"
+					"granularity": "month"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 10,
