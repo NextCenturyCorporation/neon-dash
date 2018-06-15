@@ -630,7 +630,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     value: event.value
                 }, neonFilter, true);
             } else {
-                this.removeFilter(matching[0]);
+                this.removeLocalFilterFromLocalAndNeon(matching[0], true, true);
             }
         }
     }
