@@ -90,6 +90,8 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public isReified: boolean;
     public linkField: FieldMetaData;
     public nodeField: FieldMetaData;
+    public showOnlyFiltered: boolean;
+    public filterFields: string[];
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -99,6 +101,8 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     onInit() {
         this.isDirected = this.injector.get('isDirected', false);
         this.isReified = this.injector.get('isReified', false);
+        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
+        this.filterFields = this.injector.get('filterFields', []);
     }
 
     /**
@@ -133,6 +137,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     public activeData: any[] = [];
 
     public graphData = new GraphData();
+    public displayGraph: boolean;
+    public neonFilters: any[] = [];
 
     graphType = 'Network Graph';
 
@@ -207,6 +213,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.options = new NetworkGraphOptions(this.injector, this.datasetService, 'Network Graph', 500000);
 
         this.graphData = new GraphData();
+        this.displayGraph = !this.options.showOnlyFiltered;
 
         this.setInterpolationType('Bundle');
     }
@@ -219,6 +226,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         if (!this.fitContainer) {
             this.applyDimensions();
         }
+
     }
 
     applyDimensions() {
@@ -358,23 +366,34 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     onQuerySuccess(response): void {
-        this.activeData = response.data;
-        this.isLoading = true;
-        this.resetGraphData();
+        this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
+            this.options.table.name, this.options.filterFields);
+
+        if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+            this.activeData = response.data;
+            this.displayGraph = true;
+            this.isLoading = true;
+            this.resetGraphData();
+        } else {
+            this.activeData = [];
+            this.displayGraph = false;
+            this.clearGraphData();
+        }
     }
 
     private resetGraphData() {
-
-        this.graphData.nodes.clear();
-        this.graphData.edges.clear();
-
         let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
-
+        this.clearGraphData();
         this.graph.setOptions({physics: {enabled: true}});
 
         this.graphData.nodes.update(graphProperties.nodes);
         this.graphData.edges.update(graphProperties.edges);
         this.isLoading = false;
+    }
+
+    private clearGraphData() {
+        this.graphData.nodes.clear();
+        this.graphData.edges.clear();
     }
 
     setupFilters() {
@@ -430,10 +449,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     getButtonText() {
-        let text = 'No Data';
-        let data = this.graphData; //this.graphData.nodes;
+        let data = this.graphData;
+
         if (!data || !data.nodes.length) {
-            return text;
+            return this.options.showOnlyFiltered && !this.neonFilters.length ? 'No Filter Selected' : 'No Data';
         } else {
             let total = data.nodes.length;
             return 'Total Nodes: ' + this.formatingCallback(total);

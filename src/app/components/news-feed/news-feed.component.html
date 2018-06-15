@@ -202,7 +202,7 @@
         <mat-spinner></mat-spinner>
     </div>
 
-    <!--    <div class="filter-container" *ngIf="getCloseableFilters().length">
+        <div class="filter-container" *ngIf="getCloseableFilters().length">
             <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
                 <span class="filter-label" tooltip-position="below" [matTooltip]="getFilterText(filter)">{{ filter.value }}</span>
                 <button mat-icon-button class="neon-icon-button-small" aria-label="Close" tooltip-position="below"
@@ -210,7 +210,8 @@
                     <mat-icon class="neon-icon-small">close</mat-icon>
                 </button>
             </div>
-        </div>-->
+        </div>
+
         <div #newsFeed class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > pagingGrid.length">
            <div class="news-feed-container" *ngIf="showGrid">
                <div class="news-feed-div" *ngFor="let item of pagingGrid"
@@ -220,7 +221,7 @@
                        <div class="content-ellipses" [matTooltip]="item[options.contentField.columnName]">{{ item[options.contentField.columnName] }}</div>
                        <div class="content-footer">
                            <p class="text-highlight">{{ item[options.dateField.columnName] }}</p>
-                           <p>{{ item[options.secondaryTitleField.columnName] }}</p>
+                           <p>{{ item[options.idField.columnName] }}</p>
                        </div>
                    </div>
                </div>

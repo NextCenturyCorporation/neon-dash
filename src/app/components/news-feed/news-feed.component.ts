@@ -46,15 +46,16 @@ import * as _ from 'lodash';
  */
 export class NewsFeedOptions extends BaseNeonOptions {
     public filterField: FieldMetaData;
-    public unsharedFilterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
     public linkField: FieldMetaData;
+    public ignoreSelf: boolean;
     public dateField: FieldMetaData;
     public primaryTitleField: FieldMetaData;
     public secondaryTitleField: FieldMetaData;
     public contentField: FieldMetaData;
     public sortField: FieldMetaData;
+    public multiFilter: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -80,6 +81,8 @@ export class NewsFeedOptions extends BaseNeonOptions {
         this.secondaryTitleField = this.findFieldObject('secondaryTitleField');
         this.contentField = this.findFieldObject('contentField');
         this.sortField = this.findFieldObject('sortField');
+        this.ignoreSelf = this.injector.get('ignoreSelf', false);
+        this.multiFilter = this.injector.get('multiFilter', false);
 
         if (!this.sortField.columnName) {
             this.sortField = this.findFieldObject('idField');
@@ -103,6 +106,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('newsFeed') newsFeed: ElementRef;
+    @ViewChild('filter') filter: ElementRef;
 
     public filters: {
         id: string,
@@ -150,7 +154,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
            };
 
            let clause = neon.query.where(filter.field, '=', filter.value);
-           let runQuery = false;
+           let runQuery = !this.options.ignoreSelf;
 
            if (!this.filters.length) {
                this.filters = [filter];
@@ -178,7 +182,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     createQuery(): neon.query.Query {
         let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
 
-        let fields = [this.options.linkField.columnName, this.options.sortField.columnName];
+        let fields = [this.options.idField.columnName, this.options.sortField.columnName];
 
         if (this.options.primaryTitleField.columnName) {
             fields.push(this.options.primaryTitleField.columnName);
@@ -192,10 +196,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             fields.push(this.options.filterField.columnName);
         }
 
-        if (this.options.idField.columnName) {
-            fields.push(this.options.idField.columnName);
-        }
-
         if (this.options.contentField.columnName) {
             fields.push(this.options.contentField.columnName);
         }
@@ -205,8 +205,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         }
 
         let whereClauses = [
-            neon.query.where(this.options.linkField.columnName, '!=', null),
-            neon.query.where(this.options.linkField.columnName, '!=', '')
+            neon.query.where(this.options.idField.columnName, '!=', null),
+            neon.query.where(this.options.idField.columnName, '!=', '')
         ];
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses))
@@ -302,7 +302,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             visualization: this.visualization,
             headerText: this.headerText,
             infoText: this.infoText,
-            newsFeed: this.newsFeed
+            newsFeed: this.newsFeed,
+            filter: this.filter
         };
     }
 
@@ -347,9 +348,9 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     getFiltersToIgnore(): any[] {
-        /*        if (!this.options.ignoreSelf) {
-                    return null;
-                }*/
+        if (!this.options.ignoreSelf) {
+            return null;
+        }
 
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             this.options.filterField.columnName ? [this.options.filterField.columnName] : undefined);
@@ -519,9 +520,9 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.options.idField.columnName) {
             this.publishSelectId(item[this.options.idField.columnName]);
         }
-                if (this.options.filterField.columnName) {
-                    this.createFilter(item[this.options.filterField.columnName]);
-                }
+        if (this.options.filterField.columnName) {
+            this.createFilter(item[this.options.filterField.columnName]);
+        }
     }
 
     /**
@@ -559,7 +560,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     subGetBindings(bindings: any) {
         bindings.idField = this.options.idField.columnName;
-        /*bindings.ignoreSelf = this.options.ignoreSelf;*/
+        bindings.ignoreSelf = this.options.ignoreSelf;
+        bindings.multiFilter = this.options.multiFilter;
         bindings.linkField = this.options.linkField.columnName;
         bindings.dateField = this.options.dateField.columnName;
         bindings.primaryTitleField = this.options.primaryTitleField.columnName;
