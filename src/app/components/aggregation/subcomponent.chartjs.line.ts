@@ -71,7 +71,7 @@ export class ChartJsLineSubcomponent extends AbstractChartJsSubcomponent {
     protected createChartDataset(color: Color, label: string, xList: any[]): ChartJsDataset {
         let dataset = new ChartJsLineDataset(color, label, xList);
         dataset.fill = this.options.lineFillArea || dataset.fill;
-        dataset.lineTension = this.options.lineCurveTension || dataset.lineTension;
+        dataset.lineTension = this.options.lineCurveTension === 0 ? 0 : (this.options.lineCurveTension || dataset.lineTension);
         return dataset;
     }
 

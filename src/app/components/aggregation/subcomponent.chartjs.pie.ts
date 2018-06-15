@@ -100,6 +100,18 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
     }
 
     /**
+     * Returns an item to select from the given items and chart.
+     *
+     * @arg {any[]} items
+     * @arg {any} chart
+     * @return {any}
+     * @override
+     */
+    protected findItemInDataToSelect(items: any[], chart: any): any {
+        return chart.data.datasets[items[0]._datasetIndex].slices[items[0]._index];
+    }
+
+    /**
      * Finalizes and returns the given chart options.
      *
      * @arg {any} chartOptions

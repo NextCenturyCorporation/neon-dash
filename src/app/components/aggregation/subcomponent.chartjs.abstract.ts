@@ -207,19 +207,20 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             }
         };
 
-        if (this.options.scaleMaxX && !isNaN(Number(this.options.scaleMaxX))) {
+        // Compare here to an empty string so we do not ignore zero!
+        if (this.options.scaleMaxX !== '' && !isNaN(Number(this.options.scaleMaxX))) {
             defaultOptions.scales.xAxes[0].ticks.max = Number(this.options.scaleMaxX);
         }
 
-        if (this.options.scaleMinX && !isNaN(Number(this.options.scaleMinX))) {
+        if (this.options.scaleMinX !== '' && !isNaN(Number(this.options.scaleMinX))) {
             defaultOptions.scales.xAxes[0].ticks.min = Number(this.options.scaleMinX);
         }
 
-        if (this.options.scaleMaxY && !isNaN(Number(this.options.scaleMaxY))) {
+        if (this.options.scaleMaxY !== '' && !isNaN(Number(this.options.scaleMaxY))) {
             defaultOptions.scales.yAxes[0].ticks.max = Number(this.options.scaleMaxY);
         }
 
-        if (this.options.scaleMinY && !isNaN(Number(this.options.scaleMinY))) {
+        if (this.options.scaleMinY !== '' && !isNaN(Number(this.options.scaleMinY))) {
             defaultOptions.scales.yAxes[0].ticks.min = Number(this.options.scaleMinY);
         }
 
@@ -280,15 +281,17 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         let dataset = chartData.datasets[tooltipItem.datasetIndex];
         // Do not use tooltipItem.yLabel because it can be incorrect for category axes.
         let item = dataset.data[tooltipItem.index];
-        let text = typeof item === 'object' ? item.y : item;
+        let text = typeof item === 'object' ? (this.isHorizontal() ? item.x : item.y) : item;
+
+        if (text === null) {
+            return null;
+        }
         if (axisType === 'number') {
-            if (text === null) {
-                return null;
-            }
             // Do not truncate the y-axis text if it is a number (just truncate the dataset label).
             let label = this.isNumberString(text) ? this.toNumberString(text) : text;
             return this.truncateTextTooltip(dataset.label, ': ' + label);
         }
+
         return this.truncateTextTooltip(dataset.label + ': ' + text, '');
     }
 
@@ -305,13 +308,19 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         let dataset = chartData.datasets[tooltipList[0].datasetIndex];
         // Do not use tooltipList[0].xLabel because it can be incorrect for category axes.
         let item = dataset.data[tooltipList[0].index];
-        let text = typeof item === 'object' ? item.x : (dataset.getLabels() || chartData.labels)[tooltipList[0].index];
+        let text = typeof item === 'object' ? (this.isHorizontal() ? item.y : item.x) :
+            (dataset.getLabels() || chartData.labels)[tooltipList[0].index];
+
+        if (text === null) {
+            return null;
+        }
         if (axisType === 'date') {
             return this.isDateString(text) ? this.toDateLongString(text) : text;
         }
         if (axisType === 'number') {
             return this.isNumberString(text) ? this.toNumberString(text) : text;
         }
+
         return this.truncateTextTooltip(text, '');
     }
 
@@ -394,6 +403,20 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     protected findAxisTypeY(): string {
         let axisType = this.chart.options.scales.yAxes[0].type;
         return (axisType === 'linear' || axisType === 'logarithmic' ? 'number' : (axisType === 'time' ? 'date' : 'string'));
+    }
+
+    /**
+     * Returns an item to select from the given items and chart.
+     *
+     * @arg {any[]} items
+     * @arg {any} chart
+     * @return {any}
+     */
+    protected findItemInDataToSelect(items: any[], chart: any): any {
+        if (this.isHorizontal()) {
+            return chart.data.datasets[items[0]._datasetIndex].data[items[0]._index].y;
+        }
+        return chart.data.datasets[items[0]._datasetIndex].data[items[0]._index].x;
     }
 
     /**
@@ -510,6 +533,16 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     }
 
     /**
+     * Returns whether the location of the chart with the given items is selectable.
+     *
+     * @arg {any[]} items
+     * @return {boolean}
+     */
+    protected isSelectable(items: any[]): boolean {
+        return !!items.length;
+    }
+
+    /**
      * Handles the given click event.
      *
      * @arg {event} event
@@ -526,6 +559,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {any[]} items
      */
     public onHoverEvent(event, items: any[]) {
+        this.elementRef.nativeElement.style.cursor = this.isSelectable(items) ? 'pointer' : 'default';
         this.handleHoverEvent(event, items, this.chart);
     }
 
@@ -629,10 +663,12 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                     chart.chartArea.bottom)
             };
 
-            this.selectedLabels = this.selectedLabels.indexOf(items[0]._model.label) < 0 ?
-                this.selectedLabels.concat(items[0]._model.label) : this.selectedLabels;
+            if (items.length) {
+                this.selectedLabels = this.selectedLabels.indexOf(items[0]._model.label) < 0 ?
+                    this.selectedLabels.concat(items[0]._model.label) : this.selectedLabels;
 
-            this.dataSelect(chart, items);
+                this.dataSelect(chart, items);
+            }
 
             this.listener.subcomponentSelect(
                 Math.min(this.selectedBounds.beginX, this.selectedBounds.endX),
@@ -766,7 +802,11 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {any} chart
      */
     protected selectItem(event, items: any[], chart) {
-        let labelValue = items[0]._model.label;
+        if (!items.length) {
+            return;
+        }
+
+        let labelValue = this.findItemInDataToSelect(items, chart);
         let doNotReplace = event.ctrlKey || event.metaKey;
         this.selectedLabels = doNotReplace ? this.selectedLabels.concat(labelValue) : [labelValue];
         if (!doNotReplace) {

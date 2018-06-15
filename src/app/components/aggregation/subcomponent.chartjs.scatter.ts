@@ -82,4 +82,15 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
     protected handleHoverEvent(event, items: any[], chart: any) {
         this.selectBounds(event, items, chart, this.domainOnly);
     }
+
+    /**
+     * Returns whether the location of the chart with the given items is selectable.
+     *
+     * @arg {any[]} items
+     * @return {boolean}
+     * @override
+     */
+    protected isSelectable(items: any[]): boolean {
+        return true;
+    }
 }

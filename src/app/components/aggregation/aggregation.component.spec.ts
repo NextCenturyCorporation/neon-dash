@@ -26,6 +26,7 @@ import { ChartJsData } from './subcomponent.chartjs.abstract';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
 import { ExportControlComponent } from '../export-control/export-control.component';
+import { LegendComponent } from '../legend/legend.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 
 import { ActiveGridService } from '../../services/active-grid.service';
@@ -52,10 +53,15 @@ describe('Component: Aggregation', () => {
     let fixture: ComponentFixture<AggregationComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
+    let COLOR_1 = new Color(31, 120, 180);
+    let COLOR_2 = new Color(228, 26, 28);
+    let COLOR_3 = new Color(55, 126, 184);
+
     initializeTestBed({
         declarations: [
             AggregationComponent,
             ExportControlComponent,
+            LegendComponent,
             UnsharedFilterComponent
         ],
         providers: [
@@ -112,10 +118,11 @@ describe('Component: Aggregation', () => {
 
     it('class properties are set to expected defaults', () => {
         expect(component.activeData).toEqual([]);
-        expect(component.defaultGroupColor).toEqual(new Color(255, 255, 255));
-        expect(component.defaultHoverColor).toEqual(new Color(255, 255, 255));
         expect(component.filters).toEqual([]);
         expect(component.lastPage).toEqual(true);
+        expect(component.legendActiveGroups).toEqual([]);
+        expect(component.legendFields).toEqual([]);
+        expect(component.legendGroups).toEqual([]);
         expect(component.minimumDimensions.height).toBeDefined();
         expect(component.minimumDimensions.width).toBeDefined();
         expect(component.page).toEqual(1);
@@ -172,6 +179,7 @@ describe('Component: Aggregation', () => {
         let filter = {
             id: undefined,
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         };
@@ -192,6 +200,7 @@ describe('Component: Aggregation', () => {
         let filter = {
             id: undefined,
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         };
@@ -199,6 +208,7 @@ describe('Component: Aggregation', () => {
         let existingFilter = {
             id: 'idA',
             field: 'field2',
+            label: '',
             prettyField: 'prettyField2',
             value: 'value2'
         };
@@ -218,6 +228,7 @@ describe('Component: Aggregation', () => {
         let filter = {
             id: 'idB',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         };
@@ -225,6 +236,7 @@ describe('Component: Aggregation', () => {
         let existingFilter = {
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         };
@@ -243,6 +255,7 @@ describe('Component: Aggregation', () => {
         let filter = {
             id: undefined,
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         };
@@ -262,6 +275,7 @@ describe('Component: Aggregation', () => {
         let filter = {
             id: undefined,
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         };
@@ -269,6 +283,7 @@ describe('Component: Aggregation', () => {
         let existingFilter = {
             id: 'idA',
             field: 'field2',
+            label: '',
             prettyField: 'prettyField2',
             value: 'value2'
         };
@@ -289,6 +304,7 @@ describe('Component: Aggregation', () => {
         let filter = {
             id: undefined,
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         };
@@ -296,12 +312,14 @@ describe('Component: Aggregation', () => {
         let existingFilterA = {
             id: 'idA',
             field: 'field2',
+            label: '',
             prettyField: 'prettyField2',
             value: 'value2'
         };
         let existingFilterB = {
             id: 'idB',
             field: 'field3',
+            label: '',
             prettyField: 'prettyField3',
             value: 'value3'
         };
@@ -325,6 +343,7 @@ describe('Component: Aggregation', () => {
         component.addVisualizationFilter({
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         });
@@ -332,6 +351,7 @@ describe('Component: Aggregation', () => {
         expect(component.filters).toEqual([{
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         }]);
@@ -339,6 +359,7 @@ describe('Component: Aggregation', () => {
         component.addVisualizationFilter({
             id: 'idB',
             field: 'field2',
+            label: '',
             prettyField: 'prettyField2',
             value: 'value2'
         });
@@ -346,11 +367,13 @@ describe('Component: Aggregation', () => {
         expect(component.filters).toEqual([{
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         }, {
             id: 'idB',
             field: 'field2',
+            label: '',
             prettyField: 'prettyField2',
             value: 'value2'
         }]);
@@ -360,6 +383,7 @@ describe('Component: Aggregation', () => {
         component.addVisualizationFilter({
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         });
@@ -367,6 +391,7 @@ describe('Component: Aggregation', () => {
         component.addVisualizationFilter({
             id: 'idA',
             field: 'field2',
+            label: '',
             prettyField: 'prettyField2',
             value: 'value2'
         });
@@ -374,6 +399,7 @@ describe('Component: Aggregation', () => {
         expect(component.filters).toEqual([{
             id: 'idA',
             field: 'field2',
+            label: '',
             prettyField: 'prettyField2',
             value: 'value2'
         }]);
@@ -564,6 +590,107 @@ describe('Component: Aggregation', () => {
             .sortBy('_date', neonVariables.ASCENDING));
     });
 
+    it('findMatchingFilters does return expected array', () => {
+        expect(component.findMatchingFilters('field1', 'label1', 'value1')).toEqual([]);
+
+        component.filters = [{
+            id: 'idA',
+            field: 'field1',
+            label: 'label1',
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }];
+
+        expect(component.findMatchingFilters('field1', 'label1', 'value1')).toEqual([{
+            id: 'idA',
+            field: 'field1',
+            label: 'label1',
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }]);
+        expect(component.findMatchingFilters('field2', 'label1', 'value1')).toEqual([]);
+        expect(component.findMatchingFilters('field1', 'label2', 'value1')).toEqual([]);
+        expect(component.findMatchingFilters('field1', 'label1', 'value2')).toEqual([]);
+
+        component.filters = [{
+            id: 'idA',
+            field: {
+                x: 'xField1',
+                y: 'yField1'
+            },
+            label: 'label1',
+            prettyField: {
+                x: 'xPrettyField1',
+                y: 'yPrettyField1'
+            },
+            value: {
+                beginX: 1,
+                beginY: 2,
+                endX: 3,
+                endY: 4
+            }
+        }];
+
+        expect(component.findMatchingFilters({
+            x: 'xField1',
+            y: 'yField1'
+        }, 'label1', {
+            beginX: 1,
+            beginY: 2,
+            endX: 3,
+            endY: 4
+        })).toEqual([{
+            id: 'idA',
+            field: {
+                x: 'xField1',
+                y: 'yField1'
+            },
+            label: 'label1',
+            prettyField: {
+                x: 'xPrettyField1',
+                y: 'yPrettyField1'
+            },
+            value: {
+                beginX: 1,
+                beginY: 2,
+                endX: 3,
+                endY: 4
+            }
+        }]);
+
+        expect(component.findMatchingFilters({
+            x: 'xField2',
+            y: 'yField2'
+        }, 'label1', {
+            beginX: 1,
+            beginY: 2,
+            endX: 3,
+            endY: 4
+        })).toEqual([]);
+
+        expect(component.findMatchingFilters({
+            x: 'xField1',
+            y: 'yField1'
+        }, 'label2', {
+            beginX: 1,
+            beginY: 2,
+            endX: 3,
+            endY: 4
+        })).toEqual([]);
+
+        expect(component.findMatchingFilters({
+            x: 'xField1',
+            y: 'yField1'
+        }, 'label1', {
+            beginX: 11,
+            beginY: 22,
+            endX: 33,
+            endY: 44
+        })).toEqual([]);
+
+        expect(component.findMatchingFilters('xField1', 'label1', 1)).toEqual([]);
+    });
+
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toEqual('No Data');
 
@@ -591,6 +718,7 @@ describe('Component: Aggregation', () => {
         component.filters = [{
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         }];
@@ -598,6 +726,7 @@ describe('Component: Aggregation', () => {
         expect(component.getCloseableFilters()).toEqual([{
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         }]);
@@ -671,7 +800,7 @@ describe('Component: Aggregation', () => {
         }));
     });
 
-    it('getFiltersToIgnore does return null if service filters and local filters are set but ignoreSelf=false', () => {
+    it('getFiltersToIgnore does return null if service and local filters are set but ignoreSelf=false', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testXField', '!=', null), 'testFilterName1');
 
@@ -682,6 +811,7 @@ describe('Component: Aggregation', () => {
         component.filters = [{
             id: 'testDatabase1-testTable1-testFilterName1',
             field: undefined,
+            label: '',
             prettyField: undefined,
             value: undefined
         }];
@@ -693,7 +823,7 @@ describe('Component: Aggregation', () => {
         }));
     });
 
-    it('getFiltersToIgnore does return expected array of IDs if service filters and local filters are set and ignoreSelf=false', () => {
+    it('getFiltersToIgnore does return expected array of IDs if service and local filters are set and ignoreSelf=false', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testXField', '!=', null), 'testFilterName1');
 
@@ -705,11 +835,111 @@ describe('Component: Aggregation', () => {
         component.filters = [{
             id: 'testDatabase1-testTable1-testFilterName1',
             field: undefined,
+            label: '',
             prettyField: undefined,
             value: undefined
         }];
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
+    });
+
+    it('getFiltersToIgnore does return null if group service filters are set but local filters are empty and ignoreSelf=false', () => {
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testCategoryField', '!=', null), 'testFilterName1');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+
+        expect(component.getFiltersToIgnore()).toEqual(null);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
+    });
+
+    it('getFiltersToIgnore does return null if group service and local filters are set but ignoreSelf=false', () => {
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testCategoryField', '!=', null), 'testFilterName1');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.filters = [{
+            id: 'testDatabase1-testTable1-testFilterName1',
+            field: undefined,
+            label: '',
+            prettyField: undefined,
+            value: undefined
+        }];
+
+        expect(component.getFiltersToIgnore()).toEqual(null);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
+    });
+
+    it('getFiltersToIgnore does return expected array of IDs if group service and local filters are set and ignoreSelf=false', () => {
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testCategoryField', '!=', null), 'testFilterName1');
+
+        component.options.ignoreSelf = true;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.filters = [{
+            id: 'testDatabase1-testTable1-testFilterName1',
+            field: undefined,
+            label: '',
+            prettyField: undefined,
+            value: undefined
+        }];
+
+        expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
+    });
+
+    it('getFiltersToIgnore does return expected array of IDs from both X and group service filters', () => {
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testCategoryField', '!=', null), 'testFilterName1');
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testXField', '!=', null), 'testFilterName2');
+
+        component.options.ignoreSelf = true;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.filters = [{
+            id: 'testDatabase1-testTable1-testFilterName1',
+            field: undefined,
+            label: '',
+            prettyField: undefined,
+            value: undefined
+        }, {
+            id: 'testDatabase1-testTable1-testFilterName2',
+            field: undefined,
+            label: '',
+            prettyField: undefined,
+            value: undefined
+        }];
+
+        expect(component.getFiltersToIgnore()).toEqual([
+            'testDatabase1-testTable1-testFilterName2',
+            'testDatabase1-testTable1-testFilterName1'
+        ]);
 
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
@@ -738,7 +968,7 @@ describe('Component: Aggregation', () => {
         }));
     });
 
-    it('getFiltersToIgnore does return null if XY service filters and local filters are set but ignoreSelf=false', () => {
+    it('getFiltersToIgnore does return null if XY service and local filters are set but ignoreSelf=false', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.and.apply(neon.query, [neon.query.where('testXField', '!=', null), neon.query.where('testYField', '!=', null)]),
             'testFilterName1');
@@ -751,6 +981,7 @@ describe('Component: Aggregation', () => {
         component.filters = [{
             id: 'testDatabase1-testTable1-testFilterName1',
             field: undefined,
+            label: '',
             prettyField: undefined,
             value: undefined
         }];
@@ -766,7 +997,7 @@ describe('Component: Aggregation', () => {
         }));
     });
 
-    it('getFiltersToIgnore does return expected array of IDs if XY service filters and local filters are set and ignoreSelf=true', () => {
+    it('getFiltersToIgnore does return expected array of IDs if XY service and local filters are set and ignoreSelf=true', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.and.apply(neon.query, [neon.query.where('testXField', '!=', null), neon.query.where('testYField', '!=', null)]),
             'testFilterName1');
@@ -780,6 +1011,7 @@ describe('Component: Aggregation', () => {
         component.filters = [{
             id: 'testDatabase1-testTable1-testFilterName1',
             field: undefined,
+            label: '',
             prettyField: undefined,
             value: undefined
         }];
@@ -795,7 +1027,7 @@ describe('Component: Aggregation', () => {
         }));
     });
 
-    it('getFiltersToIgnore does return null if service filters and local filters are set but are not matching database/table/field', () => {
+    it('getFiltersToIgnore does return null if service and local filters are set but are not matching database/table/field', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testXField', '!=', null), 'testFilterName1');
 
@@ -807,6 +1039,7 @@ describe('Component: Aggregation', () => {
         component.filters = [{
             id: 'testDatabase1-testTable1-testFilterName1',
             field: undefined,
+            label: '',
             prettyField: undefined,
             value: undefined
         }];
@@ -835,20 +1068,23 @@ describe('Component: Aggregation', () => {
         expect(component.getFilterText({
             id: 'idA',
             field: 'field1',
+            label: '1234',
             prettyField: 'prettyField1',
             value: 1234
-        })).toEqual('prettyField1 = 1234');
+        })).toEqual('prettyField1 is 1234');
 
         expect(component.getFilterText({
             id: 'idA',
             field: 'field1',
+            label: 'value1',
             prettyField: 'prettyField1',
             value: 'value1'
-        })).toEqual('prettyField1 = value1');
+        })).toEqual('prettyField1 is value1');
 
         expect(component.getFilterText({
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: {
                 beginX: 'beginX1',
@@ -859,6 +1095,7 @@ describe('Component: Aggregation', () => {
         expect(component.getFilterText({
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: {
                 x: 'prettyX1',
                 y: 'prettyY1'
@@ -878,6 +1115,7 @@ describe('Component: Aggregation', () => {
         expect(component.getFilterText({
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: {
                 beginX: '2018-01-01T00:00:00.000Z',
@@ -888,6 +1126,7 @@ describe('Component: Aggregation', () => {
         expect(component.getFilterText({
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: {
                 x: 'prettyX1',
                 y: 'prettyY1'
@@ -899,13 +1138,6 @@ describe('Component: Aggregation', () => {
                 endY: 'endY1'
             }
         })).toEqual('prettyX1 from Mon, Jan 1, 2018, 12:00 AM to Wed, Jan 3, 2018, 12:00 AM and prettyY1 from beginY1 to endY1');
-    });
-
-    it('getFilterValueSummary does return expected string', () => {
-        expect(component.getFilterValueSummary(true)).toEqual(true);
-        expect(component.getFilterValueSummary(1234)).toEqual(1234);
-        expect(component.getFilterValueSummary('testString')).toEqual('testString');
-        expect(component.getFilterValueSummary({})).toEqual('Filter');
     });
 
     it('getHiddenCanvas does return hiddenCanvas', () => {
@@ -1045,6 +1277,97 @@ describe('Component: Aggregation', () => {
         expect(spy3.calls.count()).toEqual(1);
     });
 
+    it('handleLegendItemSelected does call addOrReplaceFilter', () => {
+        let spyAdd = spyOn(component, 'addOrReplaceFilter');
+        let spyRemove = spyOn(component, 'removeFilter');
+
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+
+        component.handleLegendItemSelected({
+            value: 'testValue'
+        });
+
+        expect(spyAdd.calls.count()).toEqual(1);
+        expect(spyAdd.calls.argsFor(0)).toEqual([{
+            id: undefined,
+            field: 'testCategoryField',
+            label: 'not testValue',
+            prettyField: 'Test Category Field',
+            value: 'testValue'
+        }, neon.query.where('testCategoryField', '!=', 'testValue'), true]);
+        expect(spyRemove.calls.count()).toEqual(0);
+    });
+
+    it('handleLegendItemSelected does call addOrReplaceFilter if non-matching filter exists', () => {
+        let spyAdd = spyOn(component, 'addOrReplaceFilter');
+        let spyRemove = spyOn(component, 'removeFilter');
+
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+
+        component.filters = [{
+            id: 'testId',
+            field: 'testCategoryField',
+            label: 'not testOtherValue',
+            prettyField: 'Test Category Field',
+            value: 'testOtherValue'
+        }];
+
+        component.handleLegendItemSelected({
+            value: 'testValue'
+        });
+
+        expect(spyAdd.calls.count()).toEqual(1);
+        expect(spyAdd.calls.argsFor(0)).toEqual([{
+            id: undefined,
+            field: 'testCategoryField',
+            label: 'not testValue',
+            prettyField: 'Test Category Field',
+            value: 'testValue'
+        }, neon.query.where('testCategoryField', '!=', 'testValue'), true]);
+        expect(spyRemove.calls.count()).toEqual(0);
+    });
+
+    it('handleLegendItemSelected does call removeFilter if filter exists', () => {
+        let spyAdd = spyOn(component, 'addOrReplaceFilter');
+        let spyRemove = spyOn(component, 'removeFilter');
+
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+
+        component.filters = [{
+            id: 'testId',
+            field: 'testCategoryField',
+            label: 'not testValue',
+            prettyField: 'Test Category Field',
+            value: 'testValue'
+        }];
+
+        component.handleLegendItemSelected({
+            value: 'testValue'
+        });
+
+        expect(spyAdd.calls.count()).toEqual(0);
+        expect(spyRemove.calls.count()).toEqual(1);
+        expect(spyRemove.calls.argsFor(0)).toEqual([{
+            id: 'testId',
+            field: 'testCategoryField',
+            label: 'not testValue',
+            prettyField: 'Test Category Field',
+            value: 'testValue'
+        }]);
+    });
+
+    it('handleLegendItemSelected does not call addOrReplaceFilter if no groupField exists', () => {
+        let spyAdd = spyOn(component, 'addOrReplaceFilter');
+        let spyRemove = spyOn(component, 'removeFilter');
+
+        component.handleLegendItemSelected({
+            value: 'testValue'
+        });
+
+        expect(spyAdd.calls.count()).toEqual(0);
+        expect(spyRemove.calls.count()).toEqual(0);
+    });
+
     it('initializeSubcomponent does update subcomponentObject', () => {
         component.subcomponentObject = null;
         component.initializeSubcomponent();
@@ -1116,71 +1439,6 @@ describe('Component: Aggregation', () => {
         expect(component.isValidQuery()).toEqual(true);
     });
 
-    it('isVisualizationFilterUnique does return expected boolean', () => {
-        expect(component.isVisualizationFilterUnique('field1', 'value1')).toEqual(true);
-
-        component.filters = [{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        expect(component.isVisualizationFilterUnique('field1', 'value1')).toEqual(false);
-        expect(component.isVisualizationFilterUnique('field2', 'value1')).toEqual(true);
-        expect(component.isVisualizationFilterUnique('field1', 'value2')).toEqual(true);
-
-        component.filters = [{
-            id: 'idA',
-            field: {
-                x: 'xField1',
-                y: 'yField1'
-            },
-            prettyField: {
-                x: 'xPrettyField1',
-                y: 'yPrettyField1'
-            },
-            value: {
-                beginX: 1,
-                beginY: 2,
-                endX: 3,
-                endY: 4
-            }
-        }];
-
-        expect(component.isVisualizationFilterUnique({
-            x: 'xField1',
-            y: 'yField1'
-        }, {
-            beginX: 1,
-            beginY: 2,
-            endX: 3,
-            endY: 4
-        })).toEqual(false);
-
-        expect(component.isVisualizationFilterUnique({
-            x: 'xField2',
-            y: 'yField2'
-        }, {
-            beginX: 1,
-            beginY: 2,
-            endX: 3,
-            endY: 4
-        })).toEqual(true);
-
-        expect(component.isVisualizationFilterUnique({
-            x: 'xField1',
-            y: 'yField1'
-        }, {
-            beginX: 1,
-            beginY: 2,
-            endX: 3,
-            endY: 5
-        })).toEqual(true);
-
-        expect(component.isVisualizationFilterUnique('xField1', 1)).toEqual(true);
-    });
-
     it('isXYSubcomponent does return expected boolean', () => {
         expect(component.isXYSubcomponent('bar-h')).toEqual(false);
         expect(component.isXYSubcomponent('bar-v')).toEqual(false);
@@ -1213,14 +1471,16 @@ describe('Component: Aggregation', () => {
         });
 
         expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([{
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: 1,
             y: 2
         }, {
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: 3,
             y: 4
@@ -1244,14 +1504,16 @@ describe('Component: Aggregation', () => {
         });
 
         expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([{
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: 1,
             y: 2
         }, {
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: 3,
             y: 4
@@ -1288,24 +1550,26 @@ describe('Component: Aggregation', () => {
         });
 
         expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['a', 'b']);
+        expect(component.legendGroups).toEqual(['a', 'b']);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([{
-            color: new Color(31, 120, 180),
+            color: COLOR_2,
             group: 'a',
             x: 1,
             y: 2
         }, {
-            color: new Color(31, 120, 180),
+            color: COLOR_2,
             group: 'a',
             x: 3,
             y: 4
         }, {
-            color: new Color(51, 160, 44),
+            color: COLOR_3,
             group: 'b',
             x: 5,
             y: 6
         }, {
-            color: new Color(51, 160, 44),
+            color: COLOR_3,
             group: 'b',
             x: 7,
             y: 8
@@ -1340,24 +1604,26 @@ describe('Component: Aggregation', () => {
         });
 
         expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['a', 'b']);
+        expect(component.legendGroups).toEqual(['a', 'b']);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([{
-            color: new Color(31, 120, 180),
+            color: COLOR_2,
             group: 'a',
             x: 1,
             y: 2
         }, {
-            color: new Color(31, 120, 180),
+            color: COLOR_2,
             group: 'a',
             x: 3,
             y: 4
         }, {
-            color: new Color(51, 160, 44),
+            color: COLOR_3,
             group: 'b',
             x: 5,
             y: 6
         }, {
-            color: new Color(51, 160, 44),
+            color: COLOR_3,
             group: 'b',
             x: 7,
             y: 8
@@ -1384,14 +1650,16 @@ describe('Component: Aggregation', () => {
         });
 
         expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([{
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
@@ -1416,14 +1684,16 @@ describe('Component: Aggregation', () => {
         });
 
         expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([{
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
@@ -1451,19 +1721,21 @@ describe('Component: Aggregation', () => {
         });
 
         expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([{
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 0
         }, {
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
@@ -1497,24 +1769,26 @@ describe('Component: Aggregation', () => {
         });
 
         expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([{
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: '2018-01-02T00:00:00.000Z',
             y: 3
         }, {
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
         }, {
-            color: new Color(255, 255, 255),
+            color: COLOR_1,
             group: 'All',
             x: '2018-01-04T00:00:00.000Z',
             y: 5
@@ -1553,44 +1827,46 @@ describe('Component: Aggregation', () => {
         });
 
         expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['a', 'b']);
+        expect(component.legendGroups).toEqual(['a', 'b']);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([{
-            color: new Color(31, 120, 180),
+            color: COLOR_2,
             group: 'a',
             x: '2018-01-01T00:00:00.000Z',
             y: 2
         }, {
-            color: new Color(31, 120, 180),
+            color: COLOR_2,
             group: 'a',
             x: '2018-01-02T00:00:00.000Z',
             y: 0
         }, {
-            color: new Color(31, 120, 180),
+            color: COLOR_2,
             group: 'a',
             x: '2018-01-03T00:00:00.000Z',
             y: 4
         }, {
-            color: new Color(31, 120, 180),
+            color: COLOR_2,
             group: 'a',
             x: '2018-01-04T00:00:00.000Z',
             y: 0
         }, {
-            color: new Color(51, 160, 44),
+            color: COLOR_3,
             group: 'b',
             x: '2018-01-01T00:00:00.000Z',
             y: 0
         }, {
-            color: new Color(51, 160, 44),
+            color: COLOR_3,
             group: 'b',
             x: '2018-01-02T00:00:00.000Z',
             y: 3
         }, {
-            color: new Color(51, 160, 44),
+            color: COLOR_3,
             group: 'b',
             x: '2018-01-03T00:00:00.000Z',
             y: 0
         }, {
-            color: new Color(51, 160, 44),
+            color: COLOR_3,
             group: 'b',
             x: '2018-01-04T00:00:00.000Z',
             y: 5
@@ -1608,6 +1884,8 @@ describe('Component: Aggregation', () => {
             data: []
         });
         expect(component.errorMessage).toEqual('No Data');
+        expect(component.legendActiveGroups).toEqual([]);
+        expect(component.legendGroups).toEqual([]);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([]);
         expect(spy.calls.count()).toEqual(1);
@@ -1616,8 +1894,6 @@ describe('Component: Aggregation', () => {
     it('postInit does work as expected', () => {
         let spy = spyOn(component, 'executeQueryChain');
         component.postInit();
-        expect(component.defaultGroupColor).toBeDefined();
-        expect(component.defaultHoverColor).toBeDefined();
         expect(component.selectedAreaOffset.x).toBeDefined();
         expect(component.selectedAreaOffset.y).toBeDefined();
         expect(spy.calls.count()).toEqual(1);
@@ -1627,6 +1903,7 @@ describe('Component: Aggregation', () => {
         let spy = spyOn(component.subcomponentObject, 'draw');
         component.options.aggregation = 'sum';
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
 
         component.refreshVisualization();
@@ -1668,11 +1945,13 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
+        expect(component.legendFields).toEqual(['testCategoryField']);
     });
 
     it('refreshVisualization with XY subcomponent does call subcomponentObject.draw', () => {
         let spy = spyOn(component.subcomponentObject, 'draw');
         component.options.type = 'line-xy';
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
 
@@ -1715,6 +1994,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: [2, 4]
         }]);
+        expect(component.legendFields).toEqual(['testCategoryField']);
     });
 
     it('refreshVisualization does work as expected with date fields', () => {
@@ -1762,6 +2042,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'date',
             yList: [2, 4]
         }]);
+        expect(component.legendFields).toEqual(['']);
     });
 
     it('refreshVisualization does work as expected with string fields', () => {
@@ -1809,6 +2090,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'string',
             yList: [2, 4]
         }]);
+        expect(component.legendFields).toEqual(['']);
     });
 
     it('removeFilter does remove objects from filters and call subcomponentObject.deselect', () => {
@@ -1817,12 +2099,14 @@ describe('Component: Aggregation', () => {
         let filter1 = {
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         };
         let filter2 = {
             id: 'idB',
             field: 'field2',
+            label: '',
             prettyField: 'prettyField2',
             value: 'value2'
         };
@@ -1845,6 +2129,7 @@ describe('Component: Aggregation', () => {
         component.filters = [{
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         }];
@@ -1852,6 +2137,7 @@ describe('Component: Aggregation', () => {
         component.removeFilter({
             id: 'idC',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         });
@@ -1861,22 +2147,10 @@ describe('Component: Aggregation', () => {
         expect(component.filters).toEqual([{
             id: 'idA',
             field: 'field1',
+            label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         }]);
-    });
-
-    it('showFilterContainer does return expected boolean', () => {
-        expect(component.showFilterContainer()).toEqual(false);
-
-        component.filters = [{
-            id: 'idA',
-            field: 'field1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        expect(component.showFilterContainer()).toEqual(true);
     });
 
     it('showFooterContainer does return expected boolean', () => {
@@ -1902,11 +2176,18 @@ describe('Component: Aggregation', () => {
     });
 
     it('subcomponentFilterBounds does call addOrReplaceFilter', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
         let spy = spyOn(component, 'addOrReplaceFilter');
 
         component.subcomponentFilterBounds(1, 2, 3, 4);
+        expect(component.selectedArea).toEqual(null);
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([{
             id: undefined,
@@ -1914,6 +2195,7 @@ describe('Component: Aggregation', () => {
                 x: 'testXField',
                 y: 'testYField'
             },
+            label: '',
             prettyField: {
                 x: 'Test X Field',
                 y: 'Test Y Field'
@@ -1930,6 +2212,7 @@ describe('Component: Aggregation', () => {
         ]), false]);
 
         component.subcomponentFilterBounds('testText1', 'testText2', 'testText3', 'testText4');
+        expect(component.selectedArea).toEqual(null);
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([{
             id: undefined,
@@ -1937,6 +2220,7 @@ describe('Component: Aggregation', () => {
                 x: 'testXField',
                 y: 'testYField'
             },
+            label: '',
             prettyField: {
                 x: 'Test X Field',
                 y: 'Test Y Field'
@@ -1953,15 +2237,44 @@ describe('Component: Aggregation', () => {
         ]), false]);
     });
 
+    it('subcomponentFilterBounds does not remove selectedArea if ignoreSelf=true', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.ignoreSelf = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        let spy = spyOn(component, 'addOrReplaceFilter');
+
+        component.subcomponentFilterBounds('testText1', 'testText2', 'testText3', 'testText4');
+        expect(component.selectedArea).toEqual({
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        });
+    });
+
     it('subcomponentFilterDomain does call addOrReplaceFilter', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
         component.options.xField = DatasetServiceMock.X_FIELD;
         let spy = spyOn(component, 'addOrReplaceFilter');
 
         component.subcomponentFilterDomain(1, 2);
+        expect(component.selectedArea).toEqual(null);
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([{
             id: undefined,
             field: 'testXField',
+            label: '',
             prettyField: 'Test X Field',
             value: {
                 beginX: 1,
@@ -1972,10 +2285,12 @@ describe('Component: Aggregation', () => {
         ]), false]);
 
         component.subcomponentFilterDomain('testText1', 'testText2');
+        expect(component.selectedArea).toEqual(null);
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([{
             id: undefined,
             field: 'testXField',
+            label: '',
             prettyField: 'Test X Field',
             value: {
                 beginX: 'testText1',
@@ -1984,6 +2299,26 @@ describe('Component: Aggregation', () => {
         }, neon.query.and.apply(neon.query, [
             neon.query.where('testXField', '>=', 'testText1'), neon.query.where('testXField', '<=', 'testText2')
         ]), false]);
+    });
+
+    it('subcomponentFilterDomain does not remove selectedArea if ignoreSelf=true', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.ignoreSelf = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        let spy = spyOn(component, 'addOrReplaceFilter');
+
+        component.subcomponentFilterDomain('testText1', 'testText2');
+        expect(component.selectedArea).toEqual({
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        });
     });
 
     it('subcomponentFilter does call addOrReplaceFilter', () => {
@@ -1995,6 +2330,7 @@ describe('Component: Aggregation', () => {
         expect(spy.calls.argsFor(0)).toEqual([{
             id: undefined,
             field: 'testXField',
+            label: '1',
             prettyField: 'Test X Field',
             value: 1
         }, neon.query.where('testXField', '=', 1), false]);
@@ -2004,6 +2340,7 @@ describe('Component: Aggregation', () => {
         expect(spy.calls.argsFor(1)).toEqual([{
             id: undefined,
             field: 'testXField',
+            label: 'testText',
             prettyField: 'Test X Field',
             value: 'testText'
         }, neon.query.where('testXField', '=', 'testText'), false]);
@@ -2283,23 +2620,28 @@ describe('Component: Aggregation', () => {
         });
     }));
 
-    it('does not show filter-container if filters is empty array', () => {
+    it('does show filter-container if filters is empty array', () => {
         let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
-        expect(filterContainer).toBeNull();
+        expect(filterContainer).not.toBeNull();
+
+        let legend = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container app-legend'));
+        expect(legend).not.toBeNull();
 
         let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-        expect(bodyContainer).toBeNull();
+        expect(bodyContainer).not.toBeNull();
     });
 
     it('does show filter-container and filter-reset elements if filters is non-empty array', async(() => {
         component.filters = [{
             id: 'idA',
             field: 'field1',
+            label: 'value1',
             prettyField: 'prettyField1',
             value: 'value1'
         }, {
             id: 'idB',
             field: 'field2',
+            label: 'value2',
             prettyField: 'prettyField2',
             value: 'value2'
         }];
@@ -2311,6 +2653,9 @@ describe('Component: Aggregation', () => {
 
             let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
             expect(filterContainer).not.toBeNull();
+
+            let legend = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container app-legend'));
+            expect(legend).not.toBeNull();
 
             let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
             expect(bodyContainer).not.toBeNull();
@@ -2324,10 +2669,11 @@ describe('Component: Aggregation', () => {
             expect(filterLabels[0].nativeElement.textContent).toContain('value1');
             expect(filterLabels[1].nativeElement.textContent).toContain('value2');
 
-            let filterButtons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button'));
+            let filterButtons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-reset button'));
             expect(filterButtons.length).toEqual(2);
 
-            let filterIcons = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container button mat-icon'));
+            let filterIcons = fixture.debugElement.queryAll(By.css(
+                'mat-sidenav-container .filter-container .filter-reset button mat-icon'));
             expect(filterIcons.length).toEqual(2);
 
             expect(filterIcons[0].nativeElement.textContent).toEqual('close');
@@ -2664,6 +3010,7 @@ describe('Component: Aggregation with config', () => {
         declarations: [
             AggregationComponent,
             ExportControlComponent,
+            LegendComponent,
             UnsharedFilterComponent
         ],
         providers: [
@@ -2962,6 +3309,7 @@ describe('Component: Aggregation with XY config', () => {
         declarations: [
             AggregationComponent,
             ExportControlComponent,
+            LegendComponent,
             UnsharedFilterComponent
         ],
         providers: [
@@ -3198,6 +3546,7 @@ describe('Component: Aggregation with date config', () => {
         declarations: [
             AggregationComponent,
             ExportControlComponent,
+            LegendComponent,
             UnsharedFilterComponent
         ],
         providers: [
