@@ -23,7 +23,7 @@ import 'chart.js';
 
 declare let Chart;
 
-export abstract class ChartJsDataset {
+export abstract class AbstractChartJsDataset {
     public data: any[] = [];
     public xToY: Map<any, any> = new Map<any, any[]>();
 
@@ -59,7 +59,7 @@ export abstract class ChartJsDataset {
 
 export class ChartJsData {
     constructor(
-        public datasets: ChartJsDataset[],
+        public datasets: AbstractChartJsDataset[],
         public labels: string[]
     ) {}
 }
@@ -89,8 +89,6 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         endX: number
     } = null;
 
-    protected selectedLabels: any[] = [];
-
     // Save only the tick labels shown in the chart (adjusted for its size) rather than the chart.data.labels which are all the labels.
     private tickLabels: {
         x: any[],
@@ -99,6 +97,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         x: [],
         y: []
     };
+
+    protected selectedLabels: any[] = [];
 
     /**
      * @constructor
@@ -235,7 +235,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {{ data: ChartJsData, options: any }}
      * @private
      */
-    private createChartDataAndOptions(data: any[], meta: any): { data: ChartJsData, options: any } {
+    protected createChartDataAndOptions(data: any[], meta: any): { data: ChartJsData, options: any } {
         let groupsToDatasets = new Map<string, any>();
         data.forEach((item) => {
             let dataset = groupsToDatasets.get(item.group);
@@ -263,10 +263,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {Color} color
      * @arg {string} label
      * @arg {any[]} xList
-     * @return {ChartJsDataset}
+     * @return {AbstractChartJsDataset}
      * @abstract
      */
-    protected abstract createChartDataset(color: Color, label: string, xList: any[]): ChartJsDataset;
+    protected abstract createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset;
 
     /**
      * Creates and returns a tooltip label for the given item and data.
@@ -634,6 +634,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
         // Selection yes, mouse press cancel...
         if (!this.cancelSelect && this.selectedBounds && event.buttons > 1) {
+            this.selectedLabels = [];
             this.dataDeselect(chart);
             this.listener.subcomponentRequestsDeselect();
             this.listener.subcomponentRequestsRedraw(event);
@@ -689,10 +690,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
             let beginLabelX, beginLabelY, endLabelX, endLabelY;
             if (this.findAxisTypeX() === 'string') {
-                beginLabelX = chart.scales['x-axis-0'].getLabelForIndex(beginValueX, 0);
-                endLabelX = chart.scales['x-axis-0'].getLabelForIndex(endValueX, 0);
-                beginLabelX = beginLabelX < endLabelX ? beginLabelX : endLabelX;
-                endLabelX = beginLabelX > endLabelX ? beginLabelX : endLabelX;
+                beginValueX = chart.scales['x-axis-0'].getLabelForIndex(beginValueX, 0);
+                endValueX = chart.scales['x-axis-0'].getLabelForIndex(endValueX, 0);
+                beginLabelX = beginValueX < endValueX ? beginValueX : endValueX;
+                endLabelX = beginValueX > endValueX ? beginValueX : endValueX;
             } else if (this.findAxisTypeX() === 'date') {
                 beginLabelX = new Date(Math.min(beginValueX, endValueX));
                 endLabelX = new Date(Math.max(beginValueX, endValueX));
@@ -702,10 +703,10 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             }
 
             if (this.findAxisTypeY() === 'string') {
-                beginLabelY = chart.scales['y-axis-0'].getLabelForIndex(beginValueY, 0);
-                endLabelY = chart.scales['y-axis-0'].getLabelForIndex(endValueY, 0);
-                beginLabelY = beginLabelY < endLabelY ? beginLabelY : endLabelY;
-                endLabelY = beginLabelY > endLabelY ? beginLabelY : endLabelY;
+                beginValueY = chart.scales['y-axis-0'].getLabelForIndex(beginValueY, 0);
+                endValueY = chart.scales['y-axis-0'].getLabelForIndex(endValueY, 0);
+                beginLabelY = beginValueY < endValueY ? beginValueY : endValueY;
+                endLabelY = beginValueY > endValueY ? beginValueY : endValueY;
             } else {
                 beginLabelY = Math.min(beginValueY, endValueY);
                 endLabelY = Math.max(beginValueY, endValueY);
@@ -734,6 +735,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
         // Selection yes, mouse press cancel...
         if (!this.cancelSelect && this.selectedDomain && event.buttons > 1) {
+            this.selectedLabels = [];
             this.dataDeselect(chart);
             this.listener.subcomponentRequestsDeselect();
             this.listener.subcomponentRequestsRedraw(event);
@@ -789,8 +791,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 endLabelX = new Date(endLabelX);
             }
             if (this.findAxisTypeX() === 'number') {
-                beginLabelX = Number(beginLabelX.replace(/,/g, '');
-                endLabelX = Number(endLabelX.replace(/,/g, '');
+                beginLabelX = Number(beginLabelX.replace(/,/g, ''));
+                endLabelX = Number(endLabelX.replace(/,/g, ''));
             }
 
             this.listener.subcomponentRequestsFilterOnDomain(beginLabelX, endLabelX);

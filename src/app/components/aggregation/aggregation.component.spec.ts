@@ -1327,9 +1327,9 @@ describe('Component: Aggregation', () => {
         expect(spyRemove.calls.count()).toEqual(0);
     });
 
-    it('handleLegendItemSelected does call removeFilter if filter exists', () => {
+    it('handleLegendItemSelected does call removeLocalFilterFromLocalAndNeon if filter exists', () => {
         let spyAdd = spyOn(component, 'addOrReplaceFilter');
-        let spyRemove = spyOn(component, 'removeFilter');
+        let spyRemove = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
 
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
 
@@ -1353,12 +1353,12 @@ describe('Component: Aggregation', () => {
             label: 'not testValue',
             prettyField: 'Test Category Field',
             value: 'testValue'
-        }]);
+        }, true, true]);
     });
 
     it('handleLegendItemSelected does not call addOrReplaceFilter if no groupField exists', () => {
         let spyAdd = spyOn(component, 'addOrReplaceFilter');
-        let spyRemove = spyOn(component, 'removeFilter');
+        let spyRemove = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
 
         component.handleLegendItemSelected({
             value: 'testValue'

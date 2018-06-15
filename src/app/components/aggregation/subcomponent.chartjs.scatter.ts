@@ -14,9 +14,9 @@
  *
  */
 import { ElementRef } from '@angular/core';
+import { AbstractChartJsDataset } from './subcomponent.chartjs.abstract';
 import { AggregationOptions } from './aggregation.component';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { ChartJsDataset } from './subcomponent.chartjs.abstract';
 import { ChartJsLineSubcomponent, ChartJsLineDataset } from './subcomponent.chartjs.line';
 import { Color } from '../../services/color-scheme.service';
 
@@ -49,10 +49,10 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
      * @arg {Color} color
      * @arg {string} label
      * @arg {any[]} xList
-     * @return {ChartJsDataset}
+     * @return {AbstractChartJsDataset}
      * @override
      */
-    protected createChartDataset(color: Color, label: string, xList: any[]): ChartJsDataset {
+    protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
         return new ChartJsScatterDataset(color, label, xList);
     }
 

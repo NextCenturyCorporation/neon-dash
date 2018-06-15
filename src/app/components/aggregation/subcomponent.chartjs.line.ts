@@ -13,11 +13,11 @@
  * limitations under the License.
  *
  */
-import { AbstractChartJsSubcomponent, ChartJsData, ChartJsDataset } from './subcomponent.chartjs.abstract';
+import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData } from './subcomponent.chartjs.abstract';
 import { Color } from '../../services/color-scheme.service';
 
 // http://www.chartjs.org/docs/latest/charts/line.html#dataset-properties
-export class ChartJsLineDataset extends ChartJsDataset {
+export class ChartJsLineDataset extends AbstractChartJsDataset {
     public backgroundColor: string;
     public borderColor: string;
     public borderWidth: number = 3;
@@ -65,10 +65,10 @@ export class ChartJsLineSubcomponent extends AbstractChartJsSubcomponent {
      * @arg {Color} color
      * @arg {string} label
      * @arg {any[]} xList
-     * @return {ChartJsDataset}
+     * @return {AbstractChartJsDataset}
      * @override
      */
-    protected createChartDataset(color: Color, label: string, xList: any[]): ChartJsDataset {
+    protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
         let dataset = new ChartJsLineDataset(color, label, xList);
         dataset.fill = this.options.lineFillArea || dataset.fill;
         dataset.lineTension = this.options.lineCurveTension === 0 ? 0 : (this.options.lineCurveTension || dataset.lineTension);
