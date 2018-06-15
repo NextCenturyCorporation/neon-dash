@@ -14,15 +14,15 @@
  *
  */
 import { ElementRef } from '@angular/core';
+import { AbstractChartJsDataset, AbstractChartJsSubcomponent, ChartJsData } from './subcomponent.chartjs.abstract';
 import { AggregationOptions } from './aggregation.component';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { AbstractChartJsSubcomponent, ChartJsData, ChartJsDataset } from './subcomponent.chartjs.abstract';
 import { Color } from '../../services/color-scheme.service';
 
 import * as _ from 'lodash';
 
 // http://www.chartjs.org/docs/latest/charts/bar.html#dataset-properties
-export class ChartJsBarDataset extends ChartJsDataset {
+export class ChartJsBarDataset extends AbstractChartJsDataset {
     public backgroundColor: string[] = [];
     public borderColor: string;
     public borderWidth: number = 3;
@@ -74,10 +74,10 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      * @arg {Color} color
      * @arg {string} label
      * @arg {any[]} xList
-     * @return {ChartJsDataset}
+     * @return {AbstractChartJsDataset}
      * @override
      */
-    protected createChartDataset(color: Color, label: string, xList: any[]): ChartJsDataset {
+    protected createChartDataset(color: Color, label: string, xList: any[]): AbstractChartJsDataset {
         return new ChartJsBarDataset(color, label, xList, this.selectedLabels, this.horizontal);
     }
 

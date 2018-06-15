@@ -16,7 +16,6 @@
 import { ElementRef } from '@angular/core';
 import { AggregationOptions } from './aggregation.component';
 import { AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
-import { ChartJsDataset } from './subcomponent.chartjs.abstract';
 import { ChartJsBarSubcomponent, ChartJsBarDataset } from './subcomponent.chartjs.bar';
 import { Color } from '../../services/color-scheme.service';
 

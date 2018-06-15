@@ -14,10 +14,24 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { AggregationOptions } from './aggregation.component';
 
 import * as _ from 'lodash';
 import * as moment from 'moment-timezone';
+
+export interface AggregationSubcomponentOptions {
+    granularity: string;
+    hideGridLines: boolean;
+    hideGridTicks: boolean;
+    lineCurveTension: number;
+    lineFillArea: boolean;
+    logScaleX: boolean;
+    logScaleY: boolean;
+    scaleMaxX: string;
+    scaleMaxY: string;
+    scaleMinX: string;
+    scaleMinY: string;
+    yPercentage: number;
+}
 
 export interface AggregationSubcomponentListener {
     /**
@@ -89,12 +103,12 @@ export interface AggregationSubcomponentListener {
 export abstract class AbstractAggregationSubcomponent {
     /**
      * @constructor
-     * @arg {AggregationOptions} options
+     * @arg {AggregationSubcomponentOptions} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
      */
     constructor(
-        protected options: AggregationOptions,
+        protected options: AggregationSubcomponentOptions,
         protected listener: AggregationSubcomponentListener,
         protected elementRef: ElementRef
     ) {}

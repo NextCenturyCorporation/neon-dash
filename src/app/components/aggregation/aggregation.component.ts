@@ -34,7 +34,11 @@ import { ExportService } from '../../services/export.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import { AbstractAggregationSubcomponent, AggregationSubcomponentListener } from './subcomponent.aggregation.abstract';
+import {
+    AbstractAggregationSubcomponent,
+    AggregationSubcomponentListener,
+    AggregationSubcomponentOptions
+} from './subcomponent.aggregation.abstract';
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { ChartJsBarSubcomponent } from './subcomponent.chartjs.bar';
 import { ChartJsDoughnutSubcomponent } from './subcomponent.chartjs.doughnut';
@@ -56,7 +60,7 @@ import * as neon from 'neon-framework';
 /**
  * Manages configurable options for the specific visualization.
  */
-export class AggregationOptions extends BaseNeonOptions {
+export class AggregationOptions extends BaseNeonOptions implements AggregationSubcomponentOptions {
     public aggregationField: FieldMetaData;
     public groupField: FieldMetaData;
     public xField: FieldMetaData;
