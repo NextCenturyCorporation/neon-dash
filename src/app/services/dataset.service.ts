@@ -154,6 +154,8 @@ export class DatasetService {
         this.dataset.layout = dataset.layout || '';
         this.dataset.datastore = dataset.datastore || '';
         this.dataset.hostname = dataset.hostname || '';
+        this.dataset.title = dataset.title || '';
+        this.dataset.icon = dataset.icon || '';
         this.dataset.databases = dataset.databases || [];
         this.dataset.options = dataset.options || {};
         this.dataset.relations = dataset.relations || [];

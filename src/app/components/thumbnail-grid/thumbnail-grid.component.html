@@ -169,6 +169,13 @@
                 </mat-button-toggle-group>
                 <p></p>
 
+                <span class="toggle-text">Ignore Own Filters:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleFiltersChangedEvent()">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
                 <span class="toggle-text">Open Media on Mouse Click:</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.openOnMouseClick">
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
@@ -206,9 +213,9 @@
     </div>
 
     <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > pagingGrid.length">
-       <div class="thumbnail-grid-container" [class.style2]="options.styleClass == 'style2'">
-           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [matTooltip]="getThumbnailTitle(item)"
-               tooltip-position="below" (click)="selectGridItem(item)" [class.selectable]="isSelectable()"
+       <div class="thumbnail-grid-container" *ngIf="showGrid" [class.style2]="options.styleClass == 'style2'">
+           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [title]="getThumbnailTitle(item)"
+               (click)="selectGridItem(item)" [class.selectable]="isSelectable()"
                [class.selected]="isSelected(item)" [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
                <div class="thumbnail-details" *ngIf="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
                    <p>
