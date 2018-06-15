@@ -26,7 +26,7 @@ import {
 } from '@angular/core';
 
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Http } from '@angular/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -102,7 +102,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         themesService: ThemesService,
         ref: ChangeDetectorRef,
         visualizationService: VisualizationService,
-        protected http: Http,
+        protected http: HttpClient,
         protected sanitizer: DomSanitizer
     ) {
 
@@ -287,6 +287,7 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
         } catch (e) {
             this.isLoadingWikiPage = false;
             this.errorMessage = 'Error';
+            console.error('Error in ' + this.options.title, e);
             this.refreshVisualization();
         }
     }
@@ -332,8 +333,20 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
             return;
         }
 
-        this.http.get (WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).toPromise().then((wikiResponse) => {
-            let responseObject = JSON.parse(wikiResponse.text());
+        let handleErrorOrFailure = (errorMessage: string) => {
+            this.wikiName.push(links[0]);
+            this.wikiText.push(errorMessage);
+            console.error('Error ' + links[0], errorMessage);
+            this.retrieveWikiPage(links.slice(1));
+        };
+
+        this.http.get(WikiViewerComponent.WIKI_LINK_PREFIX + links[0]).subscribe((wikiResponse: any) => {
+            if (wikiResponse.error) {
+                let errorMessage = [(wikiResponse.error.code || ''), (wikiResponse.error.info || '')].join(': ') || 'Error';
+                handleErrorOrFailure(errorMessage);
+                return;
+            }
+            let responseObject = JSON.parse(wikiResponse.body);
             if (responseObject.error) {
                 this.wikiName.push(links[0]);
                 this.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(responseObject.error.info));
@@ -342,10 +355,8 @@ export class WikiViewerComponent extends BaseNeonComponent implements OnInit, On
                 this.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(responseObject.parse.text['*']));
             }
             this.retrieveWikiPage(links.slice(1));
-        }).catch((error) => {
-            this.wikiName.push(links[0]);
-            this.wikiText.push(this.sanitizer.bypassSecurityTrustHtml(error));
-            this.retrieveWikiPage(links.slice(1));
+        }, (error: HttpErrorResponse) => {
+            handleErrorOrFailure(error.error);
         });
     }
 
