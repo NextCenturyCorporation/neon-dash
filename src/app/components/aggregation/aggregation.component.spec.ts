@@ -2162,7 +2162,7 @@ describe('Component: Aggregation', () => {
         expect(component.showFooterContainer()).toEqual(true);
     });
 
-    it('subcomponentDeselect does update selectedArea', () => {
+    it('subcomponentRequestsDeselect does update selectedArea', () => {
         component.selectedArea = {
             height: 20,
             width: 10,
@@ -2170,12 +2170,12 @@ describe('Component: Aggregation', () => {
             y: 2
         };
 
-        component.subcomponentDeselect();
+        component.subcomponentRequestsDeselect();
 
         expect(component.selectedArea).toEqual(null);
     });
 
-    it('subcomponentFilterBounds does call addOrReplaceFilter', () => {
+    it('subcomponentRequestsFilterOnBounds does call addOrReplaceFilter', () => {
         component.selectedArea = {
             height: 4,
             width: 3,
@@ -2186,7 +2186,7 @@ describe('Component: Aggregation', () => {
         component.options.yField = DatasetServiceMock.Y_FIELD;
         let spy = spyOn(component, 'addOrReplaceFilter');
 
-        component.subcomponentFilterBounds(1, 2, 3, 4);
+        component.subcomponentRequestsFilterOnBounds(1, 2, 3, 4);
         expect(component.selectedArea).toEqual(null);
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([{
@@ -2211,7 +2211,7 @@ describe('Component: Aggregation', () => {
             neon.query.where('testXField', '<=', 3), neon.query.where('testYField', '<=', 4)
         ]), false]);
 
-        component.subcomponentFilterBounds('testText1', 'testText2', 'testText3', 'testText4');
+        component.subcomponentRequestsFilterOnBounds('testText1', 'testText2', 'testText3', 'testText4');
         expect(component.selectedArea).toEqual(null);
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([{
@@ -2237,7 +2237,7 @@ describe('Component: Aggregation', () => {
         ]), false]);
     });
 
-    it('subcomponentFilterBounds does not remove selectedArea if ignoreSelf=true', () => {
+    it('subcomponentRequestsFilterOnBounds does not remove selectedArea if ignoreSelf=true', () => {
         component.selectedArea = {
             height: 4,
             width: 3,
@@ -2249,7 +2249,7 @@ describe('Component: Aggregation', () => {
         component.options.yField = DatasetServiceMock.Y_FIELD;
         let spy = spyOn(component, 'addOrReplaceFilter');
 
-        component.subcomponentFilterBounds('testText1', 'testText2', 'testText3', 'testText4');
+        component.subcomponentRequestsFilterOnBounds('testText1', 'testText2', 'testText3', 'testText4');
         expect(component.selectedArea).toEqual({
             height: 4,
             width: 3,
@@ -2258,7 +2258,7 @@ describe('Component: Aggregation', () => {
         });
     });
 
-    it('subcomponentFilterDomain does call addOrReplaceFilter', () => {
+    it('subcomponentRequestsFilterOnDomain does call addOrReplaceFilter', () => {
         component.selectedArea = {
             height: 4,
             width: 3,
@@ -2268,7 +2268,7 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         let spy = spyOn(component, 'addOrReplaceFilter');
 
-        component.subcomponentFilterDomain(1, 2);
+        component.subcomponentRequestsFilterOnDomain(1, 2);
         expect(component.selectedArea).toEqual(null);
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([{
@@ -2284,7 +2284,7 @@ describe('Component: Aggregation', () => {
             neon.query.where('testXField', '>=', 1), neon.query.where('testXField', '<=', 2)
         ]), false]);
 
-        component.subcomponentFilterDomain('testText1', 'testText2');
+        component.subcomponentRequestsFilterOnDomain('testText1', 'testText2');
         expect(component.selectedArea).toEqual(null);
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([{
@@ -2301,7 +2301,7 @@ describe('Component: Aggregation', () => {
         ]), false]);
     });
 
-    it('subcomponentFilterDomain does not remove selectedArea if ignoreSelf=true', () => {
+    it('subcomponentRequestsFilterOnDomain does not remove selectedArea if ignoreSelf=true', () => {
         component.selectedArea = {
             height: 4,
             width: 3,
@@ -2312,7 +2312,7 @@ describe('Component: Aggregation', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         let spy = spyOn(component, 'addOrReplaceFilter');
 
-        component.subcomponentFilterDomain('testText1', 'testText2');
+        component.subcomponentRequestsFilterOnDomain('testText1', 'testText2');
         expect(component.selectedArea).toEqual({
             height: 4,
             width: 3,
@@ -2321,11 +2321,11 @@ describe('Component: Aggregation', () => {
         });
     });
 
-    it('subcomponentFilter does call addOrReplaceFilter', () => {
+    it('subcomponentRequestsFilter does call addOrReplaceFilter', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         let spy = spyOn(component, 'addOrReplaceFilter');
 
-        component.subcomponentFilter(1);
+        component.subcomponentRequestsFilter(1);
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual([{
             id: undefined,
@@ -2335,7 +2335,7 @@ describe('Component: Aggregation', () => {
             value: 1
         }, neon.query.where('testXField', '=', 1), false]);
 
-        component.subcomponentFilter('testText');
+        component.subcomponentRequestsFilter('testText');
         expect(spy.calls.count()).toEqual(2);
         expect(spy.calls.argsFor(1)).toEqual([{
             id: undefined,
@@ -2346,18 +2346,18 @@ describe('Component: Aggregation', () => {
         }, neon.query.where('testXField', '=', 'testText'), false]);
     });
 
-    it('subcomponentRedraw does call stopEventPropagation and changeDetection.detectChanges', () => {
+    it('subcomponentRequestsRedraw does call stopEventPropagation and changeDetection.detectChanges', () => {
         let spy1 = spyOn(component, 'stopEventPropagation');
         let spy2 = spyOn(component.changeDetection, 'detectChanges');
 
-        component.subcomponentRedraw({});
+        component.subcomponentRequestsRedraw({});
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy2.calls.count()).toEqual(1);
     });
 
-    it('subcomponentSelect does update selectedArea', () => {
-        component.subcomponentSelect(1, 2, 10, 20);
+    it('subcomponentRequestsSelect does update selectedArea', () => {
+        component.subcomponentRequestsSelect(1, 2, 10, 20);
 
         expect(component.selectedArea).toEqual({
             height: 20,

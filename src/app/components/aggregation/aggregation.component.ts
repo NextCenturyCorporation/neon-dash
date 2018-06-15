@@ -959,7 +959,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      *
      * @override
      */
-    subcomponentDeselect() {
+    subcomponentRequestsDeselect() {
         this.selectedArea = null;
     }
 
@@ -970,7 +970,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @arg {boolean} doNotReplace
      * @override
      */
-    subcomponentFilter(item: any, doNotReplace: boolean = false) {
+    subcomponentRequestsFilter(item: any, doNotReplace: boolean = false) {
         let neonFilter = neon.query.where(this.options.xField.columnName, '=', item);
         this.addOrReplaceFilter({
             id: undefined,
@@ -991,7 +991,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @arg {boolean} doNotReplace
      * @override
      */
-    subcomponentFilterBounds(beginX: any, beginY, endX: any, endY, doNotReplace: boolean = false) {
+    subcomponentRequestsFilterOnBounds(beginX: any, beginY, endX: any, endY, doNotReplace: boolean = false) {
         if (!this.options.ignoreSelf) {
             this.selectedArea = null;
         }
@@ -1030,7 +1030,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @arg {boolean} doNotReplace
      * @override
      */
-    subcomponentFilterDomain(beginX: any, endX: any, doNotReplace: boolean = false) {
+    subcomponentRequestsFilterOnDomain(beginX: any, endX: any, doNotReplace: boolean = false) {
         if (!this.options.ignoreSelf) {
             this.selectedArea = null;
         }
@@ -1057,7 +1057,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @arg {event} [event]
      * @override
      */
-    subcomponentRedraw(event?) {
+    subcomponentRequestsRedraw(event?) {
         if (event) {
             this.stopEventPropagation(event);
         }
@@ -1074,7 +1074,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      *
      * @override
      */
-    subcomponentSelect(x: number, y: number, width: number, height: number) {
+    subcomponentRequestsSelect(x: number, y: number, width: number, height: number) {
         this.selectedArea = {
             height: height,
             width: width,

@@ -570,7 +570,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      */
     public redraw() {
         this.chart.update();
-        this.listener.subcomponentRedraw();
+        this.listener.subcomponentRequestsRedraw();
     }
 
     /**
@@ -635,8 +635,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         // Selection yes, mouse press cancel...
         if (!this.cancelSelect && this.selectedBounds && event.buttons > 1) {
             this.dataDeselect(chart);
-            this.listener.subcomponentDeselect();
-            this.listener.subcomponentRedraw(event);
+            this.listener.subcomponentRequestsDeselect();
+            this.listener.subcomponentRequestsRedraw(event);
             this.selectedBounds = null;
             this.cancelSelect = true;
         }
@@ -670,14 +670,14 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 this.dataSelect(chart, items);
             }
 
-            this.listener.subcomponentSelect(
+            this.listener.subcomponentRequestsSelect(
                 Math.min(this.selectedBounds.beginX, this.selectedBounds.endX),
                 Math.min(this.selectedBounds.beginY, this.selectedBounds.endY),
                 Math.abs(this.selectedBounds.beginX - this.selectedBounds.endX),
                 Math.abs(this.selectedBounds.beginY - this.selectedBounds.endY)
             );
 
-            this.listener.subcomponentRedraw(event);
+            this.listener.subcomponentRequestsRedraw(event);
         }
 
         // Selection yes, mouse press no...
@@ -712,9 +712,9 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             }
 
             if (domainOnly) {
-                this.listener.subcomponentFilterDomain(beginLabelX, endLabelX);
+                this.listener.subcomponentRequestsFilterOnDomain(beginLabelX, endLabelX);
             } else {
-                this.listener.subcomponentFilterBounds(beginLabelX, beginLabelY, endLabelX, endLabelY);
+                this.listener.subcomponentRequestsFilterOnBounds(beginLabelX, beginLabelY, endLabelX, endLabelY);
             }
             this.selectedBounds = null;
         }
@@ -735,8 +735,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         // Selection yes, mouse press cancel...
         if (!this.cancelSelect && this.selectedDomain && event.buttons > 1) {
             this.dataDeselect(chart);
-            this.listener.subcomponentDeselect();
-            this.listener.subcomponentRedraw(event);
+            this.listener.subcomponentRequestsDeselect();
+            this.listener.subcomponentRequestsRedraw(event);
             this.selectedDomain = null;
             this.cancelSelect = true;
         }
@@ -768,14 +768,14 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
 
             this.dataSelect(chart, items);
 
-            this.listener.subcomponentSelect(
+            this.listener.subcomponentRequestsSelect(
                 Math.min(this.selectedDomain.beginX, this.selectedDomain.endX) - Math.ceil(elementWidth / 2.0),
                 chart.chartArea.top,
                 Math.abs(this.selectedDomain.beginX - this.selectedDomain.endX) + elementWidth,
                 (chart.chartArea.bottom - chart.chartArea.top)
             );
 
-            this.listener.subcomponentRedraw(event);
+            this.listener.subcomponentRequestsRedraw(event);
         }
 
         // Selection yes, mouse press no...
@@ -789,7 +789,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 endLabelX = new Date(endLabelX);
             }
 
-            this.listener.subcomponentFilterDomain(beginLabelX, endLabelX);
+            this.listener.subcomponentRequestsFilterOnDomain(beginLabelX, endLabelX);
             this.selectedDomain = null;
         }
     }
@@ -813,7 +813,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             this.dataDeselect(chart);
         }
         this.dataSelect(chart, [items[0]]);
-        this.listener.subcomponentFilter(labelValue, doNotReplace);
+        this.listener.subcomponentRequestsFilter(labelValue, doNotReplace);
     }
 
     /**
