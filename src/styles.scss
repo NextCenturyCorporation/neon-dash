@@ -465,12 +465,12 @@ body {
     }
 }
 
-.simpleSnackBar  simple-snack-bar button{
-    position: absolute; 
-    top: 0;
-    right: 0;
-}
-
-.simpleSnackBar  simple-snack-bar{
+.simpleSnackBar .mat-simple-snackbar{
     padding-left: 60px;
+
+    & button{
+        position: absolute; 
+        top: 0;
+        right: 0;
+    }
 }
