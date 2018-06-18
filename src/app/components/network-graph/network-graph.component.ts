@@ -46,14 +46,14 @@ import * as vis from 'vis';
 
 class GraphData {
     constructor(
-        public nodes = new vis.DataSet(), 
+        public nodes = new vis.DataSet(),
         public edges = new vis.DataSet()
     ) {}
 }
 
 class GraphProperties {
     constructor(
-        public nodes: Node[] = [], 
+        public nodes: Node[] = [],
         public edges: Edge[] = []
     ) {}
     addNode(node: Node) {
@@ -67,10 +67,10 @@ class GraphProperties {
 class Node {
     // http://visjs.org/docs/network/nodes.html
     constructor(
-        public id: string, 
-        public label: string, 
-        public nodeType?: string, 
-        public size?: number, 
+        public id: string,
+        public label: string,
+        public nodeType?: string,
+        public size?: number,
         public color?: string
     ) {}
 }
@@ -106,6 +106,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public edgeColor: string;
     public linkField: FieldMetaData;
     public nodeField: FieldMetaData;
+    public limit: number;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -115,9 +116,10 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     onInit() {
         this.isDirected = this.injector.get('isDirected', false);
         this.isReified = this.injector.get('isReified', false);
-        this.linkColor = this.injector.get('linkColor', "#848484");
-        this.nodeColor = this.injector.get('nodeColor', "#848484");
-        this.edgeColor = this.injector.get('edgeColor', "#848484");
+        this.linkColor = this.injector.get('linkColor', '#96c1fc');
+        this.nodeColor = this.injector.get('nodeColor', '#96c1fc');
+        this.edgeColor = this.injector.get('edgeColor', '#2b7ce9');
+        this.limit = this.injector.get('limit', Infinity);
     }
 
     /**
@@ -472,18 +474,21 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private createReifiedGraphProperties() {
         let graph = new GraphProperties();
+        let limit = this.options.limit;
 
         for (const entry of this.activeData) {
-            const subject = entry.subject,
-                predicate = entry.predicate,
-                object = entry.object;
+            if (limit && graph.nodes.length <= limit) {
+                const subject = entry.subject,
+                    predicate = entry.predicate,
+                    object = entry.object;
 
-            graph.addNode(new Node(subject, subject));
-            graph.addNode(new Node(object, object));
-            graph.addEdge(new Edge(subject, object, predicate));
-                // , {to: this.options.isDirected}));
+                graph.addNode(new Node(subject, subject));
+                graph.addNode(new Node(object, object));
+                graph.addEdge(new Edge(subject, object, predicate));
+                    // , {to: this.options.isDirected}));
 
-            //TODO: add hover with other properties
+                //TODO: add hover with other properties
+            }
         }
         return graph;
     }
@@ -493,7 +498,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             for (const linkEntry of linkField) {
                 graph.addEdge(new Edge(source, linkEntry, '', null, 1, { color: edgeColor }));
             }
-        } else if (linkField) {  
+        } else if (linkField) {
                 graph.addEdge(new Edge(source, linkField, '', null, 1, { color: edgeColor }));
         }
     }
@@ -502,51 +507,54 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let graph = new GraphProperties(),
             linkName = this.options.linkField.columnName,
             nodeName = this.options.nodeField.columnName;
-        
+
             let nodeColor = this.options.nodeColor;
             let edgeColor = this.options.edgeColor;
             let linkColor = this.options.linkColor;
+            let limit = this.options.limit;
 
         for (let entry of this.activeData) {
-            
-            //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
-            let linkField = entry[linkName];
-            if (Array.isArray(linkField)) {
-                for (const linkEntry of linkField) {
-                    graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor));
-                }
-            } else if (linkField) {
-                graph.addNode(new Node(linkField, linkField, linkName, 1, linkColor));
-            }
-
-            //creates a new node for each unique nodeId
-            //nodeField is an array
-            let nodeField = entry[nodeName];
-            if (Array.isArray(nodeField)) {
-                for (const nodeEntry of nodeField) {
-                    if (this.isUniqueNode(nodeEntry)) {
-                        graph.addNode(new Node(nodeEntry, nodeEntry, nodeName, 1, nodeColor));
-                        this.addEdgesFromField(graph, linkField, nodeEntry, edgeColor);
+            if (limit && graph.nodes.length <= limit) {
+                //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
+                let linkField = entry[linkName];
+                if (Array.isArray(linkField)) {
+                    for (const linkEntry of linkField) {
+                        graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor));
                     }
+                } else if (linkField) {
+                    graph.addNode(new Node(linkField, linkField, linkName, 1, linkColor));
                 }
-            } else if (nodeField) {
-                graph.addNode(new Node(nodeField, nodeField, nodeName, 1, nodeColor));
-                this.addEdgesFromField(graph, linkField, nodeField, edgeColor);
+
+                //creates a new node for each unique nodeId
+                //nodeField is an array
+                let nodeField = entry[nodeName];
+                if (Array.isArray(nodeField)) {
+                    for (const nodeEntry of nodeField) {
+                        if (this.isUniqueNode(nodeEntry, graph)) {
+                            graph.addNode(new Node(nodeEntry, nodeEntry, nodeName, 1, nodeColor));
+                            this.addEdgesFromField(graph, linkField, nodeEntry, edgeColor);
+                        }
+                    }
+                } else if (nodeField) {
+                    graph.addNode(new Node(nodeField, nodeField, nodeName, 1, nodeColor));
+                    this.addEdgesFromField(graph, linkField, nodeField, edgeColor);
+                }
             }
         }
         return graph;
     }
 
-    isUniqueNode(nodeId) {
-        if (this.graphData.nodes) {
-            this.graphData.nodes.forEach((node, id) => {
-                if (id === nodeId) {
-                    return false;
+    isUniqueNode(nodeId, graph) {
+        let isOriginal = true;
+        if (graph.nodes) {
+            graph.nodes.forEach((node) => {
+                if (node.id === nodeId) {
+                    isOriginal = false;
                 }
             });
         }
 
-        return true;
+        return isOriginal;
     }
 
     handleChangeDirected() {
