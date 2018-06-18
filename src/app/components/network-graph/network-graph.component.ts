@@ -45,11 +45,17 @@ import * as neon from 'neon-framework';
 import * as vis from 'vis';
 
 class GraphData {
-    constructor(public nodes = new vis.DataSet(), public edges = new vis.DataSet()) {}
+    constructor(
+        public nodes = new vis.DataSet(), 
+        public edges = new vis.DataSet()
+    ) {}
 }
 
 class GraphProperties {
-    constructor(public nodes: Node[] = [], public edges: Edge[] = []) {}
+    constructor(
+        public nodes: Node[] = [], 
+        public edges: Edge[] = []
+    ) {}
     addNode(node: Node) {
         this.nodes.push(node);
     }
@@ -60,7 +66,13 @@ class GraphProperties {
 
 class Node {
     // http://visjs.org/docs/network/nodes.html
-    constructor(public id: string, public label: string, public nodeType?: string, public size?: number) {}
+    constructor(
+        public id: string, 
+        public label: string, 
+        public nodeType?: string, 
+        public size?: number, 
+        public color?: string
+    ) {}
 }
 
 interface ArrowProperties {
@@ -78,8 +90,9 @@ class Edge {
         public to: string,
         public label?: string,
         public arrows?: ArrowProperties,
-        public count?: number
-    ) {}
+        public count?: number,
+        public color?: Object
+        ) {}
 }
 
 /**
@@ -88,6 +101,9 @@ class Edge {
 export class NetworkGraphOptions extends BaseNeonOptions {
     public isDirected: boolean;
     public isReified: boolean;
+    public linkColor: string;
+    public nodeColor: string;
+    public edgeColor: string;
     public linkField: FieldMetaData;
     public nodeField: FieldMetaData;
 
@@ -99,6 +115,9 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     onInit() {
         this.isDirected = this.injector.get('isDirected', false);
         this.isReified = this.injector.get('isReified', false);
+        this.linkColor = this.injector.get('linkColor', "#848484");
+        this.nodeColor = this.injector.get('nodeColor', "#848484");
+        this.edgeColor = this.injector.get('edgeColor', "#848484");
     }
 
     /**
@@ -461,20 +480,21 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
             graph.addNode(new Node(subject, subject));
             graph.addNode(new Node(object, object));
-            graph.addEdge(new Edge(subject, object, predicate, {to: this.options.isDirected}));
+            graph.addEdge(new Edge(subject, object, predicate));
+                // , {to: this.options.isDirected}));
 
             //TODO: add hover with other properties
         }
         return graph;
     }
 
-    private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string) {
+    private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string, edgeColor?: string) {
         if (Array.isArray(linkField)) {
             for (const linkEntry of linkField) {
-                graph.addEdge(new Edge(source, linkEntry, '', null, 1));
+                graph.addEdge(new Edge(source, linkEntry, '', null, 1, { color: edgeColor }));
             }
-        } else if (linkField) {
-            graph.addEdge(new Edge(source, linkField, '', null, 1));
+        } else if (linkField) {  
+                graph.addEdge(new Edge(source, linkField, '', null, 1, { color: edgeColor }));
         }
     }
 
@@ -482,17 +502,21 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let graph = new GraphProperties(),
             linkName = this.options.linkField.columnName,
             nodeName = this.options.nodeField.columnName;
+        
+            let nodeColor = this.options.nodeColor;
+            let edgeColor = this.options.edgeColor;
+            let linkColor = this.options.linkColor;
 
         for (let entry of this.activeData) {
-
+            
             //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
             let linkField = entry[linkName];
             if (Array.isArray(linkField)) {
                 for (const linkEntry of linkField) {
-                    graph.addNode(new Node(linkEntry, linkEntry, linkName, 1));
+                    graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor));
                 }
             } else if (linkField) {
-                graph.addNode(new Node(linkField, linkField, linkName, 1));
+                graph.addNode(new Node(linkField, linkField, linkName, 1, linkColor));
             }
 
             //creates a new node for each unique nodeId
@@ -501,13 +525,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             if (Array.isArray(nodeField)) {
                 for (const nodeEntry of nodeField) {
                     if (this.isUniqueNode(nodeEntry)) {
-                        graph.addNode(new Node(nodeEntry, nodeEntry, nodeName, 1));
-                        this.addEdgesFromField(graph, linkField, nodeEntry);
+                        graph.addNode(new Node(nodeEntry, nodeEntry, nodeName, 1, nodeColor));
+                        this.addEdgesFromField(graph, linkField, nodeEntry, edgeColor);
                     }
                 }
             } else if (nodeField) {
-                graph.addNode(new Node(nodeField, nodeField, nodeName, 1));
-                this.addEdgesFromField(graph, linkField, nodeField);
+                graph.addNode(new Node(nodeField, nodeField, nodeName, 1, nodeColor));
+                this.addEdgesFromField(graph, linkField, nodeField, edgeColor);
             }
         }
         return graph;

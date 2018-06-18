@@ -110,11 +110,13 @@
 				"bindings": {
 					"title": "Network Graph",
 					"database": "ll_nepal_06_14_1",
-					"table": "annotations2",
+					"table": "annotationsAuthor",
 					"isDirected": true,
-					"nodeColorField": "enrichedEnities.entity_type",
 					"nodeField": "entities",
-					"linkField": "enrichedEnities.mention_head"
+					"linkField": "author",
+					"nodeColor": "#4DBCC1",
+            		"linkColor": "#F68B4E",
+					"edgeColor": "#999999"
 				},
 				"row": 15,
 				"col": 0			
