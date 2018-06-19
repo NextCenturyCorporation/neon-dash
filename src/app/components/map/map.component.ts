@@ -962,15 +962,15 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     mouseWheelUp(_event) {
-        if (_event.ctrlKey || _event.metaKey && !this.options.disableCtrlZoom && (this.options.type === 'Leaflet')) {
+        if ((_event.ctrlKey || _event.metaKey) && !this.options.disableCtrlZoom && (this.options.type === MapType.Leaflet)) {
             this.mapObject.zoomIn();
         } else {
             this.overlayOn(_event);
         }
     }
-
+    
     mouseWheelDown(_event) {
-        if (_event.ctrlKey || _event.metaKey && !this.options.disableCtrlZoom && (this.options.type === 'Leaflet')) {
+        if ((_event.ctrlKey || _event.metaKey) && !this.options.disableCtrlZoom && (this.options.type === MapType.Leaflet)) {
             this.mapObject.zoomOut();
         } else {
             this.overlayOn(_event);
