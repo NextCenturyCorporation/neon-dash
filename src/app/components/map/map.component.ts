@@ -961,32 +961,37 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         return this.options;
     }
 
-    mouseWheelUp(_event) {
-        if ((_event.ctrlKey || _event.metaKey) && !this.options.disableCtrlZoom && (this.options.type === MapType.Leaflet)) {
-            this.mapObject.zoomIn();
+    mouseWheel(e) {
+        const ctrlMetaPressed = e.ctrlKey || e.metaKey;
+        const usingLeaflet = this.options.type === MapType.Leaflet;
+        const ctrlZoomEnabled = !this.options.disableCtrlZoom;
+        const { deltaY } = e;
+        const map = this.mapObject;
+
+        if (ctrlMetaPressed && ctrlZoomEnabled && usingLeaflet) {
+            const action = (
+                deltaY !== 0
+                ? deltaY > 0
+                    ? map.zoomIn()
+                    : map.zoomOut()
+                : null
+            )
+            // action && action()
         } else {
-            this.overlayOn(_event);
-        }
-    }
-    
-    mouseWheelDown(_event) {
-        if ((_event.ctrlKey || _event.metaKey) && !this.options.disableCtrlZoom && (this.options.type === MapType.Leaflet)) {
-            this.mapObject.zoomOut();
-        } else {
-            this.overlayOn(_event);
+            this.overlayOn();
         }
     }
 
-    overlayOn(_event) {
+    overlayOn() {
         document.getElementById('text').style.zIndex = '1000';
 
         setTimeout(() => {
-            this.overlayOff(_event);
+            this.overlayOff();
         },
-            2000);
+            1400);
     }
 
-    overlayOff(_event) {
+    overlayOff() {
         document.getElementById('text').style.zIndex = '-1';
     }
 
