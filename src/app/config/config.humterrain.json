@@ -116,8 +116,8 @@
 					"linkField": "author",
 					"nodeColor": "#4DBCC1",
             		"linkColor": "#F68B4E",
-					"edgeColor": "#999999",
-					"limit": 100
+					"limit": 100,
+					"edgeColorField": "sentimentString"
 				},
 				"row": 15,
 				"col": 0			

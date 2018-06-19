@@ -107,6 +107,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public linkField: FieldMetaData;
     public nodeField: FieldMetaData;
     public limit: number;
+    public edgeColorField: FieldMetaData;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -130,6 +131,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     updateFieldsOnTableChanged() {
         this.nodeField = this.findFieldObject('nodeField');
         this.linkField = this.findFieldObject('linkField');
+        this.edgeColorField = this.findFieldObject('edgeColorField');
     }
 }
 
@@ -268,6 +270,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     subGetBindings(bindings: any) {
         bindings.nodeField = this.options.nodeField.columnName;
         bindings.linkField = this.options.linkField.columnName;
+        bindings.edgeColorField = this.options.edgeColorField.columnName;
     }
 
     ngAfterViewInit() {
@@ -318,6 +321,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         }, {
             columnName: this.options.linkField.columnName,
             prettyName: this.options.linkField.prettyName
+        }, {
+            columnName: this.options.edgeColorField.columnName,
+            prettyName: this.options.edgeColorField.prettyName
         }];
     }
 
@@ -354,14 +360,18 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let nodeField = this.options.nodeField.columnName;
         let linkField = this.options.linkField.columnName;
+        let edgeColorField = this.options.edgeColorField.columnName;
         let whereClauses: neon.query.WherePredicate[] = [];
         //whereClauses.push(neon.query.where(this.options.nodeField.columnName, '!=', null));
         //whereClauses.push(neon.query.where(this.options.linkField.columnName, '!=', null));
         let groupBy: any[] = [this.options.nodeField.columnName];
 
         let fields = [nodeField, linkField];
+        if(edgeColorField){
+            fields.push(edgeColorField);
+        }
 
-        // query = query.withFields(fields);
+         query = query.withFields(fields);
         let whereClause = neon.query.and.apply(neon.query, whereClauses);
 
         query.where(whereClause);
@@ -493,28 +503,30 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return graph;
     }
 
-    private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string, edgeColor?: string) {
+    private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string, colorValue?: string) {
+        
         if (Array.isArray(linkField)) {
             for (const linkEntry of linkField) {
-                graph.addEdge(new Edge(source, linkEntry, '', null, 1, { color: edgeColor }));
+                graph.addEdge(new Edge(source, linkEntry, '', null, 1, { color: colorValue, highlight: colorValue}));
             }
         } else if (linkField) {
-                graph.addEdge(new Edge(source, linkField, '', null, 1, { color: edgeColor }));
+                graph.addEdge(new Edge(source, linkField, '', null, 1, { color: colorValue, highlight: colorValue }));
         }
     }
 
     private createTabularGraphProperties() {
         let graph = new GraphProperties(),
             linkName = this.options.linkField.columnName,
-            nodeName = this.options.nodeField.columnName;
+            nodeName = this.options.nodeField.columnName,
+            edgeColorField = this.options.edgeColorField.columnName;
 
-            let nodeColor = this.options.nodeColor;
-            let edgeColor = this.options.edgeColor;
-            let linkColor = this.options.linkColor;
-            let limit = this.options.limit;
+        let nodeColor = this.options.nodeColor;
+        let edgeColor = this.options.edgeColor;
+        let linkColor = this.options.linkColor;
+        let limit = this.options.limit;
 
         for (let entry of this.activeData) {
-            if (limit && graph.nodes.length <= limit) {
+            if (limit && graph.nodes.length < limit) {
                 //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
                 let linkField = entry[linkName];
                 if (Array.isArray(linkField)) {
@@ -523,6 +535,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     }
                 } else if (linkField) {
                     graph.addNode(new Node(linkField, linkField, linkName, 1, linkColor));
+                }
+
+                
+                // if there is a valid edgeColorField, override the edgeColor
+                if( entry[edgeColorField]){ 
+                    edgeColor = edgeColorField && entry[edgeColorField];
+                    edgeColor = this.colorSchemeService.getColorFor(edgeColorField, edgeColor).toRgb();
                 }
 
                 //creates a new node for each unique nodeId
@@ -539,6 +558,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     graph.addNode(new Node(nodeField, nodeField, nodeName, 1, nodeColor));
                     this.addEdgesFromField(graph, linkField, nodeField, edgeColor);
                 }
+            } else {
+                break;
             }
         }
         return graph;
