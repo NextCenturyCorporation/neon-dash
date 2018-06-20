@@ -88,6 +88,7 @@ class Edge {
 export class NetworkGraphOptions extends BaseNeonOptions {
     public isDirected: boolean;
     public isReified: boolean;
+    public showSelect: boolean;
     public linkField: FieldMetaData;
     public nodeField: FieldMetaData;
 
@@ -99,6 +100,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     onInit() {
         this.isDirected = this.injector.get('isDirected', false);
         this.isReified = this.injector.get('isReified', false);
+        this.showSelect = this.injector.get('showSelect', false);
     }
 
     /**
