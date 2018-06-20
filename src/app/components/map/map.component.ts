@@ -975,7 +975,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                     ? map.zoomIn()
                     : map.zoomOut()
                 : null
-            )
+            );
         } else {
             this.overlay();
         }
@@ -983,8 +983,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
 
     overlay() {
         document.getElementById('text').style.zIndex = '1000';
-        setTimeout( 
-            () => document.getElementById('text').style.zIndex = '-1', 
+        setTimeout(
+            () => document.getElementById('text').style.zIndex = '-1',
             1400
         );
     }
