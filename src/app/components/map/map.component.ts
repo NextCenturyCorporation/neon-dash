@@ -976,35 +976,24 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                     : map.zoomOut()
                 : null
             )
-            // action && action()
         } else {
-            this.overlayOn();
+            this.overlay();
         }
     }
 
-    overlayOn() {
+    overlay() {
         document.getElementById('text').style.zIndex = '1000';
-
-        setTimeout(() => {
-            this.overlayOff();
-        },
-            1400);
-    }
-
-    overlayOff() {
-        document.getElementById('text').style.zIndex = '-1';
+        setTimeout( 
+            () => document.getElementById('text').style.zIndex = '-1', 
+            1400
+        );
     }
 
     getOverlayText() {
-        let overlayText;
-        let operatingSystem = navigator.platform;
-
-        if (operatingSystem.includes('Mac') || operatingSystem.includes('mac')) {
-            overlayText = 'Use ⌘ + scroll wheel to zoom';
-        } else {
-            overlayText = 'Use ctrl + scroll wheel to zoom';
-        }
-
-        return overlayText;
+        return (
+            navigator.platform.toLowerCase().includes('mac')
+                ? 'Use ⌘ + scroll wheel to zoom'
+                : 'Use ctrl + scroll wheel to zoom'
+        );
     }
 }
