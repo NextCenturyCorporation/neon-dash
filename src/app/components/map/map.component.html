@@ -141,7 +141,7 @@
 
     <div class="body-container" (click)="stopEventPropagation($event)">
         <div class="map-container" (click)="stopEventPropagation($event)" (mousewheel)="mouseWheel($event)">
-            <div class="overlay" id="text"> {{ getOverlayText() }} </div>
+            <div class="overlay" #mapOverlay > {{ getOverlayText() }} </div>
             <div #mapElement id="mapElement" (click)="stopEventPropagation($event)"></div>
             <div class="map-selection" *ngIf="false" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
         </div>

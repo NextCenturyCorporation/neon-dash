@@ -158,6 +158,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     @ViewChild('infoText') infoText: ElementRef;
 
     @ViewChild('mapElement') mapElement: ElementRef;
+    @ViewChild('mapOverlay') mapOverlayRef: ElementRef;
 
     protected FIELD_ID: string = '_id';
 
@@ -982,9 +983,9 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     }
 
     overlay() {
-        document.getElementById('text').style.zIndex = '1000';
+        this.mapOverlayRef.nativeElement.style.zIndex = '1000';
         setTimeout(
-            () => document.getElementById('text').style.zIndex = '-1',
+            () => this.mapOverlayRef.nativeElement.style.zIndex = '-1',
             1400
         );
     }
