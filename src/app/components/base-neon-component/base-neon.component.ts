@@ -651,11 +651,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                 // query was aborted so we don't care.  We assume we aborted it on purpose.
             } else {
                 this.isLoading = false;
-                if (response.status === 0) {
-                    console.error('Query failed: ' + response);
-                } else {
-                    console.error('Query failed: ' + response);
-                }
+                console.error('Query failed: ', response);
                 this.changeDetection.detectChanges();
             }
         });

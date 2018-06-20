@@ -359,18 +359,6 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
           });
     }
 
-    /**
-     * returns -1 if cannot be found
-     */
-    getPointXLocationByIndex(chart, index): number {
-        let dsMeta = chart.controller.getDatasetMeta(0);
-        if (dsMeta.data.length > index) {
-            let pointMeta = dsMeta.data[index];
-            return pointMeta.getCenterPoint().x;
-        }
-        return -1;
-    }
-
     forcePosInsideChart(pos, min, max) {
         return pos < min ? min : (pos > max ? max : pos);
     }

@@ -111,8 +111,7 @@ describe('Component: MediaViewer', () => {
 
         let whereClauses = [
             neon.query.where('testIdField', '=', 'testId'),
-            neon.query.where('testLinkField', '!=', null),
-            neon.query.where('testLinkField', '!=', '')
+            neon.query.where('testLinkField', '!=', null)
         ];
 
         query.where(neon.query.and.apply(query, whereClauses));
