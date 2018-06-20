@@ -86,20 +86,20 @@ layouts:
         cropAndScale:
         filterField: ProbeFileID
         idField: _id
-        linkField: ProbeDir
-        linkPrefix: http://10.107.5.173:8000
+        linkField: ThumbDir
+        linkPrefix: http://10.107.5.189:8000
         nameField: ProbeFileID
         objectIdField:
-        objectNameField: ManipulationString
+        objectNameField:
         openOnMouseClick: false
         percentField: ManipulationPercentage
         predictedNameField:
         sortField: ProbeFileID
         styleClass: style2
         textMap:
-            actual: 'Truth'
-            percentage: 'Score'
-            prediction: ''
+            actual: Truth
+            percentage: Score
+            prediction:
         typeMap:
             arw:
             bmp: img
@@ -128,6 +128,8 @@ layouts:
         aggregation: count
         andFilters: false
         chartType: horizontalBar
+        logScale: true
+        saveSeenBars: false
         yPercentage: 0.3
     -
       col: 9
@@ -145,6 +147,7 @@ layouts:
         aggregationField: IndicatorScore
         andFilters: false
         chartType: horizontalBar
+        saveSeenBars: false
         scaleManually: true
         scaleMin: 0
         scaleMax: 1
@@ -163,7 +166,7 @@ layouts:
         border: grey
         idField: _id
         linkField: ProbeDir
-        linkPrefix: http://10.107.5.173:8000
+        linkPrefix: http://10.107.5.189:8000
         nameField: ProbeFileID
         typeMap:
             arw:
@@ -190,7 +193,7 @@ layouts:
         border: grey
         idField: _id
         linkField: MasksDir
-        linkPrefix: http://10.107.5.173:8000
+        linkPrefix: http://10.107.5.189:8000
         nameField: ProbeFileID
         typeMap:
             arw:
@@ -259,7 +262,7 @@ layouts:
         filterField: BaseBrowserFileName
         idField: _id
         linkField: WorldDir
-        linkPrefix: http://10.107.5.173:8000
+        linkPrefix: http://10.107.5.189:8000
         nameField: BaseBrowserFileName
         objectIdField:
         objectNameField:
@@ -298,20 +301,20 @@ layouts:
         cropAndScale:
         filterField: ProbeFileID
         idField: _id
-        linkField: ProbeDir
-        linkPrefix: http://10.107.5.173:8000
+        linkField: ThumbDir
+        linkPrefix: http://10.107.5.189:8000
         nameField: ProbeFileID
         objectIdField:
-        objectNameField: ManipulationString
+        objectNameField:
         openOnMouseClick: false
         percentField: ManipulationPercentage
         predictedNameField:
         sortField: ProbeFileID
         styleClass: style2
         textMap:
-            actual: 'Truth'
-            percentage: 'Score'
-            prediction: ''
+            actual: Truth
+            percentage: Score
+            prediction:
         typeMap:
             arw:
             bmp: img
@@ -340,6 +343,8 @@ layouts:
         aggregation: count
         andFilters: false
         chartType: horizontalBar
+        logScale: true
+        saveSeenBars: false
         yPercentage: 0.3
     -
       col: 9
@@ -357,6 +362,7 @@ layouts:
         aggregationField: IndicatorScore
         andFilters: false
         chartType: horizontalBar
+        saveSeenBars: false
         scaleManually: true
         scaleMin: 0
         scaleMax: 1
@@ -375,7 +381,7 @@ layouts:
         border: grey
         idField: _id
         linkField: ProbeDir
-        linkPrefix: http://10.107.5.173:8000
+        linkPrefix: http://10.107.5.189:8000
         nameField: ProbeFileID
         typeMap:
             arw:
@@ -402,7 +408,7 @@ layouts:
         border: grey
         idField: _id
         linkField: MasksDir
-        linkPrefix: http://10.107.5.173:8000
+        linkPrefix: http://10.107.5.189:8000
         nameField: ProbeFileID
         typeMap:
             arw:
@@ -471,7 +477,7 @@ layouts:
         filterField: BaseBrowserFileName
         idField: _id
         linkField: WorldDir
-        linkPrefix: http://10.107.5.173:8000
+        linkPrefix: http://10.107.5.189:8000
         nameField: BaseBrowserFileName
         objectIdField:
         objectNameField:
@@ -538,7 +544,7 @@ layouts:
         border: grey
         idField: _id
         linkField: WorldDir
-        linkPrefix: http://10.107.5.173:8000
+        linkPrefix: http://10.107.5.189:8000
         nameField: BaseBrowserFileName
         typeMap:
             arw:
@@ -726,7 +732,7 @@ layouts:
         border: grey
         idField: _id
         linkField: mask
-        linkPrefix: http://10.107.5.173:8000
+        linkPrefix: http://10.107.5.189:8000
         nameField: FileID
         typeMap:
             arw:
@@ -753,4 +759,5 @@ layouts:
         database: output_051618
         table: doc
         dataField: rounded
+        saveSeenBars: false
         sortAlphabetically: true
