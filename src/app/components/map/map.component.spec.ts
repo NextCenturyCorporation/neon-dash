@@ -1146,10 +1146,10 @@ describe('Component: Map with config', () => {
             { provide: 'database', useValue: 'testDatabase1' },
             { provide: 'table', useValue: 'testTable1' },
             { provide: 'layers', useValue: [{
-                colorField: 'testColorField',
+                colorField: 'testCategoryField',
                 dateField: 'testDateField',
-                latitudeField: 'testLatitudeField',
-                longitudeField: 'testLongitudeField',
+                latitudeField: 'testYField',
+                longitudeField: 'testXField',
                 sizeField: 'testSizeField',
                 title: 'Test Layer Title'
             }] },
@@ -1212,11 +1212,12 @@ describe('Component: Map with config', () => {
         expect(component.options.layers[0].table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(component.options.layers[0].fields).toEqual(DatasetServiceMock.FIELDS);
         expect(component.options.layers[0].title).toEqual('Test Layer Title');
-        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColorField', 'Test Color Field', false, 'string'));
+        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testCategoryField', 'Test Category Field', false,
+            'string'));
         expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field', false, 'date'));
-        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testLatitudeField', 'Test Latitude Field', false,
+        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testYField', 'Test Y Field', false,
             'float'));
-        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testLongitudeField', 'Test Longitude Field', false,
+        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testXField', 'Test X Field', false,
             'float'));
         expect(component.options.layers[0].sizeField).toEqual(new FieldMetaData('testSizeField', 'Test Size Field', false, 'float'));
     });
