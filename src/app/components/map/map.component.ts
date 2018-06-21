@@ -158,6 +158,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     @ViewChild('infoText') infoText: ElementRef;
 
     @ViewChild('mapElement') mapElement: ElementRef;
+    @ViewChild('mapOverlay') mapOverlayRef: ElementRef;
 
     protected FIELD_ID: string = '_id';
 
@@ -961,45 +962,39 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         return this.options;
     }
 
-    mouseWheelUp(_event) {
-        if (_event.ctrlKey || _event.metaKey && !this.options.disableCtrlZoom && (this.options.type === 'Leaflet')) {
-            this.mapObject.zoomIn();
+    mouseWheel(e) {
+        const ctrlMetaPressed = e.ctrlKey || e.metaKey;
+        const usingLeaflet = this.options.type === MapType.Leaflet;
+        const ctrlZoomEnabled = !this.options.disableCtrlZoom;
+        const { deltaY } = e;
+        const map = this.mapObject;
+
+        if (ctrlMetaPressed && ctrlZoomEnabled && usingLeaflet) {
+            const action = (
+                deltaY !== 0
+                ? deltaY > 0
+                    ? map.zoomIn()
+                    : map.zoomOut()
+                : null
+            );
         } else {
-            this.overlayOn(_event);
+            this.overlay();
         }
     }
 
-    mouseWheelDown(_event) {
-        if (_event.ctrlKey || _event.metaKey && !this.options.disableCtrlZoom && (this.options.type === 'Leaflet')) {
-            this.mapObject.zoomOut();
-        } else {
-            this.overlayOn(_event);
-        }
-    }
-
-    overlayOn(_event) {
-        document.getElementById('text').style.zIndex = '1000';
-
-        setTimeout(() => {
-            this.overlayOff(_event);
-        },
-            2000);
-    }
-
-    overlayOff(_event) {
-        document.getElementById('text').style.zIndex = '-1';
+    overlay() {
+        this.mapOverlayRef.nativeElement.style.zIndex = '1000';
+        setTimeout(
+            () => this.mapOverlayRef.nativeElement.style.zIndex = '-1',
+            1400
+        );
     }
 
     getOverlayText() {
-        let overlayText;
-        let operatingSystem = navigator.platform;
-
-        if (operatingSystem.includes('Mac') || operatingSystem.includes('mac')) {
-            overlayText = 'Use ⌘ + scroll wheel to zoom';
-        } else {
-            overlayText = 'Use ctrl + scroll wheel to zoom';
-        }
-
-        return overlayText;
+        return (
+            navigator.platform.toLowerCase().includes('mac')
+                ? 'Use ⌘ + scroll wheel to zoom'
+                : 'Use ctrl + scroll wheel to zoom'
+        );
     }
 }
