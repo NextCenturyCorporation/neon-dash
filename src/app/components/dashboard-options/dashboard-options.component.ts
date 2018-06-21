@@ -14,7 +14,6 @@
  *
  */
 import { Component, OnInit, ViewContainerRef } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatSnackBar } from '@angular/material';
 
@@ -178,10 +177,7 @@ export class DashboardOptionsComponent implements OnInit {
         this.filterStateId = response.filterStateId;
         this.formData.stateToSave = '';
 
-        // Add/Replace state ids in the url parameters
-        // TODO: Enable after replacing old $location calls with appropriate router calls.
-        // $location.search("dashboard_state_id", response.dashboardStateId);
-        // $location.search("filter_state_id", response.filterStateId);
+        this.parameterService.updateStateParameters(response.dashboardStateId, response.filterStateId);
         this.loadStateNames();
     }
 

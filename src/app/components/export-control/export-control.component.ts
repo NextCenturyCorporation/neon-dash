@@ -14,7 +14,6 @@
  *
  */
 import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
 
 import { MatDialog, MatDialogRef, MatSnackBar, MatSnackBarConfig } from '@angular/material';
 
