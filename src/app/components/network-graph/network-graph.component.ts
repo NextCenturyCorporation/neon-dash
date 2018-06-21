@@ -91,8 +91,10 @@ class Edge {
         public label?: string,
         public arrows?: ArrowProperties,
         public count?: number,
-        public color?: Object
-        ) {}
+        public color?: Object,
+        public value?: string, //used to identify that catagory of edge (to hide/show when legend option is clicked)
+        public hidden?: boolean
+    ) {}
 }
 
 /**
@@ -195,6 +197,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     colorScheme: any;
     schemeType: string = 'ordinal';
     selectedColorScheme: string;
+    public colorByFields: string[] = [];
+    public disabledSet: [string[]] = [] as [string[]];
 
     private defaultActiveColor;
 
@@ -367,7 +371,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let groupBy: any[] = [this.options.nodeField.columnName];
 
         let fields = [nodeField, linkField];
-        if(edgeColorField){
+        if (edgeColorField) {
             fields.push(edgeColorField);
         }
 
@@ -385,12 +389,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     removeFilter() {
-        //
+        this.filter = undefined;
     }
 
     onQuerySuccess(response): void {
         this.activeData = response.data;
         this.resetGraphData();
+        this.updateLegend();
+        this.disabledSet = [] as [string[]];
     }
 
     private resetGraphData() {
@@ -503,14 +509,15 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return graph;
     }
 
-    private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string, colorValue?: string) {
-        
+    private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string,
+        colorValue?: string, edgeColorField?: string) {
+        let edgeColor = { color: colorValue, highlight: colorValue};
         if (Array.isArray(linkField)) {
             for (const linkEntry of linkField) {
-                graph.addEdge(new Edge(source, linkEntry, '', null, 1, { color: colorValue, highlight: colorValue}));
+                graph.addEdge(new Edge(source, linkEntry, '', null, 1, edgeColor, edgeColorField, false));
             }
         } else if (linkField) {
-                graph.addEdge(new Edge(source, linkField, '', null, 1, { color: colorValue, highlight: colorValue }));
+                graph.addEdge(new Edge(source, linkField, '', null, 1, edgeColor, edgeColorField, false));
         }
     }
 
@@ -520,15 +527,17 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             nodeName = this.options.nodeField.columnName,
             edgeColorField = this.options.edgeColorField.columnName;
 
-        let nodeColor = this.options.nodeColor;
-        let edgeColor = this.options.edgeColor;
-        let linkColor = this.options.linkColor;
+        let nodeColor = this.options.nodeColor,
+            edgeColor = this.options.edgeColor,
+            linkColor = this.options.linkColor;
         let limit = this.options.limit;
 
         for (let entry of this.activeData) {
+            let linkField = entry[linkName],
+                edgeValue = entry[edgeColorField];
+
             if (limit && graph.nodes.length < limit) {
                 //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
-                let linkField = entry[linkName];
                 if (Array.isArray(linkField)) {
                     for (const linkEntry of linkField) {
                         graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor));
@@ -537,11 +546,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     graph.addNode(new Node(linkField, linkField, linkName, 1, linkColor));
                 }
 
-                
                 // if there is a valid edgeColorField, override the edgeColor
-                if( entry[edgeColorField]){ 
-                    edgeColor = edgeColorField && entry[edgeColorField];
-                    edgeColor = this.colorSchemeService.getColorFor(edgeColorField, edgeColor).toRgb();
+                if (entry[edgeColorField]) {
+                    let color = edgeColorField && edgeValue;
+                    edgeColor = this.colorSchemeService.getColorFor(edgeColorField, color).toRgb();
                 }
 
                 //creates a new node for each unique nodeId
@@ -551,7 +559,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     for (const nodeEntry of nodeField) {
                         if (this.isUniqueNode(nodeEntry, graph)) {
                             graph.addNode(new Node(nodeEntry, nodeEntry, nodeName, 1, nodeColor));
-                            this.addEdgesFromField(graph, linkField, nodeEntry, edgeColor);
+                            this.addEdgesFromField(graph, linkField, nodeEntry, edgeColor, edgeValue);
                         }
                     }
                 } else if (nodeField) {
@@ -565,6 +573,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return graph;
     }
 
+    /**
+     *  returns true if there
+     */
     isUniqueNode(nodeId, graph) {
         let isOriginal = true;
         if (graph.nodes) {
@@ -574,7 +585,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }
             });
         }
-
         return isOriginal;
     }
 
@@ -614,5 +624,43 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     getOptions(): BaseNeonOptions {
         return this.options;
+    }
+
+    /**
+     * Updates the network graph legend.
+     */
+    updateLegend() {
+        let colorByFields: string[] = [];
+        if (this.options.edgeColorField.columnName !== '') {
+            colorByFields.push(this.options.edgeColorField.columnName);
+        }
+        this.colorByFields = colorByFields;
+    }
+
+    legendItemSelected(event: any) {
+        let fieldName: string = event.fieldName;
+        let value: string = event.value; //label on clicked legend option
+        let currentlyActive: boolean = event.currentlyActive;
+
+        let selectedEdges = this.graphData.edges.get({
+            filter: function(item: Edge) {
+                return (item.value === value);
+            }
+        });
+
+        if (currentlyActive) {
+            selectedEdges.forEach(function(edge: Edge) {
+                edge.hidden = true;
+            });
+            this.disabledSet.push([fieldName, value]);
+        } else {
+            selectedEdges.forEach(function(edge: Edge) {
+                edge.hidden = false;
+            });
+            this.disabledSet = this.disabledSet.filter((set) => {
+                    return !(set[0] === fieldName && set[1] === value);
+                }) as [string[]];
+        }
+        this.graphData.edges.update(selectedEdges);
     }
 }
