@@ -962,32 +962,32 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         return this.options;
     }
 
-    mouseWheel(e) {
+    mouseWheelUp(e) {
+        const action = (this.shouldZoom(e)
+            ? this.mapObject.zoomIn()
+            : this.overlay()
+        )
+    }
+    
+    mouseWheelDown(e) {
+        const action = (this.shouldZoom(e)
+            ? this.mapObject.zoomOut()
+            : this.overlay()
+        )
+    }
+
+    shouldZoom(e) {
         const ctrlMetaPressed = e.ctrlKey || e.metaKey;
         const usingLeaflet = this.options.type === MapType.Leaflet;
         const ctrlZoomEnabled = !this.options.disableCtrlZoom;
-        const { deltaY } = e;
-        const map = this.mapObject;
-
-        if (ctrlMetaPressed && ctrlZoomEnabled && usingLeaflet) {
-            const action = (
-                deltaY !== 0
-                ? deltaY > 0
-                    ? map.zoomIn()
-                    : map.zoomOut()
-                : null
-            );
-        } else {
-            this.overlay();
-        }
+        return (ctrlMetaPressed && ctrlZoomEnabled && usingLeaflet);
     }
 
     overlay() {
         this.mapOverlayRef.nativeElement.style.zIndex = '1000';
         setTimeout(
-            () => this.mapOverlayRef.nativeElement.style.zIndex = '-1',
-            1400
-        );
+            () => { this.mapOverlayRef.nativeElement.style.zIndex = '-1' }, 
+            1400); 
     }
 
     getOverlayText() {
