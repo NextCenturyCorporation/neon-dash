@@ -43,6 +43,7 @@ import * as shape from 'd3-shape';
 import 'd3-transition';
 import * as neon from 'neon-framework';
 import * as vis from 'vis';
+import { findNode } from '@angular/compiler';
 
 class GraphData {
     constructor(
@@ -71,7 +72,8 @@ class Node {
         public label: string,
         public nodeType?: string,
         public size?: number,
-        public color?: string
+        public color?: string,
+        public isLink?: boolean
     ) {}
 }
 
@@ -110,6 +112,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public nodeField: FieldMetaData;
     public limit: number;
     public edgeColorField: FieldMetaData;
+    public andFilters: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -123,6 +126,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.nodeColor = this.injector.get('nodeColor', '#96c1fc');
         this.edgeColor = this.injector.get('edgeColor', '#2b7ce9');
         this.limit = this.injector.get('limit', Infinity);
+        this.andFilters = this.injector.get('andFilters', true);
     }
 
     /**
@@ -149,9 +153,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     public filters: {
         id: string,
-        key: string,
-        value: string
-    }[];
+        field: string,
+        prettyField: string,
+        value: any
+    }[] = [];
 
     public options: NetworkGraphOptions;
 
@@ -275,13 +280,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         bindings.nodeField = this.options.nodeField.columnName;
         bindings.linkField = this.options.linkField.columnName;
         bindings.edgeColorField = this.options.edgeColorField.columnName;
+        bindings.andFilters = this.options.andFilters;
     }
 
     ngAfterViewInit() {
+        const nodeSelected = this.onSelect.bind(this);
         // note: options is REQUIRED. Fails to initialize physics properly without at least empty object
         let options: vis.Options = {layout: {randomSeed: 0}};
         this.graph = new vis.Network(this.graphElement.nativeElement, this.graphData, options);
         this.graph.on('stabilized', (params) => this.graph.setOptions({physics: {enabled: false}}));
+        this.graph.on('doubleClick', nodeSelected);
     }
 
     setInterpolationType(curveType) {
@@ -335,11 +343,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         //
     }
 
-    getFilterText(filter) {
-        // TODO
-        return '';
-    }
-
     refreshVisualization() {
         //
     }
@@ -366,7 +369,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let linkField = this.options.linkField.columnName;
         let edgeColorField = this.options.edgeColorField.columnName;
         let whereClauses: neon.query.WherePredicate[] = [];
-        //whereClauses.push(neon.query.where(this.options.nodeField.columnName, '!=', null));
         //whereClauses.push(neon.query.where(this.options.linkField.columnName, '!=', null));
         let groupBy: any[] = [this.options.nodeField.columnName];
 
@@ -389,7 +391,21 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     removeFilter() {
-        this.filter = undefined;
+        this.filters = [];
+    }
+
+    /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
+    getCloseableFilters() {
+        return this.filters;
+    }
+
+    getFilterText(filter) {
+        return filter.prettyField + ' = ' + filter.value;
     }
 
     onQuerySuccess(response): void {
@@ -540,10 +556,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
                 if (Array.isArray(linkField)) {
                     for (const linkEntry of linkField) {
-                        graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor));
+                        graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true));
                     }
                 } else if (linkField) {
-                    graph.addNode(new Node(linkField, linkField, linkName, 1, linkColor));
+                    graph.addNode(new Node(linkField, linkField, linkName, 1, linkColor, true));
                 }
 
                 // if there is a valid edgeColorField, override the edgeColor
@@ -558,12 +574,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 if (Array.isArray(nodeField)) {
                     for (const nodeEntry of nodeField) {
                         if (this.isUniqueNode(nodeEntry, graph)) {
-                            graph.addNode(new Node(nodeEntry, nodeEntry, nodeName, 1, nodeColor));
+                            graph.addNode(new Node(nodeEntry, nodeEntry, nodeName, 1, nodeColor, false));
                             this.addEdgesFromField(graph, linkField, nodeEntry, edgeColor, edgeValue);
                         }
                     }
                 } else if (nodeField) {
-                    graph.addNode(new Node(nodeField, nodeField, nodeName, 1, nodeColor));
+                    graph.addNode(new Node(nodeField, nodeField, nodeName, 1, nodeColor, false));
                     this.addEdgesFromField(graph, linkField, nodeField, edgeColor);
                 }
             } else {
@@ -573,9 +589,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return graph;
     }
 
-    /**
-     *  returns true if there
-     */
     isUniqueNode(nodeId, graph) {
         let isOriginal = true;
         if (graph.nodes) {
@@ -598,16 +611,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     handleChangeReified() {
         this.resetGraphData();
-    }
-
-    /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return [];
     }
 
     getElementRefs() {
@@ -662,5 +665,51 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 }) as [string[]];
         }
         this.graphData.edges.update(selectedEdges);
+    }
+
+    onSelect(properties) {
+        if (properties.nodes.length === 1) {
+            //find the selected node
+            let nodeName = properties.nodes[0];
+            let selectedNode = <Node> this.graphData.nodes.get({
+                filter: function(item: Node) {
+                    return (item.label === nodeName);
+                }
+            })[0];
+
+            //create filter
+            let field = selectedNode.isLink ? this.options.linkField : this.options.nodeField;
+            let filter = {
+                id: undefined,
+                field: field.columnName,
+                prettyField: field.prettyName,
+                value: nodeName.toLowerCase()
+            };
+
+            //add filter
+            if (!this.filters.length) {
+                this.filters.push(filter);
+                let whereClause = neon.query.where(filter.field, '=', filter.value);
+                this.addNeonFilter(true, filter, whereClause);
+            } else if (this.filterIsUnique(filter)) {
+                filter.id = this.filters[0].id;
+                this.filters.push(filter);
+                let whereClauses = this.filters.map((existingFilter) => {
+                    return neon.query.where(existingFilter.field, '=', existingFilter.value);
+                });
+                let whereClause = whereClauses.length === 1 ? whereClauses[0] : (this.options.andFilters ? neon.query.and.apply(neon.query,
+                    whereClauses) : neon.query.or.apply(neon.query, whereClauses));
+                this.replaceNeonFilter(true, filter, whereClause);
+            }
+        }
+    }
+
+    filterIsUnique(filter) {
+        for (let existingFilter of this.filters) {
+            if (existingFilter.value === filter.value && existingFilter.field === filter.field) {
+                return false;
+            }
+        }
+        return true;
     }
 }
