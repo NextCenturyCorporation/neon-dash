@@ -74,6 +74,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
     private hiddenCanvas: any;
 
     private cancelSelect: boolean = false;
+    private ignoreSelect: boolean = false;
 
     private selectedBounds: {
         beginX: number,
@@ -151,7 +152,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             animation: {
                 duration: 0
             },
-            events: ['click', 'mousemove', 'mouseout', 'touchend', 'touchmove', 'touchstart'],
+            events: ['click', 'mousemove', 'mouseover', 'mouseout', 'touchend', 'touchmove', 'touchstart'],
             hover: {
                 intersect: false,
                 mode: 'index',
@@ -628,12 +629,21 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {boolean} [domainOnly=false]
      */
     protected selectBounds(event, items: any[], chart: any, domainOnly: boolean = false) {
-        if (this.cancelSelect && event.buttons === 0) {
+        if (event.type === 'mouseover' && event.buttons > 0) {
+            this.ignoreSelect = true;
+        }
+
+        if (event.buttons === 0) {
             this.cancelSelect = false;
+            this.ignoreSelect = false;
+        }
+
+        if (event.type === 'mouseout' || this.cancelSelect || this.ignoreSelect) {
+            return;
         }
 
         // Selection yes, mouse press cancel...
-        if (!this.cancelSelect && this.selectedBounds && event.buttons > 1) {
+        if (this.selectedBounds && event.buttons > 1) {
             this.selectedLabels = [];
             this.dataDeselect(chart);
             this.listener.subcomponentRequestsDeselect();
@@ -643,7 +653,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
 
         // Selection no, mouse press yes...
-        if (!this.cancelSelect && !this.selectedBounds && event.buttons === 1) {
+        if (!this.selectedBounds && event.buttons === 1) {
             let beginX = this.forceInChart(event.offsetX, chart.chartArea.left, chart.chartArea.right);
             let beginY = this.forceInChart(event.offsetY, chart.chartArea.top, chart.chartArea.bottom);
             this.selectedBounds = {
@@ -655,7 +665,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
 
         // Selection yes, mouse press yes...
-        if (!this.cancelSelect && this.selectedBounds && event.buttons === 1) {
+        if (this.selectedBounds && event.buttons === 1) {
             this.selectedBounds = {
                 beginX: this.selectedBounds.beginX,
                 beginY: domainOnly ? chart.chartArea.top : this.selectedBounds.beginY,
@@ -682,7 +692,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
 
         // Selection yes, mouse press no...
-        if (!this.cancelSelect && this.selectedBounds && event.buttons === 0) {
+        if (this.selectedBounds && event.buttons === 0) {
             let beginValueX = chart.scales['x-axis-0'].getValueForPixel(this.selectedBounds.beginX);
             let beginValueY = chart.scales['y-axis-0'].getValueForPixel(this.selectedBounds.beginY);
             let endValueX = chart.scales['x-axis-0'].getValueForPixel(this.selectedBounds.endX);
@@ -729,12 +739,21 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {any} chart
      */
     protected selectDomain(event, items: any[], chart: any) {
-        if (this.cancelSelect && event.buttons === 0) {
+        if (event.type === 'mouseover' && event.buttons > 0) {
+            this.ignoreSelect = true;
+        }
+
+        if (event.buttons === 0) {
             this.cancelSelect = false;
+            this.ignoreSelect = false;
+        }
+
+        if (event.type === 'mouseout' || this.cancelSelect || this.ignoreSelect) {
+            return;
         }
 
         // Selection yes, mouse press cancel...
-        if (!this.cancelSelect && this.selectedDomain && event.buttons > 1) {
+        if (this.selectedDomain && event.buttons > 1) {
             this.selectedLabels = [];
             this.dataDeselect(chart);
             this.listener.subcomponentRequestsDeselect();
@@ -744,7 +763,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
 
         // Selection no, mouse press yes...
-        if (!this.cancelSelect && !this.selectedDomain && event.buttons === 1 && items.length) {
+        if (!this.selectedDomain && event.buttons === 1 && items.length) {
             // Just use the first item here since each item should have the same X value / index.
             this.selectedDomain = {
                 beginIndex: items[0]._index,
@@ -755,7 +774,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
 
         // Selection yes, mouse press yes...
-        if (!this.cancelSelect && this.selectedDomain && event.buttons === 1 && items.length) {
+        if (this.selectedDomain && event.buttons === 1 && items.length) {
             this.selectedDomain = {
                 beginIndex: this.selectedDomain.beginIndex,
                 beginX: this.selectedDomain.beginX,
@@ -781,7 +800,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
 
         // Selection yes, mouse press no...
-        if (!this.cancelSelect && this.selectedDomain && event.buttons === 0) {
+        if (this.selectedDomain && event.buttons === 0) {
             let beginLabelX = chart.scales['x-axis-0'].getLabelForIndex(Math.min(this.selectedDomain.beginIndex,
                 this.selectedDomain.endIndex), 0);
             let endLabelX = chart.scales['x-axis-0'].getLabelForIndex(Math.max(this.selectedDomain.beginIndex,
@@ -813,7 +832,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         }
 
         let labelValue = this.findItemInDataToSelect(items, chart);
-        let doNotReplace = event.ctrlKey || event.metaKey;
+        let doNotReplace = !!(event.ctrlKey || event.metaKey);
         this.selectedLabels = doNotReplace ? this.selectedLabels.concat(labelValue) : [labelValue];
         if (!doNotReplace) {
             this.dataDeselect(chart);
