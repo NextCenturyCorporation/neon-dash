@@ -141,7 +141,7 @@
 
                 <span class="toggle-text">Grid Lines</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.hideGridLines"
-                    (ngModelChange)="handleChangeData()">
+                    (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">Show</mat-button-toggle>
                     <mat-button-toggle [value]="true">Hide</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -149,7 +149,7 @@
 
                 <span class="toggle-text">Grid Ticks</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.hideGridTicks"
-                    (ngModelChange)="handleChangeData()">
+                    (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">Show</mat-button-toggle>
                     <mat-button-toggle [value]="true">Hide</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -196,7 +196,7 @@
 
                 <span class="toggle-text" *ngIf="options.type == 'line' || options.type == 'line-xy'">Line Fill Area Under Curve</span>
                 <mat-button-toggle-group *ngIf="options.type == 'line' || options.type == 'line-xy'" class="neon-button-toggle-group-small"
-                    [(ngModel)]="options.lineFillArea" (ngModelChange)="handleChangeData()">
+                    [(ngModel)]="options.lineFillArea" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -204,7 +204,7 @@
 
                 <span class="toggle-text">Log X Scale</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.logScaleX"
-                    (ngModelChange)="handleChangeData()">
+                    (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                 </mat-button-toggle-group>
@@ -212,6 +212,14 @@
 
                 <span class="toggle-text">Log Y Scale</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.logScaleY"
+                    (ngModelChange)="refreshVisualization()">
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Save Previously Seen</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.savePrevious"
                     (ngModelChange)="handleChangeData()">
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
@@ -222,47 +230,47 @@
                 <div mat-fill class="flex center" *ngIf="isScaled(options.type)">
                     <mat-form-field>
                         <input matInput placeholder="X Scale Min" [(ngModel)]="options.scaleMinX" required="false"
-                            (keyup.enter)="handleChangeData()">
+                            (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
                     <mat-form-field>
                         <input matInput placeholder="X Scale Max" [(ngModel)]="options.scaleMaxX" required="false"
-                            (keyup.enter)="handleChangeData()">
+                            (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below"
-                        (click)="handleChangeData()">
+                        (click)="refreshVisualization()">
                         <mat-icon>refresh</mat-icon>
                     </button>
                 </div>
                 <div mat-fill class="flex center" *ngIf="isScaled(options.type)">
                     <mat-form-field>
                         <input matInput placeholder="Y Scale Min" [(ngModel)]="options.scaleMinY" required="false"
-                            (keyup.enter)="handleChangeData()">
+                            (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
                     <mat-form-field>
                         <input matInput placeholder="Y Scale Max" [(ngModel)]="options.scaleMaxY" required="false"
-                            (keyup.enter)="handleChangeData()">
+                            (keyup.enter)="refreshVisualization()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below"
-                        (click)="handleChangeData()">
+                        (click)="refreshVisualization()">
                         <mat-icon>refresh</mat-icon>
                     </button>
                 </div>
                 <p></p>
 
-                <span class="toggle-text" *ngIf="isSortableByAggregation(options.type)">Sort By</span>
-                <mat-button-toggle-group *ngIf="isSortableByAggregation(options.type)" class="neon-button-toggle-group-small"
+                <span class="toggle-text" *ngIf="!isContinuous(options.type)">Sort By</span>
+                <mat-button-toggle-group *ngIf="!isContinuous(options.type)" class="neon-button-toggle-group-small"
                     [(ngModel)]="options.sortByAggregation" (ngModelChange)="handleChangeData()">
                     <mat-button-toggle [value]="false">Label</mat-button-toggle>
                     <mat-button-toggle [value]="true">Aggregation</mat-button-toggle>
                 </mat-button-toggle-group>
-                <p *ngIf="isSortableByAggregation(options.type)"></p>
+                <p *ngIf="!isContinuous(options.type)"></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Y-Axis Labels Percentage" [(ngModel)]="options.yPercentage" required="true"
+                    <mat-select placeholder="Y-Axis Max Width" [(ngModel)]="options.yPercentage" required="true"
                         (ngModelChange)="refreshVisualization()">
                         <mat-option [value]="0.1">10%</mat-option>
                         <mat-option [value]="0.2">20%</mat-option>
