@@ -171,7 +171,8 @@ describe('ChartJsSubcomponent', () => {
         });
 
         expect(dataAndOptions.options.animation.duration).toEqual(0);
-        expect(dataAndOptions.options.events).toEqual(['click', 'mousemove', 'mouseout', 'touchend', 'touchmove', 'touchstart']);
+        expect(dataAndOptions.options.events).toEqual(['click', 'mousemove', 'mouseover', 'mouseout', 'touchend', 'touchmove',
+            'touchstart']);
         expect(dataAndOptions.options.hover.intersect).toEqual(false);
         expect(dataAndOptions.options.hover.mode).toEqual('index');
         expect(dataAndOptions.options.hover.onHover).toBeDefined();
@@ -277,7 +278,8 @@ describe('ChartJsSubcomponent', () => {
         });
 
         expect(dataAndOptions.options.animation.duration).toEqual(0);
-        expect(dataAndOptions.options.events).toEqual(['click', 'mousemove', 'mouseout', 'touchend', 'touchmove', 'touchstart']);
+        expect(dataAndOptions.options.events).toEqual(['click', 'mousemove', 'mouseover', 'mouseout', 'touchend', 'touchmove',
+            'touchstart']);
         expect(dataAndOptions.options.hover.intersect).toEqual(false);
         expect(dataAndOptions.options.hover.mode).toEqual('index');
         expect(dataAndOptions.options.hover.onHover).toBeDefined();
@@ -791,6 +793,39 @@ describe('ChartJsSubcomponent', () => {
         expect(subcomponent.getSelectedLabels()).toEqual([]);
     });
 
+    it('selectBounds with mouseover event and button down does ignore', () => {
+        let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
+        let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
+        let spy3 = spyOn(listener, 'subcomponentRequestsFilterOnBounds');
+        let spy4 = spyOn(listener, 'subcomponentRequestsRedraw');
+        let spy5 = spyOn(subcomponent, 'dataSelect');
+        let spy6 = spyOn(subcomponent, 'dataDeselect');
+
+        let chart = {
+            chartArea: {
+                top: 5,
+                bottom: 300,
+                left: 5,
+                right: 300
+            }
+        };
+
+        subcomponent.callSelectBounds({
+            buttons: 1,
+            offsetX: 10,
+            offsetY: 20,
+            type: 'mouseover'
+        }, [], chart);
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(0);
+        expect(spy4.calls.count()).toEqual(0);
+        expect(spy5.calls.count()).toEqual(0);
+        expect(spy6.calls.count()).toEqual(0);
+        expect(subcomponent.getSelectedLabels()).toEqual([]);
+    });
+
     it('selectDomain with button down does select area', () => {
         let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
         let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
@@ -1160,5 +1195,342 @@ describe('ChartJsSubcomponent', () => {
         expect(spy5.calls.count()).toEqual(1);
         expect(spy6.calls.count()).toEqual(1);
         expect(subcomponent.getSelectedLabels()).toEqual([]);
+    });
+
+    it('selectDomain with mouseover event and button down does ignore', () => {
+        let spy1 = spyOn(listener, 'subcomponentRequestsSelect');
+        let spy2 = spyOn(listener, 'subcomponentRequestsDeselect');
+        let spy3 = spyOn(listener, 'subcomponentRequestsFilterOnDomain');
+        let spy4 = spyOn(listener, 'subcomponentRequestsRedraw');
+        let spy5 = spyOn(subcomponent, 'dataSelect');
+        let spy6 = spyOn(subcomponent, 'dataDeselect');
+
+        let chart = {
+            chartArea: {
+                top: 5,
+                bottom: 50
+            }
+        };
+
+        subcomponent.callSelectDomain({
+            buttons: 1,
+            type: 'mouseover'
+        }, [{
+            _index: 1,
+            _model: {
+                label: 'B',
+                x: 10
+            }
+        }], chart);
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(0);
+        expect(spy4.calls.count()).toEqual(0);
+        expect(spy5.calls.count()).toEqual(0);
+        expect(spy6.calls.count()).toEqual(0);
+        expect(subcomponent.getSelectedLabels()).toEqual([]);
+    });
+
+    it('selectItem does select item', () => {
+        let spy1 = spyOn(listener, 'subcomponentRequestsFilter');
+        let spy2 = spyOn(subcomponent, 'dataSelect');
+        let spy3 = spyOn(subcomponent, 'dataDeselect');
+
+        let chart = {
+            data: {
+                datasets: [{
+                    data: [{
+                        x: 1,
+                        y: 2
+                    }]
+                }]
+            }
+        };
+
+        let item1 = {
+            _datasetIndex: 0,
+            _index: 0
+        };
+
+        subcomponent.callSelectItem({}, [item1], chart);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([1, false]);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([chart, [item1]]);
+        expect(spy3.calls.count()).toEqual(1);
+        expect(spy3.calls.argsFor(0)).toEqual([chart]);
+        expect(subcomponent.getSelectedLabels()).toEqual([1]);
+    });
+
+    it('selectItem does replace existing selectedLabels', () => {
+        let spy1 = spyOn(listener, 'subcomponentRequestsFilter');
+        let spy2 = spyOn(subcomponent, 'dataSelect');
+        let spy3 = spyOn(subcomponent, 'dataDeselect');
+
+        let chart = {
+            data: {
+                datasets: [{
+                    data: [{
+                        x: 1,
+                        y: 2
+                    }, {
+                        x: 3,
+                        y: 4
+                    }]
+                }, {
+                    data: [{
+                        x: 5,
+                        y: 6
+                    }, {
+                        x: 7,
+                        y: 8
+                    }]
+                }]
+            }
+        };
+
+        let item1 = {
+            _datasetIndex: 0,
+            _index: 0
+        };
+
+        let item2 = {
+            _datasetIndex: 0,
+            _index: 1
+        };
+
+        let item3 = {
+            _datasetIndex: 1,
+            _index: 0
+        };
+
+        let item4 = {
+            _datasetIndex: 1,
+            _index: 1
+        };
+
+        subcomponent.callSelectItem({}, [item1], chart);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([1, false]);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([chart, [item1]]);
+        expect(spy3.calls.count()).toEqual(1);
+        expect(spy3.calls.argsFor(0)).toEqual([chart]);
+        expect(subcomponent.getSelectedLabels()).toEqual([1]);
+
+        subcomponent.callSelectItem({}, [item2], chart);
+
+        expect(spy1.calls.count()).toEqual(2);
+        expect(spy1.calls.argsFor(1)).toEqual([3, false]);
+        expect(spy2.calls.count()).toEqual(2);
+        expect(spy2.calls.argsFor(1)).toEqual([chart, [item2]]);
+        expect(spy3.calls.count()).toEqual(2);
+        expect(spy3.calls.argsFor(1)).toEqual([chart]);
+        expect(subcomponent.getSelectedLabels()).toEqual([3]);
+
+        subcomponent.callSelectItem({}, [item3], chart);
+
+        expect(spy1.calls.count()).toEqual(3);
+        expect(spy1.calls.argsFor(2)).toEqual([5, false]);
+        expect(spy2.calls.count()).toEqual(3);
+        expect(spy2.calls.argsFor(2)).toEqual([chart, [item3]]);
+        expect(spy3.calls.count()).toEqual(3);
+        expect(spy3.calls.argsFor(2)).toEqual([chart]);
+        expect(subcomponent.getSelectedLabels()).toEqual([5]);
+
+        subcomponent.callSelectItem({}, [item4], chart);
+
+        expect(spy1.calls.count()).toEqual(4);
+        expect(spy1.calls.argsFor(3)).toEqual([7, false]);
+        expect(spy2.calls.count()).toEqual(4);
+        expect(spy2.calls.argsFor(3)).toEqual([chart, [item4]]);
+        expect(spy3.calls.count()).toEqual(4);
+        expect(spy3.calls.argsFor(3)).toEqual([chart]);
+        expect(subcomponent.getSelectedLabels()).toEqual([7]);
+    });
+
+    it('selectItem with ctrlKey or metaKey does add to existing selectedLabels and does not call dataDeselect', () => {
+        let spy1 = spyOn(listener, 'subcomponentRequestsFilter');
+        let spy2 = spyOn(subcomponent, 'dataSelect');
+        let spy3 = spyOn(subcomponent, 'dataDeselect');
+
+        let chart = {
+            data: {
+                datasets: [{
+                    data: [{
+                        x: 1,
+                        y: 2
+                    }, {
+                        x: 3,
+                        y: 4
+                    }]
+                }, {
+                    data: [{
+                        x: 5,
+                        y: 6
+                    }, {
+                        x: 7,
+                        y: 8
+                    }]
+                }]
+            }
+        };
+
+        let item1 = {
+            _datasetIndex: 0,
+            _index: 0
+        };
+
+        let item2 = {
+            _datasetIndex: 0,
+            _index: 1
+        };
+
+        let item3 = {
+            _datasetIndex: 1,
+            _index: 0
+        };
+
+        let item4 = {
+            _datasetIndex: 1,
+            _index: 1
+        };
+
+        subcomponent.callSelectItem({
+            ctrlKey: true
+        }, [item1], chart);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([1, true]);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([chart, [item1]]);
+        expect(spy3.calls.count()).toEqual(0);
+        expect(subcomponent.getSelectedLabels()).toEqual([1]);
+
+        subcomponent.callSelectItem({
+            ctrlKey: true
+        }, [item2], chart);
+
+        expect(spy1.calls.count()).toEqual(2);
+        expect(spy1.calls.argsFor(1)).toEqual([3, true]);
+        expect(spy2.calls.count()).toEqual(2);
+        expect(spy2.calls.argsFor(1)).toEqual([chart, [item2]]);
+        expect(spy3.calls.count()).toEqual(0);
+        expect(subcomponent.getSelectedLabels()).toEqual([1, 3]);
+
+        subcomponent.callSelectItem({
+            metaKey: true
+        }, [item3], chart);
+
+        expect(spy1.calls.count()).toEqual(3);
+        expect(spy1.calls.argsFor(2)).toEqual([5, true]);
+        expect(spy2.calls.count()).toEqual(3);
+        expect(spy2.calls.argsFor(2)).toEqual([chart, [item3]]);
+        expect(spy3.calls.count()).toEqual(0);
+        expect(subcomponent.getSelectedLabels()).toEqual([1, 3, 5]);
+
+        subcomponent.callSelectItem({
+            metaKey: true
+        }, [item4], chart);
+
+        expect(spy1.calls.count()).toEqual(4);
+        expect(spy1.calls.argsFor(3)).toEqual([7, true]);
+        expect(spy2.calls.count()).toEqual(4);
+        expect(spy2.calls.argsFor(3)).toEqual([chart, [item4]]);
+        expect(spy3.calls.count()).toEqual(0);
+        expect(subcomponent.getSelectedLabels()).toEqual([1, 3, 5, 7]);
+    });
+
+    it('selectItem does select expected items if horizontal', () => {
+        let spy1 = spyOn(listener, 'subcomponentRequestsFilter');
+        let spy2 = spyOn(subcomponent, 'dataSelect');
+        let spy3 = spyOn(subcomponent, 'dataDeselect');
+
+        subcomponent.horizontal = true;
+
+        let chart = {
+            data: {
+                datasets: [{
+                    data: [{
+                        x: 1,
+                        y: 2
+                    }, {
+                        x: 3,
+                        y: 4
+                    }]
+                }, {
+                    data: [{
+                        x: 5,
+                        y: 6
+                    }, {
+                        x: 7,
+                        y: 8
+                    }]
+                }]
+            }
+        };
+
+        let item1 = {
+            _datasetIndex: 0,
+            _index: 0
+        };
+
+        let item2 = {
+            _datasetIndex: 0,
+            _index: 1
+        };
+
+        let item3 = {
+            _datasetIndex: 1,
+            _index: 0
+        };
+
+        let item4 = {
+            _datasetIndex: 1,
+            _index: 1
+        };
+
+        subcomponent.callSelectItem({}, [item1], chart);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([2, false]);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([chart, [item1]]);
+        expect(spy3.calls.count()).toEqual(1);
+        expect(spy3.calls.argsFor(0)).toEqual([chart]);
+        expect(subcomponent.getSelectedLabels()).toEqual([2]);
+
+        subcomponent.callSelectItem({}, [item2], chart);
+
+        expect(spy1.calls.count()).toEqual(2);
+        expect(spy1.calls.argsFor(1)).toEqual([4, false]);
+        expect(spy2.calls.count()).toEqual(2);
+        expect(spy2.calls.argsFor(1)).toEqual([chart, [item2]]);
+        expect(spy3.calls.count()).toEqual(2);
+        expect(spy3.calls.argsFor(1)).toEqual([chart]);
+        expect(subcomponent.getSelectedLabels()).toEqual([4]);
+
+        subcomponent.callSelectItem({}, [item3], chart);
+
+        expect(spy1.calls.count()).toEqual(3);
+        expect(spy1.calls.argsFor(2)).toEqual([6, false]);
+        expect(spy2.calls.count()).toEqual(3);
+        expect(spy2.calls.argsFor(2)).toEqual([chart, [item3]]);
+        expect(spy3.calls.count()).toEqual(3);
+        expect(spy3.calls.argsFor(2)).toEqual([chart]);
+        expect(subcomponent.getSelectedLabels()).toEqual([6]);
+
+        subcomponent.callSelectItem({}, [item4], chart);
+
+        expect(spy1.calls.count()).toEqual(4);
+        expect(spy1.calls.argsFor(3)).toEqual([8, false]);
+        expect(spy2.calls.count()).toEqual(4);
+        expect(spy2.calls.argsFor(3)).toEqual([chart, [item4]]);
+        expect(spy3.calls.count()).toEqual(4);
+        expect(spy3.calls.argsFor(3)).toEqual([chart]);
+        expect(subcomponent.getSelectedLabels()).toEqual([8]);
     });
 });
