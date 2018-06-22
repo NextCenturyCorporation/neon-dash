@@ -91,7 +91,7 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
         chart.data.datasets.forEach((dataset) => {
             dataset.backgroundColor = dataset.backgroundColor.map((color, index) => {
                 if (items) {
-                    return items.indexOf(dataset.data[index]) < 0 ? dataset.getColorDeselected() : dataset.getColorSelected();
+                    return items.indexOf(dataset.data[index]) < 0 ? color : dataset.getColorDeselected();
                 }
                 return dataset.getColorDeselected();
             });

@@ -76,6 +76,7 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
     public logScaleX: boolean;
     public logScaleY: boolean;
     public newType: string;
+    public savePrevious: boolean;
     public scaleMaxX: string;
     public scaleMaxY: string;
     public scaleMinX: string;
@@ -100,6 +101,7 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
         this.lineFillArea = this.injector.get('lineFillArea', false);
         this.logScaleX = this.injector.get('logScaleX', false);
         this.logScaleY = this.injector.get('logScaleY', false);
+        this.savePrevious = this.injector.get('savePrevious', false);
         this.scaleMaxX = this.injector.get('scaleMaxX', '');
         this.scaleMaxY = this.injector.get('scaleMaxY', '');
         this.scaleMinX = this.injector.get('scaleMinX', '');
@@ -595,6 +597,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.legendActiveGroups = [];
         this.legendGroups = [];
         this.legendFields = [];
+        this.xList = [];
+        this.yList = [];
         super.handleChangeData();
     }
 
@@ -604,7 +608,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     handleChangeSubcomponentType() {
         if (this.options.type !== this.options.newType) {
             this.options.type = this.options.newType;
-            if (!this.isSortableByAggregation(this.options.type)) {
+            if (this.isContinuous(this.options.type)) {
                 this.options.sortByAggregation = false;
             }
             if (this.subcomponentObject) {
@@ -680,6 +684,30 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns whether the given subcomponent type is continuous.
+     *
+     * @arg {string} type
+     * @return {boolean}
+     */
+    isContinuous(type: string): boolean {
+        switch (type) {
+            case 'histogram':
+            case 'line':
+            case 'line-xy':
+            case 'scatter':
+            case 'scatter-xy':
+                return true;
+            case 'bar-h':
+            case 'bar-v':
+            case 'doughnut':
+            case 'pie':
+            case 'table':
+            default:
+                return false;
+        }
+    }
+
+    /**
      * Returns whether the given subcomponent type is scaled.
      *
      * @arg {string} type
@@ -698,30 +726,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             case 'doughnut':
             case 'pie':
             case 'table':
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Returns whether the given subcomponent type is sortable by aggregation.
-     *
-     * @arg {string} type
-     * @return {boolean}
-     */
-    isSortableByAggregation(type: string): boolean {
-        switch (type) {
-            case 'bar-h':
-            case 'bar-v':
-            case 'doughnut':
-            case 'histogram':
-            case 'pie':
-            case 'table':
-                return true;
-            case 'line':
-            case 'line-xy':
-            case 'scatter':
-            case 'scatter-xy':
             default:
                 return false;
         }
@@ -769,8 +773,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.errorMessage = '';
 
         let isXY = this.isXYSubcomponent(this.options.type);
-        let xExists = new Map<any, boolean>();
-        let yExists = new Map<any, boolean>();
+        let xList = [];
+        let yList = [];
         let groupsToColors = new Map<string, Color>();
         if (!this.options.groupField.columnName) {
             groupsToColors.set(this.DEFAULT_GROUP, this.colorSchemeService.getColorFor('', this.DEFAULT_GROUP));
@@ -796,6 +800,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         };
 
         if (this.options.xField.type === 'date') {
+            // Transform date data.
             switch (this.options.granularity) {
                 case 'minute':
                 case 'hour':
@@ -812,8 +817,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                     this.dateBucketizer = new YearBucketizer();
                     break;
             }
-            this.dateBucketizer.setStartDate(new Date(response.data[0]._date));
-            this.dateBucketizer.setEndDate(new Date(response.data[response.data.length - 1]._date));
+
+            let beginDate = this.options.savePrevious && this.xList.length ? this.xList[0] : response.data[0]._date;
+            let endDate = this.options.savePrevious && this.xList.length ? this.xList[this.xList.length - 1] :
+                response.data[response.data.length - 1]._date;
+            this.dateBucketizer.setStartDate(new Date(beginDate));
+            this.dateBucketizer.setEndDate(new Date(endDate));
 
             let groupToTransformations = new Map<string, any[]>();
 
@@ -821,24 +830,35 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             let xDomainLength = this.dateBucketizer.getNumBuckets() + (this.options.granularity === 'month' ||
                 this.options.granularity === 'year' ? 1 : 0);
 
+            // Create the X list now so it is properly sorted.  Items will be removed as needed.
+            xList = _.range(xDomainLength).map((index) => {
+                return moment(this.dateBucketizer.getDateForBucket(index)).toISOString();
+            });
+
             response.data.forEach((item) => {
                 let transformation = createTransformationFromItem(item);
                 let transformations = groupToTransformations.get(transformation.group);
                 if (!transformations) {
+                    // Create an empty array for each date bucket.
                     transformations = new Array(xDomainLength).fill(undefined).map(() => {
                         return [];
                     });
                     groupToTransformations.set(transformation.group, transformations);
                 }
                 let index = this.dateBucketizer.getBucketIndex(new Date(item._date));
+                // Fix the X so it is a readable date string.
                 transformation.x = moment(this.dateBucketizer.getDateForBucket(index)).toISOString();
                 transformations[index].push(transformation);
             });
+
+            // Save each X that exists in order to update the xList.
+            let xExists = new Map<any, boolean>();
 
             this.responseData = Array.from(groupToTransformations.keys()).reduce((transformations, group) => {
                 let nextTransformations = groupToTransformations.get(group);
                 if (this.options.timeFill) {
                     nextTransformations = nextTransformations.map((transformationArray, index) => {
+                        // If timeFill is true and the date bucket is an empty array, replace it with a single item with a Y of zero.
                         return transformationArray.length ? transformationArray : [{
                             color: findGroupColor(group),
                             group: group,
@@ -847,36 +867,55 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                         }];
                     });
                 }
+
+                // Update the X and Y lists, remove each empty array, and flatten all date buckets into one big array.
                 return transformations.concat(_.flatten(nextTransformations.filter((transformationArray) => {
                     transformationArray.forEach((transformation) => {
                         xExists.set(transformation.x, true);
-                        yExists.set(transformation.y, true);
+                        if (yList.indexOf(transformation.y) < 0) {
+                            yList.push(transformation.y);
+                        }
                     });
                     return transformationArray.length;
                 })));
             }, []);
+
+            // Remove each X from the list that does not exist in the data unless the subcomponent is a histogram.
+            if (this.options.type !== 'histogram') {
+                xList = xList.filter((x) => {
+                    return xExists.get(x);
+                });
+            }
         } else {
+            // Transform non-date data.
             this.dateBucketizer = null;
 
             this.responseData = response.data.map((item) => {
                 let transformation = createTransformationFromItem(item);
-                xExists.set(transformation.x, true);
-                yExists.set(transformation.y, true);
+                if (xList.indexOf(transformation.x) < 0) {
+                    xList.push(transformation.x);
+                }
+                if (yList.indexOf(transformation.y) < 0) {
+                    yList.push(transformation.y);
+                }
                 return transformation;
             });
+
+            // TODO Add missing X to xList of numeric histograms.
         }
 
+        // Set the legend groups once with the original groups.  Then (always) update the active groups with the groups in the active data.
+        let groups = Array.from(groupsToColors.keys()).sort();
         if (!this.legendGroups.length) {
-            this.legendGroups = Array.from(groupsToColors.keys());
+            this.legendGroups = groups;
         }
 
-        let groups = Array.from(groupsToColors.keys());
         this.legendActiveGroups = this.legendGroups.filter((group) => {
             return groups.indexOf(group) >= 0;
         });
 
-        this.xList = Array.from(xExists.keys());
-        this.yList = Array.from(yExists.keys());
+        this.xList = this.options.savePrevious && this.xList.length ? this.xList : xList;
+        this.yList = yList;
         this.updateActiveData();
     }
 
@@ -927,17 +966,22 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Removes the given visualization filter object from this visualization.
+     * Removes the given neon filter object from this visualization.
      *
-     * @arg {object} filter
+     * @arg {object} neonFilter
      * @override
      */
-    removeFilter(filter: any) {
-        this.filters = this.filters.filter((existingFilter) => {
-            return existingFilter.id !== filter.id;
+    removeFilter(neonFilter: any) {
+        let filter = _.find(this.filters, (existingFilter) => {
+            return existingFilter.id === neonFilter.id;
         });
-        this.selectedArea = null;
-        this.subcomponentObject.deselect(filter.value);
+        this.filters = this.filters.filter((existingFilter) => {
+            return existingFilter.id !== neonFilter.id;
+        });
+        if (filter) {
+            this.selectedArea = null;
+            this.subcomponentObject.deselect(filter.value);
+        }
     }
 
     /**
@@ -1108,6 +1152,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         bindings.lineFillArea = this.options.lineFillArea;
         bindings.logScaleX = this.options.logScaleX;
         bindings.logScaleY = this.options.logScaleY;
+        bindings.savePrevious = this.options.savePrevious;
         bindings.scaleMaxX = this.options.scaleMaxX;
         bindings.scaleMaxY = this.options.scaleMaxY;
         bindings.scaleMinX = this.options.scaleMinX;
@@ -1127,6 +1172,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         this.legendActiveGroups = [];
         this.legendGroups = [];
         this.legendFields = [];
+        this.xList = [];
+        this.yList = [];
         super.subHandleChangeLimit();
     }
 

@@ -105,6 +105,7 @@ describe('Component: Aggregation', () => {
         expect(component.options.lineFillArea).toEqual(false);
         expect(component.options.logScaleX).toEqual(false);
         expect(component.options.logScaleY).toEqual(false);
+        expect(component.options.savePrevious).toEqual(false);
         expect(component.options.scaleMaxX).toEqual('');
         expect(component.options.scaleMaxY).toEqual('');
         expect(component.options.scaleMinX).toEqual('');
@@ -1374,6 +1375,20 @@ describe('Component: Aggregation', () => {
         expect(component.subcomponentObject.constructor.name).toEqual(ChartJsLineSubcomponent.name);
     });
 
+    it('isContinuous does return expected boolean', () => {
+        expect(component.isContinuous('histogram')).toEqual(true);
+        expect(component.isContinuous('line')).toEqual(true);
+        expect(component.isContinuous('line-xy')).toEqual(true);
+        expect(component.isContinuous('scatter')).toEqual(true);
+        expect(component.isContinuous('scatter-xy')).toEqual(true);
+
+        expect(component.isContinuous('bar-h')).toEqual(false);
+        expect(component.isContinuous('bar-v')).toEqual(false);
+        expect(component.isContinuous('doughnut')).toEqual(false);
+        expect(component.isContinuous('pie')).toEqual(false);
+        expect(component.isContinuous('table')).toEqual(false);
+    });
+
     it('isScaled does return expected boolean', () => {
         expect(component.isScaled('bar-h')).toEqual(true);
         expect(component.isScaled('bar-v')).toEqual(true);
@@ -1386,20 +1401,6 @@ describe('Component: Aggregation', () => {
         expect(component.isScaled('doughnut')).toEqual(false);
         expect(component.isScaled('pie')).toEqual(false);
         expect(component.isScaled('table')).toEqual(false);
-    });
-
-    it('isSortableByAggregation does return expected boolean', () => {
-        expect(component.isSortableByAggregation('bar-h')).toEqual(true);
-        expect(component.isSortableByAggregation('bar-v')).toEqual(true);
-        expect(component.isSortableByAggregation('doughnut')).toEqual(true);
-        expect(component.isSortableByAggregation('histogram')).toEqual(true);
-        expect(component.isSortableByAggregation('pie')).toEqual(true);
-        expect(component.isSortableByAggregation('table')).toEqual(true);
-
-        expect(component.isSortableByAggregation('line')).toEqual(false);
-        expect(component.isSortableByAggregation('line-xy')).toEqual(false);
-        expect(component.isSortableByAggregation('scatter')).toEqual(false);
-        expect(component.isSortableByAggregation('scatter-xy')).toEqual(false);
     });
 
     it('isValidQuery does return expected boolean', () => {
@@ -1485,6 +1486,8 @@ describe('Component: Aggregation', () => {
             x: 3,
             y: 4
         }]);
+        expect(component.xList).toEqual([1, 3]);
+        expect(component.yList).toEqual([2, 4]);
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -1518,6 +1521,8 @@ describe('Component: Aggregation', () => {
             x: 3,
             y: 4
         }]);
+        expect(component.xList).toEqual([1, 3]);
+        expect(component.yList).toEqual([2, 4]);
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -1574,6 +1579,8 @@ describe('Component: Aggregation', () => {
             x: 7,
             y: 8
         }]);
+        expect(component.xList).toEqual([1, 3, 5, 7]);
+        expect(component.yList).toEqual([2, 4, 6, 8]);
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -1628,6 +1635,8 @@ describe('Component: Aggregation', () => {
             x: 7,
             y: 8
         }]);
+        expect(component.xList).toEqual([1, 3, 5, 7]);
+        expect(component.yList).toEqual([2, 4, 6, 8]);
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -1664,6 +1673,8 @@ describe('Component: Aggregation', () => {
             x: '2018-01-03T00:00:00.000Z',
             y: 4
         }]);
+        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-03T00:00:00.000Z']);
+        expect(component.yList).toEqual([2, 4]);
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -1698,6 +1709,124 @@ describe('Component: Aggregation', () => {
             x: '2018-01-03T00:00:00.000Z',
             y: 4
         }]);
+        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-03T00:00:00.000Z']);
+        expect(component.yList).toEqual([2, 4]);
+        expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('onQuerySuccess with savePrevious=true does keep previous xList string data', () => {
+        component.options.savePrevious = true;
+        component.options.xField = DatasetServiceMock.NAME_FIELD;
+        component.page = 2;
+        component.xList = ['z', 'a', 'b', 'c', 'd'];
+        let spy = spyOn(component, 'updateActiveData');
+
+        component.onQuerySuccess({
+            data: [{
+                _aggregation: 2,
+                testNameField: 'a'
+            }, {
+                _aggregation: 4,
+                testNameField: 'c'
+            }]
+        });
+
+        expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
+        expect(component.page).toEqual(1);
+        expect(component.responseData).toEqual([{
+            color: COLOR_1,
+            group: 'All',
+            x: 'a',
+            y: 2
+        }, {
+            color: COLOR_1,
+            group: 'All',
+            x: 'c',
+            y: 4
+        }]);
+        expect(component.xList).toEqual(['z', 'a', 'b', 'c', 'd']);
+        expect(component.yList).toEqual([2, 4]);
+        expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('onQuerySuccess with savePrevious=true does keep previous xList number data', () => {
+        component.options.savePrevious = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.page = 2;
+        component.xList = [0, 1, 2, 3, 4];
+        let spy = spyOn(component, 'updateActiveData');
+
+        component.onQuerySuccess({
+            data: [{
+                _aggregation: 2,
+                testXField: 1
+            }, {
+                _aggregation: 4,
+                testXField: 3
+            }]
+        });
+
+        expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
+        expect(component.page).toEqual(1);
+        expect(component.responseData).toEqual([{
+            color: COLOR_1,
+            group: 'All',
+            x: 1,
+            y: 2
+        }, {
+            color: COLOR_1,
+            group: 'All',
+            x: 3,
+            y: 4
+        }]);
+        expect(component.xList).toEqual([0, 1, 2, 3, 4]);
+        expect(component.yList).toEqual([2, 4]);
+        expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('onQuerySuccess with savePrevious=true does keep previous xList date data', () => {
+        component.options.type = 'line-xy';
+        component.options.granularity = 'day';
+        component.options.savePrevious = true;
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        component.xList = ['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z', '2018-01-04T00:00:00.000Z',
+            '2018-01-05T00:00:00.000Z'];
+        component.page = 2;
+        let spy = spyOn(component, 'updateActiveData');
+
+        component.onQuerySuccess({
+            data: [{
+                _date: '2018-01-02T00:00:00.000Z',
+                testYField: 2
+            }, {
+                _date: '2018-01-04T00:00:00.000Z',
+                testYField: 4
+            }]
+        });
+
+        expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
+        expect(component.page).toEqual(1);
+        expect(component.responseData).toEqual([{
+            color: COLOR_1,
+            group: 'All',
+            x: '2018-01-02T00:00:00.000Z',
+            y: 2
+        }, {
+            color: COLOR_1,
+            group: 'All',
+            x: '2018-01-04T00:00:00.000Z',
+            y: 4
+        }]);
+        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z',
+            '2018-01-04T00:00:00.000Z', '2018-01-05T00:00:00.000Z']);
+        expect(component.yList).toEqual([2, 4]);
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -1740,6 +1869,8 @@ describe('Component: Aggregation', () => {
             x: '2018-01-03T00:00:00.000Z',
             y: 4
         }]);
+        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z']);
+        expect(component.yList).toEqual([2, 0, 4]);
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -1793,6 +1924,9 @@ describe('Component: Aggregation', () => {
             x: '2018-01-04T00:00:00.000Z',
             y: 5
         }]);
+        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z',
+            '2018-01-04T00:00:00.000Z']);
+        expect(component.yList).toEqual([2, 3, 4, 5]);
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -1871,6 +2005,67 @@ describe('Component: Aggregation', () => {
             x: '2018-01-04T00:00:00.000Z',
             y: 5
         }]);
+        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z',
+            '2018-01-04T00:00:00.000Z']);
+        expect(component.yList).toEqual([2, 0, 4, 3, 5]);
+        expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('onQuerySuccess with savePrevious=true and timeFill=true does work as expected', () => {
+        component.options.type = 'line-xy';
+        component.options.granularity = 'day';
+        component.options.savePrevious = true;
+        component.options.timeFill = true;
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        component.xList = ['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z', '2018-01-04T00:00:00.000Z',
+            '2018-01-05T00:00:00.000Z'];
+        component.page = 2;
+        let spy = spyOn(component, 'updateActiveData');
+
+        component.onQuerySuccess({
+            data: [{
+                _date: '2018-01-02T00:00:00.000Z',
+                testYField: 2
+            }, {
+                _date: '2018-01-04T00:00:00.000Z',
+                testYField: 4
+            }]
+        });
+
+        expect(component.errorMessage).toEqual('');
+        expect(component.legendActiveGroups).toEqual(['All']);
+        expect(component.legendGroups).toEqual(['All']);
+        expect(component.page).toEqual(1);
+        expect(component.responseData).toEqual([{
+            color: COLOR_1,
+            group: 'All',
+            x: '2018-01-01T00:00:00.000Z',
+            y: 0
+        }, {
+            color: COLOR_1,
+            group: 'All',
+            x: '2018-01-02T00:00:00.000Z',
+            y: 2
+        }, {
+            color: COLOR_1,
+            group: 'All',
+            x: '2018-01-03T00:00:00.000Z',
+            y: 0
+        }, {
+            color: COLOR_1,
+            group: 'All',
+            x: '2018-01-04T00:00:00.000Z',
+            y: 4
+        }, {
+            color: COLOR_1,
+            group: 'All',
+            x: '2018-01-05T00:00:00.000Z',
+            y: 0
+        }]);
+        expect(component.xList).toEqual(['2018-01-01T00:00:00.000Z', '2018-01-02T00:00:00.000Z', '2018-01-03T00:00:00.000Z',
+            '2018-01-04T00:00:00.000Z', '2018-01-05T00:00:00.000Z']);
+        expect(component.yList).toEqual([0, 2, 4]);
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -1888,6 +2083,8 @@ describe('Component: Aggregation', () => {
         expect(component.legendGroups).toEqual([]);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([]);
+        expect(component.xList).toEqual([]);
+        expect(component.yList).toEqual([]);
         expect(spy.calls.count()).toEqual(1);
     });
 
@@ -2123,7 +2320,7 @@ describe('Component: Aggregation', () => {
         expect(spy.calls.argsFor(1)).toEqual(['value2']);
     });
 
-    it('removeFilter does not remove objects from filters with non-matching IDs and call subcomponentObject.deselect', () => {
+    it('removeFilter does not remove objects from filters with non-matching IDs or call subcomponentObject.deselect', () => {
         let spy = spyOn(component.subcomponentObject, 'deselect');
 
         component.filters = [{
@@ -2135,15 +2332,14 @@ describe('Component: Aggregation', () => {
         }];
 
         component.removeFilter({
-            id: 'idC',
+            id: 'idB',
             field: 'field1',
             label: '',
             prettyField: 'prettyField1',
             value: 'value1'
         });
 
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['value1']);
+        expect(spy.calls.count()).toEqual(0);
         expect(component.filters).toEqual([{
             id: 'idA',
             field: 'field1',
@@ -2384,6 +2580,7 @@ describe('Component: Aggregation', () => {
             lineFillArea: false,
             logScaleX: false,
             logScaleY: false,
+            savePrevious: false,
             scaleMaxX: '',
             scaleMaxY: '',
             scaleMinX: '',
@@ -2408,6 +2605,7 @@ describe('Component: Aggregation', () => {
         component.options.lineFillArea = true;
         component.options.logScaleX = true;
         component.options.logScaleY = true;
+        component.options.savePrevious = true;
         component.options.scaleMaxX = '44';
         component.options.scaleMaxY = '33';
         component.options.scaleMinX = '22';
@@ -2433,6 +2631,7 @@ describe('Component: Aggregation', () => {
             lineFillArea: true,
             logScaleX: true,
             logScaleY: true,
+            savePrevious: true,
             scaleMaxX: '44',
             scaleMaxY: '33',
             scaleMinX: '22',
@@ -2936,7 +3135,7 @@ describe('Component: Aggregation', () => {
             expect(options[9].getLabel()).toEqual('90%');
 
             expect(selects[8].componentInstance.disabled).toEqual(false);
-            expect(selects[8].componentInstance.placeholder).toEqual('Y-Axis Labels Percentage');
+            expect(selects[8].componentInstance.placeholder).toEqual('Y-Axis Max Width');
             expect(selects[8].componentInstance.required).toEqual(true);
             options = selects[8].componentInstance.options.toArray();
             expect(options.length).toEqual(5);
@@ -2948,7 +3147,7 @@ describe('Component: Aggregation', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(12);
+            expect(toggles.length).toEqual(14);
 
             expect(toggles[0].componentInstance.value).toEqual(false);
             expect(toggles[0].nativeElement.textContent).toContain('Yes');
@@ -2997,6 +3196,14 @@ describe('Component: Aggregation', () => {
             expect(toggles[11].componentInstance.value).toEqual(true);
             expect(toggles[11].nativeElement.textContent).toContain('Yes');
             expect(toggles[11].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[12].componentInstance.value).toEqual(false);
+            expect(toggles[12].nativeElement.textContent).toContain('No');
+            expect(toggles[12].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[13].componentInstance.value).toEqual(true);
+            expect(toggles[13].nativeElement.textContent).toContain('Yes');
+            expect(toggles[13].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
         });
     }));
 });
@@ -3043,6 +3250,7 @@ describe('Component: Aggregation with config', () => {
             { provide: 'lineFillArea', useValue: true },
             { provide: 'logScaleX', useValue: true },
             { provide: 'logScaleY', useValue: true },
+            { provide: 'savePrevious', useValue: true },
             { provide: 'scaleMaxX', useValue: '44' },
             { provide: 'scaleMaxY', useValue: '33' },
             { provide: 'scaleMinX', useValue: '22' },
@@ -3092,6 +3300,7 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.lineFillArea).toEqual(true);
         expect(component.options.logScaleX).toEqual(true);
         expect(component.options.logScaleY).toEqual(true);
+        expect(component.options.savePrevious).toEqual(true);
         expect(component.options.scaleMaxX).toEqual('44');
         expect(component.options.scaleMaxY).toEqual('33');
         expect(component.options.scaleMinX).toEqual('22');
@@ -3238,7 +3447,7 @@ describe('Component: Aggregation with config', () => {
             }
 
             expect(selects[7].componentInstance.disabled).toEqual(false);
-            expect(selects[7].componentInstance.placeholder).toEqual('Y-Axis Labels Percentage');
+            expect(selects[7].componentInstance.placeholder).toEqual('Y-Axis Max Width');
             expect(selects[7].componentInstance.required).toEqual(true);
             options = selects[7].componentInstance.options.toArray();
             expect(options.length).toEqual(5);
@@ -3255,7 +3464,7 @@ describe('Component: Aggregation with config', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(10);
+            expect(toggles.length).toEqual(12);
 
             expect(toggles[0].componentInstance.value).toEqual(false);
             expect(toggles[0].nativeElement.textContent).toContain('Yes');
@@ -3296,6 +3505,14 @@ describe('Component: Aggregation with config', () => {
             expect(toggles[9].componentInstance.value).toEqual(true);
             expect(toggles[9].nativeElement.textContent).toContain('Yes');
             expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[10].componentInstance.value).toEqual(false);
+            expect(toggles[10].nativeElement.textContent).toContain('No');
+            expect(toggles[10].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[11].componentInstance.value).toEqual(true);
+            expect(toggles[11].nativeElement.textContent).toContain('Yes');
+            expect(toggles[11].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
         });
     }));
 });
@@ -3342,6 +3559,7 @@ describe('Component: Aggregation with XY config', () => {
             { provide: 'lineFillArea', useValue: true },
             { provide: 'logScaleX', useValue: true },
             { provide: 'logScaleY', useValue: true },
+            { provide: 'savePrevious', useValue: true },
             { provide: 'scaleMaxX', useValue: '44' },
             { provide: 'scaleMaxY', useValue: '33' },
             { provide: 'scaleMinX', useValue: '22' },
@@ -3475,7 +3693,7 @@ describe('Component: Aggregation with XY config', () => {
             }
 
             expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('Y-Axis Labels Percentage');
+            expect(selects[6].componentInstance.placeholder).toEqual('Y-Axis Max Width');
             expect(selects[6].componentInstance.required).toEqual(true);
             options = selects[6].componentInstance.options.toArray();
             expect(options.length).toEqual(5);
@@ -3492,7 +3710,7 @@ describe('Component: Aggregation with XY config', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(10);
+            expect(toggles.length).toEqual(12);
 
             expect(toggles[0].componentInstance.value).toEqual(false);
             expect(toggles[0].nativeElement.textContent).toContain('Yes');
@@ -3533,6 +3751,14 @@ describe('Component: Aggregation with XY config', () => {
             expect(toggles[9].componentInstance.value).toEqual(true);
             expect(toggles[9].nativeElement.textContent).toContain('Yes');
             expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[10].componentInstance.value).toEqual(false);
+            expect(toggles[10].nativeElement.textContent).toContain('No');
+            expect(toggles[10].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[11].componentInstance.value).toEqual(true);
+            expect(toggles[11].nativeElement.textContent).toContain('Yes');
+            expect(toggles[11].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
         });
     }));
 });
@@ -3579,6 +3805,7 @@ describe('Component: Aggregation with date config', () => {
             { provide: 'lineFillArea', useValue: true },
             { provide: 'logScaleX', useValue: true },
             { provide: 'logScaleY', useValue: true },
+            { provide: 'savePrevious', useValue: true },
             { provide: 'scaleMaxX', useValue: '44' },
             { provide: 'scaleMaxY', useValue: '33' },
             { provide: 'scaleMinX', useValue: '22' },
@@ -3745,7 +3972,7 @@ describe('Component: Aggregation with date config', () => {
             }
 
             expect(selects[8].componentInstance.disabled).toEqual(false);
-            expect(selects[8].componentInstance.placeholder).toEqual('Y-Axis Labels Percentage');
+            expect(selects[8].componentInstance.placeholder).toEqual('Y-Axis Max Width');
             expect(selects[8].componentInstance.required).toEqual(true);
             options = selects[8].componentInstance.options.toArray();
             expect(options.length).toEqual(5);
@@ -3762,7 +3989,7 @@ describe('Component: Aggregation with date config', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(12);
+            expect(toggles.length).toEqual(14);
 
             expect(toggles[0].componentInstance.value).toEqual(false);
             expect(toggles[0].nativeElement.textContent).toContain('No');
@@ -3811,6 +4038,14 @@ describe('Component: Aggregation with date config', () => {
             expect(toggles[11].componentInstance.value).toEqual(true);
             expect(toggles[11].nativeElement.textContent).toContain('Yes');
             expect(toggles[11].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[12].componentInstance.value).toEqual(false);
+            expect(toggles[12].nativeElement.textContent).toContain('No');
+            expect(toggles[12].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[13].componentInstance.value).toEqual(true);
+            expect(toggles[13].nativeElement.textContent).toContain('Yes');
+            expect(toggles[13].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
         });
     }));
 });
