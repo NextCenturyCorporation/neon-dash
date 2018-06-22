@@ -100,6 +100,21 @@ body {
     z-index: 10;
 }
 
+.icon-container {
+    justify-content: center;
+    display: flex;
+}
+
+.neon-sprite {
+    display: inline-block;
+    vertical-align: middle;
+    background-image: url("assets/images/spritesheet.png");
+    width: 64px;
+    height: 64px;
+    /* Use the Neon icon for the default. */
+    background-position: -124px -256px;
+}
+
 /* Icons */
 .icon-BarChart64 {
     background-position: -192px -64px
@@ -134,7 +149,7 @@ body {
 }
 
 .icon-MediaViewer64 {
-    background-position: -124px -256px;
+    // TODO
 }
 
 .icon-Neon64 {
@@ -173,6 +188,10 @@ body {
     background-position: -128px -128px
 }
 
+.icon-ThumbnailGrid64 {
+    // TODO
+}
+
 .icon-Timeline64 {
     background-position: -64px -128px
 }
@@ -185,19 +204,6 @@ body {
     background-position: -5px -320px
 }
 /* End Icons */
-
-.icon-container {
-    justify-content: center;
-    display: flex;
-}
-
-.neon-sprite {
-    display: inline-block;
-    vertical-align: middle;
-    background-image: url("assets/images/spritesheet.png");
-    width: 64px;
-    height: 64px;
-}
 
 /* Loading Spinner */
 .loading-overlay {
