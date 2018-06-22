@@ -91,7 +91,7 @@
 }
 
 /deep/ .datatable-row-even {
-    background-color: mat-color($white);
+    background-color: #fafafa;
 }
 
 /deep/ .datatable-header-inner {
@@ -100,7 +100,7 @@
 
 /deep/ .datatable-header-cell {
     /* Background fade from $white to $accent. */
-    background: linear-gradient(#fff,#e6e7e8);
+    background: linear-gradient(#fafafa,#e6e7e8);
     border-bottom: 1px solid $black-87-opacity;
     border-right: 1px solid $black-87-opacity;
     line-height: 20px !important;
@@ -166,7 +166,7 @@
 
 /deep/ .datatable-body-row.active .datatable-row-group {
     background-color: mat-color($primary);
-    color: mat-color($white);
+    color: #fafafa;
 }
 
 /deep/ .datatable-body {
