@@ -13,26 +13,25 @@
  * limitations under the License.
  *
  */
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewChild } from '@angular/core';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { DatasetService } from '../../services/dataset.service';
-import {FieldMetaData, SimpleFilter} from '../../dataset';
+import { FieldMetaData, SimpleFilter } from '../../dataset';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import * as neon from 'neon-framework';
 import * as uuid from 'node-uuid';
 import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs/Observable';
 import { map, startWith } from 'rxjs/operators';
-import {BaseNeonComponent, BaseNeonOptions} from '../base-neon-component/base-neon.component';
-import {neonUtilities, neonVariables} from '../../neon-namespaces';
-import {ExportService} from '../../services/export.service';
-import {ConnectionService} from '../../services/connection.service';
-import {VisualizationService} from '../../services/visualization.service';
-import {ActiveGridService} from '../../services/active-grid.service';
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import { ExportService } from '../../services/export.service';
+import { ConnectionService } from '../../services/connection.service';
+import { VisualizationService } from '../../services/visualization.service';
+import { ActiveGridService } from '../../services/active-grid.service';
 import WherePredicate = neon.query.WherePredicate;
-import {MatAutocompleteTrigger} from '@angular/material';
-
+import { MatAutocompleteTrigger } from '@angular/material';
 
 /**
  * Manages configurable options for the specific visualization.
@@ -94,7 +93,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
 
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public filterId = new BehaviorSubject<string>(undefined);
-    public filteredOptions: Observable<void|string[]>;
+    public filteredOptions: Observable<void | string[]>;
     public options: QueryBarOptions;
 
     public id = uuid.v4();
@@ -109,17 +108,15 @@ export class QueryBarComponent  extends BaseNeonComponent {
             filterService, exportService, injector, themesService, ref, visualizationService);
 
         this.filterFormControl = new FormControl();
-        this.options = new QueryBarOptions(this.injector, this.datasetService, 'Query Bar' );
+        this.options = new QueryBarOptions(this.injector, this.datasetService, 'Query Bar');
     }
-
 
     createQuery(): neon.query.Query  {
         let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
 
-
         let fields = [this.options.idField.columnName, this.options.filterField.columnName];
         let whereClauses = [
-            neon.query.where(this.options.filterField.columnName, '!=', null),
+            neon.query.where(this.options.filterField.columnName, '!=', null)
         ];
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses))
@@ -173,15 +170,15 @@ export class QueryBarComponent  extends BaseNeonComponent {
         }
     }
 
-    private queryBarSetup(){
+    private queryBarSetup() {
         this.filteredOptions = this.filterFormControl.valueChanges.pipe(
             startWith(''),
-            map(value => value ? this.filterAutoComplete(value) : this.queryValues.slice())
+            map((value) => value ? this.filterAutoComplete(value) : this.queryValues.slice())
         );
     }
 
     private filterAutoComplete(val: string) {
-        return this.queryValues.filter(value =>
+        return this.queryValues.filter((value) =>
             value.toLowerCase().indexOf(val.toLowerCase()) === 0);
     }
 
@@ -273,15 +270,15 @@ export class QueryBarComponent  extends BaseNeonComponent {
             return;
         }
 
-        let values = this.queryArray.filter(value =>
+        let values = this.queryArray.filter((value) =>
             value[this.options.filterField.columnName].toLowerCase().indexOf(text.toLowerCase()) === 0),
-            clause : WherePredicate,
+            clause: WherePredicate,
             whereClauses = [];
 
         clause = neon.query.where(this.options.filterField.columnName, '=', text);
         this.addFilter(text, clause, this.options.filterField.columnName);
 
-        if(this.options.multiFilter){
+        if (this.options.multiFilter) {
             for (let value of values) {
                 whereClauses.push(neon.query.where(this.options.idField.columnName, '=', value[this.options.idField.columnName]));
             }
@@ -291,7 +288,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
         }
     }
 
-    addFilter(text:string, clause: WherePredicate, field:string){
+    addFilter(text: string, clause: WherePredicate, field: string) {
         let filterName = ` ${this.options.title} - ${this.options.database.prettyName} - ${this.options.table.prettyName}`,
             filterId = this.filterId.getValue(),
             noOp = () => { /*no op*/ };
@@ -310,7 +307,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
                 filterName,
                 (id) => {
                     this.filterIds.push(id);
-                    this.filterId.next(typeof id === 'string' ? id : null)
+                    this.filterId.next(typeof id === 'string' ? id : null);
                 },
                 noOp
             );
@@ -405,7 +402,5 @@ export class QueryBarComponent  extends BaseNeonComponent {
     subNgOnDestroy() {
         // Do nothing.
     }
-
-
 
 }

@@ -35,7 +35,7 @@ import { NeonGridItem } from '../../neon-grid-item';
 import { VisualizationService } from '../../services/visualization.service';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
-import {QueryBarComponent} from '../query-bar/query-bar.component';
+import { QueryBarComponent } from '../query-bar/query-bar.component';
 
 @Component({
     selector: 'app-visualization-injector',

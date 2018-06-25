@@ -72,7 +72,7 @@ import { MediaViewerComponent } from './components/media-viewer/media-viewer.com
 import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
 import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 import { MatAutocompleteModule } from '@angular/material';
-import {QueryBarComponent} from './components/query-bar/query-bar.component';
+import { QueryBarComponent } from './components/query-bar/query-bar.component';
 
 describe('App: NeonGtd', () => {
     let fixture: ComponentFixture<AppComponent>;
