@@ -35,6 +35,7 @@ import { NeonGridItem } from '../../neon-grid-item';
 import { VisualizationService } from '../../services/visualization.service';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
+import {QueryBarComponent} from '../query-bar/query-bar.component';
 
 @Component({
     selector: 'app-visualization-injector',
@@ -49,6 +50,7 @@ import { NewsFeedComponent } from '../news-feed/news-feed.component';
         MediaViewerComponent,
         NetworkGraphComponent,
         NewsFeedComponent,
+        QueryBarComponent,
         SampleComponent,
         ScatterPlotComponent,
         StackedTimelineComponent,
@@ -122,6 +124,7 @@ export class VisualizationInjectorComponent {
             case 'mediaViewer': return MediaViewerComponent;
             case 'networkGraph' : return NetworkGraphComponent;
             case 'newsFeed' : return NewsFeedComponent;
+            case 'queryBar' : return QueryBarComponent;
             case 'sample': return SampleComponent;
             case 'scatterPlot': return ScatterPlotComponent;
             case 'stackedTimeline': return StackedTimelineComponent;

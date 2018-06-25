@@ -128,14 +128,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     public filters: {
         id: string,
-        key: string,
+        field: string,
+        prettyField: string,
         value: string
-    }[];
+    }[] = [];
 
     public options: NetworkGraphOptions;
-
     public activeData: any[] = [];
-
     public graphData = new GraphData();
     public displayGraph: boolean;
     public neonFilters: any[] = [];
@@ -180,8 +179,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     selectedColorScheme: string;
 
     private defaultActiveColor;
-
-    queryTitle;
 
     private graph: vis.Network;
 
@@ -348,7 +345,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         let fields = [nodeField, linkField];
 
-        // query = query.withFields(fields);
         let whereClause = neon.query.and.apply(neon.query, whereClauses);
 
         query.where(whereClause);

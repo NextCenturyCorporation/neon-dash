@@ -46,6 +46,7 @@ import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
+import {QueryBarComponent} from '../query-bar/query-bar.component';
 
 describe('Component: VisualizationInjector', () => {
 
@@ -64,6 +65,7 @@ describe('Component: VisualizationInjector', () => {
             MediaViewerComponent,
             NetworkGraphComponent,
             NewsFeedComponent,
+            QueryBarComponent,
             SampleComponent,
             ScatterPlotComponent,
             StackedTimelineComponent,

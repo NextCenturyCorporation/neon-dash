@@ -55,7 +55,6 @@ export class NewsFeedOptions extends BaseNeonOptions {
     public secondaryTitleField: FieldMetaData;
     public contentField: FieldMetaData;
     public sortField: FieldMetaData;
-    public multiFilter: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -82,7 +81,6 @@ export class NewsFeedOptions extends BaseNeonOptions {
         this.contentField = this.findFieldObject('contentField');
         this.sortField = this.findFieldObject('sortField');
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
-        this.multiFilter = this.injector.get('multiFilter', false);
 
         if (!this.sortField.columnName) {
             this.sortField = this.findFieldObject('idField');
@@ -431,8 +429,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     this.queryArray = this.queryArray.filter((value, index, array) => array.indexOf(value) === index);
                 });
 
-                /*console.log(this.gridArray)*/
-/*                console.log(this.queryArray);*/
                 this.lastPage = (this.gridArray.length <= this.options.limit);
                 this.pagingGrid = this.gridArray.slice(0, this.options.limit);
                 this.refreshVisualization();
@@ -562,7 +558,6 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     subGetBindings(bindings: any) {
         bindings.idField = this.options.idField.columnName;
         bindings.ignoreSelf = this.options.ignoreSelf;
-        bindings.multiFilter = this.options.multiFilter;
         bindings.linkField = this.options.linkField.columnName;
         bindings.dateField = this.options.dateField.columnName;
         bindings.primaryTitleField = this.options.primaryTitleField.columnName;
