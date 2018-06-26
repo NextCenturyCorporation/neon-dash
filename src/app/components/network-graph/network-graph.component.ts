@@ -408,6 +408,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     removeFilter() {
+<<<<<<< HEAD
         this.filters = []; //EDIT: all filter ID's are identical so you can not remove just one (must remove all)
     }
 
@@ -438,6 +439,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     getFilterText(myFilter) {
         return myFilter.prettyField + ' = ' + myFilter.value;
+=======
+        
+>>>>>>> adc3d24ac74ecb4843f8596adeadfabfce83deac
     }
 
     onQuerySuccess(response): void {
