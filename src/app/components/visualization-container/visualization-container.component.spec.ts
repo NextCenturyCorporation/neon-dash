@@ -39,7 +39,7 @@ import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import { FormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -51,6 +51,7 @@ import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
 import { QueryBarComponent } from '../query-bar/query-bar.component';
 import { ThumbnailContractedDetailsComponent, ThumbnailExpandedDetailsComponent } from '../thumbnail-grid/thumbnail-details.component';
+import { MatAutocompleteModule } from '@angular/material';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
@@ -95,9 +96,11 @@ describe('Component: VisualizationContainer', () => {
         imports: [
             AppMaterialModule,
             FormsModule,
+            MatAutocompleteModule,
             NgxDatatableModule,
             NgxGraphModule,
-            BrowserAnimationsModule
+            BrowserAnimationsModule,
+            ReactiveFormsModule
         ]
     });
 
