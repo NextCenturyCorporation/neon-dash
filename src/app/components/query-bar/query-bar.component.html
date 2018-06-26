@@ -3,7 +3,6 @@
         <mat-icon mat-button>{{ 'search' }}</mat-icon>
     </button>
         <mat-form-field class="full-width" *ngIf="autoComplete">
-<!--            autofocus-->
             <input #queryBar matInput [placeholder]="options.placeHolder" class="query-bar-input" [matAutocomplete]="auto" [formControl]="filterFormControl"
                    (keyup)="0" (keyup.enter)="createFilter(queryBar.value)">
             <mat-autocomplete #auto="matAutocomplete">

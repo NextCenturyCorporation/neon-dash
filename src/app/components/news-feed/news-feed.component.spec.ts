@@ -27,7 +27,6 @@ import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
 
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { NewsFeedComponent } from './media-viewer.component';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -37,9 +36,8 @@ import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
-import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
-import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+/*
 
 describe('Component: NewsFeed', () => {
     let component: NewsFeedComponent;
@@ -1074,3 +1072,4 @@ describe('Component: MediaViewer with config', () => {
         });
     }));
 });
+*/

@@ -2,6 +2,63 @@
     "datasets": [
         {
             "title": "VERDI",
+            "name": "VERDI LDC TA1",
+            "icon": "assets/images/verdi-favicon.ico",
+            "connectOnLoad": true,
+            "layout": "verdi-ta1-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [
+                {
+                    "name": "verdi-rdf",
+                    "prettyName": "VERDI",
+                    "tables": [
+                        {
+                            "name": "normal",
+                            "prettyName": "Normal"
+                        },
+                        {
+                            "name": "reified",
+                            "prettyName": "Reified"
+                        }
+                    ]
+                }
+            ],
+            "relations": [
+                {
+                    "members": [
+                        {
+                            "database": "verdi-rdf",
+                            "table": "normal",
+                            "field": "@id"
+                        },
+                        {
+                            "database": "verdi-rdf",
+                            "table": "reified",
+                            "field": "provenance"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "VERDI LDC TA2",
+            "connectOnLoad": true,
+            "layout": "verdi-ta2-layout",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [{
+                "name": "verdi-rdf",
+                "prettyName": "VERDI",
+                "tables": [
+                    {
+                        "name": "reified",
+                        "prettyName": "Reified"
+                    }]
+            }]
+        },
+        {
+            "title": "VERDI",
             "name": "VERDI LDC TA3",
             "icon": "assets/images/verdi-favicon.ico",
             "connectOnLoad": true,
@@ -64,63 +121,6 @@
                     ]
                 }
             ]
-        },
-        {
-            "title": "VERDI",
-            "name": "VERDI LDC TA1",
-            "icon": "assets/images/verdi-favicon.ico",
-            "connectOnLoad": true,
-            "layout": "verdi-ta1-layout",
-            "datastore": "elasticsearch",
-            "hostname": "localhost",
-            "databases": [
-                {
-                    "name": "verdi-rdf",
-                    "prettyName": "VERDI",
-                    "tables": [
-                        {
-                            "name": "normal",
-                            "prettyName": "Normal"
-                        },
-                        {
-                            "name": "reified",
-                            "prettyName": "Reified"
-                        }
-                    ]
-                }
-            ],
-            "relations": [
-                {
-                    "members": [
-                        {
-                            "database": "verdi-rdf",
-                            "table": "normal",
-                            "field": "@id"
-                        },
-                        {
-                            "database": "verdi-rdf",
-                            "table": "reified",
-                            "field": "provenance"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "name": "VERDI LDC TA2",
-            "connectOnLoad": true,
-            "layout": "verdi-ta2-layout",
-            "datastore": "elasticsearch",
-            "hostname": "localhost",
-            "databases": [{
-                "name": "verdi-rdf",
-                "prettyName": "VERDI",
-                "tables": [
-                    {
-                        "name": "reified",
-                        "prettyName": "Reified"
-                    }]
-            }]
         }
     ],
     "layouts": {
@@ -302,6 +302,8 @@
                     "colorField": "",
                     "nodeField": "subject",
                     "linkField": "object",
+                    "showOnlyFiltered": true,
+                    "filterFields": ["hypothesis", "provenance"],
                     "isReified": true,
                     "isDirected": true
                 },
@@ -489,10 +491,18 @@
                     "idField": "hypothesis_id",
                     "filterField": "query",
                     "placeHolder": "Query Hypotheses",
-                    "multiFilter": true,
-                    "filterFields": [
-                        {"database": "verdi-support", "table": "hypothesis_info", "fields" : ["query", "hypothesis_id"]},
-                        {"database": "verdi-rdf", "table": "reified", "fields" : ["hypothesis", "provenance"]}
+                    "extendedFilter": true,
+                    "extensionFields": [
+                        {"database": "verdi-support",
+                            "table": "hypothesis_info",
+                            "idField": "hypothesis_id",
+                            "filterField" : "query"
+                        },
+                        {"database": "verdi-rdf",
+                            "table": "reified",
+                            "idField": "provenance",
+                            "filterField" : "hypothesis"
+                        }
                     ]
                 },
                 "row": 0,

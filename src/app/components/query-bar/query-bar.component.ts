@@ -31,7 +31,6 @@ import { ConnectionService } from '../../services/connection.service';
 import { VisualizationService } from '../../services/visualization.service';
 import { ActiveGridService } from '../../services/active-grid.service';
 import WherePredicate = neon.query.WherePredicate;
-import { MatAutocompleteTrigger } from '@angular/material';
 
 /**
  * Manages configurable options for the specific visualization.
@@ -41,7 +40,8 @@ export class QueryBarOptions extends BaseNeonOptions {
     public placeHolder: string;
     public idField: FieldMetaData;
     public filterField: FieldMetaData;
-    public multiFilter: boolean;
+    public extendedFilter: boolean;
+    public extensionFields : any[];
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -51,7 +51,8 @@ export class QueryBarOptions extends BaseNeonOptions {
     onInit() {
         this.id = this.injector.get('id', '');
         this.placeHolder = this.injector.get('placeHolder', 'Query');
-        this.multiFilter = this.injector.get('multiFilter', false);
+        this.extendedFilter = this.injector.get('extendedFilter', false);
+        this.extensionFields = this.injector.get('extensionFields', []);
     }
 
     /**
@@ -77,7 +78,6 @@ export class QueryBarComponent  extends BaseNeonComponent {
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('queryBar') queryBar: ElementRef;
-    @ViewChild('completeTrigger', {read: MatAutocompleteTrigger}) completeTrigger: MatAutocompleteTrigger;
 
     autoComplete: boolean = true;
     queryValues: string[];
@@ -264,46 +264,99 @@ export class QueryBarComponent  extends BaseNeonComponent {
         return [];
     }
 
+    /**
+     * Creates a standard filter for the visualization.
+     *
+     * @arg {string} text
+     */
     createFilter(text: string) {
         if (text.length === 0) {
             this.removeFilter();
             return;
         }
 
+        //filters query text
         let values = this.queryArray.filter((value) =>
-            value[this.options.filterField.columnName].toLowerCase().indexOf(text.toLowerCase()) === 0),
-            clause: WherePredicate,
-            whereClauses = [];
+                value[this.options.filterField.columnName].toLowerCase().indexOf(text.toLowerCase()) === 0),
+            clause: WherePredicate;
 
         clause = neon.query.where(this.options.filterField.columnName, '=', text);
         this.addFilter(text, clause, this.options.filterField.columnName);
 
-        if (this.options.multiFilter) {
-            for (let value of values) {
-                whereClauses.push(neon.query.where(this.options.idField.columnName, '=', value[this.options.idField.columnName]));
+        //gathers ids from the filtered query text
+        if (this.options.extendedFilter) {
+            for (let ff of this.options.extensionFields) {
+                this.extensionFilter(text, ff, values);
             }
-
-            clause = neon.query.or.apply(neon.query, whereClauses);
-            this.addFilter(text, clause, this.options.idField.columnName);
         }
     }
 
-    addFilter(text: string, clause: WherePredicate, field: string) {
-        let filterName = ` ${this.options.title} - ${this.options.database.prettyName} - ${this.options.table.prettyName}`,
+    /**
+     * Extends filtering across databases that do not have related fields. Executes a query if needed.
+     *
+     * @arg {string} text
+     * @arg {any} fields
+     * @arg {any} array
+     *
+     * @private
+     */
+    private extensionFilter(text: string, fields: any, array: any[] ){
+            if(fields.database !== this.options.database.name && fields.table !== this.options.table.name){
+                  let query = new neon.query.Query().selectFrom(fields.database, fields.table),
+                      queryFields = [fields.idField, fields.filterField],
+                      connection = this.connectionService.getActiveConnection(),
+                      execute = connection.executeQuery(query, null),
+                      tempArray = [],
+                      queryClauses = [];
+                    for (let value of array) {
+                        queryClauses.push(neon.query.where(fields.filterField, '=', value[this.options.idField.columnName]));
+                    }
+
+                    query.withFields(queryFields).where(neon.query.or.apply(query, queryClauses));
+                    execute.done((response) => {
+                        if (response && response.data && response.data.length) {
+                            response.data.forEach((d) => {
+                                let value = neonUtilities.deepFind(d, fields.idField);
+                                if (typeof value !== 'undefined') {
+                                    tempArray.push(value);
+                                }
+                            });
+                        }
+                        this.extensionAddFilter(text, fields, tempArray);
+                    });
+            }
+
+        this.extensionAddFilter(text, fields, array);
+
+    }
+
+    /**
+     * Adds or replaces a filter for the visualization
+     *
+     * @arg {string} text
+     * @arg {WherePredicate} clause
+     * @arg {string} field
+     * @arg {string} database?
+     * @arg {string} table?
+     */
+    addFilter(text: string, clause: WherePredicate, field: string, database?: string, table?: string) {
+        let db = database ? database : this.options.database.name,
+            tb = table ? table : this.options.table.name,
+            filterName = ` ${this.options.title} - ${db} - ${tb} - ${field}`,
             filterId = this.filterId.getValue(),
             noOp = () => { /*no op*/ };
 
         if (filterId) {
             this.filterService.replaceFilter(
                 this.messenger, filterId, this.id,
-                this.options.database.name, this.options.table.name, clause,
+                db, tb, clause,
                 filterName,
                 noOp, noOp
             );
         } else {
             this.filterService.addFilter(
                 this.messenger, this.id,
-                this.options.database.name, this.options.table.name, clause,
+                db, tb, clause,
                 filterName,
                 (id) => {
                     this.filterIds.push(id);
@@ -314,13 +367,44 @@ export class QueryBarComponent  extends BaseNeonComponent {
         }
     }
 
+    /**
+     * Adds extension filters for the visualization
+     *
+     * @arg {string} text
+     * @arg {any} fields
+     * @arg {any} array
+     *
+     * @private
+     */
+    private extensionAddFilter(text: string, fields: any, array: any[] ){
+        let whereClauses = [],
+            clause: WherePredicate;
+
+        for (let tempValue of array) {
+            if(tempValue.hasOwnProperty(fields.idField)){
+                whereClauses.push(neon.query.where(fields.idField, '=', tempValue[fields.idField]));
+            }
+            else{
+                whereClauses.push(neon.query.where(fields.idField, '=', tempValue));
+            }
+        }
+
+        clause = neon.query.or.apply(neon.query, whereClauses);
+        this.filterId.next(this.id);
+        this.filterIds.push(this.filterId.getValue());
+        this.addFilter(text, clause, fields.idField, fields.database, fields.table);
+    }
+
+    /**
+     * Called when a filter has been removed
+     *
+     */
     removeFilter() {
         if (this.filterIds) {
-            this.filterService.removeFilters(this.messenger, this.filterIds,
-                () => this.filterId.next(undefined));
-
+            this.removeAllFilters(this.filterService.getFilters());
             this.filterIds = [];
-           // console.log(this.completeTrigger)
+            this.queryBarSetup();
+            this.refreshVisualization();
         }
     }
 
@@ -332,7 +416,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
      * @return {boolean}
      * @private
      */
-    filterExists(field: string, value: string) {
+    private filterExists(field: string, value: string) {
         return this.filters.some((existingFilter) => {
             return field === existingFilter.field && value === existingFilter.value;
         });
@@ -374,7 +458,8 @@ export class QueryBarComponent  extends BaseNeonComponent {
     subGetBindings(bindings: any) {
         bindings.idField = this.options.idField.columnName;
         bindings.filterField = this.options.filterField.columnName;
-        bindings.multiFilter = this.options.multiFilter;
+        bindings.extendedFilter = this.options.extendedFilter;
+        bindings.extensionFields = this.options.extensionFields;
     }
 
     /**
@@ -383,6 +468,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
      * @override
      */
     postInit() {
+        this.removeFilter();
         this.executeQueryChain();
     }
 

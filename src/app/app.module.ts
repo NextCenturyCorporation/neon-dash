@@ -85,7 +85,7 @@ import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
 import { MatAutocompleteModule } from '@angular/material';
-import {QueryBarComponent} from './components/query-bar/query-bar.component';
+import { QueryBarComponent } from './components/query-bar/query-bar.component';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */

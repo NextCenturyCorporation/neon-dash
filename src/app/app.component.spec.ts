@@ -73,6 +73,10 @@ import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-gr
 import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 import { MatAutocompleteModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
+import {
+    ThumbnailContractedDetailsComponent,
+    ThumbnailExpandedDetailsComponent
+} from './components/thumbnail-grid/thumbnail-details.component';
 
 describe('App: NeonGtd', () => {
     let fixture: ComponentFixture<AppComponent>;
@@ -106,6 +110,8 @@ describe('App: NeonGtd', () => {
                 SimpleFilterComponent,
                 StackedTimelineComponent,
                 TextCloudComponent,
+                ThumbnailContractedDetailsComponent,
+                ThumbnailExpandedDetailsComponent,
                 ThumbnailGridComponent,
                 TimelineComponent,
                 UnsharedFilterComponent,
