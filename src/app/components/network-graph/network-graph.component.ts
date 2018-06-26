@@ -440,7 +440,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     getFilterText(myFilter) {
         return myFilter.prettyField + ' = ' + myFilter.value;
 =======
-        
+
 >>>>>>> adc3d24ac74ecb4843f8596adeadfabfce83deac
     }
 

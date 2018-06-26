@@ -966,14 +966,14 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         const action = (this.shouldZoom(e)
             ? this.mapObject.zoomIn()
             : this.overlay()
-        )
+        );
     }
-    
+
     mouseWheelDown(e) {
         const action = (this.shouldZoom(e)
             ? this.mapObject.zoomOut()
             : this.overlay()
-        )
+        );
     }
 
     shouldZoom(e) {
@@ -986,8 +986,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
     overlay() {
         this.mapOverlayRef.nativeElement.style.zIndex = '1000';
         setTimeout(
-            () => { this.mapOverlayRef.nativeElement.style.zIndex = '-1' }, 
-            1400); 
+            () => { this.mapOverlayRef.nativeElement.style.zIndex = '-1'; },
+            1400);
     }
 
     getOverlayText() {
