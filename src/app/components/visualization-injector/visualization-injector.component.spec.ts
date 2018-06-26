@@ -15,7 +15,7 @@
  */
 import { TestBed, inject } from '@angular/core/testing';
 import { ComponentFactoryResolver } from '@angular/core';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
@@ -47,8 +47,8 @@ import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.compone
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
 import { QueryBarComponent } from '../query-bar/query-bar.component';
-import {ThumbnailContractedDetailsComponent, ThumbnailExpandedDetailsComponent} from '../thumbnail-grid/thumbnail-details.component';
-import {MatAutocompleteModule} from '@angular/material';
+import { ThumbnailContractedDetailsComponent, ThumbnailExpandedDetailsComponent } from '../thumbnail-grid/thumbnail-details.component';
+import { MatAutocompleteModule } from '@angular/material';
 
 describe('Component: VisualizationInjector', () => {
 

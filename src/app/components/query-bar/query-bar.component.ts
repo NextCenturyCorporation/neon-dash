@@ -41,7 +41,7 @@ export class QueryBarOptions extends BaseNeonOptions {
     public idField: FieldMetaData;
     public filterField: FieldMetaData;
     public extendedFilter: boolean;
-    public extensionFields : any[];
+    public extensionFields: any[];
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -277,7 +277,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
 
         //filters query text
         let values = this.queryArray.filter((value) =>
-                value[this.options.filterField.columnName].toLowerCase().indexOf(text.toLowerCase()) === 0),
+            value[this.options.filterField.columnName].toLowerCase().indexOf(text.toLowerCase()) === 0),
             clause: WherePredicate;
 
         clause = neon.query.where(this.options.filterField.columnName, '=', text);
@@ -300,31 +300,31 @@ export class QueryBarComponent  extends BaseNeonComponent {
      *
      * @private
      */
-    private extensionFilter(text: string, fields: any, array: any[] ){
-            if(fields.database !== this.options.database.name && fields.table !== this.options.table.name){
-                  let query = new neon.query.Query().selectFrom(fields.database, fields.table),
-                      queryFields = [fields.idField, fields.filterField],
-                      connection = this.connectionService.getActiveConnection(),
-                      execute = connection.executeQuery(query, null),
-                      tempArray = [],
-                      queryClauses = [];
-                    for (let value of array) {
-                        queryClauses.push(neon.query.where(fields.filterField, '=', value[this.options.idField.columnName]));
-                    }
-
-                    query.withFields(queryFields).where(neon.query.or.apply(query, queryClauses));
-                    execute.done((response) => {
-                        if (response && response.data && response.data.length) {
-                            response.data.forEach((d) => {
-                                let value = neonUtilities.deepFind(d, fields.idField);
-                                if (typeof value !== 'undefined') {
-                                    tempArray.push(value);
-                                }
-                            });
-                        }
-                        this.extensionAddFilter(text, fields, tempArray);
-                    });
+    private extensionFilter(text: string, fields: any, array: any[]) {
+        if (fields.database !== this.options.database.name && fields.table !== this.options.table.name) {
+            let query = new neon.query.Query().selectFrom(fields.database, fields.table),
+                queryFields = [fields.idField, fields.filterField],
+                connection = this.connectionService.getActiveConnection(),
+                execute = connection.executeQuery(query, null),
+                tempArray = [],
+                queryClauses = [];
+            for (let value of array) {
+                queryClauses.push(neon.query.where(fields.filterField, '=', value[this.options.idField.columnName]));
             }
+
+            query.withFields(queryFields).where(neon.query.or.apply(query, queryClauses));
+            execute.done((response) => {
+                if (response && response.data && response.data.length) {
+                    response.data.forEach((d) => {
+                        let value = neonUtilities.deepFind(d, fields.idField);
+                        if (typeof value !== 'undefined') {
+                            tempArray.push(value);
+                        }
+                    });
+                }
+                this.extensionAddFilter(text, fields, tempArray);
+            });
+        }
 
         this.extensionAddFilter(text, fields, array);
 
@@ -376,15 +376,14 @@ export class QueryBarComponent  extends BaseNeonComponent {
      *
      * @private
      */
-    private extensionAddFilter(text: string, fields: any, array: any[] ){
+    private extensionAddFilter(text: string, fields: any, array: any[]) {
         let whereClauses = [],
             clause: WherePredicate;
 
         for (let tempValue of array) {
-            if(tempValue.hasOwnProperty(fields.idField)){
+            if (tempValue.hasOwnProperty(fields.idField)) {
                 whereClauses.push(neon.query.where(fields.idField, '=', tempValue[fields.idField]));
-            }
-            else{
+            } else {
                 whereClauses.push(neon.query.where(fields.idField, '=', tempValue));
             }
         }

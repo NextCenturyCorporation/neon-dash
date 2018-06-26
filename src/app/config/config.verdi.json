@@ -303,7 +303,7 @@
                     "nodeField": "subject",
                     "linkField": "object",
                     "showOnlyFiltered": true,
-                    "filterFields": ["hypothesis", "provenance"],
+                    "filterFields": ["subject", "object", "predicate", "provenance"],
                     "isReified": true,
                     "isDirected": true
                 },

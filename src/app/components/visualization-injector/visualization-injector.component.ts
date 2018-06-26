@@ -36,7 +36,7 @@ import { VisualizationService } from '../../services/visualization.service';
 import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
 import { QueryBarComponent } from '../query-bar/query-bar.component';
-import {ThumbnailContractedDetailsComponent, ThumbnailExpandedDetailsComponent} from '../thumbnail-grid/thumbnail-details.component';
+import { ThumbnailContractedDetailsComponent, ThumbnailExpandedDetailsComponent } from '../thumbnail-grid/thumbnail-details.component';
 
 @Component({
     selector: 'app-visualization-injector',

@@ -50,7 +50,7 @@ import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.compone
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
 import { QueryBarComponent } from '../query-bar/query-bar.component';
-import {ThumbnailContractedDetailsComponent, ThumbnailExpandedDetailsComponent} from '../thumbnail-grid/thumbnail-details.component';
+import { ThumbnailContractedDetailsComponent, ThumbnailExpandedDetailsComponent } from '../thumbnail-grid/thumbnail-details.component';
 
 describe('Component: VisualizationContainer', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
