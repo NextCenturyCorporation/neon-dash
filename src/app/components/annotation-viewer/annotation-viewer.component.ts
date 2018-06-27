@@ -475,7 +475,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 if (document.annotationStartIndex[index] === 0 && index === 0) {
                     let part = new Part();
                     part.text = documentText.substring(
-                        document.annotationEndIndex[index] + this.offset, document.annotationStartIndex[index + 1]);
+                        document.annotationEndIndex[index] + this.offset - 1, document.annotationStartIndex[index + 1]);
                     part.annotation = false;
                     document.parts.push(annotationsPartList[index]);
                     document.parts.push(part);
