@@ -110,6 +110,7 @@ describe('Component: Aggregation', () => {
         expect(component.options.scaleMaxY).toEqual('');
         expect(component.options.scaleMinX).toEqual('');
         expect(component.options.scaleMinY).toEqual('');
+        expect(component.options.showHeat).toEqual(false);
         expect(component.options.sortByAggregation).toEqual(false);
         expect(component.options.timeFill).toEqual(false);
         expect(component.options.type).toEqual('line');
@@ -160,8 +161,8 @@ describe('Component: Aggregation', () => {
             name: 'Scatter (Points)',
             type: 'scatter-xy'
         }, {
-            name: 'Table (Aggregations)',
-            type: 'table'
+            name: 'Text List (Aggregations)',
+            type: 'list'
         }]);
 
         // Element Refs
@@ -1162,7 +1163,7 @@ describe('Component: Aggregation', () => {
         expect(component.getXFieldLabel('scatter')).toEqual('X Field');
         expect(component.getXFieldLabel('scatter-xy')).toEqual('X Field');
 
-        expect(component.getXFieldLabel('table')).toEqual('Row Field');
+        expect(component.getXFieldLabel('list')).toEqual('Row Field');
     });
 
     it('goToNextPage does not update page or call updateActiveData if lastPage is true', () => {
@@ -2109,6 +2110,8 @@ describe('Component: Aggregation', () => {
             aggregationField: 'Test Size Field',
             aggregationLabel: 'sum',
             dataLength: 0,
+            groups: [],
+            sort: 'x',
             xAxis: 'number',
             xList: [],
             yAxis: 'number',
@@ -2122,6 +2125,8 @@ describe('Component: Aggregation', () => {
             x: 3,
             y: 4
         }];
+        component.legendGroups = ['a', 'b'];
+        component.options.sortByAggregation = true;
         component.xList = [1, 3];
         component.yList = [2, 4];
 
@@ -2137,6 +2142,8 @@ describe('Component: Aggregation', () => {
             aggregationField: 'Test Size Field',
             aggregationLabel: 'sum',
             dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
             yAxis: 'number',
@@ -2158,6 +2165,8 @@ describe('Component: Aggregation', () => {
             aggregationField: undefined,
             aggregationLabel: undefined,
             dataLength: 0,
+            groups: [],
+            sort: 'x',
             xAxis: 'number',
             xList: [],
             yAxis: 'number',
@@ -2171,6 +2180,7 @@ describe('Component: Aggregation', () => {
             x: 3,
             y: 4
         }];
+        component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
 
@@ -2186,6 +2196,8 @@ describe('Component: Aggregation', () => {
             aggregationField: undefined,
             aggregationLabel: undefined,
             dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'x',
             xAxis: 'number',
             xList: [1, 3],
             yAxis: 'number',
@@ -2206,6 +2218,8 @@ describe('Component: Aggregation', () => {
             aggregationField: undefined,
             aggregationLabel: undefined,
             dataLength: 0,
+            groups: [],
+            sort: 'x',
             xAxis: 'date',
             xList: [],
             yAxis: 'date',
@@ -2219,6 +2233,7 @@ describe('Component: Aggregation', () => {
             x: 3,
             y: 4
         }];
+        component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
 
@@ -2234,6 +2249,8 @@ describe('Component: Aggregation', () => {
             aggregationField: undefined,
             aggregationLabel: undefined,
             dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'x',
             xAxis: 'date',
             xList: [1, 3],
             yAxis: 'date',
@@ -2254,6 +2271,8 @@ describe('Component: Aggregation', () => {
             aggregationField: undefined,
             aggregationLabel: undefined,
             dataLength: 0,
+            groups: [],
+            sort: 'x',
             xAxis: 'string',
             xList: [],
             yAxis: 'string',
@@ -2267,6 +2286,7 @@ describe('Component: Aggregation', () => {
             x: 3,
             y: 4
         }];
+        component.legendGroups = ['a', 'b'];
         component.xList = [1, 3];
         component.yList = [2, 4];
 
@@ -2282,6 +2302,8 @@ describe('Component: Aggregation', () => {
             aggregationField: undefined,
             aggregationLabel: undefined,
             dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'x',
             xAxis: 'string',
             xList: [1, 3],
             yAxis: 'string',
@@ -2356,6 +2378,67 @@ describe('Component: Aggregation', () => {
         component.responseData = [{}, {}];
 
         expect(component.showFooterContainer()).toEqual(true);
+    });
+
+    it('showHeaderContainer does return expected boolean', () => {
+        component.options.type = 'bar-h';
+
+        expect(component.showHeaderContainer()).toEqual(false);
+
+        component.legendGroups = ['a'];
+
+        expect(component.showHeaderContainer()).toEqual(false);
+
+        component.legendGroups = ['a', 'b'];
+
+        expect(component.showHeaderContainer()).toEqual(true);
+
+        component.legendGroups = [];
+        component.filters = [{
+            id: 'idA',
+            field: 'field1',
+            label: '',
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }];
+
+        expect(component.showHeaderContainer()).toEqual(true);
+    });
+
+    it('showHeaderContainer does always return true if type is line or scatter', () => {
+        component.options.type = 'line';
+        expect(component.showHeaderContainer()).toEqual(true);
+        component.options.type = 'line-xy';
+        expect(component.showHeaderContainer()).toEqual(true);
+        component.options.type = 'scatter';
+        expect(component.showHeaderContainer()).toEqual(true);
+        component.options.type = 'scatter-xy';
+        expect(component.showHeaderContainer()).toEqual(true);
+    });
+
+    it('showLegend does return expected boolean', () => {
+        component.options.type = 'bar-h';
+
+        expect(component.showLegend()).toEqual(false);
+
+        component.legendGroups = ['a'];
+
+        expect(component.showLegend()).toEqual(false);
+
+        component.legendGroups = ['a', 'b'];
+
+        expect(component.showLegend()).toEqual(true);
+    });
+
+    it('showLegend does always return true if type is line or scatter', () => {
+        component.options.type = 'line';
+        expect(component.showLegend()).toEqual(true);
+        component.options.type = 'line-xy';
+        expect(component.showLegend()).toEqual(true);
+        component.options.type = 'scatter';
+        expect(component.showLegend()).toEqual(true);
+        component.options.type = 'scatter-xy';
+        expect(component.showLegend()).toEqual(true);
     });
 
     it('subcomponentRequestsDeselect does update selectedArea', () => {
@@ -2585,6 +2668,7 @@ describe('Component: Aggregation', () => {
             scaleMaxY: '',
             scaleMinX: '',
             scaleMinY: '',
+            showHeat: false,
             sortByAggregation: false,
             timeFill: false,
             type: 'line',
@@ -2610,6 +2694,7 @@ describe('Component: Aggregation', () => {
         component.options.scaleMaxY = '33';
         component.options.scaleMinX = '22';
         component.options.scaleMinY = '11';
+        component.options.showHeat = true;
         component.options.sortByAggregation = true;
         component.options.timeFill = true;
         component.options.type = 'line-xy';
@@ -2636,6 +2721,7 @@ describe('Component: Aggregation', () => {
             scaleMaxY: '33',
             scaleMinX: '22',
             scaleMinY: '11',
+            showHeat: true,
             sortByAggregation: true,
             timeFill: true,
             type: 'line-xy',
@@ -2819,18 +2905,99 @@ describe('Component: Aggregation', () => {
         });
     }));
 
-    it('does show filter-container if filters is empty array', () => {
-        let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
-        expect(filterContainer).not.toBeNull();
+    it('does show filter-container and legend if type is line', async(() => {
+        component.options.type = 'line-xy';
 
-        let legend = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container app-legend'));
-        expect(legend).not.toBeNull();
+        // Force the component to update all its ngFor and ngIf elements.
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
 
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-        expect(bodyContainer).not.toBeNull();
-    });
+            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
+            expect(filterContainer).not.toBeNull();
+
+            let legend = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container app-legend'));
+            expect(legend).not.toBeNull();
+
+            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
+            expect(bodyContainer).not.toBeNull();
+        });
+    }));
+
+    it('does show filter-container and legend if type is scatter', async(() => {
+        component.options.type = 'scatter-xy';
+
+        // Force the component to update all its ngFor and ngIf elements.
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+
+            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
+            expect(filterContainer).not.toBeNull();
+
+            let legend = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container app-legend'));
+            expect(legend).not.toBeNull();
+
+            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
+            expect(bodyContainer).not.toBeNull();
+        });
+    }));
+
+    it('does not show filter-container with no filters or legend if type is not line or scatter', async(() => {
+        component.options.type = 'bar-h';
+
+        // Force the component to update all its ngFor and ngIf elements.
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+
+            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
+            expect(filterContainer).toBeNull();
+
+            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
+            expect(bodyContainer).toBeNull();
+        });
+    }));
+
+    it('does not show filter-container if legendGroups is single-element array', async(() => {
+        component.options.type = 'bar-h';
+        component.legendGroups = ['a'];
+
+        // Force the component to update all its ngFor and ngIf elements.
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+
+            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
+            expect(filterContainer).toBeNull();
+
+            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
+            expect(bodyContainer).toBeNull();
+        });
+    }));
+
+    it('does show filter-container and legend if legendGroups is multiple-element array', async(() => {
+        component.options.type = 'bar-h';
+        component.legendGroups = ['a', 'b'];
+
+        // Force the component to update all its ngFor and ngIf elements.
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+
+            let filterContainer = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container'));
+            expect(filterContainer).not.toBeNull();
+
+            let legend = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container app-legend'));
+            expect(legend).not.toBeNull();
+
+            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
+            expect(bodyContainer).not.toBeNull();
+        });
+    }));
 
     it('does show filter-container and filter-reset elements if filters is non-empty array', async(() => {
+        component.options.type = 'bar-h';
         component.filters = [{
             id: 'idA',
             field: 'field1',
@@ -2854,10 +3021,7 @@ describe('Component: Aggregation', () => {
             expect(filterContainer).not.toBeNull();
 
             let legend = fixture.debugElement.query(By.css('mat-sidenav-container .filter-container app-legend'));
-            expect(legend).not.toBeNull();
-
-            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
-            expect(bodyContainer).not.toBeNull();
+            expect(legend).toBeNull();
 
             let filterResets = fixture.debugElement.queryAll(By.css('mat-sidenav-container .filter-container .filter-reset'));
             expect(filterResets.length).toEqual(2);
@@ -2877,6 +3041,9 @@ describe('Component: Aggregation', () => {
 
             expect(filterIcons[0].nativeElement.textContent).toEqual('close');
             expect(filterIcons[1].nativeElement.textContent).toEqual('close');
+
+            let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container.with-filter'));
+            expect(bodyContainer).not.toBeNull();
         });
     }));
 
@@ -3053,7 +3220,7 @@ describe('Component: Aggregation', () => {
             expect(options[6].getLabel()).toEqual('Pie (Aggregations)');
             expect(options[7].getLabel()).toEqual('Scatter (Aggregations)');
             expect(options[8].getLabel()).toEqual('Scatter (Points)');
-            expect(options[9].getLabel()).toEqual('Table (Aggregations)');
+            expect(options[9].getLabel()).toEqual('Text List (Aggregations)');
 
             expect(selects[1].componentInstance.disabled).toEqual(false);
             expect(selects[1].componentInstance.placeholder).toEqual('Database');
@@ -3255,6 +3422,7 @@ describe('Component: Aggregation with config', () => {
             { provide: 'scaleMaxY', useValue: '33' },
             { provide: 'scaleMinX', useValue: '22' },
             { provide: 'scaleMinY', useValue: '11' },
+            { provide: 'showHeat', useValue: true },
             { provide: 'sortByAggregation', useValue: true },
             { provide: 'timeFill', useValue: true },
             { provide: 'type', useValue: 'scatter' },
@@ -3305,6 +3473,7 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.scaleMaxY).toEqual('33');
         expect(component.options.scaleMinX).toEqual('22');
         expect(component.options.scaleMinY).toEqual('11');
+        expect(component.options.showHeat).toEqual(true);
         expect(component.options.newType).toEqual('scatter');
         expect(component.options.sortByAggregation).toEqual(true);
         expect(component.options.timeFill).toEqual(true);
@@ -3375,7 +3544,7 @@ describe('Component: Aggregation with config', () => {
             expect(options[7].selected).toEqual(true);
             expect(options[8].getLabel()).toEqual('Scatter (Points)');
             expect(options[8].selected).toEqual(false);
-            expect(options[9].getLabel()).toEqual('Table (Aggregations)');
+            expect(options[9].getLabel()).toEqual('Text List (Aggregations)');
             expect(options[9].selected).toEqual(false);
 
             expect(selects[1].componentInstance.disabled).toEqual(false);
@@ -3564,6 +3733,7 @@ describe('Component: Aggregation with XY config', () => {
             { provide: 'scaleMaxY', useValue: '33' },
             { provide: 'scaleMinX', useValue: '22' },
             { provide: 'scaleMinY', useValue: '11' },
+            { provide: 'showHeat', useValue: true },
             { provide: 'sortByAggregation', useValue: true },
             { provide: 'timeFill', useValue: true },
             { provide: 'type', useValue: 'scatter-xy' },
@@ -3638,7 +3808,7 @@ describe('Component: Aggregation with XY config', () => {
             expect(options[7].selected).toEqual(false);
             expect(options[8].getLabel()).toEqual('Scatter (Points)');
             expect(options[8].selected).toEqual(true);
-            expect(options[9].getLabel()).toEqual('Table (Aggregations)');
+            expect(options[9].getLabel()).toEqual('Text List (Aggregations)');
             expect(options[9].selected).toEqual(false);
 
             expect(selects[1].componentInstance.disabled).toEqual(false);
@@ -3810,6 +3980,7 @@ describe('Component: Aggregation with date config', () => {
             { provide: 'scaleMaxY', useValue: '33' },
             { provide: 'scaleMinX', useValue: '22' },
             { provide: 'scaleMinY', useValue: '11' },
+            { provide: 'showHeat', useValue: true },
             { provide: 'sortByAggregation', useValue: true },
             { provide: 'timeFill', useValue: true },
             { provide: 'type', useValue: 'scatter' },
@@ -3884,7 +4055,7 @@ describe('Component: Aggregation with date config', () => {
             expect(options[7].selected).toEqual(true);
             expect(options[8].getLabel()).toEqual('Scatter (Points)');
             expect(options[8].selected).toEqual(false);
-            expect(options[9].getLabel()).toEqual('Table (Aggregations)');
+            expect(options[9].getLabel()).toEqual('Text List (Aggregations)');
             expect(options[9].selected).toEqual(false);
 
             expect(selects[1].componentInstance.disabled).toEqual(false);

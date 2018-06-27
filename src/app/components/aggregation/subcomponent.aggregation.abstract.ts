@@ -30,6 +30,7 @@ export interface AggregationSubcomponentOptions {
     scaleMaxY: string;
     scaleMinX: string;
     scaleMinY: string;
+    showHeat: boolean;
     yPercentage: number;
 }
 

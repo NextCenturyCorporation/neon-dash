@@ -33,6 +33,7 @@ class TestAggregationSubcomponentOptions implements AggregationSubcomponentOptio
     public scaleMaxY: string = '';
     public scaleMinX: string = '';
     public scaleMinY: string = '';
+    public showHeat: boolean = false;
     public yPercentage: number = 0.3;
 }
 

@@ -139,21 +139,21 @@
                 </mat-button-toggle-group>
                 <p></p>
 
-                <span class="toggle-text">Grid Lines</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.hideGridLines"
-                    (ngModelChange)="refreshVisualization()">
+                <span class="toggle-text" *ngIf="isScaled(options.type)">Grid Lines</span>
+                <mat-button-toggle-group *ngIf="isScaled(options.type)" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.hideGridLines" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">Show</mat-button-toggle>
                     <mat-button-toggle [value]="true">Hide</mat-button-toggle>
                 </mat-button-toggle-group>
-                <p></p>
+                <p *ngIf="isScaled(options.type)"></p>
 
-                <span class="toggle-text">Grid Ticks</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.hideGridTicks"
-                    (ngModelChange)="refreshVisualization()">
+                <span class="toggle-text" *ngIf="isScaled(options.type)">Grid Ticks</span>
+                <mat-button-toggle-group *ngIf="isScaled(options.type)" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.hideGridTicks" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">Show</mat-button-toggle>
                     <mat-button-toggle [value]="true">Hide</mat-button-toggle>
                 </mat-button-toggle-group>
-                <p></p>
+                <p *ngIf="isScaled(options.type)"></p>
 
                 <mat-form-field>
                     <mat-select placeholder="Group Field" [(ngModel)]="options.groupField" required="false"
@@ -202,21 +202,21 @@
                 </mat-button-toggle-group>
                 <p *ngIf="options.type == 'line' || options.type == 'line-xy'"></p>
 
-                <span class="toggle-text">Log X Scale</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.logScaleX"
-                    (ngModelChange)="refreshVisualization()">
+                <span class="toggle-text" *ngIf="isScaled(options.type)">Log X Scale</span>
+                <mat-button-toggle-group *ngIf="isScaled(options.type)" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.logScaleX" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                 </mat-button-toggle-group>
-                <p></p>
+                <p *ngIf="isScaled(options.type)"></p>
 
-                <span class="toggle-text">Log Y Scale</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.logScaleY"
-                    (ngModelChange)="refreshVisualization()">
+                <span class="toggle-text" *ngIf="isScaled(options.type)">Log Y Scale</span>
+                <mat-button-toggle-group *ngIf="isScaled(options.type)" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.logScaleY" (ngModelChange)="refreshVisualization()">
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                 </mat-button-toggle-group>
-                <p></p>
+                <p *ngIf="isScaled(options.type)"></p>
 
                 <span class="toggle-text">Save Previously Seen</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.savePrevious"
@@ -261,6 +261,33 @@
                 </div>
                 <p></p>
 
+                <span class="toggle-text" *ngIf="options.type === 'list'">Show Heated List</span>
+                <mat-button-toggle-group *ngIf="options.type === 'list'" class="neon-button-toggle-group-small"
+                    [(ngModel)]="options.showHeat" (ngModelChange)="handleChangeData()">
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p *ngIf="options.type === 'list'"></p>
+
+                <span class="toggle-text" *ngIf="options.type === 'list' && options.sortByAggregation">Show Heat with Manual Scales</span>
+                <div mat-fill class="flex center" *ngIf="options.type === 'list' && options.sortByAggregation">
+                    <mat-form-field>
+                        <input matInput placeholder="Heat Scale Min" [(ngModel)]="options.scaleMinY" required="false"
+                            (keyup.enter)="refreshVisualization()">
+                    </mat-form-field>
+
+                    <mat-form-field>
+                        <input matInput placeholder="Heat Scale Max" [(ngModel)]="options.scaleMaxY" required="false"
+                            (keyup.enter)="refreshVisualization()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below"
+                        (click)="refreshVisualization()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
+                <p *ngIf="options.type === 'list' && options.sortByAggregation"></p>
+
                 <span class="toggle-text" *ngIf="!isContinuous(options.type)">Sort By</span>
                 <mat-button-toggle-group *ngIf="!isContinuous(options.type)" class="neon-button-toggle-group-small"
                     [(ngModel)]="options.sortByAggregation" (ngModelChange)="handleChangeData()">
@@ -269,7 +296,7 @@
                 </mat-button-toggle-group>
                 <p *ngIf="!isContinuous(options.type)"></p>
 
-                <mat-form-field>
+                <mat-form-field *ngIf="isScaled(options.type)">
                     <mat-select placeholder="Y-Axis Max Width" [(ngModel)]="options.yPercentage" required="true"
                         (ngModelChange)="refreshVisualization()">
                         <mat-option [value]="0.1">10%</mat-option>
@@ -279,7 +306,7 @@
                         <mat-option [value]="0.5">50%</mat-option>
                     </mat-select>
                 </mat-form-field>
-                <p></p>
+                <p *ngIf="isScaled(options.type)"></p>
 
                 <app-unshared-filter [(meta)]="options" (unsharedFilterChanged)="handleChangeData()"
                     (unsharedFilterRemoved)="handleChangeData()"></app-unshared-filter>
@@ -294,8 +321,9 @@
         <mat-spinner></mat-spinner>
     </div>
 
-    <div class="filter-container">
-        <app-legend [activeList]="legendActiveGroups" [fieldNames]="legendFields" (itemSelected)="handleLegendItemSelected($event)"></app-legend>
+    <div class="filter-container" *ngIf="showHeaderContainer()">
+        <app-legend *ngIf="showLegend()" [activeList]="legendActiveGroups" [fieldNames]="legendFields"
+            (itemSelected)="handleLegendItemSelected($event)"></app-legend>
 
         <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
             <span class="filter-label" [matTooltip]="getFilterText(filter)" tooltip-position="below">{{ filter.label || 'Filter' }}</span>
@@ -307,7 +335,7 @@
         </div>
     </div>
 
-    <div class="body-container with-filter" [class.with-footer]="showFooterContainer()">
+    <div class="body-container" [class.with-filter]="showHeaderContainer()" [class.with-footer]="showFooterContainer()">
         <div class="chart-container" [style.minHeight.px]="minimumDimensions.height" [style.minWidth.px]="minimumDimensions.width"
             (click)="stopEventPropagation($event)">
 
@@ -317,7 +345,7 @@
         </div>
     </div>
 
-    <div #footerContainer class="footer" *ngIf="showFooterContainer()">
+    <div class="footer" *ngIf="showFooterContainer()">
         <div class="footer-button-container">
             <button mat-raised-button [disabled]="page == 1" class="pagination-button previous-button" color="primary"
                 (click)="goToPreviousPage()">
