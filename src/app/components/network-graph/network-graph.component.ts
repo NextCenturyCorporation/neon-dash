@@ -389,7 +389,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     removeFilter() {
-        
+        //
     }
 
     onQuerySuccess(response): void {
