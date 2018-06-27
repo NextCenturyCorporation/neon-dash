@@ -666,7 +666,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return this.options;
     }
 
-    isLegendNeeded() {
+    legendIsNeeded() {
         let edgeColorField = this.options.edgeColorField.columnName;
         return (edgeColorField !== '' && edgeColorField);
     }
