@@ -50,6 +50,7 @@ export class SampleOptions extends BaseNeonOptions {
     // TODO Add and remove properties as needed.  Do NOT assign defaults to fields or else they will override updateFieldsOnTableChanged.
     public sampleOptionalField: FieldMetaData;
     public sampleRequiredField: FieldMetaData;
+    public sortDescending: boolean;
     public subcomponentType: string;
     public subcomponentTypes: string[] = ['Impl1', 'Impl2'];
 
@@ -60,6 +61,7 @@ export class SampleOptions extends BaseNeonOptions {
      */
     onInit() {
         // Set the non-fields config bindings for the visualization.
+        this.sortDescending = this.injector.get('sortDescending', false);
         this.subcomponentType = this.injector.get('subcomponentType', 'Impl1');
         // TODO Add or remove properties as needed.
     }
@@ -631,6 +633,8 @@ export class SampleComponent extends BaseNeonComponent implements OnInit, OnDest
         // TODO Add or remove fields and properties as needed.
         bindings.sampleOptionalField = this.options.sampleOptionalField.columnName;
         bindings.sampleRequiredField = this.options.sampleRequiredField.columnName;
+        bindings.sortDescending = this.options.sortDescending;
+        bindings.subcomponentType = this.options.subcomponentType;
     }
 
     // TODO If you don't need to do anything here (like update properties), just remove this function and use the superclass one!

@@ -19,7 +19,7 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../app/datase
 import { DatasetService } from '../../app/services/dataset.service';
 import { NeonGTDConfig } from '../../app/neon-gtd-config';
 
-export class DatasetMock extends DatasetService {
+export class DatasetServiceMock extends DatasetService {
     public static COLOR_FIELD = new FieldMetaData('testColorField', 'Test Color Field', false, 'string');
     public static DATE_FIELD = new FieldMetaData('testDateField', 'Test Date Field', false, 'date');
     public static FILTER_FIELD = new FieldMetaData('testFilterField', 'Test Filter Field', false, 'string');
@@ -29,42 +29,69 @@ export class DatasetMock extends DatasetService {
     public static LINK_FIELD = new FieldMetaData('testLinkField', 'Test Link Field', false, 'string');
     public static LONGITUDE_FIELD = new FieldMetaData('testLongitudeField', 'Test Longitude Field', false, 'float');
     public static NAME_FIELD = new FieldMetaData('testNameField', 'Test Name Field', false, 'string');
+    public static RELATION_FIELD_A = new FieldMetaData('testRelationFieldA', 'Test Relation Field A', false, 'string');
+    public static RELATION_FIELD_B = new FieldMetaData('testRelationFieldB', 'Test Relation Field B', false, 'string');
     public static SIZE_FIELD = new FieldMetaData('testSizeField', 'Test Size Field', false, 'float');
     public static SORT_FIELD = new FieldMetaData('testSortField', 'Test Sort Field', false, 'string');
+    public static TEXT_FIELD = new FieldMetaData('testTextField', 'Test Text Field', false, 'string');
     public static TYPE_FIELD = new FieldMetaData('testTypeField', 'Test Type Field', false, 'string');
     public static ES_ID_FIELD = new FieldMetaData('_id', '_id', false, '');
 
     // Keep in alphabetical order.
     public static FIELDS: FieldMetaData[] = [
-        DatasetMock.COLOR_FIELD,
-        DatasetMock.DATE_FIELD,
-        DatasetMock.FILTER_FIELD,
-        DatasetMock.GROUP_FIELD,
-        DatasetMock.ID_FIELD,
-        DatasetMock.LATITUDE_FIELD,
-        DatasetMock.LINK_FIELD,
-        DatasetMock.LONGITUDE_FIELD,
-        DatasetMock.NAME_FIELD,
-        DatasetMock.SIZE_FIELD,
-        DatasetMock.SORT_FIELD,
-        DatasetMock.TYPE_FIELD,
-        DatasetMock.ES_ID_FIELD
+        DatasetServiceMock.COLOR_FIELD,
+        DatasetServiceMock.DATE_FIELD,
+        DatasetServiceMock.FILTER_FIELD,
+        DatasetServiceMock.GROUP_FIELD,
+        DatasetServiceMock.ID_FIELD,
+        DatasetServiceMock.LATITUDE_FIELD,
+        DatasetServiceMock.LINK_FIELD,
+        DatasetServiceMock.LONGITUDE_FIELD,
+        DatasetServiceMock.NAME_FIELD,
+        DatasetServiceMock.RELATION_FIELD_A,
+        DatasetServiceMock.RELATION_FIELD_B,
+        DatasetServiceMock.SIZE_FIELD,
+        DatasetServiceMock.SORT_FIELD,
+        DatasetServiceMock.TEXT_FIELD,
+        DatasetServiceMock.TYPE_FIELD,
+        DatasetServiceMock.ES_ID_FIELD
     ];
 
     public static TABLES: TableMetaData[] = [
-        new TableMetaData('testTable1', 'Test Table 1', DatasetMock.FIELDS),
-        new TableMetaData('testTable2', 'Test Table 2', DatasetMock.FIELDS)
+        new TableMetaData('testTable1', 'Test Table 1', DatasetServiceMock.FIELDS),
+        new TableMetaData('testTable2', 'Test Table 2', DatasetServiceMock.FIELDS)
     ];
 
     public static DATABASES: DatabaseMetaData[] = [
-        new DatabaseMetaData('testDatabase1', 'Test Database 1', DatasetMock.TABLES),
-        new DatabaseMetaData('testDatabase2', 'Test Database 2', DatasetMock.TABLES)
+        new DatabaseMetaData('testDatabase1', 'Test Database 1', DatasetServiceMock.TABLES),
+        new DatabaseMetaData('testDatabase2', 'Test Database 2', DatasetServiceMock.TABLES)
     ];
 
     constructor() {
         super(new NeonGTDConfig());
         this.setActiveDataset({
-            databases: DatasetMock.DATABASES
+            databases: DatasetServiceMock.DATABASES,
+            relations: [{
+                members: [{
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testRelationFieldA'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testRelationFieldA'
+                }]
+            }, {
+                members: [{
+                    database: 'testDatabase1',
+                    table: 'testTable1',
+                    field: 'testRelationFieldB'
+                }, {
+                    database: 'testDatabase2',
+                    table: 'testTable2',
+                    field: 'testRelationFieldB'
+                }]
+            }]
         });
     }
 }
