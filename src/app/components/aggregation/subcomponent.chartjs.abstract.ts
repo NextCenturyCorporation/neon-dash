@@ -837,7 +837,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
         if (!doNotReplace) {
             this.dataDeselect(chart);
         }
-        this.dataSelect(chart, [items[0]]);
+        this.dataSelect(chart, items);
         this.listener.subcomponentRequestsFilter(labelValue, doNotReplace);
     }
 

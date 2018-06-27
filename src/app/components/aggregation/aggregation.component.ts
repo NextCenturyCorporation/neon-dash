@@ -46,6 +46,7 @@ import { ChartJsHistogramSubcomponent } from './subcomponent.chartjs.histogram';
 import { ChartJsLineSubcomponent } from './subcomponent.chartjs.line';
 import { ChartJsPieSubcomponent } from './subcomponent.chartjs.pie';
 import { ChartJsScatterSubcomponent } from './subcomponent.chartjs.scatter';
+import { ListSubcomponent } from './subcomponent.list';
 import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
 
@@ -81,6 +82,7 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
     public scaleMaxY: string;
     public scaleMinX: string;
     public scaleMinY: string;
+    public showHeat: boolean;
     public sortByAggregation: boolean;
     public timeFill: boolean;
     public type: string;
@@ -106,6 +108,7 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
         this.scaleMaxY = this.injector.get('scaleMaxY', '');
         this.scaleMinX = this.injector.get('scaleMinX', '');
         this.scaleMinY = this.injector.get('scaleMinY', '');
+        this.showHeat = this.injector.get('showHeat', false);
         this.sortByAggregation = this.injector.get('sortByAggregation', false);
         this.timeFill = this.injector.get('timeFill', false);
         this.type = this.injector.get('type', 'line');
@@ -220,8 +223,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         name: 'Scatter (Points)',
         type: 'scatter-xy'
     }, {
-        name: 'Table (Aggregations)',
-        type: 'table'
+        name: 'Text List (Aggregations)',
+        type: 'list'
     }];
 
     public legendActiveGroups: any[] = [];
@@ -271,25 +274,25 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             // If the new filter is unique, add the filter to the existing filters in both neon and the visualization.
             if (!this.findMatchingFilters(filter.field, filter.label, filter.value).length) {
                 this.addVisualizationFilter(filter);
-                this.addNeonFilter(true, filter, neonFilter);
+                this.addNeonFilter(!this.options.ignoreSelf, filter, neonFilter);
             }
         } else {
             if (this.filters.length === 1) {
                 // If we have a single existing filter, keep the ID and replace the old filter with the new filter.
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
-                this.replaceNeonFilter(true, filter, neonFilter);
+                this.replaceNeonFilter(!this.options.ignoreSelf, filter, neonFilter);
             } else if (this.filters.length > 1) {
                 // If we have multiple existing filters, remove all the old filters and add the new filter once done.
                 // Use concat to copy the filter list.
                 this.removeAllFilters([].concat(this.filters), () => {
                     this.filters = [filter];
-                    this.addNeonFilter(true, filter, neonFilter);
+                    this.addNeonFilter(!this.options.ignoreSelf, filter, neonFilter);
                 });
             } else {
                 // If we don't have an existing filter, add the new filter.
                 this.filters = [filter];
-                this.addNeonFilter(true, filter, neonFilter);
+                this.addNeonFilter(!this.options.ignoreSelf, filter, neonFilter);
             }
         }
     }
@@ -557,7 +560,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             case 'doughnut':
             case 'pie':
                 return 'Slice Field';
-            case 'table':
+            case 'list':
                 return 'Row Field';
             case 'line':
             case 'line-xy':
@@ -664,6 +667,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             case 'line-xy':
                 this.subcomponentObject = new ChartJsLineSubcomponent(this.options, this, this.subcomponentHtml);
                 break;
+            case 'list':
+                this.subcomponentObject = new ListSubcomponent(this.options, this, this.subcomponentHtml);
+                break;
             case 'pie':
                 this.subcomponentObject = new ChartJsPieSubcomponent(this.options, this, this.subcomponentHtml);
                 break;
@@ -700,8 +706,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             case 'bar-h':
             case 'bar-v':
             case 'doughnut':
+            case 'list':
             case 'pie':
-            case 'table':
             default:
                 return false;
         }
@@ -724,8 +730,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             case 'scatter-xy':
                 return true;
             case 'doughnut':
+            case 'list':
             case 'pie':
-            case 'table':
             default:
                 return false;
         }
@@ -798,6 +804,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 y: isXY ? item[this.options.yField.columnName] : item._aggregation
             };
         };
+
+        if (!isXY) {
+            response.data = response.data.filter((item) => {
+                return item._aggregation !== 'NaN';
+            });
+        }
 
         if (this.options.xField.type === 'date') {
             // Transform date data.
@@ -954,6 +966,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 aggregationField: isXY ? undefined : this.options.aggregationField.prettyName,
                 aggregationLabel: isXY ? undefined : this.options.aggregation,
                 dataLength: this.activeData.length,
+                groups: this.legendGroups,
+                sort: this.options.sortByAggregation ? 'y' : 'x',
                 xAxis: findAxisType(this.options.xField.type),
                 xList: this.xList,
                 yAxis: !isXY ? 'number' : findAxisType(this.options.yField.type),
@@ -994,12 +1008,37 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns whether any components are shown in the footer-container.
+     * Returns whether any components are shown in the footer container.
      *
      * @return {boolean}
      */
     showFooterContainer(): boolean {
         return this.activeData.length < this.responseData.length;
+    }
+
+    /**
+     * Returns whether any components are shown in the header container.
+     *
+     * @return {boolean}
+     */
+    showHeaderContainer(): boolean {
+        return this.showLegend() || !!this.getCloseableFilters().length;
+    }
+
+    /**
+     * Returns whether the legend is shown.
+     *
+     * @return {boolean}
+     */
+    showLegend(): boolean {
+        // Always show the legend for a line or scatter chart in order to avoid a bug resizing the selected area within the chart.
+        /* tslint:disable:prefer-switch */
+        if (this.options.type === 'line' || this.options.type === 'line-xy' || this.options.type === 'scatter' ||
+            this.options.type === 'scatter-xy') {
+            return true;
+        }
+        /* tslint:enable:prefer-switch */
+        return this.legendGroups.length > 1;
     }
 
     /**
@@ -1157,6 +1196,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         bindings.scaleMaxY = this.options.scaleMaxY;
         bindings.scaleMinX = this.options.scaleMinX;
         bindings.scaleMinY = this.options.scaleMinY;
+        bindings.showHeat = this.options.showHeat;
         bindings.sortByAggregation = this.options.sortByAggregation;
         bindings.timeFill = this.options.timeFill;
         bindings.type = this.options.type;
