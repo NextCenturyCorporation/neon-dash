@@ -87,6 +87,7 @@ describe('Component: MediaViewer', () => {
         expect(component.options.url).toEqual('');
         expect(component.options.idField).toEqual(component.emptyField);
         expect(component.options.linkField).toEqual(component.emptyField);
+        expect(component.options.linkFields).toEqual([]);
         expect(component.options.nameField).toEqual(component.emptyField);
         expect(component.options.typeField).toEqual(component.emptyField);
     });
@@ -100,10 +101,10 @@ describe('Component: MediaViewer', () => {
         component.options.database = new DatabaseMetaData('testDatabase');
         component.options.table = new TableMetaData('testTable');
         component.options.id = 'testId';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.nameField = new FieldMetaData('testNameField');
-        component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.nameField = DatasetServiceMock.NAME_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
 
         let query = new neon.query.Query()
             .selectFrom('testDatabase', 'testTable')
@@ -163,8 +164,8 @@ describe('Component: MediaViewer', () => {
     });
 
     it('getExportFields does return expected array', (() => {
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
 
         expect(component.getExportFields()).toEqual([{
             columnName: 'testIdField',
@@ -178,7 +179,7 @@ describe('Component: MediaViewer', () => {
     it('getFiltersToIgnore does return empty array if no filters are set', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
 
         expect(component.getFiltersToIgnore()).toEqual(null);
     });
@@ -200,11 +201,11 @@ describe('Component: MediaViewer', () => {
 
     it('getFiltersToIgnore does return null if no filters are set matching database/table', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testIdField1', '!=', null), 'testFilterName1');
+            neon.query.where('testIdField', '!=', null), 'testFilterName');
 
         component.options.database = DatasetServiceMock.DATABASES[1];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
 
         // Test matching database but not table.
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -250,10 +251,10 @@ describe('Component: MediaViewer', () => {
         component.options.id = 'testId';
         expect(component.isValidQuery()).toBe(false);
 
-        component.options.idField = new FieldMetaData('testIdField');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
         expect(component.isValidQuery()).toBe(false);
 
-        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         expect(component.isValidQuery()).toBe(true);
     }));
 
@@ -276,10 +277,10 @@ describe('Component: MediaViewer', () => {
 
     it('onQuerySuccess does set expected properties if response returns data', () => {
         component.errorMessage = 'testErrorMessage';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.nameField = new FieldMetaData('testNameField');
-        component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.nameField = DatasetServiceMock.NAME_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
 
         component.onQuerySuccess({
             data: [{
@@ -301,10 +302,10 @@ describe('Component: MediaViewer', () => {
 
     it('onQuerySuccess does set expected properties if response failed', () => {
         component.errorMessage = 'testErrorMessage';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.nameField = new FieldMetaData('testNameField');
-        component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.nameField = DatasetServiceMock.NAME_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.documentArray = [{
             border: '',
             link: 'testLinkValue',
@@ -332,10 +333,10 @@ describe('Component: MediaViewer', () => {
 
     it('onQuerySuccess does set expected properties if response returns data with multiple links', () => {
         component.errorMessage = 'testErrorMessage';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.nameField = new FieldMetaData('testNameField');
-        component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.nameField = DatasetServiceMock.NAME_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
 
         component.onQuerySuccess({
             data: [{
@@ -362,10 +363,10 @@ describe('Component: MediaViewer', () => {
 
     it('onQuerySuccess does set expected properties if response returns data with multiple links/names/types', () => {
         component.errorMessage = 'testErrorMessage';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.nameField = new FieldMetaData('testNameField');
-        component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.nameField = DatasetServiceMock.NAME_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
 
         component.onQuerySuccess({
             data: [{
@@ -392,8 +393,8 @@ describe('Component: MediaViewer', () => {
 
     it('onQuerySuccess does ignore empty links', () => {
         component.errorMessage = 'testErrorMessage';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.linkPrefix = 'prefix/';
 
         component.onQuerySuccess({
@@ -409,8 +410,8 @@ describe('Component: MediaViewer', () => {
 
     it('onQuerySuccess does add border', () => {
         component.errorMessage = 'testErrorMessage';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.border = 'grey';
 
         component.onQuerySuccess({
@@ -424,15 +425,15 @@ describe('Component: MediaViewer', () => {
         expect(component.documentArray).toEqual([{
             border: 'grey',
             link: 'testLinkValue',
-            name: 'testLinkValue',
+            name: 'Test Link Field 1',
             type: ''
         }]);
     });
 
     it('onQuerySuccess does use linkPrefix', () => {
         component.errorMessage = 'testErrorMessage';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.linkPrefix = 'prefix/';
 
         component.onQuerySuccess({
@@ -446,15 +447,15 @@ describe('Component: MediaViewer', () => {
         expect(component.documentArray).toEqual([{
             border: '',
             link: 'prefix/testLinkValue',
-            name: 'testLinkValue',
+            name: 'Test Link Field 1',
             type: ''
         }]);
     });
 
     it('onQuerySuccess does use typeMap', () => {
         component.errorMessage = 'testErrorMessage';
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.typeMap = {
             avi: 'vid',
             jpg: 'img',
@@ -472,22 +473,22 @@ describe('Component: MediaViewer', () => {
         expect(component.documentArray).toEqual([{
             border: '',
             link: 'video.avi',
-            name: 'video.avi',
+            name: 'Test Link Field 1',
             type: 'vid'
         }, {
             border: '',
             link: 'image.jpg',
-            name: 'image.jpg',
+            name: 'Test Link Field 2',
             type: 'img'
         }, {
             border: '',
             link: 'alpha.txt',
-            name: 'alpha.txt',
+            name: 'Test Link Field 3',
             type: 'txt'
         }, {
             border: '',
             link: 'other.xyz',
-            name: 'other.xyz',
+            name: 'Test Link Field 4',
             type: ''
         }]);
     });
@@ -519,19 +520,23 @@ describe('Component: MediaViewer', () => {
         expect(bindings).toEqual({
             idField: '',
             linkField: '',
+            linkFields: [],
             nameField: '',
             typeField: '',
             border: '',
+            delimiter: ',',
             linkPrefix: '',
             resize: true,
             typeMap: {}
         });
 
-        component.options.idField = new FieldMetaData('testIdField');
-        component.options.linkField = new FieldMetaData('testLinkField');
-        component.options.nameField = new FieldMetaData('testNameField');
-        component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkField = DatasetServiceMock.LINK_FIELD;
+        component.options.linkFields = [new FieldMetaData('testLinkField1'), new FieldMetaData('testLinkField2')];
+        component.options.nameField = DatasetServiceMock.NAME_FIELD;
+        component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.border = 'grey';
+        component.options.delimiter = ';';
         component.options.linkPrefix = '/prefix';
         component.options.resize = false;
         component.options.typeMap = {
@@ -542,9 +547,11 @@ describe('Component: MediaViewer', () => {
         expect(bindings).toEqual({
             idField: 'testIdField',
             linkField: 'testLinkField',
+            linkFields: ['testLinkField1', 'testLinkField2'],
             nameField: 'testNameField',
             typeField: 'testTypeField',
             border: 'grey',
+            delimiter: ';',
             linkPrefix: '/prefix',
             resize: false,
             typeMap: {
@@ -764,7 +771,6 @@ describe('Component: MediaViewer', () => {
     })));
 
     it('does show single image tag according to the image type', async(inject([DomSanitizer], (sanitizer) => {
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         component.documentArray = [{
             border: '',
@@ -779,12 +785,11 @@ describe('Component: MediaViewer', () => {
             let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
             expect(media.length).toBe(1);
             expect(media[0].nativeElement.innerHTML).toContain('<img');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="' + component.options.linkField.prettyName + '"');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
         });
     })));
 
     it('does show multiple image tags in tabs according to the image type', async(inject([DomSanitizer], (sanitizer) => {
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         component.documentArray = [{
             border: '',
@@ -806,7 +811,7 @@ describe('Component: MediaViewer', () => {
             let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
             expect(media.length).toBe(1);
             expect(media[0].nativeElement.innerHTML).toContain('<img');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="' + component.options.linkField.prettyName + '"');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
         });
     })));
 
@@ -966,10 +971,10 @@ describe('Component: MediaViewer with config', () => {
             jpg: 'img'
         });
         expect(component.options.url).toEqual('https://kafka.apache.org/intro');
-        expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field', false, 'string'));
-        expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field', false, 'string'));
-        expect(component.options.nameField).toEqual(new FieldMetaData('testNameField', 'Test Name Field', false, 'string'));
-        expect(component.options.typeField).toEqual(new FieldMetaData('testTypeField', 'Test Type Field', false, 'string'));
+        expect(component.options.idField).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(component.options.linkField).toEqual(DatasetServiceMock.LINK_FIELD);
+        expect(component.options.nameField).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component.options.typeField).toEqual(DatasetServiceMock.TYPE_FIELD);
     });
 
     it('does show header in toolbar with title from config', (() => {

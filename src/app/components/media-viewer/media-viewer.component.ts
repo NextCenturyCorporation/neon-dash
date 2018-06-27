@@ -45,9 +45,11 @@ import * as neon from 'neon-framework';
  */
 export class MediaViewerOptions extends BaseNeonOptions {
     public border: string;
+    public delimiter: string;
     public id: string;
     public idField: FieldMetaData;
     public linkField: FieldMetaData;
+    public linkFields: FieldMetaData[];
     public linkPrefix: string;
     public nameField: FieldMetaData;
     public resize: boolean;
@@ -62,6 +64,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
      */
     onInit() {
         this.border = this.injector.get('border', '');
+        this.delimiter = this.injector.get('delimiter', ',');
         this.id = this.injector.get('id', '');
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.resize = this.injector.get('resize', true);
@@ -76,9 +79,14 @@ export class MediaViewerOptions extends BaseNeonOptions {
      */
     updateFieldsOnTableChanged() {
         this.idField = this.findFieldObject('idField');
-        this.linkField = this.findFieldObject('linkField');
         this.nameField = this.findFieldObject('nameField');
         this.typeField = this.findFieldObject('typeField');
+
+        this.linkField = this.findFieldObject('linkField');
+        this.linkFields = this.findFieldObjects('linkFields');
+        if (this.linkField.columnName && !this.linkFields.length) {
+            this.linkFields.push(this.linkField);
+        }
     }
 }
 
@@ -100,24 +108,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
 
-    // Must have a ViewChild with a set function because the element is in an ngIf/ngFor.
-    private frame: ElementRef;
-    private image: ElementRef;
-    private video: ElementRef;
-
-    @ViewChild('frame') set frameViewChild(frame: ElementRef) {
-        this.frame = frame;
-        this.subOnResizeStop();
-    }
-    @ViewChild('image') set imageViewChild(image: ElementRef) {
-        this.image = image;
-        this.subOnResizeStop();
-    }
-    @ViewChild('video') set videoViewChild(video: ElementRef) {
-        this.video = video;
-        this.subOnResizeStop();
-    }
-
     public options: MediaViewerOptions;
 
     public documentArray: {
@@ -130,6 +120,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     public isLoadingMedia: boolean = false;
     public previousId: string = '';
     public mediaTypes: any = MediaTypes;
+    public selectedTabIndex: number = 0;
 
     constructor(
         activeGridService: ActiveGridService,
@@ -170,7 +161,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     createQuery(): neon.query.Query {
         let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
 
-        let fields = [this.options.idField.columnName, this.options.linkField.columnName];
+        let fields = [this.options.idField.columnName].concat(this.options.linkFields.map((linkField) => {
+            return linkField.columnName;
+        }));
 
         if (this.options.nameField.columnName) {
             fields.push(this.options.nameField.columnName);
@@ -180,12 +173,12 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             fields.push(this.options.typeField.columnName);
         }
 
-        let whereClauses = [
-            neon.query.where(this.options.idField.columnName, '=', this.options.id),
-            neon.query.where(this.options.linkField.columnName, '!=', null)
-        ];
+        let idFilter = neon.query.where(this.options.idField.columnName, '=', this.options.id);
+        let wherePredicates = [idFilter].concat(this.options.linkFields.map((linkField) => {
+            return neon.query.where(linkField.columnName, '!=', null);
+        }));
 
-        return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
+        return query.withFields(fields).where(neon.query.and.apply(query, wherePredicates));
     }
 
     /**
@@ -237,10 +230,12 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         let fields = [{
             columnName: this.options.idField.columnName,
             prettyName: this.options.idField.prettyName
-        }, {
-            columnName: this.options.linkField.columnName,
-            prettyName: this.options.linkField.prettyName
-        }];
+        }].concat(this.options.linkFields.map((linkField) => {
+            return {
+                columnName: linkField.columnName,
+                prettyName: linkField.prettyName
+            };
+        }));
 
         if (this.options.nameField.columnName) {
             fields.push({
@@ -309,6 +304,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         return (message) => {
             if (message.database === this.options.database.name && message.table === this.options.table.name) {
                 this.options.id = Array.isArray(message.id) ? message.id[0] : message.id;
+                this.options.linkField = this.options.findField(message.metadata) || this.emptyField;
                 if (this.options.id !== this.previousId) {
                     this.documentArray = [];
                     this.previousId = this.options.id;
@@ -337,8 +333,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     isValidQuery(): boolean {
+        let validLinkFields = this.options.linkFields.length ? this.options.linkFields.every((linkField) => {
+            return !!linkField.columnName;
+        }) : false;
         return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name && this.options.id &&
-            this.options.idField && this.options.idField.columnName && this.options.linkField && this.options.linkField.columnName);
+            this.options.idField && this.options.idField.columnName && validLinkFields);
     }
 
     /**
@@ -349,28 +348,56 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     onQuerySuccess(response: any) {
         this.documentArray = [];
+        this.selectedTabIndex = 0;
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.errorMessage = '';
                 this.isLoadingMedia = true;
 
-                let links = neonUtilities.deepFind(response.data[0], this.options.linkField.columnName) || '';
-                let names = this.options.nameField.columnName ? neonUtilities.deepFind(response.data[0],
-                    this.options.nameField.columnName) || '' : '';
-                let types = this.options.typeField.columnName ? neonUtilities.deepFind(response.data[0],
-                    this.options.typeField.columnName) || '' : '';
+                let names = [];
+                let types = [];
 
-                this.retreiveMedia(
-                    Array.isArray(links) ? links : (links.toString().search(/,/g) > -1 ? links.toString().split(',') : [links]),
-                    Array.isArray(names) ? names : (names.toString().search(/,/g) > -1 ? names.toString().split(',') : names),
-                    Array.isArray(types) ? types : (types.toString().search(/,/g) > -1 ? types.toString().split(',') : types)
-                );
+                if (this.options.nameField.columnName) {
+                    names = neonUtilities.deepFind(response.data[0], this.options.nameField.columnName) || '';
+                    names = this.transformToStringArray(names, this.options.delimiter);
+                }
+
+                if (this.options.typeField.columnName) {
+                    types = neonUtilities.deepFind(response.data[0], this.options.typeField.columnName) || '';
+                    types = this.transformToStringArray(types, this.options.delimiter);
+                }
+
+                this.options.linkFields.forEach((linkField) => {
+                    let links = neonUtilities.deepFind(response.data[0], linkField.columnName) || '';
+                    links = this.transformToStringArray(links, this.options.delimiter);
+                    links.forEach((link, index) => {
+                        let fieldWithIndex = linkField.prettyName + ' ' + (index + 1);
+                        let typeFromConfig = this.options.typeMap[link.substring(link.lastIndexOf('.') + 1).toLowerCase()] || '';
+                        if (link) {
+                            this.documentArray.push({
+                                // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                                border: this.options.border,
+                                link: this.options.linkPrefix + link,
+                                name: (names.length > 1 ? (index < names.length ? names[index] : '') : names[0]) || fieldWithIndex,
+                                type: (types.length > 1 ? (index < types.length ? types[index] : '') : types[0]) || typeFromConfig
+                            });
+                        }
+                    });
+
+                    if (links.length && this.options.linkField.columnName === linkField.columnName) {
+                        this.selectedTabIndex = this.documentArray.length - links.length;
+                    }
+                });
+
+                this.isLoadingMedia = false;
             } else {
                 this.errorMessage = 'No Data';
-                this.refreshVisualization();
             }
+
+            this.refreshVisualization();
         } catch (e) {
+            console.error(e);
             this.isLoadingMedia = false;
             this.errorMessage = 'Error';
             this.refreshVisualization();
@@ -393,6 +420,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     refreshVisualization() {
         this.changeDetection.detectChanges();
+        this.subOnResizeStop();
     }
 
     /**
@@ -403,35 +431,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     removeFilter() {
         // Do nothing.
-    }
-
-    /**
-     * Retrieves the media pages recursively using the given array of links.  Refreshes the visualization once finished.
-     *
-     * @arg {array} links
-     * @arg {array|string} names
-     * @arg {array|string} types
-     * @private
-     */
-    private retreiveMedia(links, names, types) {
-        if (!links.length) {
-            this.isLoadingMedia = false;
-            this.refreshVisualization();
-            return;
-        }
-
-        if (links[0]) {
-            let typeFromConfig = this.options.typeMap[links[0].substring(links[0].lastIndexOf('.') + 1).toLowerCase()];
-            // TODO Add a boolean borderField with border options like:  true = red, false = yellow
-            this.documentArray.push({
-                border: this.options.border,
-                link: this.options.linkPrefix + links[0],
-                name: (Array.isArray(names) ? names[0] : names) || links[0],
-                type: (Array.isArray(types) ? types[0] : types) || typeFromConfig || ''
-            });
-        }
-
-        this.retreiveMedia(links.slice(1), Array.isArray(names) ? names.slice(1) : names, Array.isArray(types) ? types.slice(1) : types);
     }
 
     /**
@@ -452,9 +451,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     subGetBindings(bindings: any) {
         bindings.idField = this.options.idField.columnName;
         bindings.linkField = this.options.linkField.columnName;
+        bindings.linkFields = this.options.linkFields.map((linkField) => {
+            return linkField.columnName;
+        });
         bindings.nameField = this.options.nameField.columnName;
         bindings.typeField = this.options.typeField.columnName;
         bindings.border = this.options.border;
+        bindings.delimiter = this.options.delimiter;
         bindings.linkPrefix = this.options.linkPrefix;
         bindings.resize = this.options.resize;
         bindings.typeMap = this.options.typeMap;
@@ -479,55 +482,68 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     subOnResizeStop() {
-        let refs = this.getElementRefs();
+        if (!this.visualization) {
+            return;
+        }
+
+        let frames = this.visualization.nativeElement.querySelectorAll('.frame');
+        let images = this.visualization.nativeElement.querySelectorAll('.image');
+        let videos = this.visualization.nativeElement.querySelectorAll('.video');
 
         if (!this.options.resize) {
-            if (this.frame) {
-                this.frame.nativeElement.style.maxHeight = '';
-                this.frame.nativeElement.style.maxWidth = '';
-            }
-            if (this.image) {
-                this.image.nativeElement.style.maxHeight = '';
-                this.image.nativeElement.style.maxWidth = '';
-            }
-            if (this.video) {
-                this.video.nativeElement.style.maxHeight = '';
-                this.video.nativeElement.style.maxWidth = '';
-            }
+            frames.forEach((frame) => {
+                frame.style.maxHeight = '';
+                frame.style.maxWidth = '';
+            });
+            images.forEach((image) => {
+                image.style.maxHeight = '';
+                image.style.maxWidth = '';
+            });
+            videos.forEach((video) => {
+                video.style.maxHeight = '';
+                video.style.maxWidth = '';
+            });
             return;
         }
 
-        if (!refs.visualization) {
-            return;
-        }
+        frames.forEach((frame) => {
+            frame.style.height = (this.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
+                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
+            frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
+                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
+            frame.style.width = (this.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
+                this.MEDIA_PADDING) + 'px';
+            frame.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
+                this.MEDIA_PADDING) + 'px';
+        });
 
-        if (this.frame) {
-            this.frame.nativeElement.style.height = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
+        images.forEach((image) => {
+            image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
                 this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.frame.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.frame.nativeElement.style.width = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
+            image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
                 this.MEDIA_PADDING) + 'px';
-            this.frame.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
-                this.MEDIA_PADDING) + 'px';
-        }
+        });
 
-        if (this.image) {
-            this.image.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
+        videos.forEach((video) => {
+            video.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
                 this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.image.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
+            video.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
                 this.MEDIA_PADDING) + 'px';
-        }
-
-        if (this.video) {
-            this.video.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.video.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
-                this.MEDIA_PADDING) + 'px';
-        }
+        });
     }
 
     sanitize(url) {
         return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
+
+    /**
+     * Transforms the given string or string array into a string array and returns the array.
+     *
+     * @arg {string|string[]} input
+     * @return {string[]}
+     */
+    transformToStringArray(input, delimiter: string) {
+        return input ? (Array.isArray(input) ? input : (input.toString().indexOf(delimiter) > -1 ? input.toString().split(',') :
+            [input])) : [];
     }
 }

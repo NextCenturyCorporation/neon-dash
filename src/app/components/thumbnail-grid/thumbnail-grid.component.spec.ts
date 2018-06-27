@@ -1611,12 +1611,13 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy.calls.count()).toEqual(0);
 
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.idMetadata = 'testIdMetadata';
 
         component.selectGridItem({
             testIdField: 'id1'
         });
         expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['id1']);
+        expect(spy.calls.argsFor(0)).toEqual(['id1', 'testIdMetadata']);
     });
 
     it('selectGridItem does call createFilter if filterField is set', () => {
@@ -1781,6 +1782,7 @@ describe('Component: ThumbnailGrid', () => {
             cropAndScale: '',
             filterField: '',
             idField: '',
+            idMetadata: '',
             linkField: '',
             linkPrefix: '',
             nameField: '',
@@ -1809,6 +1811,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.ascending = true;
         component.options.border = 'grey';
         component.options.cropAndScale = 'both';
+        component.options.idMetadata = 'testIdMetadata';
         component.options.linkPrefix = 'prefix/';
         component.options.openOnMouseClick = false;
         component.options.textMap = {
@@ -1829,6 +1832,7 @@ describe('Component: ThumbnailGrid', () => {
             cropAndScale: 'both',
             filterField: 'testFilterField',
             idField: 'testIdField',
+            idMetadata: 'testIdMetadata',
             linkField: 'testLinkField',
             linkPrefix: 'prefix/',
             nameField: 'testNameField',
