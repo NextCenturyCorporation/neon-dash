@@ -81,6 +81,7 @@ class Node {
 interface ArrowProperties {
     to: boolean;
 }
+
 interface ArrowUpdate {
     id: string;
     arrows: ArrowProperties;
@@ -391,7 +392,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     addFilter(myFilter, operator: string) {
-        if (!this.filters.length) {
+        if (!this.filters.length || this.filters.length === 0) {
             this.filters.push(myFilter);
             let whereClause = neon.query.where(myFilter.field, operator, myFilter.value);
             this.addNeonFilter(true, myFilter, whereClause);
@@ -408,8 +409,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     removeFilter() {
-<<<<<<< HEAD
-        this.filters = []; //EDIT: all filter ID's are identical so you can not remove just one (must remove all)
+        //EDIT: all filter ID's are identical so you can not remove just one (must remove all)
+        this.filters = [];
+        //EDIT: meaning that you also have to reset the legend
+        this.disabledSet = [] as [string[]];
+        this.updateLegend();
     }
 
     filterIsUnique(myFilter) {
@@ -439,9 +443,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     getFilterText(myFilter) {
         return myFilter.prettyField + ' = ' + myFilter.value;
-=======
+    }
 
->>>>>>> adc3d24ac74ecb4843f8596adeadfabfce83deac
+    setupFilters() {
+        //
     }
 
     onQuerySuccess(response): void {
@@ -462,10 +467,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.graphData.edges.update(graphProperties.edges);
     }
 
-    setupFilters() {
-        //
-    }
-
     updateData() {
         //
     }
@@ -473,25 +474,27 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     selectGraph(graphSelector) {
         this.graphType = graphSelector;
         /*
-      for (const group of this.chartGroups) {
-        for (const chart of group.charts) {
-          if (chart.selector === chartSelector) {
-            this.chart = chart;
-            return;
-          }
+        for (const group of this.chartGroups) {
+            for (const chart of group.charts) {
+                if (chart.selector === chartSelector) {
+                    this.chart = chart;
+                    return;
+                }
+            }
         }
-      }*/
+        */
     }
 
     select(data) {
         //console.log('Item clicked', data);
     }
+
     /*
-        setColorScheme(name) {
-            /*
-          this.selectedColorScheme = name;
-          this.colorScheme = this.colorSets.find(s => s.name === name);*/
-    // }
+    setColorScheme(name) {
+        this.selectedColorScheme = name;
+        this.colorScheme = this.colorSets.find(s => s.name === name);
+     }
+    */
 
     onLegendLabelClick(entry) {
         //console.log('Legend clicked', entry);
@@ -532,11 +535,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     toNodes(datafield) {
         let nodes = [];
         /*
-                datafield.array.forEach(element => {
-                    if(nodes.indexOf(element.id) < 0) {
-                        nodes.push(element.id, element.name)
-                    }
-                });*/
+        datafield.array.forEach(element => {
+            if(nodes.indexOf(element.id) < 0) {
+                nodes.push(element.id, element.name)
+            }
+        });
+        */
     }
 
     private createReifiedGraphProperties() {
@@ -577,7 +581,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             linkName = this.options.linkField.columnName,
             nodeName = this.options.nodeField.columnName,
             edgeColorField = this.options.edgeColorField.columnName;
-
         let nodeColor = this.options.nodeColor,
             edgeColor = this.options.edgeColor,
             linkColor = this.options.linkColor;
@@ -663,6 +666,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return this.options;
     }
 
+    isLegendNeeded() {
+        let edgeColorField = this.options.edgeColorField.columnName;
+        return (edgeColorField !== '' && edgeColorField);
+    }
+
     /**
      * Updates the network graph legend.
      */
@@ -695,7 +703,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.addFilter(myFilter, '!=');
             this.disabledSet.push([field.columnName, value]);
         } else {
-            //find right filter
+            //find the filter to remove
             let index;
             for (let i = 0; i < this.filters.length; i++) {
                 let currentFilter = this.filters[i];
@@ -710,7 +718,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.removeLocalFilterFromLocalAndNeon(removeFilter, true, true);
             this.disabledSet = [] as [string[]]; //resets the legend
 
-            //used to remove one filter
+            //used to reset the clicked legend option
             // this.disabledSet = this.disabledSet.filter((set) => {
             //     return !(set[0] === fieldName && set[1] === value);
             // }) as [string[]];
@@ -739,7 +747,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 prettyField: field.prettyName,
                 value: nodeName.toLowerCase() //EDIT: should not need to make this to lowercase
             };
-
             this.addFilter(myFilter, '=');
         }
     }
