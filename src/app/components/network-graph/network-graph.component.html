@@ -106,7 +106,7 @@
     </div>
 
     <div class=" legend-container ">
-        <div *ngIf="isLegendNeeded()">
+        <div *ngIf="legendIsNeeded()">
             <app-legend [fieldNames]="colorByFields"
                 [disabledSets]="disabledSet"
                 (itemSelected)="legendItemSelected($event)"></app-legend>
