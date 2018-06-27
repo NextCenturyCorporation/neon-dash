@@ -52,6 +52,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
+    public idMetadata: string;
     public linkField: FieldMetaData;
     public linkPrefix: string;
     public nameField: FieldMetaData;
@@ -77,6 +78,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.border = this.injector.get('border', '');
         this.cropAndScale = this.injector.get('cropAndScale', '') || '';
         this.id = this.injector.get('id', '');
+        this.idMetadata = this.injector.get('idMetadata', '');
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
         this.scaleThumbnails = this.injector.get('scaleThumbnails', false); // Deprecated - Use cropAndScale = 'scale'
@@ -694,7 +696,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     selectGridItem(item) {
         if (this.options.idField.columnName) {
-            this.publishSelectId(item[this.options.idField.columnName]);
+            this.publishSelectId(item[this.options.idField.columnName], this.options.idMetadata);
         }
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
@@ -753,6 +755,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.ascending = this.options.ascending;
         bindings.border = this.options.border;
         bindings.cropAndScale = this.options.cropAndScale;
+        bindings.idMetadata = this.options.idMetadata;
         bindings.linkPrefix = this.options.linkPrefix;
         bindings.openOnMouseClick = this.options.openOnMouseClick;
         bindings.textMap = this.options.textMap;
