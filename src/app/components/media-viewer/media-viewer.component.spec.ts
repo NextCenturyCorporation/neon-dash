@@ -811,58 +811,13 @@ describe('Component: MediaViewer', () => {
         });
     })));
 
-    it('does show single video tag according to the video type', async(inject([DomSanitizer], (sanitizer) => {
-        let vidSrc = 'https://youtu.be/Mxesac55Puo';
+    it('does show single iframe tag according to the video type', async(inject([DomSanitizer], (sanitizer) => {
+        let vidSrc = 'https://www.youtube.com/embed/ByziC1-u0IE';
         component.documentArray = [{
             border: '',
             link: vidSrc,
             name: 'testName',
             type: 'vid'
-        }];
-        fixture.detectChanges();
-
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<video');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
-        });
-    })));
-
-    it('does show multiple video tags in tabs according to the video type', async(inject([DomSanitizer], (sanitizer) => {
-        let vidSrc = 'https://youtu.be/Mxesac55Puo';
-        component.documentArray = [{
-            border: '',
-            link: vidSrc,
-            name: 'testName',
-            type: 'vid'
-        }, {
-            border: '',
-            link: vidSrc,
-            name: 'testName',
-            type: 'vid'
-        }];
-        fixture.detectChanges();
-
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
-            expect(tabs.length).toBe(2);
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<video');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
-        });
-    })));
-
-    it('does show single iframe tag according to the empty type', async(inject([DomSanitizer], (sanitizer) => {
-        let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
-        component.documentArray = [{
-            border: '',
-            link: docSrc,
-            name: 'testName',
-            type: ''
         }];
         fixture.detectChanges();
 
@@ -871,7 +826,7 @@ describe('Component: MediaViewer', () => {
             let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
             expect(media.length).toBe(1);
             expect(media[0].nativeElement.innerHTML).toContain('<iframe');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
         });
     })));
 
