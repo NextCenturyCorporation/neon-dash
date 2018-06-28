@@ -29,7 +29,6 @@ import * as neon from 'neon-framework';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
 import { ThumbnailGridComponent } from './thumbnail-grid.component';
-import { ThumbnailContractedDetailsComponent } from './thumbnail-details.component';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -43,6 +42,7 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatAutocompleteModule } from '@angular/material';
+import {ThumbnailContractedDetailsComponent, ThumbnailExpandedDetailsComponent} from './thumbnail-details.component';
 
 describe('Component: ThumbnailGrid', () => {
     let component: ThumbnailGridComponent;
@@ -51,6 +51,8 @@ describe('Component: ThumbnailGrid', () => {
 
     initializeTestBed({
         declarations: [
+            ThumbnailContractedDetailsComponent,
+            ThumbnailExpandedDetailsComponent,
             ThumbnailGridComponent,
             ThumbnailContractedDetailsComponent,
             ExportControlComponent,
@@ -71,9 +73,9 @@ describe('Component: ThumbnailGrid', () => {
         imports: [
             AppMaterialModule,
             BrowserAnimationsModule,
+            FormsModule,
             MatAutocompleteModule,
-            ReactiveFormsModule,
-            FormsModule
+            ReactiveFormsModule
         ]
     });
 
@@ -83,37 +85,37 @@ describe('Component: ThumbnailGrid', () => {
         fixture.detectChanges();
     });
 
-    it('does have expected class options properties', () => {
+   it('does have expected class options properties', () => {
         expect(component.options.ascending).toEqual(false);
-        // expect(component.options.border).toEqual('');
-        // expect(component.options.cropAndScale).toEqual('');
-        // expect(component.options.id).toEqual('');
-        // expect(component.options.linkPrefix).toEqual('');
-        // expect(component.options.ignoreSelf).toEqual(false);
-        // expect(component.options.openOnMouseClick).toEqual(true);
-        // expect(component.options.styleClass).toEqual('');
-        // expect(component.options.textMap).toEqual({});
-        // expect(component.options.typeMap).toEqual({});
+        expect(component.options.border).toEqual('');
+        expect(component.options.cropAndScale).toEqual('');
+        expect(component.options.id).toEqual('');
+        expect(component.options.linkPrefix).toEqual('');
+        expect(component.options.ignoreSelf).toEqual(false);
+        expect(component.options.openOnMouseClick).toEqual(true);
+        expect(component.options.styleClass).toEqual('');
+        expect(component.options.textMap).toEqual({});
+        expect(component.options.typeMap).toEqual({});
 
-        // expect(component.options.categoryField).toEqual(component.emptyField);
-        // expect(component.options.filterField).toEqual(component.emptyField);
-        // expect(component.options.idField).toEqual(component.emptyField);
-        // expect(component.options.linkField).toEqual(component.emptyField);
-        // expect(component.options.nameField).toEqual(component.emptyField);
-        // expect(component.options.objectIdField).toEqual(component.emptyField);
-        // expect(component.options.objectNameField).toEqual(component.emptyField);
-        // expect(component.options.percentField).toEqual(component.emptyField);
-        // expect(component.options.predictedNameField).toEqual(component.emptyField);
-        // expect(component.options.sortField).toEqual(component.emptyField);
-        // expect(component.options.typeField).toEqual(component.emptyField);
+        expect(component.options.categoryField).toEqual(component.emptyField);
+        expect(component.options.filterField).toEqual(component.emptyField);
+        expect(component.options.idField).toEqual(component.emptyField);
+        expect(component.options.linkField).toEqual(component.emptyField);
+        expect(component.options.nameField).toEqual(component.emptyField);
+        expect(component.options.objectIdField).toEqual(component.emptyField);
+        expect(component.options.objectNameField).toEqual(component.emptyField);
+        expect(component.options.percentField).toEqual(component.emptyField);
+        expect(component.options.predictedNameField).toEqual(component.emptyField);
+        expect(component.options.sortField).toEqual(component.emptyField);
+        expect(component.options.typeField).toEqual(component.emptyField);
 
-        // expect(component.headerText).toBeDefined();
-        // expect(component.infoText).toBeDefined();
-        // expect(component.thumbnailGrid).toBeDefined();
-        // expect(component.visualization).toBeDefined();
+        expect(component.headerText).toBeDefined();
+        expect(component.infoText).toBeDefined();
+        expect(component.thumbnailGrid).toBeDefined();
+        expect(component.visualization).toBeDefined();
     });
 
-/*    it('does have expected class properties', () => {
+    it('does have expected class properties', () => {
         expect(component.gridArray).toEqual([]);
         expect(component.filters).toEqual([]);
         expect(component.isLoading).toEqual(false);
@@ -126,8 +128,8 @@ describe('Component: ThumbnailGrid', () => {
         });
         expect(component.page).toEqual(1);
         expect(component.pagingGrid).toEqual([]);
-    });*/
-/*
+    });
+
 
     it('does show toolbar and sidenav', () => {
         let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
@@ -699,9 +701,9 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(0);
     });
-*/
 
-/*
+
+
     it('createFilter with no existing filters does add a new filter', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
@@ -711,7 +713,7 @@ describe('Component: ThumbnailGrid', () => {
 
         component.createFilter('test text');
 
-/!*        expect(component.filters).toEqual([{
+        expect(component.filters).toEqual([{
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -726,11 +728,11 @@ describe('Component: ThumbnailGrid', () => {
             value: 'test text'
         }, neon.query.where('testFilterField', '=', 'test text')]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);*!/
+        expect(spy3.calls.count()).toEqual(0);
     });
-*/
 
-/*
+
+
     it('createFilter with ignoreSelf=true and no existing filters does not query', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
@@ -741,7 +743,7 @@ describe('Component: ThumbnailGrid', () => {
 
         component.createFilter('test text');
 
-/!*        expect(component.filters).toEqual([{
+        expect(component.filters).toEqual([{
             id: undefined,
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -756,11 +758,11 @@ describe('Component: ThumbnailGrid', () => {
             value: 'test text'
         }, neon.query.where('testFilterField', '=', 'test text')]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);*!/
+        expect(spy3.calls.count()).toEqual(0);
     });
-*/
 
-/*
+
+
     it('createFilter with one existing filter does replace an existing filter', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
@@ -775,7 +777,7 @@ describe('Component: ThumbnailGrid', () => {
         }];
 
         component.createFilter('test text');
-/!*
+
         expect(component.filters).toEqual([{
             id: 'idA',
             field: 'testFilterField',
@@ -791,11 +793,10 @@ describe('Component: ThumbnailGrid', () => {
             prettyField: 'Test Filter Field',
             value: 'test text'
         }, neon.query.where('testFilterField', '=', 'test text')]);
-        expect(spy3.calls.count()).toEqual(0);*!/
+        expect(spy3.calls.count()).toEqual(0);
     });
-*/
 
-/*
+
     it('createFilter with ignoreSelf=true and one existing filter does not query', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
@@ -812,7 +813,7 @@ describe('Component: ThumbnailGrid', () => {
 
         component.createFilter('test text');
 
-/!*        expect(component.filters).toEqual([{
+        expect(component.filters).toEqual([{
             id: 'idA',
             field: 'testFilterField',
             prettyField: 'Test Filter Field',
@@ -827,11 +828,11 @@ describe('Component: ThumbnailGrid', () => {
             prettyField: 'Test Filter Field',
             value: 'test text'
         }, neon.query.where('testFilterField', '=', 'test text')]);
-        expect(spy3.calls.count()).toEqual(0);*!/
+        expect(spy3.calls.count()).toEqual(0);
     });
-*/
 
- /*   it('createFilter with multiple existing filters does remove all filters and then add a new filter', () => {
+
+   it('createFilter with multiple existing filters does remove all filters and then add a new filter', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
         let spy3 = spyOn(component, 'removeAllFilters');
@@ -851,7 +852,7 @@ describe('Component: ThumbnailGrid', () => {
 
         component.createFilter('test text');
 
-/!*        expect(spy1.calls.count()).toEqual(0);
+        expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
         let args = spy3.calls.argsFor(0);
@@ -886,10 +887,10 @@ describe('Component: ThumbnailGrid', () => {
             value: 'test text'
         }, neon.query.where('testFilterField', '=', 'test text')]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(1);*!/
+        expect(spy3.calls.count()).toEqual(1);
     });
-*/
-/*
+
+
     it('createFilter with ignoreSelf=true and multiple existing filters does not query', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
@@ -911,7 +912,7 @@ describe('Component: ThumbnailGrid', () => {
 
         component.createFilter('test text');
 
-/!*        expect(spy1.calls.count()).toEqual(0);
+        expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
         let args = spy3.calls.argsFor(0);
@@ -946,11 +947,11 @@ describe('Component: ThumbnailGrid', () => {
             value: 'test text'
         }, neon.query.where('testFilterField', '=', 'test text')]);
         expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(1);*!/
+        expect(spy3.calls.count()).toEqual(1);
     });
-*/
 
-/*    it('createQuery does return expected query', () => {
+
+    it('createQuery does return expected query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
@@ -1117,6 +1118,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(refs.visualization).toBeDefined();
     });
 
+/*
     it('getExportFields does return expected array', () => {
         expect(component.getExportFields()).toEqual([{
             columnName: '',
@@ -1199,9 +1201,10 @@ describe('Component: ThumbnailGrid', () => {
             columnName: 'testTypeField',
             prettyName: 'Test Type Field'
         }]);
-    });*/
+    });
+*/
 
- /*   it('getFiltersToIgnore does return null if no filters are set', () => {
+   it('getFiltersToIgnore does return null if no filters are set', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
@@ -1369,8 +1372,8 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.getThumbnailPercent({
             testPercentField: 1
         })).toEqual('100%');
-    });*/
-/*
+    });
+
     it('getThumbnailTitle does return expected string', () => {
         expect(component.getThumbnailTitle({})).toEqual('');
 
@@ -1944,6 +1947,7 @@ describe('Component: ThumbnailGrid', () => {
         }));
     });
 
+/*
     it('subGetBindings does set expected properties in bindings', () => {
         let bindings1 = {};
         component.subGetBindings(bindings1);
@@ -2025,6 +2029,7 @@ describe('Component: ThumbnailGrid', () => {
             }
         });
     });
+*/
 
     it('subNgOnDestroy does exist', () => {
         expect(component.subNgOnDestroy).toBeDefined();
@@ -2061,8 +2066,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy1.calls.count()).toEqual(1);
         expect(spy2.calls.count()).toEqual(1);
     });
-*/});
-/*
+});
 
 describe('Component: ThumbnailGrid with config', () => {
     let component: ThumbnailGridComponent;
@@ -2125,7 +2129,7 @@ describe('Component: ThumbnailGrid with config', () => {
         fixture.detectChanges();
     });
 
-    it('does have expected superclass options properties', () => {
+/*    it('does have expected superclass options properties', () => {
         expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
         expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
         expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
@@ -2138,9 +2142,9 @@ describe('Component: ThumbnailGrid with config', () => {
             operator: '=',
             rhs: 'testConfigFilterValue'
         });
-    });
+    });*/
 
-    it('does have expected class options properties', () => {
+/*    it('does have expected class options properties', () => {
         expect(component.options.ascending).toEqual(true);
         expect(component.options.border).toEqual('grey');
         expect(component.options.cropAndScale).toEqual('both');
@@ -2169,15 +2173,16 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(component.options.predictedNameField).toEqual(new FieldMetaData('testNameField', 'Test Name Field', false, 'string'));
         expect(component.options.sortField).toEqual(new FieldMetaData('testSortField', 'Test Sort Field', false, 'string'));
         expect(component.options.typeField).toEqual(new FieldMetaData('testTypeField', 'Test Type Field', false, 'string'));
-    });
+    });*/
 
-/!*    it('does show header in toolbar with visualization title from config', () => {
+/*    it('does show header in toolbar with visualization title from config', () => {
         let header = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .header'));
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
-    });*!/
+    });*/
 
-/!*
+
+/*
     it('does show elements in sidenav options menu that have expected options', async(() => {
         // Force the component to update all its selected elements.
         fixture.detectChanges();
@@ -2188,7 +2193,7 @@ describe('Component: ThumbnailGrid with config', () => {
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
             expect(inputs.length).toEqual(5);
 
-  /!*          expect(inputs[0].attributes.placeholder).toBe('Title');
+           expect(inputs[0].attributes.placeholder).toBe('Title');
             expect(inputs[0].nativeElement.value).toContain('Test Title');
 
             expect(inputs[1].attributes.placeholder).toBe('Thumbnail Limit');
@@ -2198,9 +2203,9 @@ describe('Component: ThumbnailGrid with config', () => {
             expect(inputs[2].nativeElement.value).toEqual('grey');
 
             expect(inputs[3].attributes.placeholder).toBe('Link Prefix');
-            expect(inputs[3].nativeElement.value).toEqual('prefix/');*!/
+            expect(inputs[3].nativeElement.value).toEqual('prefix/');
 
-            /!*let selects = fixture.debugElement.queryAll(
+            let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
             expect(selects.length).toEqual(14);
             let options;
@@ -2387,9 +2392,9 @@ describe('Component: ThumbnailGrid with config', () => {
             expect(toggles[9].componentInstance.value).toEqual(false);
             expect(toggles[9].nativeElement.textContent).toContain('Descending');
             expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-       *!/ });
+       });
     }));
-*!/
+*/
 
 });
-*/
+
