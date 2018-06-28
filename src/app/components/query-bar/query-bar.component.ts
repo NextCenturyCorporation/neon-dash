@@ -93,7 +93,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
 
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public filterId = new BehaviorSubject<string>(undefined);
-    public filteredOptions: Observable<void | string[]>;
+    public queryOptions: Observable<void | string[]>;
     public options: QueryBarOptions;
 
     public id = uuid.v4();
@@ -171,10 +171,12 @@ export class QueryBarComponent  extends BaseNeonComponent {
     }
 
     private queryBarSetup() {
-        this.filteredOptions = this.filterFormControl.valueChanges.pipe(
-            startWith(''),
-            map((value) => value ? this.filterAutoComplete(value) : this.queryValues.slice())
-        );
+        if (this.queryValues) {
+            this.queryOptions = this.filterFormControl.valueChanges.pipe(
+                startWith(''),
+                map((value) => value && value.length > 0 ? this.filterAutoComplete(value) : [])
+            );
+        }
     }
 
     private filterAutoComplete(val: string) {
@@ -277,16 +279,18 @@ export class QueryBarComponent  extends BaseNeonComponent {
 
         //filters query text
         let values = this.queryArray.filter((value) =>
-            value[this.options.filterField.columnName].toLowerCase().indexOf(text.toLowerCase()) === 0),
+            value[this.options.filterField.columnName].toLowerCase() === text.toLowerCase()),
             clause: WherePredicate;
 
-        clause = neon.query.where(this.options.filterField.columnName, '=', text);
-        this.addFilter(text, clause, this.options.filterField.columnName);
+        if (values.length) {
+            clause = neon.query.where(this.options.filterField.columnName, '=', text);
+            this.addFilter(text, clause, this.options.filterField.columnName);
 
-        //gathers ids from the filtered query text
-        if (this.options.extendedFilter) {
-            for (let ff of this.options.extensionFields) {
-                this.extensionFilter(text, ff, values);
+            //gathers ids from the filtered query text
+            if (this.options.extendedFilter) {
+                for (let ef of this.options.extensionFields) {
+                    this.extensionFilter(text, ef, values);
+                }
             }
         }
     }
@@ -322,6 +326,8 @@ export class QueryBarComponent  extends BaseNeonComponent {
                         }
                     });
                 }
+
+                tempArray = tempArray.filter((value, index, items) => items.indexOf(value) === index);
                 this.extensionAddFilter(text, fields, tempArray);
             });
         }
@@ -380,11 +386,13 @@ export class QueryBarComponent  extends BaseNeonComponent {
         let whereClauses = [],
             clause: WherePredicate;
 
-        for (let tempValue of array) {
-            if (tempValue.hasOwnProperty(fields.idField)) {
-                whereClauses.push(neon.query.where(fields.idField, '=', tempValue[fields.idField]));
+        for (let item of array) {
+            if ((typeof item === 'object')) {
+                if (item.hasOwnProperty(fields.idField)) {
+                    whereClauses.push(neon.query.where(fields.idField, '=', item[fields.idField]));
+                }
             } else {
-                whereClauses.push(neon.query.where(fields.idField, '=', tempValue));
+                whereClauses.push(neon.query.where(fields.idField, '=', item));
             }
         }
 
