@@ -1,0 +1,8 @@
+<div class="thumbnail-details" *ngIf="label != ''">
+    <p>
+        <span class="detail-ellipses">{{ label }}</span>
+        <span class="detail-percentage">{{ percent }}</span>
+    </p>
+</div>
+<canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"></canvas>
+
