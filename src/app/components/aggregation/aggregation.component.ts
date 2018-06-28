@@ -77,6 +77,7 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
     public logScaleX: boolean;
     public logScaleY: boolean;
     public newType: string;
+    public requireAll: boolean;
     public savePrevious: boolean;
     public scaleMaxX: string;
     public scaleMaxY: string;
@@ -103,6 +104,7 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
         this.lineFillArea = this.injector.get('lineFillArea', false);
         this.logScaleX = this.injector.get('logScaleX', false);
         this.logScaleY = this.injector.get('logScaleY', false);
+        this.requireAll = this.injector.get('requireAll', false);
         this.savePrevious = this.injector.get('savePrevious', false);
         this.scaleMaxX = this.injector.get('scaleMaxX', '');
         this.scaleMaxY = this.injector.get('scaleMaxY', '');
@@ -129,6 +131,14 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
     }
 }
 
+class Filter {
+    public field: string | { x: string, y: string };
+    public label: string;
+    public neonFilter: neon.query.WherePredicate;
+    public prettyField: string | { x: string, y: string };
+    public value: any | { beginX: any, endX: any } | { beginX: any, beginY: any, endX: any, endY: any };
+}
+
 @Component({
     selector: 'app-aggregation',
     templateUrl: './aggregation.component.html',
@@ -145,13 +155,12 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     private DEFAULT_GROUP: string = 'All';
 
-    public filters: {
-        id: string,
-        field: string | { x: string, y: string },
-        label: string,
-        prettyField: string | { x: string, y: string },
-        value: string | { beginX: number, endX: number } | { beginX: number, beginY: number, endX: number, endY: number }
-    }[] = [];
+    public filterToPassToSuperclass: {
+        id?: string
+    } = {};
+
+    public groupFilters: Filter[] = [];
+    public valueFilters: Filter[] = [];
 
     public options: AggregationOptions;
 
@@ -263,49 +272,54 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Adds the given filters in both neon and the visualization replacing all the existing filters unless doNotReplace is true.
+     * Returns the pretty text for the given filter object.
      *
-     * @arg {any} filter
-     * @arg {neon.query.WherePredicate} neonFilter
-     * @arg {boolean} [doNotReplace=false]
+     * @arg {Filter} filter
+     * @return {string}
      */
-    addOrReplaceFilter(filter: any, neonFilter: neon.query.WherePredicate, doNotReplace: boolean = false) {
-        if (doNotReplace) {
-            // If the new filter is unique, add the filter to the existing filters in both neon and the visualization.
-            if (!this.findMatchingFilters(filter.field, filter.label, filter.value).length) {
-                this.addVisualizationFilter(filter);
-                this.addNeonFilter(!this.options.ignoreSelf, filter, neonFilter);
+    createFilterPrettyText(filter: any): string {
+        if (filter.value.beginX && filter.value.endX) {
+            let xText = filter.value.beginX + ' to ' + filter.value.endX;
+            if (this.options.xField.type === 'date') {
+                xText = moment.utc(filter.value.beginX).format('ddd, MMM D, YYYY, h:mm A') + ' to ' +
+                    moment.utc(filter.value.endX).format('ddd, MMM D, YYYY, h:mm A');
             }
-        } else {
-            if (this.filters.length === 1) {
-                // If we have a single existing filter, keep the ID and replace the old filter with the new filter.
-                filter.id = this.filters[0].id;
-                this.filters = [filter];
-                this.replaceNeonFilter(!this.options.ignoreSelf, filter, neonFilter);
-            } else if (this.filters.length > 1) {
-                // If we have multiple existing filters, remove all the old filters and add the new filter once done.
-                // Use concat to copy the filter list.
-                this.removeAllFilters([].concat(this.filters), () => {
-                    this.filters = [filter];
-                    this.addNeonFilter(!this.options.ignoreSelf, filter, neonFilter);
-                });
-            } else {
-                // If we don't have an existing filter, add the new filter.
-                this.filters = [filter];
-                this.addNeonFilter(!this.options.ignoreSelf, filter, neonFilter);
+            if (filter.value.beginY && filter.value.endY && filter.prettyField.x && filter.prettyField.y) {
+                return filter.prettyField.x + ' from ' + xText + ' and ' + filter.prettyField.y + ' from ' + filter.value.beginY + ' to ' +
+                    filter.value.endY;
             }
+            return filter.prettyField + ' from ' + xText;
         }
+
+        return filter.prettyField + ' is ' + filter.label;
     }
 
     /**
-     * Adds the given filter object to the visualization and removes any existing filter object with ID matching the given filter ID.
-     *
-     * @arg {object} filter
+     * Creates (and replaces) or removes the neon filter using the visualization filters.
      */
-    addVisualizationFilter(filter: any) {
-        this.filters = this.filters.filter((existingFilter) => {
-            return existingFilter.id !== filter.id;
-        }).concat(filter);
+    createOrRemoveNeonFilter() {
+        // Always AND all group filters.
+        let groupNeonFilters = this.groupFilters.length > 1 ? neon.query.and.apply(neon.query, this.groupFilters.map((filter) => {
+            return filter.neonFilter;
+        })) : (this.groupFilters.length === 1 ? this.groupFilters[0].neonFilter : null);
+
+        let neonFunction = this.options.requireAll ? neon.query.and : neon.query.or;
+        let valueNeonFilters = this.valueFilters.length > 1 ? neonFunction.apply(neon.query, this.valueFilters.map((filter) => {
+            return filter.neonFilter;
+        })) : (this.valueFilters.length === 1 ? this.valueFilters[0].neonFilter : null);
+
+        let neonFilter = groupNeonFilters && valueNeonFilters ? neon.query.and.apply(neon.query, [groupNeonFilters, valueNeonFilters]) :
+            (groupNeonFilters || valueNeonFilters);
+
+        if (neonFilter) {
+            if (this.filterToPassToSuperclass.id) {
+                this.replaceNeonFilter(!this.options.ignoreSelf, this.filterToPassToSuperclass, neonFilter);
+            } else {
+                this.addNeonFilter(!this.options.ignoreSelf, this.filterToPassToSuperclass, neonFilter);
+            }
+        } else if (this.filterToPassToSuperclass.id) {
+            this.removeLocalFilterFromLocalAndNeon(this.filterToPassToSuperclass, true, true);
+        }
     }
 
     /**
@@ -386,20 +400,6 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the list of visualization filter objects matching the given properties.
-     *
-     * @arg {any} field
-     * @arg {string} label
-     * @arg {any} value
-     * @return {any[]}
-     */
-    findMatchingFilters(field: any, label: string, value: any): any[] {
-        return this.filters.filter((existingFilter) => {
-            return _.isEqual(existingFilter.field, field) && _.isEqual(existingFilter.value, value) && existingFilter.label === label;
-        });
-    }
-
-    /**
      * Creates and returns the text for the settings button and menu.
      *
      * @return {string}
@@ -418,13 +418,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the filter list for the visualization.
+     * Returns the superclass filter object.
      *
-     * @return {array}
+     * @return {any[]}
      * @override
      */
     getCloseableFilters(): any[] {
-        return this.filters;
+        return [this.filterToPassToSuperclass];
     }
 
     /**
@@ -486,44 +486,30 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return null;
         }
 
-        // Get all the neon filters relevant to this visualization.
-        let xNeonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.xField.columnName].concat(this.options.type === 'scatter-xy' ? this.options.yField.columnName : []));
         let groupNeonFilters = this.options.groupField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
             this.options.table.name, [this.options.groupField.columnName]) : [];
+        let valueNeonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+            [this.options.xField.columnName].concat(this.options.type === 'scatter-xy' ? this.options.yField.columnName : []));
 
-        let filterIdsToIgnore = xNeonFilters.concat(groupNeonFilters).map((neonFilter) => {
+        let filterIdsToIgnore = groupNeonFilters.concat(valueNeonFilters).map((neonFilter) => {
             return neonFilter.id;
         }).filter((neonFilterId) => {
-            return this.filters.some((existingFilter) => {
-                return neonFilterId === existingFilter.id;
-            });
+            return neonFilterId === this.filterToPassToSuperclass.id;
         });
 
         return filterIdsToIgnore.length ? filterIdsToIgnore : null;
     }
 
     /**
-     * Returns the filter text for the given visualization filter object.
+     * Returns the text for the superclass filter object.
      *
      * @arg {any} filter
      * @return {string}
      * @override
      */
     getFilterText(filter: any): string {
-        if (filter.value.beginX && filter.value.endX) {
-            let xText = filter.value.beginX + ' to ' + filter.value.endX;
-            if (this.options.xField.type === 'date') {
-                xText = moment.utc(filter.value.beginX).format('ddd, MMM D, YYYY, h:mm A') + ' to ' +
-                    moment.utc(filter.value.endX).format('ddd, MMM D, YYYY, h:mm A');
-            }
-            if (filter.value.beginY && filter.value.endY && filter.prettyField.x && filter.prettyField.y) {
-                return filter.prettyField.x + ' from ' + xText + ' and ' + filter.prettyField.y + ' from ' + filter.value.beginY + ' to ' +
-                    filter.value.endY;
-            }
-            return filter.prettyField + ' from ' + xText;
-        }
-        return filter.prettyField + ' is ' + filter.label;
+        let filters = this.groupFilters.concat(this.valueFilters);
+        return filters.length === 1 ? this.createFilterPrettyText(filters[0]) : filters.length + ' Filters';
     }
 
     /**
@@ -630,19 +616,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     handleLegendItemSelected(event) {
         if (event.value && this.options.groupField.columnName) {
-            let matching = this.findMatchingFilters(this.options.groupField.columnName, 'not ' + event.value, event.value);
-            if (!matching.length) {
-                let neonFilter = neon.query.where(this.options.groupField.columnName, '!=', event.value);
-                this.addOrReplaceFilter({
-                    id: undefined,
-                    field: this.options.groupField.columnName,
-                    label: 'not ' + event.value,
-                    prettyField: this.options.groupField.prettyName,
-                    value: event.value
-                }, neonFilter, true);
-            } else {
-                this.removeLocalFilterFromLocalAndNeon(matching[0], true, true);
-            }
+            let neonFilter = neon.query.where(this.options.groupField.columnName, '!=', event.value);
+            let filter = {
+                field: this.options.groupField.columnName,
+                label: 'not ' + event.value,
+                neonFilter: neon.query.where(this.options.groupField.columnName, '!=', event.value),
+                prettyField: this.options.groupField.prettyName,
+                value: event.value
+            };
+            this.toggleFilter(this.groupFilters, filter);
         }
     }
 
@@ -980,21 +962,18 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Removes the given neon filter object from this visualization.
+     * Deselects the selected area and removes the superclass filter object and all visualization filters.
      *
-     * @arg {object} neonFilter
+     * @arg {any} filter
      * @override
      */
-    removeFilter(neonFilter: any) {
-        let filter = _.find(this.filters, (existingFilter) => {
-            return existingFilter.id === neonFilter.id;
-        });
-        this.filters = this.filters.filter((existingFilter) => {
-            return existingFilter.id !== neonFilter.id;
-        });
-        if (filter) {
+    removeFilter(filter: any) {
+        if (filter.id === this.filterToPassToSuperclass.id) {
+            this.filterToPassToSuperclass = {};
+            this.groupFilters = [];
+            this.valueFilters = [];
             this.selectedArea = null;
-            this.subcomponentObject.deselect(filter.value);
+            this.subcomponentObject.deselect();
         }
     }
 
@@ -1022,7 +1001,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @return {boolean}
      */
     showHeaderContainer(): boolean {
-        return this.showLegend() || !!this.getCloseableFilters().length;
+        return this.showLegend() || !!this.groupFilters.length || !!this.valueFilters.length;
     }
 
     /**
@@ -1059,13 +1038,19 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     subcomponentRequestsFilter(item: any, doNotReplace: boolean = false) {
         let neonFilter = neon.query.where(this.options.xField.columnName, '=', item);
-        this.addOrReplaceFilter({
-            id: undefined,
+        let filter = {
             field: this.options.xField.columnName,
             label: '' + item,
+            neonFilter: neonFilter,
             prettyField: this.options.xField.prettyName,
             value: item
-        }, neonFilter, doNotReplace);
+        };
+        if (doNotReplace) {
+            this.toggleFilter(this.valueFilters, filter);
+        } else {
+            this.valueFilters = [filter];
+            this.createOrRemoveNeonFilter();
+        }
     }
 
     /**
@@ -1089,13 +1074,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             neon.query.where(this.options.xField.columnName, '<=', endX),
             neon.query.where(this.options.yField.columnName, '<=', endY)
         ]);
-        this.addOrReplaceFilter({
-            id: undefined,
+        let filter = {
             field: {
                 x: this.options.xField.columnName,
                 y: this.options.yField.columnName
             },
             label: '',
+            neonFilter: neonFilter,
             prettyField: {
                 x: this.options.xField.prettyName,
                 y: this.options.yField.prettyName
@@ -1106,7 +1091,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
                 endX: endX,
                 endY: endY
             }
-        }, neonFilter, doNotReplace);
+        };
+        if (doNotReplace) {
+            this.toggleFilter(this.valueFilters, filter);
+        } else {
+            this.valueFilters = [filter];
+            this.createOrRemoveNeonFilter();
+        }
     }
 
     /**
@@ -1126,16 +1117,22 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             neon.query.where(this.options.xField.columnName, '>=', beginX),
             neon.query.where(this.options.xField.columnName, '<=', endX)
         ]);
-        this.addOrReplaceFilter({
-            id: undefined,
+        let filter = {
             field: this.options.xField.columnName,
             label: '',
+            neonFilter: neonFilter,
             prettyField: this.options.xField.prettyName,
             value: {
                 beginX: beginX,
                 endX: endX
             }
-        }, neonFilter, doNotReplace);
+        };
+        if (doNotReplace) {
+            this.toggleFilter(this.valueFilters, filter);
+        } else {
+            this.valueFilters = [filter];
+            this.createOrRemoveNeonFilter();
+        }
     }
 
     /**
@@ -1191,6 +1188,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         bindings.lineFillArea = this.options.lineFillArea;
         bindings.logScaleX = this.options.logScaleX;
         bindings.logScaleY = this.options.logScaleY;
+        bindings.requireAll = this.options.requireAll;
         bindings.savePrevious = this.options.savePrevious;
         bindings.scaleMaxX = this.options.scaleMaxX;
         bindings.scaleMaxY = this.options.scaleMaxY;
@@ -1248,6 +1246,32 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             this.subcomponentObject.redraw();
             // TODO Update selectedArea.
         }
+    }
+
+    /**
+     * Toggles the given filter in the given filter list and recreates or removes the neon filter.
+     *
+     * @arg {Filter} filter
+     */
+    toggleFilter(filters: any[], filter: any) {
+        let indexMatches = filters.reduce((indexArray, existingFilter, index) => {
+            if (_.isEqual(existingFilter.field, filter.field) && _.isEqual(existingFilter.value, filter.value) &&
+                existingFilter.label === filter.label) {
+                indexArray.push(index);
+            }
+            return indexArray;
+        }, []);
+
+        if (indexMatches.length) {
+            indexMatches.reverse().forEach((indexMatch) => {
+                let existingFilter = filters.splice(indexMatch, 1);
+                this.subcomponentObject.deselect(existingFilter[0].value);
+            });
+        } else {
+            filters.push(filter);
+        }
+
+        this.createOrRemoveNeonFilter();
     }
 
     /**
