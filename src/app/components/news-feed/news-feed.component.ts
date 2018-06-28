@@ -172,7 +172,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
        }
 
     /**
-     * Creates and returns the query for the thumbnail grid.
+     * Creates and returns the query for the news feed
      *
      * @return {neon.query.Query}
      * @override
