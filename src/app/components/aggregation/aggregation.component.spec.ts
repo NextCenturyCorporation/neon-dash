@@ -105,6 +105,7 @@ describe('Component: Aggregation', () => {
         expect(component.options.lineFillArea).toEqual(false);
         expect(component.options.logScaleX).toEqual(false);
         expect(component.options.logScaleY).toEqual(false);
+        expect(component.options.requireAll).toEqual(false);
         expect(component.options.savePrevious).toEqual(false);
         expect(component.options.scaleMaxX).toEqual('');
         expect(component.options.scaleMaxY).toEqual('');
@@ -120,7 +121,8 @@ describe('Component: Aggregation', () => {
 
     it('class properties are set to expected defaults', () => {
         expect(component.activeData).toEqual([]);
-        expect(component.filters).toEqual([]);
+        expect(component.filterToPassToSuperclass).toEqual({});
+        expect(component.groupFilters).toEqual([]);
         expect(component.lastPage).toEqual(true);
         expect(component.legendActiveGroups).toEqual([]);
         expect(component.legendFields).toEqual([]);
@@ -164,6 +166,7 @@ describe('Component: Aggregation', () => {
             name: 'Text List (Aggregations)',
             type: 'list'
         }]);
+        expect(component.valueFilters).toEqual([]);
 
         // Element Refs
         expect(component.headerText).toBeDefined();
@@ -173,238 +176,396 @@ describe('Component: Aggregation', () => {
         expect(component.visualization).toBeDefined();
     });
 
-    it('addOrReplaceFilter with doNotReplace=true does add new filter to empty array and call addNeonFilter', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        let spy = spyOn(component, 'addNeonFilter');
-
-        let filter = {
-            id: undefined,
+    it('createFilterPrettyText does return expected string', () => {
+        expect(component.createFilterPrettyText({
             field: 'field1',
-            label: '',
+            label: '1234',
+            neonFilter: null,
+            prettyField: 'prettyField1',
+            value: 1234
+        })).toEqual('prettyField1 is 1234');
+
+        expect(component.createFilterPrettyText({
+            field: 'field1',
+            label: 'value1',
+            neonFilter: null,
             prettyField: 'prettyField1',
             value: 'value1'
-        };
-        let neonFilter = neon.query.where('field1', '=', 'value1');
+        })).toEqual('prettyField1 is value1');
 
-        component.addOrReplaceFilter(filter, neonFilter, true);
+        expect(component.createFilterPrettyText({
+            field: 'field1',
+            label: '',
+            neonFilter: null,
+            prettyField: 'prettyField1',
+            value: {
+                beginX: 'beginX1',
+                endX: 'endX1'
+            }
+        })).toEqual('prettyField1 from beginX1 to endX1');
 
-        expect(component.filters).toEqual([filter]);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([true, filter, neonFilter]);
+        expect(component.createFilterPrettyText({
+            field: 'field1',
+            label: '',
+            neonFilter: null,
+            prettyField: {
+                x: 'prettyX1',
+                y: 'prettyY1'
+            },
+            value: {
+                beginX: 'beginX1',
+                beginY: 'beginY1',
+                endX: 'endX1',
+                endY: 'endY1'
+            }
+        })).toEqual('prettyX1 from beginX1 to endX1 and prettyY1 from beginY1 to endY1');
     });
 
-    it('addOrReplaceFilter with doNotReplace=true does add new filter to non-empty array and call addNeonFilter', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        let spy = spyOn(component, 'addNeonFilter');
+    it('createFilterPrettyText with date data does return expected string', () => {
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
 
-        let filter = {
-            id: undefined,
+        expect(component.createFilterPrettyText({
             field: 'field1',
             label: '',
+            neonFilter: null,
             prettyField: 'prettyField1',
-            value: 'value1'
-        };
-        let neonFilter = neon.query.where('field1', '=', 'value1');
-        let existingFilter = {
-            id: 'idA',
-            field: 'field2',
-            label: '',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        };
-        component.filters = [existingFilter];
+            value: {
+                beginX: '2018-01-01T00:00:00.000Z',
+                endX: '2018-01-03T00:00:00.000Z'
+            }
+        })).toEqual('prettyField1 from Mon, Jan 1, 2018, 12:00 AM to Wed, Jan 3, 2018, 12:00 AM');
 
-        component.addOrReplaceFilter(filter, neonFilter, true);
-        expect(component.filters).toEqual([existingFilter, filter]);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([true, filter, neonFilter]);
+        expect(component.createFilterPrettyText({
+            field: 'field1',
+            label: '',
+            neonFilter: null,
+            prettyField: {
+                x: 'prettyX1',
+                y: 'prettyY1'
+            },
+            value: {
+                beginX: '2018-01-01T00:00:00.000Z',
+                beginY: 'beginY1',
+                endX: '2018-01-03T00:00:00.000Z',
+                endY: 'endY1'
+            }
+        })).toEqual('prettyX1 from Mon, Jan 1, 2018, 12:00 AM to Wed, Jan 3, 2018, 12:00 AM and prettyY1 from beginY1 to endY1');
     });
 
-    it('addOrReplaceFilter with doNotReplace=true does not add new filter or call addNeonFilter if matching filter exists', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        let spy = spyOn(component, 'addNeonFilter');
+    it('createOrRemoveNeonFilter with no groupFilters, valueFilters, or filterToPassToSuperclass.id does nothing', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
 
-        let filter = {
-            id: 'idB',
-            field: 'field1',
-            label: '',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        };
-        let neonFilter = neon.query.where('field1', '=', 'value1');
-        let existingFilter = {
-            id: 'idA',
-            field: 'field1',
-            label: '',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        };
-        component.filters = [existingFilter];
+        component.createOrRemoveNeonFilter();
 
-        component.addOrReplaceFilter(filter, neonFilter, true);
-        expect(component.filters).toEqual([existingFilter]);
-        expect(spy.calls.count()).toEqual(0);
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(0);
     });
 
-    it('addOrReplaceFilter does add new filter to empty array and call addNeonFilter', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        let spy = spyOn(component, 'addNeonFilter');
+    it('createOrRemoveNeonFilter with groupFilters does work as expected', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
 
-        let filter = {
-            id: undefined,
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        component.groupFilters = [{
             field: 'field1',
             label: '',
+            neonFilter: neonFilter1,
             prettyField: 'prettyField1',
             value: 'value1'
-        };
-        let neonFilter = neon.query.where('field1', '=', 'value1');
+        }];
 
-        component.addOrReplaceFilter(filter, neonFilter, true);
-        expect(component.filters).toEqual([filter]);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([true, filter, neonFilter]);
+        component.createOrRemoveNeonFilter();
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([true, {}, neonFilter1]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(0);
     });
 
-    it('addOrReplaceFilter does replace existing filter in single element array and call replaceNeonFilter', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        let spy = spyOn(component, 'replaceNeonFilter');
+    it('createOrRemoveNeonFilter with multiple groupFilters does work as expected', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
 
-        let filter = {
-            id: undefined,
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        let neonFilter2 = neon.query.where('field2', '=', 'value2');
+        component.groupFilters = [{
             field: 'field1',
             label: '',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        };
-        let neonFilter = neon.query.where('field1', '=', 'value1');
-        let existingFilter = {
-            id: 'idA',
-            field: 'field2',
-            label: '',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        };
-        component.filters = [existingFilter];
-
-        component.addOrReplaceFilter(filter, neonFilter);
-
-        expect(component.filters).toEqual([filter]);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([true, filter, neonFilter]);
-    });
-
-    it('addOrReplaceFilter with a multiple element array and call removeAllFilters', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        let spy = spyOn(component, 'removeAllFilters');
-
-        let filter = {
-            id: undefined,
-            field: 'field1',
-            label: '',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        };
-        let neonFilter = neon.query.where('field1', '=', 'value1');
-        let existingFilterA = {
-            id: 'idA',
-            field: 'field2',
-            label: '',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        };
-        let existingFilterB = {
-            id: 'idB',
-            field: 'field3',
-            label: '',
-            prettyField: 'prettyField3',
-            value: 'value3'
-        };
-        component.filters = [existingFilterA, existingFilterB];
-
-        component.addOrReplaceFilter(filter, neonFilter);
-        expect(spy.calls.count()).toEqual(1);
-        let args = spy.calls.argsFor(0);
-        expect(args[0]).toEqual([existingFilterA, existingFilterB]);
-
-        // Run the callback.
-        spy = spyOn(component, 'addNeonFilter');
-        expect(typeof args[1]).toEqual('function');
-        args[1]();
-        expect(component.filters).toEqual([filter]);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([true, filter, neonFilter]);
-    });
-
-    it('addVisualizationFilter does update filters', () => {
-        component.addVisualizationFilter({
-            id: 'idA',
-            field: 'field1',
-            label: '',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        });
-
-        expect(component.filters).toEqual([{
-            id: 'idA',
-            field: 'field1',
-            label: '',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }]);
-
-        component.addVisualizationFilter({
-            id: 'idB',
-            field: 'field2',
-            label: '',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        });
-
-        expect(component.filters).toEqual([{
-            id: 'idA',
-            field: 'field1',
-            label: '',
+            neonFilter: neonFilter1,
             prettyField: 'prettyField1',
             value: 'value1'
         }, {
-            id: 'idB',
             field: 'field2',
             label: '',
+            neonFilter: neonFilter2,
             prettyField: 'prettyField2',
             value: 'value2'
-        }]);
+        }];
+
+        component.createOrRemoveNeonFilter();
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([true, {}, neon.query.and.apply(neon.query, [neonFilter1, neonFilter2])]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(0);
     });
 
-    it('addVisualizationFilter does update filters if the ID of the given filter and the ID of an existing filter are matching', () => {
-        component.addVisualizationFilter({
-            id: 'idA',
+    it('createOrRemoveNeonFilter with valueFilters does work as expected', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
+
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        component.valueFilters = [{
             field: 'field1',
             label: '',
+            neonFilter: neonFilter1,
             prettyField: 'prettyField1',
             value: 'value1'
-        });
+        }];
 
-        component.addVisualizationFilter({
-            id: 'idA',
+        component.createOrRemoveNeonFilter();
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([true, {}, neonFilter1]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(0);
+    });
+
+    it('createOrRemoveNeonFilter with multiple valueFilters does work as expected', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
+
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        let neonFilter2 = neon.query.where('field2', '=', 'value2');
+        component.valueFilters = [{
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }, {
             field: 'field2',
             label: '',
+            neonFilter: neonFilter2,
             prettyField: 'prettyField2',
             value: 'value2'
-        });
+        }];
 
-        expect(component.filters).toEqual([{
-            id: 'idA',
+        component.createOrRemoveNeonFilter();
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([true, {}, neon.query.or.apply(neon.query, [neonFilter1, neonFilter2])]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(0);
+    });
+
+    it('createOrRemoveNeonFilter with multiple valueFilters and requireAll=true does work as expected', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
+
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        let neonFilter2 = neon.query.where('field2', '=', 'value2');
+        component.valueFilters = [{
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }, {
             field: 'field2',
             label: '',
+            neonFilter: neonFilter2,
             prettyField: 'prettyField2',
             value: 'value2'
-        }]);
+        }];
+        component.options.requireAll = true;
+
+        component.createOrRemoveNeonFilter();
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([true, {}, neon.query.and.apply(neon.query, [neonFilter1, neonFilter2])]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(0);
+    });
+
+    it('createOrRemoveNeonFilter with groupFilters and valueFilters does work as expected', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
+
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        let neonFilter2 = neon.query.where('field2', '=', 'value2');
+
+        component.groupFilters = [{
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }];
+
+        component.valueFilters = [{
+            field: 'field2',
+            label: '',
+            neonFilter: neonFilter2,
+            prettyField: 'prettyField2',
+            value: 'value2'
+        }];
+
+        component.createOrRemoveNeonFilter();
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([true, {}, neon.query.and.apply(neon.query, [neonFilter1, neonFilter2])]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(0);
+    });
+
+    it('createOrRemoveNeonFilter with multiple groupFilters and valueFilters does work as expected', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
+
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        let neonFilter2 = neon.query.where('field2', '=', 'value2');
+        let neonFilter3 = neon.query.where('field3', '=', 'value3');
+        let neonFilter4 = neon.query.where('field4', '=', 'value4');
+
+        component.groupFilters = [{
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }, {
+            field: 'field2',
+            label: '',
+            neonFilter: neonFilter2,
+            prettyField: 'prettyField2',
+            value: 'value2'
+        }];
+
+        component.valueFilters = [{
+            field: 'field3',
+            label: '',
+            neonFilter: neonFilter3,
+            prettyField: 'prettyField3',
+            value: 'value3'
+        }, {
+            field: 'field4',
+            label: '',
+            neonFilter: neonFilter4,
+            prettyField: 'prettyField4',
+            value: 'value4'
+        }];
+
+        component.createOrRemoveNeonFilter();
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([true, {}, neon.query.and.apply(neon.query, [
+            neon.query.and.apply(neon.query, [neonFilter1, neonFilter2]),
+            neon.query.or.apply(neon.query, [neonFilter3, neonFilter4])
+        ])]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(0);
+    });
+
+    it('createOrRemoveNeonFilter with filters and filterToPassToSuperclass.id does work as expected', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
+
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        component.groupFilters = [{
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }];
+        component.filterToPassToSuperclass.id = 'testId';
+
+        component.createOrRemoveNeonFilter();
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([true, {
+            id: 'testId'
+        }, neonFilter1]);
+        expect(spy3.calls.count()).toEqual(0);
+    });
+
+    it('createOrRemoveNeonFilter with no filters and filterToPassToSuperclass.id does work as expected', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
+
+        component.filterToPassToSuperclass.id = 'testId';
+
+        component.createOrRemoveNeonFilter();
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(1);
+        expect(spy3.calls.argsFor(0)).toEqual([{
+            id: 'testId'
+        }, true, true]);
+    });
+
+    it('createOrRemoveNeonFilter with groupFilters and ignoreSelf=true does work as expected', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
+
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        component.groupFilters = [{
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }];
+        component.options.ignoreSelf = true;
+
+        component.createOrRemoveNeonFilter();
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([false, {}, neonFilter1]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(spy3.calls.count()).toEqual(0);
+    });
+
+    it('createOrRemoveNeonFilter with filters and filterToPassToSuperclass.id and ignoreSelf=true does work as expected', () => {
+        let spy1 = spyOn(component, 'addNeonFilter');
+        let spy2 = spyOn(component, 'replaceNeonFilter');
+        let spy3 = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
+
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        component.groupFilters = [{
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }];
+        component.filterToPassToSuperclass.id = 'testId';
+        component.options.ignoreSelf = true;
+
+        component.createOrRemoveNeonFilter();
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([false, {
+            id: 'testId'
+        }, neonFilter1]);
+        expect(spy3.calls.count()).toEqual(0);
     });
 
     it('createQuery does return expected aggregation query', () => {
@@ -592,107 +753,6 @@ describe('Component: Aggregation', () => {
             .sortBy('_date', neonVariables.ASCENDING));
     });
 
-    it('findMatchingFilters does return expected array', () => {
-        expect(component.findMatchingFilters('field1', 'label1', 'value1')).toEqual([]);
-
-        component.filters = [{
-            id: 'idA',
-            field: 'field1',
-            label: 'label1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
-
-        expect(component.findMatchingFilters('field1', 'label1', 'value1')).toEqual([{
-            id: 'idA',
-            field: 'field1',
-            label: 'label1',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }]);
-        expect(component.findMatchingFilters('field2', 'label1', 'value1')).toEqual([]);
-        expect(component.findMatchingFilters('field1', 'label2', 'value1')).toEqual([]);
-        expect(component.findMatchingFilters('field1', 'label1', 'value2')).toEqual([]);
-
-        component.filters = [{
-            id: 'idA',
-            field: {
-                x: 'xField1',
-                y: 'yField1'
-            },
-            label: 'label1',
-            prettyField: {
-                x: 'xPrettyField1',
-                y: 'yPrettyField1'
-            },
-            value: {
-                beginX: 1,
-                beginY: 2,
-                endX: 3,
-                endY: 4
-            }
-        }];
-
-        expect(component.findMatchingFilters({
-            x: 'xField1',
-            y: 'yField1'
-        }, 'label1', {
-            beginX: 1,
-            beginY: 2,
-            endX: 3,
-            endY: 4
-        })).toEqual([{
-            id: 'idA',
-            field: {
-                x: 'xField1',
-                y: 'yField1'
-            },
-            label: 'label1',
-            prettyField: {
-                x: 'xPrettyField1',
-                y: 'yPrettyField1'
-            },
-            value: {
-                beginX: 1,
-                beginY: 2,
-                endX: 3,
-                endY: 4
-            }
-        }]);
-
-        expect(component.findMatchingFilters({
-            x: 'xField2',
-            y: 'yField2'
-        }, 'label1', {
-            beginX: 1,
-            beginY: 2,
-            endX: 3,
-            endY: 4
-        })).toEqual([]);
-
-        expect(component.findMatchingFilters({
-            x: 'xField1',
-            y: 'yField1'
-        }, 'label2', {
-            beginX: 1,
-            beginY: 2,
-            endX: 3,
-            endY: 4
-        })).toEqual([]);
-
-        expect(component.findMatchingFilters({
-            x: 'xField1',
-            y: 'yField1'
-        }, 'label1', {
-            beginX: 11,
-            beginY: 22,
-            endX: 33,
-            endY: 44
-        })).toEqual([]);
-
-        expect(component.findMatchingFilters('xField1', 'label1', 1)).toEqual([]);
-    });
-
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toEqual('No Data');
 
@@ -714,23 +774,15 @@ describe('Component: Aggregation', () => {
         expect(component.getButtonText()).toEqual('3 - 4 of 4');
     });
 
-    it('getCloseableFilters does return expected array of filters', () => {
-        expect(component.getCloseableFilters()).toEqual([]);
+    it('getCloseableFilters does return expected object', () => {
+        expect(component.getCloseableFilters()).toEqual([{}]);
 
-        component.filters = [{
-            id: 'idA',
-            field: 'field1',
-            label: '',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }];
+        component.filterToPassToSuperclass = {
+            id: 'testId'
+        };
 
         expect(component.getCloseableFilters()).toEqual([{
-            id: 'idA',
-            field: 'field1',
-            label: '',
-            prettyField: 'prettyField1',
-            value: 'value1'
+            id: 'testId'
         }]);
     });
 
@@ -810,13 +862,9 @@ describe('Component: Aggregation', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        component.filters = [{
-            id: 'testDatabase1-testTable1-testFilterName1',
-            field: undefined,
-            label: '',
-            prettyField: undefined,
-            value: undefined
-        }];
+        component.filterToPassToSuperclass = {
+            id: 'testDatabase1-testTable1-testFilterName1'
+        };
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
@@ -834,13 +882,9 @@ describe('Component: Aggregation', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        component.filters = [{
-            id: 'testDatabase1-testTable1-testFilterName1',
-            field: undefined,
-            label: '',
-            prettyField: undefined,
-            value: undefined
-        }];
+        component.filterToPassToSuperclass = {
+            id: 'testDatabase1-testTable1-testFilterName1'
+        };
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
 
@@ -873,13 +917,9 @@ describe('Component: Aggregation', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.filters = [{
-            id: 'testDatabase1-testTable1-testFilterName1',
-            field: undefined,
-            label: '',
-            prettyField: undefined,
-            value: undefined
-        }];
+        component.filterToPassToSuperclass = {
+            id: 'testDatabase1-testTable1-testFilterName1'
+        };
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
@@ -897,51 +937,11 @@ describe('Component: Aggregation', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.filters = [{
-            id: 'testDatabase1-testTable1-testFilterName1',
-            field: undefined,
-            label: '',
-            prettyField: undefined,
-            value: undefined
-        }];
+        component.filterToPassToSuperclass = {
+            id: 'testDatabase1-testTable1-testFilterName1'
+        };
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore does return expected array of IDs from both X and group service filters', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testCategoryField', '!=', null), 'testFilterName1');
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testXField', '!=', null), 'testFilterName2');
-
-        component.options.ignoreSelf = true;
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
-        component.options.xField = DatasetServiceMock.X_FIELD;
-        component.filters = [{
-            id: 'testDatabase1-testTable1-testFilterName1',
-            field: undefined,
-            label: '',
-            prettyField: undefined,
-            value: undefined
-        }, {
-            id: 'testDatabase1-testTable1-testFilterName2',
-            field: undefined,
-            label: '',
-            prettyField: undefined,
-            value: undefined
-        }];
-
-        expect(component.getFiltersToIgnore()).toEqual([
-            'testDatabase1-testTable1-testFilterName2',
-            'testDatabase1-testTable1-testFilterName1'
-        ]);
 
         getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
             return filter.id;
@@ -980,13 +980,9 @@ describe('Component: Aggregation', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.type = 'scatter-xy';
-        component.filters = [{
-            id: 'testDatabase1-testTable1-testFilterName1',
-            field: undefined,
-            label: '',
-            prettyField: undefined,
-            value: undefined
-        }];
+        component.filterToPassToSuperclass = {
+            id: 'testDatabase1-testTable1-testFilterName1'
+        };
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
@@ -1010,13 +1006,9 @@ describe('Component: Aggregation', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.type = 'scatter-xy';
-        component.filters = [{
-            id: 'testDatabase1-testTable1-testFilterName1',
-            field: undefined,
-            label: '',
-            prettyField: undefined,
-            value: undefined
-        }];
+        component.filterToPassToSuperclass = {
+            id: 'testDatabase1-testTable1-testFilterName1'
+        };
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
@@ -1038,13 +1030,9 @@ describe('Component: Aggregation', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.xField = DatasetServiceMock.Y_FIELD;
-        component.filters = [{
-            id: 'testDatabase1-testTable1-testFilterName1',
-            field: undefined,
-            label: '',
-            prettyField: undefined,
-            value: undefined
-        }];
+        component.filterToPassToSuperclass = {
+            id: 'testDatabase1-testTable1-testFilterName1'
+        };
 
         // Test matching database/table but not field.
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -1066,38 +1054,46 @@ describe('Component: Aggregation', () => {
         }));
     });
 
-    it('getFilterText does return expected string', () => {
-        expect(component.getFilterText({
-            id: 'idA',
+    it('getFilterText with a single filter does return expected string', () => {
+        component.groupFilters = [{
             field: 'field1',
-            label: '1234',
+            label: 'not group1',
+            neonFilter: null,
             prettyField: 'prettyField1',
-            value: 1234
-        })).toEqual('prettyField1 is 1234');
+            value: 'group1'
+        }];
 
-        expect(component.getFilterText({
-            id: 'idA',
+        expect(component.getFilterText({})).toEqual('prettyField1 is not group1');
+
+        component.groupFilters = [];
+
+        component.valueFilters = [{
             field: 'field1',
             label: 'value1',
+            neonFilter: null,
             prettyField: 'prettyField1',
             value: 'value1'
-        })).toEqual('prettyField1 is value1');
+        }];
 
-        expect(component.getFilterText({
-            id: 'idA',
+        expect(component.getFilterText({})).toEqual('prettyField1 is value1');
+
+        component.valueFilters = [{
             field: 'field1',
             label: '',
+            neonFilter: null,
             prettyField: 'prettyField1',
             value: {
                 beginX: 'beginX1',
                 endX: 'endX1'
             }
-        })).toEqual('prettyField1 from beginX1 to endX1');
+        }];
 
-        expect(component.getFilterText({
-            id: 'idA',
+        expect(component.getFilterText({})).toEqual('prettyField1 from beginX1 to endX1');
+
+        component.valueFilters = [{
             field: 'field1',
             label: '',
+            neonFilter: null,
             prettyField: {
                 x: 'prettyX1',
                 y: 'prettyY1'
@@ -1108,38 +1104,66 @@ describe('Component: Aggregation', () => {
                 endX: 'endX1',
                 endY: 'endY1'
             }
-        })).toEqual('prettyX1 from beginX1 to endX1 and prettyY1 from beginY1 to endY1');
+        }];
+
+        expect(component.getFilterText({})).toEqual('prettyX1 from beginX1 to endX1 and prettyY1 from beginY1 to endY1');
     });
 
-    it('getFilterText with date data does return expected string', () => {
-        component.options.xField = DatasetServiceMock.DATE_FIELD;
+    it('getFilterText with multiple filters does return expected string', () => {
+        component.groupFilters = [{
+            field: 'field1',
+            label: 'not group1',
+            neonFilter: null,
+            prettyField: 'prettyField1',
+            value: 'group1'
+        }, {
+            field: 'field1',
+            label: 'not group2',
+            neonFilter: null,
+            prettyField: 'prettyField1',
+            value: 'group2'
+        }];
 
-        expect(component.getFilterText({
-            id: 'idA',
+        expect(component.getFilterText({})).toEqual('2 Filters');
+
+        component.valueFilters = [{
+            field: 'field1',
+            label: '1234',
+            neonFilter: null,
+            prettyField: 'prettyField1',
+            value: 1234
+        }, {
+            field: 'field1',
+            label: 'value1',
+            neonFilter: null,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }, {
             field: 'field1',
             label: '',
+            neonFilter: null,
             prettyField: 'prettyField1',
             value: {
-                beginX: '2018-01-01T00:00:00.000Z',
-                endX: '2018-01-03T00:00:00.000Z'
+                beginX: 'beginX1',
+                endX: 'endX1'
             }
-        })).toEqual('prettyField1 from Mon, Jan 1, 2018, 12:00 AM to Wed, Jan 3, 2018, 12:00 AM');
-
-        expect(component.getFilterText({
-            id: 'idA',
+        }, {
             field: 'field1',
             label: '',
+            neonFilter: null,
             prettyField: {
                 x: 'prettyX1',
                 y: 'prettyY1'
             },
             value: {
-                beginX: '2018-01-01T00:00:00.000Z',
+                beginX: 'beginX1',
                 beginY: 'beginY1',
-                endX: '2018-01-03T00:00:00.000Z',
+                endX: 'endX1',
                 endY: 'endY1'
             }
-        })).toEqual('prettyX1 from Mon, Jan 1, 2018, 12:00 AM to Wed, Jan 3, 2018, 12:00 AM and prettyY1 from beginY1 to endY1');
+        }];
+
+        expect(component.getFilterText({})).toEqual('6 Filters');
     });
 
     it('getHiddenCanvas does return hiddenCanvas', () => {
@@ -1279,9 +1303,8 @@ describe('Component: Aggregation', () => {
         expect(spy3.calls.count()).toEqual(1);
     });
 
-    it('handleLegendItemSelected does call addOrReplaceFilter', () => {
-        let spyAdd = spyOn(component, 'addOrReplaceFilter');
-        let spyRemove = spyOn(component, 'removeFilter');
+    it('handleLegendItemSelected does call toggleFilter', () => {
+        let spy = spyOn(component, 'toggleFilter');
 
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
 
@@ -1289,27 +1312,25 @@ describe('Component: Aggregation', () => {
             value: 'testValue'
         });
 
-        expect(spyAdd.calls.count()).toEqual(1);
-        expect(spyAdd.calls.argsFor(0)).toEqual([{
-            id: undefined,
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([[], {
             field: 'testCategoryField',
             label: 'not testValue',
+            neonFilter: neon.query.where('testCategoryField', '!=', 'testValue'),
             prettyField: 'Test Category Field',
             value: 'testValue'
-        }, neon.query.where('testCategoryField', '!=', 'testValue'), true]);
-        expect(spyRemove.calls.count()).toEqual(0);
+        }]);
     });
 
-    it('handleLegendItemSelected does call addOrReplaceFilter if non-matching filter exists', () => {
-        let spyAdd = spyOn(component, 'addOrReplaceFilter');
-        let spyRemove = spyOn(component, 'removeFilter');
+    it('handleLegendItemSelected with groupFields does call toggleFilter', () => {
+        let spy = spyOn(component, 'toggleFilter');
 
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
 
-        component.filters = [{
-            id: 'testId',
+        component.groupFilters = [{
             field: 'testCategoryField',
             label: 'not testOtherValue',
+            neonFilter: neon.query.where('testCategoryField', '!=', 'testOtherValue'),
             prettyField: 'Test Category Field',
             value: 'testOtherValue'
         }];
@@ -1318,56 +1339,20 @@ describe('Component: Aggregation', () => {
             value: 'testValue'
         });
 
-        expect(spyAdd.calls.count()).toEqual(1);
-        expect(spyAdd.calls.argsFor(0)).toEqual([{
-            id: undefined,
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([[{
+            field: 'testCategoryField',
+            label: 'not testOtherValue',
+            neonFilter: neon.query.where('testCategoryField', '!=', 'testOtherValue'),
+            prettyField: 'Test Category Field',
+            value: 'testOtherValue'
+        }], {
             field: 'testCategoryField',
             label: 'not testValue',
+            neonFilter: neon.query.where('testCategoryField', '!=', 'testValue'),
             prettyField: 'Test Category Field',
             value: 'testValue'
-        }, neon.query.where('testCategoryField', '!=', 'testValue'), true]);
-        expect(spyRemove.calls.count()).toEqual(0);
-    });
-
-    it('handleLegendItemSelected does call removeLocalFilterFromLocalAndNeon if filter exists', () => {
-        let spyAdd = spyOn(component, 'addOrReplaceFilter');
-        let spyRemove = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
-
-        component.filters = [{
-            id: 'testId',
-            field: 'testCategoryField',
-            label: 'not testValue',
-            prettyField: 'Test Category Field',
-            value: 'testValue'
-        }];
-
-        component.handleLegendItemSelected({
-            value: 'testValue'
-        });
-
-        expect(spyAdd.calls.count()).toEqual(0);
-        expect(spyRemove.calls.count()).toEqual(1);
-        expect(spyRemove.calls.argsFor(0)).toEqual([{
-            id: 'testId',
-            field: 'testCategoryField',
-            label: 'not testValue',
-            prettyField: 'Test Category Field',
-            value: 'testValue'
-        }, true, true]);
-    });
-
-    it('handleLegendItemSelected does not call addOrReplaceFilter if no groupField exists', () => {
-        let spyAdd = spyOn(component, 'addOrReplaceFilter');
-        let spyRemove = spyOn(component, 'removeLocalFilterFromLocalAndNeon');
-
-        component.handleLegendItemSelected({
-            value: 'testValue'
-        });
-
-        expect(spyAdd.calls.count()).toEqual(0);
-        expect(spyRemove.calls.count()).toEqual(0);
+        }]);
     });
 
     it('initializeSubcomponent does update subcomponentObject', () => {
@@ -1717,7 +1702,7 @@ describe('Component: Aggregation', () => {
 
     it('onQuerySuccess with savePrevious=true does keep previous xList string data', () => {
         component.options.savePrevious = true;
-        component.options.xField = DatasetServiceMock.NAME_FIELD;
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
         component.page = 2;
         component.xList = ['z', 'a', 'b', 'c', 'd'];
         let spy = spyOn(component, 'updateActiveData');
@@ -1725,10 +1710,10 @@ describe('Component: Aggregation', () => {
         component.onQuerySuccess({
             data: [{
                 _aggregation: 2,
-                testNameField: 'a'
+                testTextField: 'a'
             }, {
                 _aggregation: 4,
-                testNameField: 'c'
+                testTextField: 'c'
             }]
         });
 
@@ -2262,8 +2247,8 @@ describe('Component: Aggregation', () => {
     it('refreshVisualization does work as expected with string fields', () => {
         let spy = spyOn(component.subcomponentObject, 'draw');
         component.options.type = 'line-xy';
-        component.options.xField = DatasetServiceMock.NAME_FIELD;
-        component.options.yField = DatasetServiceMock.NAME_FIELD;
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
+        component.options.yField = DatasetServiceMock.TEXT_FIELD;
 
         component.refreshVisualization();
         expect(spy.calls.count()).toEqual(1);
@@ -2312,63 +2297,43 @@ describe('Component: Aggregation', () => {
         expect(component.legendFields).toEqual(['']);
     });
 
-    it('removeFilter does remove objects from filters and call subcomponentObject.deselect', () => {
+    it('removeFilter does delete filters and call subcomponentObject.deselect', () => {
         let spy = spyOn(component.subcomponentObject, 'deselect');
 
-        let filter1 = {
-            id: 'idA',
+        component.filterToPassToSuperclass = {
+            id: 'testId'
+        };
+        component.groupFilters = [{
             field: 'field1',
             label: '',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        };
-        let filter2 = {
-            id: 'idB',
-            field: 'field2',
-            label: '',
-            prettyField: 'prettyField2',
-            value: 'value2'
-        };
-        component.filters = [filter1, filter2];
-
-        component.removeFilter(filter1);
-        expect(component.filters).toEqual([filter2]);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual(['value1']);
-
-        component.removeFilter(filter2);
-        expect(component.filters).toEqual([]);
-        expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual(['value2']);
-    });
-
-    it('removeFilter does not remove objects from filters with non-matching IDs or call subcomponentObject.deselect', () => {
-        let spy = spyOn(component.subcomponentObject, 'deselect');
-
-        component.filters = [{
-            id: 'idA',
-            field: 'field1',
-            label: '',
+            neonFilter: null,
             prettyField: 'prettyField1',
             value: 'value1'
         }];
+        component.valueFilters = [{
+            field: 'field2',
+            label: '',
+            neonFilter: null,
+            prettyField: 'prettyField2',
+            value: 'value2'
+        }];
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
 
         component.removeFilter({
-            id: 'idB',
-            field: 'field1',
-            label: '',
-            prettyField: 'prettyField1',
-            value: 'value1'
+            id: 'testId'
         });
 
-        expect(spy.calls.count()).toEqual(0);
-        expect(component.filters).toEqual([{
-            id: 'idA',
-            field: 'field1',
-            label: '',
-            prettyField: 'prettyField1',
-            value: 'value1'
-        }]);
+        expect(component.filterToPassToSuperclass).toEqual({});
+        expect(component.groupFilters).toEqual([]);
+        expect(component.valueFilters).toEqual([]);
+        expect(component.selectedArea).toEqual(null);
+        expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([]);
     });
 
     it('showFooterContainer does return expected boolean', () => {
@@ -2394,10 +2359,21 @@ describe('Component: Aggregation', () => {
         expect(component.showHeaderContainer()).toEqual(true);
 
         component.legendGroups = [];
-        component.filters = [{
-            id: 'idA',
+        component.groupFilters = [{
             field: 'field1',
             label: '',
+            neonFilter: null,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        }];
+
+        expect(component.showHeaderContainer()).toEqual(true);
+
+        component.groupFilters = [];
+        component.valueFilters = [{
+            field: 'field1',
+            label: '',
+            neonFilter: null,
             prettyField: 'prettyField1',
             value: 'value1'
         }];
@@ -2454,7 +2430,7 @@ describe('Component: Aggregation', () => {
         expect(component.selectedArea).toEqual(null);
     });
 
-    it('subcomponentRequestsFilterOnBounds does call addOrReplaceFilter', () => {
+    it('subcomponentRequestsFilterOnBounds with number data does update valueFilters and call createOrRemoveNeonFilter', () => {
         component.selectedArea = {
             height: 4,
             width: 3,
@@ -2463,46 +2439,67 @@ describe('Component: Aggregation', () => {
         };
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        let spy = spyOn(component, 'addOrReplaceFilter');
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
-        component.subcomponentRequestsFilterOnBounds(1, 2, 3, 4);
+        component.subcomponentRequestsFilterOnBounds(12, 34, 56, 78);
+
         expect(component.selectedArea).toEqual(null);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([{
-            id: undefined,
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.valueFilters).toEqual([{
             field: {
                 x: 'testXField',
                 y: 'testYField'
             },
             label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testXField', '>=', 12), neon.query.where('testYField', '>=', 34),
+                neon.query.where('testXField', '<=', 56), neon.query.where('testYField', '<=', 78)
+            ]),
             prettyField: {
                 x: 'Test X Field',
                 y: 'Test Y Field'
             },
             value: {
-                beginX: 1,
-                beginY: 2,
-                endX: 3,
-                endY: 4
+                beginX: 12,
+                beginY: 34,
+                endX: 56,
+                endY: 78
             }
-        }, neon.query.and.apply(neon.query, [
-            neon.query.where('testXField', '>=', 1), neon.query.where('testYField', '>=', 2),
-            neon.query.where('testXField', '<=', 3), neon.query.where('testYField', '<=', 4)
-        ]), false]);
+        }]);
+    });
+
+    it('subcomponentRequestsFilterOnBounds with string data does update valueFilters and call createOrRemoveNeonFilter', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
+        component.options.yField = DatasetServiceMock.TEXT_FIELD;
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
         component.subcomponentRequestsFilterOnBounds('testText1', 'testText2', 'testText3', 'testText4');
+
         expect(component.selectedArea).toEqual(null);
-        expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([{
-            id: undefined,
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.valueFilters).toEqual([{
             field: {
-                x: 'testXField',
-                y: 'testYField'
+                x: 'testTextField',
+                y: 'testTextField'
             },
             label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testTextField', '>=', 'testText1'), neon.query.where('testTextField', '>=', 'testText2'),
+                neon.query.where('testTextField', '<=', 'testText3'), neon.query.where('testTextField', '<=', 'testText4')
+            ]),
             prettyField: {
-                x: 'Test X Field',
-                y: 'Test Y Field'
+                x: 'Test Text Field',
+                y: 'Test Text Field'
             },
             value: {
                 beginX: 'testText1',
@@ -2510,10 +2507,172 @@ describe('Component: Aggregation', () => {
                 endX: 'testText3',
                 endY: 'testText4'
             }
-        }, neon.query.and.apply(neon.query, [
-            neon.query.where('testXField', '>=', 'testText1'), neon.query.where('testYField', '>=', 'testText2'),
-            neon.query.where('testXField', '<=', 'testText3'), neon.query.where('testYField', '<=', 'testText4')
-        ]), false]);
+        }]);
+    });
+
+    it('subcomponentRequestsFilterOnBounds does delete previous valueFilters if doNotReplace=false', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+
+        component.valueFilters = [{
+            field: {
+                x: 'testXField',
+                y: 'testYField'
+            },
+            label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testXField', '>=', 21), neon.query.where('testYField', '>=', 43),
+                neon.query.where('testXField', '<=', 65), neon.query.where('testYField', '<=', 87)
+            ]),
+            prettyField: {
+                x: 'Test X Field',
+                y: 'Test Y Field'
+            },
+            value: {
+                beginX: 21,
+                beginY: 43,
+                endX: 65,
+                endY: 87
+            }
+        }];
+
+        component.subcomponentRequestsFilterOnBounds(12, 34, 56, 78);
+
+        expect(component.selectedArea).toEqual(null);
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.valueFilters).toEqual([{
+            field: {
+                x: 'testXField',
+                y: 'testYField'
+            },
+            label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testXField', '>=', 12), neon.query.where('testYField', '>=', 34),
+                neon.query.where('testXField', '<=', 56), neon.query.where('testYField', '<=', 78)
+            ]),
+            prettyField: {
+                x: 'Test X Field',
+                y: 'Test Y Field'
+            },
+            value: {
+                beginX: 12,
+                beginY: 34,
+                endX: 56,
+                endY: 78
+            }
+        }]);
+    });
+
+    it('subcomponentRequestsFilterOnBounds does not delete previous valueFilters and does call toggleFilter if doNotReplace=true', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+
+        component.valueFilters = [{
+            field: {
+                x: 'testXField',
+                y: 'testYField'
+            },
+            label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testXField', '>=', 21), neon.query.where('testYField', '>=', 43),
+                neon.query.where('testXField', '<=', 65), neon.query.where('testYField', '<=', 87)
+            ]),
+            prettyField: {
+                x: 'Test X Field',
+                y: 'Test Y Field'
+            },
+            value: {
+                beginX: 21,
+                beginY: 43,
+                endX: 65,
+                endY: 87
+            }
+        }];
+
+        component.subcomponentRequestsFilterOnBounds(12, 34, 56, 78, true);
+
+        expect(component.selectedArea).toEqual(null);
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[{
+            field: {
+                x: 'testXField',
+                y: 'testYField'
+            },
+            label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testXField', '>=', 21), neon.query.where('testYField', '>=', 43),
+                neon.query.where('testXField', '<=', 65), neon.query.where('testYField', '<=', 87)
+            ]),
+            prettyField: {
+                x: 'Test X Field',
+                y: 'Test Y Field'
+            },
+            value: {
+                beginX: 21,
+                beginY: 43,
+                endX: 65,
+                endY: 87
+            }
+        }], {
+            field: {
+                x: 'testXField',
+                y: 'testYField'
+            },
+            label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testXField', '>=', 12), neon.query.where('testYField', '>=', 34),
+                neon.query.where('testXField', '<=', 56), neon.query.where('testYField', '<=', 78)
+            ]),
+            prettyField: {
+                x: 'Test X Field',
+                y: 'Test Y Field'
+            },
+            value: {
+                beginX: 12,
+                beginY: 34,
+                endX: 56,
+                endY: 78
+            }
+        }]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(component.valueFilters).toEqual([{
+            field: {
+                x: 'testXField',
+                y: 'testYField'
+            },
+            label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testXField', '>=', 21), neon.query.where('testYField', '>=', 43),
+                neon.query.where('testXField', '<=', 65), neon.query.where('testYField', '<=', 87)
+            ]),
+            prettyField: {
+                x: 'Test X Field',
+                y: 'Test Y Field'
+            },
+            value: {
+                beginX: 21,
+                beginY: 43,
+                endX: 65,
+                endY: 87
+            }
+        }]);
     });
 
     it('subcomponentRequestsFilterOnBounds does not remove selectedArea if ignoreSelf=true', () => {
@@ -2526,9 +2685,9 @@ describe('Component: Aggregation', () => {
         component.options.ignoreSelf = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
         component.options.yField = DatasetServiceMock.Y_FIELD;
-        let spy = spyOn(component, 'addOrReplaceFilter');
 
-        component.subcomponentRequestsFilterOnBounds('testText1', 'testText2', 'testText3', 'testText4');
+        component.subcomponentRequestsFilterOnBounds(1, 2, 3, 4);
+
         expect(component.selectedArea).toEqual({
             height: 4,
             width: 3,
@@ -2537,7 +2696,7 @@ describe('Component: Aggregation', () => {
         });
     });
 
-    it('subcomponentRequestsFilterOnDomain does call addOrReplaceFilter', () => {
+    it('subcomponentRequestsFilterOnDomain with number data does update valueFilters and call createOrRemoveNeonFilter', () => {
         component.selectedArea = {
             height: 4,
             width: 3,
@@ -2545,39 +2704,165 @@ describe('Component: Aggregation', () => {
             y: 1
         };
         component.options.xField = DatasetServiceMock.X_FIELD;
-        let spy = spyOn(component, 'addOrReplaceFilter');
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
-        component.subcomponentRequestsFilterOnDomain(1, 2);
+        component.subcomponentRequestsFilterOnDomain(1234, 5678);
+
         expect(component.selectedArea).toEqual(null);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([{
-            id: undefined,
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.valueFilters).toEqual([{
             field: 'testXField',
             label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testXField', '>=', 1234), neon.query.where('testXField', '<=', 5678)
+            ]),
             prettyField: 'Test X Field',
             value: {
-                beginX: 1,
-                endX: 2
+                beginX: 1234,
+                endX: 5678
             }
-        }, neon.query.and.apply(neon.query, [
-            neon.query.where('testXField', '>=', 1), neon.query.where('testXField', '<=', 2)
-        ]), false]);
+        }]);
+    });
+
+    it('subcomponentRequestsFilterOnDomain with string data does update valueFilters and call createOrRemoveNeonFilter', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
         component.subcomponentRequestsFilterOnDomain('testText1', 'testText2');
+
         expect(component.selectedArea).toEqual(null);
-        expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([{
-            id: undefined,
-            field: 'testXField',
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.valueFilters).toEqual([{
+            field: 'testTextField',
             label: '',
-            prettyField: 'Test X Field',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testTextField', '>=', 'testText1'), neon.query.where('testTextField', '<=', 'testText2')
+            ]),
+            prettyField: 'Test Text Field',
             value: {
                 beginX: 'testText1',
                 endX: 'testText2'
             }
-        }, neon.query.and.apply(neon.query, [
-            neon.query.where('testXField', '>=', 'testText1'), neon.query.where('testXField', '<=', 'testText2')
-        ]), false]);
+        }]);
+    });
+
+    it('subcomponentRequestsFilterOnDomain does delete previous valueFilters if doNotReplace=false', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+
+        component.valueFilters = [{
+            field: 'testTextField',
+            label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testTextField', '>=', 'testText3'), neon.query.where('testTextField', '<=', 'testText4')
+            ]),
+            prettyField: 'Test Text Field',
+            value: {
+                beginX: 'testText3',
+                endX: 'testText4'
+            }
+        }];
+
+        component.subcomponentRequestsFilterOnDomain('testText1', 'testText2');
+
+        expect(component.selectedArea).toEqual(null);
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.valueFilters).toEqual([{
+            field: 'testTextField',
+            label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testTextField', '>=', 'testText1'), neon.query.where('testTextField', '<=', 'testText2')
+            ]),
+            prettyField: 'Test Text Field',
+            value: {
+                beginX: 'testText1',
+                endX: 'testText2'
+            }
+        }]);
+    });
+
+    it('subcomponentRequestsFilterOnDomain does not delete previous valueFilters and does call toggleFilter if doNotReplace=true', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+
+        component.valueFilters = [{
+            field: 'testTextField',
+            label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testTextField', '>=', 'testText3'), neon.query.where('testTextField', '<=', 'testText4')
+            ]),
+            prettyField: 'Test Text Field',
+            value: {
+                beginX: 'testText3',
+                endX: 'testText4'
+            }
+        }];
+
+        component.subcomponentRequestsFilterOnDomain('testText1', 'testText2', true);
+
+        expect(component.selectedArea).toEqual(null);
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[{
+            field: 'testTextField',
+            label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testTextField', '>=', 'testText3'), neon.query.where('testTextField', '<=', 'testText4')
+            ]),
+            prettyField: 'Test Text Field',
+            value: {
+                beginX: 'testText3',
+                endX: 'testText4'
+            }
+        }], {
+            field: 'testTextField',
+            label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testTextField', '>=', 'testText1'), neon.query.where('testTextField', '<=', 'testText2')
+            ]),
+            prettyField: 'Test Text Field',
+            value: {
+                beginX: 'testText1',
+                endX: 'testText2'
+            }
+        }]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(component.valueFilters).toEqual([{
+            field: 'testTextField',
+            label: '',
+            neonFilter: neon.query.and.apply(neon.query, [
+                neon.query.where('testTextField', '>=', 'testText3'), neon.query.where('testTextField', '<=', 'testText4')
+            ]),
+            prettyField: 'Test Text Field',
+            value: {
+                beginX: 'testText3',
+                endX: 'testText4'
+            }
+        }]);
     });
 
     it('subcomponentRequestsFilterOnDomain does not remove selectedArea if ignoreSelf=true', () => {
@@ -2589,9 +2874,9 @@ describe('Component: Aggregation', () => {
         };
         component.options.ignoreSelf = true;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        let spy = spyOn(component, 'addOrReplaceFilter');
 
-        component.subcomponentRequestsFilterOnDomain('testText1', 'testText2');
+        component.subcomponentRequestsFilterOnDomain(1, 2);
+
         expect(component.selectedArea).toEqual({
             height: 4,
             width: 3,
@@ -2600,29 +2885,105 @@ describe('Component: Aggregation', () => {
         });
     });
 
-    it('subcomponentRequestsFilter does call addOrReplaceFilter', () => {
+    it('subcomponentRequestsFilter with number data does update valueFilters and call createOrRemoveNeonFilter', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
-        let spy = spyOn(component, 'addOrReplaceFilter');
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
-        component.subcomponentRequestsFilter(1);
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([{
-            id: undefined,
-            field: 'testXField',
-            label: '1',
-            prettyField: 'Test X Field',
-            value: 1
-        }, neon.query.where('testXField', '=', 1), false]);
+        component.subcomponentRequestsFilter(1234);
 
-        component.subcomponentRequestsFilter('testText');
-        expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([{
-            id: undefined,
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.valueFilters).toEqual([{
             field: 'testXField',
-            label: 'testText',
+            label: '1234',
+            neonFilter: neon.query.where('testXField', '=', 1234),
             prettyField: 'Test X Field',
-            value: 'testText'
-        }, neon.query.where('testXField', '=', 'testText'), false]);
+            value: 1234
+        }]);
+    });
+
+    it('subcomponentRequestsFilter with string data does update valueFilters and call createOrRemoveNeonFilter', () => {
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+
+        component.subcomponentRequestsFilter('testText1');
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.valueFilters).toEqual([{
+            field: 'testTextField',
+            label: 'testText1',
+            neonFilter: neon.query.where('testTextField', '=', 'testText1'),
+            prettyField: 'Test Text Field',
+            value: 'testText1'
+        }]);
+    });
+
+    it('subcomponentRequestsFilter does delete previous valueFilters if doNotReplace=false', () => {
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+
+        component.valueFilters = [{
+            field: 'testTextField',
+            label: 'testText2',
+            neonFilter: neon.query.where('testTextField', '=', 'testText2'),
+            prettyField: 'Test Text Field',
+            value: 'testText2'
+        }];
+
+        component.subcomponentRequestsFilter('testText1');
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.valueFilters).toEqual([{
+            field: 'testTextField',
+            label: 'testText1',
+            neonFilter: neon.query.where('testTextField', '=', 'testText1'),
+            prettyField: 'Test Text Field',
+            value: 'testText1'
+        }]);
+    });
+
+    it('subcomponentRequestsFilter does not delete previous valueFilters and does call toggleFilter if doNotReplace=true', () => {
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+
+        component.valueFilters = [{
+            field: 'testTextField',
+            label: 'testText2',
+            neonFilter: neon.query.where('testTextField', '=', 'testText2'),
+            prettyField: 'Test Text Field',
+            value: 'testText2'
+        }];
+
+        component.subcomponentRequestsFilter('testText1', true);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[{
+            field: 'testTextField',
+            label: 'testText2',
+            neonFilter: neon.query.where('testTextField', '=', 'testText2'),
+            prettyField: 'Test Text Field',
+            value: 'testText2'
+        }], {
+            field: 'testTextField',
+            label: 'testText1',
+            neonFilter: neon.query.where('testTextField', '=', 'testText1'),
+            prettyField: 'Test Text Field',
+            value: 'testText1'
+        }]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(component.valueFilters).toEqual([{
+            field: 'testTextField',
+            label: 'testText2',
+            neonFilter: neon.query.where('testTextField', '=', 'testText2'),
+            prettyField: 'Test Text Field',
+            value: 'testText2'
+        }]);
     });
 
     it('subcomponentRequestsRedraw does call stopEventPropagation and changeDetection.detectChanges', () => {
@@ -2663,6 +3024,7 @@ describe('Component: Aggregation', () => {
             lineFillArea: false,
             logScaleX: false,
             logScaleY: false,
+            requireAll: false,
             savePrevious: false,
             scaleMaxX: '',
             scaleMaxY: '',
@@ -2689,6 +3051,7 @@ describe('Component: Aggregation', () => {
         component.options.lineFillArea = true;
         component.options.logScaleX = true;
         component.options.logScaleY = true;
+        component.options.requireAll = true;
         component.options.savePrevious = true;
         component.options.scaleMaxX = '44';
         component.options.scaleMaxY = '33';
@@ -2716,6 +3079,7 @@ describe('Component: Aggregation', () => {
             lineFillArea: true,
             logScaleX: true,
             logScaleY: true,
+            requireAll: true,
             savePrevious: true,
             scaleMaxX: '44',
             scaleMaxY: '33',
@@ -2751,6 +3115,116 @@ describe('Component: Aggregation', () => {
         expect(spy.calls.count()).toEqual(1);
         expect(component.minimumDimensions.height).toBeDefined();
         expect(component.minimumDimensions.width).toBeDefined();
+    });
+
+    it('toggleFilter does add given filter to given empty array and call createOrRemoveNeonFilter', () => {
+        let spy = spyOn(component, 'createOrRemoveNeonFilter');
+
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        let filter1 = {
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        };
+        let filters = [];
+
+        component.toggleFilter(filters, filter1);
+
+        expect(filters).toEqual([filter1]);
+        expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('toggleFilter does add given filter to given non-empty array and call createOrRemoveNeonFilter', () => {
+        let spy = spyOn(component, 'createOrRemoveNeonFilter');
+
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        let filter1 = {
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        };
+        let neonFilter2 = neon.query.where('field2', '=', 'value2');
+        let filter2 = {
+            field: 'field2',
+            label: '',
+            neonFilter: neonFilter2,
+            prettyField: 'prettyField2',
+            value: 'value2'
+        };
+        let filters = [filter1];
+
+        component.toggleFilter(filters, filter2);
+
+        expect(filters).toEqual([filter1, filter2]);
+        expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('toggleFilter does remove given filter from given array and call createOrRemoveNeonFilter', () => {
+        let spy1 = spyOn(component, 'createOrRemoveNeonFilter');
+        let spy2 = spyOn(component.subcomponentObject, 'deselect');
+
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        let filter1 = {
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        };
+        let filters = [filter1];
+
+        component.toggleFilter(filters, {
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        });
+
+        expect(filters).toEqual([]);
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual(['value1']);
+    });
+
+    it('toggleFilter does remove given filter from given multi-element array and call createOrRemoveNeonFilter', () => {
+        let spy1 = spyOn(component, 'createOrRemoveNeonFilter');
+        let spy2 = spyOn(component.subcomponentObject, 'deselect');
+
+        let neonFilter1 = neon.query.where('field1', '=', 'value1');
+        let filter1 = {
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        };
+        let neonFilter2 = neon.query.where('field2', '=', 'value2');
+        let filter2 = {
+            field: 'field2',
+            label: '',
+            neonFilter: neonFilter2,
+            prettyField: 'prettyField2',
+            value: 'value2'
+        };
+        let filters = [filter1, filter2];
+
+        component.toggleFilter(filters, {
+            field: 'field1',
+            label: '',
+            neonFilter: neonFilter1,
+            prettyField: 'prettyField1',
+            value: 'value1'
+        });
+
+        expect(filters).toEqual([filter2]);
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual(['value1']);
     });
 
     it('updateActiveData does update activeData and lastPage from responseData, page, and limit and call refreshVisualization', () => {
@@ -2996,18 +3470,19 @@ describe('Component: Aggregation', () => {
         });
     }));
 
-    it('does show filter-container and filter-reset elements if filters is non-empty array', async(() => {
+    it('does show filter-container and filter-reset elements if groupFilters or valueFilters are non-empty array', async(() => {
         component.options.type = 'bar-h';
-        component.filters = [{
-            id: 'idA',
+        component.groupFilters = [{
             field: 'field1',
             label: 'value1',
+            neonFilter: null,
             prettyField: 'prettyField1',
             value: 'value1'
-        }, {
-            id: 'idB',
+        }];
+        component.valueFilters = [{
             field: 'field2',
             label: 'value2',
+            neonFilter: null,
             prettyField: 'prettyField2',
             value: 'value2'
         }];
@@ -3314,22 +3789,22 @@ describe('Component: Aggregation', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(14);
+            expect(toggles.length).toEqual(16);
 
             expect(toggles[0].componentInstance.value).toEqual(false);
-            expect(toggles[0].nativeElement.textContent).toContain('Yes');
+            expect(toggles[0].nativeElement.textContent).toContain('OR');
             expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[1].componentInstance.value).toEqual(true);
-            expect(toggles[1].nativeElement.textContent).toContain('No');
+            expect(toggles[1].nativeElement.textContent).toContain('AND');
             expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[2].componentInstance.value).toEqual(false);
-            expect(toggles[2].nativeElement.textContent).toContain('Show');
+            expect(toggles[2].nativeElement.textContent).toContain('Yes');
             expect(toggles[2].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[3].componentInstance.value).toEqual(true);
-            expect(toggles[3].nativeElement.textContent).toContain('Hide');
+            expect(toggles[3].nativeElement.textContent).toContain('No');
             expect(toggles[3].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[4].componentInstance.value).toEqual(false);
@@ -3341,11 +3816,11 @@ describe('Component: Aggregation', () => {
             expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[6].componentInstance.value).toEqual(false);
-            expect(toggles[6].nativeElement.textContent).toContain('No');
+            expect(toggles[6].nativeElement.textContent).toContain('Show');
             expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[7].componentInstance.value).toEqual(true);
-            expect(toggles[7].nativeElement.textContent).toContain('Yes');
+            expect(toggles[7].nativeElement.textContent).toContain('Hide');
             expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[8].componentInstance.value).toEqual(false);
@@ -3371,6 +3846,14 @@ describe('Component: Aggregation', () => {
             expect(toggles[13].componentInstance.value).toEqual(true);
             expect(toggles[13].nativeElement.textContent).toContain('Yes');
             expect(toggles[13].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[14].componentInstance.value).toEqual(false);
+            expect(toggles[14].nativeElement.textContent).toContain('No');
+            expect(toggles[14].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[15].componentInstance.value).toEqual(true);
+            expect(toggles[15].nativeElement.textContent).toContain('Yes');
+            expect(toggles[15].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
         });
     }));
 });
@@ -3417,6 +3900,7 @@ describe('Component: Aggregation with config', () => {
             { provide: 'lineFillArea', useValue: true },
             { provide: 'logScaleX', useValue: true },
             { provide: 'logScaleY', useValue: true },
+            { provide: 'requireAll', useValue: true },
             { provide: 'savePrevious', useValue: true },
             { provide: 'scaleMaxX', useValue: '44' },
             { provide: 'scaleMaxY', useValue: '33' },
@@ -3468,6 +3952,7 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.lineFillArea).toEqual(true);
         expect(component.options.logScaleX).toEqual(true);
         expect(component.options.logScaleY).toEqual(true);
+        expect(component.options.requireAll).toEqual(true);
         expect(component.options.savePrevious).toEqual(true);
         expect(component.options.scaleMaxX).toEqual('44');
         expect(component.options.scaleMaxY).toEqual('33');
@@ -3633,22 +4118,22 @@ describe('Component: Aggregation with config', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(12);
+            expect(toggles.length).toEqual(14);
 
             expect(toggles[0].componentInstance.value).toEqual(false);
-            expect(toggles[0].nativeElement.textContent).toContain('Yes');
+            expect(toggles[0].nativeElement.textContent).toContain('OR');
             expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[1].componentInstance.value).toEqual(true);
-            expect(toggles[1].nativeElement.textContent).toContain('No');
+            expect(toggles[1].nativeElement.textContent).toContain('AND');
             expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[2].componentInstance.value).toEqual(false);
-            expect(toggles[2].nativeElement.textContent).toContain('Show');
+            expect(toggles[2].nativeElement.textContent).toContain('Yes');
             expect(toggles[2].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[3].componentInstance.value).toEqual(true);
-            expect(toggles[3].nativeElement.textContent).toContain('Hide');
+            expect(toggles[3].nativeElement.textContent).toContain('No');
             expect(toggles[3].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[4].componentInstance.value).toEqual(false);
@@ -3660,11 +4145,11 @@ describe('Component: Aggregation with config', () => {
             expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[6].componentInstance.value).toEqual(false);
-            expect(toggles[6].nativeElement.textContent).toContain('No');
+            expect(toggles[6].nativeElement.textContent).toContain('Show');
             expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[7].componentInstance.value).toEqual(true);
-            expect(toggles[7].nativeElement.textContent).toContain('Yes');
+            expect(toggles[7].nativeElement.textContent).toContain('Hide');
             expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[8].componentInstance.value).toEqual(false);
@@ -3682,6 +4167,14 @@ describe('Component: Aggregation with config', () => {
             expect(toggles[11].componentInstance.value).toEqual(true);
             expect(toggles[11].nativeElement.textContent).toContain('Yes');
             expect(toggles[11].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[12].componentInstance.value).toEqual(false);
+            expect(toggles[12].nativeElement.textContent).toContain('No');
+            expect(toggles[12].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[13].componentInstance.value).toEqual(true);
+            expect(toggles[13].nativeElement.textContent).toContain('Yes');
+            expect(toggles[13].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
         });
     }));
 });
@@ -3728,6 +4221,7 @@ describe('Component: Aggregation with XY config', () => {
             { provide: 'lineFillArea', useValue: true },
             { provide: 'logScaleX', useValue: true },
             { provide: 'logScaleY', useValue: true },
+            { provide: 'requireAll', useValue: true },
             { provide: 'savePrevious', useValue: true },
             { provide: 'scaleMaxX', useValue: '44' },
             { provide: 'scaleMaxY', useValue: '33' },
@@ -3880,22 +4374,22 @@ describe('Component: Aggregation with XY config', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(12);
+            expect(toggles.length).toEqual(14);
 
             expect(toggles[0].componentInstance.value).toEqual(false);
-            expect(toggles[0].nativeElement.textContent).toContain('Yes');
+            expect(toggles[0].nativeElement.textContent).toContain('OR');
             expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[1].componentInstance.value).toEqual(true);
-            expect(toggles[1].nativeElement.textContent).toContain('No');
+            expect(toggles[1].nativeElement.textContent).toContain('AND');
             expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[2].componentInstance.value).toEqual(false);
-            expect(toggles[2].nativeElement.textContent).toContain('Show');
+            expect(toggles[2].nativeElement.textContent).toContain('Yes');
             expect(toggles[2].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[3].componentInstance.value).toEqual(true);
-            expect(toggles[3].nativeElement.textContent).toContain('Hide');
+            expect(toggles[3].nativeElement.textContent).toContain('No');
             expect(toggles[3].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[4].componentInstance.value).toEqual(false);
@@ -3907,11 +4401,11 @@ describe('Component: Aggregation with XY config', () => {
             expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[6].componentInstance.value).toEqual(false);
-            expect(toggles[6].nativeElement.textContent).toContain('No');
+            expect(toggles[6].nativeElement.textContent).toContain('Show');
             expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[7].componentInstance.value).toEqual(true);
-            expect(toggles[7].nativeElement.textContent).toContain('Yes');
+            expect(toggles[7].nativeElement.textContent).toContain('Hide');
             expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[8].componentInstance.value).toEqual(false);
@@ -3929,6 +4423,14 @@ describe('Component: Aggregation with XY config', () => {
             expect(toggles[11].componentInstance.value).toEqual(true);
             expect(toggles[11].nativeElement.textContent).toContain('Yes');
             expect(toggles[11].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[12].componentInstance.value).toEqual(false);
+            expect(toggles[12].nativeElement.textContent).toContain('No');
+            expect(toggles[12].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[13].componentInstance.value).toEqual(true);
+            expect(toggles[13].nativeElement.textContent).toContain('Yes');
+            expect(toggles[13].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
         });
     }));
 });
@@ -3975,6 +4477,7 @@ describe('Component: Aggregation with date config', () => {
             { provide: 'lineFillArea', useValue: true },
             { provide: 'logScaleX', useValue: true },
             { provide: 'logScaleY', useValue: true },
+            { provide: 'requireAll', useValue: true },
             { provide: 'savePrevious', useValue: true },
             { provide: 'scaleMaxX', useValue: '44' },
             { provide: 'scaleMaxY', useValue: '33' },
@@ -4160,7 +4663,7 @@ describe('Component: Aggregation with date config', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(14);
+            expect(toggles.length).toEqual(16);
 
             expect(toggles[0].componentInstance.value).toEqual(false);
             expect(toggles[0].nativeElement.textContent).toContain('No');
@@ -4171,19 +4674,19 @@ describe('Component: Aggregation with date config', () => {
             expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[2].componentInstance.value).toEqual(false);
-            expect(toggles[2].nativeElement.textContent).toContain('Yes');
+            expect(toggles[2].nativeElement.textContent).toContain('OR');
             expect(toggles[2].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[3].componentInstance.value).toEqual(true);
-            expect(toggles[3].nativeElement.textContent).toContain('No');
+            expect(toggles[3].nativeElement.textContent).toContain('AND');
             expect(toggles[3].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[4].componentInstance.value).toEqual(false);
-            expect(toggles[4].nativeElement.textContent).toContain('Show');
+            expect(toggles[4].nativeElement.textContent).toContain('Yes');
             expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[5].componentInstance.value).toEqual(true);
-            expect(toggles[5].nativeElement.textContent).toContain('Hide');
+            expect(toggles[5].nativeElement.textContent).toContain('No');
             expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[6].componentInstance.value).toEqual(false);
@@ -4195,11 +4698,11 @@ describe('Component: Aggregation with date config', () => {
             expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[8].componentInstance.value).toEqual(false);
-            expect(toggles[8].nativeElement.textContent).toContain('No');
+            expect(toggles[8].nativeElement.textContent).toContain('Show');
             expect(toggles[8].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[9].componentInstance.value).toEqual(true);
-            expect(toggles[9].nativeElement.textContent).toContain('Yes');
+            expect(toggles[9].nativeElement.textContent).toContain('Hide');
             expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[10].componentInstance.value).toEqual(false);
@@ -4217,6 +4720,14 @@ describe('Component: Aggregation with date config', () => {
             expect(toggles[13].componentInstance.value).toEqual(true);
             expect(toggles[13].nativeElement.textContent).toContain('Yes');
             expect(toggles[13].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[14].componentInstance.value).toEqual(false);
+            expect(toggles[14].nativeElement.textContent).toContain('No');
+            expect(toggles[14].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[15].componentInstance.value).toEqual(true);
+            expect(toggles[15].nativeElement.textContent).toContain('Yes');
+            expect(toggles[15].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
         });
     }));
 });

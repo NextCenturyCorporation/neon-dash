@@ -810,8 +810,8 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
                 endLabelX = new Date(endLabelX);
             }
             if (this.findAxisTypeX() === 'number') {
-                beginLabelX = Number(beginLabelX.replace(/,/g, ''));
-                endLabelX = Number(endLabelX.replace(/,/g, ''));
+                beginLabelX = Number(('' + beginLabelX).replace(/,/g, ''));
+                endLabelX = Number(('' + endLabelX).replace(/,/g, ''));
             }
 
             this.listener.subcomponentRequestsFilterOnDomain(beginLabelX, endLabelX);
