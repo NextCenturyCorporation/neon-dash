@@ -17,7 +17,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -80,9 +80,12 @@ import {
     ThumbnailContractedDetailsComponent,
     ThumbnailExpandedDetailsComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
+import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 
 import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
+import { MatAutocompleteModule } from '@angular/material';
+import { QueryBarComponent } from './components/query-bar/query-bar.component';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -114,6 +117,8 @@ export function getAppConfig() {
         MapComponent,
         MediaViewerComponent,
         NetworkGraphComponent,
+        NewsFeedComponent,
+        QueryBarComponent,
         SampleComponent,
         ScatterPlotComponent,
         SimpleFilterComponent,
@@ -139,8 +144,10 @@ export function getAppConfig() {
         NgxDatatableModule,
         BrowserAnimationsModule,
         AppMaterialModule,
+        MatAutocompleteModule,
         NgxGraphModule,
-        NgxChartsModule
+        NgxChartsModule,
+        ReactiveFormsModule
     ],
     providers: [
         ActiveGridService,

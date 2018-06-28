@@ -90,6 +90,8 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public isReified: boolean;
     public linkField: FieldMetaData;
     public nodeField: FieldMetaData;
+    public showOnlyFiltered: boolean;
+    public filterFields: string[];
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -99,6 +101,8 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     onInit() {
         this.isDirected = this.injector.get('isDirected', false);
         this.isReified = this.injector.get('isReified', false);
+        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
+        this.filterFields = this.injector.get('filterFields', []);
     }
 
     /**
@@ -124,15 +128,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     public filters: {
         id: string,
-        key: string,
+        field: string,
+        prettyField: string,
         value: string
-    }[];
+    }[] = [];
 
     public options: NetworkGraphOptions;
-
     public activeData: any[] = [];
-
     public graphData = new GraphData();
+    public displayGraph: boolean;
+    public neonFilters: any[] = [];
 
     graphType = 'Network Graph';
 
@@ -175,8 +180,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private defaultActiveColor;
 
-    queryTitle;
-
     private graph: vis.Network;
 
     constructor(
@@ -207,6 +210,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.options = new NetworkGraphOptions(this.injector, this.datasetService, 'Network Graph', 500000);
 
         this.graphData = new GraphData();
+        this.displayGraph = !this.options.showOnlyFiltered;
 
         this.setInterpolationType('Bundle');
     }
@@ -219,6 +223,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         if (!this.fitContainer) {
             this.applyDimensions();
         }
+
     }
 
     applyDimensions() {
@@ -340,7 +345,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         let fields = [nodeField, linkField];
 
-        // query = query.withFields(fields);
         let whereClause = neon.query.and.apply(neon.query, whereClauses);
 
         query.where(whereClause);
@@ -358,20 +362,34 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     onQuerySuccess(response): void {
-        this.activeData = response.data;
-        this.resetGraphData();
+        this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
+            this.options.table.name, this.options.filterFields);
+
+        if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+            this.activeData = response.data;
+            this.displayGraph = true;
+            this.isLoading = true;
+            this.resetGraphData();
+        } else {
+            this.activeData = [];
+            this.displayGraph = false;
+            this.clearGraphData();
+        }
     }
 
     private resetGraphData() {
-        this.graphData.nodes.clear();
-        this.graphData.edges.clear();
-
         let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
-
+        this.clearGraphData();
         this.graph.setOptions({physics: {enabled: true}});
 
         this.graphData.nodes.update(graphProperties.nodes);
         this.graphData.edges.update(graphProperties.edges);
+        this.isLoading = false;
+    }
+
+    private clearGraphData() {
+        this.graphData.nodes.clear();
+        this.graphData.edges.clear();
     }
 
     setupFilters() {
@@ -427,10 +445,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     getButtonText() {
-        let text = 'No Data';
-        let data = this.graphData; //this.graphData.nodes;
+        let data = this.graphData;
+
         if (!data || !data.nodes.length) {
-            return text;
+            return this.options.showOnlyFiltered && !this.neonFilters.length ? 'No Filter Selected' : 'No Data';
         } else {
             let total = data.nodes.length;
             return 'Total Nodes: ' + this.formatingCallback(total);
@@ -455,17 +473,26 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let graph = new GraphProperties();
 
         for (const entry of this.activeData) {
-            const subject = entry.subject,
+            let getArray = (type: any) => (type instanceof Array) ? type : [type],
+                subject = getArray(entry.subject),
                 predicate = entry.predicate,
-                object = entry.object;
+                object = getArray(entry.object);
 
-            graph.addNode(new Node(subject, subject));
-            graph.addNode(new Node(object, object));
-            graph.addEdge(new Edge(subject, object, predicate, {to: this.options.isDirected}));
+            for (let sNode of subject) {
+                for (let oNode of object) {
+                    this.addTriple(graph, sNode, predicate, oNode);
+                }
+            }
 
             //TODO: add hover with other properties
         }
         return graph;
+    }
+
+    private addTriple(graph: GraphProperties, subject: string, predicate: string, object: string) {
+        graph.addNode(new Node(subject, subject));
+        graph.addNode(new Node(object, object));
+        graph.addEdge(new Edge(subject, object, predicate, {to: this.options.isDirected}));
     }
 
     private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string) {

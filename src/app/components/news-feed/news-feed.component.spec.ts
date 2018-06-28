@@ -20,13 +20,13 @@ import { async, ComponentFixture, inject, TestBed } from '@angular/core/testing'
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
+import { MockBackend } from '@angular/http/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
 
 import { ExportControlComponent } from '../export-control/export-control.component';
-import { MediaViewerComponent } from './media-viewer.component';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -36,18 +36,17 @@ import { ExportService } from '../../services/export.service';
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { VisualizationService } from '../../services/visualization.service';
-import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
-import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+/*
 
-describe('Component: MediaViewer', () => {
-    let component: MediaViewerComponent;
-    let fixture: ComponentFixture<MediaViewerComponent>;
+describe('Component: NewsFeed', () => {
+    let component: NewsFeedComponent;
+    let fixture: ComponentFixture<NewsFeedComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
     initializeTestBed({
         declarations: [
-            MediaViewerComponent,
+            NewsFeedComponent,
             ExportControlComponent
         ],
         providers: [
@@ -56,7 +55,7 @@ describe('Component: MediaViewer', () => {
             DatasetService,
             ExportService,
             ErrorNotificationService,
-            { provide: FilterService, useClass: FilterServiceMock },
+            { provide: FilterService, useClass: FilterMock },
             ThemesService,
             VisualizationService,
             Injector,
@@ -70,7 +69,7 @@ describe('Component: MediaViewer', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(MediaViewerComponent);
+        fixture = TestBed.createComponent(NewsFeedComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
@@ -177,19 +176,19 @@ describe('Component: MediaViewer', () => {
     }));
 
     it('getFiltersToIgnore does return empty array if no filters are set', () => {
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.database = DatasetMock.DATABASES[0];
+        component.options.table = DatasetMock.TABLES[0];
         component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
 
         expect(component.getFiltersToIgnore()).toEqual(null);
     });
 
     it('getFiltersToIgnore does return expected array of IDs if filters are set matching database/table', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
             neon.query.where('testIdField1', '!=', null), 'testFilterName1');
 
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.database = DatasetMock.DATABASES[0];
+        component.options.table = DatasetMock.TABLES[0];
         component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
@@ -200,18 +199,18 @@ describe('Component: MediaViewer', () => {
     });
 
     it('getFiltersToIgnore does return null if no filters are set matching database/table', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
             neon.query.where('testIdField1', '!=', null), 'testFilterName1');
 
-        component.options.database = DatasetServiceMock.DATABASES[1];
-        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.database = DatasetMock.DATABASES[1];
+        component.options.table = DatasetMock.TABLES[0];
         component.options.idField = new FieldMetaData('testIdField1', 'Test ID Field 1');
 
         // Test matching database but not table.
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[1];
+        component.options.database = DatasetMock.DATABASES[0];
+        component.options.table = DatasetMock.TABLES[1];
 
         // Test matching table but not database.
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -811,8 +810,8 @@ describe('Component: MediaViewer', () => {
         });
     })));
 
-    it('does show single iframe tag according to the video type', async(inject([DomSanitizer], (sanitizer) => {
-        let vidSrc = 'https://www.youtube.com/embed/ByziC1-u0IE';
+    it('does show single video tag according to the video type', async(inject([DomSanitizer], (sanitizer) => {
+        let vidSrc = 'https://youtu.be/Mxesac55Puo';
         component.documentArray = [{
             border: '',
             link: vidSrc,
@@ -825,8 +824,53 @@ describe('Component: MediaViewer', () => {
             fixture.detectChanges();
             let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
             expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<iframe');
+            expect(media[0].nativeElement.innerHTML).toContain('<video');
             expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
+        });
+    })));
+
+    it('does show multiple video tags in tabs according to the video type', async(inject([DomSanitizer], (sanitizer) => {
+        let vidSrc = 'https://youtu.be/Mxesac55Puo';
+        component.documentArray = [{
+            border: '',
+            link: vidSrc,
+            name: 'testName',
+            type: 'vid'
+        }, {
+            border: '',
+            link: vidSrc,
+            name: 'testName',
+            type: 'vid'
+        }];
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
+            expect(tabs.length).toBe(2);
+            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
+            expect(media.length).toBe(1);
+            expect(media[0].nativeElement.innerHTML).toContain('<video');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
+        });
+    })));
+
+    it('does show single iframe tag according to the empty type', async(inject([DomSanitizer], (sanitizer) => {
+        let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
+        component.documentArray = [{
+            border: '',
+            link: docSrc,
+            name: 'testName',
+            type: ''
+        }];
+        fixture.detectChanges();
+
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+            expect(media.length).toBe(1);
+            expect(media[0].nativeElement.innerHTML).toContain('<iframe');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
         });
     })));
 
@@ -858,18 +902,18 @@ describe('Component: MediaViewer', () => {
 });
 
 describe('Component: MediaViewer with config', () => {
-    let component: MediaViewerComponent;
-    let fixture: ComponentFixture<MediaViewerComponent>;
+    let component: NewsFeedComponent;
+    let fixture: ComponentFixture<NewsFeedComponent>;
 
     initializeTestBed({
         declarations: [
-            MediaViewerComponent,
+            NewsFeedComponent,
             ExportControlComponent
         ],
         providers: [
             ActiveGridService,
             ConnectionService,
-            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: DatasetService, useClass: DatasetMock },
             ExportService,
             ErrorNotificationService,
             FilterService,
@@ -899,17 +943,17 @@ describe('Component: MediaViewer with config', () => {
     });
 
     beforeEach(() => {
-        fixture = TestBed.createComponent(MediaViewerComponent);
+        fixture = TestBed.createComponent(NewsFeedComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
 
     it('does set expected superclass options properties', () => {
-        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[0]);
-        expect(component.options.databases).toEqual(DatasetServiceMock.DATABASES);
-        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[0]);
-        expect(component.options.tables).toEqual(DatasetServiceMock.TABLES);
-        expect(component.options.fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.database).toEqual(DatasetMock.DATABASES[0]);
+        expect(component.options.databases).toEqual(DatasetMock.DATABASES);
+        expect(component.options.table).toEqual(DatasetMock.TABLES[0]);
+        expect(component.options.tables).toEqual(DatasetMock.TABLES);
+        expect(component.options.fields).toEqual(DatasetMock.FIELDS);
         expect(component.options.title).toEqual('Test Title');
     });
 
@@ -988,43 +1032,44 @@ describe('Component: MediaViewer with config', () => {
             expect(selects[2].componentInstance.placeholder).toEqual('ID Field');
             expect(selects[2].componentInstance.required).toEqual(true);
             options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testIdField');
+            expect(options.length).toEqual(DatasetMock.FIELDS.length);
+            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+                expect(options[i].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testIdField');
             }
 
             expect(selects[3].componentInstance.disabled).toEqual(false);
             expect(selects[3].componentInstance.placeholder).toEqual('Link Field');
             expect(selects[3].componentInstance.required).toEqual(true);
             options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testLinkField');
+            expect(options.length).toEqual(DatasetMock.FIELDS.length);
+            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+                expect(options[i].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testLinkField');
             }
 
             expect(selects[4].componentInstance.disabled).toEqual(false);
             expect(selects[4].componentInstance.placeholder).toEqual('Name Field');
             expect(selects[4].componentInstance.required).toEqual(false);
             options = selects[4].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testNameField');
+            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testNameField');
             }
 
             expect(selects[5].componentInstance.disabled).toEqual(false);
             expect(selects[5].componentInstance.placeholder).toEqual('Type Field');
             expect(selects[5].componentInstance.required).toEqual(false);
             options = selects[5].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testTypeField');
+            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetMock.FIELDS[i].columnName === 'testTypeField');
             }
         });
     }));
 });
+*/

@@ -14,7 +14,7 @@
  *
  */
 import { Component, Input } from '@angular/core';
-import { ThumbnailGridOptions } from './thumbnail-grid.component';
+import { ThumbnailGridOptions, ThumbnailGridComponent } from './thumbnail-grid.component';
 
 @Component({
     selector: 'app-thumbnail-contracted-details',
@@ -24,16 +24,9 @@ import { ThumbnailGridOptions } from './thumbnail-grid.component';
 
 export class ThumbnailContractedDetailsComponent {
 
-    @Input() item: any;
+    @Input() label: string;
+    @Input() percent: string;
     @Input() options: ThumbnailGridOptions;
-
-    getThumbnailTitle(truthTitle, predictionTitle, titlePercent): string {
-        if (predictionTitle) {
-            return 'Prediction : ' + predictionTitle + ', Actual : ' + truthTitle;
-        } else {
-            return (parseFloat(titlePercent) * 100).toFixed(1) + '%';
-        }
-    }
 }
 
 @Component({
