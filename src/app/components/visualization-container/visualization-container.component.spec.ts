@@ -39,7 +39,7 @@ import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { VisualizationService } from '../../services/visualization.service';
 
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
