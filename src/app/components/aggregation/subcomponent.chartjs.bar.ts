@@ -60,12 +60,13 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      * @arg {AggregationOptions} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
+     * @arg {boolean} [cannotSelect=false]
      * @arg {boolean} [horizontal=false]
      */
     constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        protected horizontal: boolean = false) {
+        cannotSelect: boolean = false, protected horizontal: boolean = false) {
 
-        super(options, listener, elementRef);
+        super(options, listener, elementRef, cannotSelect);
     }
 
     /**
@@ -176,7 +177,9 @@ export class ChartJsBarSubcomponent extends AbstractChartJsSubcomponent {
      * @override
      */
     protected handleClickEvent(event, items: any[], chart: any) {
-        this.selectItem(event, items, chart);
+        if (this.isSelectable(items)) {
+            this.selectItem(event, items, chart);
+        }
     }
 
     /**

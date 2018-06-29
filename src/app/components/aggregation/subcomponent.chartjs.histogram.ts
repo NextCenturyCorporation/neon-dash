@@ -68,6 +68,8 @@ export class ChartJsHistogramSubcomponent extends ChartJsBarSubcomponent {
      * @override
      */
     protected handleHoverEvent(event, items: any[], chart: any) {
-        this.selectDomain(event, items, chart);
+        if (this.isSelectable(items)) {
+            this.selectDomain(event, items, chart);
+        }
     }
 }

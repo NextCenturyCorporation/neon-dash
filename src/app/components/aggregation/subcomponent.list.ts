@@ -35,8 +35,11 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
      * @arg {AggregationOptions} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
+     * @arg {boolean} [cannotSelect=false]
      */
-    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef) {
+    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
+        protected cannotSelect: boolean = false) {
+
         super(options, listener, elementRef);
     }
 
@@ -176,10 +179,15 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
      * @private
      */
     protected handleClickEvent(event) {
+        if (this.cannotSelect) {
+            return;
+        }
+
         let value = event.currentTarget.getAttribute('value');
         let index = _.findIndex(this.selectedData, (selectedItem) => {
             return selectedItem.value === value;
         });
+
         if (index < 0) {
             event.currentTarget.setAttribute('class', event.currentTarget.getAttribute('class') + ' active');
             let doNotReplace = !!(event.ctrlKey || event.metaKey);

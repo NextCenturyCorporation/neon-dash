@@ -63,9 +63,12 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
      * @arg {AggregationOptions} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
+     * @arg {boolean} [cannotSelect=false]
      */
-    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef) {
-        super(options, listener, elementRef);
+    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
+        cannotSelect: boolean = false) {
+
+        super(options, listener, elementRef, cannotSelect);
     }
 
     /**
@@ -150,6 +153,8 @@ export class ChartJsPieSubcomponent extends AbstractChartJsSubcomponent {
      * @override
      */
     protected handleClickEvent(event, items: any[], chart: any) {
-        this.selectItem(event, items, chart);
+        if (this.isSelectable(items)) {
+            this.selectItem(event, items, chart);
+        }
     }
 }

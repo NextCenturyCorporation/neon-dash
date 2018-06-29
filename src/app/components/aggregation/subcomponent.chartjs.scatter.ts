@@ -35,12 +35,13 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
      * @arg {AggregationOptions} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
+     * @arg {boolean} [cannotSelect=false]
      * @arg {boolean} [domainOnly=false]
      */
     constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
-        private domainOnly: boolean = false) {
+        cannotSelect: boolean = false, private domainOnly: boolean = false) {
 
-        super(options, listener, elementRef);
+        super(options, listener, elementRef, cannotSelect);
     }
 
     /**
@@ -80,7 +81,9 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
      * @override
      */
     protected handleHoverEvent(event, items: any[], chart: any) {
-        this.selectBounds(event, items, chart, this.domainOnly);
+        if (this.isSelectable(items)) {
+            this.selectBounds(event, items, chart, this.domainOnly);
+        }
     }
 
     /**
@@ -91,6 +94,7 @@ export class ChartJsScatterSubcomponent extends ChartJsLineSubcomponent {
      * @override
      */
     protected isSelectable(items: any[]): boolean {
-        return true;
+        // Ignore whether any items exist at the location of the hover event.
+        return !this.cannotSelect;
     }
 }

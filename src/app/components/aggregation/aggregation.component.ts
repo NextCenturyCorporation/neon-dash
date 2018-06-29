@@ -68,6 +68,7 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
     public yField: FieldMetaData;
 
     public aggregation: string;
+    public dualView: string;
     public granularity: string;
     public hideGridLines: boolean;
     public hideGridTicks: boolean;
@@ -96,10 +97,11 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
      */
     onInit() {
         this.aggregation = this.injector.get('aggregation', 'count');
-        this.ignoreSelf = this.injector.get('ignoreSelf', false);
+        this.dualView = this.injector.get('dualView', '');
         this.granularity = this.injector.get('granularity', 'year');
         this.hideGridLines = this.injector.get('hideGridLines', false);
         this.hideGridTicks = this.injector.get('hideGridTicks', false);
+        this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.lineCurveTension = this.injector.get('lineCurveTension', 0.3);
         this.lineFillArea = this.injector.get('lineFillArea', false);
         this.logScaleX = this.injector.get('logScaleX', false);
@@ -151,7 +153,8 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('hiddenCanvas') hiddenCanvas: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('subcomponent') subcomponentHtml: ElementRef;
+    @ViewChild('subcomponentMain') subcomponentMainElementRef: ElementRef;
+    @ViewChild('subcomponentZoom') subcomponentZoomElementRef: ElementRef;
 
     private DEFAULT_GROUP: string = 'All';
 
@@ -177,16 +180,23 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     // The bucketizer for any date data.
     public dateBucketizer: any;
 
-    // The minimum dimensions for the chart.
-    public minimumDimensions: {
+    // The minimum dimensions for the subcomponent.
+    public minimumDimensionsMain: {
         height: number,
         width: number
     } = {
-        height: 100,
-        width: 100
+        height: 50,
+        width: 50
+    };
+    public minimumDimensionsZoom: {
+        height: number,
+        width: number
+    } = {
+        height: 50,
+        width: 50
     };
 
-    // The selected area on the chart (box or range).
+    // The selected area on the subcomponent (box or range).
     public selectedArea: {
         height: number,
         width: number,
@@ -194,7 +204,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         y: number
     } = null;
 
-    // The selected area offset from the borders or margins.
+    // The selected area offset from the subcomponent location.
     public selectedAreaOffset: {
         x: number,
         y: number
@@ -203,7 +213,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         y: 0
     };
 
-    public subcomponentObject: AbstractAggregationSubcomponent;
+    // The subcomponents.  If dualView is on, both are used.  Otherwise, only main is used.
+    public subcomponentMain: AbstractAggregationSubcomponent;
+    public subcomponentZoom: AbstractAggregationSubcomponent;
+
     public subcomponentTypes: { name: string, type: string }[] = [{
         name: 'Bar, Horizontal (Aggregations)',
         type: 'bar-h'
@@ -269,6 +282,36 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         );
 
         this.options = new AggregationOptions(this.injector, this.datasetService, 'Aggregation', 10000);
+
+        // Check for the boolean value true (not just any truthy value) and fix it.
+        this.options.dualView = ('' + this.options.dualView) === 'true' ? 'on' : this.options.dualView;
+        if (!this.allowDualView(this.options.type)) {
+            this.options.dualView = '';
+        }
+    }
+
+    /**
+     * Returns whether the given subcomponent type allows dual view.
+     *
+     * @arg {string} type
+     * @return {boolean}
+     */
+    allowDualView(type: string): boolean {
+        switch (type) {
+            case 'histogram':
+            case 'line':
+            case 'line-xy':
+                return true;
+            case 'bar-h':
+            case 'bar-v':
+            case 'doughnut':
+            case 'list':
+            case 'pie':
+            case 'scatter':
+            case 'scatter-xy':
+            default:
+                return false;
+        }
     }
 
     /**
@@ -312,10 +355,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             (groupNeonFilters || valueNeonFilters);
 
         if (neonFilter) {
+            let runQuery = !this.options.ignoreSelf || !!this.options.dualView;
             if (this.filterToPassToSuperclass.id) {
-                this.replaceNeonFilter(!this.options.ignoreSelf, this.filterToPassToSuperclass, neonFilter);
+                this.replaceNeonFilter(runQuery, this.filterToPassToSuperclass, neonFilter);
             } else {
-                this.addNeonFilter(!this.options.ignoreSelf, this.filterToPassToSuperclass, neonFilter);
+                this.addNeonFilter(runQuery, this.filterToPassToSuperclass, neonFilter);
             }
         } else if (this.filterToPassToSuperclass.id) {
             this.removeLocalFilterFromLocalAndNeon(this.filterToPassToSuperclass, true, true);
@@ -597,15 +641,13 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     handleChangeSubcomponentType() {
         if (this.options.type !== this.options.newType) {
             this.options.type = this.options.newType;
+            if (!this.allowDualView(this.options.type)) {
+                this.options.dualView = '';
+            }
             if (this.isContinuous(this.options.type)) {
                 this.options.sortByAggregation = false;
             }
-            if (this.subcomponentObject) {
-                this.subcomponentObject.destroy();
-                this.subcomponentObject = null;
-            }
-            this.initializeSubcomponent();
-            this.handleChangeData();
+            this.redrawSubcomponents();
         }
     }
 
@@ -630,45 +672,51 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
     /**
      * Initializes the sub-component.
+     *
+     * @arg {ElementRef} elementRef
+     * @arg {boolean} cannotSelect
+     * @return {AbstractAggregationSubcomponent}
      */
-    initializeSubcomponent() {
+    initializeSubcomponent(elementRef: ElementRef, cannotSelect: boolean = false): AbstractAggregationSubcomponent {
+        let subcomponentObject = null;
+
         switch (this.options.type) {
             case 'bar-h':
-                this.subcomponentObject = new ChartJsBarSubcomponent(this.options, this, this.subcomponentHtml, true);
+                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, cannotSelect, true);
                 break;
             case 'bar-v':
-                this.subcomponentObject = new ChartJsBarSubcomponent(this.options, this, this.subcomponentHtml);
+                subcomponentObject = new ChartJsBarSubcomponent(this.options, this, elementRef, cannotSelect);
                 break;
             case 'doughnut':
-                this.subcomponentObject = new ChartJsDoughnutSubcomponent(this.options, this, this.subcomponentHtml);
+                subcomponentObject = new ChartJsDoughnutSubcomponent(this.options, this, elementRef, cannotSelect);
                 break;
             case 'histogram':
-                this.subcomponentObject = new ChartJsHistogramSubcomponent(this.options, this, this.subcomponentHtml);
+                subcomponentObject = new ChartJsHistogramSubcomponent(this.options, this, elementRef, cannotSelect);
                 break;
             case 'line':
             case 'line-xy':
-                this.subcomponentObject = new ChartJsLineSubcomponent(this.options, this, this.subcomponentHtml);
+                subcomponentObject = new ChartJsLineSubcomponent(this.options, this, elementRef, cannotSelect);
                 break;
             case 'list':
-                this.subcomponentObject = new ListSubcomponent(this.options, this, this.subcomponentHtml);
+                subcomponentObject = new ListSubcomponent(this.options, this, elementRef, cannotSelect);
                 break;
             case 'pie':
-                this.subcomponentObject = new ChartJsPieSubcomponent(this.options, this, this.subcomponentHtml);
+                subcomponentObject = new ChartJsPieSubcomponent(this.options, this, elementRef, cannotSelect);
                 break;
             case 'scatter':
-                this.subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, this.subcomponentHtml, true);
+                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef, cannotSelect, true);
                 break;
             case 'scatter-xy':
-                this.subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, this.subcomponentHtml);
+                subcomponentObject = new ChartJsScatterSubcomponent(this.options, this, elementRef, cannotSelect);
                 break;
-            default:
-                this.subcomponentObject = null;
         }
 
-        if (this.subcomponentObject) {
+        if (subcomponentObject) {
             // Do not call initialize inside the constructor due to how angular handles subclass property initialization.
-            this.subcomponentObject.initialize();
+            subcomponentObject.initialize();
         }
+
+        return subcomponentObject;
     }
 
     /**
@@ -919,18 +967,35 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     postInit() {
-        this.selectedAreaOffset.y = Number.parseInt(this.subcomponentHtml.nativeElement.style.paddingTop || '0');
-        this.selectedAreaOffset.x = Number.parseInt(this.subcomponentHtml.nativeElement.style.paddingLeft || '0');
-
         this.executeQueryChain();
+    }
+
+    /**
+     * Redraws the subcomponents.
+     */
+    redrawSubcomponents() {
+        if (this.subcomponentMain) {
+            this.subcomponentMain.destroy();
+            this.subcomponentMain = null;
+        }
+        if (this.subcomponentZoom) {
+            this.subcomponentZoom.destroy();
+            this.subcomponentZoom = null;
+        }
+        this.subcomponentMain = this.initializeSubcomponent(this.subcomponentMainElementRef);
+        if (this.options.dualView) {
+            this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
+        }
+        this.refreshVisualization(true);
     }
 
     /**
      * Updates any properties and/or sub-components as needed.
      *
+     * @arg {boolean} [redrawMain=false]
      * @override
      */
-    refreshVisualization() {
+    refreshVisualization(redrawMain: boolean = false) {
         let findAxisType = (type) => {
             // https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-types.html
             /* tslint:disable:prefer-switch */
@@ -942,21 +1007,30 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             return type === 'date' ? 'date' : 'string';
         };
 
-        if (this.subcomponentObject) {
-            let isXY = this.isXYSubcomponent(this.options.type);
-            this.subcomponentObject.draw(this.activeData, {
-                aggregationField: isXY ? undefined : this.options.aggregationField.prettyName,
-                aggregationLabel: isXY ? undefined : this.options.aggregation,
-                dataLength: this.activeData.length,
-                groups: this.legendGroups,
-                sort: this.options.sortByAggregation ? 'y' : 'x',
-                xAxis: findAxisType(this.options.xField.type),
-                xList: this.xList,
-                yAxis: !isXY ? 'number' : findAxisType(this.options.yField.type),
-                yList: this.yList
-            });
-            this.subOnResizeStop();
+        let isXY = this.isXYSubcomponent(this.options.type);
+        let meta = {
+            aggregationField: isXY ? undefined : this.options.aggregationField.prettyName,
+            aggregationLabel: isXY ? undefined : this.options.aggregation,
+            dataLength: this.activeData.length,
+            groups: this.legendGroups,
+            sort: this.options.sortByAggregation ? 'y' : 'x',
+            xAxis: findAxisType(this.options.xField.type),
+            xList: this.xList,
+            yAxis: !isXY ? 'number' : findAxisType(this.options.yField.type),
+            yList: this.yList
+        };
+
+        // Update the overview if dualView is off or if it is not filtered.  It will only show the unfiltered data.
+        if (this.subcomponentMain && (redrawMain || !this.options.dualView || !this.filterToPassToSuperclass.id)) {
+            this.subcomponentMain.draw(this.activeData, meta);
         }
+
+        // Update the zoom if dualView is truthy.  It will show both the unfiltered and filtered data.
+        if (this.subcomponentZoom && this.options.dualView) {
+            this.subcomponentZoom.draw(this.activeData, meta);
+        }
+
+        this.subOnResizeStop();
 
         this.legendFields = this.options.groupField.columnName ? [this.options.groupField.columnName] : [''];
     }
@@ -973,7 +1047,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
             this.groupFilters = [];
             this.valueFilters = [];
             this.selectedArea = null;
-            this.subcomponentObject.deselect();
+            this.subcomponentMain.deselect();
         }
     }
 
@@ -984,6 +1058,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     setupFilters() {
         // TODO
+    }
+
+    /**
+     * Returns whether to show both the main and the zoom views.
+     *
+     * @return {boolean}
+     */
+    showBothViews(): boolean {
+        return this.options.dualView === 'on' || (this.options.dualView === 'filter' && !!this.filterToPassToSuperclass.id);
     }
 
     /**
@@ -1064,7 +1147,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     subcomponentRequestsFilterOnBounds(beginX: any, beginY, endX: any, endY, doNotReplace: boolean = false) {
-        if (!this.options.ignoreSelf) {
+        if (!(this.options.dualView || this.options.ignoreSelf)) {
             this.selectedArea = null;
         }
 
@@ -1109,7 +1192,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     subcomponentRequestsFilterOnDomain(beginX: any, endX: any, doNotReplace: boolean = false) {
-        if (!this.options.ignoreSelf) {
+        if (!(this.options.dualView || this.options.ignoreSelf)) {
             this.selectedArea = null;
         }
 
@@ -1159,11 +1242,15 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     subcomponentRequestsSelect(x: number, y: number, width: number, height: number) {
+        this.selectedAreaOffset = {
+            x: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetLeft || '0'),
+            y: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetTop || '0')
+        };
         this.selectedArea = {
             height: height,
             width: width,
-            x: this.selectedAreaOffset.x + x,
-            y: this.selectedAreaOffset.y + y
+            x: x,
+            y: y
         };
     }
 
@@ -1180,6 +1267,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         bindings.yField = this.options.yField.columnName;
 
         bindings.aggregation = this.options.aggregation;
+        bindings.dualView = this.options.dualView;
         bindings.granularity = this.options.granularity;
         bindings.hideGridLines = this.options.hideGridLines;
         bindings.hideGridTicks = this.options.hideGridTicks;
@@ -1221,8 +1309,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     subNgOnDestroy() {
-        if (this.subcomponentObject) {
-            this.subcomponentObject.destroy();
+        if (this.subcomponentMain) {
+            this.subcomponentMain.destroy();
+        }
+        if (this.subcomponentZoom) {
+            this.subcomponentZoom.destroy();
         }
     }
 
@@ -1232,7 +1323,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     subNgOnInit() {
-        this.initializeSubcomponent();
+        this.subcomponentMain = this.initializeSubcomponent(this.subcomponentMainElementRef);
+        if (this.options.dualView) {
+            this.subcomponentZoom = this.initializeSubcomponent(this.subcomponentZoomElementRef, true);
+        }
     }
 
     /**
@@ -1241,11 +1335,34 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     subOnResizeStop() {
-        if (this.subcomponentObject) {
-            this.minimumDimensions = this.subcomponentObject.getMinimumDimensions();
-            this.subcomponentObject.redraw();
-            // TODO Update selectedArea.
+        if (this.subcomponentMain) {
+            this.minimumDimensionsMain = this.subcomponentMain.getMinimumDimensions();
+            this.subcomponentMain.redraw();
         }
+
+        if (this.subcomponentZoom) {
+            this.minimumDimensionsZoom = this.subcomponentZoom.getMinimumDimensions();
+            this.subcomponentZoom.redraw();
+        }
+
+        // Update the selected area and offset AFTER redrawing the subcomponents.
+        this.selectedAreaOffset = {
+            x: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetLeft || '0'),
+            y: Number.parseInt(this.subcomponentMainElementRef.nativeElement.offsetTop || '0')
+        };
+
+        // Change the height of the selected area if the dual view was changed (and the height of the main subcomponent was changed).
+        if (this.selectedArea) {
+            // Subtract 30 pixels for the height of the X axis.
+            let subcomponentHeight = this.subcomponentMainElementRef.nativeElement.clientHeight - (this.options.hideGridTicks ? 10 : 30);
+            if (this.options.dualView) {
+                this.selectedArea.height = Math.min(this.selectedArea.height, subcomponentHeight);
+            } else {
+                this.selectedArea.height = Math.max(this.selectedArea.height, subcomponentHeight);
+            }
+        }
+
+        // TODO Update the selectedArea if the visualization was resized.
     }
 
     /**
@@ -1265,7 +1382,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (indexMatches.length) {
             indexMatches.reverse().forEach((indexMatch) => {
                 let existingFilter = filters.splice(indexMatch, 1);
-                this.subcomponentObject.deselect(existingFilter[0].value);
+                this.subcomponentMain.deselect(existingFilter[0].value);
             });
         } else {
             filters.push(filter);
