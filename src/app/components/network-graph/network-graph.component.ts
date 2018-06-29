@@ -74,7 +74,8 @@ class Node {
         public nodeType?: string,
         public size?: number,
         public color?: string,
-        public isLink?: boolean
+        public isLink?: boolean,
+        public font?: Object
     ) {}
 }
 
@@ -96,7 +97,8 @@ class Edge {
         public arrows?: ArrowProperties,
         public count?: number,
         public color?: Object,
-        public value?: string //used to identify that catagory of edge (to hide/show when legend option is clicked)
+        public type?: string, //used to identify that catagory of edge (to hide/show when legend option is clicked)
+        public width?: number
     ) {}
 }
 
@@ -109,10 +111,12 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public linkColor: string;
     public nodeColor: string;
     public edgeColor: string;
+    public fontColor: string;
+    public edgeColorField: FieldMetaData;
     public linkField: FieldMetaData;
     public nodeField: FieldMetaData;
+    public edgeWidth: number;
     public limit: number;
-    public edgeColorField: FieldMetaData;
     public andFilters: boolean;
 
     /**
@@ -126,6 +130,8 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.linkColor = this.injector.get('linkColor', '#96c1fc');
         this.nodeColor = this.injector.get('nodeColor', '#96c1fc');
         this.edgeColor = this.injector.get('edgeColor', '#2b7ce9');
+        this.fontColor = this.injector.get('fontColor', '#343434');
+        this.edgeWidth = this.injector.get('edgeWidth', 1);
         this.limit = this.injector.get('limit', Infinity);
         this.andFilters = this.injector.get('andFilters', true);
     }
@@ -166,6 +172,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     public graphData = new GraphData();
 
     graphType = 'Network Graph';
+
+    totalNodeCount;
+    existingNodeNames: String[];
 
     view: any[];
     width: number = 400;
@@ -451,6 +460,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     onQuerySuccess(response): void {
         this.activeData = response.data;
+        this.totalNodeCount = 0;
+        this.existingNodeNames = [];
         this.resetGraphData();
         this.updateLegend();
     }
@@ -518,13 +529,15 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     getButtonText() {
-        let text = 'No Data';
-        let data = this.graphData; //this.graphData.nodes;
-        if (!data || !data.nodes.length) {
-            return text;
+        let data = this.graphData,
+        visibleNodeCount = data.nodes.length;
+
+        if (!data || !visibleNodeCount) {
+            return 'No Data';
+        } else if (visibleNodeCount === this.totalNodeCount) {
+            return 'Total ' + super.prettifyInteger(this.totalNodeCount);
         } else {
-            let total = data.nodes.length;
-            return 'Total Nodes: ' + this.formatingCallback(total);
+            return '1 - ' + super.prettifyInteger(visibleNodeCount) + ' of ' + super.prettifyInteger(this.totalNodeCount);
         }
     }
 
@@ -532,23 +545,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.graphData = new GraphData();
     }
 
-    toNodes(datafield) {
-        let nodes = [];
-        /*
-        datafield.array.forEach(element => {
-            if(nodes.indexOf(element.id) < 0) {
-                nodes.push(element.id, element.name)
-            }
-        });
-        */
-    }
-
     private createReifiedGraphProperties() {
         let graph = new GraphProperties();
         let limit = this.options.limit;
 
         for (const entry of this.activeData) {
-            if (limit && graph.nodes.length <= limit) {
+            if (graph.nodes.length < limit) {
                 const subject = entry.subject,
                     predicate = entry.predicate,
                     object = entry.object;
@@ -567,12 +569,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string,
         colorValue?: string, edgeColorField?: string) {
         let edgeColor = { color: colorValue, highlight: colorValue};
+        let edgeWidth = this.options.edgeWidth;
         if (Array.isArray(linkField)) {
             for (const linkEntry of linkField) {
-                graph.addEdge(new Edge(source, linkEntry, '', null, 1, edgeColor, edgeColorField));
+                graph.addEdge(new Edge(source, linkEntry, '', null, 1, edgeColor, edgeColorField, edgeWidth));
             }
         } else if (linkField) {
-                graph.addEdge(new Edge(source, linkField, '', null, 1, edgeColor, edgeColorField));
+                graph.addEdge(new Edge(source, linkField, '', null, 1, edgeColor, edgeColorField, edgeWidth));
         }
     }
 
@@ -580,62 +583,141 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let graph = new GraphProperties(),
             linkName = this.options.linkField.columnName,
             nodeName = this.options.nodeField.columnName,
-            edgeColorField = this.options.edgeColorField.columnName;
-        let nodeColor = this.options.nodeColor,
+            edgeColorField = this.options.edgeColorField.columnName,
+            nodeColor = this.options.nodeColor,
             edgeColor = this.options.edgeColor,
-            linkColor = this.options.linkColor;
-        let limit = this.options.limit;
+            linkColor = this.options.linkColor,
+            textColor = {color: this.options.fontColor},
+            limit = this.options.limit;
 
         for (let entry of this.activeData) {
             let linkField = entry[linkName],
-                edgeValue = entry[edgeColorField],
+                edgeType = entry[edgeColorField],
                 nodeField = entry[nodeName];
 
-            if (limit && graph.nodes.length < limit) {
+            if (graph.nodes.length < limit) {
                 //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
                 if (Array.isArray(linkField)) {
                     for (const linkEntry of linkField) {
-                        graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true));
+                        if (this.isUniqueNode(linkEntry)) {
+                            this.totalNodeCount++;
+                            graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor));
+                        }
                     }
                 } else if (linkField) {
-                    graph.addNode(new Node(linkField, linkField, linkName, 1, linkColor, true));
+                    if (this.isUniqueNode(linkField)) {
+                        this.totalNodeCount++;
+                        graph.addNode(new Node(linkField, linkField, linkName, 1, linkColor, true, textColor));
+                    }
                 }
 
                 // if there is a valid edgeColorField, override the edgeColor
                 if (entry[edgeColorField]) {
-                    let colorMapVal = edgeColorField && edgeValue;
+                    let colorMapVal = edgeColorField && edgeType;
                     edgeColor = this.colorSchemeService.getColorFor(edgeColorField, colorMapVal).toRgb();
                 }
 
                 //if node field is an array create a new node for each unique nodeId
                 if (Array.isArray(nodeField)) {
                     for (const nodeEntry of nodeField) {
-                        if (this.isUniqueNode(nodeEntry, graph)) {
-                            graph.addNode(new Node(nodeEntry, nodeEntry, nodeName, 1, nodeColor, false));
+                        if (this.isUniqueNode(nodeEntry)) {
+                            this.totalNodeCount++;
+                            graph.addNode(new Node(nodeEntry, nodeEntry, nodeName, 1, nodeColor, false, textColor));
                         }
-                        this.addEdgesFromField(graph, linkField, nodeEntry, edgeColor, edgeValue);
+                        this.addEdgesFromField(graph, linkField, nodeEntry, edgeColor, edgeType);
                     }
                 } else if (nodeField) {
-                    graph.addNode(new Node(nodeField, nodeField, nodeName, 1, nodeColor, false));
+                    if (this.isUniqueNode(nodeField)) {
+                        this.totalNodeCount++;
+                        graph.addNode(new Node(nodeField, nodeField, nodeName, 1, nodeColor, false, textColor));
+                    }
                     this.addEdgesFromField(graph, linkField, nodeField, edgeColor);
                 }
-            } else {
-                break;
+            } else { //just count how many nodes can be made
+                //if the linkfield is an array
+                if (Array.isArray(linkField)) {
+                    for (const linkEntry of linkField) {
+                        if (this.isUniqueNode(linkEntry)) {
+                            this.totalNodeCount++;
+                        }
+                    }
+                } else if (linkField) {
+                    if (this.isUniqueNode(linkField)) {
+                        this.totalNodeCount++;
+                    }
+                }
+                //if node field is an array
+                if (Array.isArray(nodeField)) {
+                    for (const nodeEntry of nodeField) {
+                        if (this.isUniqueNode(nodeEntry)) {
+                            this.totalNodeCount++;
+                        }
+                    }
+                } else if (nodeField) {
+                    if (this.isUniqueNode(nodeField)) {
+                        this.totalNodeCount++;
+                    }
+                }
             }
         }
         return graph;
     }
 
-    isUniqueNode(nodeId, graph) {
-        let isOriginal = true;
-        if (graph.nodes) {
-            graph.nodes.forEach((node) => {
-                if (node.id === nodeId) {
-                    isOriginal = false;
-                }
-            });
+    /**
+     * Checked if the nodeId exists already and adds it if it's unique
+     * @param nodeId
+     */
+    isUniqueNode(nodeId) {
+        if (this.indexOfNodeName(nodeId) !== -1) {
+            return false;
+        } else {
+            this.insertNodeName(nodeId);
+            return true;
         }
-        return isOriginal;
+    }
+
+    /**
+     * Returns the index of the nodeName or -1 if it doesnt exist (binary search)
+     * @param searchElement nodoName to look for in the array
+     */
+    indexOfNodeName(searchElement) {
+        let minIndex = 0;
+        let maxIndex = this.existingNodeNames.length - 1;
+        let currentIndex;
+        let currentElement;
+
+        if (maxIndex === 0 || searchElement < this.existingNodeNames[minIndex] || searchElement > this.existingNodeNames[maxIndex]) {
+            return -1;
+        }
+
+        while (minIndex <= maxIndex) {
+            currentIndex = Math.floor((minIndex + maxIndex) / 2);
+            currentElement = this.existingNodeNames[currentIndex];
+
+            if (currentElement < searchElement) {
+                minIndex = currentIndex + 1;
+            } else if (currentElement > searchElement) {
+                maxIndex = currentIndex - 1;
+            } else {
+                return currentIndex;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Inserts a unique nodeName into the existingNodeNames array in order
+     * @param element
+     */
+    insertNodeName(element) {
+        let arraySize = this.existingNodeNames.length - 1;
+        let list = this.existingNodeNames;
+
+        let i: number;
+        for (i = arraySize; i >= 0 && list[i] > element; i--) {
+            list[i + 1] = list[i];
+        }
+        list[i + 1] = element;
     }
 
     handleChangeDirected() {
@@ -717,11 +799,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             //remove all filters
             this.removeLocalFilterFromLocalAndNeon(removeFilter, true, true);
             this.disabledSet = [] as [string[]]; //resets the legend
-
-            //used to reset the clicked legend option
-            // this.disabledSet = this.disabledSet.filter((set) => {
-            //     return !(set[0] === fieldName && set[1] === value);
-            // }) as [string[]];
         }
     }
 
