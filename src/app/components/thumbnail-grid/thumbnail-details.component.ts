@@ -23,10 +23,14 @@ import { ThumbnailGridOptions, ThumbnailGridComponent } from './thumbnail-grid.c
 })
 
 export class ThumbnailContractedDetailsComponent {
-
-    @Input() label: string;
-    @Input() percent: string;
+    @Input() item: any;
     @Input() options: ThumbnailGridOptions;
+
+    private thumbnailGrid: ThumbnailGridComponent;
+
+    constructor(grid: ThumbnailGridComponent){
+        this.thumbnailGrid = grid;
+    }
 }
 
 @Component({
@@ -39,4 +43,22 @@ export class ThumbnailExpandedDetailsComponent {
 
     @Input() item: any;
     @Input() options: ThumbnailGridOptions;
+
+    private thumbnailGrid: ThumbnailGridComponent;
+
+    constructor(grid: ThumbnailGridComponent){
+        this.thumbnailGrid = grid;
+    }
+
+/*    openMediaViewerDialog() {
+        let config = new MatDialogConfig();
+        config.viewContainerRef = this.viewContainerRef;
+
+        this.filterTrayDialogRef = this.dialog.open(MediaViewerComponent, config);
+        this.filterTrayDialogRef.afterClosed().subscribe(() => {
+            this.filterTrayDialogRef = null;
+        });
+    }*/
+
+
 }
