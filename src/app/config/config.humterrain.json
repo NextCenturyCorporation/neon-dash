@@ -8,11 +8,11 @@
 			"hostname": "localhost",
 			"databases": [
 				{
-					"name": "ll_nepal_06_14_1",
+					"name": "ll_nepal_06_14_2",
 					"prettyName": "Human Terrain",
 					"tables": [
 						{
-							"name": "annotations2",
+							"name": "annotations1Author",
 							"prettyName": "Annotations",
 							"mappings": {
 								"date": "createdAt"
@@ -38,8 +38,8 @@
 					}
 				},
 				"simpleFilter": {
-					"databaseName": "ll_nepal_06_14_1",
-					"tableName": "annotations2",
+					"databaseName": "ll_nepal_06_14_2",
+					"tableName": "annotations1Author",
 					"fieldName": "translatedText",
 					"placeHolder": "Search"
 				}
@@ -63,8 +63,8 @@
 				"selected": true,
 				"bindings": {
 					"title": "Filter Builder",
-					"database": "ll_nepal_06_14_1",
-					"table": "annotations2"
+					"database": "ll_nepal_06_14_2",
+					"table": "annotations1Author"
 				},
 				"row": 0,
 				"col": 0
@@ -83,8 +83,8 @@
 				"selected": true,
 				"bindings": {
 					"title": "Documents",
-					"database": "ll_nepal_06_14_1",
-					"table": "annotations2",
+					"database": "ll_nepal_06_14_2",
+					"table": "annotations1Author",
 					"sortField": "createdAt",
 					"limit": "100",
 					"allColumnStatus": "hide",
@@ -109,8 +109,8 @@
 				"selected": true,
 				"bindings": {
 					"title": "Network Graph",
-					"database": "ll_nepal_06_14_1",
-					"table": "annotationsAuthor",
+					"database": "ll_nepal_06_14_2",
+					"table": "annotations1Author",
 					"isDirected": true,
 					"nodeField": "entities",
 					"linkField": "author",
