@@ -12,13 +12,6 @@
 					"prettyName": "Nepal Earthquake 2015, ELISA Annotations",
 					"tables": [
 						{
-							"name": "documents",
-							"prettyName": "Documents",
-							"mappings": {
-								"date": "createdAt"
-							}
-						},
-						{
 							"name": "annotations",
 							"prettyName": "Annotations",
 							"mappings": {
@@ -42,7 +35,23 @@
 					"fieldName": "originalText",
 					"placeHolder": "Search"
 				}
-			}
+			},
+			"relations": [
+				{
+					"members": [
+						{
+							"database": "ll_nepal_06_14",
+							"table": "annotations",
+							"field": "llAnnotation.Type"
+						},
+						{
+							"database": "ll_nepal_06_14",
+							"table": "situations",
+							"field": "topic"
+						}
+					]
+				}
+			]
 		},
 		{
 			"name": "Situational Awareness",
@@ -94,52 +103,22 @@
 							"field": "id"
 						}
 					]
-				}
-			]
-		},
-		{
-			"name": "Nepal Earthquake 2015 THOR Aggregations",
-			"connectOnLoad": false,
-			"layout": "TA2-ELISA-layout",
-			"datastore": "elasticsearch",
-			"hostname": "localhost",
-			"databases": [
+				},
 				{
-					"name": "ll_nepal_05_29",
-					"prettyName": "Nepal Earthquake 2015 THOR Aggregations",
-					"tables": [
+					"members": [
 						{
-							"name": "documents",
-							"prettyName": "Annotations",
-							"mappings": {
-								"date": "createdAt"
-							}
+							"database": "ll_nepal_06_14",
+							"table": "situations",
+							"field": "topic"
 						},
 						{
-							"name": "situations",
-							"prettyName": "Situations",
-							"mappings": {
-							}
+							"database": "ll_nepal_06_14",
+							"table": "annotations",
+							"field": "llAnnotation.Type"
 						}
 					]
 				}
-			],
-			"options": {
-				"checkForCoordinateValidation": "null_values",
-				"colorMaps": {
-					"ll_nepal_simplified": {
-						"mapping": {
-							"types": {}
-						}
-					}
-				},
-				"simpleFilter": {
-					"databaseName": "ll_nepal_05_29",
-					"tableName": "situations",
-					"fieldName": "location",
-					"placeHolder": "Search"
-				}
-			}
+			]
 		}
 	],
 	"layouts": {
@@ -214,7 +193,7 @@
                 "bindings": {
 					"title": "Timeline",
                     "database": "ll_nepal_06_14",
-                    "table": "situations",
+                    "table": "annotations",
                     "dateField": "createdAt",
                     "granularity": "hour"
                 },
@@ -243,14 +222,42 @@
 				"minPixely": 240,
 				"minSizex": 4,
 				"minSizey": 4
-            },
+			},
+			{
+				"name": "Thumbnail Grid",
+				"type": "thumbnailGrid",
+				"icon": "thumbnailGrid",
+				"col": 13,
+				"sizex": 5,
+				"row": 7,
+				"sizey": 6,
+				"bindings": {
+					"id": "_id",
+                    "title": "Media Gallery",
+                    "database": "ll_nepal_06_14",
+                    "table": "annotations",
+                    "idField": "id",
+                    "linkField": "mediaEntities.mediaURLHttps",
+                    "typeField": "mediaEntities.type",
+                    "sortField": "mediaEntities.id",
+                    "filterable": true,
+					"scaleThumbnails": false,
+					"typeMap": {
+						"jpg": "img"
+					}
+				},
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4
+			},
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
 				"col": 13,
                 "sizex": 5,
-				"row": 7,
+				"row": 13,
                 "sizey": 6,
                 "bindings": {
 					"title": "Media Viewer",
@@ -303,7 +310,7 @@
                 "bindings": {
 					"title": "Document Viewer",
                     "database": "ll_nepal_06_14",
-                    "table": "documents",
+                    "table": "annotations",
                     "documentTextField": "originalText",
                     "startCharacterField": "mediaEntities.start",
                     "endCharacterField": "mediaEntities.end",
@@ -337,10 +344,10 @@
 						"documentCount"
 					],
 					"filterable": true,
-					"filterFields": "documents",
+					"filterFields": ["documents"],
 					"arrayFilterOperator": "or",
 					"singleFilter": true,
-					"ignoreSelf": true
+					"ignoreSelf": false
 				},
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -408,9 +415,9 @@
 						"originalText"
 					],
 					"filterable": true,
-					"filterFields": "id",
+					"filterFields": ["id"],
 					"singleFilter": true,
-					"ignoreSelf": true
+					"ignoreSelf": false
 				},
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -459,12 +466,40 @@
 				"minSizey": 3
 			},
 			{
+				"name": "Thumbnail Grid",
+				"type": "thumbnailGrid",
+				"icon": "thumbnailGrid",
+				"col": 17,
+				"sizex": 8,
+				"row": 8,
+				"sizey": 5,
+				"bindings": {
+					"id": "_id",
+                    "title": "Media Gallery",
+                    "database": "ll_nepal_06_14",
+                    "table": "annotations",
+                    "idField": "id",
+                    "linkField": "mediaEntities.mediaURLHttps",
+                    "typeField": "mediaEntities.type",
+                    "sortField": "mediaEntities.id",
+                    "filterable": true,
+                    "scaleThumbnails": false,
+					"typeMap": {
+						"jpg": "img"
+					}
+				},
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4
+			},
+			{
 				"name": "Media Viewer",
 				"type": "mediaViewer",
 				"icon": "mediaViewer",
 				"col": 17,
 				"sizex": 8,
-				"row": 8,
+				"row": 13,
 				"sizey": 5,
 				"bindings": {
 					"title": "Media Viewer",
@@ -478,255 +513,6 @@
 				"minPixely": 240,
 				"minSizex": 4,
 				"minSizey": 4
-			}
-		],
-		"TA2-ELISA-layout": [
-			{
-				"name": "Filter Builder",
-				"type": "filterBuilder",
-				"icon": "CreateFilter64",
-				"sizex": 16,
-				"sizey": 2,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 2,
-				"minSizey": 2,
-				"$$hashKey": "object:31",
-				"selected": true,
-				"bindings": {
-					"title": "Filter Builder",
-					"database": "ll_nepal_situation_raw",
-					"table": "situations"
-				},
-				"row": 0,
-				"col": 0
-			},
-			{
-				"name": "Data Table",
-				"type": "dataTable",
-				"icon": "ViewData64",
-				"sizex": 8,
-				"sizey": 12,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 7,
-				"minSizey": 3,
-				"$$hashKey": "object:43",
-				"selected": true,
-				"bindings": {
-					"title": "Situations",
-					"database": "ll_nepal_situation_raw",
-					"table": "situations",
-					"sortField": "documentCount",
-					"limit": "100",
-					"allColumnStatus": "hide",
-					"dataField" : "situationTitle",
-					"idField": "situationTitle",
-					"exceptionsToStatus": [
-							"situationTitle",
-						"documentCount"
-					]
-				},
-				"row": 0,
-				"col": 17
-			},
-			{
-				"name": "Map",
-				"type": "map",
-				"icon": "Map64",
-				"sizex": 11,
-				"sizey": 6,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 6,
-				"minSizey": 5,
-				"$$hashKey": "object:29",
-				"selected": true,
-				"bindings": {
-					"title": "Locations",
-					"database": "ll_nepal_situation_raw",
-					"filterable": true,
-					"name": "Situations",
-					"show": true,
-					"table": "situations",
-					"type": "cluster",
-					"limit": 5000,
-					"latitudeField": "geoLocation.lat",
-					"longitudeField": "geoLocation.lon",
-					"sourceLatitudeField": "",
-					"sourceLongitudeField": "",
-					"targetLatitudeField": "",
-					"targetLongitudeField": "",
-					"colorField": "sentiment",
-					"colorMapping": [
-						{
-							"match": "(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?!=.*(regimechange|crimeviolence|terrorism|earthquake))",
-							"label": "Need",
-							"color": "rgb(0,255,0)"
-						},
-						{
-							"match": "(?=.*evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing)(?=.*regimechange|crimeviolence|terrorism|earthquake).*",
-							"label": "Need and Issue",
-							"color": "rgb(255,255,0)"
-						},
-						{
-							"match": "(regimechange|crimeviolence|terrorism|earthquake)(?!=.*(evac|food|search|med|shelter|water|vehicles|energy|sanitation|clothing))",
-							"label": "Issue",
-							"color": "rgb(255,0,0)"
-						}
-					],
-					"dateField": "time",
-					"sizeField": "",
-					"idField": "",
-					"colorCode": "",
-					"lineColorField": "",
-					"nodeColorField": "",
-					"lineSizeField": "",
-					"nodeSizeField": "",
-					"lineColorCode": "",
-					"nodeColorCode": "",
-					"gradientColorCode1": "",
-					"gradientColorCode2": "",
-					"gradientColorCode3": "",
-					"gradientColorCode4": "",
-					"gradientColorCode5": "",
-					"applyTransientDateFilter": false,
-					"popupFields": [
-						"topic"
-					],
-					"layers": [
-						{
-							"title": "Nepal Earthquake 2015 Situations Point Layer",
-							"database": "ll_nepal_situation_raw",
-							"table": "situations",
-							"latitudeField": "geoLocation.lat",
-							"longitudeField": "geoLocation.lon",
-							"dateField": "time",
-							"colorField": "sentiment"
-						}
-					],
-					"geoServer": {
-						"offline": false,
-						"mapUrl": "http://localhost:8080/geoserver/lorelei_workspace/wms",
-						"layer": "lorelei_workspace:MapCityLabel"
-					},
-					"mapType": "leaflet"
-				},
-				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 3,
-				"col": 0
-			},
-			{
-				"name": "Bar Chart",
-				"type": "barChart",
-				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 3,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 3,
-				"$$hashKey": "object:30",
-				"selected": true,
-				"bindings": {
-					"title": "Topics",
-					"database": "ll_nepal_situation_raw",
-					"table": "situations",
-					"dataField": "topic",
-					"limit" : 11,
-					"chartType": "horizontalBar",
-					"colors": [
-						{
-							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
-							"color": "77, 190, 194"
-						},
-						{
-							"value": "regimechange|crimeviolence|terrorism|earthquake",
-							"color": "39, 96, 126"
-						}
-					]
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 3,
-				"col": 12
-			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"sizex": 5,
-				"sizey": 3,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 3,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "People/Groups",
-					"database": "ll_nepal_situation_raw",
-					"table": "situations",
-					"dataField": "entities"
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 6,
-				"col": 12
-			},
-			{
-				"name": "Timeline",
-				"type": "timeline",
-				"icon": "Timeline64",
-				"sizex": 11,
-				"sizey": 4,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 6,
-				"minSizey": 3,
-				"$$hashKey": "object:36",
-				"selected": true,
-				"bindings": {
-					"title": "Times",
-					"database": "ll_nepal_situation_raw",
-					"table": "situations",
-					"dateField": "time",
-					"granularity": "hour"
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 9,
-				"col": 0
-			},
-			{
-				"name": "Bar Chart",
-				"type": "barChart",
-				"icon": "BarChart64",
-				"sizex": 5,
-				"sizey": 4,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 3,
-				"$$hashKey": "object:30",
-				"selected": true,
-				"bindings": {
-					"title": "Sentiment",
-					"database": "ll_nepal_situation_raw",
-					"table": "situations",
-					"dataField": "sentiment",
-					"chartType": "bar",
-					"colors": [
-						{
-							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
-							"color": "77, 190, 194"
-						},
-						{
-							"value": "regimechange|crimeviolence|terrorism|earthquake",
-							"color": "39, 96, 126"
-						}
-					]
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 9,
-				"col": 12
 			}
 		]
 	},
