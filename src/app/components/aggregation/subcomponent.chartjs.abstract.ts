@@ -106,8 +106,11 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @arg {AggregationOptions} options
      * @arg {AggregationSubcomponentListener} listener
      * @arg {ElementRef} elementRef
+     * @arg {boolean} [cannotSelect=false]
      */
-    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef) {
+    constructor(options: AggregationOptions, listener: AggregationSubcomponentListener, elementRef: ElementRef,
+        protected cannotSelect: boolean = false) {
+
         super(options, listener, elementRef);
     }
 
@@ -468,11 +471,14 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @override
      */
     public getMinimumDimensions(): { height: number, width: number } {
+        let minimumTicksX = this.findAxisTypeX() === 'string' ? this.tickLabels.x.length : 3;
+        let minimumTicksY = this.findAxisTypeY() === 'string' ? this.tickLabels.y.length : 3;
+
         // The height of the y-axis labels is approx. 15 px each and the height of the x-axis labels is approx. 20 px (arbitrary).
         // The width of the x-axis labels is minimum 25 px each and the width of the y-axis labels is 40 px (arbitrary).
         return {
-            height: this.tickLabels.y.length * 15 + 20,
-            width: this.tickLabels.x.length * 25 + 40
+            height: minimumTicksY * 15 + 20,
+            width: minimumTicksX * 25 + 40
         };
     }
 
@@ -540,7 +546,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
      * @return {boolean}
      */
     protected isSelectable(items: any[]): boolean {
-        return !!items.length;
+        return !this.cannotSelect && !!items.length;
     }
 
     /**

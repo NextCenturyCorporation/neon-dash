@@ -88,6 +88,9 @@ describe('Component: Aggregation', () => {
         fixture = TestBed.createComponent(AggregationComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
+
+        component.subcomponentMain = component.initializeSubcomponent(component.subcomponentMainElementRef);
+        component.subcomponentZoom = component.initializeSubcomponent(component.subcomponentZoomElementRef);
     });
 
     it('class options properties are set to expected defaults', () => {
@@ -97,6 +100,7 @@ describe('Component: Aggregation', () => {
         expect(component.options.yField).toEqual(component.emptyField);
 
         expect(component.options.aggregation).toEqual('count');
+        expect(component.options.dualView).toEqual('');
         expect(component.options.granularity).toEqual('year');
         expect(component.options.hideGridLines).toEqual(false);
         expect(component.options.hideGridTicks).toEqual(false);
@@ -127,14 +131,15 @@ describe('Component: Aggregation', () => {
         expect(component.legendActiveGroups).toEqual([]);
         expect(component.legendFields).toEqual([]);
         expect(component.legendGroups).toEqual([]);
-        expect(component.minimumDimensions.height).toBeDefined();
-        expect(component.minimumDimensions.width).toBeDefined();
+        expect(component.minimumDimensionsMain.height).toBeDefined();
+        expect(component.minimumDimensionsMain.width).toBeDefined();
+        expect(component.minimumDimensionsZoom.height).toBeDefined();
+        expect(component.minimumDimensionsZoom.width).toBeDefined();
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([]);
         expect(component.selectedArea).toEqual(null);
         expect(component.selectedAreaOffset.x).toBeDefined();
         expect(component.selectedAreaOffset.y).toBeDefined();
-        expect(component.subcomponentObject.constructor.name).toEqual(ChartJsLineSubcomponent.name);
         expect(component.subcomponentTypes).toEqual([{
             name: 'Bar, Horizontal (Aggregations)',
             type: 'bar-h'
@@ -172,8 +177,23 @@ describe('Component: Aggregation', () => {
         expect(component.headerText).toBeDefined();
         expect(component.hiddenCanvas).toBeDefined();
         expect(component.infoText).toBeDefined();
-        expect(component.subcomponentHtml).toBeDefined();
+        expect(component.subcomponentMainElementRef).toBeDefined();
+        expect(component.subcomponentZoomElementRef).toBeDefined();
         expect(component.visualization).toBeDefined();
+    });
+
+    it('allowDualView does return expected boolean', () => {
+        expect(component.allowDualView('histogram')).toEqual(true);
+        expect(component.allowDualView('line')).toEqual(true);
+        expect(component.allowDualView('line-xy')).toEqual(true);
+
+        expect(component.allowDualView('bar-h')).toEqual(false);
+        expect(component.allowDualView('bar-v')).toEqual(false);
+        expect(component.allowDualView('doughnut')).toEqual(false);
+        expect(component.allowDualView('pie')).toEqual(false);
+        expect(component.allowDualView('scatter')).toEqual(false);
+        expect(component.allowDualView('scatter-xy')).toEqual(false);
+        expect(component.allowDualView('table')).toEqual(false);
     });
 
     it('createFilterPrettyText does return expected string', () => {
@@ -777,9 +797,7 @@ describe('Component: Aggregation', () => {
     it('getCloseableFilters does return expected object', () => {
         expect(component.getCloseableFilters()).toEqual([{}]);
 
-        component.filterToPassToSuperclass = {
-            id: 'testId'
-        };
+        component.filterToPassToSuperclass.id = 'testId';
 
         expect(component.getCloseableFilters()).toEqual([{
             id: 'testId'
@@ -1233,74 +1251,74 @@ describe('Component: Aggregation', () => {
     });
 
     it('handleChangeSubcomponentType does update subcomponent type and call expected functions', () => {
-        let spy1 = spyOn(component, 'initializeSubcomponent');
-        let spy2 = spyOn(component, 'handleChangeData');
-        let spy3 = spyOn(component.subcomponentObject, 'destroy');
-
+        let spy = spyOn(component, 'redrawSubcomponents');
         component.options.newType = 'line-xy';
 
         component.handleChangeSubcomponentType();
 
-        expect(component.subcomponentObject).toEqual(null);
         expect(component.options.sortByAggregation).toEqual(false);
         expect(component.options.type).toEqual('line-xy');
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(spy3.calls.count()).toEqual(1);
+        expect(spy.calls.count()).toEqual(1);
     });
 
     it('handleChangeSubcomponentType does not call expected functions if new type equals subcomponent type', () => {
-        let spy1 = spyOn(component, 'initializeSubcomponent');
-        let spy2 = spyOn(component, 'handleChangeData');
-        let spy3 = spyOn(component.subcomponentObject, 'destroy');
-
+        let spy = spyOn(component, 'redrawSubcomponents');
         component.options.newType = 'line';
         component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
 
-        expect(component.subcomponentObject).not.toEqual(null);
         expect(component.options.sortByAggregation).toEqual(true);
         expect(component.options.type).toEqual('line');
-        expect(spy1.calls.count()).toEqual(0);
-        expect(spy2.calls.count()).toEqual(0);
-        expect(spy3.calls.count()).toEqual(0);
+        expect(spy.calls.count()).toEqual(0);
+    });
+
+    it('handleChangeSubcomponentType does not update dualView if new type is allowed to have dual views', () => {
+        let spy = spyOn(component, 'redrawSubcomponents');
+        component.options.newType = 'line-xy';
+        component.options.dualView = 'on';
+
+        component.handleChangeSubcomponentType();
+
+        expect(component.options.dualView).toEqual('on');
+        expect(component.options.type).toEqual('line-xy');
+        expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('handleChangeSubcomponentType does update dualView if new type is not allowed to have dual views', () => {
+        let spy = spyOn(component, 'redrawSubcomponents');
+        component.options.newType = 'bar-h';
+        component.options.dualView = 'on';
+
+        component.handleChangeSubcomponentType();
+
+        expect(component.options.dualView).toEqual('');
+        expect(component.options.type).toEqual('bar-h');
+        expect(spy.calls.count()).toEqual(1);
     });
 
     it('handleChangeSubcomponentType does update sortByAggregation if new type is not sortable by aggregation', () => {
-        let spy1 = spyOn(component, 'initializeSubcomponent');
-        let spy2 = spyOn(component, 'handleChangeData');
-        let spy3 = spyOn(component.subcomponentObject, 'destroy');
-
+        let spy = spyOn(component, 'redrawSubcomponents');
         component.options.newType = 'line-xy';
         component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
 
-        expect(component.subcomponentObject).toEqual(null);
         expect(component.options.sortByAggregation).toEqual(false);
         expect(component.options.type).toEqual('line-xy');
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(spy3.calls.count()).toEqual(1);
+        expect(spy.calls.count()).toEqual(1);
     });
 
     it('handleChangeSubcomponentType does not update sortByAggregation if new type is sortable by aggregation', () => {
-        let spy1 = spyOn(component, 'initializeSubcomponent');
-        let spy2 = spyOn(component, 'handleChangeData');
-        let spy3 = spyOn(component.subcomponentObject, 'destroy');
-
+        let spy = spyOn(component, 'redrawSubcomponents');
         component.options.newType = 'bar-h';
         component.options.sortByAggregation = true;
 
         component.handleChangeSubcomponentType();
 
-        expect(component.subcomponentObject).toEqual(null);
         expect(component.options.sortByAggregation).toEqual(true);
         expect(component.options.type).toEqual('bar-h');
-        expect(spy1.calls.count()).toEqual(1);
-        expect(spy2.calls.count()).toEqual(1);
-        expect(spy3.calls.count()).toEqual(1);
+        expect(spy.calls.count()).toEqual(1);
     });
 
     it('handleLegendItemSelected does call toggleFilter', () => {
@@ -1355,10 +1373,9 @@ describe('Component: Aggregation', () => {
         }]);
     });
 
-    it('initializeSubcomponent does update subcomponentObject', () => {
-        component.subcomponentObject = null;
-        component.initializeSubcomponent();
-        expect(component.subcomponentObject.constructor.name).toEqual(ChartJsLineSubcomponent.name);
+    it('initializeSubcomponent does return expected object', () => {
+        let subcomponentObject = component.initializeSubcomponent(component.subcomponentMainElementRef);
+        expect(subcomponentObject.constructor.name).toEqual(ChartJsLineSubcomponent.name);
     });
 
     it('isContinuous does return expected boolean', () => {
@@ -2077,21 +2094,55 @@ describe('Component: Aggregation', () => {
     it('postInit does work as expected', () => {
         let spy = spyOn(component, 'executeQueryChain');
         component.postInit();
-        expect(component.selectedAreaOffset.x).toBeDefined();
-        expect(component.selectedAreaOffset.y).toBeDefined();
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('refreshVisualization does call subcomponentObject.draw', () => {
-        let spy = spyOn(component.subcomponentObject, 'draw');
+    it('redrawSubcomponents does recreate main subcomponent and call expected functions', () => {
+        let spy1 = spyOn(component, 'initializeSubcomponent');
+        let spy2 = spyOn(component, 'refreshVisualization');
+        let spy3 = spyOn(component.subcomponentMain, 'destroy');
+        let spy4 = spyOn(component.subcomponentZoom, 'destroy');
+
+        component.redrawSubcomponents();
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([true]);
+        expect(spy3.calls.count()).toEqual(1);
+        expect(spy4.calls.count()).toEqual(1);
+    });
+
+    it('redrawSubcomponents does recreate both main and zoom subcomponents if dualView is truthy', () => {
+        let spy1 = spyOn(component, 'initializeSubcomponent');
+        let spy2 = spyOn(component, 'refreshVisualization');
+        let spy3 = spyOn(component.subcomponentMain, 'destroy');
+        let spy4 = spyOn(component.subcomponentZoom, 'destroy');
+
+        component.options.dualView = 'on';
+
+        component.redrawSubcomponents();
+
+        expect(spy1.calls.count()).toEqual(2);
+        expect(spy1.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
+        expect(spy1.calls.argsFor(1)).toEqual([component.subcomponentZoomElementRef, true]);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([true]);
+        expect(spy3.calls.count()).toEqual(1);
+        expect(spy4.calls.count()).toEqual(1);
+    });
+
+    it('refreshVisualization does draw data', () => {
+        let spy1 = spyOn(component.subcomponentMain, 'draw');
+        let spy2 = spyOn(component.subcomponentZoom, 'draw');
         component.options.aggregation = 'sum';
         component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
 
         component.refreshVisualization();
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[], {
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[], {
             aggregationField: 'Test Size Field',
             aggregationLabel: 'sum',
             dataLength: 0,
@@ -2102,6 +2153,7 @@ describe('Component: Aggregation', () => {
             yAxis: 'number',
             yList: []
         }]);
+        expect(spy2.calls.count()).toEqual(0);
 
         component.activeData = [{
             x: 1,
@@ -2116,8 +2168,280 @@ describe('Component: Aggregation', () => {
         component.yList = [2, 4];
 
         component.refreshVisualization();
-        expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([[{
+        expect(spy1.calls.count()).toEqual(2);
+        expect(spy1.calls.argsFor(1)).toEqual([[{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }], {
+            aggregationField: 'Test Size Field',
+            aggregationLabel: 'sum',
+            dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'y',
+            xAxis: 'number',
+            xList: [1, 3],
+            yAxis: 'number',
+            yList: [2, 4]
+        }]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(component.legendFields).toEqual(['testCategoryField']);
+    });
+
+    it('refreshVisualization with XY subcomponent does draw data', () => {
+        let spy1 = spyOn(component.subcomponentMain, 'draw');
+        let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        component.options.type = 'line-xy';
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+
+        component.refreshVisualization();
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[], {
+            aggregationField: undefined,
+            aggregationLabel: undefined,
+            dataLength: 0,
+            groups: [],
+            sort: 'x',
+            xAxis: 'number',
+            xList: [],
+            yAxis: 'number',
+            yList: []
+        }]);
+        expect(spy2.calls.count()).toEqual(0);
+
+        component.activeData = [{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }];
+        component.legendGroups = ['a', 'b'];
+        component.xList = [1, 3];
+        component.yList = [2, 4];
+
+        component.refreshVisualization();
+        expect(spy1.calls.count()).toEqual(2);
+        expect(spy1.calls.argsFor(1)).toEqual([[{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }], {
+            aggregationField: undefined,
+            aggregationLabel: undefined,
+            dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'x',
+            xAxis: 'number',
+            xList: [1, 3],
+            yAxis: 'number',
+            yList: [2, 4]
+        }]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(component.legendFields).toEqual(['testCategoryField']);
+    });
+
+    it('refreshVisualization does work as expected with date fields', () => {
+        let spy1 = spyOn(component.subcomponentMain, 'draw');
+        let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        component.options.type = 'line-xy';
+        component.options.xField = DatasetServiceMock.DATE_FIELD;
+        component.options.yField = DatasetServiceMock.DATE_FIELD;
+
+        component.refreshVisualization();
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[], {
+            aggregationField: undefined,
+            aggregationLabel: undefined,
+            dataLength: 0,
+            groups: [],
+            sort: 'x',
+            xAxis: 'date',
+            xList: [],
+            yAxis: 'date',
+            yList: []
+        }]);
+        expect(spy2.calls.count()).toEqual(0);
+
+        component.activeData = [{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }];
+        component.legendGroups = ['a', 'b'];
+        component.xList = [1, 3];
+        component.yList = [2, 4];
+
+        component.refreshVisualization();
+        expect(spy1.calls.count()).toEqual(2);
+        expect(spy1.calls.argsFor(1)).toEqual([[{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }], {
+            aggregationField: undefined,
+            aggregationLabel: undefined,
+            dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'x',
+            xAxis: 'date',
+            xList: [1, 3],
+            yAxis: 'date',
+            yList: [2, 4]
+        }]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(component.legendFields).toEqual(['']);
+    });
+
+    it('refreshVisualization does work as expected with string fields', () => {
+        let spy1 = spyOn(component.subcomponentMain, 'draw');
+        let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        component.options.type = 'line-xy';
+        component.options.xField = DatasetServiceMock.TEXT_FIELD;
+        component.options.yField = DatasetServiceMock.TEXT_FIELD;
+
+        component.refreshVisualization();
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[], {
+            aggregationField: undefined,
+            aggregationLabel: undefined,
+            dataLength: 0,
+            groups: [],
+            sort: 'x',
+            xAxis: 'string',
+            xList: [],
+            yAxis: 'string',
+            yList: []
+        }]);
+        expect(spy2.calls.count()).toEqual(0);
+
+        component.activeData = [{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }];
+        component.legendGroups = ['a', 'b'];
+        component.xList = [1, 3];
+        component.yList = [2, 4];
+
+        component.refreshVisualization();
+        expect(spy1.calls.count()).toEqual(2);
+        expect(spy1.calls.argsFor(1)).toEqual([[{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }], {
+            aggregationField: undefined,
+            aggregationLabel: undefined,
+            dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'x',
+            xAxis: 'string',
+            xList: [1, 3],
+            yAxis: 'string',
+            yList: [2, 4]
+        }]);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(component.legendFields).toEqual(['']);
+    });
+
+    it('refreshVisualization does draw zoom data if dualView is truthy', () => {
+        let spy1 = spyOn(component.subcomponentMain, 'draw');
+        let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        component.options.aggregation = 'sum';
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.dualView = 'on';
+
+        component.activeData = [{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }];
+        component.legendGroups = ['a', 'b'];
+        component.options.sortByAggregation = true;
+        component.xList = [1, 3];
+        component.yList = [2, 4];
+
+        component.refreshVisualization();
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }], {
+            aggregationField: 'Test Size Field',
+            aggregationLabel: 'sum',
+            dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'y',
+            xAxis: 'number',
+            xList: [1, 3],
+            yAxis: 'number',
+            yList: [2, 4]
+        }]);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([[{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }], {
+            aggregationField: 'Test Size Field',
+            aggregationLabel: 'sum',
+            dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'y',
+            xAxis: 'number',
+            xList: [1, 3],
+            yAxis: 'number',
+            yList: [2, 4]
+        }]);
+        expect(component.legendFields).toEqual(['testCategoryField']);
+
+        component.options.dualView = 'filter';
+
+        component.refreshVisualization();
+        expect(spy1.calls.count()).toEqual(2);
+        expect(spy1.calls.argsFor(1)).toEqual([[{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }], {
+            aggregationField: 'Test Size Field',
+            aggregationLabel: 'sum',
+            dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'y',
+            xAxis: 'number',
+            xList: [1, 3],
+            yAxis: 'number',
+            yList: [2, 4]
+        }]);
+        expect(spy2.calls.count()).toEqual(2);
+        expect(spy2.calls.argsFor(1)).toEqual([[{
             x: 1,
             y: 2
         }, {
@@ -2137,26 +2461,15 @@ describe('Component: Aggregation', () => {
         expect(component.legendFields).toEqual(['testCategoryField']);
     });
 
-    it('refreshVisualization with XY subcomponent does call subcomponentObject.draw', () => {
-        let spy = spyOn(component.subcomponentObject, 'draw');
-        component.options.type = 'line-xy';
+    it('refreshVisualization does not draw main data if filterToPassToSuperclass.id is defined unless dualView is falsey', () => {
+        let spy1 = spyOn(component.subcomponentMain, 'draw');
+        let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        component.options.aggregation = 'sum';
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
         component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
         component.options.xField = DatasetServiceMock.X_FIELD;
-        component.options.yField = DatasetServiceMock.Y_FIELD;
-
-        component.refreshVisualization();
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
-            dataLength: 0,
-            groups: [],
-            sort: 'x',
-            xAxis: 'number',
-            xList: [],
-            yAxis: 'number',
-            yList: []
-        }]);
+        component.options.dualView = 'on';
+        component.filterToPassToSuperclass.id = 'testId';
 
         component.activeData = [{
             x: 1,
@@ -2166,23 +2479,111 @@ describe('Component: Aggregation', () => {
             y: 4
         }];
         component.legendGroups = ['a', 'b'];
+        component.options.sortByAggregation = true;
         component.xList = [1, 3];
         component.yList = [2, 4];
 
         component.refreshVisualization();
-        expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([[{
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([[{
             x: 1,
             y: 2
         }, {
             x: 3,
             y: 4
         }], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
+            aggregationField: 'Test Size Field',
+            aggregationLabel: 'sum',
             dataLength: 2,
             groups: ['a', 'b'],
-            sort: 'x',
+            sort: 'y',
+            xAxis: 'number',
+            xList: [1, 3],
+            yAxis: 'number',
+            yList: [2, 4]
+        }]);
+        expect(component.legendFields).toEqual(['testCategoryField']);
+
+        component.options.dualView = '';
+
+        component.refreshVisualization();
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }], {
+            aggregationField: 'Test Size Field',
+            aggregationLabel: 'sum',
+            dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'y',
+            xAxis: 'number',
+            xList: [1, 3],
+            yAxis: 'number',
+            yList: [2, 4]
+        }]);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.legendFields).toEqual(['testCategoryField']);
+    });
+
+    it('refreshVisualization does draw main data if given true argument', () => {
+        let spy1 = spyOn(component.subcomponentMain, 'draw');
+        let spy2 = spyOn(component.subcomponentZoom, 'draw');
+        component.options.aggregation = 'sum';
+        component.options.aggregationField = DatasetServiceMock.SIZE_FIELD;
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.dualView = 'on';
+        component.filterToPassToSuperclass.id = 'testId';
+
+        component.activeData = [{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }];
+        component.legendGroups = ['a', 'b'];
+        component.options.sortByAggregation = true;
+        component.xList = [1, 3];
+        component.yList = [2, 4];
+
+        component.refreshVisualization(true);
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.argsFor(0)).toEqual([[{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }], {
+            aggregationField: 'Test Size Field',
+            aggregationLabel: 'sum',
+            dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'y',
+            xAxis: 'number',
+            xList: [1, 3],
+            yAxis: 'number',
+            yList: [2, 4]
+        }]);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(spy2.calls.argsFor(0)).toEqual([[{
+            x: 1,
+            y: 2
+        }, {
+            x: 3,
+            y: 4
+        }], {
+            aggregationField: 'Test Size Field',
+            aggregationLabel: 'sum',
+            dataLength: 2,
+            groups: ['a', 'b'],
+            sort: 'y',
             xAxis: 'number',
             xList: [1, 3],
             yAxis: 'number',
@@ -2191,118 +2592,10 @@ describe('Component: Aggregation', () => {
         expect(component.legendFields).toEqual(['testCategoryField']);
     });
 
-    it('refreshVisualization does work as expected with date fields', () => {
-        let spy = spyOn(component.subcomponentObject, 'draw');
-        component.options.type = 'line-xy';
-        component.options.xField = DatasetServiceMock.DATE_FIELD;
-        component.options.yField = DatasetServiceMock.DATE_FIELD;
+    it('removeFilter does delete filters and call subcomponentMain.deselect', () => {
+        let spy = spyOn(component.subcomponentMain, 'deselect');
 
-        component.refreshVisualization();
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
-            dataLength: 0,
-            groups: [],
-            sort: 'x',
-            xAxis: 'date',
-            xList: [],
-            yAxis: 'date',
-            yList: []
-        }]);
-
-        component.activeData = [{
-            x: 1,
-            y: 2
-        }, {
-            x: 3,
-            y: 4
-        }];
-        component.legendGroups = ['a', 'b'];
-        component.xList = [1, 3];
-        component.yList = [2, 4];
-
-        component.refreshVisualization();
-        expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([[{
-            x: 1,
-            y: 2
-        }, {
-            x: 3,
-            y: 4
-        }], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
-            dataLength: 2,
-            groups: ['a', 'b'],
-            sort: 'x',
-            xAxis: 'date',
-            xList: [1, 3],
-            yAxis: 'date',
-            yList: [2, 4]
-        }]);
-        expect(component.legendFields).toEqual(['']);
-    });
-
-    it('refreshVisualization does work as expected with string fields', () => {
-        let spy = spyOn(component.subcomponentObject, 'draw');
-        component.options.type = 'line-xy';
-        component.options.xField = DatasetServiceMock.TEXT_FIELD;
-        component.options.yField = DatasetServiceMock.TEXT_FIELD;
-
-        component.refreshVisualization();
-        expect(spy.calls.count()).toEqual(1);
-        expect(spy.calls.argsFor(0)).toEqual([[], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
-            dataLength: 0,
-            groups: [],
-            sort: 'x',
-            xAxis: 'string',
-            xList: [],
-            yAxis: 'string',
-            yList: []
-        }]);
-
-        component.activeData = [{
-            x: 1,
-            y: 2
-        }, {
-            x: 3,
-            y: 4
-        }];
-        component.legendGroups = ['a', 'b'];
-        component.xList = [1, 3];
-        component.yList = [2, 4];
-
-        component.refreshVisualization();
-        expect(spy.calls.count()).toEqual(2);
-        expect(spy.calls.argsFor(1)).toEqual([[{
-            x: 1,
-            y: 2
-        }, {
-            x: 3,
-            y: 4
-        }], {
-            aggregationField: undefined,
-            aggregationLabel: undefined,
-            dataLength: 2,
-            groups: ['a', 'b'],
-            sort: 'x',
-            xAxis: 'string',
-            xList: [1, 3],
-            yAxis: 'string',
-            yList: [2, 4]
-        }]);
-        expect(component.legendFields).toEqual(['']);
-    });
-
-    it('removeFilter does delete filters and call subcomponentObject.deselect', () => {
-        let spy = spyOn(component.subcomponentObject, 'deselect');
-
-        component.filterToPassToSuperclass = {
-            id: 'testId'
-        };
+        component.filterToPassToSuperclass.id = 'testId';
         component.groupFilters = [{
             field: 'field1',
             label: '',
@@ -2415,6 +2708,19 @@ describe('Component: Aggregation', () => {
         expect(component.showLegend()).toEqual(true);
         component.options.type = 'scatter-xy';
         expect(component.showLegend()).toEqual(true);
+    });
+
+    it('showBothViews does return expected boolean', () => {
+        expect(component.showBothViews()).toEqual(false);
+
+        component.options.dualView = 'on';
+        expect(component.showBothViews()).toEqual(true);
+
+        component.options.dualView = 'filter';
+        expect(component.showBothViews()).toEqual(false);
+
+        component.filterToPassToSuperclass.id = 'testId';
+        expect(component.showBothViews()).toEqual(true);
     });
 
     it('subcomponentRequestsDeselect does update selectedArea', () => {
@@ -2996,7 +3302,9 @@ describe('Component: Aggregation', () => {
         expect(spy2.calls.count()).toEqual(1);
     });
 
-    it('subcomponentRequestsSelect does update selectedArea', () => {
+    it('subcomponentRequestsSelect does update selectedArea and selectedAreaOffset', () => {
+        component.selectedAreaOffset = null;
+
         component.subcomponentRequestsSelect(1, 2, 10, 20);
 
         expect(component.selectedArea).toEqual({
@@ -3005,6 +3313,8 @@ describe('Component: Aggregation', () => {
             x: 1,
             y: 2
         });
+        expect(component.selectedAreaOffset.x).toBeDefined();
+        expect(component.selectedAreaOffset.y).toBeDefined();
     });
 
     it('subGetBindings does set expected properties in bindings', () => {
@@ -3016,6 +3326,7 @@ describe('Component: Aggregation', () => {
             xField: '',
             yField: '',
             aggregation: 'count',
+            dualView: '',
             granularity: 'year',
             hideGridLines: false,
             hideGridTicks: false,
@@ -3043,6 +3354,7 @@ describe('Component: Aggregation', () => {
         component.options.yField = DatasetServiceMock.Y_FIELD;
 
         component.options.aggregation = 'sum';
+        component.options.dualView = 'on';
         component.options.granularity = 'day';
         component.options.hideGridLines = true;
         component.options.hideGridTicks = true;
@@ -3071,6 +3383,7 @@ describe('Component: Aggregation', () => {
             xField: 'testXField',
             yField: 'testYField',
             aggregation: 'sum',
+            dualView: 'on',
             granularity: 'day',
             hideGridLines: true,
             hideGridTicks: true,
@@ -3094,27 +3407,54 @@ describe('Component: Aggregation', () => {
     });
 
     it('subNgOnDestroy does work as expected', () => {
-        let spy = spyOn(component.subcomponentObject, 'destroy');
+        let spy1 = spyOn(component.subcomponentMain, 'destroy');
+        let spy2 = spyOn(component.subcomponentZoom, 'destroy');
 
         component.subNgOnDestroy();
-        expect(spy.calls.count()).toEqual(1);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy2.calls.count()).toEqual(1);
     });
 
-    it('subNgOnInit does work as expected', () => {
+    it('subNgOnInit does initialize main subcomponent', () => {
         let spy = spyOn(component, 'initializeSubcomponent');
 
         component.subNgOnInit();
+
         expect(spy.calls.count()).toEqual(1);
+        expect(spy.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
+    });
+
+    it('subNgOnInit does initialize both main and zoom subcomponents if dualView is truthy', () => {
+        let spy = spyOn(component, 'initializeSubcomponent');
+
+        component.options.dualView = 'on';
+
+        component.subNgOnInit();
+
+        expect(spy.calls.count()).toEqual(2);
+        expect(spy.calls.argsFor(0)).toEqual([component.subcomponentMainElementRef]);
+        expect(spy.calls.argsFor(1)).toEqual([component.subcomponentZoomElementRef, true]);
     });
 
     it('subOnResizeStop does work as expected', () => {
-        let spy = spyOn(component.subcomponentObject, 'redraw');
-        component.minimumDimensions = null;
+        component.minimumDimensionsMain = null;
+        component.minimumDimensionsZoom = null;
+        component.selectedAreaOffset = null;
+
+        let spy1 = spyOn(component.subcomponentMain, 'redraw');
+        let spy2 = spyOn(component.subcomponentZoom, 'redraw');
 
         component.subOnResizeStop();
-        expect(spy.calls.count()).toEqual(1);
-        expect(component.minimumDimensions.height).toBeDefined();
-        expect(component.minimumDimensions.width).toBeDefined();
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy2.calls.count()).toEqual(1);
+        expect(component.minimumDimensionsMain.height).toBeDefined();
+        expect(component.minimumDimensionsMain.width).toBeDefined();
+        expect(component.minimumDimensionsZoom.height).toBeDefined();
+        expect(component.minimumDimensionsZoom.width).toBeDefined();
+        expect(component.selectedAreaOffset.x).toBeDefined();
+        expect(component.selectedAreaOffset.y).toBeDefined();
     });
 
     it('toggleFilter does add given filter to given empty array and call createOrRemoveNeonFilter', () => {
@@ -3165,7 +3505,7 @@ describe('Component: Aggregation', () => {
 
     it('toggleFilter does remove given filter from given array and call createOrRemoveNeonFilter', () => {
         let spy1 = spyOn(component, 'createOrRemoveNeonFilter');
-        let spy2 = spyOn(component.subcomponentObject, 'deselect');
+        let spy2 = spyOn(component.subcomponentMain, 'deselect');
 
         let neonFilter1 = neon.query.where('field1', '=', 'value1');
         let filter1 = {
@@ -3193,7 +3533,7 @@ describe('Component: Aggregation', () => {
 
     it('toggleFilter does remove given filter from given multi-element array and call createOrRemoveNeonFilter', () => {
         let spy1 = spyOn(component, 'createOrRemoveNeonFilter');
-        let spy2 = spyOn(component.subcomponentObject, 'deselect');
+        let spy2 = spyOn(component.subcomponentMain, 'deselect');
 
         let neonFilter1 = neon.query.where('field1', '=', 'value1');
         let filter1 = {
@@ -3617,19 +3957,21 @@ describe('Component: Aggregation', () => {
         });
     }));
 
-    it('does show chart-container and chart', () => {
-        let chartContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container .chart-container'));
-        expect(chartContainer).not.toBeNull();
-        let chart = fixture.debugElement.query(By.css('mat-sidenav-container .body-container .chart-container .chart'));
-        expect(chart).not.toBeNull();
+    it('does show subcomponent-container and subcomponent-element', () => {
+        let container = fixture.debugElement.query(By.css('mat-sidenav-container .body-container .subcomponent-container'));
+        expect(container).not.toBeNull();
+        let element = fixture.debugElement.query(By.css(
+            'mat-sidenav-container .body-container .subcomponent-container .subcomponent-element'));
+        expect(element).not.toBeNull();
     });
 
-    it('does not show chart-selection if selectedArea is null', () => {
-        let chartSelection = fixture.debugElement.query(By.css('mat-sidenav-container .body-container .chart-container .chart-selection'));
-        expect(chartSelection).toBeNull();
+    it('does not show subcomponent-selection if selectedArea is null', () => {
+        let selection = fixture.debugElement.query(By.css(
+            'mat-sidenav-container .body-container .subcomponent-container .subcomponent-selection'));
+        expect(selection).toBeNull();
     });
 
-    it('does show chart-selection if selectedArea is not null', async(() => {
+    it('does show subcomponent-selection if selectedArea is not null', async(() => {
         component.selectedArea = {
             height: 20,
             width: 10,
@@ -3642,9 +3984,9 @@ describe('Component: Aggregation', () => {
         fixture.whenStable().then(() => {
             fixture.detectChanges();
 
-            let chartSelection = fixture.debugElement.query(By.css(
-                'mat-sidenav-container .body-container .chart-container .chart-selection'));
-            expect(chartSelection).not.toBeNull();
+            let selection = fixture.debugElement.query(By.css(
+                'mat-sidenav-container .body-container .subcomponent-container .subcomponent-selection'));
+            expect(selection).not.toBeNull();
         });
     }));
 
@@ -3678,7 +4020,7 @@ describe('Component: Aggregation', () => {
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(10);
+            expect(selects.length).toEqual(11);
             let options;
 
             expect(selects[0].componentInstance.disabled).toEqual(false);
@@ -3750,9 +4092,21 @@ describe('Component: Aggregation', () => {
             }
 
             expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('Group Field');
+            expect(selects[6].componentInstance.placeholder).toEqual('Dual View');
             expect(selects[6].componentInstance.required).toEqual(false);
             options = selects[6].componentInstance.options.toArray();
+            expect(options.length).toEqual(3);
+            expect(options[0].getLabel()).toEqual('Always Off');
+            expect(options[0].selected).toEqual(true);
+            expect(options[1].getLabel()).toEqual('Always On');
+            expect(options[1].selected).toEqual(false);
+            expect(options[2].getLabel()).toEqual('Only On Filter');
+            expect(options[2].selected).toEqual(false);
+
+            expect(selects[7].componentInstance.disabled).toEqual(false);
+            expect(selects[7].componentInstance.placeholder).toEqual('Group Field');
+            expect(selects[7].componentInstance.required).toEqual(false);
+            options = selects[7].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
@@ -3760,10 +4114,10 @@ describe('Component: Aggregation', () => {
                 expect(options[i + 1].selected).toEqual(false);
             }
 
-            expect(selects[7].componentInstance.disabled).toEqual(false);
-            expect(selects[7].componentInstance.placeholder).toEqual('Line Curve Tension');
-            expect(selects[7].componentInstance.required).toEqual(true);
-            options = selects[7].componentInstance.options.toArray();
+            expect(selects[8].componentInstance.disabled).toEqual(false);
+            expect(selects[8].componentInstance.placeholder).toEqual('Line Curve Tension');
+            expect(selects[8].componentInstance.required).toEqual(false);
+            options = selects[8].componentInstance.options.toArray();
             expect(options.length).toEqual(10);
             expect(options[0].getLabel()).toEqual('0%');
             expect(options[1].getLabel()).toEqual('10%');
@@ -3776,10 +4130,10 @@ describe('Component: Aggregation', () => {
             expect(options[8].getLabel()).toEqual('80%');
             expect(options[9].getLabel()).toEqual('90%');
 
-            expect(selects[8].componentInstance.disabled).toEqual(false);
-            expect(selects[8].componentInstance.placeholder).toEqual('Y-Axis Max Width');
-            expect(selects[8].componentInstance.required).toEqual(true);
-            options = selects[8].componentInstance.options.toArray();
+            expect(selects[9].componentInstance.disabled).toEqual(false);
+            expect(selects[9].componentInstance.placeholder).toEqual('Y-Axis Max Width');
+            expect(selects[9].componentInstance.required).toEqual(false);
+            options = selects[9].componentInstance.options.toArray();
             expect(options.length).toEqual(5);
             expect(options[0].getLabel()).toEqual('10%');
             expect(options[1].getLabel()).toEqual('20%');
@@ -3964,7 +4318,7 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.timeFill).toEqual(true);
         expect(component.options.type).toEqual('scatter');
         expect(component.options.yPercentage).toEqual(0.5);
-        expect(component.subcomponentObject.constructor.name).toEqual(ChartJsScatterSubcomponent.name);
+        expect(component.subcomponentMain.constructor.name).toEqual(ChartJsScatterSubcomponent.name);
     });
 
     it('does show header in toolbar with visualization title from config', () => {
@@ -4102,7 +4456,7 @@ describe('Component: Aggregation with config', () => {
 
             expect(selects[7].componentInstance.disabled).toEqual(false);
             expect(selects[7].componentInstance.placeholder).toEqual('Y-Axis Max Width');
-            expect(selects[7].componentInstance.required).toEqual(true);
+            expect(selects[7].componentInstance.required).toEqual(false);
             options = selects[7].componentInstance.options.toArray();
             expect(options.length).toEqual(5);
             expect(options[0].getLabel()).toEqual('10%');
@@ -4358,7 +4712,7 @@ describe('Component: Aggregation with XY config', () => {
 
             expect(selects[6].componentInstance.disabled).toEqual(false);
             expect(selects[6].componentInstance.placeholder).toEqual('Y-Axis Max Width');
-            expect(selects[6].componentInstance.required).toEqual(true);
+            expect(selects[6].componentInstance.required).toEqual(false);
             options = selects[6].componentInstance.options.toArray();
             expect(options.length).toEqual(5);
             expect(options[0].getLabel()).toEqual('10%');
@@ -4647,7 +5001,7 @@ describe('Component: Aggregation with date config', () => {
 
             expect(selects[8].componentInstance.disabled).toEqual(false);
             expect(selects[8].componentInstance.placeholder).toEqual('Y-Axis Max Width');
-            expect(selects[8].componentInstance.required).toEqual(true);
+            expect(selects[8].componentInstance.required).toEqual(false);
             options = selects[8].componentInstance.options.toArray();
             expect(options.length).toEqual(5);
             expect(options[0].getLabel()).toEqual('10%');

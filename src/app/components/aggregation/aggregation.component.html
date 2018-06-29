@@ -131,6 +131,16 @@
                 </mat-form-field>
                 <p *ngIf="options.xField.type == 'date'"></p>
 
+                <mat-form-field *ngIf="allowDualView(options.type)">
+                    <mat-select placeholder="Dual View" [(ngModel)]="options.dualView" required="false"
+                        (ngModelChange)="redrawSubcomponents()">
+                        <mat-option [value]="''">Always Off</mat-option>
+                        <mat-option [value]="'on'">Always On</mat-option>
+                        <mat-option [value]="'filter'">Only On Filter</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p *ngIf="allowDualView(options.type)"></p>
+
                 <span class="toggle-text">Filter Operator</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.requireAll"
                     (ngModelChange)="handleChangeData()">
@@ -186,7 +196,7 @@
                 <p></p>
 
                 <mat-form-field *ngIf="options.type == 'line' || options.type == 'line-xy'">
-                    <mat-select placeholder="Line Curve Tension" [(ngModel)]="options.lineCurveTension" required="true"
+                    <mat-select placeholder="Line Curve Tension" [(ngModel)]="options.lineCurveTension" required="false"
                         (ngModelChange)="refreshVisualization()">
                         <mat-option [value]="0.0">0%</mat-option>
                         <mat-option [value]="0.1">10%</mat-option>
@@ -305,7 +315,7 @@
                 <p *ngIf="!isContinuous(options.type)"></p>
 
                 <mat-form-field *ngIf="isScaled(options.type)">
-                    <mat-select placeholder="Y-Axis Max Width" [(ngModel)]="options.yPercentage" required="true"
+                    <mat-select placeholder="Y-Axis Max Width" [(ngModel)]="options.yPercentage" required="false"
                         (ngModelChange)="refreshVisualization()">
                         <mat-option [value]="0.1">10%</mat-option>
                         <mat-option [value]="0.2">20%</mat-option>
@@ -357,12 +367,20 @@
     </div>
 
     <div class="body-container" [class.with-filter]="showHeaderContainer()" [class.with-footer]="showFooterContainer()">
-        <div class="chart-container" [style.minHeight.px]="minimumDimensions.height" [style.minWidth.px]="minimumDimensions.width"
-            (click)="stopEventPropagation($event)">
+        <div class="subcomponent-container zoom" [class.hide]="!showBothViews()" [style.minHeight.px]="minimumDimensionsZoom.height"
+            [style.minWidth.px]="minimumDimensionsZoom.width" (click)="stopEventPropagation($event)">
 
-            <div class="chart-selection" *ngIf="selectedArea" [style.width.px]="selectedArea.width" [style.height.px]="selectedArea.height"
-                [style.left.px]="selectedArea.x" [style.top.px]="selectedArea.y"></div>
-            <div #subcomponent class="chart"></div>
+            <div #subcomponentZoom class="subcomponent-element"></div>
+        </div>
+
+        <div class="subcomponent-container" [class.main]="showBothViews()" [style.minHeight.px]="minimumDimensionsMain.height"
+            [style.minWidth.px]="minimumDimensionsMain.width" (click)="stopEventPropagation($event)">
+
+            <div class="subcomponent-selection" *ngIf="selectedArea" [style.width.px]="selectedArea.width"
+                [style.height.px]="selectedArea.height" [style.left.px]="selectedAreaOffset.x + selectedArea.x"
+                [style.top.px]="selectedAreaOffset.y + selectedArea.y"></div>
+
+            <div #subcomponentMain class="subcomponent-element"></div>
         </div>
     </div>
 
