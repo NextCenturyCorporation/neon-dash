@@ -4,7 +4,7 @@
 
         <span class="fill-remaining"></span>
 
-        <button mat-icon-button aria-label="Add" matTooltip="Add New Clause" tooltip-position="below" (click)="addBlankWhereClause()">
+        <button mat-icon-button aria-label="Add" matTooltip="Add New Clause" tooltip-position="below" (click)="addBlankFilterClause()">
             <mat-icon>add_circle</mat-icon>
         </button>
 
@@ -13,14 +13,10 @@
             <mat-icon>delete_sweep</mat-icon>
         </button>
 
-        <mat-button-toggle-group #operatorToggle="matButtonToggleGroup" [(ngModel)]="andOr" (change)="handleChangeAndOr()"
+        <mat-button-toggle-group #operatorToggle="matButtonToggleGroup" [(ngModel)]="options.requireAll" (change)="updateFilters()"
                 class="neon-button-toggle-group-small">
-            <mat-button-toggle value="and">
-                AND
-            </mat-button-toggle>
-            <mat-button-toggle value="or">
-                OR
-            </mat-button-toggle>
+            <mat-button-toggle [value]="true">AND</mat-button-toggle>
+            <mat-button-toggle [value]="false">OR</mat-button-toggle>
         </mat-button-toggle-group>
     </mat-toolbar>
 

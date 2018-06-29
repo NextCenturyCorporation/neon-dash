@@ -72,7 +72,8 @@ export class FilterService {
                     filter.filter.databaseName,
                     filter.filter.tableName,
                     filter.filter.whereClause,
-                    filter.filter.filterName);
+                    filter.filter.filterName
+                );
             }
             if (onSuccess) {
                 onSuccess();
@@ -160,14 +161,16 @@ export class FilterService {
         return matchingFilters;
     }
 
-    public addFilter(messenger: neon.eventing.Messenger,
+    public addFilter(
+        messenger: neon.eventing.Messenger,
         ownerId: string,
         database: string,
         table: string,
         whereClause: any,
         filterName: string | { visName: string, text: string },
         onSuccess?: (resp: any) => any,
-        onError?: (resp: any) => any) {
+        onError?: (resp: any) => any
+    ) {
 
         let filter = this.createNeonFilter(database, table, whereClause, this.createFilterName(database, table, filterName));
         let id = this.createFilterId(database, table);
@@ -189,12 +192,15 @@ export class FilterService {
                 for (let i = serviceFilters.length - 1; i >= 0; i--) {
                     this.filters.push(serviceFilters[i]);
                 }
-                onSuccess(id); // Return the ID of the primary created filter.
+                if (onSuccess) {
+                    onSuccess(id); // Return the ID of the primary created filter.
+                }
             },
             onError);
     }
 
-    public replaceFilter(messenger: neon.eventing.Messenger,
+    public replaceFilter(
+        messenger: neon.eventing.Messenger,
         id: string,
         ownerId: string,
         database: string,
@@ -202,7 +208,8 @@ export class FilterService {
         whereClause: any,
         filterName: string | { visName: string, text: string },
         onSuccess?: (resp: any) => any,
-        onError?: (resp: any) => any) {
+        onError?: (resp: any) => any
+    ) {
 
         let filter = this.createNeonFilter(database, table, whereClause, this.createFilterName(database, table, filterName));
         let originalIndex = this.filters.findIndex((f) => f.id === id);
@@ -245,15 +252,19 @@ export class FilterService {
                     index = _.findIndex(this.filters, { id: newSiblings[i].id });
                     this.filters[index] = newSiblings[i];
                 }
-                onSuccess(id); // Return the ID of the replaced filter.
+                if (onSuccess) {
+                    onSuccess(id); // Return the ID of the replaced filter.
+                }
             },
             onError);
     }
 
-    protected removeFilter(messenger: neon.eventing.Messenger,
+    protected removeFilter(
+        messenger: neon.eventing.Messenger,
         id: string,
         onSuccess?: (resp: any) => any,
-        onError?: (resp: any) => any) {
+        onError?: (resp: any) => any
+    ) {
 
         let baseFilter = this.filters.find((filter) => filter.id === id);
         let siblings = baseFilter ? baseFilter.siblings.concat(id) : [];
@@ -279,10 +290,12 @@ export class FilterService {
             onError);
     }
 
-    public removeFilters(messenger: neon.eventing.Messenger,
+    public removeFilters(
+        messenger: neon.eventing.Messenger,
         ids: string[],
         onSuccess?: (resp: any) => any,
-        onError?: (resp: any) => any) {
+        onError?: (resp: any) => any
+    ) {
 
         // TODO Use messenger.removeFilters now to remove all filters simultaneously.
         for (let id of ids) {
