@@ -6,7 +6,7 @@
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [{
-                "name": "ll_nepal_06_14",
+                "name": "ll_nepal_07_02",
                 "prettyName": "Nepal Earthquake 2015, ELISA Annotations",
                 "tables": [{
                         "name": "annotations",
@@ -25,7 +25,7 @@
             "options": {
                 "checkForCoordinateValidation": "null_values",
                 "simpleFilter": {
-                    "databaseName": "ll_nepal_06_14",
+                    "databaseName": "ll_nepal_07_02",
                     "tableName": "annotations",
                     "fieldName": "originalText",
                     "placeHolder": "Search"
@@ -33,12 +33,12 @@
             },
             "relations": [{
                 "members": [{
-                        "database": "ll_nepal_06_14",
+                        "database": "ll_nepal_07_02",
                         "table": "annotations",
                         "field": "llAnnotation.Type"
                     },
                     {
-                        "database": "ll_nepal_06_14",
+                        "database": "ll_nepal_07_02",
                         "table": "situations",
                         "field": "topic"
                     }
@@ -52,7 +52,7 @@
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [{
-                "name": "ll_nepal_06_14",
+                "name": "ll_nepal_07_02",
                 "prettyName": "Nepal Earthquake 2015, ELISA Annotations",
                 "tables": [{
                         "name": "annotations",
@@ -71,7 +71,7 @@
             "options": {
                 "checkForCoordinateValidation": "null_values",
                 "simpleFilter": {
-                    "databaseName": "ll_nepal_06_14",
+                    "databaseName": "ll_nepal_07_02",
                     "tableName": "annotations",
                     "fieldName": "originalText",
                     "placeHolder": "Search"
@@ -79,12 +79,12 @@
             },
             "relations": [{
                     "members": [{
-                            "database": "ll_nepal_06_14",
+                            "database": "ll_nepal_07_02",
                             "table": "situations",
                             "field": "documents"
                         },
                         {
-                            "database": "ll_nepal_06_14",
+                            "database": "ll_nepal_07_02",
                             "table": "annotations",
                             "field": "id"
                         }
@@ -92,12 +92,12 @@
                 },
                 {
                     "members": [{
-                            "database": "ll_nepal_06_14",
+                            "database": "ll_nepal_07_02",
                             "table": "situations",
                             "field": "topic"
                         },
                         {
-                            "database": "ll_nepal_06_14",
+                            "database": "ll_nepal_07_02",
                             "table": "annotations",
                             "field": "llAnnotation.Type"
                         }
@@ -171,7 +171,7 @@
                 "sizey": 2,
                 "bindings": {
                     "title": "Filter Builder",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "situations"
                 },
                 "minPixelx": 320,
@@ -202,7 +202,7 @@
                     "popupFields": [],
                     "layers": [{
                         "title": "Situation Layer",
-                        "database": "ll_nepal_06_14",
+                        "database": "ll_nepal_07_02",
                         "table": "situations",
                         "latitudeField": "lat",
                         "longitudeField": "lon",
@@ -230,7 +230,7 @@
                 "sizey": 3,
                 "bindings": {
                     "title": "Timeline",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "annotations",
                     "dateField": "createdAt",
                     "granularity": "hour"
@@ -250,7 +250,7 @@
                 "sizey": 6,
                 "bindings": {
                     "title": "Topics",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "situations",
                     "dataField": "topic",
                     "aggregation": "count",
@@ -272,7 +272,7 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Media Gallery",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "annotations",
                     "idField": "id",
                     "linkField": "mediaEntities.mediaURLHttps",
@@ -299,7 +299,7 @@
                 "sizey": 6,
                 "bindings": {
                     "title": "Media Viewer",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "annotations",
                     "id": "_id",
                     "idField": "id",
@@ -320,7 +320,7 @@
                 "sizey": 6,
                 "bindings": {
                     "title": "Situation Frames",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "annotations",
                     "sortField": "createdAt",
                     "limit": "100",
@@ -347,7 +347,7 @@
                 "sizey": 6,
                 "bindings": {
                     "title": "Document Viewer",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "annotations",
                     "documentTextField": "originalText",
                     "startCharacterField": "mediaEntities.start",
@@ -371,7 +371,7 @@
                 "sizey": 7,
                 "bindings": {
                     "title": "Situations",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "situations",
                     "sortField": "situationName",
                     "limit": "100",
@@ -401,7 +401,7 @@
                 "sizey": 9,
                 "bindings": {
                     "title": "Locations",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "annotations",
                     "filterable": true,
                     "name": "EVENTS",
@@ -410,7 +410,7 @@
                     "limit": 5000,
                     "layers": [{
                         "title": "Nepal Earthquake 2015 Annotations Point Layer",
-                        "database": "ll_nepal_06_14",
+                        "database": "ll_nepal_07_02",
                         "table": "annotations",
                         "latitudeField": "geoLocations.lat",
                         "longitudeField": "geoLocations.lon",
@@ -439,7 +439,7 @@
                 "sizey": 7,
                 "bindings": {
                     "title": "Documents",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "documents",
                     "idField": "id",
                     "sortField": "createdAt",
@@ -469,7 +469,7 @@
                 "sizey": 5,
                 "bindings": {
                     "title": "Topics",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "annotations",
                     "dataField": "llAnnotation.Type",
                     "limit": 11,
@@ -490,7 +490,7 @@
                 "sizey": 3,
                 "bindings": {
                     "title": "Times",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "annotations",
                     "dateField": "createdAt",
                     "granularity": "hour"
@@ -511,7 +511,7 @@
                 "bindings": {
                     "id": "_id",
                     "title": "Media Gallery",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "annotations",
                     "idField": "id",
                     "linkField": "mediaEntities.mediaURLHttps",
@@ -538,7 +538,7 @@
                 "sizey": 5,
                 "bindings": {
                     "title": "Media Viewer",
-                    "database": "ll_nepal_06_14",
+                    "database": "ll_nepal_07_02",
                     "table": "annotations",
                     "id": "_id",
                     "idField": "id",
@@ -856,7 +856,7 @@
     ]
 },
 "legends": {
-    "ll_nepal_06_14": {
+    "ll_nepal_07_02": {
         "documents": [{
                 "label": "Text",
                 "customized": {
