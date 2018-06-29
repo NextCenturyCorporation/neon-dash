@@ -349,10 +349,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         }];
     }
 
-    addLocalFilter(myFilter) {
-        //
-    }
-
     refreshVisualization() {
         //
     }
@@ -484,39 +480,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     selectGraph(graphSelector) {
         this.graphType = graphSelector;
-        /*
-        for (const group of this.chartGroups) {
-            for (const chart of group.charts) {
-                if (chart.selector === chartSelector) {
-                    this.chart = chart;
-                    return;
-                }
-            }
-        }
-        */
-    }
-
-    select(data) {
-        //console.log('Item clicked', data);
-    }
-
-    /*
-    setColorScheme(name) {
-        this.selectedColorScheme = name;
-        this.colorScheme = this.colorSets.find(s => s.name === name);
-     }
-    */
-
-    onLegendLabelClick(entry) {
-        //console.log('Legend clicked', entry);
-    }
-
-    toggleExpand(node) {
-        //console.log('toggle expand', node);
-    }
-
-    addLocalFilters(myFilter) {
-        //
     }
 
     formatingCallback(value): string {
@@ -595,68 +558,53 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 edgeType = entry[edgeColorField],
                 nodeField = entry[nodeName];
 
-            if (graph.nodes.length < limit) {
-                //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
-                if (Array.isArray(linkField)) {
-                    for (const linkEntry of linkField) {
-                        if (this.isUniqueNode(linkEntry)) {
-                            this.totalNodeCount++;
+            // if there is a valid edgeColorField, override the edgeColor
+            if (entry[edgeColorField]) {
+                let colorMapVal = edgeColorField && edgeType;
+                edgeColor = this.colorSchemeService.getColorFor(edgeColorField, colorMapVal).toRgb();
+            }
+
+            //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
+            if (Array.isArray(linkField)) {
+                for (const linkEntry of linkField) {
+                    if (this.isUniqueNode(linkEntry)) {
+                        this.totalNodeCount++;
+                        if (graph.nodes.length < limit) {
                             graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor));
                         }
                     }
-                } else if (linkField) {
-                    if (this.isUniqueNode(linkField)) {
-                        this.totalNodeCount++;
+                }
+            } else if (linkField) {
+                if (this.isUniqueNode(linkField)) {
+                    this.totalNodeCount++;
+                    if (graph.nodes.length < limit) {
                         graph.addNode(new Node(linkField, linkField, linkName, 1, linkColor, true, textColor));
                     }
                 }
+            }
 
-                // if there is a valid edgeColorField, override the edgeColor
-                if (entry[edgeColorField]) {
-                    let colorMapVal = edgeColorField && edgeType;
-                    edgeColor = this.colorSchemeService.getColorFor(edgeColorField, colorMapVal).toRgb();
-                }
-
-                //if node field is an array create a new node for each unique nodeId
-                if (Array.isArray(nodeField)) {
-                    for (const nodeEntry of nodeField) {
-                        if (this.isUniqueNode(nodeEntry)) {
-                            this.totalNodeCount++;
+            //if node field is an array create a new node for each unique nodeId
+            if (Array.isArray(nodeField)) {
+                for (const nodeEntry of nodeField) {
+                    if (this.isUniqueNode(nodeEntry)) {
+                        this.totalNodeCount++;
+                        if (graph.nodes.length < limit) {
                             graph.addNode(new Node(nodeEntry, nodeEntry, nodeName, 1, nodeColor, false, textColor));
                         }
+                    }
+                    if (graph.nodes.length < limit) {
                         this.addEdgesFromField(graph, linkField, nodeEntry, edgeColor, edgeType);
                     }
-                } else if (nodeField) {
-                    if (this.isUniqueNode(nodeField)) {
-                        this.totalNodeCount++;
+                }
+            } else if (nodeField) {
+                if (this.isUniqueNode(nodeField)) {
+                    this.totalNodeCount++;
+                    if (graph.nodes.length < limit) {
                         graph.addNode(new Node(nodeField, nodeField, nodeName, 1, nodeColor, false, textColor));
                     }
+                }
+                if (graph.nodes.length < limit) {
                     this.addEdgesFromField(graph, linkField, nodeField, edgeColor);
-                }
-            } else { //just count how many nodes can be made
-                //if the linkfield is an array
-                if (Array.isArray(linkField)) {
-                    for (const linkEntry of linkField) {
-                        if (this.isUniqueNode(linkEntry)) {
-                            this.totalNodeCount++;
-                        }
-                    }
-                } else if (linkField) {
-                    if (this.isUniqueNode(linkField)) {
-                        this.totalNodeCount++;
-                    }
-                }
-                //if node field is an array
-                if (Array.isArray(nodeField)) {
-                    for (const nodeEntry of nodeField) {
-                        if (this.isUniqueNode(nodeEntry)) {
-                            this.totalNodeCount++;
-                        }
-                    }
-                } else if (nodeField) {
-                    if (this.isUniqueNode(nodeField)) {
-                        this.totalNodeCount++;
-                    }
                 }
             }
         }
