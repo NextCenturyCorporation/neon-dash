@@ -564,12 +564,7 @@ describe('Component: ThumbnailGrid', () => {
             expect(elements.length).toEqual(2);
 
             expect(elements[0].nativeElement.classList.contains('with-text')).toEqual(true);
-            expect(elements[0].nativeElement.classList.contains('selected')).toEqual(false);
-            expect(elements[0].nativeElement.classList.contains('selectable')).toEqual(true);
-
             expect(elements[1].nativeElement.classList.contains('with-text')).toEqual(true);
-            expect(elements[1].nativeElement.classList.contains('selected')).toEqual(false);
-            expect(elements[1].nativeElement.classList.contains('selectable')).toEqual(true);
 
             let detailElements = fixture.debugElement.queryAll(By.css(
                 'mat-sidenav-container .body-container .thumbnail-grid-div .thumbnail-details'));
