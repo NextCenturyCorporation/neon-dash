@@ -116,7 +116,8 @@
         }
     ],
     "layouts": {
-        "situational-awareness-layout": [{
+        "situational-awareness-layout": [
+            {
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
@@ -136,7 +137,7 @@
                         "documentCount"
                     ],
                     "filterable": true,
-                    "filterFields": ["documents"],
+                    "filterFields": ["documents", "situationName"],
                     "arrayFilterOperator": "or",
                     "singleFilter": true,
                     "ignoreSelf": false
@@ -190,7 +191,7 @@
                 "col": 17,
                 "sizex": 8,
                 "row": 1,
-                "sizey": 12,
+                "sizey": 7,
                 "bindings": {
                     "title": "Documents",
                     "database": "ll_nepal_07_02",
@@ -272,9 +273,31 @@
                 "minPixely": 240,
                 "minSizex": 2,
                 "minSizey": 2
+            },
+            {
+                "name": "Media Viewer",
+                "type": "mediaViewer",
+                "icon": "mediaViewer",
+				"col": 17,
+                "sizex": 8,
+				"row": 8,
+                "sizey": 5,
+                "bindings": {
+					"title": "Media Viewer",
+					"database": "ll_nepal_07_02",
+					"table": "annotations",
+					"id": "_id",
+					"idField": "id",
+					"linkField": "mediaEntities.mediaURLHttps"
+				},
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4
             }
         ],
-        "elisa-uyghur-layout": [{
+        "elisa-uyghur-layout": [
+            {
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
@@ -401,7 +424,7 @@
                     "database": "elisa_uyghur_2_1",
                     "table": "ui_output",
                     "dateField": "createdAt",
-                    "granularity": "day"
+                    "granularity": "month"
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -427,7 +450,8 @@
                 "minSizey": 2
             }
         ],
-        "il3-uyghur-layout": [{
+        "il3-uyghur-layout": [
+            {
             "name": "Data Table",
             "type": "dataTable",
             "icon": "ViewData64",
@@ -452,135 +476,135 @@
             "minPixely": 240,
             "minSizex": 7,
             "minSizey": 3
-        },
-        {
-            "name": "Map",
-            "type": "map",
-            "icon": "Map64",
-            "col": 8,
-            "sizex": 10,
-            "row": 0,
-            "sizey": 7,
-            "bindings": {
-                "title": "Locations",
-                "database": "il3_uyghur",
-                "table": "tweets",
-                "filterable": true,
-                "name": "EVENTS",
-                "show": true,
-                "type": "cluster",
-                "limit": 5000,
-                "layers": [{
-                    "title": "Map",
+            },
+            {
+                "name": "Map",
+                "type": "map",
+                "icon": "Map64",
+                "col": 8,
+                "sizex": 10,
+                "row": 0,
+                "sizey": 7,
+                "bindings": {
+                    "title": "Locations",
                     "database": "il3_uyghur",
-                    "table": "ui_output",
-                    "latitudeField": "geoLocation.latitude",
-                    "longitudeField": "geoLocation.longitude",
-                    "dateField": "createdAt",
+                    "table": "tweets",
+                    "filterable": true,
+                    "name": "EVENTS",
+                    "show": true,
+                    "type": "cluster",
+                    "limit": 5000,
+                    "layers": [{
+                        "title": "Map",
+                        "database": "il3_uyghur",
+                        "table": "ui_output",
+                        "latitudeField": "geoLocation.latitude",
+                        "longitudeField": "geoLocation.longitude",
+                        "dateField": "createdAt",
+                        "colorField": "topics"
+                    }],
+                    "mapType": "leaflet"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            },
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 18,
+                "sizex": 7,
+                "row": 0,
+                "sizey": 12,
+                "bindings": {
+                    "title": "Documents",
+                    "database": "il3_uyghur",
+                    "table": "tweets",
+                    "idField": "id",
+                    "sortField": "createdAt",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+                        "createdAt",
+                        "text"
+                    ],
+                    "filterable": true,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 7,
+                "minSizey": 3
+            },
+            {
+                "name": "Bar Chart",
+                "type": "barChart",
+                "icon": "BarChart64",
+                "col": 0,
+                "sizex": 7,
+                "row": 9,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Topics",
+                    "database": "il3_uyghur",
+                    "table": "tweets",
+                    "dataField": "topics",
+                    "limit": 10,
+                    "chartType": "horizontalBar",
                     "colorField": "topics"
-                }],
-                "mapType": "leaflet"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 3
             },
-            "minPixelx": 320,
-            "minPixely": 240,
-            "minSizex": 6,
-            "minSizey": 5
-        },
-        {
-            "name": "Data Table",
-            "type": "dataTable",
-            "icon": "ViewData64",
-            "col": 18,
-            "sizex": 7,
-            "row": 0,
-            "sizey": 12,
-            "bindings": {
-                "title": "Documents",
-                "database": "il3_uyghur",
-                "table": "tweets",
-                "idField": "id",
-                "sortField": "createdAt",
-                "limit": "100",
-                "allColumnStatus": "hide",
-                "exceptionsToStatus": [
-                    "createdAt",
-                    "text"
-                ],
-                "filterable": true,
-                "filterFields": ["id"],
-                "singleFilter": true,
-                "ignoreSelf": false
+            {
+                "name": "Timeline",
+                "type": "timeline",
+                "icon": "Timeline64",
+                "col": 8,
+                "sizex": 10,
+                "row": 10,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Timeline",
+                    "database": "il3_uyghur",
+                    "table": "tweets",
+                    "dateField": "createdAt",
+                    "granularity": "month"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 3
             },
-            "minPixelx": 320,
-            "minPixely": 240,
-            "minSizex": 7,
-            "minSizey": 3
-        },
-        {
-            "name": "Bar Chart",
-            "type": "barChart",
-            "icon": "BarChart64",
-            "col": 0,
-            "sizex": 7,
-            "row": 9,
-            "sizey": 5,
-            "bindings": {
-                "title": "Topics",
-                "database": "il3_uyghur",
-                "table": "tweets",
-                "dataField": "topics",
-                "limit": 10,
-                "chartType": "horizontalBar",
-                "colorField": "topics"
-            },
-            "minPixelx": 320,
-            "minPixely": 240,
-            "minSizex": 4,
-            "minSizey": 3
-        },
-        {
-            "name": "Timeline",
-            "type": "timeline",
-            "icon": "Timeline64",
-            "col": 8,
-            "sizex": 10,
-            "row": 10,
-            "sizey": 5,
-            "bindings": {
-                "title": "Timeline",
-                "database": "il3_uyghur",
-                "table": "tweets",
-                "dateField": "createdAt",
-                "granularity": "day"
-            },
-            "minPixelx": 320,
-            "minPixely": 240,
-            "minSizex": 6,
-            "minSizey": 3
-        },
-        {
-            "name": "Filter Builder",
-            "type": "filterBuilder",
-            "icon": "CreateFilter64",
-            "col": 0,
-            "sizex": 24,
-            "row": 13,
-            "sizey": 3,
-            "bindings": {
-                "title": "Filter Builder",
-                "database": "il3_uyghur",
-                "table": "tweets"
-            },
-            "minPixelx": 320,
-            "minPixely": 240,
-            "minSizex": 2,
-            "minSizey": 2
-        }
-    ]
-},
-"legends": {
-    "ll_nepal_07_02": {
-        "documents": [{
+            {
+                "name": "Filter Builder",
+                "type": "filterBuilder",
+                "icon": "CreateFilter64",
+                "col": 0,
+                "sizex": 24,
+                "row": 13,
+                "sizey": 3,
+                "bindings": {
+                    "title": "Filter Builder",
+                    "database": "il3_uyghur",
+                    "table": "tweets"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2
+            }
+        ]
+    },
+    "legends": {
+        "ll_nepal_07_02": {
+            "documents": [{
                 "label": "Text",
                 "customized": {
                     "field": "originalText",
