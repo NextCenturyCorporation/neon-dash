@@ -21,6 +21,7 @@ import { APP_BASE_HREF, CommonModule } from '@angular/common';
 import 'hammerjs';
 
 import { AppComponent } from './app.component';
+import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
@@ -83,6 +84,7 @@ describe('App: NeonGtd', () => {
                 AppComponent,
                 AboutNeonComponent,
                 AggregationComponent,
+                AnnotationViewerComponent,
                 BarChartComponent,
                 ChartComponent,
                 DashboardOptionsComponent,

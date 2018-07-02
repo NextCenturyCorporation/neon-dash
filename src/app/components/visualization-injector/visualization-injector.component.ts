@@ -16,6 +16,7 @@
 import { Component, Input, ViewContainerRef, ViewChild, ReflectiveInjector, ComponentFactoryResolver } from '@angular/core';
 
 import { AggregationComponent } from '../aggregation/aggregation.component';
+import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
@@ -39,6 +40,7 @@ import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.compone
     selector: 'app-visualization-injector',
     entryComponents: [
         AggregationComponent,
+        AnnotationViewerComponent,
         BarChartComponent,
         DataTableComponent,
         DocumentViewerComponent,
@@ -111,6 +113,7 @@ export class VisualizationInjectorComponent {
     getComponent(type: string): any {
         switch (type) {
             case 'aggregation': return AggregationComponent;
+            case 'annotationViewer': return AnnotationViewerComponent;
             case 'barChart': return BarChartComponent;
             case 'dataTable': return DataTableComponent;
             case 'documentViewer': return DocumentViewerComponent;
