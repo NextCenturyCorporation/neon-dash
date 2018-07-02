@@ -326,8 +326,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
                                 for (let values of value) {
                                     tempArray.push(values);
                                 }
-                            }
-                            else {
+                            } else {
                                 tempArray.push(value);
                             }
                         }
