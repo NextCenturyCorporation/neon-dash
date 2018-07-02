@@ -530,6 +530,7 @@
                     "primaryTitleField":"topic_name",
                     "secondaryTitleField":"",
                     "contentField":"hypothesis",
+                    "showOnlyFiltered": true,
                     "filterField": "hypothesis_id",
                     "sortField": "id",
                     "ignoreSelf": false
