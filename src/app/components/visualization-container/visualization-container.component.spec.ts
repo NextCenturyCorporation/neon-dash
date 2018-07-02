@@ -17,6 +17,7 @@ import { TestBed, async, ComponentFixture } from '@angular/core/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
 import { AggregationComponent } from '../aggregation/aggregation.component';
+import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
@@ -56,6 +57,7 @@ describe('Component: VisualizationContainer', () => {
 
     initializeTestBed({
         declarations: [
+            AnnotationViewerComponent,
             AggregationComponent,
             BarChartComponent,
             ChartComponent,

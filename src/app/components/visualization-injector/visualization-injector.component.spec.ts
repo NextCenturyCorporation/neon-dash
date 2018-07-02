@@ -19,6 +19,7 @@ import { FormsModule } from '@angular/forms';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
 import { AggregationComponent } from '../aggregation/aggregation.component';
+import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
 import { DocumentViewerComponent } from '../document-viewer/document-viewer.component';
@@ -51,6 +52,7 @@ describe('Component: VisualizationInjector', () => {
     initializeTestBed({
         declarations: [
             AggregationComponent,
+            AnnotationViewerComponent,
             BarChartComponent,
             ChartComponent,
             DataTableComponent,
