@@ -57,18 +57,15 @@
                     </mat-form-field>
 
                     <mat-form-field class="neon-form-field-flex-5 neon-form-field">
-                        <input matInput placeholder="Value" [(ngModel)]="clause.value" (input)="handleChangeDataOfClause(clause)" (keyup.enter)="activateClause(clause)">
+                        <input matInput placeholder="Value" [(ngModel)]="clause.value" (input)="handleChangeDataOfClause(clause)"
+                                (keyup.enter)="toggleClause(clause)">
                     </mat-form-field>
                 </div>
 
                 <div class="clause-button-container">
-                    <button mat-icon-button class="neon-icon-button clause-button" (click)="activateClause(clause)"
-                            [disabled]="!validateClause(clause)" matTooltip="Update Filter" tooltip-position="below" *ngIf="!clause.active">
-                        <mat-icon class="neon-icon">refresh</mat-icon>
-                    </button>
-
-                    <button mat-icon-button class="neon-icon-button clause-button active" (click)="activateClause(clause)"
-                            matTooltip="Filter is Active" tooltip-position="below" *ngIf="clause.active">
+                    <button mat-icon-button class="neon-icon-button clause-button" [class.active]="clause.active"
+                            [matTooltip]="'Filter is ' + (clause.active ? 'On' : 'Off') + ' (Click to Toggle)'" tooltip-position="below"
+                            [disabled]="!validateClause(clause)" (click)="toggleClause(clause)">
                         <mat-icon class="neon-icon">check_circle</mat-icon>
                     </button>
 

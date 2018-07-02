@@ -122,19 +122,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Activates the given filter clause (if it is valid).
-     *
-     * @arg {FilterClauseMetaData} clause
-     */
-    activateClause(clause: FilterClauseMetaData) {
-        if (this.validateClause(clause)) {
-            clause.active = true;
-            let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name, clause.field.columnName);
-            this.updateFiltersOfKey(databaseTableFieldKey);
-        }
-    }
-
-    /**
      * Adds a blank filter clause to the global list.
      */
     addBlankFilterClause() {
@@ -356,6 +343,8 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     handleChangeDataOfClause(clause: FilterClauseMetaData) {
         clause.active = false;
+        let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name, clause.field.columnName);
+        this.updateFiltersOfKey(databaseTableFieldKey);
     }
 
     /**
@@ -606,6 +595,23 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         if (!this.clauses.length) {
             this.addBlankFilterClause();
+        }
+    }
+
+    /**
+     * Toggles the active status of the given filter clause.
+     *
+     * @arg {FilterClauseMetaData} clause
+     */
+    toggleClause(clause: FilterClauseMetaData) {
+        if (clause.active) {
+            clause.active = false;
+            let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name, clause.field.columnName);
+            this.updateFiltersOfKey(databaseTableFieldKey);
+        } else if (this.validateClause(clause)) {
+            clause.active = true;
+            let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name, clause.field.columnName);
+            this.updateFiltersOfKey(databaseTableFieldKey);
         }
     }
 
