@@ -304,8 +304,11 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     getFilterText(filter: any): string {
-        return this.clauses.length === 1 ? (this.clauses[0].field.prettyName + ' ' + this.clauses[0].operator.prettyName + ' ' +
-            this.clauses[0].value) : (this.clauses.length + ' Filters');
+        let activeClauses = this.clauses.filter((clause) => {
+            return this.validateClause(clause) && clause.active;
+        });
+        return activeClauses.length === 1 ? (activeClauses[0].field.prettyName + ' ' + activeClauses[0].operator.prettyName + ' ' +
+            activeClauses[0].value) : (activeClauses.length + ' Filters');
     }
 
     /**
@@ -536,7 +539,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
                 id: filterId
             };
         });
-        bindings.databaseTableFieldKeysToFilterIds = this.databaseTableFieldKeysToFilterIds;
         bindings.requireAll = this.options.requireAll;
     }
 
