@@ -322,7 +322,14 @@ export class QueryBarComponent  extends BaseNeonComponent {
                     response.data.forEach((d) => {
                         let value = neonUtilities.deepFind(d, fields.idField);
                         if (typeof value !== 'undefined') {
-                            tempArray.push(value);
+                            if (value instanceof Array) {
+                                for (let values of value) {
+                                    tempArray.push(values);
+                                }
+                            }
+                            else {
+                                tempArray.push(value);
+                            }
                         }
                     });
                 }
