@@ -169,6 +169,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public seenTypes: string[] = [];
     public disabledSet: [string[]] = [] as [string[]];
     public colorByFields: string[] = [];
+    public indexInclusive: boolean;
     public offset = 0;
 
     constructor(
@@ -284,28 +285,28 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         } else {
             let text = document.documents;
             if (text instanceof Array) {
-                text = this.checkOffset(text[0], annotationStartIndex[0], annotationEndIndex[0]);
+                isValid = this.isValid(text[0], annotationTextList[0], annotationStartIndex[0], annotationEndIndex[0]);
             } else if (text) {
-                text = this.checkOffset(text, annotationStartIndex[0], annotationEndIndex[0]);
-            }
-            if (text.includes(annotationTextList[0])) {
-                isValid = true;
+                isValid = this.isValid(text, annotationTextList[0], annotationStartIndex[0], annotationEndIndex[0]);
             }
         }
         return isValid;
     }
 
-    checkOffset(text: string, startIndex: number, endIndex: number): string {
-        let returnText: string;
-        if (text.substring(startIndex, (endIndex + 1))) {
-            returnText = text.substring(startIndex, (endIndex + 1));
-            this.offset = 2;
-        } else if (text.substring(startIndex, (endIndex))) {
-            returnText = text.substring(startIndex, endIndex);
-            this.offset = 1;
-        }
+    isValid(text: string, annotationText: string, startIndex: number, endIndex: number): boolean {
+        let inclusiveText = text.substring(startIndex, (endIndex + 1));
+        let exclusiveText = text.substring(startIndex, endIndex);
+        let isValid = false;
 
-        return returnText;
+        //isAnnotation exclusive or inclusive?
+        if (exclusiveText.includes(annotationText)) {
+            this.offset = 0;
+            isValid = true;
+        } else if (inclusiveText.includes(annotationText)) {
+            this.offset = 1;
+            isValid = true;
+        }
+        return isValid;
     }
 
     getValidDetails() {
@@ -475,7 +476,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 if (document.annotationStartIndex[index] === 0 && index === 0) {
                     let part = new Part();
                     part.text = documentText.substring(
-                        document.annotationEndIndex[index] + this.offset - 1, document.annotationStartIndex[index + 1]);
+                        document.annotationEndIndex[index] + this.offset, document.annotationStartIndex[index + 1]);
                     part.annotation = false;
                     document.parts.push(annotationsPartList[index]);
                     document.parts.push(part);
@@ -489,7 +490,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     innerPart.text = documentText.substring(0, document.annotationStartIndex[index]);
                     innerPart.annotation = false;
                     outerPart.text = documentText.substring(
-                        document.annotationEndIndex[index] + this.offset - 1, document.annotationStartIndex[index + 1]);
+                        document.annotationEndIndex[index] + this.offset, document.annotationStartIndex[index + 1]);
                     outerPart.annotation = false;
 
                     document.parts.push(innerPart);
@@ -503,7 +504,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                     let startIndex = document.annotationEndIndex[index];
                     let endIndex = document.annotationStartIndex[index + 1];
 
-                    partNormal.text = documentText.substring(startIndex + this.offset - 1, endIndex);
+                    partNormal.text = documentText.substring(startIndex + this.offset, endIndex);
                     partNormal.annotation = false;
 
                     document.parts.push(annotationsPartList[index]);
