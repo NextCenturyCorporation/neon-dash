@@ -771,28 +771,27 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     subGetBindings(bindings: any) {
+        bindings.ascending = this.options.ascending;
+        bindings.border = this.options.border;
         bindings.categoryField = this.options.categoryField.columnName;
+        bindings.cropAndScale = this.options.cropAndScale;
+        bindings.dateField = this.options.dateField.columnName;
+        bindings.detailedThumbnails = this.options.detailedThumbnails;
         bindings.filterField = this.options.filterField.columnName;
         bindings.idField = this.options.idField.columnName;
         bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.linkField = this.options.linkField.columnName;
-        bindings.dateField = this.options.dateField.columnName;
+        bindings.linkPrefix = this.options.linkPrefix;
         bindings.nameField = this.options.nameField.columnName;
         bindings.objectIdField = this.options.objectIdField.columnName;
         bindings.objectNameField = this.options.objectNameField.columnName;
+        bindings.openOnMouseClick = this.options.openOnMouseClick;
         bindings.percentField = this.options.percentField.columnName;
         bindings.predictedNameField = this.options.predictedNameField.columnName;
         bindings.sortField = this.options.sortField.columnName;
-        bindings.typeField = this.options.typeField.columnName;
-
-        bindings.ascending = this.options.ascending;
-        bindings.border = this.options.border;
-        bindings.cropAndScale = this.options.cropAndScale;
-        bindings.linkPrefix = this.options.linkPrefix;
-        bindings.openOnMouseClick = this.options.openOnMouseClick;
         bindings.textMap = this.options.textMap;
+        bindings.typeField = this.options.typeField.columnName;
         bindings.typeMap = this.options.typeMap;
-        bindings.detailedThumbnails = this.options.detailedThumbnails;
     }
 
     /**

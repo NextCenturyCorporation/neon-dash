@@ -42,7 +42,7 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatAutocompleteModule } from '@angular/material';
-import {ThumbnailContractedDetailsComponent, ThumbnailExpandedDetailsComponent} from './thumbnail-details.component';
+import { ThumbnailContractedDetailsComponent, ThumbnailExpandedDetailsComponent } from './thumbnail-details.component';
 
 describe('Component: ThumbnailGrid', () => {
     let component: ThumbnailGridComponent;
@@ -129,7 +129,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.page).toEqual(1);
         expect(component.pagingGrid).toEqual([]);
     });
-
 
     it('does show toolbar and sidenav', () => {
         let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
@@ -702,8 +701,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy3.calls.count()).toEqual(0);
     });
 
-
-
     it('createFilter with no existing filters does add a new filter', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
@@ -730,8 +727,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(0);
     });
-
-
 
     it('createFilter with ignoreSelf=true and no existing filters does not query', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
@@ -760,8 +755,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(0);
     });
-
-
 
     it('createFilter with one existing filter does replace an existing filter', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
@@ -796,7 +789,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy3.calls.count()).toEqual(0);
     });
 
-
     it('createFilter with ignoreSelf=true and one existing filter does not query', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
@@ -830,7 +822,6 @@ describe('Component: ThumbnailGrid', () => {
         }, neon.query.where('testFilterField', '=', 'test text')]);
         expect(spy3.calls.count()).toEqual(0);
     });
-
 
    it('createFilter with multiple existing filters does remove all filters and then add a new filter', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
@@ -890,7 +881,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy3.calls.count()).toEqual(1);
     });
 
-
     it('createFilter with ignoreSelf=true and multiple existing filters does not query', () => {
         let spy1 = spyOn(component, 'addNeonFilter');
         let spy2 = spyOn(component, 'replaceNeonFilter');
@@ -949,7 +939,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(spy3.calls.count()).toEqual(1);
     });
-
 
     it('createQuery does return expected query', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
@@ -1118,9 +1107,11 @@ describe('Component: ThumbnailGrid', () => {
         expect(refs.visualization).toBeDefined();
     });
 
-/*
     it('getExportFields does return expected array', () => {
         expect(component.getExportFields()).toEqual([{
+            columnName: '',
+            prettyName: ''
+        }, {
             columnName: '',
             prettyName: ''
         }, {
@@ -1180,6 +1171,9 @@ describe('Component: ThumbnailGrid', () => {
             columnName: 'testLinkField',
             prettyName: 'Test Link Field'
         }, {
+            columnName: '',
+            prettyName: ''
+        }, {
             columnName: 'testNameField',
             prettyName: 'Test Name Field'
         }, {
@@ -1202,7 +1196,6 @@ describe('Component: ThumbnailGrid', () => {
             prettyName: 'Test Type Field'
         }]);
     });
-*/
 
    it('getFiltersToIgnore does return null if no filters are set', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
@@ -1947,7 +1940,6 @@ describe('Component: ThumbnailGrid', () => {
         }));
     });
 
-/*
     it('subGetBindings does set expected properties in bindings', () => {
         let bindings1 = {};
         component.subGetBindings(bindings1);
@@ -1956,6 +1948,8 @@ describe('Component: ThumbnailGrid', () => {
             border: '',
             categoryField: '',
             cropAndScale: '',
+            dateField: '',
+            detailedThumbnails: false,
             filterField: '',
             idField: '',
             ignoreSelf: false,
@@ -2006,6 +2000,8 @@ describe('Component: ThumbnailGrid', () => {
             border: 'grey',
             categoryField: 'testCategoryField',
             cropAndScale: 'both',
+            dateField: '',
+            detailedThumbnails: false,
             filterField: 'testFilterField',
             idField: 'testIdField',
             ignoreSelf: true,
@@ -2029,7 +2025,6 @@ describe('Component: ThumbnailGrid', () => {
             }
         });
     });
-*/
 
     it('subNgOnDestroy does exist', () => {
         expect(component.subNgOnDestroy).toBeDefined();
@@ -2180,7 +2175,6 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
     });*/
-
 
 /*
     it('does show elements in sidenav options menu that have expected options', async(() => {
@@ -2397,4 +2391,3 @@ describe('Component: ThumbnailGrid with config', () => {
 */
 
 });
-

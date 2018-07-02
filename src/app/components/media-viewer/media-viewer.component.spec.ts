@@ -17,7 +17,7 @@ import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By, DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, inject, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { DatabaseMetaData, FieldMetaData, TableMetaData, MediaTypes } from '../../dataset';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -94,6 +94,8 @@ describe('Component: MediaViewer', () => {
     it('does have expected class properties', () => {
         expect(component.documentArray).toEqual([]);
         expect(component.isLoadingMedia).toEqual(false);
+        expect(component.previousId).toEqual('');
+        expect(component.mediaTypes).toEqual(MediaTypes);
     });
 
     it('createQuery does return expected query', (() => {
