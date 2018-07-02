@@ -227,7 +227,8 @@
                     "table": "annotations",
                     "dataField": "llAnnotation.Type",
                     "limit": 11,
-                    "chartType": "horizontalBar"
+                    "chartType": "horizontalBar",
+                    "colorField": "llAnnotation.Type"
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -379,7 +380,8 @@
                     "table": "ui_output",
                     "dataField": "topics",
                     "limit": 10,
-                    "chartType": "horizontalBar"
+                    "chartType": "horizontalBar",
+                    "colorField": "topics"
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -528,7 +530,8 @@
                 "table": "tweets",
                 "dataField": "topics",
                 "limit": 10,
-                "chartType": "horizontalBar"
+                "chartType": "horizontalBar",
+                "colorField": "topics"
             },
             "minPixelx": 320,
             "minPixely": 240,
