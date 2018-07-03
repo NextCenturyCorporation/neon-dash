@@ -792,6 +792,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.textMap = this.options.textMap;
         bindings.typeField = this.options.typeField.columnName;
         bindings.typeMap = this.options.typeMap;
+        bindings.detailedThumbnails = this.options.detailedThumbnails;
     }
 
     /**
