@@ -210,7 +210,7 @@
         </div>
 
         <div #newsFeed class="body-container" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > pagingGrid.length">
-           <div class="news-feed-container" *ngIf="showGrid">
+           <div class="news-feed-container" [hidden]="!showGrid">
                <div class="news-feed-div" *ngFor="let item of pagingGrid"
                    (click)="selectGridItem(item)" [class.selectable]="isSelectable()" [class.selected]="isSelected(item)">
                    <div class="content-details">

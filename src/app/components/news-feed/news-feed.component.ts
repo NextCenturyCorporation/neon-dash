@@ -45,6 +45,7 @@ import * as _ from 'lodash';
  * Manages configurable options for the specific visualization.
  */
 export class NewsFeedOptions extends BaseNeonOptions {
+    public showOnlyFiltered: boolean;
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
@@ -63,6 +64,7 @@ export class NewsFeedOptions extends BaseNeonOptions {
      */
     onInit() {
         this.id = this.injector.get('id', '');
+        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
     }
 
     /**
@@ -118,11 +120,10 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     public gridArray: any[] = [];
     public queryArray: any[] = [];
     public pagingGrid: any[] = [];
-
     public lastPage: boolean = true;
     public page: number = 1;
-
-    public showGrid: boolean = true;
+    public neonFilters: any[] = [];
+    public showGrid: boolean;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -132,6 +133,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             filterService, exportService, injector, themesService, ref, visualizationService);
 
         this.options = new NewsFeedOptions(this.injector, this.datasetService, 'News Feed', 10);
+        this.showGrid = !this.options.showOnlyFiltered;
     }
 
     /**
@@ -172,7 +174,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Creates and returns the query for the news feed
+     * Creates and returns the query for the thumbnail grid.
      *
      * @return {neon.query.Query}
      * @override
@@ -232,9 +234,12 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
      * @override
      */
     getButtonText() {
-
         if (!this.gridArray.length) {
             return 'No Data';
+        }
+
+        if(this.options.showOnlyFiltered && !this.neonFilters.length){
+            return 'No Filter Selected';
         }
 
         if (this.gridArray.length <= this.options.limit) {
@@ -406,12 +411,10 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         this.errorMessage = '';
         this.lastPage = true;
         this.page = 1;
-        this.showGrid = false;
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.isLoading = true;
-                this.showGrid = true;
                 response.data.forEach((d) => {
                     let item = {};
                     for (let field of this.options.fields) {
@@ -429,10 +432,20 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     this.queryArray = this.queryArray.filter((value, index, array) => array.indexOf(value) === index);
                 });
 
-                this.lastPage = (this.gridArray.length <= this.options.limit);
-                this.pagingGrid = this.gridArray.slice(0, this.options.limit);
-                this.refreshVisualization();
-                this.isLoading = false;
+                this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
+                    this.options.table.name, [this.options.filterField.columnName]);
+
+                if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+                    this.lastPage = (this.gridArray.length <= this.options.limit);
+                    this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+                    this.refreshVisualization();
+                    this.isLoading = false;
+                    this.showGrid = true;
+                }
+                else{
+                    this.pagingGrid = [];
+                    this.showGrid = false;
+                }
 
             } else {
                 this.errorMessage = 'No Data';
@@ -493,6 +506,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         this.filters = this.filters.filter((existingFilter: any) => {
             return existingFilter.id !== filter.id;
         });
+
+        this.showGrid = false;
     }
 
     /**
