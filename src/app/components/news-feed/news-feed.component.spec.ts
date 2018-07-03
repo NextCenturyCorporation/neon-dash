@@ -45,7 +45,7 @@ describe('Component: NewsFeed', () => {
     let fixture: ComponentFixture<NewsFeedComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    //may need to add or remove some initializations (coppied from media-viewer.component)
+    //may need to add or remove some initializations (copied from media-viewer.component)
     initializeTestBed({
         declarations: [
             NewsFeedComponent,
@@ -69,6 +69,7 @@ describe('Component: NewsFeed', () => {
             FormsModule
         ]
     });
+
 
     //may need to change further
     beforeEach(() => {
