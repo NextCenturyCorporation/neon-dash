@@ -49,16 +49,4 @@ export class ThumbnailExpandedDetailsComponent {
     constructor(grid: ThumbnailGridComponent){
         this.thumbnailGrid = grid;
     }
-
-/*    openMediaViewerDialog() {
-        let config = new MatDialogConfig();
-        config.viewContainerRef = this.viewContainerRef;
-
-        this.filterTrayDialogRef = this.dialog.open(MediaViewerComponent, config);
-        this.filterTrayDialogRef.afterClosed().subscribe(() => {
-            this.filterTrayDialogRef = null;
-        });
-    }*/
-
-
 }
