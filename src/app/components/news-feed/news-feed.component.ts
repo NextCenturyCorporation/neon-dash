@@ -238,7 +238,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             return 'No Data';
         }
 
-        if(this.options.showOnlyFiltered && !this.neonFilters.length){
+        if (this.options.showOnlyFiltered && !this.neonFilters.length) {
             return 'No Filter Selected';
         }
 
@@ -441,8 +441,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     this.refreshVisualization();
                     this.isLoading = false;
                     this.showGrid = true;
-                }
-                else{
+                } else {
                     this.pagingGrid = [];
                     this.showGrid = false;
                 }
