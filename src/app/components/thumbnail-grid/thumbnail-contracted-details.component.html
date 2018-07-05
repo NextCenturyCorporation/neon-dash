@@ -1,8 +1,10 @@
-<div class="thumbnail-details" *ngIf="label != ''">
+<div class="thumbnail-details" *ngIf="thumbnailGrid.getThumbnailLabel(item) != ''" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)" >
     <p>
-        <span class="detail-ellipses">{{ label }}</span>
-        <span class="detail-percentage">{{ percent }}</span>
+        <span class="detail-ellipses">{{ thumbnailGrid.getThumbnailLabel(item) }}</span>
+        <span class="detail-percentage">{{ thumbnailGrid.getThumbnailPercent(item) }}</span>
     </p>
 </div>
-<canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"></canvas>
+<canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"
+        (click)="thumbnailGrid.displayMediaTab(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)">
+</canvas>
 
