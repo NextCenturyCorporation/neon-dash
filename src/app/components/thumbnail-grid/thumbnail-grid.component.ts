@@ -732,6 +732,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
         }
+    }
+
+    /**
+     * Opens media in browser tab
+     *
+     * @arg {object} item
+     * @private
+     */
+    displayMediaTab(item) {
         if (this.options.openOnMouseClick) {
             window.open(item[this.options.linkField.columnName]);
         }
