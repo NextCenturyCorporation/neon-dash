@@ -150,6 +150,44 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         this.options = new MediaViewerOptions(this.injector, this.datasetService, 'Media Viewer', 10);
 
         this.subscribeToSelectId(this.getSelectIdCallback());
+
+        this.options.customEventsToReceive.forEach((config) => {
+            this.messenger.subscribe(config.id, (eventMessage) => {
+                let tabIndex = this.documentArray.length;
+                (config.fields || []).forEach((fieldsConfig) => {
+                    this.addLinks(eventMessage.metadata[fieldsConfig.field], [], [], eventMessage.item + ' ' + fieldsConfig.label);
+                });
+                if (this.documentArray.length > tabIndex) {
+                    this.selectedTabIndex = tabIndex;
+                    this.refreshVisualization();
+                }
+            });
+        });
+    }
+
+    /**
+     * Adds the given links to the global list.
+     *
+     * @arg {any} links
+     * @arg {any[]} names
+     * @arg {any[]} types
+     * @arg {string} prettyName
+     */
+    addLinks(links: any, names: any[], types: any[], prettyName: string) {
+        let linksArray = this.transformToStringArray(links, this.options.delimiter);
+        linksArray.forEach((link, index) => {
+            let nameWithArrayIndex = prettyName + (linksArray.length > 1 ? ' ' + (index + 1) : '');
+            let linkTypeFromConfig = this.options.typeMap[link.substring(link.lastIndexOf('.') + 1).toLowerCase()] || '';
+            if (link) {
+                this.documentArray.push({
+                    // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                    border: this.options.border,
+                    link: this.options.linkPrefix + link,
+                    name: (names.length > 1 ? (index < names.length ? names[index] : '') : names[0]) || nameWithArrayIndex,
+                    type: (types.length > 1 ? (index < types.length ? types[index] : '') : types[0]) || linkTypeFromConfig
+                });
+            }
+        });
     }
 
     /**
@@ -301,10 +339,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @private
      */
     private getSelectIdCallback() {
-        return (message) => {
-            if (message.database === this.options.database.name && message.table === this.options.table.name) {
-                this.options.id = Array.isArray(message.id) ? message.id[0] : message.id;
-                this.options.linkField = this.options.findField(message.metadata) || this.emptyField;
+        return (eventMessage) => {
+            if (eventMessage.database === this.options.database.name && eventMessage.table === this.options.table.name) {
+                this.options.id = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
                 if (this.options.id !== this.previousId) {
                     this.documentArray = [];
                     this.previousId = this.options.id;
@@ -369,25 +406,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 }
 
                 this.options.linkFields.forEach((linkField) => {
-                    let links = neonUtilities.deepFind(response.data[0], linkField.columnName) || '';
-                    links = this.transformToStringArray(links, this.options.delimiter);
-                    links.forEach((link, index) => {
-                        let fieldWithIndex = linkField.prettyName + ' ' + (index + 1);
-                        let typeFromConfig = this.options.typeMap[link.substring(link.lastIndexOf('.') + 1).toLowerCase()] || '';
-                        if (link) {
-                            this.documentArray.push({
-                                // TODO Add a boolean borderField with border options like:  true = red, false = yellow
-                                border: this.options.border,
-                                link: this.options.linkPrefix + link,
-                                name: (names.length > 1 ? (index < names.length ? names[index] : '') : names[0]) || fieldWithIndex,
-                                type: (types.length > 1 ? (index < types.length ? types[index] : '') : types[0]) || typeFromConfig
-                            });
-                        }
-                    });
-
-                    if (links.length && this.options.linkField.columnName === linkField.columnName) {
-                        this.selectedTabIndex = this.documentArray.length - links.length;
-                    }
+                    this.addLinks(neonUtilities.deepFind(response.data[0], linkField.columnName) || '', names, types, linkField.prettyName);
                 });
 
                 this.isLoadingMedia = false;

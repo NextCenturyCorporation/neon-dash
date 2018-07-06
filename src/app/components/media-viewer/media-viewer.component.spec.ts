@@ -425,7 +425,7 @@ describe('Component: MediaViewer', () => {
         expect(component.documentArray).toEqual([{
             border: 'grey',
             link: 'testLinkValue',
-            name: 'Test Link Field 1',
+            name: 'Test Link Field',
             type: ''
         }]);
     });
@@ -447,7 +447,7 @@ describe('Component: MediaViewer', () => {
         expect(component.documentArray).toEqual([{
             border: '',
             link: 'prefix/testLinkValue',
-            name: 'Test Link Field 1',
+            name: 'Test Link Field',
             type: ''
         }]);
     });
@@ -689,7 +689,7 @@ describe('Component: MediaViewer', () => {
             expect(options.length).toEqual(0);
 
             expect(selects[3].componentInstance.disabled).toEqual(true);
-            expect(selects[3].componentInstance.placeholder).toEqual('Link Field');
+            expect(selects[3].componentInstance.placeholder).toEqual('Link Fields');
             expect(selects[3].componentInstance.required).toEqual(true);
             options = selects[3].componentInstance.options.toArray();
             expect(options.length).toEqual(0);
@@ -1044,7 +1044,7 @@ describe('Component: MediaViewer with config', () => {
             }
 
             expect(selects[3].componentInstance.disabled).toEqual(false);
-            expect(selects[3].componentInstance.placeholder).toEqual('Link Field');
+            expect(selects[3].componentInstance.placeholder).toEqual('Link Fields');
             expect(selects[3].componentInstance.required).toEqual(true);
             options = selects[3].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);

@@ -56,6 +56,16 @@ export abstract class BaseNeonOptions {
         rhs: string
     };
 
+    public customEventsToPublish: {
+        id: string,
+        fields: { field: string, label: string }[]
+    }[];
+
+    public customEventsToReceive: {
+        id: string,
+        fields: { field: string, label: string }[]
+    }[];
+
     /**
      * @constructor
      * @arg {Injector} injector
@@ -66,6 +76,8 @@ export abstract class BaseNeonOptions {
     constructor(protected injector: Injector, protected datasetService: DatasetService, visualizationTitle: string = '',
         defaultLimit: number = 10) {
 
+        this.customEventsToPublish = injector.get('customEventsToPublish', []);
+        this.customEventsToReceive = injector.get('customEventsToReceive', []);
         this.filter = injector.get('configFilter', null);
         this.limit = injector.get('limit', defaultLimit);
         this.newLimit = this.limit;
@@ -217,7 +229,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     protected VISUALIZATION_PADDING: number = 10;
 
     public id: string;
-    protected messenger: neon.eventing.Messenger;
+    public messenger: neon.eventing.Messenger;
     protected outstandingDataQuery: any;
 
     protected initializing: boolean;
