@@ -28,7 +28,11 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
     protected activeData: any[] = [];
     protected activeGroups: string[] = [];
     protected activeSort: string = '';
-    protected selectedData: any[] = [];
+    protected selectedData: {
+        element: any,
+        group: string,
+        value: any
+    }[] = [];
 
     /**
      * @constructor
@@ -85,7 +89,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             let rowElement = document.createElement('tr');
 
             let selectedIndex = _.findIndex(this.selectedData, (selectedItem) => {
-                return selectedItem.value === item.x;
+                return selectedItem.group === item.group && selectedItem.value === item.x;
             });
 
             if (selectedIndex >= 0) {
@@ -103,6 +107,7 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             }
 
             rowElement.setAttribute('class', rowClass);
+            rowElement.setAttribute('group', item.group);
             rowElement.setAttribute('title', rowTitle);
             rowElement.setAttribute('value', item.x);
             rowElement.addEventListener('click', this.handleClickEvent.bind(this));
@@ -183,9 +188,10 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             return;
         }
 
+        let group = event.currentTarget.getAttribute('group');
         let value = event.currentTarget.getAttribute('value');
         let index = _.findIndex(this.selectedData, (selectedItem) => {
-            return selectedItem.value === value;
+            return selectedItem.group === group && selectedItem.value === value;
         });
 
         if (index < 0) {
@@ -196,10 +202,11 @@ export class ListSubcomponent extends AbstractAggregationSubcomponent {
             }
             let selectedItem = {
                 element: event.currentTarget,
+                group: group,
                 value: value
             };
             this.selectedData = doNotReplace ? this.selectedData.concat(selectedItem) : [selectedItem];
-            this.listener.subcomponentRequestsFilter(value, doNotReplace);
+            this.listener.subcomponentRequestsFilter(group, value, doNotReplace);
         }
     }
 

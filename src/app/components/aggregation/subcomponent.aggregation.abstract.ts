@@ -51,13 +51,14 @@ export interface AggregationSubcomponentListener {
     subcomponentRequestsDeselect();
 
     /**
-     * Filters the given item.
+     * Filters the given value.
      *
-     * @arg {any} item
-     * @arg {boolean} [doNotReplace=false]
-     * @abstract
+     * @arg {string} group
+     * @arg {any} value
+     * @arg {boolean} doNotReplace
+     * @override
      */
-    subcomponentRequestsFilter(item: any, doNotReplace?: boolean);
+    subcomponentRequestsFilter(group: string, value: any, doNotReplace?: boolean);
 
     /**
      * Filters the given bounds.

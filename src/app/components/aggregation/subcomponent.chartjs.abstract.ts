@@ -837,6 +837,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             return;
         }
 
+        let labelGroup = chart.data.datasets[items[0]._datasetIndex].label;
         let labelValue = this.findItemInDataToSelect(items, chart);
         let doNotReplace = !!(event.ctrlKey || event.metaKey);
         this.selectedLabels = doNotReplace ? this.selectedLabels.concat(labelValue) : [labelValue];
@@ -844,7 +845,7 @@ export abstract class AbstractChartJsSubcomponent extends AbstractAggregationSub
             this.dataDeselect(chart);
         }
         this.dataSelect(chart, items);
-        this.listener.subcomponentRequestsFilter(labelValue, doNotReplace);
+        this.listener.subcomponentRequestsFilter(labelGroup, labelValue, doNotReplace);
     }
 
     /**
