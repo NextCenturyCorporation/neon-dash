@@ -83,6 +83,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.border).toEqual('');
         expect(component.options.cropAndScale).toEqual('');
         expect(component.options.id).toEqual('');
+        expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.linkPrefix).toEqual('');
         expect(component.options.openOnMouseClick).toEqual(true);
         expect(component.options.styleClass).toEqual('');
@@ -376,7 +377,7 @@ describe('Component: ThumbnailGrid', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(8);
+            expect(toggles.length).toEqual(10);
 
             expect(toggles[0].componentInstance.value).toEqual('');
             expect(toggles[0].nativeElement.textContent).toContain('None');
@@ -394,21 +395,29 @@ describe('Component: ThumbnailGrid', () => {
             expect(toggles[3].nativeElement.textContent).toContain('Both');
             expect(toggles[3].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
-            expect(toggles[4].componentInstance.value).toEqual(true);
+            expect(toggles[4].componentInstance.value).toEqual(false);
             expect(toggles[4].nativeElement.textContent).toContain('Yes');
-            expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
-            expect(toggles[5].componentInstance.value).toEqual(false);
+            expect(toggles[5].componentInstance.value).toEqual(true);
             expect(toggles[5].nativeElement.textContent).toContain('No');
-            expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[6].componentInstance.value).toEqual(true);
-            expect(toggles[6].nativeElement.textContent).toContain('Ascending');
-            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            expect(toggles[6].nativeElement.textContent).toContain('Yes');
+            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[7].componentInstance.value).toEqual(false);
-            expect(toggles[7].nativeElement.textContent).toContain('Descending');
-            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles[7].nativeElement.textContent).toContain('No');
+            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[8].componentInstance.value).toEqual(true);
+            expect(toggles[8].nativeElement.textContent).toContain('Ascending');
+            expect(toggles[8].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[9].componentInstance.value).toEqual(false);
+            expect(toggles[9].nativeElement.textContent).toContain('Descending');
+            expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
         });
     }));
 
@@ -1783,6 +1792,7 @@ describe('Component: ThumbnailGrid', () => {
             filterField: '',
             idField: '',
             idMetadata: '',
+            ignoreSelf: true,
             linkField: '',
             linkPrefix: '',
             nameField: '',
@@ -1812,6 +1822,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.border = 'grey';
         component.options.cropAndScale = 'both';
         component.options.idMetadata = 'testIdMetadata';
+        component.options.ignoreSelf = false;
         component.options.linkPrefix = 'prefix/';
         component.options.openOnMouseClick = false;
         component.options.textMap = {
@@ -1833,6 +1844,7 @@ describe('Component: ThumbnailGrid', () => {
             filterField: 'testFilterField',
             idField: 'testIdField',
             idMetadata: 'testIdMetadata',
+            ignoreSelf: false,
             linkField: 'testLinkField',
             linkPrefix: 'prefix/',
             nameField: 'testNameField',
@@ -1920,6 +1932,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'border', useValue: 'grey' },
             { provide: 'cropAndScale', useValue: 'both' },
             { provide: 'id', useValue: 'testId' },
+            { provide: 'ignoreSelf', useValue: true },
             { provide: 'linkPrefix', useValue: 'prefix/' },
             { provide: 'openOnMouseClick', useValue: false },
             { provide: 'styleClass', useValue: 'style2' },
@@ -1971,6 +1984,7 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(component.options.border).toEqual('grey');
         expect(component.options.cropAndScale).toEqual('both');
         expect(component.options.id).toEqual('testId');
+        expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.linkPrefix).toEqual('prefix/');
         expect(component.options.openOnMouseClick).toEqual(false);
         expect(component.options.styleClass).toEqual('style2');
@@ -2170,7 +2184,7 @@ describe('Component: ThumbnailGrid with config', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(8);
+            expect(toggles.length).toEqual(10);
 
             expect(toggles[0].componentInstance.value).toEqual('');
             expect(toggles[0].nativeElement.textContent).toContain('None');
@@ -2188,21 +2202,29 @@ describe('Component: ThumbnailGrid with config', () => {
             expect(toggles[3].nativeElement.textContent).toContain('Both');
             expect(toggles[3].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
-            expect(toggles[4].componentInstance.value).toEqual(true);
+            expect(toggles[4].componentInstance.value).toEqual(false);
             expect(toggles[4].nativeElement.textContent).toContain('Yes');
             expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
-            expect(toggles[5].componentInstance.value).toEqual(false);
+            expect(toggles[5].componentInstance.value).toEqual(true);
             expect(toggles[5].nativeElement.textContent).toContain('No');
             expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[6].componentInstance.value).toEqual(true);
-            expect(toggles[6].nativeElement.textContent).toContain('Ascending');
-            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles[6].nativeElement.textContent).toContain('Yes');
+            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[7].componentInstance.value).toEqual(false);
-            expect(toggles[7].nativeElement.textContent).toContain('Descending');
-            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            expect(toggles[7].nativeElement.textContent).toContain('No');
+            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[8].componentInstance.value).toEqual(true);
+            expect(toggles[8].nativeElement.textContent).toContain('Ascending');
+            expect(toggles[8].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[9].componentInstance.value).toEqual(false);
+            expect(toggles[9].nativeElement.textContent).toContain('Descending');
+            expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
         });
     }));
 });
