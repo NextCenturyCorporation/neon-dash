@@ -49,12 +49,13 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public border: string;
     public categoryField: FieldMetaData;
     public cropAndScale: string;
+    public dateField: FieldMetaData;
+    public detailedThumbnails: boolean;
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
     public ignoreSelf: boolean;
     public linkField: FieldMetaData;
-    public dateField: FieldMetaData;
     public linkPrefix: string;
     public nameField: FieldMetaData;
     public objectIdField: FieldMetaData;
@@ -62,7 +63,6 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public openOnMouseClick: boolean;
     public percentField: FieldMetaData;
     public predictedNameField: FieldMetaData;
-    public detailedThumbnails: boolean;
     public sortField: FieldMetaData;
     public styleClass: string;
     public textMap: any;
@@ -362,6 +362,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             columnName: this.options.categoryField.columnName,
             prettyName: this.options.categoryField.prettyName
         }, {
+            columnName: this.options.dateField.columnName,
+            prettyName: this.options.dateField.prettyName
+        }, {
             columnName: this.options.filterField.columnName,
             prettyName: this.options.filterField.prettyName
         }, {
@@ -370,9 +373,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }, {
             columnName: this.options.linkField.columnName,
             prettyName: this.options.linkField.prettyName
-        }, {
-            columnName: this.options.dateField.columnName,
-            prettyName: this.options.dateField.prettyName
         }, {
             columnName: this.options.nameField.columnName,
             prettyName: this.options.nameField.prettyName
@@ -732,6 +732,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
         }
+    }
+
+    /**
+     * Opens media in browser tab
+     *
+     * @arg {object} item
+     * @private
+     */
+    displayMediaTab(item) {
         if (this.options.openOnMouseClick) {
             window.open(item[this.options.linkField.columnName]);
         }
@@ -792,7 +801,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.textMap = this.options.textMap;
         bindings.typeField = this.options.typeField.columnName;
         bindings.typeMap = this.options.typeMap;
-        bindings.detailedThumbnails = this.options.detailedThumbnails;
     }
 
     /**
