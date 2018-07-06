@@ -168,8 +168,8 @@ export abstract class BaseNeonOptions {
             });
         }
 
-        this.unsharedFilterField = new FieldMetaData();
-        this.unsharedFilterValue = '';
+        this.unsharedFilterField = this.findFieldObject('unsharedFilterField');
+        this.unsharedFilterValue = this.injector.get('unsharedFilterValue', '');
 
         this.updateFieldsOnTableChanged();
     }
