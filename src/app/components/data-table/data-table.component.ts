@@ -689,19 +689,20 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @private
      */
     onSelect({ selected }) {
-        if (selected && selected.length && this.options.idField.columnName && selected[0][this.options.idField.columnName]) {
-            this.publishSelectId(selected[0][this.options.idField.columnName]);
+        let selectedItem = selected && selected.length ? selected[0] : null;
+        if (this.options.idField.columnName && selectedItem[this.options.idField.columnName]) {
+            this.publishSelectId(selectedItem[this.options.idField.columnName]);
         }
         this.selected.splice(0, this.selected.length);
         this.selected.push(...selected);
 
         if (this.options.filterable) {
             let dataObject = this.responseData.filter((obj) =>
-                obj[this.options.idField.columnName] === selected[0][this.options.idField.columnName])[0];
+                obj[this.options.idField.columnName] === selectedItem[this.options.idField.columnName])[0];
 
             this.options.filterFields.forEach((filterField: any) => {
                 let filterFieldObject = this.options.findField(filterField.columnName);
-                let value = (this.options.idField.columnName.length === 0) ? selected[0][filterFieldObject.columnName] :
+                let value = (this.options.idField.columnName.length === 0) ? selectedItem[filterFieldObject.columnName] :
                     dataObject[filterFieldObject.columnName];
                 let filter = this.createFilterObject(filterFieldObject.columnName, value, filterFieldObject.prettyName);
 
@@ -723,6 +724,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 }
             });
         }
+
+        this.options.customEventsToPublish.forEach((config) => {
+            let metadata = {};
+            (config.fields || []).forEach((fieldsConfig) => {
+                metadata[fieldsConfig.field] = selectedItem[fieldsConfig.field];
+            });
+            this.messenger.publish(config.id, {
+                item: this.options.idField.columnName ? selectedItem[this.options.idField.columnName] : selectedItem,
+                metadata: metadata
+            });
+        });
     }
 
     createFilterObject(field: string, value: string, prettyField: string): any {
