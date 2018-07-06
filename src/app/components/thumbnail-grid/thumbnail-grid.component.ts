@@ -53,6 +53,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public id: string;
     public idField: FieldMetaData;
     public idMetadata: string;
+    public ignoreSelf: boolean;
     public linkField: FieldMetaData;
     public linkPrefix: string;
     public nameField: FieldMetaData;
@@ -79,6 +80,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.cropAndScale = this.injector.get('cropAndScale', '') || '';
         this.id = this.injector.get('id', '');
         this.idMetadata = this.injector.get('idMetadata', '');
+        this.ignoreSelf = this.injector.get('ignoreSelf', true);
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
         this.scaleThumbnails = this.injector.get('scaleThumbnails', false); // Deprecated - Use cropAndScale = 'scale'
@@ -388,6 +390,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     getFiltersToIgnore(): any[] {
+        if (!this.options.ignoreSelf) {
+            return null;
+        }
+
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             this.options.filterField.columnName ? [this.options.filterField.columnName] : undefined);
 
@@ -480,6 +486,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     onQuerySuccess(response) {
         this.gridArray = [];
+        this.pagingGrid = [];
         this.errorMessage = '';
         this.lastPage = true;
         this.page = 1;
@@ -594,9 +601,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     private getArrayValues(value) {
-        return Array.isArray(value) ?
-            value : value.toString().search(/,/g) > -1 ?
-            value.toString().split(',') : [value];
+        return value ? (Array.isArray(value) ?  value : value.toString().search(/,/g) > -1 ?  value.toString().split(',') : [value]) : [];
     }
 
     /**
@@ -756,6 +761,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.border = this.options.border;
         bindings.cropAndScale = this.options.cropAndScale;
         bindings.idMetadata = this.options.idMetadata;
+        bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.linkPrefix = this.options.linkPrefix;
         bindings.openOnMouseClick = this.options.openOnMouseClick;
         bindings.textMap = this.options.textMap;
