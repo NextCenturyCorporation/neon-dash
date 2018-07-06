@@ -46,7 +46,7 @@ class TestAggregationSubcomponentListener implements AggregationSubcomponentList
         // Do nothing.
     }
 
-    subcomponentRequestsFilter(item: any, doNotReplace?: boolean) {
+    subcomponentRequestsFilter(group: string, value: any, doNotReplace?: boolean) {
         // Do nothing.
     }
 
@@ -99,7 +99,7 @@ describe('ListSubcomponent', () => {
         let isClassSet = false;
         let mockTarget = {
             getAttribute: (attribute) => {
-                return attribute === 'class' ? 'testClass' : (attribute === 'value' ? 'testValue' : '');
+                return attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue');
             },
             setAttribute: (attribute, value) => {
                 expect(attribute).toEqual('class');
@@ -114,10 +114,11 @@ describe('ListSubcomponent', () => {
 
         expect(isClassSet).toEqual(true);
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual(['testValue', false]);
+        expect(spy1.calls.argsFor(0)).toEqual(['testGroup', 'testValue', false]);
         expect(spy2.calls.count()).toEqual(1);
         expect(subcomponent.getSelectedData()).toEqual([{
             element: mockTarget,
+            group: 'testGroup',
             value: 'testValue'
         }]);
     });
@@ -128,13 +129,14 @@ describe('ListSubcomponent', () => {
 
         subcomponent.setSelectedData([{
             element: {},
+            group: 'testOtherGroup',
             value: 'testOtherValue'
         }]);
 
         let isClassSet = false;
         let mockTarget = {
             getAttribute: (attribute) => {
-                return attribute === 'class' ? 'testClass' : (attribute === 'value' ? 'testValue' : '');
+                return attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue');
             },
             setAttribute: (attribute, value) => {
                 expect(attribute).toEqual('class');
@@ -149,10 +151,11 @@ describe('ListSubcomponent', () => {
 
         expect(isClassSet).toEqual(true);
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual(['testValue', false]);
+        expect(spy1.calls.argsFor(0)).toEqual(['testGroup', 'testValue', false]);
         expect(spy2.calls.count()).toEqual(1);
         expect(subcomponent.getSelectedData()).toEqual([{
             element: mockTarget,
+            group: 'testGroup',
             value: 'testValue'
         }]);
     });
@@ -163,13 +166,14 @@ describe('ListSubcomponent', () => {
 
         subcomponent.setSelectedData([{
             element: {},
+            group: 'testOtherGroup',
             value: 'testOtherValue'
         }]);
 
         let isClassSet = false;
         let mockTarget = {
             getAttribute: (attribute) => {
-                return attribute === 'class' ? 'testClass' : (attribute === 'value' ? 'testValue' : '');
+                return attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue');
             },
             setAttribute: (attribute, value) => {
                 expect(attribute).toEqual('class');
@@ -185,13 +189,15 @@ describe('ListSubcomponent', () => {
 
         expect(isClassSet).toEqual(true);
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual(['testValue', true]);
+        expect(spy1.calls.argsFor(0)).toEqual(['testGroup', 'testValue', true]);
         expect(spy2.calls.count()).toEqual(0);
         expect(subcomponent.getSelectedData()).toEqual([{
             element: {},
+            group: 'testOtherGroup',
             value: 'testOtherValue'
         }, {
             element: mockTarget,
+            group: 'testGroup',
             value: 'testValue'
         }]);
     });
@@ -202,13 +208,14 @@ describe('ListSubcomponent', () => {
 
         subcomponent.setSelectedData([{
             element: {},
+            group: 'testOtherGroup',
             value: 'testOtherValue'
         }]);
 
         let isClassSet = false;
         let mockTarget = {
             getAttribute: (attribute) => {
-                return attribute === 'class' ? 'testClass' : (attribute === 'value' ? 'testValue' : '');
+                return attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue');
             },
             setAttribute: (attribute, value) => {
                 expect(attribute).toEqual('class');
@@ -224,13 +231,15 @@ describe('ListSubcomponent', () => {
 
         expect(isClassSet).toEqual(true);
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual(['testValue', true]);
+        expect(spy1.calls.argsFor(0)).toEqual(['testGroup', 'testValue', true]);
         expect(spy2.calls.count()).toEqual(0);
         expect(subcomponent.getSelectedData()).toEqual([{
             element: {},
+            group: 'testOtherGroup',
             value: 'testOtherValue'
         }, {
             element: mockTarget,
+            group: 'testGroup',
             value: 'testValue'
         }]);
     });
@@ -241,13 +250,14 @@ describe('ListSubcomponent', () => {
 
         subcomponent.setSelectedData([{
             element: {},
+            group: 'testGroup',
             value: 'testValue'
         }]);
 
         let isClassSet = false;
         let mockTarget = {
             getAttribute: (attribute) => {
-                return attribute === 'class' ? 'testClass' : (attribute === 'value' ? 'testValue' : '');
+                return attribute === 'class' ? 'testClass' : (attribute === 'group' ? 'testGroup' : 'testValue');
             },
             setAttribute: (attribute, value) => {
                 expect(attribute).toEqual('class');
@@ -265,6 +275,7 @@ describe('ListSubcomponent', () => {
         expect(spy2.calls.count()).toEqual(0);
         expect(subcomponent.getSelectedData()).toEqual([{
             element: {},
+            group: 'testGroup',
             value: 'testValue'
         }]);
     });
