@@ -415,4 +415,8 @@ export class FilterService {
         }
         return newFilter;
     }
+
+    public clearFilters() {
+        this.filters = [];
+    }
 }
