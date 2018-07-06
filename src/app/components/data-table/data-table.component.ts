@@ -48,6 +48,8 @@ export class DataTableOptions extends BaseNeonOptions {
     public fieldsConfig: any[];
     public filterable: boolean;
     public filterFields: FieldMetaData[];
+    public heatmapDivisor: number;
+    public heatmapField: FieldMetaData;
     public idField: FieldMetaData;
     public ignoreSelf: boolean;
     public singleFilter: boolean;
@@ -66,6 +68,7 @@ export class DataTableOptions extends BaseNeonOptions {
         this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
         this.fieldsConfig = this.injector.get('fieldsConfig', []);
         this.filterable = this.injector.get('filterable', false);
+        this.heatmapDivisor = this.injector.get('heatmapDivisor', 0);
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.singleFilter = this.injector.get('singleFilter', false);
         this.skinny = this.injector.get('skinny', false);
@@ -78,6 +81,7 @@ export class DataTableOptions extends BaseNeonOptions {
      * @override
      */
     updateFieldsOnTableChanged() {
+        this.heatmapField = this.findFieldObject('heatmapField');
         this.idField = this.findFieldObject('idField');
         this.sortField = this.findFieldObject('sortField');
         this.filterFields = this.findFieldObjects('filterFields');
@@ -245,12 +249,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     subGetBindings(bindings: any) {
+        bindings.heatmapField = this.options.heatmapField.columnName;
         bindings.idField = this.options.idField.columnName;
         bindings.sortField = this.options.sortField.columnName;
         bindings.filterFields = this.options.filterFields;
 
         bindings.arrayFilterOperator = this.options.arrayFilterOperator;
         bindings.filterable = this.options.filterable;
+        bindings.heatmapDivisor = this.options.heatmapDivisor;
         bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.singleFilter = this.options.singleFilter;
         bindings.skinny = this.options.skinny;
@@ -811,19 +817,45 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return this.options;
     }
 
-    getRowClassFunction() {
+    /**
+     * Returns a function for the rowClass property of the ngx-datatable that, given a row, returns an object with the style classes for
+     * the row as keys and booleans as values.
+     *
+     * @return {function}
+     */
+    getRowClassFunction(): any {
         let self = this;
-        return function(row) {
-            let active = self.options.filterFields.some((filterField: any) => {
+        return function(row): any {
+            let rowClass: any = {};
+            rowClass.active = self.options.filterFields.some((filterField: any) => {
                 return self.filters.some((filter) => {
                     return filterField.columnName && filterField.columnName === filter.field &&
                         row[filterField.columnName] === filter.value;
                 });
             });
 
-            return {
-                active: active
-            };
+            if (self.options.heatmapField.columnName && self.options.heatmapDivisor) {
+                let heatmapClass = 'heat-0';
+                let heatmapDivisor = self.options.heatmapDivisor;
+                let heatmapValue = row[self.options.heatmapField.columnName];
+
+                // Ignore undefined, nulls, strings, or NaNs.
+                if (typeof heatmapValue !== 'undefined' && self.isNumber(heatmapValue)) {
+                    // If the divisor is a fraction, transform it and the value into whole numbers in order to avoid floating point errors.
+                    if (heatmapDivisor % 1) {
+                        // Find the number of digits following the decimal point in the divisor.
+                        let digits = ('' + heatmapDivisor).substring(('' + heatmapDivisor).indexOf('.') + 1).length;
+                        // Transform the divisor and the value into whole numbers using the number of digits.
+                        heatmapDivisor = heatmapDivisor * Math.pow(10, digits);
+                        heatmapValue = heatmapValue * Math.pow(10, digits);
+                    }
+                    heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
+                    heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
+                }
+                rowClass[heatmapClass] = true;
+            }
+
+            return rowClass;
         };
     }
 
