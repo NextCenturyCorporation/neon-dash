@@ -60,6 +60,7 @@
                 </mat-button-toggle-group>
                 <p></p>
 
+                <!-- Node/Link Options -->
                 <mat-form-field *ngIf="!options.isReified">
                     <mat-select placeholder="Node Field" [(ngModel)]="options.nodeField" required="true" (ngModelChange)="handleChangeData()"
                         [disabled]="options.fields.length == 0">
@@ -76,6 +77,43 @@
                 </mat-form-field>
                 <p></p>
 
+                <div mat-fill class="flex center">
+                    <mat-form-field>
+                        <input matInput placeholder="Node Limit" [(ngModel)]="options.limit" (keyup.enter)="reloadGraph()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="reloadGraph()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
+                <p></p>
+
+                <!-- Color Options -->
+                <mat-form-field *ngIf="!options.isReified">
+                    <mat-select placeholder="Edge Color Field" [(ngModel)]="options.edgeColorField" (ngModelChange)="handleChangeData()"
+                        [disabled]="options.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field *ngIf="!options.isReified">
+                    <input matInput type="color" placeholder="Node Color" [(ngModel)]="options.nodeColor" [value]="options.nodeColor" (ngModelChange)="reloadGraph()">
+                  </mat-form-field>
+                <p></p>
+
+                <mat-form-field *ngIf="!options.isReified">
+                    <input matInput type="color" placeholder="Link Color" [(ngModel)]="options.linkColor" [value]="options.linkColor" (ngModelChange)="reloadGraph()">
+                  </mat-form-field>
+                <p></p>
+
+                <mat-form-field *ngIf="!options.isReified">
+                    <input matInput type="color" placeholder="Edge Color" [(ngModel)]="options.edgeColor" [value]="options.edgeColor" (ngModelChange)="reloadGraph()">
+                  </mat-form-field>
+                <p></p>
+
+                <!-- Directed Options -->
                 <span class="toggle-text">Show Directed:</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.isDirected" (ngModelChange)="handleChangeDirected()">
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>

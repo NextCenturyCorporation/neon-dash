@@ -620,7 +620,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             edgeColor = this.options.edgeColor,
             linkColor = this.options.linkColor,
             textColor = {color: this.options.fontColor},
-            limit = this.options.limit;
+            limit = (this.options.limit) ? this.options.limit : Infinity;
 
         for (let entry of this.activeData) {
             let linkField = entry[linkName],
@@ -847,6 +847,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             };
             this.addFilter(myFilter, '=');
         }
+    }
+
+    /*
+    * Used when changing colors and other optional non-field values in the guere settings
+    */
+    reloadGraph() {
+        this.totalNodeCount = 0;
+        this.existingNodeNames = [];
+        this.resetGraphData();
+        this.updateLegend();
     }
 
 }
