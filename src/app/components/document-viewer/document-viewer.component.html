@@ -63,34 +63,11 @@
                 </mat-form-field>
                 <p></p>
 
-                <span class="toggle-text">Show Select Button:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showSelect">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span class="toggle-text">Show Text:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showText">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
                 <!-- Date field selector -->
                 <mat-form-field>
                     <mat-select placeholder="Date Field" [(ngModel)]="options.dateField" (ngModelChange)="handleChangeData()"
                         [disabled]="options.fields.length == 0">
                         <mat-option [value]="emptyField">(None)</mat-option>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <!-- ID field selector -->
-                <mat-form-field>
-                    <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="true" (ngModelChange)="handleChangeData()"
-                        [disabled]="options.fields.length == 0">
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -106,34 +83,62 @@
                     </button>
                 </div>
                 <p></p>
+
+                <!-- ID field selector -->
+                <mat-form-field>
+                    <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="false" (ngModelChange)="handleChangeData()"
+                        [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <input matInput placeholder="Name (Left Column) Width CSS" [(ngModel)]="options.nameWidthCss" required="false">
+                </mat-form-field>
+                <p></p>
+
+                <span class="toggle-text">Show Select Button:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showSelect">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Show Text:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showText">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
 
-    <!-- View documents -->
     <mat-list class="document-viewer-list-container body-container" [class.with-footer]="docCount > options.limit">
-        <div class="mat-list-item-text document-viewer-list-item" layout="column">
-            <table class="document-viewer-table" *ngFor="let activeItem of activeData">
-                <tr class="metadata-row" [ngClass]="{'document-viewer-even-row': i % 2 === 1}" *ngFor="let item of activeItem.rows; index as i">
-                    <td class="metadata-bold">{{ item.name }}: </td>
-                    <td>{{ item.text }}</td>
+        <div class="mat-list-item-text document-viewer-list-item" *ngFor="let activeItem of activeData">
+            <table class="document-viewer-table" *ngIf="activeItem.rows.length > 0">
+                <tr class="document-viewer-row" [ngClass]="{'document-viewer-even': i % 2 === 1}" *ngFor="let item of activeItem.rows; index as i">
+                    <td class="document-viewer-name" [style.width]="options.nameWidthCss || '50%'">{{ item.name }}: </td>
+                    <td class="document-viewer-text">{{ item.text }}</td>
                 </tr>
-                <tr>
-                    <td class="document-viewer-button-cell" colspan="100%">
-                        <div *ngIf="options.showText" class="metadata-row metadata-text">
-                            {{ activeItem.data[options.dataField.columnName] }}
-                        </div>
-                        <div class="document-viewer-button-container">
-                            <button mat-raised-button class="neon-button-small document-viewer-button" color="primary"
-                                    *ngIf="!options.showText" (click)="openSingleRecord(activeItem.data)">View Source Text</button>
-                            <span class="document-viewer-button-spacer"
-                                    *ngIf="!options.showText && options.showSelect && options.idField.columnName"></span>
-                            <button mat-raised-button class="neon-button-small document-viewer-button" color="primary"
-                                    *ngIf="options.showSelect && options.idField.columnName" (click)="selectSingleRecord(activeItem.data)">
-                                Select
-                            </button>
-                        </div>
-                        <hr/>
+            </table>
+            <table class="document-viewer-table" *ngIf="options.showText">
+                <tr class="document-viewer-row">
+                    <td class="document-viewer-text">{{ activeItem.data[options.dataField.columnName] }}</td>
+                </tr>
+            </table>
+            <table class="document-viewer-table" *ngIf="!options.showText || (options.showSelect && options.idField.columnName)">
+                <tr class="document-viewer-row">
+                    <td class="document-viewer-button" *ngIf="!options.showText">
+                        <button mat-raised-button class="neon-button-small" color="primary" (click)="openSingleRecord(activeItem.data)">
+                            View Source Text
+                        </button>
+                    </td>
+                    <td class="document-viewer-button" *ngIf="options.showSelect && options.idField.columnName">
+                        <button mat-raised-button class="neon-button-small" color="primary" (click)="selectSingleRecord(activeItem.data)">
+                            Select
+                        </button>
                     </td>
                 </tr>
             </table>
