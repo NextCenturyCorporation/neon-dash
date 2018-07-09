@@ -1356,8 +1356,17 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('onQuerySuccess with aggregation query data does update expected properties and call expected functions', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
+        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('_id', 'Test ID Field');
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
+        component.options.objectIdField = new FieldMetaData('testObjectIdField', 'Test Object ID Field');
+        component.options.objectNameField = new FieldMetaData('testObjectNameField', 'Test Object Name Field');
+        component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
+        component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
+        component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
+        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
         component.errorMessage = 'Previous Error Message';
         component.lastPage = false;
         component.page = 2;
@@ -1368,15 +1377,27 @@ describe('Component: ThumbnailGrid', () => {
         component.onQuerySuccess({
             data: [{
                 _id: 'id1',
+                testCategoryField: 'category1',
+                testFilterField: 'filter1',
                 testLinkField: 'link1',
                 testNameField: 'name1',
-                testSizeField: 0.1,
+                testObjectIdField: 'objectId1',
+                testObjectNameField: 'objectName1',
+                testPercentField: 0.1,
+                testPredictedNameField: 'predictedName1',
+                testSortField: 'sort1',
                 testTypeField: 'type1'
             }, {
                 _id: 'id2',
+                testCategoryField: 'category2',
+                testFilterField: 'filter2',
                 testLinkField: 'link2',
                 testNameField: 'name2',
-                testSizeField: 0.2,
+                testObjectIdField: 'objectId2',
+                testObjectNameField: 'objectName2',
+                testPercentField: 0.2,
+                testPredictedNameField: 'predictedName2',
+                testSortField: 'sort2',
                 testTypeField: 'type2'
             }]
         });
@@ -1388,32 +1409,56 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.gridArray).toEqual([{
             _id: 'id1',
+            testCategoryField: 'category1',
+            testFilterField: 'filter1',
             testLinkField: 'link1',
             testNameField: 'name1',
-            testSizeField: 0.1,
+            testObjectIdField: 'objectId1',
+            testObjectNameField: 'objectName1',
+            testPercentField: 0.1,
+            testPredictedNameField: 'predictedName1',
+            testSortField: 'sort1',
             testTypeField: 'type1'
         }, {
             _id: 'id2',
+            testCategoryField: 'category2',
+            testFilterField: 'filter2',
             testLinkField: 'link2',
             testNameField: 'name2',
-            testSizeField: 0.2,
+            testObjectIdField: 'objectId2',
+            testObjectNameField: 'objectName2',
+            testPercentField: 0.2,
+            testPredictedNameField: 'predictedName2',
+            testSortField: 'sort2',
             testTypeField: 'type2'
         }]);
         expect(component.pagingGrid).toEqual([{
             _id: 'id1',
+            testCategoryField: 'category1',
+            testFilterField: 'filter1',
             testLinkField: 'link1',
             testNameField: 'name1',
-            testSizeField: 0.1,
+            testObjectIdField: 'objectId1',
+            testObjectNameField: 'objectName1',
+            testPercentField: 0.1,
+            testPredictedNameField: 'predictedName1',
+            testSortField: 'sort1',
             testTypeField: 'type1'
         }, {
             _id: 'id2',
+            testCategoryField: 'category2',
+            testFilterField: 'filter2',
             testLinkField: 'link2',
             testNameField: 'name2',
-            testSizeField: 0.2,
+            testObjectIdField: 'objectId2',
+            testObjectNameField: 'objectName2',
+            testPercentField: 0.2,
+            testPredictedNameField: 'predictedName2',
+            testSortField: 'sort2',
             testTypeField: 'type2'
         }]);
 
-        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(1);
     });
 
@@ -1456,17 +1501,9 @@ describe('Component: ThumbnailGrid', () => {
 
         component.onQuerySuccess({
             data: [{
-                _id: 'id1',
-                testLinkField: 'link1',
-                testNameField: 'name1',
-                testSizeField: 0.1,
-                testTypeField: 'type1'
+                testLinkField: 'link1'
             }, {
-                _id: 'id2',
-                testLinkField: 'link2',
-                testNameField: 'name2',
-                testSizeField: 0.2,
-                testTypeField: 'type2'
+                testLinkField: 'link2'
             }]
         });
 
@@ -1476,27 +1513,15 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.showGrid).toEqual(true);
 
         expect(component.gridArray).toEqual([{
-            _id: 'id1',
-            testLinkField: 'link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1'
+            testLinkField: 'link1'
         }, {
-            _id: 'id2',
-            testLinkField: 'link2',
-            testNameField: 'name2',
-            testSizeField: 0.2,
-            testTypeField: 'type2'
+            testLinkField: 'link2'
         }]);
         expect(component.pagingGrid).toEqual([{
-            _id: 'id1',
-            testLinkField: 'link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1'
+            testLinkField: 'link1'
         }]);
 
-        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(1);
     });
 
@@ -1524,33 +1549,17 @@ describe('Component: ThumbnailGrid', () => {
         });
 
         expect(component.gridArray).toEqual([{
-            _id: 'id1',
-            testLinkField: 'prefix/link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1'
+            testLinkField: 'prefix/link1'
         }, {
-            _id: 'id2',
-            testLinkField: 'prefix/link2',
-            testNameField: 'name2',
-            testSizeField: 0.2,
-            testTypeField: 'type2'
+            testLinkField: 'prefix/link2'
         }]);
         expect(component.pagingGrid).toEqual([{
-            _id: 'id1',
-            testLinkField: 'prefix/link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1'
+            testLinkField: 'prefix/link1'
         }, {
-            _id: 'id2',
-            testLinkField: 'prefix/link2',
-            testNameField: 'name2',
-            testSizeField: 0.2,
-            testTypeField: 'type2'
+            testLinkField: 'prefix/link2'
         }]);
 
-        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(1);
     });
 
@@ -1884,7 +1893,7 @@ describe('Component: ThumbnailGrid', () => {
         component.updatePageData();
         expect(component.pagingGrid).toEqual([{}, {}]);
         expect(component.lastPage).toEqual(false);
-        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(1);
     });
 
@@ -1898,7 +1907,7 @@ describe('Component: ThumbnailGrid', () => {
         component.updatePageData();
         expect(component.pagingGrid).toEqual([{}]);
         expect(component.lastPage).toEqual(true);
-        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(1);
     });
 });
