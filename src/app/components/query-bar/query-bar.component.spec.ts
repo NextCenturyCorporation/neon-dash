@@ -16,7 +16,7 @@
  */
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule, FormControl } from '@angular/forms';
+import { FormsModule, FormControl, ReactiveFormsModule } from '@angular/forms';
 
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -26,132 +26,75 @@ import { NeonGTDConfig } from '../../neon-gtd-config';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { QueryBarComponent } from './query-bar.component';
-import { DatasetOptions, SimpleFilter } from '../../dataset';
-import { DebugElement, ElementRef } from '@angular/core';
+import { DatasetOptions, FieldMetaData, SimpleFilter } from '../../dataset';
+import { DebugElement, ElementRef, Injector, ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatAutocompleteModule, MatAutocomplete } from '@angular/material';
-import { formControlBinding } from '@angular/forms/src/directives/ng_model';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { ExportService } from '../../services/export.service';
 import { VisualizationService } from '../../services/visualization.service';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import * as uuid from 'node-uuid';
+import { Observable } from 'rxjs/Observable';
+import { map, startWith } from 'rxjs/operators';
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
 
 const databaseName = 'database';
 const tableName = 'table';
 const fieldName = 'field';
 
-// TODO Is this really needed?
-class MockFilterService extends FilterServiceMock {
-    addFilter(messenger: neon.eventing.Messenger, ownerId: string, database: string, table: string,
-              whereClause: any, filterName: string | { visName: string; text: string },
-              onSuccess: (resp: any) => any, onError: (resp: any) => any): void {
-        super.addFilter(messenger, ownerId, database, table, whereClause, filterName, onSuccess, onError);
-        onSuccess(super.getLatestFilterId());
-    }
-}
-
-class MockDatasetService extends DatasetService {
-    options = new DatasetOptions();
-    constructor() {
-        super(new NeonGTDConfig());
-        this.options.queryBar = new SimpleFilter(databaseName, tableName, fieldName);
-    }
-
-    getActiveDatasetOptions() {
-        return this.options;
-    }
-}
-
-class QueryBarTester {
-    fixture: ComponentFixture<QueryBarComponent>;
-    component: QueryBarComponent;
-    filterService: FilterService;
-    datasetService: DatasetService;
-    element: DebugElement;
-    //filterFormControl: FormControl;
-
-    constructor(mockDataset = true) {
-        TestBed.configureTestingModule({
-            declarations: [
-                QueryBarComponent
-            ],
-            providers: [
-                { provide: FilterService, useClass: MockFilterService },
-                ThemesService,
-                { provide: DatasetService, useClass: mockDataset ? MockDatasetService : DatasetService },
-                ErrorNotificationService,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                ActiveGridService,
-                ConnectionService,
-                ExportService,
-                VisualizationService
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule,
-                MatAutocompleteModule
-            ]
-        });
-        let fixture = TestBed.createComponent(QueryBarComponent);
-        this.fixture = fixture;
-        this.component = fixture.componentInstance;
-        this.filterService = this.getInjected(FilterService);
-        this.detectChanges();
-        this.element = this.getElement('.query-bar');
-        //this.filterFormControl = new FormControl();
-    }
-
-    getElement(selector: string) {
-        return this.fixture.debugElement.query(By.css(selector));
-    }
-
-    getInjected(type: any) {
-        return this.fixture.debugElement.injector.get(type);
-    }
-
-    getInputElement() {
-        return this.getElement('input.query-bar-input');
-    }
-
-    setInput(input: string) {
-        let inputEl = this.getInputElement();
-        inputEl.nativeElement.value = input;
-        this.detectChanges();
-    }
-
-    clickSearch() {
-        this.element.children[0].triggerEventHandler('click', null);
-
-        // ensure that html updates after filter is added
-        this.detectChanges();
-    }
-
-    getCloseElement() {
-        return this.element.children[2];
-    }
-
-    clickClose() {
-        this.getCloseElement().triggerEventHandler('click', null);
-
-        // ensure that html updates after filter is removed
-        this.detectChanges();
-    }
-
-    detectChanges() { this.fixture.detectChanges(); }
-}
-
 describe('Component: queryBar', () => {
-    let tester: queryBarTester;
+    let component: QueryBarComponent;
+    let fixture: ComponentFixture<QueryBarComponent>;
+    let getService = (type: any) => fixture.debugElement.injector.get(type);
 
-    beforeEach(() => tester = new queryBarTester());
+    initializeTestBed({
+        declarations: [
+            QueryBarComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            ExportService,
+            ErrorNotificationService,
+            { provide: FilterService, useClass: FilterServiceMock },
+            ThemesService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule,
+            MatAutocompleteModule,
+            ReactiveFormsModule
+        ]
+    });
 
-    it('should create an instance', () => expect(tester.component).toBeTruthy());
+    beforeEach(() => {
+        fixture = TestBed.createComponent(QueryBarComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
 
-    it('should show in the UI when the configuration includes a queryBar option', () => expect(tester.element).toBeTruthy());
+    it('should create an instance', () => expect(component).toBeTruthy());
+
+    it('should show in the UI when the configuration includes a queryBar option', () => {
+        expect(component.options.id).toEqual('');
+        expect(component.options.placeHolder).toEqual('Query');
+        expect(component.options.idField).toEqual(component.emptyField);
+        expect(component.options.filterField).toEqual(component.emptyField);
+        expect(component.options.extendedFilter).toEqual(false);
+        expect(component.options.extensionFields).toEqual([]);
+    });
 
     // it('should filter when the user clicks the search icon', () => {
     //     // set input.value
