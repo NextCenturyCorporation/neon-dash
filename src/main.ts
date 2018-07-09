@@ -15,7 +15,7 @@
  */
 import './polyfills.ts';
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { enableProdMode, ReflectiveInjector } from '@angular/core';
+import { enableProdMode, ReflectiveInjector, Injectable } from '@angular/core';
 import {
     BaseRequestOptions,
     BaseResponseOptions,
@@ -31,10 +31,29 @@ import { environment } from './environments/environment';
 import { AppModule } from './app/app.module';
 import * as yaml from 'js-yaml';
 import * as neon from 'neon-framework';
-import 'rxjs/Rx';
+import { HttpClient, HttpHandler, HttpXhrBackend, HttpBackend, XhrFactory, HttpRequest, HttpEvent } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
+@Injectable()
+export class HttpBasicHandler implements HttpHandler {
+
+    constructor(private backend: HttpBackend) {}
+
+    handle(req: HttpRequest<any>): Observable<HttpEvent<any>> {
+      return this.backend.handle(req);
+    }
+}
 
 const HTTP_PROVIDERS = [
+    HttpClient,
+        {provide: HttpHandler, useClass: HttpBasicHandler},
+    HttpBasicHandler,
+        {provide: HttpHandler, useExisting: HttpXhrBackend},
+    HttpXhrBackend,
+        {provide: HttpBackend, useExisting: HttpXhrBackend},
+    BrowserXhr,
+        {provide: XhrFactory, useExisting: BrowserXhr},
     {provide: Http, useFactory:
       (xhrBackend: XHRBackend, requestOptions: RequestOptions): Http =>
           new Http(xhrBackend, requestOptions),
@@ -74,7 +93,7 @@ let injector = ReflectiveInjector.resolveAndCreate([HTTP_PROVIDERS, {
     provide: XSRFStrategy,
     useValue: new NoCheckCookieXSRFStrategy()
 }]);
-let http = injector.get(Http);
+let httpClient = injector.get(HttpClient);
 
 function handleConfigFileError(error, file) {
     if (error.status === 404) {
@@ -99,26 +118,18 @@ function handleConfigPropertyServiceError(error) {
 }
 
 function loadConfigFromPropertyService() {
-    return http.get('../neon/services/propertyservice/config')
-        .map((response) => {
-            let val = response.json().value;
-            if (!val) {
-              throw new Error('No config');
-            }
-            return JSON.parse(val);
-          })
+    return httpClient.get('../neon/services/propertyservice/config')
         .toPromise();
 }
 
 function loadConfigJson(path) {
-    return http.get(path)
-        .map((response) => response.json())
+    return httpClient.get(path)
         .toPromise();
 }
 
 function loadConfigYaml(path) {
-   return http.get(path)
-       .map((response) => yaml.load(response.text()))
+   return httpClient.get(path)
+       .pipe(map((response: any) => yaml.load(response)))
        .toPromise();
 }
 
