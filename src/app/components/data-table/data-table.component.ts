@@ -598,7 +598,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.drag.downIndex = i;
             this.drag.mousedown = true;
             this.setStyle(i, 'backgroundColor', 'rgba(0, 0, 0, .2)');
-            this.setStyle(i, 'border', 'gray dashed 1px');
+            this.setStyle(i, 'border', 'grey dashed 1px');
         }
     }
 
@@ -606,7 +606,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     onMouseEnter(i) {
         if (this.isDragging()) {
             this.drag.currentIndex = i;
-            let style = 'thick solid gray';
+            let style = 'thick solid grey';
             if (i < this.drag.downIndex) {
                 this.setStyle(i, 'borderTop', style);
             } else if (i > this.drag.downIndex) {
