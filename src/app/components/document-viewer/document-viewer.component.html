@@ -113,32 +113,29 @@
     <!-- View documents -->
     <mat-list class="document-viewer-list-container body-container" [class.with-footer]="docCount > options.limit">
         <div class="mat-list-item-text document-viewer-list-item" layout="column">
-            <!-- TODO Do not use <table> elements!  Use flex styling! -->
-            <table class="document-viewer-table">
-                <ng-template ngFor let-item [ngForOf]="activeData">
-                    <tr class="metadata-row" [ngClass]="{'document-viewer-even-row': i % 2 === 1}" *ngFor="let metadataElement of options.metadataFields; index as i">
-                        <td class="metadata-bold">{{ metadataElement.name }}: </td>
-                        <td>{{ formatMetadataEntry(item, metadataElement) }}</td>
-                    </tr>
-                    <tr>
-                        <td class="document-viewer-button-cell" colspan="100%">
-                            <div *ngIf="options.showText" class="metadata-row metadata-text">
-                                {{ item[options.dataField.columnName] }}
-                            </div>
-                            <div class="document-viewer-button-container">
-                                <button mat-raised-button class="neon-button-small document-viewer-button" color="primary"
-                                        *ngIf="!options.showText" (click)="openSingleRecord(item)">View Source Text</button>
-                                <span class="document-viewer-button-spacer"
-                                        *ngIf="!options.showText && options.showSelect && options.idField.columnName"></span>
-                                <button mat-raised-button class="neon-button-small document-viewer-button" color="primary"
-                                        *ngIf="options.showSelect && options.idField.columnName" (click)="selectSingleRecord(item)">
-                                    Select
-                                </button>
-                            </div>
-                            <hr/>
-                        </td>
-                    </tr>
-                </ng-template>
+            <table class="document-viewer-table" *ngFor="let activeItem of activeData">
+                <tr class="metadata-row" [ngClass]="{'document-viewer-even-row': i % 2 === 1}" *ngFor="let item of activeItem.rows; index as i">
+                    <td class="metadata-bold">{{ item.name }}: </td>
+                    <td>{{ item.text }}</td>
+                </tr>
+                <tr>
+                    <td class="document-viewer-button-cell" colspan="100%">
+                        <div *ngIf="options.showText" class="metadata-row metadata-text">
+                            {{ activeItem.data[options.dataField.columnName] }}
+                        </div>
+                        <div class="document-viewer-button-container">
+                            <button mat-raised-button class="neon-button-small document-viewer-button" color="primary"
+                                    *ngIf="!options.showText" (click)="openSingleRecord(activeItem.data)">View Source Text</button>
+                            <span class="document-viewer-button-spacer"
+                                    *ngIf="!options.showText && options.showSelect && options.idField.columnName"></span>
+                            <button mat-raised-button class="neon-button-small document-viewer-button" color="primary"
+                                    *ngIf="options.showSelect && options.idField.columnName" (click)="selectSingleRecord(activeItem.data)">
+                                Select
+                            </button>
+                        </div>
+                        <hr/>
+                    </td>
+                </tr>
             </table>
         </div>
     </mat-list>
