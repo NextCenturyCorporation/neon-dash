@@ -138,6 +138,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     public graphData = new GraphData();
     public displayGraph: boolean;
     public neonFilters: any[] = [];
+    public totalNodes: number;
 
     graphType = 'Network Graph';
 
@@ -365,26 +366,28 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
             this.options.table.name, this.options.filterFields);
 
-        if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+        
             this.activeData = response.data;
-            this.displayGraph = true;
+            
             this.isLoading = true;
             this.resetGraphData();
-        } else {
-            this.activeData = [];
-            this.displayGraph = false;
-            this.clearGraphData();
-        }
+
     }
 
     private resetGraphData() {
         let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
+        this.totalNodes = graphProperties.nodes.length;
         this.clearGraphData();
-        this.graph.setOptions({physics: {enabled: true}});
-
-        this.graphData.nodes.update(graphProperties.nodes);
-        this.graphData.edges.update(graphProperties.edges);
-        this.isLoading = false;
+        if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+            this.graph.setOptions({physics: {enabled: true}});
+            this.displayGraph = true;
+            this.graphData.nodes.update(graphProperties.nodes);
+            this.graphData.edges.update(graphProperties.edges);
+            this.isLoading = false;
+        }
+        else {
+            this.displayGraph = false;
+        }
     }
 
     private clearGraphData() {
@@ -445,14 +448,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     getButtonText() {
-        let data = this.graphData;
+        // let data = this.graphData;
 
-        if (!data || !data.nodes.length) {
-            return this.options.showOnlyFiltered && !this.neonFilters.length ? 'No Filter Selected' : 'No Data';
-        } else {
-            let total = data.nodes.length;
-            return 'Total Nodes: ' + this.formatingCallback(total);
-        }
+        // if (!data || !data.nodes.length) {
+        //     return this.options.showOnlyFiltered && !this.neonFilters.length ? 'No Filter Selected' : 'No Data';
+        // } else {
+        //     let total = data.nodes.length;
+            return 'Total Nodes: ' + this.formatingCallback(this.totalNodes);
+        // }
     }
 
     resetData() {
