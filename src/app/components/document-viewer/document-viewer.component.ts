@@ -52,6 +52,7 @@ export class DocumentViewerOptions extends BaseNeonOptions {
     public dateField: FieldMetaData;
     public idField: FieldMetaData;
     public metadataFields: any[];
+    public nameWidthCss: string;
     public popoutFields: any[];
     public showSelect: boolean;
     public showText: boolean;
@@ -63,6 +64,7 @@ export class DocumentViewerOptions extends BaseNeonOptions {
      */
     onInit() {
         this.metadataFields = neonUtilities.flatten(this.injector.get('metadataFields', []));
+        this.nameWidthCss = this.injector.get('nameWidthCss', '');
         this.popoutFields = neonUtilities.flatten(this.injector.get('popoutFields', []));
         this.showSelect = this.injector.get('showSelect', false);
         this.showText = this.injector.get('showText', false);
@@ -150,6 +152,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         bindings.idField = this.options.idField;
         bindings.page = this.page;
         bindings.metadataFields = this.options.metadataFields;
+        bindings.nameWidthCss = this.options.nameWidthCss;
         bindings.popoutFields = this.options.popoutFields;
         bindings.showSelect = this.options.showSelect;
         bindings.showText = this.options.showText;
@@ -357,7 +360,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
-     * Creates and returns the text for the table row of the given item.
+     * Creates and returns the text for the row of the given item in the table.
      *
      * @arg {any} activeItemData
      * @arg {any} [arrayFilter]

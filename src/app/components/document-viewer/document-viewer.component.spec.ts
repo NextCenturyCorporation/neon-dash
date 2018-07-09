@@ -486,20 +486,16 @@ describe('Component: DocumentViewer', () => {
         fixture.whenStable().then(() => {
             fixture.detectChanges();
 
-            // Make sure we have a list of two items.
-            let selects = fixture.debugElement.queryAll(By.css('.document-viewer-button-cell'));
-            expect(selects.length).toBe(2);
-            // Make sure each item has a single row of metadata.
-            selects = fixture.debugElement.queryAll(By.css('.metadata-row'));
-            expect(selects.length).toBe(2);
-            // Make sure each metadata row has a single item in it, and that those items have the right name.
-            expect(selects[0].children[0].nativeElement.textContent).toEqual('Test Metadata Field: ');
-            expect(selects[0].children[1].nativeElement.textContent).toEqual('First');
-            expect(selects[1].children[0].nativeElement.textContent).toEqual('Test Metadata Field: ');
-            expect(selects[1].children[1].nativeElement.textContent).toEqual('Second');
-
-            selects = fixture.debugElement.queryAll(By.css('.metadata-bold'));
-            expect(selects.length).toBe(2);
+            let buttons = fixture.debugElement.queryAll(By.css('.document-viewer-button'));
+            expect(buttons.length).toBe(2);
+            let names = fixture.debugElement.queryAll(By.css('.document-viewer-name'));
+            expect(names.length).toBe(2);
+            let texts = fixture.debugElement.queryAll(By.css('.document-viewer-text'));
+            expect(texts.length).toBe(2);
+            expect(names[0].nativeElement.textContent).toEqual('Test Metadata Field: ');
+            expect(texts[0].nativeElement.textContent).toEqual('First');
+            expect(names[1].nativeElement.textContent).toEqual('Test Metadata Field: ');
+            expect(texts[1].nativeElement.textContent).toEqual('Second');
         });
     }));
 
