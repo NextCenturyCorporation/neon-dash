@@ -15,11 +15,11 @@
  */
 import { ComponentFixture, async, TestBed } from '@angular/core/testing';
 import { DebugElement, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { APP_BASE_HREF, CommonModule } from '@angular/common';
 
 import 'hammerjs';
-
+import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { AppComponent } from './app.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
@@ -130,6 +130,7 @@ describe('App: NeonGtd', () => {
                 HttpModule,
                 BrowserAnimationsModule,
                 ReactiveFormsModule
+                //BrowserDynamicTestingModule
             ],
             providers: [
                 { provide: 'config', useValue: new NeonGTDConfig() },

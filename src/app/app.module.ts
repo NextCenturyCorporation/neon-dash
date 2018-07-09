@@ -17,7 +17,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -86,6 +86,7 @@ import { CustomConnectionComponent } from './components/custom-connection/custom
 import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
 import { MatAutocompleteModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
+import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
@@ -137,6 +138,7 @@ export function getAppConfig() {
     imports: [
         BrowserModule,
         CommonModule,
+        //BrowserDynamicTestingModule,
         FormsModule,
         HttpModule,
         HttpClientModule,
@@ -148,6 +150,7 @@ export function getAppConfig() {
         NgxGraphModule,
         NgxChartsModule,
         ReactiveFormsModule
+
     ],
     providers: [
         ActiveGridService,

@@ -45,6 +45,7 @@ export class DatasetOptions {
     colorMaps?: Object;
     requeryInterval?: number;
     simpleFilter?: SimpleFilter;
+    queryBar?: SimpleFilter;
 }
 
 export interface TableMappings {

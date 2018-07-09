@@ -1,5 +1,5 @@
+
 /*
-/!*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- *!/
+ */
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, FormControl } from '@angular/forms';
 
 import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
@@ -26,11 +27,17 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { QueryBarComponent } from './query-bar.component';
 import { DatasetOptions, SimpleFilter } from '../../dataset';
-import { DebugElement } from '@angular/core';
+import { DebugElement, ElementRef } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import * as neon from 'neon-framework';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { MatAutocompleteModule, MatAutocomplete } from '@angular/material';
+import { formControlBinding } from '@angular/forms/src/directives/ng_model';
+import { ActiveGridService } from '../../services/active-grid.service';
+import { ConnectionService } from '../../services/connection.service';
+import { ExportService } from '../../services/export.service';
+import { VisualizationService } from '../../services/visualization.service';
 
 const databaseName = 'database';
 const tableName = 'table';
@@ -58,12 +65,13 @@ class MockDatasetService extends DatasetService {
     }
 }
 
-class queryBarTester {
+class QueryBarTester {
     fixture: ComponentFixture<QueryBarComponent>;
     component: QueryBarComponent;
     filterService: FilterService;
     datasetService: DatasetService;
     element: DebugElement;
+    //filterFormControl: FormControl;
 
     constructor(mockDataset = true) {
         TestBed.configureTestingModule({
@@ -75,12 +83,17 @@ class queryBarTester {
                 ThemesService,
                 { provide: DatasetService, useClass: mockDataset ? MockDatasetService : DatasetService },
                 ErrorNotificationService,
-                { provide: 'config', useValue: new NeonGTDConfig() }
+                { provide: 'config', useValue: new NeonGTDConfig() },
+                ActiveGridService,
+                ConnectionService,
+                ExportService,
+                VisualizationService
             ],
             imports: [
                 AppMaterialModule,
                 FormsModule,
-                BrowserAnimationsModule
+                BrowserAnimationsModule,
+                MatAutocompleteModule
             ]
         });
         let fixture = TestBed.createComponent(QueryBarComponent);
@@ -88,8 +101,8 @@ class queryBarTester {
         this.component = fixture.componentInstance;
         this.filterService = this.getInjected(FilterService);
         this.detectChanges();
-
-        this.element = this.getElement('.simple-filter');
+        this.element = this.getElement('.query-bar');
+        //this.filterFormControl = new FormControl();
     }
 
     getElement(selector: string) {
@@ -101,7 +114,7 @@ class queryBarTester {
     }
 
     getInputElement() {
-        return this.getElement('input.simple-filter-input');
+        return this.getElement('input.query-bar-input');
     }
 
     setInput(input: string) {
@@ -140,22 +153,24 @@ describe('Component: queryBar', () => {
 
     it('should show in the UI when the configuration includes a queryBar option', () => expect(tester.element).toBeTruthy());
 
-    it('should filter when the user clicks the search icon', () => {
-        // set input.value
-        let value = 'filter with click';
-        tester.setInput(value);
+    // it('should filter when the user clicks the search icon', () => {
+    //     // set input.value
+    //     let value = 'filter with click';
+    //     tester.setInput(value);
 
-        // find search icon element and click it
-        tester.clickSearch();
+    //     // find search icon element and click it
+    //     tester.clickSearch();
 
-        // verify that filter is added to filterService
-        expect(tester.filterService.getFilters().length).toBe(1);
-        let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
-        expect(filter).toBeTruthy();
-        let expected = neon.query.where(fieldName, 'contains', value);
-        expect(filter.filter.whereClause).toEqual(expected);
-    });
+    //     // verify that filter is added to filterService
 
+    //     expect(tester.filterService.getFilters().length).toBe(1);
+    //     let filter = tester.filterService.getFilterById(tester.component.filterId.getValue());
+    //     expect(filter).toBeTruthy();
+    //     let expected = neon.query.where(fieldName, 'contains', value);
+    //     expect(filter.filter.whereClause).toEqual(expected);
+    // });
+});
+/*
     it('should replace filter when one already exists', () => {
         // set input.value
         let value = 'filter with click';
@@ -257,4 +272,5 @@ describe('Component: queryBar unconfigured', () => {
 
     it('should not show in the UI when the configuration does not include a queryBar option', () => expect(tester.element).toBeFalsy());
 });
+
 */
