@@ -286,7 +286,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             return 'No Data';
         }
 
-        if(this.options.showOnlyFiltered && !this.neonFilters.length){
+        if (this.options.showOnlyFiltered && !this.neonFilters.length) {
             return 'No Filter Selected';
         }
 
@@ -536,8 +536,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     this.lastPage = (this.gridArray.length <= this.options.limit);
                     this.pagingGrid = this.gridArray.slice(0, this.options.limit);
                     this.showGrid = true;
-                }
-                else{
+                } else {
                     this.pagingGrid = [];
                     this.showGrid = false;
                 }
