@@ -84,6 +84,27 @@
                 </div>
                 <p></p>
 
+                <span class="toggle-text">Hide Main Document Text:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showText">
+                    <mat-button-toggle [value]="false">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="true">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Hide Select Button:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showSelect">
+                    <mat-button-toggle [value]="false">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="true">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
+                <span class="toggle-text">Hide Source Button:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.hideSource">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
                 <!-- ID field selector -->
                 <mat-form-field>
                     <mat-select placeholder="ID Field" [(ngModel)]="options.idField" required="false" (ngModelChange)="handleChangeData()"
@@ -97,20 +118,6 @@
                     <input matInput placeholder="Name (Left Column) Width CSS" [(ngModel)]="options.nameWidthCss" required="false">
                 </mat-form-field>
                 <p></p>
-
-                <span class="toggle-text">Show Select Button:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showSelect">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span class="toggle-text">Show Text:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showText">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
             </mat-card-content>
         </mat-card>
     </mat-sidenav>
@@ -123,19 +130,21 @@
                     <td class="document-viewer-text">{{ item.text }}</td>
                 </tr>
             </table>
+
             <table class="document-viewer-table" *ngIf="options.showText">
                 <tr class="document-viewer-row">
                     <td class="document-viewer-text">{{ activeItem.data[options.dataField.columnName] }}</td>
                 </tr>
             </table>
-            <table class="document-viewer-table" *ngIf="!options.showText || (options.showSelect && options.idField.columnName)">
+
+            <table class="document-viewer-table" *ngIf="showSourceButton() || showSelectButton()">
                 <tr class="document-viewer-row">
-                    <td class="document-viewer-button" *ngIf="!options.showText">
+                    <td class="document-viewer-button" *ngIf="showSourceButton()">
                         <button mat-raised-button class="neon-button-small" color="primary" (click)="openSingleRecord(activeItem.data)">
                             View Source Text
                         </button>
                     </td>
-                    <td class="document-viewer-button" *ngIf="options.showSelect && options.idField.columnName">
+                    <td class="document-viewer-button" *ngIf="showSelectButton()">
                         <button mat-raised-button class="neon-button-small" color="primary" (click)="selectSingleRecord(activeItem.data)">
                             Select
                         </button>
