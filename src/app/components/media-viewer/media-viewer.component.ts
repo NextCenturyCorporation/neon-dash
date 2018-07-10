@@ -101,7 +101,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    protected MEDIA_PADDING: number = 10;
+    protected MEDIA_PADDING: number = 5;
     protected TAB_HEIGHT: number = 30;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
@@ -526,28 +526,24 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         }
 
         frames.forEach((frame) => {
-            frame.style.height = (this.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            frame.style.width = (this.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
+            frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
                 this.MEDIA_PADDING) + 'px';
-            frame.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
+            frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
                 this.MEDIA_PADDING) + 'px';
+            frame.style.width = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+            frame.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
 
         images.forEach((image) => {
-            image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
+            image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
                 this.MEDIA_PADDING) + 'px';
+            image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
 
         videos.forEach((video) => {
-            video.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            video.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
+            video.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
                 this.MEDIA_PADDING) + 'px';
+            video.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
     }
 
