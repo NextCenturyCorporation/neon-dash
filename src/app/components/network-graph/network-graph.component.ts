@@ -366,9 +366,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
             this.options.table.name, this.options.filterFields);
 
-        
             this.activeData = response.data;
-            
+
             this.isLoading = true;
             this.resetGraphData();
 
@@ -384,8 +383,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.graphData.nodes.update(graphProperties.nodes);
             this.graphData.edges.update(graphProperties.edges);
             this.isLoading = false;
-        }
-        else {
+        } else {
             this.displayGraph = false;
         }
     }
@@ -448,11 +446,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     getButtonText() {
-        let prefix : string = '';
+        let prefix = '';
         if (this.displayGraph) {
             prefix = 'Total Nodes: ';
-        }
-        else {
+        } else {
             prefix = 'Total Hidden Nodes: ';
         }
         return prefix + this.formatingCallback(this.totalNodes);
