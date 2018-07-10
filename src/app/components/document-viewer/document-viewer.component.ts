@@ -50,6 +50,7 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 export class DocumentViewerOptions extends BaseNeonOptions {
     public dataField: FieldMetaData;
     public dateField: FieldMetaData;
+    public hideSource: boolean;
     public idField: FieldMetaData;
     public metadataFields: any[];
     public nameWidthCss: string;
@@ -63,6 +64,7 @@ export class DocumentViewerOptions extends BaseNeonOptions {
      * @override
      */
     onInit() {
+        this.hideSource = this.injector.get('hideSource', false);
         this.metadataFields = neonUtilities.flatten(this.injector.get('metadataFields', []));
         this.nameWidthCss = this.injector.get('nameWidthCss', '');
         this.popoutFields = neonUtilities.flatten(this.injector.get('popoutFields', []));
@@ -149,6 +151,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         bindings.dataField = this.options.dataField;
         bindings.dateField = this.options.dateField;
         bindings.docCount = this.docCount;
+        bindings.hideSource = this.options.hideSource;
         bindings.idField = this.options.idField;
         bindings.page = this.page;
         bindings.metadataFields = this.options.metadataFields;
@@ -492,5 +495,23 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     getOptions(): BaseNeonOptions {
         return this.options;
+    }
+
+    /**
+     * Returns whether to show the select button.
+     *
+     * @return {boolean}
+     */
+    showSelectButton(): boolean {
+        return this.options.showSelect && !!this.options.idField.columnName;
+    }
+
+    /**
+     * Returns whether to show the source button.
+     *
+     * @return {boolean}
+     */
+    showSourceButton(): boolean {
+        return !this.options.showText && !this.options.hideSource;
     }
 }

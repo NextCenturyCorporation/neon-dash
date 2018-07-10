@@ -994,6 +994,23 @@ describe('Component: DocumentViewer', () => {
             }]
         });
     });
+
+    it('showSelectButton does return expected boolean', () => {
+        expect(component.showSelectButton()).toEqual(false);
+        component.options.showSelect = true;
+        expect(component.showSelectButton()).toEqual(false);
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        expect(component.showSelectButton()).toEqual(true);
+    });
+
+    it('showSourceButton does return expected boolean', () => {
+        expect(component.showSourceButton()).toEqual(true);
+        component.options.showText = true;
+        expect(component.showSourceButton()).toEqual(false);
+        component.options.showText = false;
+        component.options.hideSource = true;
+        expect(component.showSourceButton()).toEqual(false);
+    });
 });
 
 describe('Component: Document Viewer with Config', () => {
