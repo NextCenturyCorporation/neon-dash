@@ -596,6 +596,7 @@
                     "predictedNameField": "",
                     "percentField": "",
                     "openOnMouseClick" : true,
+                    "showOnlyFiltered" : true,
                     "sortField": "dtyp",
                     "filterField": "id",
                     "ascending": true,
