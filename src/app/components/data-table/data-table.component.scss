@@ -189,6 +189,26 @@
     color: #e65100; // orange-900
 }
 
+/deep/ .datatable-body-row.active.heat-1 .datatable-row-group {
+    background-color: #29b6f6; // light-blue-400
+}
+
+/deep/ .datatable-body-row.active.heat-2 .datatable-row-group {
+    background-color: #5c6bc0; // indigo-400
+}
+
+/deep/ .datatable-body-row.active.heat-3 .datatable-row-group {
+    background-color: #ab47bc; // purple-400
+}
+
+/deep/ .datatable-body-row.active.heat-4 .datatable-row-group {
+    background-color: #ef5350; // red-400
+}
+
+/deep/ .datatable-body-row.active.heat-5 .datatable-row-group {
+    background-color: #ffa726; // orange-400
+}
+
 /deep/ .datatable-body {
     height: 100%;
 }
@@ -240,27 +260,37 @@
     }
 
     /deep/ .datatable-body-row.heat-1:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.heat-1:hover .datatable-row-group {
+    /deep/ .datatable-body-row.active.heat-1:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.heat-1:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.active.heat-1:hover .datatable-row-group {
         background-color: #29b6f6; // light-blue-400
     }
 
     /deep/ .datatable-body-row.heat-2:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.heat-2:hover .datatable-row-group {
+    /deep/ .datatable-body-row.active.heat-2:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.heat-2:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.active.heat-2:hover .datatable-row-group {
         background-color: #5c6bc0; // indigo-400
     }
 
     /deep/ .datatable-body-row.heat-3:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.heat-3:hover .datatable-row-group {
+    /deep/ .datatable-body-row.active.heat-3:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.heat-3:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.active.heat-3:hover .datatable-row-group {
         background-color: #ab47bc; // purple-400
     }
 
     /deep/ .datatable-body-row.heat-4:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.heat-4:hover .datatable-row-group {
+    /deep/ .datatable-body-row.active.heat-4:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.heat-4:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.active.heat-4:hover .datatable-row-group {
         background-color: #ef5350; // red-400
     }
 
     /deep/ .datatable-body-row.heat-5:hover .datatable-row-group,
-    &.skinny /deep/ .datatable-body-row.heat-5:hover .datatable-row-group {
+    /deep/ .datatable-body-row.active.heat-5:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.heat-5:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.active.heat-5:hover .datatable-row-group {
         background-color: #ffa726; // orange-400
     }
 }
