@@ -152,10 +152,8 @@
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
                         "@id",
-                        "author",
                         "date",
                         "docLocation",
-                        "title",
                         "docType"
                     ]
                 },
