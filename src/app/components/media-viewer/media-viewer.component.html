@@ -129,7 +129,7 @@
                         [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
                         <source [src]="document.link">
                     </video>
-                    <iframe #frame *ngSwitchDefault [src]="sanitize(document.link)" frameborder="0"
+                    <iframe #frame *ngSwitchDefault [src]="sanitize(document.link)" frameborder="0"  [ngStyle]="setResize()"
                         [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
                     </iframe>
                 </div>
@@ -144,7 +144,7 @@
                 [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
                 <source [src]="documentArray[0].link">
             </video>
-            <iframe #frame *ngSwitchDefault [src]="sanitize(documentArray[0].link)" frameborder="0"
+            <iframe #frame *ngSwitchDefault [src]="sanitize(documentArray[0].link)" frameborder="0"  [ngStyle]="setResize()"
                 [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
             </iframe>
         </div>
