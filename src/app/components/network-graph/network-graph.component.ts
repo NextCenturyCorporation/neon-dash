@@ -448,14 +448,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     getButtonText() {
-        // let data = this.graphData;
-
-        // if (!data || !data.nodes.length) {
-        //     return this.options.showOnlyFiltered && !this.neonFilters.length ? 'No Filter Selected' : 'No Data';
-        // } else {
-        //     let total = data.nodes.length;
-            return 'Total Nodes: ' + this.formatingCallback(this.totalNodes);
-        // }
+        let prefix : string = '';
+        if (this.displayGraph) {
+            prefix = 'Total Nodes: ';
+        }
+        else {
+            prefix = 'Total Hidden Nodes: ';
+        }
+        return prefix + this.formatingCallback(this.totalNodes);
     }
 
     resetData() {
