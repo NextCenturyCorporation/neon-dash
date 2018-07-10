@@ -93,7 +93,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    protected MEDIA_PADDING: number = 10;
+    protected MEDIA_PADDING: number = 5;
     protected TAB_HEIGHT: number = 30;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
@@ -503,29 +503,37 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         }
 
         if (this.frame) {
-            this.frame.nativeElement.style.height = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.frame.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.frame.nativeElement.style.width = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
-                this.MEDIA_PADDING) + 'px';
-            this.frame.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
-                this.MEDIA_PADDING) + 'px';
+            this.frame.nativeElement.style.height = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT
+                - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
+            this.frame.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT
+                - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
+            this.frame.nativeElement.style.width = (refs.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+            this.frame.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         }
 
         if (this.image) {
-            this.image.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.image.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
-                this.MEDIA_PADDING) + 'px';
+            this.image.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT
+                - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
+            this.image.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         }
 
         if (this.video) {
-            this.video.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.video.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
-                this.MEDIA_PADDING) + 'px';
+            this.video.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT
+                - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
+            this.video.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         }
+    }
+
+    setResize() {
+        let size = {
+            'height':  this.frame ? this.frame.nativeElement.style.height : '',
+            'max-height':  this.video  ? this.video.nativeElement.style.maxHeight : this.image ? this.image.nativeElement.style.maxHeight
+                : this.frame ? this.frame.nativeElement.style.maxHeight : '',
+            'width':   this.frame  ? this.frame.nativeElement.style.width : '',
+            'max-width':   this.video  ? this.video.nativeElement.style.maxWidth : this.image ? this.image.nativeElement.style.maxWidth
+                : this.frame ? this.frame.nativeElement.style.maxWidth : ''
+        };
+        return size;
     }
 
     sanitize(url) {
