@@ -63,6 +63,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public openOnMouseClick: boolean;
     public percentField: FieldMetaData;
     public predictedNameField: FieldMetaData;
+    public showOnlyFiltered: boolean;
     public sortField: FieldMetaData;
     public styleClass: string;
     public textMap: any;
@@ -82,6 +83,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
+        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
         this.styleClass = this.injector.get('styleClass', '');
         this.textMap = this.injector.get('textMap', {});
         this.typeMap = this.injector.get('typeMap', {});
@@ -146,9 +148,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     public lastPage: boolean = true;
     public page: number = 1;
-
+    public neonFilters: any[] = [];
     public isLoading: boolean = false;
-    public showGrid: boolean = true;
+    public showGrid: boolean;
     public mediaTypes: any = MediaTypes;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
@@ -159,6 +161,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             filterService, exportService, injector, themesService, ref, visualizationService);
 
         this.options = new ThumbnailGridOptions(this.injector, this.datasetService, 'Thumbnail Grid', 30);
+        this.showGrid = !this.options.showOnlyFiltered;
     }
 
     /**
@@ -283,6 +286,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             return 'No Data';
         }
 
+        if (this.options.showOnlyFiltered && !this.neonFilters.length) {
+            return 'No Filter Selected';
+        }
+
         if (this.gridArray.length <= this.options.limit) {
             return 'Total Items ' + super.prettifyInteger(this.gridArray.length);
         }
@@ -362,9 +369,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             columnName: this.options.categoryField.columnName,
             prettyName: this.options.categoryField.prettyName
         }, {
-            columnName: this.options.dateField.columnName,
-            prettyName: this.options.dateField.prettyName
-        }, {
             columnName: this.options.filterField.columnName,
             prettyName: this.options.filterField.prettyName
         }, {
@@ -373,6 +377,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }, {
             columnName: this.options.linkField.columnName,
             prettyName: this.options.linkField.prettyName
+        }, {
+            columnName: this.options.dateField.columnName,
+            prettyName: this.options.dateField.prettyName
         }, {
             columnName: this.options.nameField.columnName,
             prettyName: this.options.nameField.prettyName
@@ -499,12 +506,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.errorMessage = '';
         this.lastPage = true;
         this.page = 1;
-        this.showGrid = false;
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.isLoading = true;
-                this.showGrid = true;
                 response.data.forEach((d) => {
                     let item = {},
                         links: any;
@@ -523,8 +528,19 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         this.retreiveMedia(item, link);
                     }
                 });
-                this.lastPage = (this.gridArray.length <= this.options.limit);
-                this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+
+                this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
+                    this.options.table.name, [this.options.filterField.columnName]);
+
+                if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+                    this.lastPage = (this.gridArray.length <= this.options.limit);
+                    this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+                    this.showGrid = true;
+                } else {
+                    this.pagingGrid = [];
+                    this.showGrid = false;
+                }
+
                 this.refreshVisualization();
                 this.createMediaThumbnail();
                 this.isLoading = false;
@@ -780,27 +796,28 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     subGetBindings(bindings: any) {
-        bindings.ascending = this.options.ascending;
-        bindings.border = this.options.border;
         bindings.categoryField = this.options.categoryField.columnName;
-        bindings.cropAndScale = this.options.cropAndScale;
-        bindings.dateField = this.options.dateField.columnName;
-        bindings.detailedThumbnails = this.options.detailedThumbnails;
         bindings.filterField = this.options.filterField.columnName;
         bindings.idField = this.options.idField.columnName;
         bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.linkField = this.options.linkField.columnName;
-        bindings.linkPrefix = this.options.linkPrefix;
+        bindings.dateField = this.options.dateField.columnName;
         bindings.nameField = this.options.nameField.columnName;
         bindings.objectIdField = this.options.objectIdField.columnName;
         bindings.objectNameField = this.options.objectNameField.columnName;
-        bindings.openOnMouseClick = this.options.openOnMouseClick;
         bindings.percentField = this.options.percentField.columnName;
         bindings.predictedNameField = this.options.predictedNameField.columnName;
         bindings.sortField = this.options.sortField.columnName;
-        bindings.textMap = this.options.textMap;
         bindings.typeField = this.options.typeField.columnName;
+
+        bindings.ascending = this.options.ascending;
+        bindings.border = this.options.border;
+        bindings.cropAndScale = this.options.cropAndScale;
+        bindings.linkPrefix = this.options.linkPrefix;
+        bindings.openOnMouseClick = this.options.openOnMouseClick;
+        bindings.textMap = this.options.textMap;
         bindings.typeMap = this.options.typeMap;
+        bindings.detailedThumbnails = this.options.detailedThumbnails;
     }
 
     /**

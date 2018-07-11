@@ -152,10 +152,8 @@
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
                         "@id",
-                        "author",
                         "date",
                         "docLocation",
-                        "title",
                         "docType"
                     ]
                 },
@@ -595,6 +593,8 @@
                     "typeField": "dtyp",
                     "predictedNameField": "",
                     "percentField": "",
+                    "openOnMouseClick" : true,
+                    "showOnlyFiltered" : true,
                     "sortField": "dtyp",
                     "filterField": "id",
                     "ascending": true,
