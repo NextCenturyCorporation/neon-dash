@@ -49,12 +49,13 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public border: string;
     public categoryField: FieldMetaData;
     public cropAndScale: string;
+    public dateField: FieldMetaData;
+    public detailedThumbnails: boolean;
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
     public ignoreSelf: boolean;
     public linkField: FieldMetaData;
-    public dateField: FieldMetaData;
     public linkPrefix: string;
     public nameField: FieldMetaData;
     public objectIdField: FieldMetaData;
@@ -62,7 +63,6 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public openOnMouseClick: boolean;
     public percentField: FieldMetaData;
     public predictedNameField: FieldMetaData;
-    public detailedThumbnails: boolean;
     public showOnlyFiltered: boolean;
     public sortField: FieldMetaData;
     public styleClass: string;
