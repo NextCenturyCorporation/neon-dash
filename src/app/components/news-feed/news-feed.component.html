@@ -211,7 +211,7 @@
                        <div class="content-ellipses" [matTooltip]="item[options.contentField.columnName]">{{ item[options.contentField.columnName] }}</div>
                        <div class="content-footer">
                            <p class="text-highlight">{{ item[options.dateField.columnName] }}</p>
-                           <p>{{ item[options.idField.columnName] }}</p>
+                           <p [hidden]="!item[options.filterField.columnName]">{{ item[options.idField.columnName] }}</p>
                        </div>
                    </div>
                </div>
