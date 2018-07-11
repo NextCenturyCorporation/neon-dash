@@ -280,7 +280,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         let annotationTypeList = data.annotationTypeList;
         let documentText = data.documents;
 
-        if (!annotationStartIndex.length || annotationStartIndex.length < 1) {
+        if (!annotationStartIndex || annotationStartIndex.length < 1) {
             isValid = false;
         } else {
             let text = document.documents;
