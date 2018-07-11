@@ -525,7 +525,7 @@
                     "idField": "hypothesis_id",
                     "linkField": "",
                     "dateField": "date",
-                    "primaryTitleField":"topic_name",
+                    "primaryTitleField":"hypothesis_id",
                     "secondaryTitleField":"",
                     "contentField":"hypothesis",
                     "showOnlyFiltered": true,
