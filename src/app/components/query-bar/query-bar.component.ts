@@ -109,6 +109,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
 
         this.filterFormControl = new FormControl();
         this.options = new QueryBarOptions(this.injector, this.datasetService, 'Query Bar');
+
     }
 
     createQuery(): neon.query.Query  {
@@ -194,6 +195,8 @@ export class QueryBarComponent  extends BaseNeonComponent {
         return {
             visualization: this.visualization,
             headerText: this.queryBar
+        //todo: why is infotext not included
+
         };
     }
 
@@ -427,9 +430,9 @@ export class QueryBarComponent  extends BaseNeonComponent {
      * @arg {string} field
      * @arg {string} value
      * @return {boolean}
-     * @private
+     *
      */
-    private filterExists(field: string, value: string) {
+    filterExists(field: string, value: string) {
         return this.filters.some((existingFilter) => {
             return field === existingFilter.field && value === existingFilter.value;
         });

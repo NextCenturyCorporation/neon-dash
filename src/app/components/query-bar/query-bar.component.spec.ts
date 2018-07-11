@@ -96,7 +96,183 @@ describe('Component: queryBar', () => {
         expect(component.options.extensionFields).toEqual([]);
     });
 
+    /**
+     * todo: something is wrong with getElementRefs. queryBar is
+     * being initialized somewhere for headerText, but visualization is
+     * not being initialized. This is taking place somewhere outside
+     * of the class
+     */
+
+    /*
+    //for getElementRefs method
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
+    */
+
+    //for getExportFields Method
+
+    it('getExportFields does return expected Array', () => {
+        expect(component.getExportFields()).toEqual([]);
+        //add more when the method is updated to return more than just an empty array
+
+    });
+
+    //for getoptions method
+    it('getOptions does return the options for the specific visualization', () => {
+        expect(component.getOptions()).toEqual(component.options);
+    });
+
+    //for refresh visualization
+    it('refreshVisualization does call changeDetection.detectChanges', (() => {
+        let spy = spyOn(component.changeDetection, 'detectChanges');
+        component.refreshVisualization();
+        expect(spy.calls.count()).toBe(1);
+    }));
+
+    //for getFiltersToIgnore
+    it('getFiltersToIgnore with ignoreSelf=true does return expected array of IDs if no filterField is set', () => {
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testField1', '!=', null), 'testFilterName1');
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testField2', '!=', null), 'testFilterName2');
+
+        //component.options.ignoreSelf = true;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+
+        expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1',
+            'testDatabase1-testTable1-testFilterName2']);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
+    });
+
+    //for getFilterText method
+    it('getFilterText does return expected string', () => {
+        expect(component.getFilterText({
+            id: undefined,
+            field: 'field1',
+            prettyField: 'prettyField1',
+            value: 'value1'
+        })).toEqual('prettyField1 = value1');
+    });
+
+    //for getCloseableFilters method
+
+    it('getCloseableFilters does return expected Array', () => {
+        expect(component.getExportFields()).toEqual([]);
+        //add more when the method is updated to return more than just an empty array
+
+    });
+
+    //for createFilter method
+    it('create filter should call removeFilter if empty', () => {
+        let spy = spyOn(component, 'removeFilter');
+        component.createFilter('');
+        expect(spy.calls.count()).toBe(1);
+    });
+
+    //filterExists
+    it('filterExists does return expected boolean', () => {
+        expect(component.filterExists('field1', 'value1')).toEqual(false);
+        expect(component.filterExists('field1', 'value2')).toEqual(false);
+        expect(component.filterExists('field2', 'value1')).toEqual(false);
+        expect(component.filterExists('field2', 'value2')).toEqual(false);
+
+        component.filters.push({
+            id: undefined,
+            field: 'field1',
+            prettyField: 'prettyField1',
+            value: 'value1'
+        });
+
+        expect(component.filterExists('field1', 'value1')).toEqual(true);
+        expect(component.filterExists('field1', 'value2')).toEqual(false);
+        expect(component.filterExists('field2', 'value1')).toEqual(false);
+        expect(component.filterExists('field2', 'value2')).toEqual(false);
+
+        component.filters.push({
+            id: undefined,
+            field: 'field1',
+            prettyField: 'prettyField1',
+            value: 'value2'
+        });
+
+        expect(component.filterExists('field1', 'value1')).toEqual(true);
+        expect(component.filterExists('field1', 'value2')).toEqual(true);
+        expect(component.filterExists('field2', 'value1')).toEqual(false);
+        expect(component.filterExists('field2', 'value2')).toEqual(false);
+
+        component.filters.push({
+            id: undefined,
+            field: 'field2',
+            prettyField: 'prettyField2',
+            value: 'value1'
+        });
+
+        expect(component.filterExists('field1', 'value1')).toEqual(true);
+        expect(component.filterExists('field1', 'value2')).toEqual(true);
+        expect(component.filterExists('field2', 'value1')).toEqual(true);
+        expect(component.filterExists('field2', 'value2')).toEqual(false);
+
+        component.filters.push({
+            id: undefined,
+            field: 'field2',
+            prettyField: 'prettyField2',
+            value: 'value2'
+        });
+
+        expect(component.filterExists('field1', 'value1')).toEqual(true);
+        expect(component.filterExists('field1', 'value2')).toEqual(true);
+        expect(component.filterExists('field2', 'value1')).toEqual(true);
+        expect(component.filterExists('field2', 'value2')).toEqual(true);
+
+        component.filters = [];
+
+        expect(component.filterExists('field1', 'value1')).toEqual(false);
+        expect(component.filterExists('field1', 'value2')).toEqual(false);
+        expect(component.filterExists('field2', 'value1')).toEqual(false);
+        expect(component.filterExists('field2', 'value2')).toEqual(false);
+    });
+
+    //for setupFilters
+
+    //for subGetBindings
+    it('subGetBindings does set expected bindings', (() => {
+        let bindings = {};
+
+        component.subGetBindings(bindings);
+        expect(bindings).toEqual({
+            idField: '',
+            filterField: '',
+            extendedFilter: false,
+            extensionFields: []
+        });
+
+        component.options.idField = new FieldMetaData('testIdField');
+        component.options.filterField = new FieldMetaData('testFilterField');
+        component.options.extendedFilter = false;
+        component.options.extensionFields = [];
+
+        component.subGetBindings(bindings);
+        expect(bindings).toEqual({
+            idField: 'testIdField',
+            filterField: 'testFilterField',
+            extendedFilter: false,
+            extensionFields: []
+
+        });
+    }));
+
+    //for postInit method
+
     // it('should filter when the user clicks the search icon', () => {
+
     //     // set input.value
     //     let value = 'filter with click';
     //     tester.setInput(value);
