@@ -49,12 +49,13 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public border: string;
     public categoryField: FieldMetaData;
     public cropAndScale: string;
+    public dateField: FieldMetaData;
+    public detailedThumbnails: boolean;
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
     public ignoreSelf: boolean;
     public linkField: FieldMetaData;
-    public dateField: FieldMetaData;
     public linkPrefix: string;
     public nameField: FieldMetaData;
     public objectIdField: FieldMetaData;
@@ -62,7 +63,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public openOnMouseClick: boolean;
     public percentField: FieldMetaData;
     public predictedNameField: FieldMetaData;
-    public detailedThumbnails: boolean;
+    public showOnlyFiltered: boolean;
     public sortField: FieldMetaData;
     public styleClass: string;
     public textMap: any;
@@ -82,6 +83,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
+        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
         this.styleClass = this.injector.get('styleClass', '');
         this.textMap = this.injector.get('textMap', {});
         this.typeMap = this.injector.get('typeMap', {});
@@ -146,9 +148,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     public lastPage: boolean = true;
     public page: number = 1;
-
+    public neonFilters: any[] = [];
     public isLoading: boolean = false;
-    public showGrid: boolean = true;
+    public showGrid: boolean;
     public mediaTypes: any = MediaTypes;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
@@ -159,6 +161,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             filterService, exportService, injector, themesService, ref, visualizationService);
 
         this.options = new ThumbnailGridOptions(this.injector, this.datasetService, 'Thumbnail Grid', 30);
+        this.showGrid = !this.options.showOnlyFiltered;
     }
 
     /**
@@ -281,6 +284,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     getButtonText() {
         if (!this.gridArray.length) {
             return 'No Data';
+        }
+
+        if (this.options.showOnlyFiltered && !this.neonFilters.length) {
+            return 'No Filter Selected';
         }
 
         if (this.gridArray.length <= this.options.limit) {
@@ -499,12 +506,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.errorMessage = '';
         this.lastPage = true;
         this.page = 1;
-        this.showGrid = false;
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.isLoading = true;
-                this.showGrid = true;
                 response.data.forEach((d) => {
                     let item = {},
                         links: any;
@@ -523,8 +528,19 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         this.retreiveMedia(item, link);
                     }
                 });
-                this.lastPage = (this.gridArray.length <= this.options.limit);
-                this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+
+                this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
+                    this.options.table.name, [this.options.filterField.columnName]);
+
+                if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+                    this.lastPage = (this.gridArray.length <= this.options.limit);
+                    this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+                    this.showGrid = true;
+                } else {
+                    this.pagingGrid = [];
+                    this.showGrid = false;
+                }
+
                 this.refreshVisualization();
                 this.createMediaThumbnail();
                 this.isLoading = false;

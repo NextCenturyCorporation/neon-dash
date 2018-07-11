@@ -102,7 +102,7 @@ export class NewsFeedOptions extends BaseNeonOptions {
 })
 
 export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
+    @ViewChild('visualization', { read: ElementRef }) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('newsFeed') newsFeed: ElementRef;
@@ -126,8 +126,8 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     public showGrid: boolean;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-                filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-                ref: ChangeDetectorRef, visualizationService: VisualizationService, private sanitizer: DomSanitizer) {
+        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+        ref: ChangeDetectorRef, visualizationService: VisualizationService, private sanitizer: DomSanitizer) {
 
         super(activeGridService, connectionService, datasetService,
             filterService, exportService, injector, themesService, ref, visualizationService);
@@ -136,42 +136,42 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         this.showGrid = !this.options.showOnlyFiltered;
     }
 
-       /**
-        * Creates Neon and visualization filter objects for the given text.
-        *
-        * @arg {string} text
-        */
-       createFilter(text: string) {
-           if (!this.options.filterField.columnName) {
-               return;
-           }
+    /**
+     * Creates Neon and visualization filter objects for the given text.
+     *
+     * @arg {string} text
+     */
+    createFilter(text: string) {
+        if (!this.options.filterField.columnName) {
+            return;
+        }
 
-           let filter = {
-               id: undefined,
-               field: this.options.filterField.columnName,
-               prettyField: this.options.filterField.prettyName,
-               value: text
-           };
+        let filter = {
+            id: undefined,
+            field: this.options.filterField.columnName,
+            prettyField: this.options.filterField.prettyName,
+            value: text
+        };
 
-           let clause = neon.query.where(filter.field, '=', filter.value);
-           let runQuery = !this.options.ignoreSelf;
+        let clause = neon.query.where(filter.field, '=', filter.value);
+        let runQuery = !this.options.ignoreSelf;
 
-           if (!this.filters.length) {
-               this.filters = [filter];
-               this.addNeonFilter(runQuery, filter, clause);
-           } else if (this.filters.length === 1) {
-               if (!this.filterExists(filter.field, filter.value)) {
-                   filter.id = this.filters[0].id;
-                   this.filters = [filter];
-                   this.replaceNeonFilter(runQuery, filter, clause);
-               }
-           } else {
-               this.removeAllFilters([].concat(this.filters), () => {
-                   this.filters = [filter];
-                   this.addNeonFilter(runQuery, filter, clause);
-               });
-           }
-       }
+        if (!this.filters.length) {
+            this.filters = [filter];
+            this.addNeonFilter(runQuery, filter, clause);
+        } else if (this.filters.length === 1) {
+            if (!this.filterExists(filter.field, filter.value)) {
+                filter.id = this.filters[0].id;
+                this.filters = [filter];
+                this.replaceNeonFilter(runQuery, filter, clause);
+            }
+        } else {
+            this.removeAllFilters([].concat(this.filters), () => {
+                this.filters = [filter];
+                this.addNeonFilter(runQuery, filter, clause);
+            });
+        }
+    }
 
     /**
      * Creates and returns the query for the thumbnail grid.
@@ -238,7 +238,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
             return 'No Data';
         }
 
-        if(this.options.showOnlyFiltered && !this.neonFilters.length){
+        if (this.options.showOnlyFiltered && !this.neonFilters.length) {
             return 'No Filter Selected';
         }
 
@@ -311,7 +311,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     /**
-     * Returns the thumbnail grid export fields.
+     * Returns the news feed export fields.
      *
      * @return {array}
      * @override
@@ -441,8 +441,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
                     this.refreshVisualization();
                     this.isLoading = false;
                     this.showGrid = true;
-                }
-                else{
+                } else {
                     this.pagingGrid = [];
                     this.showGrid = false;
                 }
@@ -458,14 +457,14 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         }
     }
 
-        /**
-         * Returns whether items are selectable (filterable).
-         *
-         * @return {boolean}
-         */
-        isSelectable() {
-            return !!this.options.filterField.columnName || !!this.options.idField.columnName;
-        }
+    /**
+     * Returns whether items are selectable (filterable).
+     *
+     * @return {boolean}
+     */
+    isSelectable() {
+        return !!this.options.filterField.columnName || !!this.options.idField.columnName;
+    }
 
     /**
      * Returns whether the given item is selected (filtered).
