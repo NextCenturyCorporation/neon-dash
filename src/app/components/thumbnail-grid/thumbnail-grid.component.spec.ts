@@ -1141,10 +1141,10 @@ describe('Component: ThumbnailGrid', () => {
         }]);
 
         component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
         component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
         component.options.objectIdField = new FieldMetaData('testObjectIdField', 'Test Object ID Field');
         component.options.objectNameField = new FieldMetaData('testObjectNameField', 'Test Object Name Field');
@@ -1157,9 +1157,6 @@ describe('Component: ThumbnailGrid', () => {
             columnName: 'testCategoryField',
             prettyName: 'Test Category Field'
         }, {
-            columnName: 'testDateField',
-            prettyName: 'Test Date Field'
-        }, {
             columnName: 'testFilterField',
             prettyName: 'Test Filter Field'
         }, {
@@ -1168,6 +1165,9 @@ describe('Component: ThumbnailGrid', () => {
         }, {
             columnName: 'testLinkField',
             prettyName: 'Test Link Field'
+        }, {
+            columnName: 'testDateField',
+            prettyName: 'Test Date Field'
         }, {
             columnName: 'testNameField',
             prettyName: 'Test Name Field'
