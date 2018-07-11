@@ -713,6 +713,16 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     };
                     break;
                 }
+                case this.mediaTypes.audio : {
+                    let image: HTMLImageElement = new Image();
+                    image.src = "/assets/images/volume_up.svg";
+                    image.onclick = () => this.displayMediaTab(grid);
+                    image.onload = () => {
+                        thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                    };
+
+                    break;
+                }
                 default : {
                     // todo: get thumbnails of documents, pdf, and other similar types of media.
                     thumbnail.fillStyle = '#111111';
