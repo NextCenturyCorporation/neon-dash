@@ -108,7 +108,9 @@ Neon and  are made available by [Next Century][18] under the [Apache 2 Open Sour
 
 ## References
 
-VERDI Icon : ArtsyBee, CC0 Creative Commons, uploaded 7 February 2016, [*lion-1181521_960_720.png*][19]
+verdi-favicon.icon : ArtsyBee, CC0 Creative Commons, uploaded 7 February 2016, [*lion-1181521_960_720.png*][19]
+
+volume_up.svg : Material Design, Google, updated 12 November 2014, [*ic_volume_up_24px.svg*][19]
 
 ## Additional Information
 
@@ -145,3 +147,4 @@ Copyright 2017 Next Century Corporation
 [17]: http://www.apache.org/foundation/license-faq.html
 [18]: http://www.nextcentury.com
 [19]: https://pixabay.com/en/lion-egyptian-ancient-egypt-1181521/
+[20]: https://github.com/google/material-design-icons/blob/master/av/svg/production/ic_volume_up_24px.svg
