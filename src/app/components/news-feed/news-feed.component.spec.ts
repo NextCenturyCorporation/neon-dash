@@ -70,7 +70,6 @@ describe('Component: NewsFeed', () => {
         ]
     });
 
-
     //may need to change further
     beforeEach(() => {
         fixture = TestBed.createComponent(NewsFeedComponent);
