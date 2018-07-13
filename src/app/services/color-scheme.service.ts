@@ -82,7 +82,7 @@ export class ColorSchemeService {
             new Color(251, 154, 153),
             new Color(253, 191, 111),
             new Color(202, 178, 214),
-            new Color(255, 255, 153)
+            new Color(84, 95, 43)
         ],
         [
             new Color(228, 26, 28),
@@ -90,7 +90,7 @@ export class ColorSchemeService {
             new Color(77, 175, 74),
             new Color(152, 78, 163),
             new Color(255, 127, 0),
-            new Color(255, 255, 51),
+            new Color(96, 69, 20),
             new Color(166, 86, 40),
             new Color(247, 129, 191),
             new Color(153, 153, 153)
