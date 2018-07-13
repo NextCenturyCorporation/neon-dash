@@ -627,6 +627,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             return;
         }
 
+        //check if colorField was not defines or (None)
+        if (this.options.layers[layerIndex].colorField.columnName === '') {
+            this.options.singleColor = true;
+        } else {
+            this.options.singleColor = false;
+        }
+
         let layer = this.options.layers[layerIndex],
             mapPoints = this.getMapPoints(
                 layer.longitudeField.columnName,
