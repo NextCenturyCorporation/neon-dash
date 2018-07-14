@@ -123,7 +123,8 @@ describe('Component: ThumbnailGrid', () => {
             image: 'img',
             video: 'vid',
             html: 'htm',
-            pdf: 'pdf'
+            pdf: 'pdf',
+            audio: 'aud'
         });
         expect(component.page).toEqual(1);
         expect(component.pagingGrid).toEqual([]);
