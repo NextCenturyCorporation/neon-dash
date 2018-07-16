@@ -349,12 +349,12 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         let neonFilters = this.options.idField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
             this.options.table.name, [this.options.idField.columnName]) : [];
 
-        if(!neonFilters[0] || (neonFilters[0] && !neonFilters[0].filter.whereClause.rhs)){
+        if (!neonFilters[0] || (neonFilters[0] && !neonFilters[0].filter.whereClause.rhs)) {
             this.errorMessage = 'No Data';
             this.options.id = '_id';
             this.refreshVisualization();
             return;
-        }    
+        }
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
