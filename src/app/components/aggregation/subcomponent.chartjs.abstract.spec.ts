@@ -46,7 +46,7 @@ class TestAggregationSubcomponentListener implements AggregationSubcomponentList
         // Do nothing.
     }
 
-    subcomponentRequestsFilter(item: any, doNotReplace?: boolean) {
+    subcomponentRequestsFilter(group: string, value: any, doNotReplace?: boolean) {
         // Do nothing.
     }
 
@@ -1241,6 +1241,7 @@ describe('ChartJsSubcomponent', () => {
         let chart = {
             data: {
                 datasets: [{
+                    label: 'a',
                     data: [{
                         x: 1,
                         y: 2
@@ -1257,7 +1258,7 @@ describe('ChartJsSubcomponent', () => {
         subcomponent.callSelectItem({}, [item1], chart);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([1, false]);
+        expect(spy1.calls.argsFor(0)).toEqual(['a', 1, false]);
         expect(spy2.calls.count()).toEqual(1);
         expect(spy2.calls.argsFor(0)).toEqual([chart, [item1]]);
         expect(spy3.calls.count()).toEqual(1);
@@ -1273,6 +1274,7 @@ describe('ChartJsSubcomponent', () => {
         let chart = {
             data: {
                 datasets: [{
+                    label: 'a',
                     data: [{
                         x: 1,
                         y: 2
@@ -1281,6 +1283,7 @@ describe('ChartJsSubcomponent', () => {
                         y: 4
                     }]
                 }, {
+                    label: 'b',
                     data: [{
                         x: 5,
                         y: 6
@@ -1315,7 +1318,7 @@ describe('ChartJsSubcomponent', () => {
         subcomponent.callSelectItem({}, [item1], chart);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([1, false]);
+        expect(spy1.calls.argsFor(0)).toEqual(['a', 1, false]);
         expect(spy2.calls.count()).toEqual(1);
         expect(spy2.calls.argsFor(0)).toEqual([chart, [item1]]);
         expect(spy3.calls.count()).toEqual(1);
@@ -1325,7 +1328,7 @@ describe('ChartJsSubcomponent', () => {
         subcomponent.callSelectItem({}, [item2], chart);
 
         expect(spy1.calls.count()).toEqual(2);
-        expect(spy1.calls.argsFor(1)).toEqual([3, false]);
+        expect(spy1.calls.argsFor(1)).toEqual(['a', 3, false]);
         expect(spy2.calls.count()).toEqual(2);
         expect(spy2.calls.argsFor(1)).toEqual([chart, [item2]]);
         expect(spy3.calls.count()).toEqual(2);
@@ -1335,7 +1338,7 @@ describe('ChartJsSubcomponent', () => {
         subcomponent.callSelectItem({}, [item3], chart);
 
         expect(spy1.calls.count()).toEqual(3);
-        expect(spy1.calls.argsFor(2)).toEqual([5, false]);
+        expect(spy1.calls.argsFor(2)).toEqual(['b', 5, false]);
         expect(spy2.calls.count()).toEqual(3);
         expect(spy2.calls.argsFor(2)).toEqual([chart, [item3]]);
         expect(spy3.calls.count()).toEqual(3);
@@ -1345,7 +1348,7 @@ describe('ChartJsSubcomponent', () => {
         subcomponent.callSelectItem({}, [item4], chart);
 
         expect(spy1.calls.count()).toEqual(4);
-        expect(spy1.calls.argsFor(3)).toEqual([7, false]);
+        expect(spy1.calls.argsFor(3)).toEqual(['b', 7, false]);
         expect(spy2.calls.count()).toEqual(4);
         expect(spy2.calls.argsFor(3)).toEqual([chart, [item4]]);
         expect(spy3.calls.count()).toEqual(4);
@@ -1361,6 +1364,7 @@ describe('ChartJsSubcomponent', () => {
         let chart = {
             data: {
                 datasets: [{
+                    label: 'a',
                     data: [{
                         x: 1,
                         y: 2
@@ -1369,6 +1373,7 @@ describe('ChartJsSubcomponent', () => {
                         y: 4
                     }]
                 }, {
+                    label: 'b',
                     data: [{
                         x: 5,
                         y: 6
@@ -1405,7 +1410,7 @@ describe('ChartJsSubcomponent', () => {
         }, [item1], chart);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([1, true]);
+        expect(spy1.calls.argsFor(0)).toEqual(['a', 1, true]);
         expect(spy2.calls.count()).toEqual(1);
         expect(spy2.calls.argsFor(0)).toEqual([chart, [item1]]);
         expect(spy3.calls.count()).toEqual(0);
@@ -1416,7 +1421,7 @@ describe('ChartJsSubcomponent', () => {
         }, [item2], chart);
 
         expect(spy1.calls.count()).toEqual(2);
-        expect(spy1.calls.argsFor(1)).toEqual([3, true]);
+        expect(spy1.calls.argsFor(1)).toEqual(['a', 3, true]);
         expect(spy2.calls.count()).toEqual(2);
         expect(spy2.calls.argsFor(1)).toEqual([chart, [item2]]);
         expect(spy3.calls.count()).toEqual(0);
@@ -1427,7 +1432,7 @@ describe('ChartJsSubcomponent', () => {
         }, [item3], chart);
 
         expect(spy1.calls.count()).toEqual(3);
-        expect(spy1.calls.argsFor(2)).toEqual([5, true]);
+        expect(spy1.calls.argsFor(2)).toEqual(['b', 5, true]);
         expect(spy2.calls.count()).toEqual(3);
         expect(spy2.calls.argsFor(2)).toEqual([chart, [item3]]);
         expect(spy3.calls.count()).toEqual(0);
@@ -1438,7 +1443,7 @@ describe('ChartJsSubcomponent', () => {
         }, [item4], chart);
 
         expect(spy1.calls.count()).toEqual(4);
-        expect(spy1.calls.argsFor(3)).toEqual([7, true]);
+        expect(spy1.calls.argsFor(3)).toEqual(['b', 7, true]);
         expect(spy2.calls.count()).toEqual(4);
         expect(spy2.calls.argsFor(3)).toEqual([chart, [item4]]);
         expect(spy3.calls.count()).toEqual(0);
@@ -1455,6 +1460,7 @@ describe('ChartJsSubcomponent', () => {
         let chart = {
             data: {
                 datasets: [{
+                    label: 'a',
                     data: [{
                         x: 1,
                         y: 2
@@ -1463,6 +1469,7 @@ describe('ChartJsSubcomponent', () => {
                         y: 4
                     }]
                 }, {
+                    label: 'b',
                     data: [{
                         x: 5,
                         y: 6
@@ -1497,7 +1504,7 @@ describe('ChartJsSubcomponent', () => {
         subcomponent.callSelectItem({}, [item1], chart);
 
         expect(spy1.calls.count()).toEqual(1);
-        expect(spy1.calls.argsFor(0)).toEqual([2, false]);
+        expect(spy1.calls.argsFor(0)).toEqual(['a', 2, false]);
         expect(spy2.calls.count()).toEqual(1);
         expect(spy2.calls.argsFor(0)).toEqual([chart, [item1]]);
         expect(spy3.calls.count()).toEqual(1);
@@ -1507,7 +1514,7 @@ describe('ChartJsSubcomponent', () => {
         subcomponent.callSelectItem({}, [item2], chart);
 
         expect(spy1.calls.count()).toEqual(2);
-        expect(spy1.calls.argsFor(1)).toEqual([4, false]);
+        expect(spy1.calls.argsFor(1)).toEqual(['a', 4, false]);
         expect(spy2.calls.count()).toEqual(2);
         expect(spy2.calls.argsFor(1)).toEqual([chart, [item2]]);
         expect(spy3.calls.count()).toEqual(2);
@@ -1517,7 +1524,7 @@ describe('ChartJsSubcomponent', () => {
         subcomponent.callSelectItem({}, [item3], chart);
 
         expect(spy1.calls.count()).toEqual(3);
-        expect(spy1.calls.argsFor(2)).toEqual([6, false]);
+        expect(spy1.calls.argsFor(2)).toEqual(['b', 6, false]);
         expect(spy2.calls.count()).toEqual(3);
         expect(spy2.calls.argsFor(2)).toEqual([chart, [item3]]);
         expect(spy3.calls.count()).toEqual(3);
@@ -1527,7 +1534,7 @@ describe('ChartJsSubcomponent', () => {
         subcomponent.callSelectItem({}, [item4], chart);
 
         expect(spy1.calls.count()).toEqual(4);
-        expect(spy1.calls.argsFor(3)).toEqual([8, false]);
+        expect(spy1.calls.argsFor(3)).toEqual(['b', 8, false]);
         expect(spy2.calls.count()).toEqual(4);
         expect(spy2.calls.argsFor(3)).toEqual([chart, [item4]]);
         expect(spy3.calls.count()).toEqual(4);

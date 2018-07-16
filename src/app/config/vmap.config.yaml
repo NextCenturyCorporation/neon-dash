@@ -1,91 +1,290 @@
 datasets:
   -
-    name: Medifor User Workbench 05-18-18 (NC2017 Dev + Eval)
+    name: Medifor User Workbench (NC2017 Dev + TA1 Set A)
     datastore: elasticsearch
     hostname: localhost
-    layout: User
-    connectOnLoad: true
+    layout: NC2017_Dev_A
     databases:
       -
-        name: output_051618
-        prettyName: Scores
+        name: nc2017_dev_1_output_070118
+        prettyName: TA1
         tables:
           -
             name: doc
             prettyName: Item
             fields:
+              -
+                columnName: FileID
+                prettyName: File Name
+              -
+                columnName: MergedMask
+                prettyName: Overlay
+              -
+                columnName: NormalizedScore
+                prettyName: Score
+              -
+                columnName: OutputMask
+                prettyName: Mask
       -
-        name: merged_051618
-        prettyName: Inputs
+        name: nc2017_dev_070118
+        prettyName: Input
         tables:
           -
             name: doc
             prettyName: Item
             fields:
+              -
+                columnName: MasksDir
+                prettyName: GT Mask
+              -
+                columnName: ProbeDir
+                prettyName: Medium
+              -
+                columnName: ProbeFileID
+                prettyName: File Name
+              -
+                columnName: ThumbDir
+                prettyName: Thumbnail
     relations:
       -
         members:
           -
-            database: output_051618
+            database: nc2017_dev_1_output_070118
             table: doc
             field: FileID
           -
-            database: merged_051618
+            database: nc2017_dev_070118
             table: doc
             field: ProbeFileID
 
   -
-    name: Developer Dashboard 05-18-18 (NC2017 Dev + Eval)
+    name: Medifor User Workbench (NC2017 Dev + TA1 Set B)
     datastore: elasticsearch
     hostname: localhost
-    layout: Dev
+    layout: NC2017_Dev_B
     databases:
       -
-        name: output_051618
-        prettyName: Scores
+        name: nc2017_dev_2_output_070118
+        prettyName: TA1
         tables:
           -
             name: doc
             prettyName: Item
             fields:
+              -
+                columnName: FileID
+                prettyName: File Name
+              -
+                columnName: MergedMask
+                prettyName: Overlay
+              -
+                columnName: NormalizedScore
+                prettyName: Score
+              -
+                columnName: OutputMask
+                prettyName: Mask
       -
-        name: merged_051618
-        prettyName: Inputs
+        name: nc2017_dev_070118
+        prettyName: Input
         tables:
           -
             name: doc
             prettyName: Item
             fields:
+              -
+                columnName: MasksDir
+                prettyName: GT Mask
+              -
+                columnName: ProbeDir
+                prettyName: Medium
+              -
+                columnName: ProbeFileID
+                prettyName: File Name
+              -
+                columnName: ThumbDir
+                prettyName: Thumbnail
     relations:
       -
         members:
           -
-            database: output_051618
+            database: nc2017_dev_2_output_070118
             table: doc
             field: FileID
           -
-            database: merged_051618
+            database: nc2017_dev_070118
             table: doc
             field: ProbeFileID
 
+  -
+    name: Medifor User Workbench (NC2017 Eval + TA1 Set C)
+    datastore: elasticsearch
+    hostname: localhost
+    layout: NC2017_Eval_C
+    connectOnLoad: true
+    databases:
+      -
+        name: nc2017_eval_1_output_070118
+        prettyName: TA1
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+              -
+                columnName: FileID
+                prettyName: File Name
+              -
+                columnName: MergedMask
+                prettyName: Overlay
+              -
+                columnName: NormalizedScore
+                prettyName: Score
+              -
+                columnName: OutputMask
+                prettyName: Mask
+      -
+        name: nc2017_eval_070118
+        prettyName: Input
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+              -
+                columnName: MasksDir
+                prettyName: GT Mask
+              -
+                columnName: ProbeDir
+                prettyName: Medium
+              -
+                columnName: ProbeFileID
+                prettyName: File Name
+              -
+                columnName: ThumbDir
+                prettyName: Thumbnail
+    relations:
+      -
+        members:
+          -
+            database: nc2017_eval_1_output_070118
+            table: doc
+            field: FileID
+          -
+            database: nc2017_eval_070118
+            table: doc
+            field: ProbeFileID
+
+  -
+    name: Medifor User Workbench (All)
+    datastore: elasticsearch
+    hostname: localhost
+    layout: All
+    connectOnLoad: false
+    databases:
+      -
+        name: output_070118
+        prettyName: TA1
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+              -
+                columnName: FileID
+                prettyName: File Name
+              -
+                columnName: MergedMask
+                prettyName: Overlay
+              -
+                columnName: NormalizedScore
+                prettyName: Score
+              -
+                columnName: OutputMask
+                prettyName: Mask
+      -
+        name: merged_070118
+        prettyName: Input
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+              -
+                columnName: MasksDir
+                prettyName: GT Mask
+              -
+                columnName: ProbeDir
+                prettyName: Medium
+              -
+                columnName: ProbeFileID
+                prettyName: File Name
+              -
+                columnName: ThumbDir
+                prettyName: Thumbnail
+    relations:
+      -
+        members:
+          -
+            database: output_070118
+            table: doc
+            field: FileID
+          -
+            database: merged_070118
+            table: doc
+            field: ProbeFileID
+
+#  -
+#    name: Developer Dashboard 07-01-18 (NC2017 Dev + Eval)
+#    datastore: elasticsearch
+#    hostname: localhost
+#    layout: Dev
+#    databases:
+#      -
+#        name: output_070118
+#        prettyName: TA1
+#        tables:
+#          -
+#            name: doc
+#            prettyName: Item
+#            fields:
+#      -
+#        name: merged_070118
+#        prettyName: Input
+#        tables:
+#          -
+#            name: doc
+#            prettyName: Item
+#            fields:
+#    relations:
+#      -
+#        members:
+#          -
+#            database: output_070118
+#            table: doc
+#            field: FileID
+#          -
+#            database: merged_070118
+#            table: doc
+#            field: ProbeFileID
+
 layouts:
-  User:
+  All:
     -
       col: 1
       row: 1
       sizex: 8
-      sizey: 12
+      sizey: 10
       type: thumbnailGrid
       bindings:
         title: Probe Gallery
-        limit: 25
-        database: merged_051618
+        limit: 20
+        database: merged_070118
         table: doc
         ascending: true
         border: grey
         cropAndScale:
         filterField: ProbeFileID
-        idField: _id
+        idField: ProbeFileID
         linkField: ThumbDir
         linkPrefix: http://10.107.5.189:8000
         nameField: ProbeFileID
@@ -112,46 +311,112 @@ layouts:
             tif:
             avi: vid
             mp4: vid
+        customEventsToPublish:
+          -
+            id: show_medium
+            fields:
+              -
+                field: ProbeDir
+              -
+                field: MasksDir
+
+    -
+      col: 1
+      row: 11
+      sizex: 8
+      sizey: 2
+      type: filterBuilder
+
+#    -
+#      col: 9
+#      row: 1
+#      sizex: 8
+#      sizey: 4
+#      type: aggregation
+#      bindings:
+#        type: list
+#        title: Indicators
+#        limit: 100
+#        database: output_070118
+#        table: doc
+#        aggregation: average
+#        aggregationField: NormalizedScore
+#        noFilter: true
+#        showHeat: true
+#        sortByAggregation: true
+#        xField: Indicator
+#        customEventsToPublish:
+#          -
+#            id: show_mask
+#            fields:
+#              -
+#                columnName: OutputMask
+#                prettyName: Mask
+#              -
+#                columnName: MergedMask
+#                prettyName: Overlay
 
     -
       col: 9
       row: 1
       sizex: 8
-      sizey: 6
-      type: barChart
+      sizey: 4
+      type: dataTable
       bindings:
-        title: Manipulations
-        limit: 100
-        database: merged_051618
+        title: Scores
+        database: output_070118
         table: doc
-        dataField: Manipulations
-        aggregation: count
-        andFilters: false
-        chartType: horizontalBar
-        logScale: true
-        saveSeenBars: false
-        yPercentage: 0.3
+        heatmapDivisor: 0.2
+        heatmapField: NormalizedScore
+        idField: Indicator
+        sortField: NormalizedScore
+        skinny: true
+        sortDescending: true
+        unsharedFilterField: Status
+        unsharedFilterValue: Processed
+        allColumnStatus: hide
+        fieldsConfig:
+          -
+            name: Indicator
+          -
+            name: NormalizedScore
+        customEventsToPublish:
+          -
+            id: show_medium
+            fields:
+              -
+                field: OutputMask
+              -
+                field: MergedMask
+
     -
       col: 9
-      row: 7
+      row: 5
       sizex: 8
-      sizey: 6
-      type: barChart
+      sizey: 8
+      type: documentViewer
       bindings:
-        title: Indicators
-        limit: 100
-        database: output_051618
+        title: Metadata
+        limit: 1
+        database: merged_070118
         table: doc
-        dataField: AnalyticName
-        aggregation: average
-        aggregationField: IndicatorScore
-        andFilters: false
-        chartType: horizontalBar
-        saveSeenBars: false
-        scaleManually: true
-        scaleMin: 0
-        scaleMax: 1
-        yPercentage: 0.3
+        dataField: ProbeFileID
+        idField: ProbeFileID
+        nameWidthCss: 220px
+        showSelect: true
+        metadataFields:
+          -
+            name: File Name
+            field: ProbeFileID
+          -
+            name: File Type
+            field: FileType
+          -
+            name: Camera Type
+            field: CameraID
+          -
+            name: Exif Data
+            field: Exif
 
     -
       col: 17
@@ -161,13 +426,14 @@ layouts:
       type: mediaViewer
       bindings:
         title: Probe
-        database: merged_051618
+        database: merged_070118
         table: doc
         border: grey
-        idField: _id
-        linkField: ProbeDir
+        idField: ProbeFileID
+        linkFields:
+          - ProbeDir
+          - MasksDir
         linkPrefix: http://10.107.5.189:8000
-        nameField: ProbeFileID
         typeMap:
             arw:
             bmp: img
@@ -180,96 +446,49 @@ layouts:
             tif:
             avi: vid
             mp4: vid
+        customEventsToReceive:
+          -
+            id: show_medium
+            fields:
+              -
+                field: ProbeDir
+                label: Medium
+              -
+                field: MasksDir
+                label: GT Mask
+              -
+                field: OutputMask
+                label: Mask
+              -
+                field: MergedMask
+                label: Overlay
+
     -
       col: 17
       row: 7
       sizex: 8
-      sizey: 6
-      type: mediaViewer
-      bindings:
-        title: Integrity Mask
-        database: merged_051618
-        table: doc
-        border: grey
-        idField: _id
-        linkField: MasksDir
-        linkPrefix: http://10.107.5.189:8000
-        nameField: ProbeFileID
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-
-    -
-      col: 9
-      row: 13
-      sizex: 8
-      sizey: 4
-      type: documentViewer
-      bindings:
-        title: Metadata
-        limit: 100
-        database: merged_051618
-        table: doc
-        dataField: ProbeFileID
-        idField: _id
-        showSelect: true
-        metadataFields:
-          -
-            name: Media
-            field: ProbeFileID
-          -
-            name: File Type
-            field: FileType
-          -
-            name: Camera
-            field: CameraID
-          -
-            name: Height
-            field: ProbeHeight
-          -
-            name: Width
-            field: ProbeWidth
-
-    -
-      col: 1
-      row: 13
-      sizex: 8
-      sizey: 4
-      type: filterBuilder
-    -
-      col: 17
-      row: 13
-      sizex: 8
       sizey: 4
       type: thumbnailGrid
       bindings:
-        title: Contributors
-        limit: 25
-        database: merged_051618
+        title: Masks
+        limit: 10
+        database: output_070118
         table: doc
         ascending: true
         border: grey
         cropAndScale:
-        filterField: BaseBrowserFileName
-        idField: _id
-        linkField: WorldDir
+        filterField: FileID
+        idField: FileID
+        ignoreSelf: false
+        linkField: OutputMask
         linkPrefix: http://10.107.5.189:8000
-        nameField: BaseBrowserFileName
+        nameField: Indicator
         objectIdField:
         objectNameField:
         openOnMouseClick: false
         percentField:
         predictedNameField:
-        sortField: BaseBrowserFileName
+        sortField: Indicator
         styleClass: style2
         typeMap:
             arw:
@@ -284,23 +503,32 @@ layouts:
             avi: vid
             mp4: vid
 
-  Dev:
+    -
+      col: 17
+      row: 11
+      sizex: 8
+      sizey: 2
+      type: documentViewer
+      bindings:
+        title: Supplemental Information
+
+  NC2017_Dev_A:
     -
       col: 1
       row: 1
       sizex: 8
-      sizey: 12
+      sizey: 10
       type: thumbnailGrid
       bindings:
         title: Probe Gallery
-        limit: 25
-        database: merged_051618
+        limit: 20
+        database: nc2017_dev_070118
         table: doc
         ascending: true
         border: grey
         cropAndScale:
         filterField: ProbeFileID
-        idField: _id
+        idField: ProbeFileID
         linkField: ThumbDir
         linkPrefix: http://10.107.5.189:8000
         nameField: ProbeFileID
@@ -327,46 +555,83 @@ layouts:
             tif:
             avi: vid
             mp4: vid
+        customEventsToPublish:
+          -
+            id: show_medium
+            fields:
+              -
+                field: ProbeDir
+              -
+                field: MasksDir
+
+    -
+      col: 1
+      row: 11
+      sizex: 8
+      sizey: 2
+      type: filterBuilder
 
     -
       col: 9
       row: 1
       sizex: 8
-      sizey: 6
-      type: barChart
+      sizey: 4
+      type: dataTable
       bindings:
-        title: Manipulations
-        limit: 100
-        database: merged_051618
+        title: Scores
+        database: nc2017_dev_1_output_070118
         table: doc
-        dataField: Manipulations
-        aggregation: count
-        andFilters: false
-        chartType: horizontalBar
-        logScale: true
-        saveSeenBars: false
-        yPercentage: 0.3
+        heatmapDivisor: 0.2
+        heatmapField: NormalizedScore
+        idField: Indicator
+        sortField: NormalizedScore
+        skinny: true
+        sortDescending: true
+        unsharedFilterField: Status
+        unsharedFilterValue: Processed
+        allColumnStatus: hide
+        fieldsConfig:
+          -
+            name: Indicator
+          -
+            name: NormalizedScore
+        customEventsToPublish:
+          -
+            id: show_medium
+            fields:
+              -
+                field: OutputMask
+              -
+                field: MergedMask
+
     -
       col: 9
-      row: 7
+      row: 5
       sizex: 8
-      sizey: 6
-      type: barChart
+      sizey: 8
+      type: documentViewer
       bindings:
-        title: Indicators
-        limit: 100
-        database: output_051618
+        title: Metadata
+        limit: 1
+        database: nc2017_dev_070118
         table: doc
-        dataField: AnalyticName
-        aggregation: average
-        aggregationField: IndicatorScore
-        andFilters: false
-        chartType: horizontalBar
-        saveSeenBars: false
-        scaleManually: true
-        scaleMin: 0
-        scaleMax: 1
-        yPercentage: 0.3
+        dataField: ProbeFileID
+        idField: ProbeFileID
+        nameWidthCss: 220px
+        showSelect: true
+        metadataFields:
+          -
+            name: File Name
+            field: ProbeFileID
+          -
+            name: File Type
+            field: FileType
+          -
+            name: Camera Type
+            field: CameraID
+          -
+            name: Exif Data
+            field: Exif
 
     -
       col: 17
@@ -376,13 +641,14 @@ layouts:
       type: mediaViewer
       bindings:
         title: Probe
-        database: merged_051618
+        database: nc2017_dev_070118
         table: doc
         border: grey
-        idField: _id
-        linkField: ProbeDir
+        idField: ProbeFileID
+        linkFields:
+          - ProbeDir
+          - MasksDir
         linkPrefix: http://10.107.5.189:8000
-        nameField: ProbeFileID
         typeMap:
             arw:
             bmp: img
@@ -395,96 +661,49 @@ layouts:
             tif:
             avi: vid
             mp4: vid
+        customEventsToReceive:
+          -
+            id: show_medium
+            fields:
+              -
+                field: ProbeDir
+                label: Medium
+              -
+                field: MasksDir
+                label: GT Mask
+              -
+                field: OutputMask
+                label: Mask
+              -
+                field: MergedMask
+                label: Overlay
+
     -
       col: 17
       row: 7
       sizex: 8
-      sizey: 6
-      type: mediaViewer
-      bindings:
-        title: Integrity Mask
-        database: merged_051618
-        table: doc
-        border: grey
-        idField: _id
-        linkField: MasksDir
-        linkPrefix: http://10.107.5.189:8000
-        nameField: ProbeFileID
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-
-    -
-      col: 9
-      row: 13
-      sizex: 8
-      sizey: 4
-      type: documentViewer
-      bindings:
-        title: Metadata
-        limit: 100
-        database: merged_051618
-        table: doc
-        dataField: ProbeFileID
-        idField: _id
-        showSelect: true
-        metadataFields:
-          -
-            name: Media
-            field: ProbeFileID
-          -
-            name: File Type
-            field: FileType
-          -
-            name: Camera
-            field: CameraID
-          -
-            name: Height
-            field: ProbeHeight
-          -
-            name: Width
-            field: ProbeWidth
-
-    -
-      col: 1
-      row: 13
-      sizex: 8
-      sizey: 4
-      type: filterBuilder
-    -
-      col: 17
-      row: 13
-      sizex: 8
       sizey: 4
       type: thumbnailGrid
       bindings:
-        title: Contributors
-        limit: 25
-        database: merged_051618
+        title: Masks
+        limit: 10
+        database: nc2017_dev_1_output_070118
         table: doc
         ascending: true
         border: grey
         cropAndScale:
-        filterField: BaseBrowserFileName
-        idField: _id
-        linkField: WorldDir
+        filterField: FileID
+        idField: FileID
+        ignoreSelf: false
+        linkField: OutputMask
         linkPrefix: http://10.107.5.189:8000
-        nameField: BaseBrowserFileName
+        nameField: Indicator
         objectIdField:
         objectNameField:
         openOnMouseClick: false
         percentField:
         predictedNameField:
-        sortField: BaseBrowserFileName
+        sortField: Indicator
         styleClass: style2
         typeMap:
             arw:
@@ -500,240 +719,207 @@ layouts:
             mp4: vid
 
     -
-      col: 1
-      row: 17
-      sizex: 8
-      sizey: 4
-      type: textCloud
-      bindings:
-        title: Input Runs
-        limit: 100
-        database: merged_051618
-        table: doc
-        dataField: DataName
-        andFilters: false
-        ignoreSelf: true
-        paragraphs: true
-        showCounts: true
-    -
-      col: 9
-      row: 17
-      sizex: 8
-      sizey: 4
-      type: textCloud
-      bindings:
-        title: Input Tasks
-        limit: 100
-        database: merged_051618
-        table: doc
-        dataField: TaskID
-        andFilters: false
-        ignoreSelf: true
-        paragraphs: true
-        showCounts: true
-    -
       col: 17
-      row: 17
+      row: 11
       sizex: 8
-      sizey: 4
-      type: mediaViewer
+      sizey: 2
+      type: documentViewer
       bindings:
-        title: Contributor (World)
-        database: merged_051618
+        title: Supplemental Information
+
+  NC2017_Dev_B:
+    -
+      col: 1
+      row: 1
+      sizex: 8
+      sizey: 10
+      type: thumbnailGrid
+      bindings:
+        title: Probe Gallery
+        limit: 20
+        database: nc2017_dev_070118
         table: doc
+        ascending: true
         border: grey
-        idField: _id
-        linkField: WorldDir
+        cropAndScale:
+        filterField: ProbeFileID
+        idField: ProbeFileID
+        linkField: ThumbDir
         linkPrefix: http://10.107.5.189:8000
-        nameField: BaseBrowserFileName
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-
-    -
-      col: 1
-      row: 21
-      sizex: 8
-      sizey: 4
-      type: textCloud
-      bindings:
-        title: File Types
-        limit: 100
-        database: merged_051618
-        table: doc
-        dataField: FileType
-        andFilters: false
-        ignoreSelf: true
-        paragraphs: true
-        showCounts: true
-    -
-      col: 9
-      row: 21
-      sizex: 8
-      sizey: 4
-      type: textCloud
-      bindings:
-        title: Is Manipulated?
-        database: merged_051618
-        table: doc
-        dataField: IsTarget
-        andFilters: false
-        ignoreSelf: true
-        paragraphs: true
-        showCounts: true
-    -
-      col: 17
-      row: 21
-      sizex: 8
-      sizey: 4
-      type: textCloud
-      bindings:
-        title: Manipulations
-        limit: 100
-        database: merged_051618
-        table: doc
-        dataField: Manipulations
-        andFilters: false
-        ignoreSelf: true
-        paragraphs: true
-        showCounts: true
-
-    -
-      col: 1
-      row: 25
-      sizex: 8
-      sizey: 4
-      type: textCloud
-      bindings:
-        title: Output Runs
-        limit: 100
-        database: output_051618
-        table: doc
-        dataField: DataName
-        andFilters: false
-        ignoreSelf: true
-        paragraphs: true
-        showCounts: true
-    -
-      col: 9
-      row: 25
-      sizex: 8
-      sizey: 4
-      type: textCloud
-      bindings:
-        title: Analytics
-        limit: 100
-        database: output_051618
-        table: doc
-        dataField: AnalyticName
-        andFilters: false
-        ignoreSelf: true
-        paragraphs: true
-        showCounts: true
-    -
-      col: 17
-      row: 25
-      sizex: 8
-      sizey: 4
-      type: textCloud
-      bindings:
-        title: Output Status
-        limit: 100
-        database: output_051618
-        table: doc
-        dataField: OutputStatus
-        andFilters: false
-        ignoreSelf: true
-        paragraphs: true
-        showCounts: true
-
-    -
-      col: 1
-      row: 29
-      sizex: 8
-      sizey: 4
-      type: dataTable
-      bindings:
-        title: Merged Index & Ref Data
-        database: merged_051618
-        table: doc
-        idField: _id
+        nameField: ProbeFileID
+        objectIdField:
+        objectNameField:
+        openOnMouseClick: false
+        percentField: ManipulationPercentage
+        predictedNameField:
         sortField: ProbeFileID
-        filterable: true
-        ignoreSelf: true
-        singleFilter: true
-        skinny: true
-        sortDescending: false
-        allColumnStatus: hide
-        fieldsConfig:
+        styleClass: style2
+        textMap:
+            actual: Truth
+            percentage: Score
+            prediction:
+        typeMap:
+            arw:
+            bmp: img
+            cr2:
+            iiq:
+            jpg: img
+            jpeg: img
+            nef:
+            png: img
+            tif:
+            avi: vid
+            mp4: vid
+        customEventsToPublish:
           -
-            name: ProbeFileName
-          -
-            name: DataName
-          -
-            name: TaskID
-          -
-            name: IsTarget
-          -
-            name: Manipulations
-        filterFields:
-          -
-            ProbeFileID
+            id: show_medium
+            fields:
+              -
+                field: ProbeDir
+              -
+                field: MasksDir
+
+    -
+      col: 1
+      row: 11
+      sizex: 8
+      sizey: 2
+      type: filterBuilder
+
     -
       col: 9
-      row: 29
+      row: 1
       sizex: 8
       sizey: 4
       type: dataTable
       bindings:
-        title: Output Data
-        database: output_051618
+        title: Scores
+        database: nc2017_dev_2_output_070118
         table: doc
-        idField: _id
-        sortField: FileID
-        filterable: true
-        singleFilter: true
+        heatmapDivisor: 0.2
+        heatmapField: NormalizedScore
+        idField: Indicator
+        sortField: NormalizedScore
         skinny: true
-        sortDescending: false
+        sortDescending: true
+        unsharedFilterField: Status
+        unsharedFilterValue: Processed
         allColumnStatus: hide
         fieldsConfig:
           -
-            name: DataName
+            name: Indicator
           -
-            name: AnalyticName
+            name: NormalizedScore
+        customEventsToPublish:
           -
-            name: FileID
+            id: show_medium
+            fields:
+              -
+                field: OutputMask
+              -
+                field: MergedMask
+
+    -
+      col: 9
+      row: 5
+      sizex: 8
+      sizey: 8
+      type: documentViewer
+      bindings:
+        title: Metadata
+        limit: 1
+        database: nc2017_dev_070118
+        table: doc
+        dataField: ProbeFileID
+        idField: ProbeFileID
+        nameWidthCss: 220px
+        showSelect: true
+        metadataFields:
           -
-            name: IndicatorScore
+            name: File Name
+            field: ProbeFileID
           -
-            name: OutputStatus
-        filterFields:
+            name: File Type
+            field: FileType
           -
-            FileID
+            name: Camera Type
+            field: CameraID
+          -
+            name: Exif Data
+            field: Exif
+
     -
       col: 17
-      row: 29
+      row: 1
       sizex: 8
-      sizey: 4
+      sizey: 6
       type: mediaViewer
       bindings:
-        title: Output Mask
-        database: output_051618
+        title: Probe
+        database: nc2017_dev_070118
         table: doc
         border: grey
-        idField: _id
-        linkField: mask
+        idField: ProbeFileID
+        linkFields:
+          - ProbeDir
+          - MasksDir
         linkPrefix: http://10.107.5.189:8000
-        nameField: FileID
+        typeMap:
+            arw:
+            bmp: img
+            cr2:
+            iiq:
+            jpg: img
+            jpeg: img
+            nef:
+            png: img
+            tif:
+            avi: vid
+            mp4: vid
+        customEventsToReceive:
+          -
+            id: show_medium
+            fields:
+              -
+                field: ProbeDir
+                label: Medium
+              -
+                field: MasksDir
+                label: GT Mask
+              -
+                field: OutputMask
+                label: Mask
+              -
+                field: MergedMask
+                label: Overlay
+
+    -
+      col: 17
+      row: 7
+      sizex: 8
+      sizey: 4
+      type: thumbnailGrid
+      bindings:
+        title: Masks
+        limit: 10
+        database: nc2017_dev_2_output_070118
+        table: doc
+        ascending: true
+        border: grey
+        cropAndScale:
+        filterField: FileID
+        idField: FileID
+        ignoreSelf: false
+        linkField: OutputMask
+        linkPrefix: http://10.107.5.189:8000
+        nameField: Indicator
+        objectIdField:
+        objectNameField:
+        openOnMouseClick: false
+        percentField:
+        predictedNameField:
+        sortField: Indicator
+        styleClass: style2
         typeMap:
             arw:
             bmp: img
@@ -748,16 +934,689 @@ layouts:
             mp4: vid
 
     -
-      col: 1
-      row: 33
-      sizex: 24
-      sizey: 4
-      type: barChart
+      col: 17
+      row: 11
+      sizex: 8
+      sizey: 2
+      type: documentViewer
       bindings:
-        title: Number of Images per Rounded Indicator Score
-        limit: 500
-        database: output_051618
+        title: Supplemental Information
+
+  NC2017_Eval_C:
+    -
+      col: 1
+      row: 1
+      sizex: 8
+      sizey: 10
+      type: thumbnailGrid
+      bindings:
+        title: Probe Gallery
+        limit: 20
+        database: nc2017_eval_070118
         table: doc
-        dataField: rounded
-        saveSeenBars: false
-        sortAlphabetically: true
+        ascending: true
+        border: grey
+        cropAndScale:
+        filterField: ProbeFileID
+        idField: ProbeFileID
+        linkField: ThumbDir
+        linkPrefix: http://10.107.5.189:8000
+        nameField: ProbeFileID
+        objectIdField:
+        objectNameField:
+        openOnMouseClick: false
+        percentField: ManipulationPercentage
+        predictedNameField:
+        sortField: ProbeFileID
+        styleClass: style2
+        textMap:
+            actual: Truth
+            percentage: Score
+            prediction:
+        typeMap:
+            arw:
+            bmp: img
+            cr2:
+            iiq:
+            jpg: img
+            jpeg: img
+            nef:
+            png: img
+            tif:
+            avi: vid
+            mp4: vid
+        customEventsToPublish:
+          -
+            id: show_medium
+            fields:
+              -
+                field: ProbeDir
+              -
+                field: MasksDir
+
+    -
+      col: 1
+      row: 11
+      sizex: 8
+      sizey: 2
+      type: filterBuilder
+
+    -
+      col: 9
+      row: 1
+      sizex: 8
+      sizey: 4
+      type: dataTable
+      bindings:
+        title: Scores
+        database: nc2017_eval_1_output_070118
+        table: doc
+        heatmapDivisor: 0.2
+        heatmapField: NormalizedScore
+        idField: Indicator
+        sortField: NormalizedScore
+        skinny: true
+        sortDescending: true
+        unsharedFilterField: Status
+        unsharedFilterValue: Processed
+        allColumnStatus: hide
+        fieldsConfig:
+          -
+            name: Indicator
+          -
+            name: NormalizedScore
+        customEventsToPublish:
+          -
+            id: show_medium
+            fields:
+              -
+                field: OutputMask
+              -
+                field: MergedMask
+
+    -
+      col: 9
+      row: 5
+      sizex: 8
+      sizey: 8
+      type: documentViewer
+      bindings:
+        title: Metadata
+        limit: 1
+        database: nc2017_eval_070118
+        table: doc
+        dataField: ProbeFileID
+        idField: ProbeFileID
+        nameWidthCss: 220px
+        showSelect: true
+        metadataFields:
+          -
+            name: File Name
+            field: ProbeFileID
+          -
+            name: File Type
+            field: FileType
+          -
+            name: Camera Type
+            field: CameraID
+          -
+            name: Exif Data
+            field: Exif
+
+    -
+      col: 17
+      row: 1
+      sizex: 8
+      sizey: 6
+      type: mediaViewer
+      bindings:
+        title: Probe
+        database: nc2017_eval_070118
+        table: doc
+        border: grey
+        idField: ProbeFileID
+        linkFields:
+          - ProbeDir
+          - MasksDir
+        linkPrefix: http://10.107.5.189:8000
+        typeMap:
+            arw:
+            bmp: img
+            cr2:
+            iiq:
+            jpg: img
+            jpeg: img
+            nef:
+            png: img
+            tif:
+            avi: vid
+            mp4: vid
+        customEventsToReceive:
+          -
+            id: show_medium
+            fields:
+              -
+                field: ProbeDir
+                label: Medium
+              -
+                field: MasksDir
+                label: GT Mask
+              -
+                field: OutputMask
+                label: Mask
+              -
+                field: MergedMask
+                label: Overlay
+
+    -
+      col: 17
+      row: 7
+      sizex: 8
+      sizey: 4
+      type: thumbnailGrid
+      bindings:
+        title: Masks
+        limit: 10
+        database: nc2017_eval_1_output_070118
+        table: doc
+        ascending: true
+        border: grey
+        cropAndScale:
+        filterField: FileID
+        idField: FileID
+        ignoreSelf: false
+        linkField: OutputMask
+        linkPrefix: http://10.107.5.189:8000
+        nameField: Indicator
+        objectIdField:
+        objectNameField:
+        openOnMouseClick: false
+        percentField:
+        predictedNameField:
+        sortField: Indicator
+        styleClass: style2
+        typeMap:
+            arw:
+            bmp: img
+            cr2:
+            iiq:
+            jpg: img
+            jpeg: img
+            nef:
+            png: img
+            tif:
+            avi: vid
+            mp4: vid
+
+    -
+      col: 17
+      row: 11
+      sizex: 8
+      sizey: 2
+      type: documentViewer
+      bindings:
+        title: Supplemental Information
+
+#  Dev:
+#    -
+#      col: 1
+#      row: 1
+#      sizex: 8
+#      sizey: 12
+#      type: thumbnailGrid
+#      bindings:
+#        title: Probe Gallery
+#        limit: 20
+#        database: merged_070118
+#        table: doc
+#        ascending: true
+#        border: grey
+#        cropAndScale:
+#        filterField: ProbeFileID
+#        idField: _id
+#        linkField: ProbeDir
+#        linkPrefix: http://10.107.5.189:8000
+#        nameField: ProbeFileID
+#        objectIdField:
+#        objectNameField:
+#        openOnMouseClick: false
+#        percentField: ManipulationPercentage
+#        predictedNameField:
+#        sortField: ProbeFileID
+#        styleClass: style2
+#        textMap:
+#            actual: Truth
+#            percentage: Score
+#            prediction:
+#        typeMap:
+#            arw:
+#            bmp: img
+#            cr2:
+#            iiq:
+#            jpg: img
+#            jpeg: img
+#            nef:
+#            png: img
+#            tif:
+#            avi: vid
+#            mp4: vid
+#
+#    -
+#      col: 9
+#      row: 1
+#      sizex: 8
+#      sizey: 6
+#      type: barChart
+#      bindings:
+#        title: Manipulations
+#        limit: 100
+#        database: merged_070118
+#        table: doc
+#        dataField: Manipulations
+#        aggregation: count
+#        andFilters: false
+#        chartType: horizontalBar
+#        logScale: true
+#        saveSeenBars: false
+#        yPercentage: 0.3
+#    -
+#      col: 9
+#      row: 7
+#      sizex: 8
+#      sizey: 6
+#      type: barChart
+#      bindings:
+#        title: Indicators
+#        limit: 100
+#        database: output_070118
+#        table: doc
+#        dataField: Indicator
+#        aggregation: average
+#        aggregationField: Score
+#        andFilters: false
+#        chartType: horizontalBar
+#        saveSeenBars: false
+#        scaleManually: true
+#        scaleMin: 0
+#        scaleMax: 1
+#        yPercentage: 0.3
+#
+#    -
+#      col: 17
+#      row: 1
+#      sizex: 8
+#      sizey: 6
+#      type: mediaViewer
+#      bindings:
+#        title: Probe
+#        database: merged_070118
+#        table: doc
+#        border: grey
+#        idField: _id
+#        linkField: ProbeDir
+#        linkPrefix: http://10.107.5.189:8000
+#        nameField: ProbeFileID
+#        typeMap:
+#            arw:
+#            bmp: img
+#            cr2:
+#            iiq:
+#            jpg: img
+#            jpeg: img
+#            nef:
+#            png: img
+#            tif:
+#            avi: vid
+#            mp4: vid
+#    -
+#      col: 17
+#      row: 7
+#      sizex: 8
+#      sizey: 6
+#      type: mediaViewer
+#      bindings:
+#        title: Integrity Mask
+#        database: merged_070118
+#        table: doc
+#        border: grey
+#        idField: _id
+#        linkField: MasksDir
+#        linkPrefix: http://10.107.5.189:8000
+#        nameField: ProbeFileID
+#        typeMap:
+#            arw:
+#            bmp: img
+#            cr2:
+#            iiq:
+#            jpg: img
+#            jpeg: img
+#            nef:
+#            png: img
+#            tif:
+#            avi: vid
+#            mp4: vid
+#
+#    -
+#      col: 9
+#      row: 13
+#      sizex: 8
+#      sizey: 4
+#      type: documentViewer
+#      bindings:
+#        title: Metadata
+#        limit: 100
+#        database: merged_070118
+#        table: doc
+#        dataField: ProbeFileID
+#        idField: _id
+#        showSelect: true
+#        metadataFields:
+#          -
+#            name: Media
+#            field: ProbeFileID
+#          -
+#            name: File Type
+#            field: FileType
+#          -
+#            name: Camera
+#            field: CameraID
+#          -
+#            name: Height
+#            field: ProbeHeight
+#          -
+#            name: Width
+#            field: ProbeWidth
+#
+#    -
+#      col: 1
+#      row: 13
+#      sizex: 8
+#      sizey: 4
+#      type: filterBuilder
+#    -
+#      col: 17
+#      row: 13
+#      sizex: 8
+#      sizey: 4
+#      type: thumbnailGrid
+#      bindings:
+#        title: Contributors
+#        limit: 20
+#        database: merged_070118
+#        table: doc
+#        ascending: true
+#        border: grey
+#        cropAndScale:
+#        filterField: BaseBrowserFileName
+#        idField: _id
+#        linkField: WorldDir
+#        linkPrefix: http://10.107.5.189:8000
+#        nameField: BaseBrowserFileName
+#        objectIdField:
+#        objectNameField:
+#        openOnMouseClick: false
+#        percentField:
+#        predictedNameField:
+#        sortField: BaseBrowserFileName
+#        styleClass: style2
+#        typeMap:
+#            arw:
+#            bmp: img
+#            cr2:
+#            iiq:
+#            jpg: img
+#            jpeg: img
+#            nef:
+#            png: img
+#            tif:
+#            avi: vid
+#            mp4: vid
+#
+#    -
+#      col: 1
+#      row: 17
+#      sizex: 8
+#      sizey: 4
+#      type: textCloud
+#      bindings:
+#        title: Input Runs
+#        limit: 100
+#        database: merged_070118
+#        table: doc
+#        dataField: Run
+#        andFilters: false
+#        ignoreSelf: true
+#        paragraphs: true
+#        showCounts: true
+#    -
+#      col: 9
+#      row: 17
+#      sizex: 8
+#      sizey: 4
+#      type: textCloud
+#      bindings:
+#        title: Input Tasks
+#        limit: 100
+#        database: merged_070118
+#        table: doc
+#        dataField: TaskID
+#        andFilters: false
+#        ignoreSelf: true
+#        paragraphs: true
+#        showCounts: true
+#    -
+#      col: 17
+#      row: 17
+#      sizex: 8
+#      sizey: 4
+#      type: mediaViewer
+#      bindings:
+#        title: Contributor (World)
+#        database: merged_070118
+#        table: doc
+#        border: grey
+#        idField: _id
+#        linkField: WorldDir
+#        linkPrefix: http://10.107.5.189:8000
+#        nameField: BaseBrowserFileName
+#        typeMap:
+#            arw:
+#            bmp: img
+#            cr2:
+#            iiq:
+#            jpg: img
+#            jpeg: img
+#            nef:
+#            png: img
+#            tif:
+#            avi: vid
+#            mp4: vid
+#
+#    -
+#      col: 1
+#      row: 21
+#      sizex: 8
+#      sizey: 4
+#      type: textCloud
+#      bindings:
+#        title: File Types
+#        limit: 100
+#        database: merged_070118
+#        table: doc
+#        dataField: FileType
+#        andFilters: false
+#        ignoreSelf: true
+#        paragraphs: true
+#        showCounts: true
+#    -
+#      col: 9
+#      row: 21
+#      sizex: 8
+#      sizey: 4
+#      type: textCloud
+#      bindings:
+#        title: Is Manipulated?
+#        database: merged_070118
+#        table: doc
+#        dataField: IsTarget
+#        andFilters: false
+#        ignoreSelf: true
+#        paragraphs: true
+#        showCounts: true
+#    -
+#      col: 17
+#      row: 21
+#      sizex: 8
+#      sizey: 4
+#      type: textCloud
+#      bindings:
+#        title: Manipulations
+#        limit: 100
+#        database: merged_070118
+#        table: doc
+#        dataField: Manipulations
+#        andFilters: false
+#        ignoreSelf: true
+#        paragraphs: true
+#        showCounts: true
+#
+#    -
+#      col: 1
+#      row: 25
+#      sizex: 8
+#      sizey: 4
+#      type: textCloud
+#      bindings:
+#        title: Output Runs
+#        limit: 100
+#        database: output_070118
+#        table: doc
+#        dataField: Run
+#        andFilters: false
+#        ignoreSelf: true
+#        paragraphs: true
+#        showCounts: true
+#    -
+#      col: 9
+#      row: 25
+#      sizex: 8
+#      sizey: 4
+#      type: textCloud
+#      bindings:
+#        title: Analytics
+#        limit: 100
+#        database: output_070118
+#        table: doc
+#        dataField: Indicator
+#        andFilters: false
+#        ignoreSelf: true
+#        paragraphs: true
+#        showCounts: true
+#    -
+#      col: 17
+#      row: 25
+#      sizex: 8
+#      sizey: 4
+#      type: textCloud
+#      bindings:
+#        title: Output Status
+#        limit: 100
+#        database: output_070118
+#        table: doc
+#        dataField: Status
+#        andFilters: false
+#        ignoreSelf: true
+#        paragraphs: true
+#        showCounts: true
+#
+#    -
+#      col: 1
+#      row: 29
+#      sizex: 8
+#      sizey: 4
+#      type: dataTable
+#      bindings:
+#        title: Merged Index & Ref Data
+#        database: merged_070118
+#        table: doc
+#        idField: _id
+#        sortField: ProbeFileID
+#        filterable: true
+#        ignoreSelf: true
+#        singleFilter: true
+#        skinny: true
+#        sortDescending: false
+#        allColumnStatus: hide
+#        fieldsConfig:
+#          -
+#            name: ProbeFileName
+#          -
+#            name: Run
+#          -
+#            name: TaskID
+#          -
+#            name: IsTarget
+#          -
+#            name: Manipulations
+#        filterFields:
+#          -
+#            ProbeFileID
+#    -
+#      col: 9
+#      row: 29
+#      sizex: 8
+#      sizey: 4
+#      type: dataTable
+#      bindings:
+#        title: Output Data
+#        database: output_070118
+#        table: doc
+#        idField: _id
+#        sortField: FileID
+#        filterable: true
+#        singleFilter: true
+#        skinny: true
+#        sortDescending: false
+#        allColumnStatus: hide
+#        fieldsConfig:
+#          -
+#            name: Run
+#          -
+#            name: Indicator
+#          -
+#            name: FileID
+#          -
+#            name: Score
+#          -
+#            name: Status
+#        filterFields:
+#          -
+#            FileID
+#    -
+#      col: 17
+#      row: 29
+#      sizex: 8
+#      sizey: 4
+#      type: mediaViewer
+#      bindings:
+#        title: Output Mask
+#        database: output_070118
+#        table: doc
+#        border: grey
+#        idField: _id
+#        linkField: mask
+#        linkPrefix: http://10.107.5.189:8000
+#        nameField: FileID
+#        typeMap:
+#            arw:
+#            bmp: img
+#            cr2:
+#            iiq:
+#            jpg: img
+#            jpeg: img
+#            nef:
+#            png: img
+#            tif:
+#            avi: vid
+#            mp4: vid
+
