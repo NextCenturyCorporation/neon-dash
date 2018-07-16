@@ -71,18 +71,18 @@ export class ColorSchemeService {
     // Palette generated with http://tools.medialab.sciences-po.fr/iwanthue/
     private colorList = [
         [
-            new Color(31, 120, 180),
-            new Color(51, 160, 44),
-            new Color(227, 26, 28),
-            new Color(255, 127, 0),
-            new Color(106, 61, 154),
-            new Color(177, 89, 40),
-            new Color(166, 206, 227),
-            new Color(178, 223, 138),
-            new Color(251, 154, 153),
-            new Color(253, 191, 111),
-            new Color(202, 178, 214),
-            new Color(84, 95, 43)
+            new Color(250, 57, 47),
+            new Color(0, 162, 215),
+            new Color(1, 178, 6),
+            new Color(39, 12, 114),
+            new Color(124, 135, 205),
+            new Color(255, 98, 0),
+            new Color(58, 93, 0),
+            new Color(1, 89, 180),
+            new Color(192, 131, 16),
+            new Color(144, 94, 155),
+            new Color(255, 126, 168),
+            new Color(158, 0, 82)
         ],
         [
             new Color(228, 26, 28),
@@ -115,12 +115,12 @@ export class ColorSchemeService {
             new Color(31, 137, 255),
             new Color(255, 163, 72),
             new Color(0, 89, 162),
-            new Color(136, 232, 164),
+            new Color(53, 202, 164),
             new Color(111, 0, 60),
             new Color(0, 123, 45),
             new Color(221, 142, 194),
             new Color(0, 77, 1),
-            new Color(255, 143, 132),
+            new Color(205, 143, 132),
             new Color(119, 79, 0)
         ],
         [
