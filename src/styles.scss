@@ -100,88 +100,104 @@ body {
 }
 
 /* Icons */
-.icon-BarChart64 {
-    background-position: -192px -64px
+.icon-AnnotationViewer {
+    background: url("assets/icons/annotation_viewer.svg")
 }
 
-.icon-Count64 {
-    background-position: -192px -128px
+.icon-BarChart {
+    background: url("assets/icons/bar_chart.svg")
 }
 
-.icon-CreateFilter64 {
-    background-position: 0 -192px
+.icon-Count {
+    background: url("assets/icons/count.svg")
 }
 
-.icon-DocumentViewer64 {
-    background-position: -290px -256px
+.icon-CreateFilter {
+    background: url("assets/icons/filter_builder.svg")
 }
 
-.icon-Gantt64 {
-    background-position: -64px -192px
+.icon-DataSource {
+    background: url("assets/icons/dataset_connector.svg")
 }
 
-.icon-Graph64 {
-    background-position: -128px -192px
+.icon-DocumentViewer {
+    background: url("assets/icons/document_viewer.svg")
 }
 
-.icon-LineChart64 {
-    background-position: 0 0
+.icon-Gantt {
+    background: url("assets/icons/gant_chart.svg")
 }
 
-.icon-Map64 {
-    background-position: -256px 0
+.icon-Graph {
+    background: url("assets/icons/network_graph.svg")
 }
 
-.icon-MediaViewer64 {
-    background-position: -124px -256px;
+.icon-LineChart {
+    background: url("assets/icons/line_chart.svg")
 }
 
-.icon-Neon64 {
-    background-position: -124px -256px;
+.icon-Map {
+    background: url("assets/icons/map.svg")
 }
 
-.icon-NetworkGraph64 {
-    background-position: -128px -192px
+.icon-MediaViewer {
+    background: url("assets/icons/neon_logo.svg")
 }
 
-.icon-News64 {
-    background-position: -256px -64px
+.icon-Neon {
+    background: url("assets/icons/neon_logo.svg")
 }
 
-.icon-OPS64 {
-    background-position: -256px -128px
+.icon-NetworkGraph {
+    background: url("assets/icons/network_graph.svg")
 }
 
-.icon-OpsClock64 {
-    background-position: -256px -192px
+.icon-News {
+    background: url("assets/icons/news_feed.svg")
 }
 
-.icon-PieChart64 {
-    background-position: 0 -256px;
+.icon-OPS {
+    background: url("assets/icons/ops.svg")
 }
 
-.icon-ScatterPlot64 {
-    background-position: -64px -256px
+.icon-OpsClock {
+    background: url("assets/icons/ops_clock.svg")
 }
 
-.icon-Sunburst64 {
-    background-position: -192px 0
+.icon-PieChart {
+    background: url("assets/icons/pie_chart.svg")
 }
 
-.icon-TagCloud64 {
-    background-position: -128px -128px
+.icon-ScatterPlot {
+    background: url("assets/icons/scatter_plot.svg")
 }
 
-.icon-Timeline64 {
-    background-position: -64px -128px
+.icon-StackedTimeline {
+    background: url("assets/icons/stacked_timeline.svg")
 }
 
-.icon-ViewData64 {
-    background-position: 0 -128px
+.icon-Sunburst {
+    background: url("assets/icons/sunburst_chart.svg")
 }
 
-.icon-WikiViewer64 {
-    background-position: -5px -320px
+.icon-TagCloud {
+    background: url("assets/icons/text_cloud.svg")
+}
+
+.icon-Timeline {
+    background: url("assets/icons/timeline.svg")
+}
+
+.icon-ThumbnailGrid {
+    background: url("assets/icons/thumbnail_grid.svg")
+}
+
+.icon-ViewData {
+    background: url("assets/icons/data_table.svg")
+}
+
+.icon-WikiViewer {
+    background: url("assets/icons/wiki_viewer.svg")
 }
 /* End Icons */
 
@@ -193,9 +209,18 @@ body {
 .neon-sprite {
     display: inline-block;
     vertical-align: middle;
-    background-image: url("assets/images/spritesheet.png");
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
+    margin: 5px;
+    
+}
+
+.neon-icon-navBar {
+    display: inline-block;
+    vertical-align: middle;
+    width: 25px;
+    height: 25px;
+    margin: 5px;
 }
 
 /* Loading Spinner */

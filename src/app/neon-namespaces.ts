@@ -110,55 +110,55 @@ export namespace neonVisualizationMinPixel { // jshint ignore:line
 export const neonVisualizations: any[] = [{
     name: 'Annotation Viewer',
     type: 'annotationViewer',
-    icon: 'DocumentViewer64'
+    icon: 'AnnotationViewer'
 }, {
     name: 'Bar Chart',
     type: 'barChart',
-    icon: 'BarChart64'
+    icon: 'BarChart'
 }, {
     name: 'Data Table',
     type: 'dataTable',
-    icon: 'ViewData64'
+    icon: 'ViewData'
 }, {
     name: 'Document Viewer',
     type: 'documentViewer',
-    icon: 'DocumentViewer64'
+    icon: 'DocumentViewer'
 }, {
     name: 'Filter Builder',
     type: 'filterBuilder',
-    icon: 'CreateFilter64'
+    icon: 'CreateFilter'
 }, {
     name: 'Line Chart',
     type: 'lineChart',
-    icon: 'LineChart64'
+    icon: 'LineChart'
 }, {
     name: 'Map',
     type: 'map',
-    icon: 'Map64'
+    icon: 'Map'
 }, {
     name: 'Media Viewer',
     type: 'mediaViewer',
-    icon: 'MediaViewer64'
+    icon: 'MediaViewer'
 }, {
     name: 'Network Graph',
     type: 'networkGraph',
-    icon: 'NetworkGraph64'
+    icon: 'NetworkGraph'
 }, {
     name: 'Sample',
     type: 'sample',
-    icon: 'Neon64'
+    icon: 'Neon'
 }, {
     name: 'Scatter Plot',
     type: 'scatterPlot',
-    icon: 'ScatterPlot64'
+    icon: 'ScatterPlot'
 }, {
     name: 'Stacked Timeline',
     type: 'stackedTimeline',
-    icon: 'Timeline64'
+    icon: 'StackedTimeline'
 }, {
     name: 'Text Cloud',
     type: 'textCloud',
-    icon: 'TagCloud64'
+    icon: 'TagCloud'
 }, {
     name: 'Thumbnail Grid',
     type: 'thumbnailGrid',
@@ -166,9 +166,9 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'Timeline',
     type: 'timeline',
-    icon: 'Timeline64'
+    icon: 'Timeline'
 }, {
     name: 'Wiki Viewer',
     type: 'wikiViewer',
-    icon: 'WikiViewer64'
+    icon: 'WikiViewer'
 }];
