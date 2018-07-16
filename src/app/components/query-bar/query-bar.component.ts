@@ -83,7 +83,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
     queryValues: string[] = [];
     queryArray: any[];
     filterIds: string[] = [];
-    currentFilter: string = "";
+    currentFilter: string = '';
 
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public filterId = new BehaviorSubject<string>(undefined);
@@ -131,7 +131,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
         this.queryArray = [];
 
         let setValues = true;
-        if(this.queryValues && this.queryValues.length){
+        if (this.queryValues && this.queryValues.length) {
             setValues = false;
         }
 
@@ -155,7 +155,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
                     this.queryArray.push(item);
                 });
 
-                if(setValues) {
+                if (setValues) {
                     this.queryValues = this.queryValues.filter((value, index, array) => array.indexOf(value) === index);
                 }
 
@@ -279,7 +279,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
         }
 
         //filters query text
-        if(text && text !== this.currentFilter) {
+        if (text && text !== this.currentFilter) {
             let values = this.queryArray.filter((value) =>
                 value[this.options.filterField.columnName].toLowerCase() === text.toLowerCase()),
                 clause: WherePredicate;
@@ -287,7 +287,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
             if (values.length) {
                 clause = neon.query.where(this.options.filterField.columnName, '=', text);
 
-                if(this.currentFilter && this.filterIds){
+                if (this.currentFilter && this.filterIds) {
                     this.removeAllFilters(this.filterService.getFilters());
                 }
 
@@ -299,8 +299,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
                         this.extensionFilter(text, ef, values);
                     }
                 }
-            }
-            else{
+            } else {
                 this.removeAllFilters(this.filterService.getFilters());
             }
         }
@@ -414,7 +413,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
             }
         }
 
-        if(whereClauses.length){
+        if (whereClauses.length) {
             clause = neon.query.or.apply(neon.query, whereClauses);
             this.filterId.next(this.id);
             this.addFilter(text, clause, fields.idField, fields.database, fields.table);
