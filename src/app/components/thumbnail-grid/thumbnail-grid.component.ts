@@ -39,7 +39,6 @@ import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-
 import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import * as _ from 'lodash';
 
 /**
  * Manages configurable options for the specific visualization.
@@ -53,6 +52,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public id: string;
     public idField: FieldMetaData;
     public idMetadata: string;
+    public ignoreSelf: boolean;
     public linkField: FieldMetaData;
     public linkPrefix: string;
     public nameField: FieldMetaData;
@@ -79,6 +79,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.cropAndScale = this.injector.get('cropAndScale', '') || '';
         this.id = this.injector.get('id', '');
         this.idMetadata = this.injector.get('idMetadata', '');
+        this.ignoreSelf = this.injector.get('ignoreSelf', true);
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
         this.scaleThumbnails = this.injector.get('scaleThumbnails', false); // Deprecated - Use cropAndScale = 'scale'
@@ -311,6 +312,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             Math.min(this.page * this.options.limit, this.gridArray.length));
         this.refreshVisualization();
         this.createMediaThumbnail();
+        this.refreshVisualization();
     }
 
     /**
@@ -388,6 +390,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     getFiltersToIgnore(): any[] {
+        if (!this.options.ignoreSelf) {
+            return null;
+        }
+
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             this.options.filterField.columnName ? [this.options.filterField.columnName] : undefined);
 
@@ -480,6 +486,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     onQuerySuccess(response) {
         this.gridArray = [];
+        this.pagingGrid = [];
         this.errorMessage = '';
         this.lastPage = true;
         this.page = 1;
@@ -490,19 +497,39 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.isLoading = true;
                 this.showGrid = true;
                 response.data.forEach((d) => {
-                    let item = {},
-                        links: any;
-                    for (let field of this.options.fields) {
-                        if (field.columnName === this.options.linkField.columnName) {
-                            links = this.getArrayValues(neonUtilities.deepFind(d, this.options.linkField.columnName) || '');
-                        } else if (field.type || field.columnName === '_id') {
-                            let value = neonUtilities.deepFind(d, field.columnName);
-                            if (typeof value !== 'undefined') {
-                                item[field.columnName] = value;
-                            }
-                        }
+                    let item = {};
+                    let links = this.getArrayValues(neonUtilities.deepFind(d, this.options.linkField.columnName) || '');
+                    if (this.options.categoryField.columnName) {
+                        item[this.options.categoryField.columnName] = neonUtilities.deepFind(d, this.options.categoryField.columnName);
                     }
-
+                    if (this.options.filterField.columnName) {
+                        item[this.options.filterField.columnName] = neonUtilities.deepFind(d, this.options.filterField.columnName);
+                    }
+                    if (this.options.idField.columnName) {
+                        item[this.options.idField.columnName] = neonUtilities.deepFind(d, this.options.idField.columnName);
+                    }
+                    if (this.options.nameField.columnName) {
+                        item[this.options.nameField.columnName] = neonUtilities.deepFind(d, this.options.nameField.columnName);
+                    }
+                    if (this.options.objectIdField.columnName) {
+                        item[this.options.objectIdField.columnName] = neonUtilities.deepFind(d, this.options.objectIdField.columnName);
+                    }
+                    if (this.options.objectNameField.columnName) {
+                        item[this.options.objectNameField.columnName] = neonUtilities.deepFind(d, this.options.objectNameField.columnName);
+                    }
+                    if (this.options.percentField.columnName) {
+                        item[this.options.percentField.columnName] = neonUtilities.deepFind(d, this.options.percentField.columnName);
+                    }
+                    if (this.options.predictedNameField.columnName) {
+                        item[this.options.predictedNameField.columnName] = neonUtilities.deepFind(d,
+                            this.options.predictedNameField.columnName);
+                    }
+                    if (this.options.sortField.columnName) {
+                        item[this.options.sortField.columnName] = neonUtilities.deepFind(d, this.options.sortField.columnName);
+                    }
+                    if (this.options.typeField.columnName) {
+                        item[this.options.typeField.columnName] = neonUtilities.deepFind(d, this.options.typeField.columnName);
+                    }
                     for (let link of links) {
                         this.retreiveMedia(item, link);
                     }
@@ -511,6 +538,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.pagingGrid = this.gridArray.slice(0, this.options.limit);
                 this.refreshVisualization();
                 this.createMediaThumbnail();
+                this.refreshVisualization();
                 this.isLoading = false;
 
             } else {
@@ -518,7 +546,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.refreshVisualization();
             }
         } catch (e) {
-            console.error(this.options.title + ' Error: ' + e);
+            console.error(this.options.title + ' Error:', e);
             this.errorMessage = 'Error';
             this.refreshVisualization();
         }
@@ -582,7 +610,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     private retreiveMedia(item, link) {
         let gridIndex = this.gridArray.length > 0 ? this.gridArray.length : 0;
-        let grid = _.cloneDeep(item);
+        let grid = item;
         grid[this.options.linkField.columnName] = this.options.linkPrefix + link;
         this.gridArray[gridIndex] = grid;
     }
@@ -594,9 +622,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @private
      */
     private getArrayValues(value) {
-        return Array.isArray(value) ?
-            value : value.toString().search(/,/g) > -1 ?
-            value.toString().split(',') : [value];
+        return value ? (Array.isArray(value) ?  value : value.toString().search(/,/g) > -1 ?  value.toString().split(',') : [value]) : [];
     }
 
     /**
@@ -640,7 +666,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         } else {
                             thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
                         }
-
                     };
                     break;
                 }
@@ -684,8 +709,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' + this.options.border);
             }
         });
-
-        this.refreshVisualization();
     }
 
     /**
@@ -756,6 +779,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.border = this.options.border;
         bindings.cropAndScale = this.options.cropAndScale;
         bindings.idMetadata = this.options.idMetadata;
+        bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.linkPrefix = this.options.linkPrefix;
         bindings.openOnMouseClick = this.options.openOnMouseClick;
         bindings.textMap = this.options.textMap;

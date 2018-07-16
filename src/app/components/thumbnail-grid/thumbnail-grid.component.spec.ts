@@ -83,6 +83,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.border).toEqual('');
         expect(component.options.cropAndScale).toEqual('');
         expect(component.options.id).toEqual('');
+        expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.linkPrefix).toEqual('');
         expect(component.options.openOnMouseClick).toEqual(true);
         expect(component.options.styleClass).toEqual('');
@@ -376,7 +377,7 @@ describe('Component: ThumbnailGrid', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(8);
+            expect(toggles.length).toEqual(10);
 
             expect(toggles[0].componentInstance.value).toEqual('');
             expect(toggles[0].nativeElement.textContent).toContain('None');
@@ -394,21 +395,29 @@ describe('Component: ThumbnailGrid', () => {
             expect(toggles[3].nativeElement.textContent).toContain('Both');
             expect(toggles[3].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
-            expect(toggles[4].componentInstance.value).toEqual(true);
+            expect(toggles[4].componentInstance.value).toEqual(false);
             expect(toggles[4].nativeElement.textContent).toContain('Yes');
-            expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
-            expect(toggles[5].componentInstance.value).toEqual(false);
+            expect(toggles[5].componentInstance.value).toEqual(true);
             expect(toggles[5].nativeElement.textContent).toContain('No');
-            expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[6].componentInstance.value).toEqual(true);
-            expect(toggles[6].nativeElement.textContent).toContain('Ascending');
-            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            expect(toggles[6].nativeElement.textContent).toContain('Yes');
+            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[7].componentInstance.value).toEqual(false);
-            expect(toggles[7].nativeElement.textContent).toContain('Descending');
-            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles[7].nativeElement.textContent).toContain('No');
+            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[8].componentInstance.value).toEqual(true);
+            expect(toggles[8].nativeElement.textContent).toContain('Ascending');
+            expect(toggles[8].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[9].componentInstance.value).toEqual(false);
+            expect(toggles[9].nativeElement.textContent).toContain('Descending');
+            expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
         });
     }));
 
@@ -1347,8 +1356,17 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('onQuerySuccess with aggregation query data does update expected properties and call expected functions', () => {
-        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
+        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.idField = new FieldMetaData('_id', 'Test ID Field');
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
+        component.options.objectIdField = new FieldMetaData('testObjectIdField', 'Test Object ID Field');
+        component.options.objectNameField = new FieldMetaData('testObjectNameField', 'Test Object Name Field');
+        component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
+        component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
+        component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
+        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
         component.errorMessage = 'Previous Error Message';
         component.lastPage = false;
         component.page = 2;
@@ -1359,15 +1377,27 @@ describe('Component: ThumbnailGrid', () => {
         component.onQuerySuccess({
             data: [{
                 _id: 'id1',
+                testCategoryField: 'category1',
+                testFilterField: 'filter1',
                 testLinkField: 'link1',
                 testNameField: 'name1',
-                testSizeField: 0.1,
+                testObjectIdField: 'objectId1',
+                testObjectNameField: 'objectName1',
+                testPercentField: 0.1,
+                testPredictedNameField: 'predictedName1',
+                testSortField: 'sort1',
                 testTypeField: 'type1'
             }, {
                 _id: 'id2',
+                testCategoryField: 'category2',
+                testFilterField: 'filter2',
                 testLinkField: 'link2',
                 testNameField: 'name2',
-                testSizeField: 0.2,
+                testObjectIdField: 'objectId2',
+                testObjectNameField: 'objectName2',
+                testPercentField: 0.2,
+                testPredictedNameField: 'predictedName2',
+                testSortField: 'sort2',
                 testTypeField: 'type2'
             }]
         });
@@ -1379,32 +1409,56 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.gridArray).toEqual([{
             _id: 'id1',
+            testCategoryField: 'category1',
+            testFilterField: 'filter1',
             testLinkField: 'link1',
             testNameField: 'name1',
-            testSizeField: 0.1,
+            testObjectIdField: 'objectId1',
+            testObjectNameField: 'objectName1',
+            testPercentField: 0.1,
+            testPredictedNameField: 'predictedName1',
+            testSortField: 'sort1',
             testTypeField: 'type1'
         }, {
             _id: 'id2',
+            testCategoryField: 'category2',
+            testFilterField: 'filter2',
             testLinkField: 'link2',
             testNameField: 'name2',
-            testSizeField: 0.2,
+            testObjectIdField: 'objectId2',
+            testObjectNameField: 'objectName2',
+            testPercentField: 0.2,
+            testPredictedNameField: 'predictedName2',
+            testSortField: 'sort2',
             testTypeField: 'type2'
         }]);
         expect(component.pagingGrid).toEqual([{
             _id: 'id1',
+            testCategoryField: 'category1',
+            testFilterField: 'filter1',
             testLinkField: 'link1',
             testNameField: 'name1',
-            testSizeField: 0.1,
+            testObjectIdField: 'objectId1',
+            testObjectNameField: 'objectName1',
+            testPercentField: 0.1,
+            testPredictedNameField: 'predictedName1',
+            testSortField: 'sort1',
             testTypeField: 'type1'
         }, {
             _id: 'id2',
+            testCategoryField: 'category2',
+            testFilterField: 'filter2',
             testLinkField: 'link2',
             testNameField: 'name2',
-            testSizeField: 0.2,
+            testObjectIdField: 'objectId2',
+            testObjectNameField: 'objectName2',
+            testPercentField: 0.2,
+            testPredictedNameField: 'predictedName2',
+            testSortField: 'sort2',
             testTypeField: 'type2'
         }]);
 
-        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(1);
     });
 
@@ -1447,17 +1501,9 @@ describe('Component: ThumbnailGrid', () => {
 
         component.onQuerySuccess({
             data: [{
-                _id: 'id1',
-                testLinkField: 'link1',
-                testNameField: 'name1',
-                testSizeField: 0.1,
-                testTypeField: 'type1'
+                testLinkField: 'link1'
             }, {
-                _id: 'id2',
-                testLinkField: 'link2',
-                testNameField: 'name2',
-                testSizeField: 0.2,
-                testTypeField: 'type2'
+                testLinkField: 'link2'
             }]
         });
 
@@ -1467,27 +1513,15 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.showGrid).toEqual(true);
 
         expect(component.gridArray).toEqual([{
-            _id: 'id1',
-            testLinkField: 'link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1'
+            testLinkField: 'link1'
         }, {
-            _id: 'id2',
-            testLinkField: 'link2',
-            testNameField: 'name2',
-            testSizeField: 0.2,
-            testTypeField: 'type2'
+            testLinkField: 'link2'
         }]);
         expect(component.pagingGrid).toEqual([{
-            _id: 'id1',
-            testLinkField: 'link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1'
+            testLinkField: 'link1'
         }]);
 
-        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(1);
     });
 
@@ -1515,33 +1549,17 @@ describe('Component: ThumbnailGrid', () => {
         });
 
         expect(component.gridArray).toEqual([{
-            _id: 'id1',
-            testLinkField: 'prefix/link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1'
+            testLinkField: 'prefix/link1'
         }, {
-            _id: 'id2',
-            testLinkField: 'prefix/link2',
-            testNameField: 'name2',
-            testSizeField: 0.2,
-            testTypeField: 'type2'
+            testLinkField: 'prefix/link2'
         }]);
         expect(component.pagingGrid).toEqual([{
-            _id: 'id1',
-            testLinkField: 'prefix/link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1'
+            testLinkField: 'prefix/link1'
         }, {
-            _id: 'id2',
-            testLinkField: 'prefix/link2',
-            testNameField: 'name2',
-            testSizeField: 0.2,
-            testTypeField: 'type2'
+            testLinkField: 'prefix/link2'
         }]);
 
-        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(1);
     });
 
@@ -1783,6 +1801,7 @@ describe('Component: ThumbnailGrid', () => {
             filterField: '',
             idField: '',
             idMetadata: '',
+            ignoreSelf: true,
             linkField: '',
             linkPrefix: '',
             nameField: '',
@@ -1812,6 +1831,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.border = 'grey';
         component.options.cropAndScale = 'both';
         component.options.idMetadata = 'testIdMetadata';
+        component.options.ignoreSelf = false;
         component.options.linkPrefix = 'prefix/';
         component.options.openOnMouseClick = false;
         component.options.textMap = {
@@ -1833,6 +1853,7 @@ describe('Component: ThumbnailGrid', () => {
             filterField: 'testFilterField',
             idField: 'testIdField',
             idMetadata: 'testIdMetadata',
+            ignoreSelf: false,
             linkField: 'testLinkField',
             linkPrefix: 'prefix/',
             nameField: 'testNameField',
@@ -1872,7 +1893,7 @@ describe('Component: ThumbnailGrid', () => {
         component.updatePageData();
         expect(component.pagingGrid).toEqual([{}, {}]);
         expect(component.lastPage).toEqual(false);
-        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(1);
     });
 
@@ -1886,7 +1907,7 @@ describe('Component: ThumbnailGrid', () => {
         component.updatePageData();
         expect(component.pagingGrid).toEqual([{}]);
         expect(component.lastPage).toEqual(true);
-        expect(spy1.calls.count()).toEqual(1);
+        expect(spy1.calls.count()).toEqual(2);
         expect(spy2.calls.count()).toEqual(1);
     });
 });
@@ -1920,6 +1941,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'border', useValue: 'grey' },
             { provide: 'cropAndScale', useValue: 'both' },
             { provide: 'id', useValue: 'testId' },
+            { provide: 'ignoreSelf', useValue: true },
             { provide: 'linkPrefix', useValue: 'prefix/' },
             { provide: 'openOnMouseClick', useValue: false },
             { provide: 'styleClass', useValue: 'style2' },
@@ -1971,6 +1993,7 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(component.options.border).toEqual('grey');
         expect(component.options.cropAndScale).toEqual('both');
         expect(component.options.id).toEqual('testId');
+        expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.linkPrefix).toEqual('prefix/');
         expect(component.options.openOnMouseClick).toEqual(false);
         expect(component.options.styleClass).toEqual('style2');
@@ -2170,7 +2193,7 @@ describe('Component: ThumbnailGrid with config', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(8);
+            expect(toggles.length).toEqual(10);
 
             expect(toggles[0].componentInstance.value).toEqual('');
             expect(toggles[0].nativeElement.textContent).toContain('None');
@@ -2188,21 +2211,29 @@ describe('Component: ThumbnailGrid with config', () => {
             expect(toggles[3].nativeElement.textContent).toContain('Both');
             expect(toggles[3].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
-            expect(toggles[4].componentInstance.value).toEqual(true);
+            expect(toggles[4].componentInstance.value).toEqual(false);
             expect(toggles[4].nativeElement.textContent).toContain('Yes');
             expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
-            expect(toggles[5].componentInstance.value).toEqual(false);
+            expect(toggles[5].componentInstance.value).toEqual(true);
             expect(toggles[5].nativeElement.textContent).toContain('No');
             expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
             expect(toggles[6].componentInstance.value).toEqual(true);
-            expect(toggles[6].nativeElement.textContent).toContain('Ascending');
-            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles[6].nativeElement.textContent).toContain('Yes');
+            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[7].componentInstance.value).toEqual(false);
-            expect(toggles[7].nativeElement.textContent).toContain('Descending');
-            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            expect(toggles[7].nativeElement.textContent).toContain('No');
+            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[8].componentInstance.value).toEqual(true);
+            expect(toggles[8].nativeElement.textContent).toContain('Ascending');
+            expect(toggles[8].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[9].componentInstance.value).toEqual(false);
+            expect(toggles[9].nativeElement.textContent).toContain('Descending');
+            expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
         });
     }));
 });

@@ -78,6 +78,7 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
     public logScaleX: boolean;
     public logScaleY: boolean;
     public newType: string;
+    public notFilterable: boolean;
     public requireAll: boolean;
     public savePrevious: boolean;
     public scaleMaxX: string;
@@ -106,6 +107,7 @@ export class AggregationOptions extends BaseNeonOptions implements AggregationSu
         this.lineFillArea = this.injector.get('lineFillArea', false);
         this.logScaleX = this.injector.get('logScaleX', false);
         this.logScaleY = this.injector.get('logScaleY', false);
+        this.notFilterable = this.injector.get('notFilterable', false);
         this.requireAll = this.injector.get('requireAll', false);
         this.savePrevious = this.injector.get('savePrevious', false);
         this.scaleMaxX = this.injector.get('scaleMaxX', '');
@@ -321,7 +323,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @return {string}
      */
     createFilterPrettyText(filter: any): string {
-        if (filter.value.beginX && filter.value.endX) {
+        if (typeof filter.value === 'object' && filter.value.beginX && filter.value.endX) {
             let xText = filter.value.beginX + ' to ' + filter.value.endX;
             if (this.options.xField.type === 'date') {
                 xText = moment.utc(filter.value.beginX).format('ddd, MMM D, YYYY, h:mm A') + ' to ' +
@@ -657,7 +659,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @arg {any} event
      */
     handleLegendItemSelected(event) {
-        if (event.value && this.options.groupField.columnName) {
+        if (event.value && this.options.groupField.columnName && !this.options.notFilterable) {
             let neonFilter = neon.query.where(this.options.groupField.columnName, '!=', event.value);
             let filter = {
                 field: this.options.groupField.columnName,
@@ -934,12 +936,14 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
 
             this.responseData = response.data.map((item) => {
                 let transformation = createTransformationFromItem(item);
+
                 if (xList.indexOf(transformation.x) < 0) {
                     xList.push(transformation.x);
                 }
                 if (yList.indexOf(transformation.y) < 0) {
                     yList.push(transformation.y);
                 }
+
                 return transformation;
             });
 
@@ -1113,20 +1117,25 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Filters the given item.  From SubcomponentListener.
+     * Filters the given value.  From SubcomponentListener.
      *
+     * @arg {string} group
      * @arg {any} value
      * @arg {boolean} doNotReplace
      * @override
      */
-    subcomponentRequestsFilter(item: any, doNotReplace: boolean = false) {
-        let neonFilter = neon.query.where(this.options.xField.columnName, '=', item);
+    subcomponentRequestsFilter(group: string, value: any, doNotReplace: boolean = false) {
+        if (this.options.notFilterable) {
+            return;
+        }
+
+        let neonFilter = neon.query.where(this.options.xField.columnName, '=', value);
         let filter = {
             field: this.options.xField.columnName,
-            label: '' + item,
+            label: '' + value,
             neonFilter: neonFilter,
             prettyField: this.options.xField.prettyName,
-            value: item
+            value: value
         };
         if (doNotReplace) {
             this.toggleFilter(this.valueFilters, filter);
@@ -1149,6 +1158,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     subcomponentRequestsFilterOnBounds(beginX: any, beginY, endX: any, endY, doNotReplace: boolean = false) {
         if (!(this.options.dualView || this.options.ignoreSelf)) {
             this.selectedArea = null;
+        }
+
+        if (this.options.notFilterable) {
+            return;
         }
 
         let neonFilter = neon.query.and.apply(neon.query, [
@@ -1194,6 +1207,10 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
     subcomponentRequestsFilterOnDomain(beginX: any, endX: any, doNotReplace: boolean = false) {
         if (!(this.options.dualView || this.options.ignoreSelf)) {
             this.selectedArea = null;
+        }
+
+        if (this.options.notFilterable) {
+            return;
         }
 
         let neonFilter = neon.query.and.apply(neon.query, [
@@ -1276,6 +1293,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         bindings.lineFillArea = this.options.lineFillArea;
         bindings.logScaleX = this.options.logScaleX;
         bindings.logScaleY = this.options.logScaleY;
+        bindings.notFilterable = this.options.notFilterable;
         bindings.requireAll = this.options.requireAll;
         bindings.savePrevious = this.options.savePrevious;
         bindings.scaleMaxX = this.options.scaleMaxX;

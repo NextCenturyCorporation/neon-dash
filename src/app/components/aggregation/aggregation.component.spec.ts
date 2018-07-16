@@ -109,6 +109,7 @@ describe('Component: Aggregation', () => {
         expect(component.options.lineFillArea).toEqual(false);
         expect(component.options.logScaleX).toEqual(false);
         expect(component.options.logScaleY).toEqual(false);
+        expect(component.options.notFilterable).toEqual(false);
         expect(component.options.requireAll).toEqual(false);
         expect(component.options.savePrevious).toEqual(false);
         expect(component.options.scaleMaxX).toEqual('');
@@ -1338,6 +1339,19 @@ describe('Component: Aggregation', () => {
             prettyField: 'Test Category Field',
             value: 'testValue'
         }]);
+    });
+
+    it('handleLegendItemSelected does not call toggleFilter if notFilterable=true', () => {
+        let spy = spyOn(component, 'toggleFilter');
+
+        component.options.groupField = DatasetServiceMock.CATEGORY_FIELD;
+        component.options.notFilterable = true;
+
+        component.handleLegendItemSelected({
+            value: 'testValue'
+        });
+
+        expect(spy.calls.count()).toEqual(0);
     });
 
     it('handleLegendItemSelected with groupFields does call toggleFilter', () => {
@@ -3002,6 +3016,27 @@ describe('Component: Aggregation', () => {
         });
     });
 
+    it('subcomponentRequestsFilterOnBounds does not update valueFilters or call createOrRemoveNeonFilter if notFilterable=true', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.notFilterable = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        component.options.yField = DatasetServiceMock.Y_FIELD;
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+
+        component.subcomponentRequestsFilterOnBounds(12, 34, 56, 78);
+
+        expect(component.selectedArea).toEqual(null);
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(component.valueFilters).toEqual([]);
+    });
+
     it('subcomponentRequestsFilterOnDomain with number data does update valueFilters and call createOrRemoveNeonFilter', () => {
         component.selectedArea = {
             height: 4,
@@ -3191,12 +3226,32 @@ describe('Component: Aggregation', () => {
         });
     });
 
+    it('subcomponentRequestsFilterOnDomain does not update valueFilters or call createOrRemoveNeonFilter if notFilterable=true', () => {
+        component.selectedArea = {
+            height: 4,
+            width: 3,
+            x: 2,
+            y: 1
+        };
+        component.options.notFilterable = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+
+        component.subcomponentRequestsFilterOnDomain(1234, 5678);
+
+        expect(component.selectedArea).toEqual(null);
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(component.valueFilters).toEqual([]);
+    });
+
     it('subcomponentRequestsFilter with number data does update valueFilters and call createOrRemoveNeonFilter', () => {
         component.options.xField = DatasetServiceMock.X_FIELD;
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
-        component.subcomponentRequestsFilter(1234);
+        component.subcomponentRequestsFilter('testCategory', 1234);
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
@@ -3214,7 +3269,7 @@ describe('Component: Aggregation', () => {
         let spy1 = spyOn(component, 'toggleFilter');
         let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
 
-        component.subcomponentRequestsFilter('testText1');
+        component.subcomponentRequestsFilter('testCategory', 'testText1');
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
@@ -3240,7 +3295,7 @@ describe('Component: Aggregation', () => {
             value: 'testText2'
         }];
 
-        component.subcomponentRequestsFilter('testText1');
+        component.subcomponentRequestsFilter('testCategory', 'testText1');
 
         expect(spy1.calls.count()).toEqual(0);
         expect(spy2.calls.count()).toEqual(1);
@@ -3266,7 +3321,7 @@ describe('Component: Aggregation', () => {
             value: 'testText2'
         }];
 
-        component.subcomponentRequestsFilter('testText1', true);
+        component.subcomponentRequestsFilter('testCategory', 'testText1', true);
 
         expect(spy1.calls.count()).toEqual(1);
         expect(spy1.calls.argsFor(0)).toEqual([[{
@@ -3290,6 +3345,19 @@ describe('Component: Aggregation', () => {
             prettyField: 'Test Text Field',
             value: 'testText2'
         }]);
+    });
+
+    it('subcomponentRequestsFilter does not update valueFilters or call createOrRemoveNeonFilter if notFilterable=true', () => {
+        component.options.notFilterable = true;
+        component.options.xField = DatasetServiceMock.X_FIELD;
+        let spy1 = spyOn(component, 'toggleFilter');
+        let spy2 = spyOn(component, 'createOrRemoveNeonFilter');
+
+        component.subcomponentRequestsFilter('testCategory', 1234);
+
+        expect(spy1.calls.count()).toEqual(0);
+        expect(spy2.calls.count()).toEqual(0);
+        expect(component.valueFilters).toEqual([]);
     });
 
     it('subcomponentRequestsRedraw does call stopEventPropagation and changeDetection.detectChanges', () => {
@@ -3335,6 +3403,7 @@ describe('Component: Aggregation', () => {
             lineFillArea: false,
             logScaleX: false,
             logScaleY: false,
+            notFilterable: false,
             requireAll: false,
             savePrevious: false,
             scaleMaxX: '',
@@ -3363,6 +3432,7 @@ describe('Component: Aggregation', () => {
         component.options.lineFillArea = true;
         component.options.logScaleX = true;
         component.options.logScaleY = true;
+        component.options.notFilterable = true;
         component.options.requireAll = true;
         component.options.savePrevious = true;
         component.options.scaleMaxX = '44';
@@ -3392,6 +3462,7 @@ describe('Component: Aggregation', () => {
             lineFillArea: true,
             logScaleX: true,
             logScaleY: true,
+            notFilterable: true,
             requireAll: true,
             savePrevious: true,
             scaleMaxX: '44',
@@ -4143,71 +4214,7 @@ describe('Component: Aggregation', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(16);
-
-            expect(toggles[0].componentInstance.value).toEqual(false);
-            expect(toggles[0].nativeElement.textContent).toContain('OR');
-            expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[1].componentInstance.value).toEqual(true);
-            expect(toggles[1].nativeElement.textContent).toContain('AND');
-            expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[2].componentInstance.value).toEqual(false);
-            expect(toggles[2].nativeElement.textContent).toContain('Yes');
-            expect(toggles[2].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[3].componentInstance.value).toEqual(true);
-            expect(toggles[3].nativeElement.textContent).toContain('No');
-            expect(toggles[3].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[4].componentInstance.value).toEqual(false);
-            expect(toggles[4].nativeElement.textContent).toContain('Show');
-            expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[5].componentInstance.value).toEqual(true);
-            expect(toggles[5].nativeElement.textContent).toContain('Hide');
-            expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[6].componentInstance.value).toEqual(false);
-            expect(toggles[6].nativeElement.textContent).toContain('Show');
-            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[7].componentInstance.value).toEqual(true);
-            expect(toggles[7].nativeElement.textContent).toContain('Hide');
-            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[8].componentInstance.value).toEqual(false);
-            expect(toggles[8].nativeElement.textContent).toContain('No');
-            expect(toggles[8].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[9].componentInstance.value).toEqual(true);
-            expect(toggles[9].nativeElement.textContent).toContain('Yes');
-            expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[10].componentInstance.value).toEqual(false);
-            expect(toggles[10].nativeElement.textContent).toContain('No');
-            expect(toggles[10].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[11].componentInstance.value).toEqual(true);
-            expect(toggles[11].nativeElement.textContent).toContain('Yes');
-            expect(toggles[11].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[12].componentInstance.value).toEqual(false);
-            expect(toggles[12].nativeElement.textContent).toContain('No');
-            expect(toggles[12].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[13].componentInstance.value).toEqual(true);
-            expect(toggles[13].nativeElement.textContent).toContain('Yes');
-            expect(toggles[13].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[14].componentInstance.value).toEqual(false);
-            expect(toggles[14].nativeElement.textContent).toContain('No');
-            expect(toggles[14].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[15].componentInstance.value).toEqual(true);
-            expect(toggles[15].nativeElement.textContent).toContain('Yes');
-            expect(toggles[15].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            expect(toggles.length).toEqual(18);
         });
     }));
 });
@@ -4254,6 +4261,7 @@ describe('Component: Aggregation with config', () => {
             { provide: 'lineFillArea', useValue: true },
             { provide: 'logScaleX', useValue: true },
             { provide: 'logScaleY', useValue: true },
+            { provide: 'notFilterable', useValue: true },
             { provide: 'requireAll', useValue: true },
             { provide: 'savePrevious', useValue: true },
             { provide: 'scaleMaxX', useValue: '44' },
@@ -4306,6 +4314,7 @@ describe('Component: Aggregation with config', () => {
         expect(component.options.lineFillArea).toEqual(true);
         expect(component.options.logScaleX).toEqual(true);
         expect(component.options.logScaleY).toEqual(true);
+        expect(component.options.notFilterable).toEqual(true);
         expect(component.options.requireAll).toEqual(true);
         expect(component.options.savePrevious).toEqual(true);
         expect(component.options.scaleMaxX).toEqual('44');
@@ -4472,63 +4481,7 @@ describe('Component: Aggregation with config', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(14);
-
-            expect(toggles[0].componentInstance.value).toEqual(false);
-            expect(toggles[0].nativeElement.textContent).toContain('OR');
-            expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[1].componentInstance.value).toEqual(true);
-            expect(toggles[1].nativeElement.textContent).toContain('AND');
-            expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[2].componentInstance.value).toEqual(false);
-            expect(toggles[2].nativeElement.textContent).toContain('Yes');
-            expect(toggles[2].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[3].componentInstance.value).toEqual(true);
-            expect(toggles[3].nativeElement.textContent).toContain('No');
-            expect(toggles[3].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[4].componentInstance.value).toEqual(false);
-            expect(toggles[4].nativeElement.textContent).toContain('Show');
-            expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[5].componentInstance.value).toEqual(true);
-            expect(toggles[5].nativeElement.textContent).toContain('Hide');
-            expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[6].componentInstance.value).toEqual(false);
-            expect(toggles[6].nativeElement.textContent).toContain('Show');
-            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[7].componentInstance.value).toEqual(true);
-            expect(toggles[7].nativeElement.textContent).toContain('Hide');
-            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[8].componentInstance.value).toEqual(false);
-            expect(toggles[8].nativeElement.textContent).toContain('No');
-            expect(toggles[8].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[9].componentInstance.value).toEqual(true);
-            expect(toggles[9].nativeElement.textContent).toContain('Yes');
-            expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[10].componentInstance.value).toEqual(false);
-            expect(toggles[10].nativeElement.textContent).toContain('No');
-            expect(toggles[10].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[11].componentInstance.value).toEqual(true);
-            expect(toggles[11].nativeElement.textContent).toContain('Yes');
-            expect(toggles[11].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[12].componentInstance.value).toEqual(false);
-            expect(toggles[12].nativeElement.textContent).toContain('No');
-            expect(toggles[12].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[13].componentInstance.value).toEqual(true);
-            expect(toggles[13].nativeElement.textContent).toContain('Yes');
-            expect(toggles[13].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles.length).toEqual(16);
         });
     }));
 });
@@ -4575,6 +4528,7 @@ describe('Component: Aggregation with XY config', () => {
             { provide: 'lineFillArea', useValue: true },
             { provide: 'logScaleX', useValue: true },
             { provide: 'logScaleY', useValue: true },
+            { provide: 'notFilterable', useValue: true },
             { provide: 'requireAll', useValue: true },
             { provide: 'savePrevious', useValue: true },
             { provide: 'scaleMaxX', useValue: '44' },
@@ -4728,63 +4682,7 @@ describe('Component: Aggregation with XY config', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(14);
-
-            expect(toggles[0].componentInstance.value).toEqual(false);
-            expect(toggles[0].nativeElement.textContent).toContain('OR');
-            expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[1].componentInstance.value).toEqual(true);
-            expect(toggles[1].nativeElement.textContent).toContain('AND');
-            expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[2].componentInstance.value).toEqual(false);
-            expect(toggles[2].nativeElement.textContent).toContain('Yes');
-            expect(toggles[2].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[3].componentInstance.value).toEqual(true);
-            expect(toggles[3].nativeElement.textContent).toContain('No');
-            expect(toggles[3].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[4].componentInstance.value).toEqual(false);
-            expect(toggles[4].nativeElement.textContent).toContain('Show');
-            expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[5].componentInstance.value).toEqual(true);
-            expect(toggles[5].nativeElement.textContent).toContain('Hide');
-            expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[6].componentInstance.value).toEqual(false);
-            expect(toggles[6].nativeElement.textContent).toContain('Show');
-            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[7].componentInstance.value).toEqual(true);
-            expect(toggles[7].nativeElement.textContent).toContain('Hide');
-            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[8].componentInstance.value).toEqual(false);
-            expect(toggles[8].nativeElement.textContent).toContain('No');
-            expect(toggles[8].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[9].componentInstance.value).toEqual(true);
-            expect(toggles[9].nativeElement.textContent).toContain('Yes');
-            expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[10].componentInstance.value).toEqual(false);
-            expect(toggles[10].nativeElement.textContent).toContain('No');
-            expect(toggles[10].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[11].componentInstance.value).toEqual(true);
-            expect(toggles[11].nativeElement.textContent).toContain('Yes');
-            expect(toggles[11].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[12].componentInstance.value).toEqual(false);
-            expect(toggles[12].nativeElement.textContent).toContain('No');
-            expect(toggles[12].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[13].componentInstance.value).toEqual(true);
-            expect(toggles[13].nativeElement.textContent).toContain('Yes');
-            expect(toggles[13].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles.length).toEqual(16);
         });
     }));
 });
@@ -4831,6 +4729,7 @@ describe('Component: Aggregation with date config', () => {
             { provide: 'lineFillArea', useValue: true },
             { provide: 'logScaleX', useValue: true },
             { provide: 'logScaleY', useValue: true },
+            { provide: 'notFilterable', useValue: true },
             { provide: 'requireAll', useValue: true },
             { provide: 'savePrevious', useValue: true },
             { provide: 'scaleMaxX', useValue: '44' },
@@ -5017,71 +4916,7 @@ describe('Component: Aggregation with date config', () => {
 
             let toggles = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
-            expect(toggles.length).toEqual(16);
-
-            expect(toggles[0].componentInstance.value).toEqual(false);
-            expect(toggles[0].nativeElement.textContent).toContain('No');
-            expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[1].componentInstance.value).toEqual(true);
-            expect(toggles[1].nativeElement.textContent).toContain('Yes');
-            expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[2].componentInstance.value).toEqual(false);
-            expect(toggles[2].nativeElement.textContent).toContain('OR');
-            expect(toggles[2].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[3].componentInstance.value).toEqual(true);
-            expect(toggles[3].nativeElement.textContent).toContain('AND');
-            expect(toggles[3].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[4].componentInstance.value).toEqual(false);
-            expect(toggles[4].nativeElement.textContent).toContain('Yes');
-            expect(toggles[4].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[5].componentInstance.value).toEqual(true);
-            expect(toggles[5].nativeElement.textContent).toContain('No');
-            expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[6].componentInstance.value).toEqual(false);
-            expect(toggles[6].nativeElement.textContent).toContain('Show');
-            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[7].componentInstance.value).toEqual(true);
-            expect(toggles[7].nativeElement.textContent).toContain('Hide');
-            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[8].componentInstance.value).toEqual(false);
-            expect(toggles[8].nativeElement.textContent).toContain('Show');
-            expect(toggles[8].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[9].componentInstance.value).toEqual(true);
-            expect(toggles[9].nativeElement.textContent).toContain('Hide');
-            expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[10].componentInstance.value).toEqual(false);
-            expect(toggles[10].nativeElement.textContent).toContain('No');
-            expect(toggles[10].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[11].componentInstance.value).toEqual(true);
-            expect(toggles[11].nativeElement.textContent).toContain('Yes');
-            expect(toggles[11].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[12].componentInstance.value).toEqual(false);
-            expect(toggles[12].nativeElement.textContent).toContain('No');
-            expect(toggles[12].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[13].componentInstance.value).toEqual(true);
-            expect(toggles[13].nativeElement.textContent).toContain('Yes');
-            expect(toggles[13].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
-
-            expect(toggles[14].componentInstance.value).toEqual(false);
-            expect(toggles[14].nativeElement.textContent).toContain('No');
-            expect(toggles[14].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
-
-            expect(toggles[15].componentInstance.value).toEqual(true);
-            expect(toggles[15].nativeElement.textContent).toContain('Yes');
-            expect(toggles[15].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles.length).toEqual(18);
         });
     }));
 });

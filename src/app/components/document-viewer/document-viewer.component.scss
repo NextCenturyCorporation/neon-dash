@@ -16,45 +16,47 @@
 @import '../base-neon-component/base-neon.component.scss';
 
 .visualization-sidenav {
-
-    $item-margin: 10px;
-
     .document-viewer-list-item {
-        display: inline-block;
-        margin: 0 $item-margin;
-        width: calc(100% - 2 * #{$item-margin});
-    }
+        padding: 0 5px 5px;
+        width: calc(100% - 10px);
 
-    .document-viewer-table {
-        border-spacing: 0 2px;
-    }
+        .document-viewer-table {
+            border-spacing: 0;
+            padding: 0 0 5px;
+            table-layout: fixed;
+            width: 100%;
 
-    .document-viewer-button-cell {
-        padding: 0;
-    }
+            tr {
+                &.document-viewer-even {
+                    background-color: mat-color($accent);
+                }
 
-    .document-viewer-button-container {
-        display: flex;
-        justify-content: space-between;
-    }
+                td {
+                    padding: 0 5px;
 
-    .document-viewer-button-spacer {
-        flex: 0 0 5px;
-    }
+                    &.document-viewer-name,
+                    &.document-viewer-text {
+                        font-size: 14px;
+                        line-height: 20px;
+                        overflow: hidden;
+                        vertical-align: top;
+                        width: 50%;
+                        /* Use break-all for Firefox and override with break-word for Chrome and Safari. */
+                        word-break: break-all;
+                        word-break: break-word;
+                    }
 
-    .document-viewer-button {
-        flex: 1 0 0;
-    }
+                    &.document-viewer-name {
+                        font-weight: bold;
+                    }
 
-    table.metadata-table {
-        width: 100%;
-    }
-
-    .document-viewer-even-row {
-        background: lightgray;
-    }
-
-    td.metadata-bold {
-        font-weight: bold;
+                    &.document-viewer-button {
+                        button {
+                            width: 100%;
+                        }
+                    }
+                }
+            }
+        }
     }
 }
