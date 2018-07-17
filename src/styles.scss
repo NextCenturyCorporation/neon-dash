@@ -99,120 +99,17 @@ body {
     z-index: 10;
 }
 
-/* Icons */
-.icon-AnnotationViewer {
-    background: url("assets/icons/annotation_viewer.svg")
-}
-
-.icon-BarChart {
-    background: url("assets/icons/bar_chart.svg")
-}
-
-.icon-Count {
-    background: url("assets/icons/count.svg")
-}
-
-.icon-CreateFilter {
-    background: url("assets/icons/filter_builder.svg")
-}
-
-.icon-DataSource {
-    background: url("assets/icons/dataset_connector.svg")
-}
-
-.icon-DocumentViewer {
-    background: url("assets/icons/document_viewer.svg")
-}
-
-.icon-Gantt {
-    background: url("assets/icons/gant_chart.svg")
-}
-
-.icon-Graph {
-    background: url("assets/icons/network_graph.svg")
-}
-
-.icon-LineChart {
-    background: url("assets/icons/line_chart.svg")
-}
-
-.icon-Map {
-    background: url("assets/icons/map.svg")
-}
-
-.icon-MediaViewer {
-    background: url("assets/icons/neon_logo.svg")
-}
-
-.icon-Neon {
-    background: url("assets/icons/neon_logo.svg")
-}
-
-.icon-NetworkGraph {
-    background: url("assets/icons/network_graph.svg")
-}
-
-.icon-News {
-    background: url("assets/icons/news_feed.svg")
-}
-
-.icon-OPS {
-    background: url("assets/icons/ops.svg")
-}
-
-.icon-OpsClock {
-    background: url("assets/icons/ops_clock.svg")
-}
-
-.icon-PieChart {
-    background: url("assets/icons/pie_chart.svg")
-}
-
-.icon-ScatterPlot {
-    background: url("assets/icons/scatter_plot.svg")
-}
-
-.icon-StackedTimeline {
-    background: url("assets/icons/stacked_timeline.svg")
-}
-
-.icon-Sunburst {
-    background: url("assets/icons/sunburst_chart.svg")
-}
-
-.icon-TagCloud {
-    background: url("assets/icons/text_cloud.svg")
-}
-
-.icon-Timeline {
-    background: url("assets/icons/timeline.svg")
-}
-
-.icon-ThumbnailGrid {
-    background: url("assets/icons/thumbnail_grid.svg")
-}
-
-.icon-ViewData {
-    background: url("assets/icons/data_table.svg")
-}
-
-.icon-WikiViewer {
-    background: url("assets/icons/wiki_viewer.svg")
-}
-/* End Icons */
-
 .icon-container {
     justify-content: center;
     display: flex;
 }
 
-.neon-sprite {
+.neon-svg-icon {
     display: inline-block;
     vertical-align: middle;
     width: 60px;
     height: 60px;
     margin: 5px;
-    
 }
 
 .neon-icon-navBar {
@@ -400,7 +297,7 @@ body {
     height: 20px !important;
     width: 20px !important;
     vertical-align: bottom !important;
-
+    
     &.neon-icon-large {
         font-size: 30px !important;
         line-height: 30px !important;
