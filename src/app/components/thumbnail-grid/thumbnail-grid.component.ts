@@ -685,7 +685,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
                 case this.mediaTypes.video : {
                     let video: HTMLVideoElement = document.createElement('video');
-                    video.src = link;
+                    video.src = link + '#t=1,1.1'; //1 second starting place for video screenshot
+
                     video.onloadeddata = () => {
                         switch (this.options.cropAndScale) {
                             case 'both' : {
@@ -711,11 +712,23 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             }
                         }
                     };
+
+                    video.onerror = (error) => {
+                       // console.log(link, error);
+                        if (link.includes('youtube')) {
+                            let img: HTMLImageElement = new Image();
+                            img.src = '/assets/images/youtube_logo.png';
+                            img.onload = () => {
+                                thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
+                            };
+                        }
+                    };
+
                     break;
                 }
                 case this.mediaTypes.audio : {
                     let image: HTMLImageElement = new Image();
-                    image.src = "/assets/images/volume_up.svg";
+                    image.src = '/assets/images/volume_up.svg';
                     image.onclick = () => this.displayMediaTab(grid);
                     image.onload = () => {
                         thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);

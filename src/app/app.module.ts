@@ -77,8 +77,8 @@ import { NetworkGraphComponent } from './components/network-graph/network-graph.
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
 import {
-    ThumbnailContractedDetailsComponent,
-    ThumbnailExpandedDetailsComponent
+    ThumbnailDetailsContractedComponent,
+    ThumbnailDetailsExpandedComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
 import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 
@@ -125,8 +125,8 @@ export function getAppConfig() {
         SnackBarComponent,
         StackedTimelineComponent,
         TextCloudComponent,
-        ThumbnailContractedDetailsComponent,
-        ThumbnailExpandedDetailsComponent,
+        ThumbnailDetailsContractedComponent,
+        ThumbnailDetailsExpandedComponent,
         ThumbnailGridComponent,
         TimelineComponent,
         UnsharedFilterComponent,
