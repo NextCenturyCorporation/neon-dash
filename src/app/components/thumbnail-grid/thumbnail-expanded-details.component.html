@@ -1,8 +1,8 @@
 
-<div class="thumbnail-flags" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)" >
+<div class="thumbnail-flags" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)" >
     <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"
             (click)="thumbnailGrid.displayMediaTab(item)"></canvas>
-    <div class="thumbnail-flag-details">
+    <div class="thumbnail-flag-details" (click)="thumbnailGrid.selectGridItem(item)" >
         <p>{{ item[options.objectIdField.columnName] }}</p>
         <p class="flag-ellipses">{{ item[options.idField.columnName] }}</p>
         <p>{{ item[options.dateField.columnName] }}</p>
