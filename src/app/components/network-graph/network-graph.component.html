@@ -103,6 +103,11 @@
                 </mat-form-field>
                 <p></p>
 
+                <button mat-raised-button class="neon-button-small" color="accent" (click)="resetColors()">
+                    <span>Reset Colors</span>
+                </button>
+                <p></p>
+
                 <mat-form-field *ngIf="!options.isReified">
                     <mat-select placeholder="Edge Color Field" [(ngModel)]="options.edgeColorField" (ngModelChange)="handleChangeData()"
                         [disabled]="options.fields.length == 0">
@@ -112,6 +117,7 @@
                 </mat-form-field>
                 <p></p>
 
+                
                 <!-- Directed Options -->
                 <span class="toggle-text">Show Directed:</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.isDirected" (ngModelChange)="handleChangeDirected()">
