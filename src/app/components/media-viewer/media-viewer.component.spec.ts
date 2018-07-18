@@ -275,7 +275,7 @@ describe('Component: MediaViewer', () => {
                 testTypeField: 'testTypeValue'
             }]
         });
-    
+
         expect(component.errorMessage).toBe('No Data');
         expect(component.options.id).toBe('_id');
 
@@ -290,12 +290,10 @@ describe('Component: MediaViewer', () => {
         component.options.typeField = new FieldMetaData('testTypeField');
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = "testId";
-    
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testIdField', '==', '123'), 'testFilterName');
+        component.options.id = 'testId';
 
-
+        getService(FilterService).addFilter(null, 'testName2', DatasetServiceMock.DATABASES[1].name, DatasetServiceMock.TABLES[1].name,
+            neon.query.where('testIdField', '==', ''), 'testFilterName');
 
         component.onQuerySuccess({
             data: [{
@@ -305,15 +303,14 @@ describe('Component: MediaViewer', () => {
                 testTypeField: 'testTypeValue'
             }]
         });
-    
+
         expect(component.errorMessage).toBe('No Data');
         expect(component.options.id).toBe('_id');
 
     }));
 
-
     it('onQuerySuccess does set expected properties if filter selected and response returns no data', (() => {
-        
+
         component.errorMessage = 'testErrorMessage';
         component.documentArray = [{
             border: '',
@@ -323,11 +320,10 @@ describe('Component: MediaViewer', () => {
         }];
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = "testId";
-    
+        component.options.id = 'testId';
+
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
-
 
         component.onQuerySuccess({
             data: []
@@ -345,11 +341,11 @@ describe('Component: MediaViewer', () => {
         component.options.typeField = new FieldMetaData('testTypeField');
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = "testId";
-    
+        component.options.id = 'testId';
+
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
-    
+
         component.onQuerySuccess({
             data: [{
                 testIdField: 'testIdValue',
@@ -358,7 +354,7 @@ describe('Component: MediaViewer', () => {
                 testTypeField: 'testTypeValue'
             }]
         });
-    
+
         expect(component.errorMessage).toBe('');
         expect(component.documentArray).toEqual([{
             border: '',
@@ -376,8 +372,8 @@ describe('Component: MediaViewer', () => {
         component.options.typeField = new FieldMetaData('testTypeField');
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = "testId";
-    
+        component.options.id = 'testId';
+
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
@@ -414,8 +410,8 @@ describe('Component: MediaViewer', () => {
         component.options.typeField = new FieldMetaData('testTypeField');
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = "testId";
-    
+        component.options.id = 'testId';
+
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
@@ -450,8 +446,8 @@ describe('Component: MediaViewer', () => {
         component.options.typeField = new FieldMetaData('testTypeField');
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = "testId";
-    
+        component.options.id = 'testId';
+
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
@@ -485,11 +481,10 @@ describe('Component: MediaViewer', () => {
         component.options.linkPrefix = 'prefix/';
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = "testId";
-    
+        component.options.id = 'testId';
+
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
-
 
         component.onQuerySuccess({
             data: [{
@@ -509,11 +504,10 @@ describe('Component: MediaViewer', () => {
         component.options.border = 'grey';
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = "testId";
-    
+        component.options.id = 'testId';
+
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
-
 
         component.onQuerySuccess({
             data: [{
@@ -538,11 +532,10 @@ describe('Component: MediaViewer', () => {
         component.options.linkPrefix = 'prefix/';
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = "testId";
-    
+        component.options.id = 'testId';
+
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
-
 
         component.onQuerySuccess({
             data: [{
@@ -571,11 +564,10 @@ describe('Component: MediaViewer', () => {
         };
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = "testId";
-    
+        component.options.id = 'testId';
+
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
-
 
         component.onQuerySuccess({
             data: [{
