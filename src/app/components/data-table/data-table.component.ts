@@ -731,16 +731,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             });
         }
 
-        this.options.customEventsToPublish.forEach((config) => {
-            let metadata = {};
-            (config.fields || []).forEach((fieldsConfig) => {
-                metadata[fieldsConfig.field] = selectedItem[fieldsConfig.field];
-            });
-            this.messenger.publish(config.id, {
-                item: this.options.idField.columnName ? selectedItem[this.options.idField.columnName] : selectedItem,
-                metadata: metadata
-            });
-        });
+        this.publishAnyCustomEvents(selectedItem, this.options.idField.columnName);
     }
 
     createFilterObject(field: string, value: string, prettyField: string): any {
