@@ -80,16 +80,10 @@ export class QueryBarComponent  extends BaseNeonComponent {
     @ViewChild('queryBar') queryBar: ElementRef;
 
     autoComplete: boolean = true;
-    queryValues: string[];
+    queryValues: string[] = [];
     queryArray: any[];
     filterIds: string[] = [];
-
-    public filters: {
-        id: string,
-        field: string,
-        prettyField: string,
-        value: string
-    }[] = [];
+    currentFilter: string = '';
 
     public simpleFilter = new BehaviorSubject<SimpleFilter>(undefined);
     public filterId = new BehaviorSubject<string>(undefined);
@@ -135,7 +129,11 @@ export class QueryBarComponent  extends BaseNeonComponent {
 
     onQuerySuccess(response) {
         this.queryArray = [];
-        this.queryValues = [];
+
+        let setValues = true;
+        if (this.queryValues && this.queryValues.length) {
+            setValues = false;
+        }
 
         try {
             if (response && response.data && response.data.length) {
@@ -144,7 +142,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
                 response.data.forEach((d) => {
                     let item = {};
                     for (let field of this.options.fields) {
-                        if (field.columnName === this.options.filterField.columnName) {
+                        if (field.columnName === this.options.filterField.columnName && setValues) {
                             this.queryValues.push(neonUtilities.deepFind(d, this.options.filterField.columnName));
                         }
                         if (field.type || field.columnName === '_id') {
@@ -157,7 +155,10 @@ export class QueryBarComponent  extends BaseNeonComponent {
                     this.queryArray.push(item);
                 });
 
-                this.queryValues = this.queryValues.filter((value, index, array) => array.indexOf(value) === index);
+                if (setValues) {
+                    this.queryValues = this.queryValues.filter((value, index, array) => array.indexOf(value) === index);
+                }
+
                 this.queryBarSetup();
 
             } else {
@@ -272,31 +273,40 @@ export class QueryBarComponent  extends BaseNeonComponent {
      * @arg {string} text
      */
     createFilter(text: string) {
-        if (text.length === 0) {
+        if (text && text.length === 0) {
             this.removeFilter();
             return;
         }
 
         //filters query text
-        let values = this.queryArray.filter((value) =>
-            value[this.options.filterField.columnName].toLowerCase() === text.toLowerCase()),
-            clause: WherePredicate;
+        if (text && text !== this.currentFilter) {
+            let values = this.queryArray.filter((value) =>
+                value[this.options.filterField.columnName].toLowerCase() === text.toLowerCase()),
+                clause: WherePredicate;
 
-        if (values.length) {
-            clause = neon.query.where(this.options.filterField.columnName, '=', text);
-            this.addFilter(text, clause, this.options.filterField.columnName);
+            if (values.length) {
+                clause = neon.query.where(this.options.filterField.columnName, '=', text);
 
-            //gathers ids from the filtered query text
-            if (this.options.extendedFilter) {
-                for (let ef of this.options.extensionFields) {
-                    this.extensionFilter(text, ef, values);
+                if (this.currentFilter && this.filterIds) {
+                    this.removeAllFilters(this.filterService.getFilters());
                 }
+
+                this.addFilter(text, clause, this.options.filterField.columnName);
+                this.currentFilter = text;
+                //gathers ids from the filtered query text in order to extend filtering to the other components
+                if (this.options.extendedFilter) {
+                    for (let ef of this.options.extensionFields) {
+                        this.extensionFilter(text, ef, values);
+                    }
+                }
+            } else {
+                this.removeAllFilters(this.filterService.getFilters());
             }
         }
     }
 
     /**
-     * Extends filtering across databases that do not have related fields. Executes a query if needed.
+     * Extends filtering across databases/indices that do not have related fields. Executes a query if necessary.
      *
      * @arg {string} text
      * @arg {any} fields
@@ -339,7 +349,6 @@ export class QueryBarComponent  extends BaseNeonComponent {
         }
 
         this.extensionAddFilter(text, fields, array);
-
     }
 
     /**
@@ -363,7 +372,9 @@ export class QueryBarComponent  extends BaseNeonComponent {
                 this.messenger, filterId, this.id,
                 db, tb, clause,
                 filterName,
-                noOp, noOp
+                (id) => {
+                    this.filterIds.push(id);
+                }, noOp
             );
         } else {
             this.filterService.addFilter(
@@ -402,10 +413,11 @@ export class QueryBarComponent  extends BaseNeonComponent {
             }
         }
 
-        clause = neon.query.or.apply(neon.query, whereClauses);
-        this.filterId.next(this.id);
-        this.filterIds.push(this.filterId.getValue());
-        this.addFilter(text, clause, fields.idField, fields.database, fields.table);
+        if (whereClauses.length) {
+            clause = neon.query.or.apply(neon.query, whereClauses);
+            this.filterId.next(this.id);
+            this.addFilter(text, clause, fields.idField, fields.database, fields.table);
+        }
     }
 
     /**
@@ -416,23 +428,10 @@ export class QueryBarComponent  extends BaseNeonComponent {
         if (this.filterIds) {
             this.removeAllFilters(this.filterService.getFilters());
             this.filterIds = [];
-            this.queryBarSetup();
-            this.refreshVisualization();
+            this.currentFilter = '';
         }
-    }
 
-    /**
-     * Returns whether a visualization filter object with the given field and value strings exists in the list of visualization filters.
-     *
-     * @arg {string} field
-     * @arg {string} value
-     * @return {boolean}
-     * @private
-     */
-    private filterExists(field: string, value: string) {
-        return this.filters.some((existingFilter) => {
-            return field === existingFilter.field && value === existingFilter.value;
-        });
+        this.executeQueryChain();
     }
 
     /**
@@ -441,25 +440,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
      * @override
      */
     setupFilters() {
-        let neonFilters = this.options.filterField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, [this.options.filterField.columnName]) : [];
-        this.filters = [];
-
-        for (let neonFilter of neonFilters) {
-            if (!neonFilter.filter.whereClause.whereClauses) {
-                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
-                let value = neonFilter.filter.whereClause.rhs;
-                let filter = {
-                    id: neonFilter.id,
-                    field: field.columnName,
-                    prettyField: field.prettyName,
-                    value: value
-                };
-                if (!this.filterExists(filter.field, filter.value)) {
-                    this.filters.push(filter);
-                }
-            }
-        }
+        //
     }
 
     /**
@@ -482,7 +463,6 @@ export class QueryBarComponent  extends BaseNeonComponent {
      */
     postInit() {
         this.removeFilter();
-        this.executeQueryChain();
     }
 
     /**
