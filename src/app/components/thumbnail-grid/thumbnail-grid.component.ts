@@ -713,8 +713,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         }
                     };
 
-                    video.onerror = (error) => {
-                       // console.log(link, error);
+                    video.onerror = () => {
                         if (link.includes('youtube')) {
                             let img: HTMLImageElement = new Image();
                             img.src = '/assets/images/youtube_logo.png';
