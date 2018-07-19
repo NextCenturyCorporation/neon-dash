@@ -715,7 +715,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
                 case this.mediaTypes.audio : {
                     let image: HTMLImageElement = new Image();
-                    image.src = "/assets/images/volume_up.svg";
+                    image.src = '/assets/images/volume_up.svg';
                     image.onclick = () => this.displayMediaTab(grid);
                     image.onload = () => {
                         thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
