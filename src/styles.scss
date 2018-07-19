@@ -443,6 +443,23 @@ body {
     }
 }
 
+.mat-slider {
+    padding: 0 !important;
+}
+
+.mat-slider-horizontal {
+    height: 30px !important;
+    min-width: unset !important;
+
+    .mat-slider-wrapper {
+        /* Position the slider in the center of the 30px height. */
+        top: 14px !important;
+        /* Add the same margin to the left and right. */
+        left: 14px !important;
+        right: 14px !important;
+    }
+}
+
 .mat-tab-label {
     height: 30px !important;
     min-width: unset !important;

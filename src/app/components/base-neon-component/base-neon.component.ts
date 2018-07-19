@@ -852,6 +852,25 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Publishes any custom events in the options (from the config file) using the given data item and event field.
+     *
+     * @arg {any} dataItem
+     * @arg {string} eventField
+     */
+    publishAnyCustomEvents(dataItem: any, eventField: string) {
+        this.getOptions().customEventsToPublish.forEach((config) => {
+            let metadata = {};
+            (config.fields || []).forEach((fieldsConfig) => {
+                metadata[fieldsConfig.field] = dataItem[fieldsConfig.field];
+            });
+            this.messenger.publish(config.id, {
+                item: eventField ? dataItem[eventField] : dataItem,
+                metadata: metadata
+            });
+        });
+    }
+
+    /**
      * Publishes the given ID to the select_id event.
      *
      * @arg {any} id

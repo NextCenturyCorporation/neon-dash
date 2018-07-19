@@ -51,7 +51,6 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
-    public idMetadata: string;
     public ignoreSelf: boolean;
     public linkField: FieldMetaData;
     public linkPrefix: string;
@@ -78,7 +77,6 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.border = this.injector.get('border', '');
         this.cropAndScale = this.injector.get('cropAndScale', '') || '';
         this.id = this.injector.get('id', '');
-        this.idMetadata = this.injector.get('idMetadata', '');
         this.ignoreSelf = this.injector.get('ignoreSelf', true);
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
@@ -242,6 +240,14 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         if (this.options.typeField.columnName) {
             fields.push(this.options.typeField.columnName);
         }
+
+        this.options.customEventsToPublish.forEach((config) => {
+            (config.fields || []).forEach((fieldsConfig) => {
+                if (fields.indexOf(fieldsConfig.field) < 0) {
+                    fields.push(fieldsConfig.field);
+                }
+            });
+        });
 
         return query.withFields(fields).where(this.options.linkField.columnName, '!=', null)
             .sortBy(this.options.sortField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
@@ -530,6 +536,13 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     if (this.options.typeField.columnName) {
                         item[this.options.typeField.columnName] = neonUtilities.deepFind(d, this.options.typeField.columnName);
                     }
+
+                    this.options.customEventsToPublish.forEach((config) => {
+                        (config.fields || []).forEach((fieldsConfig) => {
+                            item[fieldsConfig.field] = neonUtilities.deepFind(d, fieldsConfig.field);
+                        });
+                    });
+
                     for (let link of links) {
                         this.retreiveMedia(item, link);
                     }
@@ -719,7 +732,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     selectGridItem(item) {
         if (this.options.idField.columnName) {
-            this.publishSelectId(item[this.options.idField.columnName], this.options.idMetadata);
+            this.publishSelectId(item[this.options.idField.columnName]);
         }
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
@@ -727,6 +740,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         if (this.options.openOnMouseClick) {
             window.open(item[this.options.linkField.columnName]);
         }
+        this.publishAnyCustomEvents(item, this.options.idField.columnName);
     }
 
     /**
@@ -778,7 +792,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.ascending = this.options.ascending;
         bindings.border = this.options.border;
         bindings.cropAndScale = this.options.cropAndScale;
-        bindings.idMetadata = this.options.idMetadata;
         bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.linkPrefix = this.options.linkPrefix;
         bindings.openOnMouseClick = this.options.openOnMouseClick;
