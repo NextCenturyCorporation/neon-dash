@@ -42,7 +42,7 @@ import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServi
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { MatAutocompleteModule } from '@angular/material';
-import { ThumbnailContractedDetailsComponent, ThumbnailExpandedDetailsComponent } from './thumbnail-details.component';
+import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from './thumbnail-details.component';
 
 describe('Component: ThumbnailGrid', () => {
     let component: ThumbnailGridComponent;
@@ -51,8 +51,8 @@ describe('Component: ThumbnailGrid', () => {
 
     initializeTestBed({
         declarations: [
-            ThumbnailContractedDetailsComponent,
-            ThumbnailExpandedDetailsComponent,
+            ThumbnailDetailsContractedComponent,
+            ThumbnailDetailsExpandedComponent,
             ThumbnailGridComponent,
             ExportControlComponent,
             UnsharedFilterComponent
@@ -2067,8 +2067,8 @@ describe('Component: ThumbnailGrid with config', () => {
 
     initializeTestBed({
         declarations: [
-            ThumbnailContractedDetailsComponent,
-            ThumbnailExpandedDetailsComponent,
+            ThumbnailDetailsContractedComponent,
+            ThumbnailDetailsExpandedComponent,
             ThumbnailGridComponent,
             ExportControlComponent,
             UnsharedFilterComponent
