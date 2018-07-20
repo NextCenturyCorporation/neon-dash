@@ -518,7 +518,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     refreshVisualization() {
-        this.changeDetection.detectChanges();
+        /* tslint:disable:no-string-literal */
+        if (!this.changeDetection['destroyed']) {
+            this.changeDetection.detectChanges();
+        }
+        /* tslint:enable:no-string-literal */
         this.subOnResizeStop();
     }
 
