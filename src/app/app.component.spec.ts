@@ -74,8 +74,8 @@ import { NewsFeedComponent } from './components/news-feed/news-feed.component';
 import { MatAutocompleteModule } from '@angular/material';
 import { QueryBarComponent } from './components/query-bar/query-bar.component';
 import {
-    ThumbnailContractedDetailsComponent,
-    ThumbnailExpandedDetailsComponent
+    ThumbnailDetailsContractedComponent,
+    ThumbnailDetailsExpandedComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
 
 describe('App: NeonGtd', () => {
@@ -110,8 +110,8 @@ describe('App: NeonGtd', () => {
                 SimpleFilterComponent,
                 StackedTimelineComponent,
                 TextCloudComponent,
-                ThumbnailContractedDetailsComponent,
-                ThumbnailExpandedDetailsComponent,
+                ThumbnailDetailsContractedComponent,
+                ThumbnailDetailsExpandedComponent,
                 ThumbnailGridComponent,
                 TimelineComponent,
                 UnsharedFilterComponent,
