@@ -41,6 +41,7 @@ export abstract class BaseNeonOptions {
     public databases: DatabaseMetaData[] = [];
     public database: DatabaseMetaData;
     public fields: FieldMetaData[] = [];
+    public hideUnfiltered: boolean;
     public limit: number;
     public newLimit: number;
     public tables: TableMetaData[] = [];
@@ -79,6 +80,7 @@ export abstract class BaseNeonOptions {
         this.customEventsToPublish = injector.get('customEventsToPublish', []);
         this.customEventsToReceive = injector.get('customEventsToReceive', []);
         this.filter = injector.get('configFilter', null);
+        this.hideUnfiltered = injector.get('hideUnfiltered', false);
         this.limit = injector.get('limit', defaultLimit);
         this.newLimit = this.limit;
         this.title = injector.get('title', visualizationTitle);
@@ -625,17 +627,35 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Returns whether this visualization cannot execute its query right now.
+     *
+     * @return {boolean}
+     */
+    cannotExecuteQuery(): boolean {
+        let connection = this.connectionService.getActiveConnection();
+        let options = this.getOptions();
+        let database = options.database.name;
+        let table = options.table.name;
+        return (!connection || (options.hideUnfiltered && !this.filterService.getFiltersForFields(database, table).length));
+    }
+
+    /**
      * Execute a neon query
      * @param query The query to execute
      */
     executeQuery(query: neon.query.Query) {
-        let database = this.getOptions().database.name;
-        let table = this.getOptions().table.name;
+        let options = this.getOptions();
+        let database = options.database.name;
+        let table = options.table.name;
         let connection = this.connectionService.getActiveConnection();
 
-        if (!connection) {
+        if (this.cannotExecuteQuery()) {
+            this.baseOnQuerySuccess({
+                data: []
+            });
             return;
         }
+
         // Cancel any previous data query currently running.
         if (this.outstandingDataQuery[database] && this.outstandingDataQuery[database][table]) {
             this.outstandingDataQuery[database][table].abort();

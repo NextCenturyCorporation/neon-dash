@@ -327,9 +327,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     getDocCount() {
-        let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createClause())
-            .aggregate(neonVariables.COUNT, '*', '_docCount');
-        this.executeQuery(countQuery);
+        if (!this.cannotExecuteQuery) {
+            let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
+                .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
+            this.executeQuery(countQuery);
+        }
     }
 
     getFiltersToIgnore() {
