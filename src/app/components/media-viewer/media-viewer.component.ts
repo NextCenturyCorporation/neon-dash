@@ -130,6 +130,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }[] = [];
 
     public isLoadingMedia: boolean = false;
+    public noDataId: string = undefined;
     public onlyShowingQueryData: boolean = false;
     public previousId: string = '';
     public queryLinks: any[] = [];
@@ -280,9 +281,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     getButtonText() {
         if (!this.tabsAndMedia.length && !this.options.url) {
+            return 'Please Select';
+        }
+        if (!this.tabsAndMedia.length && this.options.url) {
+            if (this.options.hideUnfiltered) {
+                return 'Please Filter';
+            }
             return 'No Data';
-        } else if (this.options.url) {
-            return '';
         }
         return 'Total Files ' + super.prettifyInteger(this.tabsAndMedia.reduce((sum, tab) => {
             return sum + tab.list.length;
@@ -439,6 +444,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     onQuerySuccess(response: any) {
+        let tabName = this.options.id;
+        this.noDataId = this.options.id;
+        this.options.id = undefined;
         this.tabsAndMedia = [];
         this.selectedTabIndex = 0;
         this.queryLinks = [];
@@ -464,7 +472,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
                 let tab = {
                     selected: undefined,
-                    name: this.options.id,
+                    name: tabName,
                     list: []
                 };
 
@@ -478,6 +486,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     this.tabsAndMedia.push(tab);
                     // Use concat to copy the list.
                     this.queryLinks = [].concat(tab.list);
+                    this.noDataId = undefined;
                 }
 
                 this.isLoadingMedia = false;

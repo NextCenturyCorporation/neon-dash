@@ -796,7 +796,7 @@ describe('Component: Aggregation', () => {
     });
 
     it('getCloseableFilters does return expected object', () => {
-        expect(component.getCloseableFilters()).toEqual([{}]);
+        expect(component.getCloseableFilters()).toEqual([]);
 
         component.filterToPassToSuperclass.id = 'testId';
 

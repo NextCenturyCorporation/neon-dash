@@ -144,7 +144,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public lastPage: boolean = true;
     public page: number = 1;
 
-    public isLoading: boolean = false;
     public showGrid: boolean = true;
     public mediaTypes: any = MediaTypes;
 
@@ -275,6 +274,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     getButtonText() {
         if (!this.gridArray.length) {
+            if (this.options.hideUnfiltered) {
+                return 'Please Filter';
+            }
             return 'No Data';
         }
 
@@ -500,7 +502,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
-                this.isLoading = true;
                 this.showGrid = true;
                 response.data.forEach((d) => {
                     let item = {};
@@ -552,8 +553,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.refreshVisualization();
                 this.createMediaThumbnail();
                 this.refreshVisualization();
-                this.isLoading = false;
-
             } else {
                 this.errorMessage = 'No Data';
                 this.refreshVisualization();
