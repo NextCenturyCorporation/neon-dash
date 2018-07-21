@@ -48,6 +48,8 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public border: string;
     public categoryField: FieldMetaData;
     public cropAndScale: string;
+    public defaultLabel: string;
+    public defaultPercent: string;
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
@@ -76,6 +78,8 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.ascending = this.injector.get('ascending', false);
         this.border = this.injector.get('border', '');
         this.cropAndScale = this.injector.get('cropAndScale', '') || '';
+        this.defaultLabel = this.injector.get('defaultLabel', '');
+        this.defaultPercent = this.injector.get('defaultPercent', '');
         this.id = this.injector.get('id', '');
         this.ignoreSelf = this.injector.get('ignoreSelf', true);
         this.linkPrefix = this.injector.get('linkPrefix', '');
@@ -442,7 +446,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         if (this.options.objectNameField.columnName) {
             return item[this.options.objectNameField.columnName] || '';
         }
-        return '';
+        return this.options.defaultLabel;
     }
 
     getThumbnailPercent(item): string {
@@ -451,7 +455,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             // Do not add '.0' if the percentage is an integer.
             return (percentage % 1 ? percentage.toFixed(1) : percentage.toFixed(0)) + '%';
         }
-        return '';
+        return this.options.defaultPercent;
     }
 
     getThumbnailTitle(item): string {
@@ -795,6 +799,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.ascending = this.options.ascending;
         bindings.border = this.options.border;
         bindings.cropAndScale = this.options.cropAndScale;
+        bindings.defaultLabel = this.options.defaultLabel;
+        bindings.defaultPercent = this.options.defaultPercent;
         bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.linkPrefix = this.options.linkPrefix;
         bindings.openOnMouseClick = this.options.openOnMouseClick;
