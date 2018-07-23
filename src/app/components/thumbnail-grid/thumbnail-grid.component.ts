@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,6 +41,7 @@ import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import { Key } from 'protractor';
 
 /**
  * Manages configurable options for the specific visualization.
@@ -651,7 +653,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
             thumbnail.fillStyle = '#ffffff';
             thumbnail.fillRect(0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
-
+    
             switch (type) {
                 case this.mediaTypes.image : {
                     let image: HTMLImageElement = new Image();
@@ -769,6 +771,23 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
+        }
+    }
+
+    /**
+     * checks to see if the media type is valid and a thumbnail image will be displayed
+     * @arg {object} item
+     * @return boolean 
+     */
+    isValidMediaType(item){ 
+        let values = Object.keys(this.mediaTypes).map((key) => {
+            return this.mediaTypes[key];
+        })
+        if(values.includes(item[this.options.typeField.columnName])){
+            return true;
+        }
+        else{
+            return false;
         }
     }
 
