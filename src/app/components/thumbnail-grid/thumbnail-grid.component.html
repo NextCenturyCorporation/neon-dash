@@ -216,10 +216,10 @@
        <div class="thumbnail-grid-container" *ngIf="showGrid" [class.style2]="options.styleClass == 'style2'">
            <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [title]="getThumbnailTitle(item)"
                 [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
-               <app-thumbnail-contracted-details *ngIf="!options.detailedThumbnails" [item]="item" [options]="options">
-               </app-thumbnail-contracted-details>
-               <app-thumbnail-expanded-details class="flex-grow" *ngIf="options.detailedThumbnails" [item]="item" [options]="options">
-               </app-thumbnail-expanded-details>
+               <app-thumbnail-details-contracted *ngIf="!options.detailedThumbnails" [item]="item" [options]="options">
+               </app-thumbnail-details-contracted>
+               <app-thumbnail-details-expanded class="flex-grow" *ngIf="options.detailedThumbnails" [item]="item" [options]="options">
+               </app-thumbnail-details-expanded>
            </div>
        </div>
    </div>
