@@ -653,7 +653,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
             thumbnail.fillStyle = '#ffffff';
             thumbnail.fillRect(0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
-    
+
             switch (type) {
                 case this.mediaTypes.image : {
                     let image: HTMLImageElement = new Image();
@@ -777,16 +777,15 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     /**
      * checks to see if the media type is valid and a thumbnail image will be displayed
      * @arg {object} item
-     * @return boolean 
+     * @return boolean
      */
-    isValidMediaType(item){ 
+    isValidMediaType(item) {
         let values = Object.keys(this.mediaTypes).map((key) => {
             return this.mediaTypes[key];
-        })
-        if(values.includes(item[this.options.typeField.columnName])){
+        });
+        if (values.includes(item[this.options.typeField.columnName])) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }

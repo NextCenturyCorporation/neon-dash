@@ -1802,8 +1802,8 @@ describe('Component: ThumbnailGrid', () => {
     });
 
     it('isValideMediaType does return true if a MediaType is valid', () => {
-        let random = "random";
-        let correctMedia = "img";
+        let random = 'random';
+        let correctMedia = 'img';
         expect(!component.isValidMediaType(random));
         expect(component.isValidMediaType(correctMedia));
     });
