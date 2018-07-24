@@ -1539,7 +1539,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.errorMessage).toEqual('');
         expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
+        expect(component.page).toEqual(2);
         expect(component.showGrid).toEqual(true);
 
         expect(component.gridArray).toEqual([{
@@ -1589,7 +1589,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.errorMessage).toEqual('No Data');
         expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
+        expect(component.page).toEqual(2);
         expect(component.showGrid).toEqual(false);
 
         expect(component.gridArray).toEqual([]);
@@ -1628,7 +1628,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.errorMessage).toEqual('');
         expect(component.lastPage).toEqual(false);
-        expect(component.page).toEqual(1);
+        expect(component.page).toEqual(2);
         expect(component.showGrid).toEqual(true);
 
         expect(component.gridArray).toEqual([{
