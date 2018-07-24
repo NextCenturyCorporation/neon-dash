@@ -374,14 +374,49 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private resetGraphData() {
-        let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
+        let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties(),
+            nodeIds: string[] = [];
         this.totalNodes = graphProperties.nodes.length;
         this.clearGraphData();
         if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
-            this.graph.setOptions({physics: {enabled: true}});
+            graphProperties.nodes.forEach((node) => {nodeIds.push(node.id); });
+
+            this.graph.setOptions({
+            physics: {
+                enabled: true,
+                forceAtlas2Based: {
+                    gravitationalConstant: -50,
+                    centralGravity: 0.01,
+                    springConstant: 0.08,
+                    springLength: 50,
+                    damping: 0.4,
+                    avoidOverlap: 0
+                },
+                maxVelocity: 30,
+                minVelocity: 0.1,
+                solver: 'forceAtlas2Based',
+                stabilization: {
+                    enabled: true,
+                    iterations: 1000,
+                    updateInterval: 10,
+                    onlyDynamicEdges: false,
+                    fit: true
+                },
+                timestep: 0.5,
+                adaptiveTimestep: true
+            }
+            });
+
             this.displayGraph = true;
             this.graphData.nodes.update(graphProperties.nodes);
             this.graphData.edges.update(graphProperties.edges);
+
+            let fitOptions: vis.FitOptions = {nodes: nodeIds,
+                animation: {duration: 500,
+                    easingFunction: 'easeInOutQuad'}
+            };
+            this.graph.fit(fitOptions);
+
             this.isLoading = false;
         } else {
             this.displayGraph = false;
