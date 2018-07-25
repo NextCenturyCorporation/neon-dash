@@ -918,7 +918,7 @@ describe('Component: MediaViewer', () => {
         });
     })));
 
-    it('does show single iframe tag according to the video type', async(inject([DomSanitizer], (sanitizer) => {
+    it('does show single video tag according to the video type', async(inject([DomSanitizer], (sanitizer) => {
         let vidSrc = 'https://www.youtube.com/embed/ByziC1-u0IE';
         component.documentArray = [{
             border: '',
@@ -932,7 +932,7 @@ describe('Component: MediaViewer', () => {
             fixture.detectChanges();
             let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
             expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<iframe');
+            expect(media[0].nativeElement.innerHTML).toContain('<video');
             expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
         });
     })));
