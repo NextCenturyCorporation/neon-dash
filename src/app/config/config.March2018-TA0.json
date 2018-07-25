@@ -2088,7 +2088,7 @@
 					"title": "Topics",
 					"database": "ll_nepal_simplified_03_08",
 					"table": "documents",
-					"dataField": "hashtags.text",
+					"dataField": "topics",
 					"limit": 11,
 					"chartType": "horizontalBar",
 					"colors": [
@@ -2122,7 +2122,7 @@
 					"title": "People/Groups",
 					"database": "ll_nepal_simplified_03_08",
 					"table": "documents",
-					"dataField": "author"
+					"dataField": "entities"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,

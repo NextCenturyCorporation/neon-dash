@@ -97,8 +97,11 @@ export class AnnotationViewerOptions extends BaseNeonOptions {
 }
 
 export class Data {
+    annotationStartIndex: any;
+    annotationEndIndex: any;
+    annotationTextList: any;
+    annotationTypeList: any;
     documents: any;
-    annotations: any[];
     details: any;
     parts: Part[];
     validAnnotations: boolean;
@@ -166,6 +169,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public seenTypes: string[] = [];
     public disabledSet: [string[]] = [] as [string[]];
     public colorByFields: string[] = [];
+    public indexInclusive: boolean;
+    public offset = 0;
 
     constructor(
         activeGridService: ActiveGridService,
@@ -269,23 +274,37 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     doesAnnotationExist(data) {
         let document = data;
         let isValid = false;
-        let annotationsList = data.annotations;
-
+        let annotationStartIndex = data.annotationStartIndex;
+        let annotationEndIndex = data.annotationEndIndex;
+        let annotationTextList = data.annotationTextList;
+        let annotationTypeList = data.annotationTypeList;
         let documentText = data.documents;
-        if (!annotationsList.length || annotationsList.length < 1) {
+
+        if (!annotationStartIndex.length || annotationStartIndex.length < 1) {
             isValid = false;
         } else {
-            let annotation = annotationsList[0];
             let text = document.documents;
-            //let textObject = document.documents.columnName;
             if (text instanceof Array) {
-                text = text[0].substring(annotation.start, annotation.end);
+                isValid = this.isValid(text[0], annotationTextList[0], annotationStartIndex[0], annotationEndIndex[0]);
             } else if (text) {
-                text = text.substring(annotation.start, annotation.end);
+                isValid = this.isValid(text, annotationTextList[0], annotationStartIndex[0], annotationEndIndex[0]);
             }
-            if (text.includes(annotation.text)) {
-                isValid = true;
-            }
+        }
+        return isValid;
+    }
+
+    isValid(text: string, annotationText: string, startIndex: number, endIndex: number): boolean {
+        let inclusiveText = text.substring(startIndex, (endIndex + 1));
+        let exclusiveText = text.substring(startIndex, endIndex);
+        let isValid = false;
+
+        //isAnnotation exclusive or inclusive?
+        if (exclusiveText.includes(annotationText)) {
+            this.offset = 0;
+            isValid = true;
+        } else if (inclusiveText.includes(annotationText)) {
+            this.offset = 1;
+            isValid = true;
         }
         return isValid;
     }
@@ -417,19 +436,9 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     createDisplayObjects(data) {
 
         for (let document of data) {
-
             document.parts = [];
 
             let documentText = document.documents;
-            let partMentions = [];
-            let partHighlightColor;
-
-            let annotationStartIndex = [];
-            let annotationEndIndex = [];
-            let annotationTextList = [];
-            let annotationTypeList = [];
-
-            let annotationsList = document.annotations;
             let annotationsPartList = [];
 
             //console.log(document);
@@ -439,17 +448,11 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 part.annotation = false;
                 document.parts.push(part);
             } else {
-                annotationStartIndex = neonUtilities.deepFind(document, this.options.startCharacterField.columnName);
-                annotationEndIndex = neonUtilities.deepFind(document, this.options.endCharacterField.columnName);
-                annotationTextList = neonUtilities.deepFind(document, this.options.textField.columnName);
-                annotationTypeList = neonUtilities.deepFind(document, this.options.typeField.columnName);
                 //Breaks annotations into parts
-                for (let index = 0; index < annotationStartIndex.length; index ++) {
+                for (let index = 0; index < document.annotationStartIndex.length; index ++) {
                     let currentPart = new Part();
-                    let currentStart = annotationStartIndex[index];
-                    let currentEnd = annotationEndIndex[index];
-                    let currentText = annotationTextList[index];
-                    let currentType = annotationTypeList[index];
+                    let currentText = document.annotationTextList[index];
+                    let currentType = document.annotationTypeList[index];
                     let highlightColor = this.colorSchemaService.getColorFor(currentType, currentType).toRgba(0.4);
 
                     currentPart.highlightColor = highlightColor;
@@ -470,46 +473,49 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             for (let index = 0; index < annotationsPartList.length; index++) {
                 //If the first annotation is the very first text
                 //Add the first annotation to the data.parts
-                if (annotationStartIndex[index] === 0 && index === 0) {
+                if (document.annotationStartIndex[index] === 0 && index === 0) {
                     let part = new Part();
-                    part.text = documentText.slice(annotationEndIndex[index], annotationStartIndex[index + 1]);
+                    part.text = documentText.substring(
+                        document.annotationEndIndex[index] + this.offset, document.annotationStartIndex[index + 1]);
                     part.annotation = false;
                     document.parts.push(annotationsPartList[index]);
                     document.parts.push(part);
                     //If this is the last annotation in the text
-                } else if (annotationEndIndex[index] + 1 === documentText.length) {
+                } else if (document.annotationEndIndex[index] + this.offset === documentText.length) {
                     document.parts.push(annotationsPartList[index]);
                     //If the first annotation is not the first one in the text
-                } else if (index === 0 && annotationStartIndex[index] !== 0) {
+                } else if (index === 0 && document.annotationStartIndex[index] !== 0) {
                     let innerPart = new Part();
                     let outerPart = new Part();
-                    innerPart.text = documentText.slice(0, annotationStartIndex[index]);
+                    innerPart.text = documentText.substring(0, document.annotationStartIndex[index]);
                     innerPart.annotation = false;
-                    outerPart.text = documentText.slice(annotationEndIndex[index], annotationStartIndex[index + 1]);
+                    outerPart.text = documentText.substring(
+                        document.annotationEndIndex[index] + this.offset, document.annotationStartIndex[index + 1]);
                     outerPart.annotation = false;
 
                     document.parts.push(innerPart);
                     document.parts.push(annotationsPartList[index]);
                     document.parts.push(outerPart);
                     //If there exists a normal part between annotation
-                    // and this is not thel
-                } else if (annotationEndIndex[index] !== annotationStartIndex[index + 1]
-                    && annotationEndIndex[index] + 1 !== annotationsPartList.length) {
+                    // and this is not the last
+                } else if (document.annotationEndIndex[index] !== document.annotationStartIndex[index + 1]
+                    && document.annotationEndIndex[index] + 1 !== annotationsPartList.length) {
                     let partNormal = new Part();
-                    let startIndex = annotationEndIndex[index];
-                    let endIndex = annotationStartIndex[index + 1];
+                    let startIndex = document.annotationEndIndex[index];
+                    let endIndex = document.annotationStartIndex[index + 1];
 
-                    partNormal.text = documentText.slice(startIndex, endIndex);
+                    partNormal.text = documentText.substring(startIndex + this.offset, endIndex);
                     partNormal.annotation = false;
 
                     document.parts.push(annotationsPartList[index]);
                     document.parts.push(partNormal);
                     //document.parts.push(annotationsPartList[index]);
                     //If this is the last annotation but there's more normal text
-                } else if (annotationEndIndex[index] === annotationEndIndex[annotationsPartList.length] &&
-                    annotationEndIndex[index] + 1 < documentText.length) {
+                } else if (document.annotationEndIndex[index] === document.annotationEndIndex[annotationsPartList.length] &&
+                    document.annotationEndIndex[index] + 1 < documentText.length) {
                     let lastNormalPart = new Part();
-                    lastNormalPart.text = documentText.slice(annotationEndIndex[index], annotationsPartList.length - 1);
+                    lastNormalPart.text = documentText.substring(
+                        document.annotationEndIndex[index] + this.offset, annotationsPartList.length - 1);
                     lastNormalPart.annotation = false;
                 }
             }
@@ -906,21 +912,24 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     updateDocuemnts(response) {
-
         this.options.data = [];
         for (let document of response.data) {
+            //console.log(document);
             let data = {
+                annotationStartIndex: [],
+                annotationEndIndex: [],
+                annotationTextList: [],
+                annotationTypeList: [],
                 documents: null,
-                annotations: [],
                 details: null,
                 parts: [],
                 validAnnotations: null
             };
-            if (document.annotations) {
-                for (let annotation of document.annotations) {
-                    data.annotations.push(annotation);
-                }
-            }
+            data.annotationStartIndex = neonUtilities.deepFind(document, this.options.startCharacterField.columnName);
+            data.annotationEndIndex = neonUtilities.deepFind(document, this.options.endCharacterField.columnName);
+            data.annotationTextList = neonUtilities.deepFind(document, this.options.textField.columnName);
+            data.annotationTypeList = neonUtilities.deepFind(document, this.options.typeField.columnName);
+
             data.documents = document[this.options.documentTextField.columnName];
             if (data.documents) {
                 this.options.data.push(data);
