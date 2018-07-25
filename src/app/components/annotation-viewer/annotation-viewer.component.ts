@@ -61,6 +61,8 @@ export class AnnotationViewerOptions extends BaseNeonOptions {
     annotationsInAnotherTable: boolean;
     annotationDatabase: FieldMetaData;
     annotationTable: FieldMetaData;
+    idField: FieldMetaData;
+    linkField: FieldMetaData;
     startCharacterField: FieldMetaData;
     endCharacterField: FieldMetaData;
     textField: FieldMetaData;
@@ -76,19 +78,26 @@ export class AnnotationViewerOptions extends BaseNeonOptions {
 
     errorMessage: string;
 
+    id: string;
     ignoreSelf: boolean;
 
     singleColor: boolean;
 
-    onInit() {
+    respondMode: boolean;
 
-        this.documentTextField = this.injector.get('documentTextField', '');
-        this.singleColor = this.injector.get('singleColor', false);
+    onInit() {
         this.documentLimit = this.injector.get('documentLimit', 50);
+        this.documentTextField = this.injector.get('documentTextField', '');
+        this.idField = this.injector.get('idField', '');
+        this.linkField = this.injector.get('linkField', '');
+        this.respondMode = this.injector.get('respondMode', false);
+        this.singleColor = this.injector.get('singleColor', false);
     }
 
     updateFieldsOnTableChanged() {
         this.documentTextField = this.findFieldObject('documentTextField');
+        this.idField = this.findFieldObject('idField');
+        this.linkField = this.findFieldObject('linkField');
         this.startCharacterField = this.findFieldObject('startCharacterField');
         this.endCharacterField = this.findFieldObject('endCharacterField');
         this.textField = this.findFieldObject('textField');
@@ -160,6 +169,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
     // The data count used for the settings text and pagination.
     public docCount: number = 0;
+    //Either documentTextField or linkField
+    public displayField: string;
 
     // The data returned by the visualization query response (not limited).
     public responseData: any[] = [];
@@ -171,6 +182,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     public colorByFields: string[] = [];
     public indexInclusive: boolean;
     public offset = 0;
+    public previousId: string = '';
 
     constructor(
         activeGridService: ActiveGridService,
@@ -199,6 +211,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         this.configFilter = this.injector.get('configFilter', null);
 
         this.options = new AnnotationViewerOptions(this.injector, this.datasetService, 'Annotation Viewer', 50);
+
+        this.subscribeToSelectId(this.getSelectIdCallback());
     }
 
     getOptions(): BaseNeonOptions {
@@ -294,15 +308,20 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     }
 
     isValid(text: string, annotationText: string, startIndex: number, endIndex: number): boolean {
-        let inclusiveText = text.substring(startIndex, (endIndex + 1));
-        let exclusiveText = text.substring(startIndex, endIndex);
+        let inclusiveText;
+        let exclusiveText;
+
+        if ((typeof text) === 'string') {
+            inclusiveText = text.substring(startIndex, (endIndex + 1));
+            exclusiveText = text.substring(startIndex, endIndex);
+        }
         let isValid = false;
 
         //isAnnotation exclusive or inclusive?
-        if (exclusiveText.includes(annotationText)) {
+        if (exclusiveText && annotationText && exclusiveText.includes(annotationText)) {
             this.offset = 0;
             isValid = true;
-        } else if (inclusiveText.includes(annotationText)) {
+        } else if (inclusiveText && annotationText && inclusiveText.includes(annotationText)) {
             this.offset = 1;
             isValid = true;
         }
@@ -552,7 +571,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @return {any}
      */
     createClause(): any {
-        let clause = neon.query.where(this.options.documentTextField.columnName, '!=', null);
+        let clause = neon.query.where(this.displayField, '!=', null);
 
         if (this.hasUnsharedFilter()) {
             clause = neon.query.and(clause,
@@ -570,17 +589,28 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     createQuery(): neon.query.Query {
 
-        let aggregationFields = [this.options.documentTextField.columnName];
-        let clause = neon.query.where(this.options.documentTextField.columnName, '!=', null);
+        let aggregationFields = [this.displayField];
+        let clause = neon.query.where(this.displayField, '!=', null);
+        let databaseName = this.options.database.name;
+        let tableName = this.options.table.name;
+        let limit = this.options.documentLimit;
+        let query = new neon.query.Query().selectFrom(databaseName, tableName);
 
         if (this.hasUnsharedFilter()) {
             clause = neon.query.and(clause,
                 neon.query.where(this.options.unsharedFilterField.columnName, '=', this.options.unsharedFilterValue));
         }
-        let databaseName = this.options.database.name;
-        let tableName = this.options.table.name;
-        let limit = this.options.documentLimit;
-        let query = new neon.query.Query().selectFrom(databaseName, tableName);
+
+        if (this.options.respondMode && this.options.idField) {
+            let fields = [this.options.idField.columnName, this.options.linkField.columnName];
+
+            let whereClauses = [
+                neon.query.where(this.options.idField.columnName, '=', this.options.id)
+            ];
+
+            return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
+        }
+
         let whereClause = this.createClause();
 
         return query.where(whereClause);
@@ -610,7 +640,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @return {neon.query.WherePredicate}
      */
     createWhere(): neon.query.WherePredicate {
-        let clauses: neon.query.WherePredicate[] = [neon.query.where(this.options.documentTextField.columnName, '!=', null)];
+        let clauses: neon.query.WherePredicate[] = [neon.query.where(this.displayField, '!=', null)];
 
         // Only add the optional field if it is defined.
         /*if (this.options.annotationViewerOptionalField.columnName) {
@@ -741,7 +771,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         }
 
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.documentTextField.columnName]);
+            [this.displayField]);
 
         let filterIdsToIgnore = [];
         for (let neonFilter of neonFilters) {
@@ -762,6 +792,25 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     getFilterText(filter: any): string {
         return filter.prettyField + ' = ' + filter.value;
+    }
+
+    /**
+     * Creates and returns the callback function for a select_id event.
+     *
+     * @return {function}
+     * @private
+     */
+    private getSelectIdCallback() {
+        return (message) => {
+            if (message.database === this.options.database.name && message.table === this.options.table.name) {
+                this.options.id = Array.isArray(message.id) ? message.id[0] : message.id;
+                if (this.options.id !== this.previousId) {
+                    this.activeData = [];
+                    this.previousId = this.options.id;
+                    this.executeQueryChain();
+                }
+            }
+        };
     }
 
     /**
@@ -810,7 +859,11 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @override
      */
     isValidQuery(): boolean {
-        return !!(this.options.database.name && this.options.table.name && this.options.documentTextField.columnName);
+        return !!(
+            this.options.database.name &&
+            this.options.table.name &&
+            (this.options.documentTextField.columnName || this.options.linkField.columnName)
+        );
     }
 
     /**
@@ -883,17 +936,17 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             this.docCount = response.data[0]._docCount;
             return;
         }
-
+        this.displayField = this.options.respondMode ? this.options.linkField.columnName : this.options.documentTextField.columnName;
         // The aggregation query response data will have a count field and all visualization fields.
         this.responseData = response.data.map((item) => {
-            let label = item[this.options.documentTextField.columnName];
+            let label = item[this.displayField];
 
             return {
                 count: item.count,
-                field: this.options.documentTextField.columnName,
+                field: this.displayField,
                 label: label,
-                prettyField: this.options.documentTextField.prettyName,
-                value: item[this.options.documentTextField.columnName]
+                prettyField: this.displayField,
+                value: item[this.displayField]
             };
         });
 
@@ -930,7 +983,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             data.annotationTextList = neonUtilities.deepFind(document, this.options.textField.columnName);
             data.annotationTypeList = neonUtilities.deepFind(document, this.options.typeField.columnName);
 
-            data.documents = document[this.options.documentTextField.columnName];
+            data.documents = document[this.displayField];
             if (data.documents) {
                 this.options.data.push(data);
             }
@@ -996,7 +1049,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
         // Get all the neon filters relevant to this visualization.
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.documentTextField.columnName]);
+            [this.displayField]);
 
         for (let neonFilter of neonFilters) {
 
