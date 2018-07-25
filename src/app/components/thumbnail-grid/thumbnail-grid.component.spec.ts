@@ -2015,7 +2015,7 @@ describe('Component: ThumbnailGrid', () => {
             nameField: 'testNameField',
             objectIdField: 'testObjectIdField',
             objectNameField: 'testObjectNameField',
-            openOnMouseClick: true,
+            openOnMouseClick: false,
             percentField: 'testPercentField',
             predictedNameField: 'testPredictedNameField',
             sortField: 'testSortField',
