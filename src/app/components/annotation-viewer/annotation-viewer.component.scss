@@ -43,17 +43,18 @@
 .visualization-sidenav {
 
     .body-container {
-        top: calc(#{$vis-title-expected-height} - 20px);
+        top: calc(#{$vis-title-expected-height} - 25px);
 
         &.with-filter {
-            top: calc(#{$vis-title-expected-height} + 25px);
+            top: calc(#{$vis-title-expected-height} + 20px);
+            height: calc(100% - #{$vis-title-expected-height} - 25px);
         }
 
         &.with-footer {
-            height: calc(100% - #{$vis-title-expected-height} - 15px);
+            height: calc(100% - #{$vis-title-expected-height} - 25px);
 
             &.with-filter {
-                height: calc(100% - #{$vis-title-expected-height} - 15px);
+                height: calc(100% - #{$vis-title-expected-height} - 25px);
             }
         }
     }
