@@ -81,7 +81,11 @@ describe('Component: ThumbnailGrid', () => {
     it('does have expected class options properties', () => {
         expect(component.options.ascending).toEqual(false);
         expect(component.options.border).toEqual('');
+        expect(component.options.borderCompareValue).toEqual('');
+        expect(component.options.borderPercentThreshold).toEqual(0.5);
         expect(component.options.cropAndScale).toEqual('');
+        expect(component.options.defaultLabel).toEqual('');
+        expect(component.options.defaultPercent).toEqual('');
         expect(component.options.id).toEqual('');
         expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.linkPrefix).toEqual('');
@@ -91,6 +95,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.typeMap).toEqual({});
 
         expect(component.options.categoryField).toEqual(component.emptyField);
+        expect(component.options.compareField).toEqual(component.emptyField);
         expect(component.options.filterField).toEqual(component.emptyField);
         expect(component.options.idField).toEqual(component.emptyField);
         expect(component.options.linkField).toEqual(component.emptyField);
@@ -829,6 +834,7 @@ describe('Component: ThumbnailGrid', () => {
             .sortBy('testSortField', neonVariables.DESCENDING));
 
         component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
+        component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
         component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
@@ -839,8 +845,8 @@ describe('Component: ThumbnailGrid', () => {
         component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
         component.options.ascending = true;
 
-        fields = ['testLinkField', 'testSortField', 'testCategoryField', 'testFilterField', 'testIdField', 'testNameField',
-            'testObjectIdField', 'testObjectNameField', 'testPercentField', 'testPredictedNameField', 'testTypeField'];
+        fields = ['testLinkField', 'testSortField', 'testCategoryField', 'testCompareField', 'testFilterField', 'testIdField',
+            'testNameField', 'testObjectIdField', 'testObjectNameField', 'testPercentField', 'testPredictedNameField', 'testTypeField'];
 
         expect(component.createQuery()).toEqual(new neon.query.Query()
             .selectFrom(component.options.database.name, component.options.table.name)
@@ -1010,9 +1016,13 @@ describe('Component: ThumbnailGrid', () => {
         }, {
             columnName: '',
             prettyName: ''
+        }, {
+            columnName: '',
+            prettyName: ''
         }]);
 
         component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
+        component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
@@ -1027,6 +1037,9 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.getExportFields()).toEqual([{
             columnName: 'testCategoryField',
             prettyName: 'Test Category Field'
+        }, {
+            columnName: 'testCompareField',
+            prettyName: 'Test Compare Field'
         }, {
             columnName: 'testFilterField',
             prettyName: 'Test Filter Field'
@@ -1357,6 +1370,7 @@ describe('Component: ThumbnailGrid', () => {
 
     it('onQuerySuccess with aggregation query data does update expected properties and call expected functions', () => {
         component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
+        component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.idField = new FieldMetaData('_id', 'Test ID Field');
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
@@ -1378,6 +1392,7 @@ describe('Component: ThumbnailGrid', () => {
             data: [{
                 _id: 'id1',
                 testCategoryField: 'category1',
+                testCompareField: 'compare1',
                 testFilterField: 'filter1',
                 testLinkField: 'link1',
                 testNameField: 'name1',
@@ -1390,6 +1405,7 @@ describe('Component: ThumbnailGrid', () => {
             }, {
                 _id: 'id2',
                 testCategoryField: 'category2',
+                testCompareField: 'compare2',
                 testFilterField: 'filter2',
                 testLinkField: 'link2',
                 testNameField: 'name2',
@@ -1410,6 +1426,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.gridArray).toEqual([{
             _id: 'id1',
             testCategoryField: 'category1',
+            testCompareField: 'compare1',
             testFilterField: 'filter1',
             testLinkField: 'link1',
             testNameField: 'name1',
@@ -1422,6 +1439,7 @@ describe('Component: ThumbnailGrid', () => {
         }, {
             _id: 'id2',
             testCategoryField: 'category2',
+            testCompareField: 'compare2',
             testFilterField: 'filter2',
             testLinkField: 'link2',
             testNameField: 'name2',
@@ -1435,6 +1453,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.pagingGrid).toEqual([{
             _id: 'id1',
             testCategoryField: 'category1',
+            testCompareField: 'compare1',
             testFilterField: 'filter1',
             testLinkField: 'link1',
             testNameField: 'name1',
@@ -1447,6 +1466,7 @@ describe('Component: ThumbnailGrid', () => {
         }, {
             _id: 'id2',
             testCategoryField: 'category2',
+            testCompareField: 'compare2',
             testFilterField: 'filter2',
             testLinkField: 'link2',
             testNameField: 'name2',
@@ -1795,8 +1815,13 @@ describe('Component: ThumbnailGrid', () => {
         expect(bindings1).toEqual({
             ascending: false,
             border: '',
+            borderCompareValue: '',
+            borderPercentThreshold: 0.5,
             categoryField: '',
+            compareField: '',
             cropAndScale: '',
+            defaultLabel: '',
+            defaultPercent: '',
             filterField: '',
             idField: '',
             ignoreSelf: true,
@@ -1815,6 +1840,7 @@ describe('Component: ThumbnailGrid', () => {
         });
 
         component.options.categoryField = new FieldMetaData('testCategoryField', 'Test Category Field');
+        component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
@@ -1827,7 +1853,11 @@ describe('Component: ThumbnailGrid', () => {
         component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
         component.options.ascending = true;
         component.options.border = 'grey';
+        component.options.borderCompareValue = 'testCompareValue';
+        component.options.borderPercentThreshold = 0.25;
         component.options.cropAndScale = 'both';
+        component.options.defaultLabel = 'testDefaultLabel';
+        component.options.defaultPercent = 'testDefaultPercent';
         component.options.ignoreSelf = false;
         component.options.linkPrefix = 'prefix/';
         component.options.openOnMouseClick = false;
@@ -1845,8 +1875,13 @@ describe('Component: ThumbnailGrid', () => {
         expect(bindings2).toEqual({
             ascending: true,
             border: 'grey',
+            borderCompareValue: 'testCompareValue',
+            borderPercentThreshold: 0.25,
             categoryField: 'testCategoryField',
+            compareField: 'testCompareField',
             cropAndScale: 'both',
+            defaultLabel: 'testDefaultLabel',
+            defaultPercent: 'testDefaultPercent',
             filterField: 'testFilterField',
             idField: 'testIdField',
             ignoreSelf: false,
@@ -1935,7 +1970,11 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'limit', useValue: 10 },
             { provide: 'ascending', useValue: true },
             { provide: 'border', useValue: 'grey' },
+            { provide: 'borderCompareValue', useValue: 'testCompareValue' },
+            { provide: 'borderPercentThreshold', useValue: 0.25 },
             { provide: 'cropAndScale', useValue: 'both' },
+            { provide: 'defaultLabel', useValue: 'testDefaultLabel' },
+            { provide: 'defaultPercent', useValue: 'testDefaultPercent' },
             { provide: 'id', useValue: 'testId' },
             { provide: 'ignoreSelf', useValue: true },
             { provide: 'linkPrefix', useValue: 'prefix/' },
@@ -1944,6 +1983,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'textMap', useValue: { actual: 'Truth', percentage: 'Score' } },
             { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } },
             { provide: 'categoryField', useValue: 'testCategoryField' },
+            { provide: 'compareField', useValue: 'testCategoryField' },
             { provide: 'filterField', useValue: 'testFilterField' },
             { provide: 'idField', useValue: 'testIdField' },
             { provide: 'linkField', useValue: 'testLinkField' },
@@ -1987,7 +2027,11 @@ describe('Component: ThumbnailGrid with config', () => {
     it('does have expected class options properties', () => {
         expect(component.options.ascending).toEqual(true);
         expect(component.options.border).toEqual('grey');
+        expect(component.options.borderCompareValue).toEqual('testCompareValue');
+        expect(component.options.borderPercentThreshold).toEqual(0.25);
         expect(component.options.cropAndScale).toEqual('both');
+        expect(component.options.defaultLabel).toEqual('testDefaultLabel');
+        expect(component.options.defaultPercent).toEqual('testDefaultPercent');
         expect(component.options.id).toEqual('testId');
         expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.linkPrefix).toEqual('prefix/');
@@ -2003,6 +2047,7 @@ describe('Component: ThumbnailGrid with config', () => {
         });
 
         expect(component.options.categoryField).toEqual(new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string'));
+        expect(component.options.compareField).toEqual(new FieldMetaData('testCategoryField', 'Test Category Field', false, 'string'));
         expect(component.options.filterField).toEqual(new FieldMetaData('testFilterField', 'Test Filter Field', false, 'string'));
         expect(component.options.idField).toEqual(new FieldMetaData('testIdField', 'Test ID Field', false, 'string'));
         expect(component.options.linkField).toEqual(new FieldMetaData('testLinkField', 'Test Link Field', false, 'string'));
