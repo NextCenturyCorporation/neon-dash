@@ -21,7 +21,6 @@ import {
 } from '@angular/core';
 import { } from 'jasmine-core';
 import * as neon from 'neon-framework';
-import { APP_BASE_HREF } from '@angular/common';
 import { NetworkGraphComponent } from './network-graph.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { ActiveGridService } from '../../services/active-grid.service';
@@ -46,6 +45,8 @@ import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { animate, style, transition as ngTransition, trigger } from '@angular/animations';
 import { BaseChartComponent, ChartComponent, calculateViewDimensions, ViewDimensions, ColorHelper
 } from '@swimlane/ngx-charts';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+
 @Component({
     selector: 'app-network-graph',
     templateUrl: './network-graph.component.html',
@@ -68,43 +69,43 @@ describe('Component: NetworkGraph', () => {
     let component: TestNetworkGraphComponent;
     let fixture: ComponentFixture<TestNetworkGraphComponent>;
 
+    initializeTestBed({
+        declarations: [
+            ChartComponent,
+            LegendComponent,
+            NetworkGraphComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            FilterService,
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            VisualizationService,
+            ThemesService,
+            Injector,
+            ColorSchemeService,
+            { provide: 'config', useValue: testConfig },
+            { provide: 'title', useValue: 'NetworkGraph with Config Title' },
+            { provide: 'database', useValue: 'NetworkGraphDatabase' },
+            { provide: 'table', useValue: 'testTable' },
+            { provide: 'nodeField', useValue: 'testNodeField' },
+            { provide: 'linkField', useValue: 'testLinkField' },
+            { provide: 'limit', useValue: 'testLimit' }
+        ],
+        imports: [
+            BrowserAnimationsModule,
+            AppMaterialModule,
+            FormsModule
+        ],
+        schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ChartComponent,
-                LegendComponent,
-                NetworkGraphComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                FilterService,
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                VisualizationService,
-                ThemesService,
-                Injector,
-                ColorSchemeService,
-                { provide: APP_BASE_HREF, useValue : '/' },
-                { provide: 'config', useValue: testConfig },
-                { provide: 'title', useValue: 'NetworkGraph with Config Title' },
-                { provide: 'database', useValue: 'NetworkGraphDatabase' },
-                { provide: 'table', useValue: 'testTable' },
-                { provide: 'nodeField', useValue: 'testNodeField' },
-                { provide: 'linkField', useValue: 'testLinkField' },
-                { provide: 'limit', useValue: 'testLimit' }
-            ],
-            imports: [
-                BrowserAnimationsModule,
-                AppMaterialModule,
-                FormsModule
-            ],
-            schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
-        });
         fixture = TestBed.createComponent(NetworkGraphComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();

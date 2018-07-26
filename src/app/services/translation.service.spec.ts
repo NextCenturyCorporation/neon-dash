@@ -18,22 +18,21 @@ import { HttpModule } from '@angular/http';
 import { TranslationService } from './translation.service';
 import { ConnectionService } from './connection.service';
 import { NeonGTDConfig } from '../neon-gtd-config';
+import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('Service: Translation', () => {
 
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            providers: [
-                TranslationService,
-                ConnectionService,
-                { provide: 'config', useValue: testConfig }
-            ],
-            imports: [
-                HttpModule
-            ]
-        });
+    initializeTestBed({
+        providers: [
+            TranslationService,
+            ConnectionService,
+            { provide: 'config', useValue: testConfig }
+        ],
+        imports: [
+            HttpModule
+        ]
     });
 
     it('should ...', inject([TranslationService], (service: TranslationService) => {

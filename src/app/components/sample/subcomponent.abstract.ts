@@ -14,7 +14,7 @@
  *
  */
 import { ElementRef } from '@angular/core';
-import { SampleOptions } from './sample.options';
+import { SampleOptions } from './sample.component';
 
 export interface SubcomponentListener {
     filterFromSubcomponent(text: string);

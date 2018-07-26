@@ -21,6 +21,7 @@ import { APP_BASE_HREF, CommonModule } from '@angular/common';
 import 'hammerjs';
 
 import { AppComponent } from './app.component';
+import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
@@ -68,11 +69,11 @@ import { NetworkGraphComponent } from './components/network-graph/network-graph.
 import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
+import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
 
 describe('App: NeonGtd', () => {
-    let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let fixture: ComponentFixture<AppComponent>;
-    let de: DebugElement;
+    let debugElement: DebugElement;
     let component: AppComponent;
 
     beforeEach(() => {
@@ -81,6 +82,7 @@ describe('App: NeonGtd', () => {
                 ChartComponent,
                 AppComponent,
                 AboutNeonComponent,
+                AnnotationViewerComponent,
                 BarChartComponent,
                 ChartComponent,
                 DashboardOptionsComponent,
@@ -99,6 +101,7 @@ describe('App: NeonGtd', () => {
                 SimpleFilterComponent,
                 StackedTimelineComponent,
                 TextCloudComponent,
+                ThumbnailGridComponent,
                 TimelineComponent,
                 UnsharedFilterComponent,
                 VisualizationContainerComponent,
@@ -116,7 +119,7 @@ describe('App: NeonGtd', () => {
                 BrowserAnimationsModule
             ],
             providers: [
-                { provide: 'config', useValue: testConfig },
+                { provide: 'config', useValue: new NeonGTDConfig() },
                 { provide: APP_BASE_HREF, useValue: '/' },
                 ActiveGridService,
                 DatasetService,
@@ -132,8 +135,8 @@ describe('App: NeonGtd', () => {
         });
 
         fixture = TestBed.createComponent(AppComponent);
+        debugElement = fixture.debugElement;
         component = fixture.componentInstance;
-        de = fixture.debugElement;
     });
 
     afterEach(() => {
@@ -145,11 +148,11 @@ describe('App: NeonGtd', () => {
     }));
 
     it('should include top level layout components', async(() => {
-        expect(de.nativeElement.querySelectorAll('mat-sidenav-container')).toBeTruthy();
-        expect(de.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('mat-sidenav-container')).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-dataset-selector')).toBeTruthy();
         // Since the about pane and options pane are rendered only after a user opens their sidenav area,
         // these should not exist upon initial render.
-        expect(de.nativeElement.querySelectorAll('app-about-neon').length === 0).toBeTruthy();
-        expect(de.nativeElement.querySelectorAll('app-dashboard-options').length === 0).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-about-neon').length === 0).toBeTruthy();
+        expect(debugElement.nativeElement.querySelectorAll('app-dashboard-options').length === 0).toBeTruthy();
     }));
 });

@@ -14,8 +14,8 @@
  *
  */
 import { Color } from '../../services/color-scheme.service';
-import { FieldMetaData } from '../../dataset';
 import { ElementRef } from '@angular/core';
+import { MapLayer, MapOptions } from './map.component';
 
 export const whiteString = new Color(255, 255, 255).toRgb();
 
@@ -24,33 +24,6 @@ export enum MapType {Leaflet, Cesium}
 // create array of name/value pairs for map types
 export const MapTypePairs: {name: string, value: number}[] =
     Object.keys(MapType).filter((key) => Number.isNaN(Number.parseInt(key))).map((name) => ({name: name, value: MapType[name]}));
-
-export class MapLayer {
-    title: string;
-    latitudeField: FieldMetaData;
-    longitudeField: FieldMetaData;
-    sizeField: FieldMetaData;
-    colorField: FieldMetaData;
-    dateField: FieldMetaData;
-}
-
-export interface MapConfiguration {
-    minClusterSize: number;
-    clusterPixelRange: number;
-    hoverSelect: {
-        hoverTime: number;
-    };
-    hoverPopupEnabled: boolean;
-    west: number;
-    east: number;
-    north: number;
-    south: number;
-    customServer: {
-        useCustomServer: boolean,
-        mapUrl: string,
-        layer: string
-    };
-}
 
 export class BoundingBoxByDegrees {
     constructor(
@@ -79,12 +52,12 @@ export interface FilterListener {
 }
 
 export abstract class AbstractMap {
-    protected mapConfiguration: MapConfiguration;
+    protected mapOptions: MapOptions;
     protected filterListener: FilterListener;
     protected isDrawnFilterExact = true;
 
-    initialize(mapContainer: ElementRef, mapConfiguration: MapConfiguration, filterListener: FilterListener) {
-        this.mapConfiguration = mapConfiguration;
+    initialize(mapContainer: ElementRef, mapOptions: MapOptions, filterListener: FilterListener) {
+        this.mapOptions = mapOptions;
         this.filterListener = filterListener;
         this.doCustomInitialization(mapContainer);
     }
@@ -135,7 +108,7 @@ export abstract class AbstractMap {
 
     // utility
     areBoundsSet() {
-        return this.mapConfiguration.west != null && this.mapConfiguration.east != null &&
-            this.mapConfiguration.north != null && this.mapConfiguration.south != null;
+        return this.mapOptions.west != null && this.mapOptions.east != null &&
+            this.mapOptions.north != null && this.mapOptions.south != null;
     }
 }

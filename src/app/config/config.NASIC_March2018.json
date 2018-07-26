@@ -288,8 +288,6 @@
 					"database": "ll_nepal_ux_out",
 					"table": "tweet",
 					"dataField": "hashtagEntities.text",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "horizontalBar",
 					"colors": [{
 							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
@@ -503,8 +501,6 @@
 					"database": "ll_nepal_ux_out",
 					"table": "ui_output",
 					"dataField": "topics",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "horizontalBar",
 					"colors": [{
 							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
@@ -839,8 +835,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "documents",
 					"dataField": "hashtags.text",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "horizontalBar",
 					"colors": [{
 							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
@@ -1055,8 +1049,6 @@
 					"database": "elisa_uyghur_09_17",
 					"table": "annotations",
 					"dataField": "topic",
-					"aggregation": "",
-					"aggregationField": "",
 					"limit": 11,
 					"chartType": "horizontalBar",
 					"colors": [
@@ -1136,8 +1128,6 @@
 					"database": "elisa_uyghur_09_17",
 					"table": "annotations",
 					"dataField": "sentimentString",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -1308,8 +1298,6 @@
 					"database": "il3_uyghur_elisa_simplified_out",
 					"table": "annotations",
 					"dataField": "topic",
-					"aggregation": "",
-					"aggregationField": "",
 					"limit": 11,
 					"chartType": "horizontalBar",
 					"colors": [
@@ -1389,8 +1377,6 @@
 					"database": "il3_uyghur_elisa_simplified_out",
 					"table": "annotations",
 					"dataField": "sentimentString",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{

@@ -13,14 +13,12 @@
  * limitations under the License.
  *
  */
-import { FieldMetaData } from '../../dataset';
+import { TableMetaData, DatabaseMetaData } from '../../dataset';
 
-/**
- * Manages configurable options for the visualization.
- */
-export interface SampleOptions {
-    // TODO Add and remove properties as needed.
-    sampleOptionalField: FieldMetaData;
-    sampleRequiredField: FieldMetaData;
-    subcomponentType: string;
+export class CustomConnectionData {
+    public datasetName: string = '';
+    public datastoreType: string = 'mongo';
+    public datastoreHost: string = 'localhost';
+    public allDatabases: DatabaseMetaData[] = [];
+    public selectedDatabases: DatabaseMetaData[] = [];
 }

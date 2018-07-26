@@ -20,8 +20,7 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Inje
 import { FormsModule } from '@angular/forms';
 import {} from 'jasmine-core';
 
-import { SampleComponent } from './sample.component';
-import { SampleOptions } from './sample.options';
+import { SampleComponent, SampleOptions } from './sample.component';
 import { AbstractSubcomponent, SubcomponentListener } from './subcomponent.abstract';
 import { SubcomponentImpl1 } from './subcomponent.impl1';
 import { SubcomponentImpl2 } from './subcomponent.impl2';
@@ -39,11 +38,12 @@ import { VisualizationService } from '../../services/visualization.service';
 
 import { AppMaterialModule } from '../../app.material.module';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
-import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
-import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 // Must define the test component.
 @Component({
@@ -106,60 +106,58 @@ describe('Component: Sample', () => {
     let fixture: ComponentFixture<TestSampleComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
+    initializeTestBed({
+        declarations: [
+            TestSampleComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            ErrorNotificationService,
+            ExportService,
+            { provide: FilterService, useClass: FilterServiceMock },
+            ThemesService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                TestSampleComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                { provide: DatasetService, useClass: DatasetMock },
-                ErrorNotificationService,
-                ExportService,
-                { provide: FilterService, useClass: FilterMock },
-                ThemesService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule
-            ]
-        });
         fixture = TestBed.createComponent(TestSampleComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
 
-    it('exists', () => {
-        expect(component).toBeDefined();
+    it('class options properties are set to expected defaults', () => {
+        expect(component.options.sampleOptionalField).toEqual(new FieldMetaData());
+        expect(component.options.sampleRequiredField).toEqual(new FieldMetaData());
+        expect(component.options.sortDescending).toEqual(false);
+        expect(component.options.subcomponentType).toEqual('Impl1');
+        expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
     });
 
-    it('properties are set to expected defaults', () => {
+    it('class properties are set to expected defaults', () => {
         expect(component.activeData).toEqual([]);
-        expect(component.configFilter).toEqual(null);
         expect(component.docCount).toEqual(0);
         expect(component.filters).toEqual([]);
         expect(component.lastPage).toEqual(true);
         expect(component.page).toEqual(1);
         expect(component.responseData).toEqual([]);
-        expect(component.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
 
         // Element Refs
         expect(component.headerText).toBeDefined();
         expect(component.infoText).toBeDefined();
         expect(component.subcomponentElementRef).toBeDefined();
         expect(component.visualization).toBeDefined();
-
-        // Options
-        expect(component.options.sampleOptionalField).toEqual(new FieldMetaData());
-        expect(component.options.sampleRequiredField).toEqual(new FieldMetaData());
-        expect(component.options.subcomponentType).toEqual('Impl1');
 
         // Subcomponent
         expect(component.subcomponentObject.constructor.name).toEqual(SubcomponentImpl1.name);
@@ -224,18 +222,19 @@ describe('Component: Sample', () => {
     });
 
     it('createQuery does return expected query', () => {
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
-        expect(component.createQuery()).toEqual(new neon.query.Query().selectFrom(component.meta.database.name, component.meta.table.name)
+        expect(component.createQuery()).toEqual(new neon.query.Query()
+            .selectFrom(component.options.database.name, component.options.table.name)
             .where(neon.query.where('testRequiredField1', '!=', null)).groupBy(['testRequiredField1'])
             .aggregate(neonVariables.COUNT, '*', 'count').sortBy('count', neonVariables.DESCENDING));
     });
 
     it('createQuery does return expected query with sampleOptionalField', () => {
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
 
@@ -244,8 +243,9 @@ describe('Component: Sample', () => {
             neon.query.where('testOptionalField1', '!=', null)
         ]);
 
-        expect(component.createQuery()).toEqual(new neon.query.Query().selectFrom(component.meta.database.name, component.meta.table.name)
-            .where(wherePredicate).groupBy(['testRequiredField1', 'testOptionalField1']).aggregate(neonVariables.COUNT, '*', 'count')
+        expect(component.createQuery()).toEqual(new neon.query.Query()
+            .selectFrom(component.options.database.name, component.options.table.name).where(wherePredicate)
+            .groupBy(['testRequiredField1', 'testOptionalField1']).aggregate(neonVariables.COUNT, '*', 'count')
             .sortBy('count', neonVariables.DESCENDING));
     });
 
@@ -264,16 +264,16 @@ describe('Component: Sample', () => {
         expect(component.createWhere()).toEqual(neon.query.where('testRequiredField1', '!=', null));
     });
 
-    it('createWhere does return expected where predicate with sampleOptionalField, configFilter, and unshared filter', () => {
+    it('createWhere does return expected where predicate with sampleOptionalField, config filter, and unshared filter', () => {
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
-        component.configFilter = {
+        component.options.filter = {
             lhs: 'testConfigFilterField',
             operator: '=',
             rhs: 'testConfigFilterValue'
         };
-        component.meta.unsharedFilterField = new FieldMetaData('testUnsharedFilterField', 'Test Unshared Filter Field');
-        component.meta.unsharedFilterValue = 'testUnsharedFilterValue';
+        component.options.unsharedFilterField = new FieldMetaData('testUnsharedFilterField', 'Test Unshared Filter Field');
+        component.options.unsharedFilterValue = 'testUnsharedFilterValue';
 
         expect(component.createWhere()).toEqual(neon.query.and.apply(neon.query, [
             neon.query.where('testRequiredField1', '!=', null),
@@ -297,8 +297,8 @@ describe('Component: Sample', () => {
     });
 
     it('filterOnItem does add new filter to empty array and call addNeonFilter', () => {
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         let spy = spyOn(component, 'addNeonFilter');
 
         component.filterOnItem({
@@ -322,8 +322,8 @@ describe('Component: Sample', () => {
     });
 
     it('filterOnItem does add new filter to non-empty array and call addNeonFilter', () => {
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.filters = [{
             id: 'idA',
             field: 'field2',
@@ -358,8 +358,8 @@ describe('Component: Sample', () => {
     });
 
     it('filterOnItem does not add new filter or call addNeonFilter if matching filter exists', () => {
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.filters = [{
             id: 'idB',
             field: 'field1',
@@ -384,8 +384,8 @@ describe('Component: Sample', () => {
     });
 
     it('filterOnItem with replaceAll does add new filter to empty array and call addNeonFilter', () => {
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         let spy = spyOn(component, 'addNeonFilter');
 
         component.filterOnItem({
@@ -409,8 +409,8 @@ describe('Component: Sample', () => {
     });
 
     it('filterOnItem with replaceAll does replace existing filter in single element array and call replaceNeonFilter', () => {
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.filters = [{
             id: 'idA',
             field: 'field2',
@@ -442,8 +442,8 @@ describe('Component: Sample', () => {
     });
 
     it('filterOnItem with replaceAll and a multiple element array and call removeAllFilters', () => {
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.filters = [{
             id: 'idB',
             field: 'field2',
@@ -499,7 +499,7 @@ describe('Component: Sample', () => {
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toEqual('No Data');
 
-        component.meta.limit = 1;
+        component.options.limit = 1;
         component.activeData = [{}];
         component.responseData = [{}, {}];
         expect(component.getButtonText()).toEqual('1 of 2');
@@ -510,7 +510,7 @@ describe('Component: Sample', () => {
         component.responseData = [{}, {}, {}, {}];
         expect(component.getButtonText()).toEqual('1 of 4');
 
-        component.meta.limit = 2;
+        component.options.limit = 2;
         expect(component.getButtonText()).toEqual('1 - 2 of 4');
 
         component.page = 2;
@@ -535,10 +535,6 @@ describe('Component: Sample', () => {
         }]);
     });
 
-    it('getDefaultLimit does return expected number', () => {
-        expect(component.getDefaultLimit()).toEqual(50);
-    });
-
     it('getElementRefs does return expected object', () => {
         let refs = component.getElementRefs();
         expect(refs.headerText).toBeDefined();
@@ -556,14 +552,6 @@ describe('Component: Sample', () => {
         }]);
 
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
-        expect(component.getExportFields()).toEqual([{
-            columnName: 'testOptionalField1',
-            prettyName: 'Test Optional Field 1'
-        }, {
-            columnName: '',
-            prettyName: ''
-        }]);
-
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         expect(component.getExportFields()).toEqual([{
             columnName: 'testOptionalField1',
@@ -575,46 +563,57 @@ describe('Component: Sample', () => {
     });
 
     it('getFiltersToIgnore does return null if no filters are set', () => {
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         expect(component.getFiltersToIgnore()).toEqual(null);
     });
 
     it('getFiltersToIgnore does return expected array of IDs if filters are set matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '!=', null), 'testFilterName1');
 
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('getFiltersToIgnore does return null if no filters are set matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '!=', null), 'testFilterName1');
 
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField2', 'Test Required Field 2');
 
         // Test matching database/table but not field.
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.meta.database = DatasetMock.DATABASES[1];
+        component.options.database = DatasetServiceMock.DATABASES[1];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         // Test matching database/field but not table.
         expect(component.getFiltersToIgnore()).toEqual(null);
 
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[1];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[1];
 
         // Test matching table/field but not database.
         expect(component.getFiltersToIgnore()).toEqual(null);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('getFilterText does return expected string', () => {
@@ -626,8 +625,8 @@ describe('Component: Sample', () => {
         })).toEqual('prettyField1 = value1');
     });
 
-    it('getVisualizationName does return expected string', () => {
-        expect(component.getVisualizationName()).toEqual('Sample');
+    it('getOptions does return options', () => {
+        expect(component.getOptions()).toEqual(component.options);
     });
 
     it('goToNextPage does not update page or call updateActiveData if lastPage is true', () => {
@@ -711,10 +710,10 @@ describe('Component: Sample', () => {
     it('isValidQuery does return expected boolean', () => {
         expect(component.isValidQuery()).toEqual(false);
 
-        component.meta.database = DatasetMock.DATABASES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
         expect(component.isValidQuery()).toEqual(false);
 
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         expect(component.isValidQuery()).toEqual(false);
 
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
@@ -736,7 +735,7 @@ describe('Component: Sample', () => {
         expect(component.isVisualizationFilterUnique('field1', 'value2')).toEqual(true);
     });
 
-    it('onQuerySuccess with aggregation query data does update expected properties call expected functions', () => {
+    it('onQuerySuccess with aggregation query data does update expected properties and call expected functions', () => {
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.page = 2;
         let spy1 = spyOn(component, 'updateActiveData');
@@ -769,7 +768,7 @@ describe('Component: Sample', () => {
         expect(spy2.calls.count()).toEqual(1);
     });
 
-    it('onQuerySuccess with empty aggregation query data does update expected properties call expected functions', () => {
+    it('onQuerySuccess with empty aggregation query data does update expected properties and call expected functions', () => {
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.page = 2;
         let spy1 = spyOn(component, 'updateActiveData');
@@ -784,7 +783,7 @@ describe('Component: Sample', () => {
         expect(spy2.calls.count()).toEqual(0);
     });
 
-    it('onQuerySuccess with aggregation query data and optional field does update expected properties call expected functions', () => {
+    it('onQuerySuccess with aggregation query data and optional field does update expected properties and call expected functions', () => {
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.page = 2;
@@ -835,10 +834,15 @@ describe('Component: Sample', () => {
         expect(spy2.calls.count()).toEqual(0);
     });
 
-    it('onUpdateFields does not update options because no bindings are set', () => {
-        component.onUpdateFields();
-        expect(component.options.sampleOptionalField.columnName).toEqual('');
-        expect(component.options.sampleRequiredField.columnName).toEqual('');
+    it('onInit does set non-field options as expected', () => {
+        component.options.onInit();
+        expect(component.options.subcomponentType).toEqual('Impl1');
+    });
+
+    it('updateFieldsOnTableChanged does set field options as expected', () => {
+        component.options.updateFieldsOnTableChanged();
+        expect(component.options.sampleOptionalField).toEqual(component.emptyField);
+        expect(component.options.sampleRequiredField).toEqual(component.emptyField);
     });
 
     it('postInit does work as expected', () => {
@@ -905,8 +909,8 @@ describe('Component: Sample', () => {
     });
 
     it('runDocCountQuery does call executeQuery', () => {
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         let spy = spyOn(component, 'executeQuery');
 
@@ -918,12 +922,12 @@ describe('Component: Sample', () => {
     });
 
     it('runDocCountQuery does add ignoreFilters to query', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '!=', null), 'testFilterName1');
 
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
-        component.meta.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         let spy = spyOn(component, 'executeQuery');
 
@@ -933,12 +937,16 @@ describe('Component: Sample', () => {
             .where(neon.query.where('testRequiredField1', '!=', null)).ignoreFilters(['testDatabase1-testTable1-testFilterName1'])
             .aggregate(neonVariables.COUNT, '*', '_docCount');
         expect(spy.calls.argsFor(0)).toEqual([query]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does not do anything if no filter exists', () => {
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
-        component.meta.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         component.setupFilters();
@@ -946,12 +954,12 @@ describe('Component: Sample', () => {
     });
 
     it('setupFilters does add neon filter to filters', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '=', 'value1'), 'testFilterName1');
 
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
-        component.meta.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         component.setupFilters();
@@ -961,15 +969,19 @@ describe('Component: Sample', () => {
             prettyField: 'Test Required Field 1',
             value: 'value1'
         }]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does not add neon filter with non-matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '=', 'value1'), 'testFilterName1');
 
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
-        component.meta.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1'),
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1'),
             new FieldMetaData('testRequiredField2', 'Test Required Field 2')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField2', 'Test Required Field 2');
 
@@ -977,31 +989,35 @@ describe('Component: Sample', () => {
         component.setupFilters();
         expect(component.filters).toEqual([]);
 
-        component.meta.database = DatasetMock.DATABASES[1];
+        component.options.database = DatasetServiceMock.DATABASES[1];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         // Test matching database/field but not table.
         component.setupFilters();
         expect(component.filters).toEqual([]);
 
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[1];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[1];
 
         // Test matching table/field but not table.
         component.setupFilters();
         expect(component.filters).toEqual([]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does not add neon filter matching existing filter field/value', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '=', 'value1'), 'testFilterName1');
 
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '=', 'value1'), 'testFilterName2');
 
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
-        component.meta.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
 
         component.setupFilters();
@@ -1011,15 +1027,19 @@ describe('Component: Sample', () => {
             prettyField: 'Test Required Field 1',
             value: 'value1'
         }]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does remove previous filters', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testRequiredField1', '=', 'value1'), 'testFilterName1');
 
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
-        component.meta.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.filters = [{
             id: 'idA',
@@ -1035,23 +1055,31 @@ describe('Component: Sample', () => {
             prettyField: 'Test Required Field 1',
             value: 'value1'
         }]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('setupFilters does ignore neon filters with multiple clauses', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetMock.DATABASES[0].name, DatasetMock.TABLES[0].name,
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.and.apply(neon.query, [
                 neon.query.where('testRequiredField1', '=', 'value1'),
                 neon.query.where('testRequiredField1', '=', 'value2')
             ]), 'testFilterName2');
 
-        component.meta.database = DatasetMock.DATABASES[0];
-        component.meta.table = DatasetMock.TABLES[0];
-        component.meta.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1'),
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = [new FieldMetaData('testRequiredField1', 'Test Required Field 1'),
             new FieldMetaData('testRequiredField2', 'Test Required Field 2')];
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField2', 'Test Required Field 2');
 
         component.setupFilters();
         expect(component.filters).toEqual([]);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('showFilterContainer does return expected boolean', () => {
@@ -1081,17 +1109,23 @@ describe('Component: Sample', () => {
         component.subGetBindings(bindings1);
         expect(bindings1).toEqual({
             sampleOptionalField: '',
-            sampleRequiredField: ''
+            sampleRequiredField: '',
+            sortDescending: false,
+            subcomponentType: 'Impl1'
         });
 
         component.options.sampleRequiredField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
         component.options.sampleOptionalField = new FieldMetaData('testOptionalField1', 'Test Optional Field 1');
+        component.options.sortDescending = true;
+        component.options.subcomponentType = 'Impl2';
 
         let bindings2 = {};
         component.subGetBindings(bindings2);
         expect(bindings2).toEqual({
             sampleOptionalField: 'testOptionalField1',
-            sampleRequiredField: 'testRequiredField1'
+            sampleRequiredField: 'testRequiredField1',
+            sortDescending: true,
+            subcomponentType: 'Impl2'
         });
     });
 
@@ -1121,7 +1155,7 @@ describe('Component: Sample', () => {
     });
 
     it('updateActiveData does update activeData and lastPage from responseData, page, and limit and call refreshVisualization', () => {
-        component.meta.limit = 2;
+        component.options.limit = 2;
         component.page = 1;
         component.responseData = [{}, {}, {}];
         let spy = spyOn(component, 'refreshVisualization');
@@ -1133,7 +1167,7 @@ describe('Component: Sample', () => {
     });
 
     it('updateActiveData does set lastPage to true if on last page', () => {
-        component.meta.limit = 2;
+        component.options.limit = 2;
         component.page = 2;
         component.responseData = [{}, {}, {}];
         let spy = spyOn(component, 'refreshVisualization');
@@ -1144,13 +1178,15 @@ describe('Component: Sample', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
-    it('does show toolbar and sidenav', () => {
+    it('does show toolbar and sidenav and body-container', () => {
         let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
         expect(container).not.toBeNull();
         let toolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar'));
         expect(toolbar).not.toBeNull();
         let sidenav = fixture.debugElement.query(By.css('mat-sidenav-container mat-sidenav'));
         expect(sidenav).not.toBeNull();
+        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container'));
+        expect(bodyContainer).not.toBeNull();
     });
 
     it('does show header in toolbar with visualization title', () => {
@@ -1159,7 +1195,7 @@ describe('Component: Sample', () => {
         expect(header.nativeElement.textContent).toContain('Sample');
     });
 
-    it('does show data-info and hide error-message in toolbar and sidenav if meta.errorMessage is undefined', () => {
+    it('does show data-info and hide error-message in toolbar and sidenav if errorMessage is undefined', () => {
         let dataInfoTextInToolbar = fixture.debugElement.query(By.css('mat-sidenav-container mat-toolbar .data-info'));
         expect(dataInfoTextInToolbar).not.toBeNull();
         expect(dataInfoTextInToolbar.nativeElement.textContent).toContain('No Data');
@@ -1182,8 +1218,8 @@ describe('Component: Sample', () => {
         expect(errorMessageInSidenav).toBeNull();
     });
 
-    it('does show error-message in toolbar and sidenav if meta.errorMessage is defined', async(() => {
-        component.meta.errorMessage = 'Test Error Message';
+    it('does show error-message in toolbar and sidenav if errorMessage is defined', async(() => {
+        component.errorMessage = 'Test Error Message';
 
         // Force the component to update all its ngFor and ngIf elements.
         fixture.detectChanges();
@@ -1246,7 +1282,7 @@ describe('Component: Sample', () => {
 
             // Limit Input
             expect(inputs[1].attributes.placeholder).toBe('Sample Limit');
-            expect(inputs[1].nativeElement.value).toContain('50');
+            expect(inputs[1].nativeElement.value).toContain('10');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
@@ -1280,10 +1316,10 @@ describe('Component: Sample', () => {
             expect(selects[2].componentInstance.placeholder).toEqual('Sample Required Field');
             expect(selects[2].componentInstance.required).toEqual(true);
             options = selects[2].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
             // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i].selected).toEqual(false);
             }
 
@@ -1292,12 +1328,12 @@ describe('Component: Sample', () => {
             expect(selects[3].componentInstance.placeholder).toEqual('Sample Optional Field');
             expect(selects[3].componentInstance.required).toEqual(false);
             options = selects[3].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetMock.FIELDS.length + 1);
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             // Check for the empty field!
             expect(options[0].getLabel()).toEqual('(None)');
             // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
-            for (let i = 0; i < DatasetMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetMock.FIELDS[i].prettyName);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i + 1].selected).toEqual(false);
             }
 
@@ -1309,6 +1345,18 @@ describe('Component: Sample', () => {
             expect(options.length).toEqual(2);
             expect(options[0].getLabel()).toEqual('Impl1');
             expect(options[1].getLabel()).toEqual('Impl2');
+
+            let toggles = fixture.debugElement.queryAll(
+                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
+            expect(toggles.length).toEqual(2);
+
+            expect(toggles[0].componentInstance.value).toEqual(false);
+            expect(toggles[0].nativeElement.textContent).toContain('Ascending');
+            expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+
+            expect(toggles[1].componentInstance.value).toEqual(true);
+            expect(toggles[1].nativeElement.textContent).toContain('Descending');
+            expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
         });
     }));
 
@@ -1316,7 +1364,7 @@ describe('Component: Sample', () => {
         let unsharedFilter = fixture.debugElement.query(By.css(
             'mat-sidenav-container mat-sidenav mat-card mat-card-content app-unshared-filter'));
         expect(unsharedFilter).not.toBeNull();
-        expect(unsharedFilter.componentInstance.meta).toEqual(component.meta);
+        expect(unsharedFilter.componentInstance.meta).toEqual(component.options);
         expect(unsharedFilter.componentInstance.unsharedFilterChanged).toBeDefined();
         expect(unsharedFilter.componentInstance.unsharedFilterRemoved).toBeDefined();
     });
@@ -1403,11 +1451,6 @@ describe('Component: Sample', () => {
             expect(filterIcons[1].nativeElement.textContent).toEqual('close');
         });
     }));
-
-    it('does show body-container', () => {
-        let bodyContainer = fixture.debugElement.query(By.css('mat-sidenav-container .body-container'));
-        expect(bodyContainer).not.toBeNull();
-    });
 
     it('does show doc-count', async(() => {
         let docCount = fixture.debugElement.query(By.css('mat-sidenav-container .body-container .doc-count'));
@@ -1584,78 +1627,83 @@ describe('Component: Sample with config', () => {
     let fixture: ComponentFixture<TestSampleComponent>;
     let getService = (type: any) => fixture.debugElement.injector.get(type);
 
+    initializeTestBed({
+        declarations: [
+            TestSampleComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            ErrorNotificationService,
+            ExportService,
+            { provide: FilterService, useClass: FilterServiceMock },
+            ThemesService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
+            { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'limit', useValue: 1234 },
+            { provide: 'sampleOptionalField', useValue: 'testColorField' },
+            { provide: 'sampleRequiredField', useValue: 'testGroupField' },
+            { provide: 'sortDescending', useValue: true },
+            { provide: 'subcomponentType', useValue: 'Impl2' },
+            { provide: 'table', useValue: 'testTable2' },
+            { provide: 'title', useValue: 'Test Title' }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                TestSampleComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                { provide: DatasetService, useClass: DatasetMock },
-                ErrorNotificationService,
-                ExportService,
-                { provide: FilterService, useClass: FilterMock },
-                ThemesService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
-                { provide: 'database', useValue: 'testDatabase2' },
-                { provide: 'sampleOptionalField', useValue: 'testColorField' },
-                { provide: 'sampleRequiredField', useValue: 'testGroupField' },
-                { provide: 'subcomponentType', useValue: 'Impl2' },
-                { provide: 'table', useValue: 'testTable2' },
-                { provide: 'title', useValue: 'Test Title' }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule
-            ]
-        });
         fixture = TestBed.createComponent(TestSampleComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
 
     it('superclass properties are set to expected values from config', () => {
-        expect(component.meta.database).toEqual(DatasetMock.DATABASES[1]);
-        expect(component.meta.table).toEqual(DatasetMock.TABLES[1]);
-    });
-
-    it('properties are set to expected values', () => {
-        expect(component.activeData).toEqual([]);
-        expect(component.configFilter).toEqual({
+        expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
+        expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
+        expect(component.options.limit).toEqual(1234);
+        expect(component.options.title).toEqual('Test Title');
+        expect(component.options.filter).toEqual({
             lhs: 'testConfigFilterField',
             operator: '=',
             rhs: 'testConfigFilterValue'
         });
-        expect(component.docCount).toEqual(0);
-        expect(component.filters).toEqual([]);
-        expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
-        expect(component.responseData).toEqual([]);
-        expect(component.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
+    });
 
-        // Options
-        expect(component.options.sampleOptionalField).toEqual(DatasetMock.COLOR_FIELD);
-        expect(component.options.sampleRequiredField).toEqual(DatasetMock.GROUP_FIELD);
+    it('class properties are set to expected values from config', () => {
+        expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.COLOR_FIELD);
+        expect(component.options.sampleRequiredField).toEqual(DatasetServiceMock.GROUP_FIELD);
+        expect(component.options.sortDescending).toEqual(true);
         expect(component.options.subcomponentType).toEqual('Impl2');
-
-        // Subcomponent
+        expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
         expect(component.subcomponentObject.constructor.name).toEqual(SubcomponentImpl2.name);
     });
 
-    it('onUpdateFields does set expected fields from config', () => {
-        component.options.sampleOptionalField = new FieldMetaData();
-        component.options.sampleRequiredField = new FieldMetaData();
+    it('onInit does set non-field options as expected from config bindings', () => {
+        component.options.sortDescending = false;
+        component.options.subcomponentType = 'Impl1';
 
-        component.onUpdateFields();
-        expect(component.options.sampleOptionalField).toEqual(DatasetMock.COLOR_FIELD);
-        expect(component.options.sampleRequiredField).toEqual(DatasetMock.GROUP_FIELD);
+        component.options.onInit();
+        expect(component.options.sortDescending).toEqual(true);
+        expect(component.options.subcomponentType).toEqual('Impl2');
+    });
+
+    it('updateFieldsOnTableChanged does set field options as expected from config bindings', () => {
+        component.options.sampleOptionalField = component.emptyField;
+        component.options.sampleRequiredField = component.emptyField;
+
+        component.options.updateFieldsOnTableChanged();
+        expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.COLOR_FIELD);
+        expect(component.options.sampleRequiredField).toEqual(DatasetServiceMock.GROUP_FIELD);
     });
 
     it('does show header in toolbar with visualization title from config', () => {
@@ -1663,4 +1711,98 @@ describe('Component: Sample with config', () => {
         expect(header).not.toBeNull();
         expect(header.nativeElement.textContent).toContain('Test Title');
     });
+
+    it('does show elements in sidenav options menu that have expected options', async(() => {
+        // Force the component to update all its selected elements.
+        fixture.detectChanges();
+        fixture.whenStable().then(() => {
+            fixture.detectChanges();
+
+            let inputs = fixture.debugElement.queryAll(
+                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
+            expect(inputs.length).toEqual(3);
+
+            // Title Input
+            expect(inputs[0].attributes.placeholder).toBe('Title');
+            expect(inputs[0].nativeElement.value).toContain('Test Title');
+
+            // Limit Input
+            expect(inputs[1].attributes.placeholder).toBe('Sample Limit');
+            expect(inputs[1].nativeElement.value).toContain('1234');
+
+            let selects = fixture.debugElement.queryAll(
+                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
+            expect(selects.length).toEqual(6);
+            let options;
+
+            // Database Dropdown
+            expect(selects[0].componentInstance.disabled).toEqual(false);
+            expect(selects[0].componentInstance.placeholder).toEqual('Database');
+            expect(selects[0].componentInstance.required).toEqual(true);
+            options = selects[0].componentInstance.options.toArray();
+            expect(options.length).toEqual(2);
+            expect(options[0].getLabel()).toEqual('Test Database 1');
+            expect(options[0].selected).toEqual(false);
+            expect(options[1].getLabel()).toEqual('Test Database 2');
+            expect(options[1].selected).toEqual(true);
+
+            // Table Dropdown
+            expect(selects[1].componentInstance.disabled).toEqual(false);
+            expect(selects[1].componentInstance.placeholder).toEqual('Table');
+            expect(selects[1].componentInstance.required).toEqual(true);
+            options = selects[1].componentInstance.options.toArray();
+            expect(options.length).toEqual(2);
+            expect(options[0].getLabel()).toEqual('Test Table 1');
+            expect(options[0].selected).toEqual(false);
+            expect(options[1].getLabel()).toEqual('Test Table 2');
+            expect(options[1].selected).toEqual(true);
+
+            // Sample Required Field Dropdown
+            expect(selects[2].componentInstance.disabled).toEqual(false);
+            expect(selects[2].componentInstance.placeholder).toEqual('Sample Required Field');
+            expect(selects[2].componentInstance.required).toEqual(true);
+            options = selects[2].componentInstance.options.toArray();
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
+            // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testGroupField');
+            }
+
+            // Sample Optional Field Dropdown
+            expect(selects[3].componentInstance.disabled).toEqual(false);
+            expect(selects[3].componentInstance.placeholder).toEqual('Sample Optional Field');
+            expect(selects[3].componentInstance.required).toEqual(false);
+            options = selects[3].componentInstance.options.toArray();
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
+            // Check for the empty field!
+            expect(options[0].getLabel()).toEqual('(None)');
+            // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testColorField');
+            }
+
+            // Subcomponent Type Dropdown
+            expect(selects[4].componentInstance.disabled).toEqual(false);
+            expect(selects[4].componentInstance.placeholder).toEqual('Subcomponent Type');
+            expect(selects[4].componentInstance.required).toEqual(true);
+            options = selects[4].componentInstance.options.toArray();
+            expect(options.length).toEqual(2);
+            expect(options[0].getLabel()).toEqual('Impl1');
+            expect(options[1].getLabel()).toEqual('Impl2');
+
+            let toggles = fixture.debugElement.queryAll(
+                By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-button-toggle'));
+            expect(toggles.length).toEqual(2);
+
+            expect(toggles[0].componentInstance.value).toEqual(false);
+            expect(toggles[0].nativeElement.textContent).toContain('Ascending');
+            expect(toggles[0].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+
+            expect(toggles[1].componentInstance.value).toEqual(true);
+            expect(toggles[1].nativeElement.textContent).toContain('Descending');
+            expect(toggles[1].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+        });
+    }));
 });

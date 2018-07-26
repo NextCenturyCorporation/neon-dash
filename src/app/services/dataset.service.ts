@@ -149,11 +149,13 @@ export class DatasetService {
      * identifier used by the visualizations and each value is a field name.  Each relation is an Object with table
      * names as keys and field names as values.
      */
-    public setActiveDataset(dataset): void  {
+    public setActiveDataset(dataset): void {
         this.dataset.name = dataset.name || 'Unknown Dataset';
         this.dataset.layout = dataset.layout || '';
         this.dataset.datastore = dataset.datastore || '';
         this.dataset.hostname = dataset.hostname || '';
+        this.dataset.title = dataset.title || '';
+        this.dataset.icon = dataset.icon || '';
         this.dataset.databases = dataset.databases || [];
         this.dataset.options = dataset.options || {};
         this.dataset.relations = dataset.relations || [];
@@ -358,7 +360,7 @@ export class DatasetService {
             for (let table of database.tables) {
                 let success = true;
                 let fields = {};
-                if (keys  && keys.length > 0) {
+                if (keys && keys.length > 0) {
                     for (let key of keys) {
                         if (table.mappings[key]) {
                             fields[key] = table.mappings[key];
@@ -589,14 +591,18 @@ export class DatasetService {
 
     public findMentionedFields(filter: neon.query.Filter): { database: string, table: string, field: string }[] {
         let findMentionedFieldsHelper = (clause: neon.query.WherePredicate) => {
-            if (clause instanceof neon.query.WhereClause) {
-                return [clause.lhs];
-            } else if (clause instanceof neon.query.BooleanClause) {
-                let foundFields = [];
-                clause.whereClauses.forEach((innerClause) => {
-                    foundFields = foundFields.concat(findMentionedFieldsHelper(innerClause));
-                });
-                return foundFields;
+            switch (clause.type) {
+                case 'where': {
+                    return [(clause as neon.query.WhereClause).lhs];
+                }
+                case 'and':
+                case 'or': {
+                    let foundFields = [];
+                    (clause as neon.query.BooleanClause).whereClauses.forEach((innerClause) => {
+                        foundFields = foundFields.concat(findMentionedFieldsHelper(innerClause));
+                    });
+                    return foundFields;
+                }
             }
         };
         let fields = findMentionedFieldsHelper(filter.whereClause);
@@ -616,10 +622,10 @@ export class DatasetService {
     }
 
     public getEquivalentFields(database: string,
-                               table: string,
-                               field: string,
-                               mapping: Map<string, Map<string, { database: string, table: string, field: string }[]>>):
-                               Map<string, Map<string, { database: string, table: string, field: string }[]>> {
+        table: string,
+        field: string,
+        mapping: Map<string, Map<string, { database: string, table: string, field: string }[]>>):
+        Map<string, Map<string, { database: string, table: string, field: string }[]>> {
         let relatedFields: any = mapping;
 
         let found = this.findValueInRelations(database, table, field);
@@ -666,11 +672,11 @@ export class DatasetService {
         return database + '_' + table;
     }
     // Internal helper method to add a related field to the mapping of related fields, and returns true if it was added and false otherwise.
-    private addRelatedFieldToMapping(mapping: Map<string,  Map<string, { database: string, table: string, field: string }[]>>,
-                                     baseField: string,
-                                     database: string,
-                                     table: string,
-                                     field: string): boolean {
+    private addRelatedFieldToMapping(mapping: Map<string, Map<string, { database: string, table: string, field: string }[]>>,
+        baseField: string,
+        database: string,
+        table: string,
+        field: string): boolean {
         let dbAndTableKey = this.makeDbAndTableKey(database, table);
         if (mapping.get(dbAndTableKey) === undefined) {
             let newMap = new Map<string, { database: string, table: string, field: string }[]>();
@@ -702,7 +708,7 @@ export class DatasetService {
 
     // Internal helper method to find a field in relations.
     // Returns every member of every relation that contains the given database/table/field combination.
-    private findValueInRelations(db: string, t: string, f: string): {database: string, table: string, field: string}[] {
+    private findValueInRelations(db: string, t: string, f: string): { database: string, table: string, field: string }[] {
         let values = [];
         this.dataset.relations.forEach((relation) => {
             for (let x = relation.members.length - 1; x >= 0; x--) {
@@ -740,16 +746,12 @@ export class DatasetService {
                     });
                     tableNamesAndFieldNames[tableName].forEach((fieldName: string) => {
                         if (!hasField[fieldName]) {
-                            let newField: FieldMetaData = {
-                                columnName: fieldName,
-                                prettyName: fieldName,
-                                hide: false
-                            };
+                            let newField: FieldMetaData = new FieldMetaData(fieldName, fieldName, false);
                             table.fields.push(newField);
                         }
                     });
                     pendingTypesRequests++;
-                    connection.getFieldTypes (database.name, table.name, (types) => {
+                    connection.getFieldTypes(database.name, table.name, (types) => {
                         for (let f of table.fields) {
                             if (types && types[f.columnName]) {
                                 f.type = types[f.columnName];

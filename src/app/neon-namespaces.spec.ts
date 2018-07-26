@@ -15,19 +15,9 @@
  */
 
 import { TestBed } from '@angular/core/testing';
-import { neonMappings, neonUtilities } from './neon-namespaces';
+import { neonMappings, neonUtilities, neonVariables } from './neon-namespaces';
 
 describe('NeonMappings', () => {
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            providers: [neonMappings]
-        });
-    });
-
-    it('exists', () => {
-        expect(neonMappings).toBeTruthy();
-    });
-
     it('defines mappings', () => {
         expect(neonMappings.DATE).toBe('date');
         expect(neonMappings.ID).toBe('id');
@@ -37,17 +27,19 @@ describe('NeonMappings', () => {
     });
 });
 
+describe('NeonVariables', () => {
+    it('defines variables', () => {
+        expect(neonVariables.ASCENDING).toBeDefined();
+        expect(neonVariables.AVG).toBeDefined();
+        expect(neonVariables.COUNT).toBeDefined();
+        expect(neonVariables.DESCENDING).toBeDefined();
+        expect(neonVariables.MAX).toBeDefined();
+        expect(neonVariables.MIN).toBeDefined();
+        expect(neonVariables.SUM).toBeDefined();
+    });
+});
+
 describe('NeonUtilities', () => {
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            providers: [neonUtilities]
-        });
-    });
-
-    it('exists', () => {
-        expect(neonUtilities).toBeTruthy();
-    });
-
     it('defines utility functions', () => {
         expect(neonUtilities.deepFind).toBeDefined();
         expect(neonUtilities.flatten).toBeDefined();
@@ -269,5 +261,20 @@ describe('NeonUtilities', () => {
                 }
             }]
         }, 'key2.keyD.innerKey')).toEqual(['innerValue1', 'innerValue2']);
+    });
+
+    it('returns the expected falsey object from deepFind', () => {
+        expect(neonUtilities.deepFind({
+            key: 0
+        }, 'key')).toEqual(0);
+        expect(neonUtilities.deepFind({
+            key: ''
+        }, 'key')).toEqual('');
+        expect(neonUtilities.deepFind({
+            key: false
+        }, 'key')).toEqual(false);
+        expect(neonUtilities.deepFind({
+            key: null
+        }, 'key')).toEqual(null);
     });
 });

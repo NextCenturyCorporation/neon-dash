@@ -20,24 +20,23 @@ import { ActiveGridService } from '../../services/active-grid.service';
 import { ThemesService } from '../../services/themes.service';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: AddVisualization', () => {
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            imports: [
-                BrowserAnimationsModule,
-                MatGridListModule,
-                AppMaterialModule
-            ],
-            declarations: [
-                AddVisualizationComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ThemesService
-            ]
-        });
+    initializeTestBed({
+        imports: [
+            BrowserAnimationsModule,
+            MatGridListModule,
+            AppMaterialModule
+        ],
+        declarations: [
+            AddVisualizationComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ThemesService
+        ]
     });
 
     it('should create an instance', inject([ActiveGridService, ThemesService],

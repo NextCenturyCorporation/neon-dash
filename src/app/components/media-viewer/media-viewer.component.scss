@@ -15,25 +15,49 @@
  */
  @import '../base-neon-component/base-neon.component.scss';
 
-.media-viewer{
+.full-height,
+.mat-tab-group {
     height: calc(100% - #{$vis-title-expected-height});
 }
 
-.media-viewer-div{
-    height: 100%;
+.viewer-text {
+    font-size: 12px;
+    line-height: 15px;
+    padding: 5px;
 }
 
-.media-viewer-div iframe {
-    width: 100%;
+iframe.with-border, img.with-border, video.with-border {
+    border: 5px solid mat-color($white);
+}
+
+iframe.border-mat-grey, img.border-mat-grey, video.border-mat-grey {
+    border-color: #9e9e9e; /* mat-color-grey-500 */
+}
+
+iframe.border-mat-red, img.border-mat-red, video.border-mat-red {
+    border-color: #f44336; /* mat-color-red-500 */
+}
+
+iframe.border-mat-yellow, img.border-mat-yellow, video.border-mat-yellow {
+    border-color: #ffeb3b; /* mat-color-yellow-500 */
+}
+
+iframe {
     height: 100%;
+    width: 100%;
+}
+
+img, video {
+    height: auto;
+    width: auto;
 }
 
 /*TODO: ng-deep will be deprecated in the future. Need to find another workaround to shadow piercing due to angular shadow DOM boundaries*/
-.media-viewer ::ng-deep .mat-tab-body-wrapper {
+.mat-tab-group ::ng-deep .mat-tab-body-wrapper {
     flex: 1 auto;
 }
 
-.media-viewer ::ng-deep .mat-tab-body-content {
+.mat-tab-group ::ng-deep .mat-tab-body-content {
     overflow: hidden !important;
 }
 

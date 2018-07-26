@@ -37,54 +37,45 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { ThemesService } from '../../services/themes.service';
 import { TranslationService } from '../../services/translation.service';
 import { VisualizationService } from '../../services/visualization.service';
-import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { By } from '@angular/platform-browser';
 import * as neon from 'neon-framework';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: DataTable', () => {
     let component: DataTableComponent,
         fixture: ComponentFixture<DataTableComponent>,
-        addFilter = (key: string, value: string, prettyKey: string) => {
-            let filter = {
-                id: undefined,
-                key: key,
-                value: value,
-                prettyKey: prettyKey
-            };
-            let whereClause = neon.query.where(filter.key, '=', filter.value);
-            component.addFilter(filter, whereClause);
-            return filter;
-        },
         getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
         getService = (type: any) => fixture.debugElement.injector.get(type);
 
+    initializeTestBed({
+        declarations: [
+            DataTableComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            { provide: FilterService, useClass: FilterServiceMock },
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            VisualizationService,
+            ThemesService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            NgxDatatableModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                DataTableComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                { provide: FilterService, useClass: FilterMock },
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                VisualizationService,
-                ThemesService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                NgxDatatableModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(DataTableComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -95,57 +86,110 @@ describe('Component: DataTable', () => {
     }));
 
     it('createClause does return expected object', () => {
-        component.active.sortField = new FieldMetaData('testSortField');
+        component.options.sortField = new FieldMetaData('testSortField');
         expect(component.createClause()).toEqual(neon.query.where('testSortField', '!=', null));
 
-        component.meta.unsharedFilterField = new FieldMetaData('testFilterField');
-        component.meta.unsharedFilterValue = 'testFilterValue';
+        component.options.unsharedFilterField = new FieldMetaData('testFilterField');
+        component.options.unsharedFilterValue = 'testFilterValue';
         expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testSortField', '!=', null),
             neon.query.where('testFilterField', '=', 'testFilterValue')));
     });
 
     it('getButtonText does return expected string', () => {
-        component.meta.limit = 10;
+        component.options.limit = 10;
         expect(component.getButtonText()).toBe('No Data');
-        component.active.docCount = 10;
+        component.docCount = 10;
         expect(component.getButtonText()).toBe('Total 10');
-        component.active.docCount = 20;
+        component.docCount = 20;
         expect(component.getButtonText()).toBe('1 - 10 of 20');
-        component.active.page = 2;
+        component.page = 2;
         expect(component.getButtonText()).toBe('11 - 20 of 20');
-        component.meta.limit = 5;
+        component.options.limit = 5;
         expect(component.getButtonText()).toBe('6 - 10 of 20');
-        component.active.docCount = 5;
+        component.docCount = 5;
         expect(component.getButtonText()).toBe('Total 5');
     });
 
     it('addFilter should add filter', () => {
-        addFilter('testDataField', 'Test Value', 'Test Data Field');
+        let filter1 = {
+            id: undefined,
+            field: 'testDataField',
+            prettyField: 'Test Data Field',
+            value: 'Test Value'
+        };
+
+        component.addFilter(filter1, neon.query.where('testDataField', '=', 'Test Value'));
+
         expect(component.getCloseableFilters().length).toBe(1);
         expect(getService(FilterService).getFilters().length).toBe(1);
+
         //Set another filter. Filter key must be different
-        addFilter('testDataField2', 'Test Value2', 'Test Data Field 2');
+        let filter2 = {
+            id: undefined,
+            field: 'testDataField2',
+            prettyField: 'Test Data Field 2',
+            value: 'Test Value 2'
+        };
+
+        component.addFilter(filter2, neon.query.where('testDataField2', '=', 'Test Value 2'));
         expect(getService(FilterService).getFilters().length).toBe(2);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('removeFilter should remove filter', () => {
-        let filter = addFilter('testDataField', 'Test Value', 'Test Data Field');
+        let filter1 = {
+            id: undefined,
+            field: 'testDataField',
+            prettyField: 'Test Data Field',
+            value: 'Test Value'
+        };
+
+        component.addFilter(filter1, neon.query.where('testDataField', '=', 'Test Value'));
+
         expect(getService(FilterService).getFilters().length).toBe(1);
-        component.removeLocalFilterFromLocalAndNeon(filter, true, true);
+        component.removeLocalFilterFromLocalAndNeon(filter1, true, true);
         expect(getService(FilterService).getFilters().length).toBe(0);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('should remove filter when clicked', () => {
-        addFilter('testDataField', 'Test Value', 'Test Data Field');
+        let filter1 = {
+            id: undefined,
+            field: 'testDataField',
+            prettyField: 'Test Data Field',
+            value: 'Test Value'
+        };
+
+        component.addFilter(filter1, neon.query.where('testDataField', '=', 'Test Value'));
+
         expect(getService(FilterService).getFilters().length).toBe(1);
         let xEl = getDebug('.datatable-filter-reset .mat-icon-button');
         xEl.triggerEventHandler('click', null);
         expect(getService(FilterService).getFilters().length).toBe(0);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('filter-reset element should exist if filter is set', () => {
         expect(getDebug('.datatablefilter-reset')).toBeNull();
-        addFilter('testDataField', 'Test Value', 'Test Data Field');
+
+        let filter1 = {
+            id: undefined,
+            field: 'testDataField',
+            prettyField: 'Test Data Field',
+            value: 'Test Value'
+        };
+
+        component.addFilter(filter1, neon.query.where('testDataField', '=', 'Test Value'));
+
         expect(getDebug('.datatable-filter-reset')).toBeDefined();
     });
 

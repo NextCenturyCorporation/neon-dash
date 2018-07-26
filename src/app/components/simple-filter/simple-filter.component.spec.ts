@@ -27,14 +27,16 @@ import { SimpleFilterComponent } from './simple-filter.component';
 import { DatasetOptions, SimpleFilter } from '../../dataset';
 import { DebugElement } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import * as neon from 'neon-framework';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 const databaseName = 'database';
 const tableName = 'table';
 const fieldName = 'field';
 
-class MockFilterService extends FilterMock {
+// TODO Is this really needed?
+class MockFilterService extends FilterServiceMock {
     addFilter(messenger: neon.eventing.Messenger, ownerId: string, database: string, table: string,
               whereClause: any, filterName: string | { visName: string; text: string },
               onSuccess: (resp: any) => any, onError: (resp: any) => any): void {
