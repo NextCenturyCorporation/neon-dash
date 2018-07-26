@@ -118,6 +118,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public edgeWidth: number;
     public limit: number;
     public andFilters: boolean;
+    public showSelect: boolean = false;
 
     /**
      * Initializes all the non-field options for the specific visualization.

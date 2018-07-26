@@ -31,20 +31,20 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     // this.data is inherited from the superclass
 
     // Variables associated with connecting to a datastore.
-    private datasetNameIsValid: boolean = false;
-    private isLoading: boolean = false;
-    private isConnected: boolean = false;
-    private error: boolean = false;
+    public datasetNameIsValid: boolean = false;
+    public isLoading: boolean = false;
+    public isConnected: boolean = false;
+    public error: boolean = false;
 
     //Variables associated with selecting databases and tables.
-    private selectedDatabase: {
+    public selectedDatabase: {
         database: DatabaseMetaData,
         selectedTable: {
             selected: boolean,
             table: TableMetaData
         }
     };
-    private customDatabases: {
+    public customDatabases: {
         database: DatabaseMetaData,
         customTables: {
             selected: boolean,

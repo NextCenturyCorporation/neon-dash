@@ -24,7 +24,7 @@ export abstract class CustomConnectionStep {
     public stepNumber: number;
     public title: string;
 
-    @Input() protected data: CustomConnectionData;
+    @Input() public data: CustomConnectionData;
 
     /**
      * Checks that the entered data for this step is valid such that the process of connecting
