@@ -141,7 +141,7 @@ describe('Component: AnnotationViewer', () => {
     it('properties are set to expected defaults', () => {
         expect(component.activeData).toEqual([]);
         expect(component.configFilter).toEqual(null);
-        expect(component.docCount).toEqual(0);
+        expect(component.options.docCount).toEqual(0);
         expect(component.filters).toEqual([]);
         expect(component.lastPage).toEqual(true);
         expect(component.page).toEqual(1);
