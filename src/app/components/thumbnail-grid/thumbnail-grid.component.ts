@@ -46,7 +46,10 @@ import * as neon from 'neon-framework';
 export class ThumbnailGridOptions extends BaseNeonOptions {
     public ascending: boolean;
     public border: string;
+    public borderCompareValue: string;
+    public borderPercentThreshold: number;
     public categoryField: FieldMetaData;
+    public compareField: FieldMetaData;
     public cropAndScale: string;
     public defaultLabel: string;
     public defaultPercent: string;
@@ -77,6 +80,8 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     onInit() {
         this.ascending = this.injector.get('ascending', false);
         this.border = this.injector.get('border', '');
+        this.borderCompareValue = this.injector.get('borderCompareValue', '');
+        this.borderPercentThreshold = this.injector.get('borderPercentThreshold', 0.5);
         this.cropAndScale = this.injector.get('cropAndScale', '') || '';
         this.defaultLabel = this.injector.get('defaultLabel', '');
         this.defaultPercent = this.injector.get('defaultPercent', '');
@@ -97,6 +102,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
      */
     updateFieldsOnTableChanged() {
         this.categoryField = this.findFieldObject('categoryField');
+        this.compareField = this.findFieldObject('compareField');
         this.filterField = this.findFieldObject('filterField');
         this.idField = this.findFieldObject('idField');
         this.linkField = this.findFieldObject('linkField');
@@ -210,6 +216,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         if (this.options.categoryField.columnName) {
             fields.push(this.options.categoryField.columnName);
+        }
+
+        if (this.options.compareField.columnName) {
+            fields.push(this.options.compareField.columnName);
         }
 
         if (this.options.filterField.columnName) {
@@ -363,6 +373,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             columnName: this.options.categoryField.columnName,
             prettyName: this.options.categoryField.prettyName
         }, {
+            columnName: this.options.compareField.columnName,
+            prettyName: this.options.compareField.prettyName
+        }, {
             columnName: this.options.filterField.columnName,
             prettyName: this.options.filterField.prettyName
         }, {
@@ -513,6 +526,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     if (this.options.categoryField.columnName) {
                         item[this.options.categoryField.columnName] = neonUtilities.deepFind(d, this.options.categoryField.columnName);
                     }
+                    if (this.options.compareField.columnName) {
+                        item[this.options.compareField.columnName] = neonUtilities.deepFind(d, this.options.compareField.columnName);
+                    }
                     if (this.options.filterField.columnName) {
                         item[this.options.filterField.columnName] = neonUtilities.deepFind(d, this.options.filterField.columnName);
                     }
@@ -660,6 +676,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             let typeFromConfig = this.options.typeMap[fileType];
             let type = grid[this.options.typeField.columnName] || typeFromConfig,
                 objectId = grid[this.options.objectIdField.columnName],
+                percentage = grid[this.options.percentField.columnName],
+                comparison = grid[this.options.compareField.columnName],
                 categoryId = grid[this.options.categoryField.columnName],
                 thumbnail = canvases[index].getContext('2d');
 
@@ -719,14 +737,40 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
             }
 
-            if (objectId && categoryId) {
+            if (this.options.border) {
+                if (this.options.border === 'percentField') {
+                    if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
+                        let percentageAsNumber = parseFloat(percentage);
+                        if (percentageAsNumber >= this.options.borderPercentThreshold) {
+                            thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-blue');
+                        } else {
+                            thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-red');
+                        }
+                    } else {
+                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-grey');
+                    }
+                } else if (this.options.border === 'percentCompare') {
+                    if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
+                        let percentageAsNumber = parseFloat(percentage);
+                        if ((percentageAsNumber >= this.options.borderPercentThreshold && comparison === this.options.borderCompareValue) ||
+                            (percentageAsNumber < this.options.borderPercentThreshold && comparison !== this.options.borderCompareValue)) {
+                            thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-blue');
+                        } else {
+                            thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-red');
+                        }
+                    } else {
+                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-grey');
+                    }
+                } else {
+                    thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' +
+                        this.options.border);
+                }
+            } else if (objectId && categoryId) {
                 if (objectId === categoryId) {
                     thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'blue-border');
                 } else {
                     thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'red-border');
                 }
-            } else if (this.options.border) {
-                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' + this.options.border);
             }
         });
     }
@@ -785,6 +829,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      */
     subGetBindings(bindings: any) {
         bindings.categoryField = this.options.categoryField.columnName;
+        bindings.compareField = this.options.compareField.columnName;
         bindings.filterField = this.options.filterField.columnName;
         bindings.idField = this.options.idField.columnName;
         bindings.linkField = this.options.linkField.columnName;
@@ -798,6 +843,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         bindings.ascending = this.options.ascending;
         bindings.border = this.options.border;
+        bindings.borderCompareValue = this.options.borderCompareValue;
+        bindings.borderPercentThreshold = this.options.borderPercentThreshold;
         bindings.cropAndScale = this.options.cropAndScale;
         bindings.defaultLabel = this.options.defaultLabel;
         bindings.defaultPercent = this.options.defaultPercent;
