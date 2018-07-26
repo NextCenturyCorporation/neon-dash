@@ -222,7 +222,7 @@ describe('Component: ThumbnailGrid', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(5);
+            expect(inputs.length).toEqual(7);
 
             expect(inputs[0].attributes.placeholder).toBe('Title');
             expect(inputs[0].nativeElement.value).toContain('Thumbnail Grid');
@@ -233,12 +233,18 @@ describe('Component: ThumbnailGrid', () => {
             expect(inputs[2].attributes.placeholder).toBe('Border');
             expect(inputs[2].nativeElement.value).toEqual('');
 
-            expect(inputs[3].attributes.placeholder).toBe('Link Prefix');
+            expect(inputs[3].attributes.placeholder).toBe('Border By Comparison To Category');
             expect(inputs[3].nativeElement.value).toEqual('');
+
+            expect(inputs[4].attributes.placeholder).toBe('Border Percent Threshold');
+            expect(inputs[4].nativeElement.value).toEqual('0.5');
+
+            expect(inputs[5].attributes.placeholder).toBe('Link Prefix');
+            expect(inputs[5].nativeElement.value).toEqual('');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(14);
+            expect(selects.length).toEqual(15);
             let options;
 
             expect(selects[0].componentInstance.disabled).toEqual(false);
@@ -295,7 +301,7 @@ describe('Component: ThumbnailGrid', () => {
             }
 
             expect(selects[5].componentInstance.disabled).toEqual(false);
-            expect(selects[5].componentInstance.placeholder).toEqual('Filter Field');
+            expect(selects[5].componentInstance.placeholder).toEqual('Comparison Field');
             expect(selects[5].componentInstance.required).toEqual(false);
             options = selects[5].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
@@ -306,7 +312,7 @@ describe('Component: ThumbnailGrid', () => {
             }
 
             expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('ID Field');
+            expect(selects[6].componentInstance.placeholder).toEqual('Filter Field');
             expect(selects[6].componentInstance.required).toEqual(false);
             options = selects[6].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
@@ -317,19 +323,9 @@ describe('Component: ThumbnailGrid', () => {
             }
 
             expect(selects[7].componentInstance.disabled).toEqual(false);
-            expect(selects[7].componentInstance.placeholder).toEqual('Link Field');
-            expect(selects[7].componentInstance.required).toEqual(true);
+            expect(selects[7].componentInstance.placeholder).toEqual('ID Field');
+            expect(selects[7].componentInstance.required).toEqual(false);
             options = selects[7].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(false);
-            }
-
-            expect(selects[8].componentInstance.disabled).toEqual(false);
-            expect(selects[8].componentInstance.placeholder).toEqual('Name Field');
-            expect(selects[8].componentInstance.required).toEqual(false);
-            options = selects[8].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
@@ -337,8 +333,18 @@ describe('Component: ThumbnailGrid', () => {
                 expect(options[i + 1].selected).toEqual(false);
             }
 
+            expect(selects[8].componentInstance.disabled).toEqual(false);
+            expect(selects[8].componentInstance.placeholder).toEqual('Link Field');
+            expect(selects[8].componentInstance.required).toEqual(true);
+            options = selects[8].componentInstance.options.toArray();
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i].selected).toEqual(false);
+            }
+
             expect(selects[9].componentInstance.disabled).toEqual(false);
-            expect(selects[9].componentInstance.placeholder).toEqual('Predicted Name Field');
+            expect(selects[9].componentInstance.placeholder).toEqual('Name Field');
             expect(selects[9].componentInstance.required).toEqual(false);
             options = selects[9].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
@@ -349,7 +355,7 @@ describe('Component: ThumbnailGrid', () => {
             }
 
             expect(selects[10].componentInstance.disabled).toEqual(false);
-            expect(selects[10].componentInstance.placeholder).toEqual('Predicted Probability Field');
+            expect(selects[10].componentInstance.placeholder).toEqual('Predicted Name Field');
             expect(selects[10].componentInstance.required).toEqual(false);
             options = selects[10].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
@@ -360,19 +366,30 @@ describe('Component: ThumbnailGrid', () => {
             }
 
             expect(selects[11].componentInstance.disabled).toEqual(false);
-            expect(selects[11].componentInstance.placeholder).toEqual('Sort Field');
-            expect(selects[11].componentInstance.required).toEqual(true);
+            expect(selects[11].componentInstance.placeholder).toEqual('Predicted Probability Field');
+            expect(selects[11].componentInstance.required).toEqual(false);
             options = selects[11].componentInstance.options.toArray();
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
+            expect(options[0].getLabel()).toEqual('(None)');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(false);
+            }
+
+            expect(selects[12].componentInstance.disabled).toEqual(false);
+            expect(selects[12].componentInstance.placeholder).toEqual('Sort Field');
+            expect(selects[12].componentInstance.required).toEqual(true);
+            options = selects[12].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
                 expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i].selected).toEqual(false);
             }
 
-            expect(selects[12].componentInstance.disabled).toEqual(false);
-            expect(selects[12].componentInstance.placeholder).toEqual('Type Field');
-            expect(selects[12].componentInstance.required).toEqual(false);
-            options = selects[12].componentInstance.options.toArray();
+            expect(selects[13].componentInstance.disabled).toEqual(false);
+            expect(selects[13].componentInstance.placeholder).toEqual('Type Field');
+            expect(selects[13].componentInstance.required).toEqual(false);
+            options = selects[13].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
@@ -1853,7 +1870,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
         component.options.ascending = true;
         component.options.border = 'grey';
-        component.options.borderCompareValue = 'testCompareValue';
+        component.options.borderCompareValue = 'Test Compare Value';
         component.options.borderPercentThreshold = 0.25;
         component.options.cropAndScale = 'both';
         component.options.defaultLabel = 'testDefaultLabel';
@@ -1875,7 +1892,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(bindings2).toEqual({
             ascending: true,
             border: 'grey',
-            borderCompareValue: 'testCompareValue',
+            borderCompareValue: 'Test Compare Value',
             borderPercentThreshold: 0.25,
             categoryField: 'testCategoryField',
             compareField: 'testCompareField',
@@ -1970,7 +1987,7 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'limit', useValue: 10 },
             { provide: 'ascending', useValue: true },
             { provide: 'border', useValue: 'grey' },
-            { provide: 'borderCompareValue', useValue: 'testCompareValue' },
+            { provide: 'borderCompareValue', useValue: 'Test Compare Value' },
             { provide: 'borderPercentThreshold', useValue: 0.25 },
             { provide: 'cropAndScale', useValue: 'both' },
             { provide: 'defaultLabel', useValue: 'testDefaultLabel' },
@@ -2027,7 +2044,7 @@ describe('Component: ThumbnailGrid with config', () => {
     it('does have expected class options properties', () => {
         expect(component.options.ascending).toEqual(true);
         expect(component.options.border).toEqual('grey');
-        expect(component.options.borderCompareValue).toEqual('testCompareValue');
+        expect(component.options.borderCompareValue).toEqual('Test Compare Value');
         expect(component.options.borderPercentThreshold).toEqual(0.25);
         expect(component.options.cropAndScale).toEqual('both');
         expect(component.options.defaultLabel).toEqual('testDefaultLabel');
@@ -2074,7 +2091,7 @@ describe('Component: ThumbnailGrid with config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(5);
+            expect(inputs.length).toEqual(7);
 
             expect(inputs[0].attributes.placeholder).toBe('Title');
             expect(inputs[0].nativeElement.value).toContain('Test Title');
@@ -2085,12 +2102,18 @@ describe('Component: ThumbnailGrid with config', () => {
             expect(inputs[2].attributes.placeholder).toBe('Border');
             expect(inputs[2].nativeElement.value).toEqual('grey');
 
-            expect(inputs[3].attributes.placeholder).toBe('Link Prefix');
-            expect(inputs[3].nativeElement.value).toEqual('prefix/');
+            expect(inputs[3].attributes.placeholder).toBe('Border By Comparison To Category');
+            expect(inputs[3].nativeElement.value).toEqual('Test Compare Value');
+
+            expect(inputs[4].attributes.placeholder).toBe('Border Percent Threshold');
+            expect(inputs[4].nativeElement.value).toEqual('0.25');
+
+            expect(inputs[5].attributes.placeholder).toBe('Link Prefix');
+            expect(inputs[5].nativeElement.value).toEqual('prefix/');
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(14);
+            expect(selects.length).toEqual(15);
             let options;
 
             expect(selects[0].componentInstance.disabled).toEqual(false);
@@ -2147,9 +2170,20 @@ describe('Component: ThumbnailGrid with config', () => {
             }
 
             expect(selects[5].componentInstance.disabled).toEqual(false);
-            expect(selects[5].componentInstance.placeholder).toEqual('Filter Field');
+            expect(selects[5].componentInstance.placeholder).toEqual('Comparison Field');
             expect(selects[5].componentInstance.required).toEqual(false);
             options = selects[5].componentInstance.options.toArray();
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
+            expect(options[0].getLabel()).toEqual('(None)');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testCategoryField');
+            }
+
+            expect(selects[6].componentInstance.disabled).toEqual(false);
+            expect(selects[6].componentInstance.placeholder).toEqual('Filter Field');
+            expect(selects[6].componentInstance.required).toEqual(false);
+            options = selects[6].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
@@ -2157,10 +2191,10 @@ describe('Component: ThumbnailGrid with config', () => {
                 expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testFilterField');
             }
 
-            expect(selects[6].componentInstance.disabled).toEqual(false);
-            expect(selects[6].componentInstance.placeholder).toEqual('ID Field');
-            expect(selects[6].componentInstance.required).toEqual(false);
-            options = selects[6].componentInstance.options.toArray();
+            expect(selects[7].componentInstance.disabled).toEqual(false);
+            expect(selects[7].componentInstance.placeholder).toEqual('ID Field');
+            expect(selects[7].componentInstance.required).toEqual(false);
+            options = selects[7].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
@@ -2168,29 +2202,18 @@ describe('Component: ThumbnailGrid with config', () => {
                 expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testIdField');
             }
 
-            expect(selects[7].componentInstance.disabled).toEqual(false);
-            expect(selects[7].componentInstance.placeholder).toEqual('Link Field');
-            expect(selects[7].componentInstance.required).toEqual(true);
-            options = selects[7].componentInstance.options.toArray();
+            expect(selects[8].componentInstance.disabled).toEqual(false);
+            expect(selects[8].componentInstance.placeholder).toEqual('Link Field');
+            expect(selects[8].componentInstance.required).toEqual(true);
+            options = selects[8].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
                 expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testLinkField');
             }
 
-            expect(selects[8].componentInstance.disabled).toEqual(false);
-            expect(selects[8].componentInstance.placeholder).toEqual('Name Field');
-            expect(selects[8].componentInstance.required).toEqual(false);
-            options = selects[8].componentInstance.options.toArray();
-            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
-            expect(options[0].getLabel()).toEqual('(None)');
-            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
-                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testNameField');
-            }
-
             expect(selects[9].componentInstance.disabled).toEqual(false);
-            expect(selects[9].componentInstance.placeholder).toEqual('Predicted Name Field');
+            expect(selects[9].componentInstance.placeholder).toEqual('Name Field');
             expect(selects[9].componentInstance.required).toEqual(false);
             options = selects[9].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
@@ -2201,9 +2224,20 @@ describe('Component: ThumbnailGrid with config', () => {
             }
 
             expect(selects[10].componentInstance.disabled).toEqual(false);
-            expect(selects[10].componentInstance.placeholder).toEqual('Predicted Probability Field');
+            expect(selects[10].componentInstance.placeholder).toEqual('Predicted Name Field');
             expect(selects[10].componentInstance.required).toEqual(false);
             options = selects[10].componentInstance.options.toArray();
+            expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
+            expect(options[0].getLabel()).toEqual('(None)');
+            for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
+                expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testNameField');
+            }
+
+            expect(selects[11].componentInstance.disabled).toEqual(false);
+            expect(selects[11].componentInstance.placeholder).toEqual('Predicted Probability Field');
+            expect(selects[11].componentInstance.required).toEqual(false);
+            options = selects[11].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
@@ -2211,20 +2245,20 @@ describe('Component: ThumbnailGrid with config', () => {
                 expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testSizeField');
             }
 
-            expect(selects[11].componentInstance.disabled).toEqual(false);
-            expect(selects[11].componentInstance.placeholder).toEqual('Sort Field');
-            expect(selects[11].componentInstance.required).toEqual(true);
-            options = selects[11].componentInstance.options.toArray();
+            expect(selects[12].componentInstance.disabled).toEqual(false);
+            expect(selects[12].componentInstance.placeholder).toEqual('Sort Field');
+            expect(selects[12].componentInstance.required).toEqual(true);
+            options = selects[12].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length);
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
                 expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
                 expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testSortField');
             }
 
-            expect(selects[12].componentInstance.disabled).toEqual(false);
-            expect(selects[12].componentInstance.placeholder).toEqual('Type Field');
-            expect(selects[12].componentInstance.required).toEqual(false);
-            options = selects[12].componentInstance.options.toArray();
+            expect(selects[13].componentInstance.disabled).toEqual(false);
+            expect(selects[13].componentInstance.placeholder).toEqual('Type Field');
+            expect(selects[13].componentInstance.required).toEqual(false);
+            options = selects[13].componentInstance.options.toArray();
             expect(options.length).toEqual(DatasetServiceMock.FIELDS.length + 1);
             expect(options[0].getLabel()).toEqual('(None)');
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
