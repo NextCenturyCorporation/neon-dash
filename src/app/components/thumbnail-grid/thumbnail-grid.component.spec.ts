@@ -1801,6 +1801,13 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy.calls.argsFor(0)).toEqual(['filter1']);
     });
 
+    it('isValideMediaType does return true if a MediaType is valid', () => {
+        let random = 'random';
+        let correctMedia = 'img';
+        expect(!component.isValidMediaType(random));
+        expect(component.isValidMediaType(correctMedia));
+    });
+
     it('setupFilters does not do anything if no filter exists', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
