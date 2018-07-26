@@ -36,40 +36,42 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { VisualizationService } from '../../services/visualization.service';
 import { ChartComponent } from '../chart/chart.component';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: LineChart', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();
     let component: LineChartComponent;
     let fixture: ComponentFixture<LineChartComponent>;
 
+    initializeTestBed({
+        declarations: [
+            LineChartComponent,
+            LegendComponent,
+            ExportControlComponent,
+            ChartComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            FilterService,
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            ThemesService,
+            ColorSchemeService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: testConfig }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                LineChartComponent,
-                LegendComponent,
-                ExportControlComponent,
-                ChartComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                FilterService,
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                ThemesService,
-                ColorSchemeService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: testConfig }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(LineChartComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -85,16 +87,16 @@ describe('Component: LineChart', () => {
         component.chart.data.labels = ['group1', 'group2'];
         expect(component.getButtonText()).toBe('Total 2');
 
-        component.meta.limit = 1;
+        component.options.limit = 1;
         expect(component.getButtonText()).toBe('1 of 2');
 
         component.chart.data.labels = ['group1', 'group2', 'group3', 'group4'];
         expect(component.getButtonText()).toBe('1 of 4');
 
-        component.meta.limit = 2;
+        component.options.limit = 2;
         expect(component.getButtonText()).toBe('2 of 4');
 
-        component.meta.limit = 4;
+        component.options.limit = 4;
         expect(component.getButtonText()).toBe('Total 4');
     });
 

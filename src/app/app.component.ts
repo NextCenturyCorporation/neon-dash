@@ -31,6 +31,7 @@ import { FilterTrayComponent } from './components/filter-tray/filter-tray.compon
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
 
 import * as L from 'leaflet'; // imported for use of DomUtil.enable/disableTextSelection
+import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
 
 @Component({
     selector: 'app-root',
@@ -49,6 +50,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public showAbout: boolean = true;
     public showAddVisualizationButton: boolean = false;
     public showFilterTrayButton: boolean = false;
+    public showCustomConnectionButton: boolean = false;
 
     public gridItems: NeonGridItem[] = [];
 
@@ -71,11 +73,17 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         limit_to_screen: true
     };
 
+    public projectTitle: string = 'Neon';
+    public projectIcon: string = 'favicon.ico?v=2';
+
     /* A reference to the dialog for adding visualizations. */
     private addVisDialogRef: MatDialogRef<AddVisualizationComponent>;
 
     /* A reference to the dialog for the filter tray. */
     private filterTrayDialogRef: MatDialogRef<FilterTrayComponent>;
+
+    /* A reference to the dialog for the custom connection dialog. */
+    private customConnectionDialogRef: MatDialogRef<CustomConnectionComponent>;
 
     constructor(public datasetService: DatasetService, public themesService: ThemesService,
         private activeGridService: ActiveGridService, public dialog: MatDialog,
@@ -83,6 +91,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         // TODO: Default to false and set to true only after a dataset has been selected.
         this.showAddVisualizationButton = true;
         this.showFilterTrayButton = true;
+        this.showCustomConnectionButton = true;
         this.datasets = this.datasetService.getDatasets();
         this.themesService = themesService;
         this.neonConfig = neonConfig;
@@ -95,6 +104,14 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             snackBarRef.instance.snackBarRef = snackBarRef;
             snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
         }
+
+        if (this.datasets && this.datasets.length > 0) {
+            this.projectTitle = this.datasets[0].title ? this.datasets[0].title : this.projectTitle;
+            this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon : this.projectIcon;
+        }
+
+        this.changeFavicon();
+
     }
 
     gridItemsToString(): string {
@@ -123,6 +140,16 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
         this.filterTrayDialogRef = this.dialog.open(FilterTrayComponent, config);
         this.filterTrayDialogRef.afterClosed().subscribe(() => {
+            this.filterTrayDialogRef = null;
+        });
+    }
+
+    openCustomConnectionDialog() {
+        let config = new MatDialogConfig();
+        config.viewContainerRef = this.viewContainerRef;
+
+        this.customConnectionDialogRef = this.dialog.open(CustomConnectionComponent, config);
+        this.customConnectionDialogRef.afterClosed().subscribe(() => {
             this.filterTrayDialogRef = null;
         });
     }
@@ -179,5 +206,26 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
          * let str = `row: ${event.row} col: ${event.col} sizex: ${event.sizex} sizey: ${event.sizey}`;
          * console.log(str);
          */
+    }
+
+    changeFavicon() {
+        let favicon = document.createElement('link'),
+            faviconShortcut = document.createElement('link'),
+            title = document.createElement('title'),
+            head = document.querySelector('head');
+
+        favicon.setAttribute('rel', 'icon');
+        favicon.setAttribute('type', 'image/x-icon');
+        favicon.setAttribute('href', this.projectIcon);
+
+        faviconShortcut.setAttribute('rel', 'shortcut icon');
+        faviconShortcut.setAttribute('type', 'image/x-icon');
+        faviconShortcut.setAttribute('href', this.projectIcon);
+
+        title.innerText = this.projectTitle;
+
+        head.appendChild(favicon);
+        head.appendChild(faviconShortcut);
+        head.appendChild(title);
     }
 }

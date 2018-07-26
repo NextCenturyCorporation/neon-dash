@@ -19,7 +19,6 @@ import { By } from '@angular/platform-browser';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import * as neon from 'neon-framework';
@@ -37,26 +36,8 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { TranslationService } from '../../services/translation.service';
 import { VisualizationService } from '../../services/visualization.service';
-
-class TestDatasetService extends DatasetService {
-    constructor() {
-        super(new NeonGTDConfig());
-        let testDatabase = new DatabaseMetaData('testDatabase', 'Test Database');
-        testDatabase.tables = [
-            new TableMetaData('testTable', 'Test Table', [
-                new FieldMetaData('testDataField', 'Test Data Field'),
-                new FieldMetaData('testDateField', 'Test Date Field'),
-                new FieldMetaData('testIDField', 'Test ID Field')
-            ])
-        ];
-        testDatabase.tables[0].mappings = {
-            newsfeed_text: 'testDataField'
-        };
-        this.setActiveDataset({
-            databases: [testDatabase]
-        });
-    }
-}
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 /*
  * First, a note about sending queries to neon:
@@ -71,32 +52,32 @@ describe('Component: DocumentViewer', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
+    initializeTestBed({
+        declarations: [
+            DocumentViewerComponent,
+            ExportControlComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            ErrorNotificationService,
+            ExportService,
+            FilterService,
+            ThemesService,
+            TranslationService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                DocumentViewerComponent,
-                ExportControlComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                ErrorNotificationService,
-                ExportService,
-                FilterService,
-                ThemesService,
-                TranslationService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule,
-                HttpModule
-            ]
-        });
         fixture = TestBed.createComponent(DocumentViewerComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -106,19 +87,20 @@ describe('Component: DocumentViewer', () => {
         expect(component).toBeTruthy();
     }));
 
-    it('has expected active properties', () => {
-        expect(component.active).toEqual({
-            data: [],
-            dataField: new FieldMetaData(),
-            dateField: new FieldMetaData(),
-            docCount: 0,
-            idField: new FieldMetaData(),
-            page: 1,
-            metadataFields: [],
-            popoutFields: [],
-            showSelect: false,
-            showText: false
-        });
+    it('has expected options properties', () => {
+        expect(component.options.dataField).toEqual(component.emptyField);
+        expect(component.options.dateField).toEqual(component.emptyField);
+        expect(component.options.idField).toEqual(component.emptyField);
+        expect(component.options.metadataFields).toEqual([]);
+        expect(component.options.popoutFields).toEqual([]);
+        expect(component.options.showSelect).toBe(false);
+        expect(component.options.showText).toBe(false);
+    });
+
+    it('has expected class properties', () => {
+        expect(component.activeData).toEqual([]);
+        expect(component.docCount).toBe(0);
+        expect(component.page).toBe(1);
     });
 
     it('has a subNgOnInit method that does nothing', () => {
@@ -138,34 +120,24 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('returns the correct list from getExportFields', () => {
-        component.active.dataField.columnName = 'testDataField';
-        component.active.dataField.prettyName = 'Test Data Field';
-        component.active.dateField.columnName = 'testDateField';
-        component.active.dateField.prettyName = 'Test Date Field';
-        component.active.idField.columnName = 'testIDField';
-        component.active.idField.prettyName = 'Test ID Field';
+        component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
+        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
+        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
 
         expect(component.getExportFields()).toEqual([
             {
-                columnName: 'testDataField',
-                prettyName: 'Test Data Field'
+                columnName: 'testTextField',
+                prettyName: 'Test Text Field'
             },
             {
                 columnName: 'testDateField',
                 prettyName: 'Test Date Field'
             },
             {
-                columnName: 'testIDField',
+                columnName: 'testIdField',
                 prettyName: 'Test ID Field'
             }
         ]);
-    });
-
-    it('sets expected fields in onUpdateFields to empty strings because fields are empty', () => {
-        component.onUpdateFields();
-        expect(component.active.dataField).toEqual(new FieldMetaData());
-        expect(component.active.dataField).toEqual(new FieldMetaData());
-        expect(component.active.dataField).toEqual(new FieldMetaData());
     });
 
     it('returns an empty string from getFilterText', () => {
@@ -175,58 +147,54 @@ describe('Component: DocumentViewer', () => {
         })).toBe('');
     });
 
-    it('returns the expected string from getVisualizationName', () => {
-        expect(component.getVisualizationName()).toBe('Document Viewer');
-    });
-
     it('returns null from getFiltersToIgnore', () => {
         expect(component.getFiltersToIgnore()).toBeNull();
     });
 
     it('returns the expectedvalue from isValidQuery', () => {
         expect(component.isValidQuery()).toBe(false);
-        component.meta.database = new DatabaseMetaData('testDatabase');
+        component.options.database = new DatabaseMetaData('testDatabase1');
         expect(component.isValidQuery()).toBe(false);
-        component.meta.table = new TableMetaData('testTable');
+        component.options.table = new TableMetaData('testTable1');
         expect(component.isValidQuery()).toBe(false);
-        component.active.dataField.columnName = 'testDataField';
+        component.options.dataField = new FieldMetaData('testTextField');
         expect(component.isValidQuery()).toBe(true);
     });
 
     it('returns expected query from createQuery', () => {
-        component.meta.database = new DatabaseMetaData('testDatabase');
-        component.meta.table = new TableMetaData('testTable');
-        component.active.dataField.columnName = 'testDataField';
+        component.options.database = new DatabaseMetaData('testDatabase1');
+        component.options.table = new TableMetaData('testTable1');
+        component.options.dataField = new FieldMetaData('testTextField');
         // Start with no date field to make sure we don't sort without it.
-        component.active.idField.columnName = 'testIDField';
+        component.options.idField = new FieldMetaData('testIdField');
         let query = new neon.query.Query()
-            .selectFrom('testDatabase', 'testTable')
-            .where(new neon.query.WhereClause('testDataField', '!=', null))
+            .selectFrom('testDatabase1', 'testTable1')
+            .where(new neon.query.WhereClause('testTextField', '!=', null))
             .withFields([
-                'testDataField',
-                'testIDField'
+                'testTextField',
+                'testIdField'
             ])
             .limit(50)
             .offset(0);
         expect(component.createQuery()).toEqual(query);
 
         // Then add a date field and ensure the result is properly sorting.
-        component.active.dateField.columnName = 'testDateField';
+        component.options.dateField = new FieldMetaData('testDateField');
         query = query.sortBy('testDateField', neonVariables.DESCENDING)
             .withFields([
-                'testDataField',
+                'testTextField',
                 'testDateField',
-                'testIDField'
+                'testIdField'
             ]);
         expect(component.createQuery()).toEqual(query);
     });
 
     it('sets expected properties and calls getDocCount if onQuerySuccess returns no data', () => {
 
-        component.active.dataField.columnName = 'testDataField';
-        component.active.dateField.columnName = 'testDateField';
-        component.active.idField.columnName = 'testIDField';
-        component.active.docCount = 50;
+        component.options.dataField = new FieldMetaData('testTextField');
+        component.options.dateField = new FieldMetaData('testDateField');
+        component.options.idField = new FieldMetaData('testIdField');
+        component.docCount = 50;
         let response = {
             data: []
         };
@@ -258,27 +226,27 @@ describe('Component: DocumentViewer', () => {
         component.onQuerySuccess(response);
 
         expect(calledExecuteQuery).toBeTruthy();
-        expect(component.active.docCount).toBe(0);
-        expect(component.active.data).toEqual([]);
+        expect(component.docCount).toBe(0);
+        expect(component.activeData).toEqual([]);
     });
 
     it('sets expected properties and calls getDocCount if onQuerySuccess returns data', () => {
 
-        component.active.dataField.columnName = 'testDataField';
-        component.active.dateField.columnName = 'testDateField';
-        component.active.idField.columnName = 'testIDField';
-        component.active.docCount = 50;
+        component.options.dataField = new FieldMetaData('testTextField');
+        component.options.dateField = new FieldMetaData('testDateField');
+        component.options.idField = new FieldMetaData('testIdField');
+        component.docCount = 50;
         let response = {
             data: [
                 {
-                    testDataField: 'data1',
+                    testTextField: 'data1',
                     testDateField: 'date1',
-                    testIDField: '12345'
+                    testIdField: '12345'
                 },
                 {
-                    testDataField: 'data2',
+                    testTextField: 'data2',
                     testDateField: 'date2',
-                    testIDField: '67890'
+                    testIdField: '67890'
                 }
             ]
         };
@@ -299,23 +267,23 @@ describe('Component: DocumentViewer', () => {
         component.onQuerySuccess(response);
 
         expect(calledExecuteQuery).toBeTruthy();
-        expect(component.active.docCount).toBe(2);
-        expect(component.active.data).toEqual([
+        expect(component.docCount).toBe(2);
+        expect(component.activeData).toEqual([
             {
-                testDataField: 'data1',
+                testTextField: 'data1',
                 testDateField: 'date1',
-                testIDField: '12345'
+                testIdField: '12345'
             },
             {
-                testDataField: 'data2',
+                testTextField: 'data2',
                 testDateField: 'date2',
-                testIDField: '67890'
+                testIdField: '67890'
             }
         ]);
     });
 
     it('sets the expected value when getDocCount is called', () => {
-        component.active.docCount = 50;
+        component.docCount = 50;
         let docCountResponse = {
             data: [{
                 _docCount: 9999
@@ -332,41 +300,39 @@ describe('Component: DocumentViewer', () => {
         component.getDocCount();
 
         expect(calledExecuteQuery).toBeTruthy();
-        expect(component.active.docCount).toBe(9999);
+        expect(component.docCount).toBe(9999);
     });
 
     it('doesn\'t do anything in refreshVisualization', () => {
         expect(component.refreshVisualization()).toBeUndefined();
-        expect(component.active).toEqual({
-            data: [],
-            dataField: component.active.dataField,
-            dateField: component.active.dateField,
-            docCount: 0,
-            idField: component.active.idField,
-            page: 1,
-            metadataFields: [],
-            popoutFields: [],
-            showSelect: false,
-            showText: false
-        });
+        expect(component.options.dataField).toEqual(component.emptyField);
+        expect(component.options.dateField).toEqual(component.emptyField);
+        expect(component.options.idField).toEqual(component.emptyField);
+        expect(component.options.metadataFields).toEqual([]);
+        expect(component.options.popoutFields).toEqual([]);
+        expect(component.options.showSelect).toBe(false);
+        expect(component.options.showText).toBe(false);
+        expect(component.activeData).toEqual([]);
+        expect(component.docCount).toBe(0);
+        expect(component.page).toBe(1);
     });
 
     it('returns the expected value from getButtonText', () => {
-        // When active.data.length == 0
-        component.active.data = [];
+        // When activeData.length == 0
+        component.activeData = [];
         expect(component.getButtonText()).toBe('No Data');
 
-        // When active.data.langth < active.data.docCount
-        component.active.data = ['value1', 'value2'];
-        component.active.docCount = 50;
+        // When activeData.langth < docCount
+        component.activeData = ['value1', 'value2'];
+        component.docCount = 50;
         expect(component.getButtonText()).toBe('1 - 50 of 50');
 
         // When limit changes
-        component.meta.limit = 10;
+        component.options.limit = 10;
         expect(component.getButtonText()).toBe('1 - 10 of 50');
 
-        // When active.data.length >= active.data.docCount
-        component.active.docCount = 2;
+        // When activeData.length >= docCount
+        component.docCount = 2;
         expect(component.getButtonText()).toBe('Total 2');
     });
 
@@ -505,24 +471,24 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('creates elements for data', async(() => {
-        component.active.dataField.columnName = 'testDataField';
-        component.active.dateField.columnName = 'testDateField';
-        component.active.idField.columnName = 'testIDField';
-        component.active.data = [
+        component.options.dataField = new FieldMetaData('testTextField');
+        component.options.dateField = new FieldMetaData('testDateField');
+        component.options.idField = new FieldMetaData('testIdField');
+        component.activeData = [
             {
-                testDataField: 'This is a string.',
+                testTextField: 'This is a string.',
                 testDateField: '12:34:56 7/8/90',
-                testIDField: '_12345',
+                testIdField: '_12345',
                 metadataValue: 'First'
             },
             {
-                testDataField: 'This is another string.',
+                testTextField: 'This is another string.',
                 testDateField: '09:87:65 4/3/21',
-                testIDField: '_67890',
+                testIdField: '_67890',
                 metadataValue: 'Second'
             }
         ];
-        component.active.metadataFields = [{
+        component.options.metadataFields = [{
             name: 'Test',
             field: 'metadataValue'
         }];
@@ -549,12 +515,12 @@ describe('Component: DocumentViewer', () => {
     }));
 
     it('createClause does return expected object', () => {
-        component.active.dataField = new FieldMetaData('testDataField');
-        expect(component.createClause()).toEqual(neon.query.where('testDataField', '!=', null));
+        component.options.dataField = new FieldMetaData('testTextField');
+        expect(component.createClause()).toEqual(neon.query.where('testTextField', '!=', null));
 
-        component.meta.unsharedFilterField = new FieldMetaData('testFilterField');
-        component.meta.unsharedFilterValue = 'testFilterValue';
-        expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testDataField', '!=', null),
+        component.options.unsharedFilterField = new FieldMetaData('testFilterField');
+        component.options.unsharedFilterValue = 'testFilterValue';
+        expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testTextField', '!=', null),
             neon.query.where('testFilterField', '=', 'testFilterValue')));
     });
 });
@@ -563,103 +529,89 @@ describe('Component: Document Viewer with Config', () => {
     let component: DocumentViewerComponent;
     let fixture: ComponentFixture<DocumentViewerComponent>;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                DocumentViewerComponent,
-                ExportControlComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                {
-                    provide: DatasetService,
-                    useClass: TestDatasetService
-                },
-                ErrorNotificationService,
-                ExportService,
-                FilterService,
-                ThemesService,
-                TranslationService,
-                VisualizationService,
-                Injector,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: 'title', useValue: 'Document Viewer Title' },
-                { provide: 'database', useValue: 'testDatabase' },
-                { provide: 'table', useValue: 'testTable' },
-                { provide: 'dataField', useValue: 'testDataField' },
-                { provide: 'dateField', useValue: 'testDateField' },
-                { provide: 'idField', useValue: 'testIDField' },
-                { provide: 'metadataFields', useValue: [
-                    [{
-                        name: 'Single Item Metadata Row',
-                        field: 'singleItemMetadataRow'
-                    }],
-                    [{
-                        name: 'First of Multiple Item Metadata Row',
-                        field: 'firstOfMultipleItemMetadataRow'
-                    },
-                    {
-                        name: 'Second of Multiple Item Metadata Row',
-                        field: 'secondOfMultipleItemMetadataRow'
-                    }]
-                ]},
-                { provide: 'popoutFields', useValue: null },
-                { provide: 'limit', useValue: 25 }
-            ],
-            imports: [
-                AppMaterialModule,
-                BrowserAnimationsModule,
-                FormsModule,
-                HttpModule
-            ]
-        });
-        fixture = TestBed.createComponent(DocumentViewerComponent);
-        component = fixture.componentInstance;
-        fixture.detectChanges();
-    });
-
-    it('has expected active properties after config is loaded', () => {
-        expect(component.active).toEqual({
-            data: [],
-            dataField: new FieldMetaData('testDataField', 'Test Data Field'),
-            dateField: new FieldMetaData('testDateField', 'Test Date Field'),
-            docCount: 0,
-            idField: new FieldMetaData('testIDField', 'Test ID Field'),
-            page: 1,
-            metadataFields: [
-                {
+    initializeTestBed({
+        declarations: [
+            DocumentViewerComponent,
+            ExportControlComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            {
+                provide: DatasetService,
+                useClass: DatasetServiceMock
+            },
+            ErrorNotificationService,
+            ExportService,
+            FilterService,
+            ThemesService,
+            TranslationService,
+            VisualizationService,
+            Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: 'title', useValue: 'Document Viewer Title' },
+            { provide: 'database', useValue: 'testDatabase1' },
+            { provide: 'table', useValue: 'testTable1' },
+            { provide: 'dataField', useValue: 'testTextField' },
+            { provide: 'dateField', useValue: 'testDateField' },
+            { provide: 'idField', useValue: 'testIdField' },
+            { provide: 'metadataFields', useValue: [
+                [{
                     name: 'Single Item Metadata Row',
                     field: 'singleItemMetadataRow'
-                },
-                {
+                }],
+                [{
                     name: 'First of Multiple Item Metadata Row',
                     field: 'firstOfMultipleItemMetadataRow'
                 },
                 {
                     name: 'Second of Multiple Item Metadata Row',
                     field: 'secondOfMultipleItemMetadataRow'
-                }
-            ],
-            popoutFields: [],
-            showSelect: false,
-            showText: false
-        });
+                }]
+            ]},
+            { provide: 'popoutFields', useValue: null },
+            { provide: 'limit', useValue: 25 }
+        ],
+        imports: [
+            AppMaterialModule,
+            BrowserAnimationsModule,
+            FormsModule
+        ]
     });
 
-    it('sets expected fields in onUpdateFields to fields from the config', () => {
-        let testDataField = new FieldMetaData('testDataField', 'Test Data Field');
-        let testDateField = new FieldMetaData('testDateField', 'Test Date Field');
-        let testIDField = new FieldMetaData('testIDField', 'Test ID Field');
-        let testTable = new TableMetaData('testTable', 'Test Table', [testDataField, testDateField, testIDField]);
-        let testDatabase = new DatabaseMetaData('testDatabase', 'Test Database');
-        testDatabase.tables = [testTable];
-        component.meta.database = testDatabase;
-        component.meta.table = testTable;
-        component.onUpdateFields();
-        expect(component.active.dataField).toEqual(new FieldMetaData('testDataField', 'Test Data Field'));
-        expect(component.active.dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field'));
-        expect(component.active.idField).toEqual(new FieldMetaData('testIDField', 'Test ID Field'));
+    beforeEach(() => {
+        fixture = TestBed.createComponent(DocumentViewerComponent);
+        component = fixture.componentInstance;
+        fixture.detectChanges();
+    });
+
+    it('has expected options properties after config is loaded', () => {
+        expect(component.options.dataField).toEqual(DatasetServiceMock.TEXT_FIELD);
+        expect(component.options.dateField).toEqual(DatasetServiceMock.DATE_FIELD);
+        expect(component.options.idField).toEqual(DatasetServiceMock.ID_FIELD);
+        expect(component.options.metadataFields).toEqual([
+            {
+                name: 'Single Item Metadata Row',
+                field: 'singleItemMetadataRow'
+            },
+            {
+                name: 'First of Multiple Item Metadata Row',
+                field: 'firstOfMultipleItemMetadataRow'
+            },
+            {
+                name: 'Second of Multiple Item Metadata Row',
+                field: 'secondOfMultipleItemMetadataRow'
+            }
+        ]);
+        expect(component.options.popoutFields).toEqual([]);
+        expect(component.options.showSelect).toBe(false);
+        expect(component.options.showText).toBe(false);
+    });
+
+    it('has expected class properties', () => {
+        expect(component.activeData).toEqual([]);
+        expect(component.docCount).toBe(0);
+        expect(component.page).toBe(1);
     });
 
     it('getElementRefs does return expected object', () => {

@@ -55,20 +55,10 @@ export class AddVisualizationComponent implements OnInit {
             this.dialogRef.close();
         }
 
-        this.snackBar.openFromComponent(SimpleSnackBarComponent, {
-            duration: 500,
-            verticalPosition: 'top'
-        });
+         this.snackBar.open('Visualization Added', '🗙', {
+            duration: 60000,
+            verticalPosition: 'top',
+            panelClass: ['simpleSnackBar']
+         });
     }
-}
-
-@Component({
-    selector: 'app-simple-snack-bar',
-    template: `
-        <div class="app-simple-snack-center">{{ message }}</div>
-    `,
-    styles: [':host { display: flex; justify-content: center }']
-})
-export class SimpleSnackBarComponent {
-    @Input() message = 'Visualization Added';
 }

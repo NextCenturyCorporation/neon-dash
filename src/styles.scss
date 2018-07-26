@@ -99,113 +99,25 @@ body {
     z-index: 10;
 }
 
-/* Icons */
-.icon-BarChart64 {
-    background-position: -192px -64px
-}
-
-.icon-Count64 {
-    background-position: -192px -128px
-}
-
-.icon-CreateFilter64 {
-    background-position: 0 -192px
-}
-
-.icon-DocumentViewer64 {
-    background-position: -290px -256px
-}
-
-.icon-Gantt64 {
-    background-position: -64px -192px
-}
-
-.icon-Graph64 {
-    background-position: -128px -192px
-}
-
-.icon-LineChart64 {
-    background-position: 0 0
-}
-
-.icon-Map64 {
-    background-position: -256px 0
-}
-
-.icon-NetworkGraph64 {
-    background-position: -64px -64px
-}
-
-.icon-News64 {
-    background-position: -256px -64px
-}
-
-.icon-OPS64 {
-    background-position: -256px -128px
-}
-
-.icon-OpsClock64 {
-    background-position: -256px -192px
-}
-
-.icon-PieChart64 {
-    background-position: 0 -256px;
-}
-
-.icon-ScatterPlot64 {
-    background-position: -64px -256px
-}
-
-.icon-Sunburst64 {
-    background-position: -192px 0
-}
-
-.icon-TagCloud64 {
-    background-position: -128px -128px
-}
-
-.icon-Timeline64 {
-    background-position: -64px -128px
-}
-
-.icon-ViewData64 {
-    background-position: 0 -128px
-}
-
-.icon-WikiViewer64 {
-    background-position: -5px -320px
-}
-/* End Icons */
-
-/* Old Icons - Can we delete them? */
-.icon-Bar-Chart {
-    background-position: -128px -64px
-}
-
-.icon-Create-Filter {
-    background-position: -128px 0
-}
-
-.icon-Line-Chart {
-    background-position: 0 -64px
-}
-
-.icon-Pie-Chart {
-    background-position: -64px 0
-}
-/* End Old Icons */
-
 .icon-container {
     justify-content: center;
     display: flex;
 }
 
-.neon-sprite {
+.neon-svg-icon {
     display: inline-block;
     vertical-align: middle;
-    background-image: url("assets/images/spritesheet.png");
-    width: 64px;
-    height: 64px;
+    width: 60px;
+    height: 60px;
+    margin: 5px;
+}
+
+.neon-icon-navBar {
+    display: inline-block;
+    vertical-align: middle;
+    width: 25px;
+    height: 25px;
+    margin: 5px;
 }
 
 /* Loading Spinner */
@@ -255,8 +167,10 @@ body {
         height: 25px !important;
     }
 
-    &:hover {
-        background-color: $accent-bright !important;
+    &:not([disabled]) {
+        &:hover {
+            background-color: $accent-bright !important;
+        }
     }
 }
 
@@ -323,6 +237,7 @@ body {
         height: 15px !important;
         line-height: 15px !important;
         padding: 5px 0 !important;
+        width: unset;
     }
 
     .mat-form-field-underline {
@@ -382,7 +297,7 @@ body {
     height: 20px !important;
     width: 20px !important;
     vertical-align: bottom !important;
-
+    
     &.neon-icon-large {
         font-size: 30px !important;
         line-height: 30px !important;
@@ -472,3 +387,12 @@ body {
     }
 }
 
+.simpleSnackBar .mat-simple-snackbar{
+    padding-left: 60px;
+
+    & button{
+        position: absolute; 
+        top: 0;
+        right: 0;
+    }
+}

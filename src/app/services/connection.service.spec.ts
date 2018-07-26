@@ -17,12 +17,11 @@ import { TestBed, inject } from '@angular/core/testing';
 import { ConnectionService } from './connection.service';
 
 import * as neon from 'neon-framework';
+import { initializeTestBed } from '../../testUtils/initializeTestBed';
 
 describe('Service: ConnectionService', () => {
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            providers: [ConnectionService]
-        });
+    initializeTestBed({
+        providers: [ConnectionService]
     });
 
     it('should ...', inject([ConnectionService], (service: ConnectionService) => {

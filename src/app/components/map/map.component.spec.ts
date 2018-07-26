@@ -15,9 +15,16 @@
  */
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, Injector, ViewEncapsulation } from '@angular/core';
+import {
+    ChangeDetectionStrategy,
+    ChangeDetectorRef,
+    Component,
+    ElementRef,
+    Injector,
+    ViewEncapsulation
+} from '@angular/core';
 
-import { MapComponent } from './map.component';
+import { MapComponent, MapLayer } from './map.component';
 import { LegendComponent } from '../legend/legend.component';
 import { ExportControlComponent } from '../export-control/export-control.component';
 import { ExportService } from '../../services/export.service';
@@ -34,11 +41,12 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { VisualizationService } from '../../services/visualization.service';
 import { By } from '@angular/platform-browser';
-import { AbstractMap, BoundingBoxByDegrees, MapLayer, MapPoint, MapType } from './map.type.abstract';
+import { AbstractMap, BoundingBoxByDegrees, MapPoint, MapType } from './map.type.abstract';
 import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import * as neon from 'neon-framework';
-import { DatasetMock } from '../../../testUtils/MockServices/DatasetMock';
-import { FilterMock } from '../../../testUtils/MockServices/FilterMock';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 function webgl_support(): any {
     try {
@@ -59,17 +67,39 @@ function webgl_support(): any {
 })
 
 class TestMapComponent extends MapComponent {
-    constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-                filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-                colorSchemeSrv: ColorSchemeService, ref: ChangeDetectorRef, visualizationService: VisualizationService) {
-        super(activeGridService, connectionService, datasetService, filterService, exportService, injector,
-            themesService, colorSchemeSrv, ref, visualizationService);
+    constructor(
+        activeGridService: ActiveGridService,
+        connectionService: ConnectionService,
+        datasetService: DatasetService,
+        filterService: FilterService,
+        exportService: ExportService,
+        injector: Injector,
+        themesService: ThemesService,
+        colorSchemeSrv: ColorSchemeService,
+        ref: ChangeDetectorRef,
+        visualizationService: VisualizationService
+    ) {
+        super(
+            activeGridService,
+            connectionService,
+            datasetService,
+            filterService,
+            exportService,
+            injector,
+            themesService,
+            colorSchemeSrv,
+            ref,
+            visualizationService);
     }
 
     assignTestMap() {
-        this.mapType = -1;
+        this.options.type = -1;
         this.mapObject = new TestMap();
         return this.mapObject;
+    }
+
+    getDatasetService(): DatasetService {
+        return this.datasetService;
     }
 
     getFilterBoundingBox() {
@@ -131,52 +161,44 @@ class TestMap extends AbstractMap {
 }
 /* tslint:enable:component-class-suffix */
 
-function updateMapLayer1(component) {
-    component.meta.layers[0] = {
-        index: 0,
-        title: 'Layer A',
-        databases: [],
-        database: new DatabaseMetaData('testDatabase1'),
-        tables: [],
-        table: new TableMetaData('testTable1'),
-        unsharedFilterField: {},
-        unsharedFilterValue: '',
-        fields: [],
-        docCount: 1234
-    };
+function updateMapLayer1(component: TestMapComponent) {
+    component.docCount[0] = 1234;
 
-    component.active.layers[0] = {
-        title: 'Layer A',
-        latitudeField: new FieldMetaData('testLatitude1', 'Test Latitude 1'),
-        longitudeField: new FieldMetaData('testLongitude1', 'Test Longitude 1'),
-        colorField: new FieldMetaData('testColor1', 'Test Color 1'),
-        sizeField: new FieldMetaData('testSize1', 'Test Size 1'),
-        dateField: new FieldMetaData('testDate1', 'Test Date 1')
-    };
+    component.options.layers[0] = new MapLayer({}, component.getDatasetService());
+    component.options.layers[0].databases = [];
+    component.options.layers[0].database = new DatabaseMetaData('testDatabase1');
+    component.options.layers[0].fields = [];
+    component.options.layers[0].tables = [];
+    component.options.layers[0].table = new TableMetaData('testTable1');
+    component.options.layers[0].title = 'Layer A';
+    component.options.layers[0].unsharedFilterField = new FieldMetaData();
+    component.options.layers[0].unsharedFilterValue = '';
+
+    component.options.layers[0].colorField = new FieldMetaData('testColor1', 'Test Color 1');
+    component.options.layers[0].dateField = new FieldMetaData('testDate1', 'Test Date 1');
+    component.options.layers[0].latitudeField = new FieldMetaData('testLatitude1', 'Test Latitude 1');
+    component.options.layers[0].longitudeField = new FieldMetaData('testLongitude1', 'Test Longitude 1');
+    component.options.layers[0].sizeField = new FieldMetaData('testSize1', 'Test Size 1');
 }
 
-function updateMapLayer2(component) {
-    component.meta.layers.push({
-        index: 1,
-        title: 'Layer B',
-        databases: [],
-        database: new DatabaseMetaData('testDatabase2'),
-        tables: [],
-        table: new TableMetaData('testTable2'),
-        unsharedFilterField: {},
-        unsharedFilterValue: '',
-        fields: [],
-        docCount: 5678
-    });
+function updateMapLayer2(component: TestMapComponent) {
+    component.docCount[1] = 5678;
 
-    component.active.layers.push({
-        title: 'Layer B',
-        latitudeField: new FieldMetaData('testLatitude2', 'Test Latitude 2'),
-        longitudeField: new FieldMetaData('testLongitude2', 'Test Longitude 2'),
-        colorField: new FieldMetaData('testColor2', 'Test Color 2'),
-        sizeField: new FieldMetaData('testSize2', 'Test Size 2'),
-        dateField: new FieldMetaData('testDate2', 'Test Date 2')
-    });
+    component.options.layers[1] = new MapLayer({}, component.getDatasetService());
+    component.options.layers[1].databases = [];
+    component.options.layers[1].database = new DatabaseMetaData('testDatabase2');
+    component.options.layers[1].fields = [];
+    component.options.layers[1].tables = [];
+    component.options.layers[1].table = new TableMetaData('testTable2');
+    component.options.layers[1].title = 'Layer B';
+    component.options.layers[1].unsharedFilterField = new FieldMetaData();
+    component.options.layers[1].unsharedFilterValue = '';
+
+    component.options.layers[1].colorField = new FieldMetaData('testColor2', 'Test Color 2');
+    component.options.layers[1].dateField = new FieldMetaData('testDate2', 'Test Date 2');
+    component.options.layers[1].latitudeField = new FieldMetaData('testLatitude2', 'Test Latitude 2');
+    component.options.layers[1].longitudeField = new FieldMetaData('testLongitude2', 'Test Longitude 2');
+    component.options.layers[1].sizeField = new FieldMetaData('testSize2', 'Test Size 2');
 }
 
 describe('Component: Map', () => {
@@ -185,54 +207,51 @@ describe('Component: Map', () => {
         getDebug = (selector: string) => fixture.debugElement.query(By.css(selector)),
         getService = (type: any) => fixture.debugElement.injector.get(type),
         addFilter = (box: BoundingBoxByDegrees, dbName: string, tableName: string, latName: string, lngName: string) => {
-            let meta = component.meta,
-                layerIndex = 0,
-                layer = meta.layers[layerIndex],
-                active = component.active.layers[layerIndex],
-                latfield = new FieldMetaData(latName),
-                lngfield = new FieldMetaData(lngName),
-                catfield = new FieldMetaData('category'),
-                table = new TableMetaData(tableName, tableName, [latfield, lngfield, catfield]),
-                database = new DatabaseMetaData(dbName);
+            let layer = component.options.layers[0];
+            let latfield = new FieldMetaData(latName);
+            let lngfield = new FieldMetaData(lngName);
+            let catfield = new FieldMetaData('category');
+            let table = new TableMetaData(tableName, tableName, [latfield, lngfield, catfield]);
+            let database = new DatabaseMetaData(dbName);
 
             database.tables.push(table);
 
-            active.latitudeField = latfield;
-            active.longitudeField = lngfield;
-
             layer.database = database;
             layer.table = table;
+            layer.latitudeField = latfield;
+            layer.longitudeField = lngfield;
 
             component.filterByLocation(box);
         };
 
+    initializeTestBed({
+        declarations: [
+            TestMapComponent,
+            LegendComponent,
+            ExportControlComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            { provide: FilterService, useClass: FilterServiceMock },
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            VisualizationService,
+            ThemesService,
+            Injector,
+            ColorSchemeService,
+            { provide: 'config', useValue: new NeonGTDConfig() }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                TestMapComponent,
-                LegendComponent,
-                ExportControlComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                { provide: FilterService, useClass: FilterMock },
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                VisualizationService,
-                ThemesService,
-                Injector,
-                ColorSchemeService,
-                { provide: 'config', useValue: new NeonGTDConfig() }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(TestMapComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -242,51 +261,44 @@ describe('Component: Map', () => {
         expect(component).toBeTruthy();
     });
 
-    it('does have expected active properties', () => {
-        expect(component.active).toEqual({
-            layers: [{
-                title: '',
-                latitudeField: new FieldMetaData(),
-                longitudeField: new FieldMetaData(),
-                colorField: new FieldMetaData(),
-                sizeField: new FieldMetaData(),
-                dateField: new FieldMetaData()
-            }],
-            andFilters: true,
-            filterable: true,
-            data: [],
-            nextColorIndex: 0,
-            unusedColors: [],
-            clustering: 'points',
-            singleColor: false,
-            disableCtrlZoom: false
-        });
+    it('does have expected options', () => {
+        expect(component.options.clustering).toEqual('points');
+        expect(component.options.clusterPixelRange).toEqual(15);
+        expect(component.options.customServer).toEqual(null);
+        expect(component.options.disableCtrlZoom).toEqual(false);
+        expect(component.options.hoverPopupEnabled).toEqual(false);
+        expect(component.options.hoverSelect).toEqual(null);
+        expect(component.options.limit).toEqual(1000);
+        expect(component.options.minClusterSize).toEqual(5);
+        expect(component.options.singleColor).toEqual(false);
+        expect(component.options.title).toEqual('Map');
+        expect(component.options.type).toEqual(MapType.Leaflet);
+
+        expect(component.options.west).toEqual(null);
+        expect(component.options.east).toEqual(null);
+        expect(component.options.north).toEqual(null);
+        expect(component.options.south).toEqual(null);
     });
 
     it('does have expected public properties', () => {
         expect(component.colorByFields).toEqual([]);
         expect(component.disabledSet).toEqual([]);
+        expect(component.docCount).toEqual([0]);
         expect(component.filterVisible).toEqual([true]);
     });
 
-    it('does have expected meta properties', (() => {
-        expect(component.meta.layers[0].databases).toEqual([]);
-        expect(component.meta.layers[0].database).toEqual(new DatabaseMetaData());
-        expect(component.meta.layers[0].tables).toEqual([]);
-        expect(component.meta.layers[0].table).toEqual(new TableMetaData());
-        expect(component.meta.layers[0].fields).toEqual([]);
-    }));
-
-    it('onUpdateFields does set expected fields to empty strings because layers config is empty', () => {
-        component.onUpdateFields(component.meta.layers[0]);
-        expect(component.active.layers[0]).toEqual({
-            title: 'New Layer',
-            latitudeField: new FieldMetaData(),
-            longitudeField: new FieldMetaData(),
-            colorField: new FieldMetaData(),
-            sizeField: new FieldMetaData(),
-            dateField: new FieldMetaData()
-        });
+    it('does have expected layers', () => {
+        expect(component.options.layers[0].databases).toEqual([]);
+        expect(component.options.layers[0].database).toEqual(new DatabaseMetaData());
+        expect(component.options.layers[0].tables).toEqual([]);
+        expect(component.options.layers[0].table).toEqual(new TableMetaData());
+        expect(component.options.layers[0].fields).toEqual([]);
+        expect(component.options.layers[0].title).toEqual('New Layer');
+        expect(component.options.layers[0].colorField).toEqual(component.emptyField);
+        expect(component.options.layers[0].dateField).toEqual(component.emptyField);
+        expect(component.options.layers[0].latitudeField).toEqual(component.emptyField);
+        expect(component.options.layers[0].longitudeField).toEqual(component.emptyField);
+        expect(component.options.layers[0].sizeField).toEqual(component.emptyField);
     });
 
     it('should create the default map (Leaflet)', () => {
@@ -309,10 +321,10 @@ describe('Component: Map', () => {
             datasets = [
                 {
                     data: [
-                        {lat: 0, lng: 0, category: 'a'},
-                        {lat: 0, lng: 0, category: 'b'},
-                        {lat: 0, lng: 0, category: 'c'},
-                        {lat: 0, lng: 0, category: 'd'}
+                        { lat: 0, lng: 0, category: 'a' },
+                        { lat: 0, lng: 0, category: 'b' },
+                        { lat: 0, lng: 0, category: 'c' },
+                        { lat: 0, lng: 0, category: 'd' }
                     ],
                     expected: [
                         new MapPoint(
@@ -324,10 +336,10 @@ describe('Component: Map', () => {
                 },
                 {
                     data: [
-                        {lat: 0, lng: 0, category: 'a'},
-                        {lat: 0, lng: 1, category: 'b'},
-                        {lat: 0, lng: 2, category: 'c'},
-                        {lat: 0, lng: 3, category: 'd'}
+                        { lat: 0, lng: 0, category: 'a' },
+                        { lat: 0, lng: 1, category: 'b' },
+                        { lat: 0, lng: 2, category: 'c' },
+                        { lat: 0, lng: 3, category: 'd' }
                     ],
                     expected: [
                         new MapPoint(
@@ -354,8 +366,8 @@ describe('Component: Map', () => {
                 },
                 {
                     data: [
-                        {lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a'},
-                        {lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b'}
+                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'a' },
+                        { lat: [0, 0, 0, 0], lng: [0, 0, 0, 0], category: 'b' }
                     ],
                     expected: [
                         new MapPoint(
@@ -367,8 +379,8 @@ describe('Component: Map', () => {
                 },
                 {
                     data: [
-                        {lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a'},
-                        {lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b'}
+                        { lat: [0, 0, 0, 0], lng: [0, 1, 2, 3], category: 'a' },
+                        { lat: [0, 0, 0, 0], lng: [4, 5, 6, 7], category: 'b' }
                     ],
                     expected: [
                         new MapPoint(
@@ -440,6 +452,10 @@ describe('Component: Map', () => {
             expected = neon.query.and.apply(neon.query, filterClauses);
 
         expect(whereClauses).toEqual(expected);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('should remove filter when clicked', () => {
@@ -454,13 +470,17 @@ describe('Component: Map', () => {
         let xEl = getDebug('.filter-reset .mat-icon-button');
         xEl.triggerEventHandler('click', null);
         expect(getService(FilterService).getFilters().length).toBe(0);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
     });
 
     it('should add layer when new layer button is clicked', () => {
         let addEl = getDebug('a');
         addEl.triggerEventHandler('click', null);
         fixture.detectChanges();
-        expect(component.active.layers.length).toBe(2);
+        expect(component.options.layers.length).toBe(2);
     });
 
     it('subRemoveLayer does remove the layer at the given index and does call handleChangeData', () => {
@@ -470,18 +490,16 @@ describe('Component: Map', () => {
         let spy = spyOn(component, 'handleChangeData');
 
         component.subRemoveLayer(1);
-        expect(component.active.layers).toEqual([{
-            title: 'Layer A',
-            latitudeField: new FieldMetaData('testLatitude1', 'Test Latitude 1'),
-            longitudeField: new FieldMetaData('testLongitude1', 'Test Longitude 1'),
-            colorField: new FieldMetaData('testColor1', 'Test Color 1'),
-            sizeField: new FieldMetaData('testSize1', 'Test Size 1'),
-            dateField: new FieldMetaData('testDate1', 'Test Date 1')
-        }]);
+        expect(component.options.layers[0].title).toEqual('Layer A');
+        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColor1', 'Test Color 1'));
+        expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDate1', 'Test Date 1'));
+        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testLatitude1', 'Test Latitude 1'));
+        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testLongitude1', 'Test Longitude 1'));
+        expect(component.options.layers[0].sizeField).toEqual(new FieldMetaData('testSize1', 'Test Size 1'));
         expect(spy.calls.count()).toBe(1);
 
         component.subRemoveLayer(0);
-        expect(component.active.layers).toEqual([]);
+        expect(component.options.layers).toEqual([]);
         expect(spy.calls.count()).toBe(2);
     });
 
@@ -535,23 +553,17 @@ describe('Component: Map', () => {
         expect(mapSpy.calls.count()).toBe(1);
     });
 
-    it('subAddEmptyLayer creates new layer and updates filterVisible', () => {
-        component.subAddEmptyLayer();
-        expect(component.active.layers).toEqual([{
-            title: '',
-            latitudeField: new FieldMetaData(),
-            longitudeField: new FieldMetaData(),
-            colorField: new FieldMetaData(),
-            sizeField: new FieldMetaData(),
-            dateField: new FieldMetaData()
-        }, {
-            title: '',
-            latitudeField: new FieldMetaData(),
-            longitudeField: new FieldMetaData(),
-            colorField: new FieldMetaData(),
-            sizeField: new FieldMetaData(),
-            dateField: new FieldMetaData()
-        }]);
+    it('subAddLayer creates new layer and updates docCount and filterVisible', () => {
+        let layer = component.subAddLayer({});
+
+        expect(component.options.layers[1].title).toEqual('New Layer');
+        expect(component.options.layers[1].colorField).toEqual(component.emptyField);
+        expect(component.options.layers[1].dateField).toEqual(component.emptyField);
+        expect(component.options.layers[1].latitudeField).toEqual(component.emptyField);
+        expect(component.options.layers[1].longitudeField).toEqual(component.emptyField);
+        expect(component.options.layers[1].sizeField).toEqual(component.emptyField);
+
+        expect(component.docCount).toEqual([0, 0]);
         expect(component.filterVisible).toEqual([true, true]);
     });
 
@@ -768,10 +780,6 @@ describe('Component: Map', () => {
         })).toEqual('filterLatitude from 1 to 2 and filterLongitude from 3 to 4');
     });
 
-    it('getVisualizationName does return expected string', () => {
-        expect(component.getVisualizationName()).toEqual('Map');
-    });
-
     it('getFiltersToIgnore does return null', () => {
         expect(component.getFiltersToIgnore()).toEqual(null);
     });
@@ -787,11 +795,11 @@ describe('Component: Map', () => {
     it('createQuery does return expected object', () => {
         updateMapLayer1(component);
 
-        component.meta.limit = 5678;
+        component.options.limit = 5678;
 
         let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
         let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
-                .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testColor1', 'testSize1', 'testDate1']).limit(5678);
+            .withFields(['_id', 'testLatitude1', 'testLongitude1', 'testColor1', 'testSize1', 'testDate1']).limit(5678);
 
         expect(component.createQuery(0)).toEqual(query1);
 
@@ -799,7 +807,7 @@ describe('Component: Map', () => {
 
         let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
         let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2))
-                .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testColor2', 'testSize2', 'testDate2']).limit(5678);
+            .withFields(['_id', 'testLatitude2', 'testLongitude2', 'testColor2', 'testSize2', 'testDate2']).limit(5678);
 
         expect(component.createQuery(1)).toEqual(query2);
     });
@@ -852,7 +860,7 @@ describe('Component: Map', () => {
         });
 
         expect(spy.calls.count()).toBe(0);
-        expect(component.meta.layers[0].docCount).toEqual(1111);
+        expect(component.docCount[0]).toEqual(1111);
 
         updateMapLayer2(component);
 
@@ -863,8 +871,8 @@ describe('Component: Map', () => {
         });
 
         expect(spy.calls.count()).toBe(0);
-        expect(component.meta.layers[0].docCount).toEqual(1111);
-        expect(component.meta.layers[1].docCount).toEqual(2222);
+        expect(component.docCount[0]).toEqual(1111);
+        expect(component.docCount[1]).toEqual(2222);
     });
 
     it('updateLegend does update colorByFields', () => {
@@ -1101,7 +1109,7 @@ describe('Component: Map', () => {
 
         expect(component.getButtonText()).toEqual('1,000 of 1,234');
 
-        component.meta.limit = 2000;
+        component.options.limit = 2000;
 
         expect(component.getButtonText()).toEqual('Total 1,234');
 
@@ -1119,7 +1127,7 @@ describe('Component: Map', () => {
 
         let where1 = [neon.query.where('testLatitude1', '!=', null), neon.query.where('testLongitude1', '!=', null)];
         let query1 = new neon.query.Query().selectFrom('testDatabase1', 'testTable1').where(neon.query.and.apply(neon.query, where1))
-                .aggregate('count', '*', '_docCount');
+            .aggregate('count', '*', '_docCount');
 
         expect(spy.calls.count()).toBe(1);
         expect(spy.calls.argsFor(0)).toEqual([0, query1]);
@@ -1130,7 +1138,7 @@ describe('Component: Map', () => {
 
         let where2 = [neon.query.where('testLatitude2', '!=', null), neon.query.where('testLongitude2', '!=', null)];
         let query2 = new neon.query.Query().selectFrom('testDatabase2', 'testTable2').where(neon.query.and.apply(neon.query, where2))
-                .aggregate('count', '*', '_docCount');
+            .aggregate('count', '*', '_docCount');
 
         expect(spy.calls.count()).toBe(2);
         expect(spy.calls.argsFor(1)).toEqual([1, query2]);
@@ -1141,115 +1149,102 @@ describe('Component: Map with config', () => {
     let component: TestMapComponent;
     let fixture: ComponentFixture<TestMapComponent>;
 
-    beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                TestMapComponent,
-                LegendComponent,
-                ExportControlComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                { provide: DatasetService, useClass: DatasetMock },
-                { provide: FilterService, useClass: FilterMock },
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                VisualizationService,
-                ThemesService,
-                Injector,
-                ColorSchemeService,
-                { provide: 'config', useValue: new NeonGTDConfig() },
-                { provide: 'database', useValue: 'testDatabase1' },
-                { provide: 'table', useValue: 'testTable1' },
-                { provide: 'layers', useValue: [{
+    initializeTestBed({
+        declarations: [
+            TestMapComponent,
+            LegendComponent,
+            ExportControlComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            { provide: DatasetService, useClass: DatasetServiceMock },
+            { provide: FilterService, useClass: FilterServiceMock },
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            VisualizationService,
+            ThemesService,
+            Injector,
+            ColorSchemeService,
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: 'database', useValue: 'testDatabase1' },
+            { provide: 'table', useValue: 'testTable1' },
+            {
+                provide: 'layers', useValue: [{
                     colorField: 'testColorField',
                     dateField: 'testDateField',
                     latitudeField: 'testLatitudeField',
                     longitudeField: 'testLongitudeField',
                     sizeField: 'testSizeField',
                     title: 'Test Layer Title'
-                }] },
-                { provide: 'limit', useValue: 9999 },
-                { provide: 'clustering', useValue: 'clusters' },
-                { provide: 'minClusterSize', useValue: 10 },
-                { provide: 'clusterPixelRange', useValue: 20 },
-                { provide: 'hoverSelect', useValue: { hoverTime: 5 } },
-                { provide: 'hoverPopupEnabled', useValue: true },
-                { provide: 'west', useValue: 1 },
-                { provide: 'east', useValue: 2 },
-                { provide: 'south', useValue: 3 },
-                { provide: 'north', useValue: 4 },
-                { provide: 'customServer', useValue: { mapUrl: 'testUrl', layer: 'testLayer' } },
-                { provide: 'singleColor', useValue: true },
-                { provide: 'disableCtrlZoom', useValue: false},
-                { provide: 'title', useValue: 'Test Title' }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
+                }]
+            },
+            { provide: 'limit', useValue: 9999 },
+            { provide: 'clustering', useValue: 'clusters' },
+            { provide: 'clusterPixelRange', useValue: 20 },
+            { provide: 'customServer', useValue: { mapUrl: 'testUrl', layer: 'testLayer' } },
+            { provide: 'disableCtrlZoom', useValue: true },
+            { provide: 'hoverPopupEnabled', useValue: true },
+            { provide: 'hoverSelect', useValue: { hoverTime: 5 } },
+            { provide: 'minClusterSize', useValue: 10 },
+            { provide: 'singleColor', useValue: true },
+            { provide: 'west', useValue: 1 },
+            { provide: 'east', useValue: 2 },
+            { provide: 'south', useValue: 3 },
+            { provide: 'north', useValue: 4 },
+            { provide: 'title', useValue: 'Test Title' }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
+
+    beforeEach(() => {
         fixture = TestBed.createComponent(TestMapComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
 
-    it('does set expected meta properties', (() => {
-        expect(component.meta.layers[0].databases).toEqual(DatasetMock.DATABASES);
-        expect(component.meta.layers[0].database).toEqual(DatasetMock.DATABASES[0]);
-        expect(component.meta.layers[0].tables).toEqual(DatasetMock.TABLES);
-        expect(component.meta.layers[0].table).toEqual(DatasetMock.TABLES[0]);
-        expect(component.meta.layers[0].fields).toEqual(DatasetMock.FIELDS);
-    }));
-
-    it('does have expected active properties', () => {
-        expect(component.active).toEqual({
-            layers: [{
-                title: 'Test Layer Title',
-                latitudeField: new FieldMetaData('testLatitudeField', 'Test Latitude Field'),
-                longitudeField: new FieldMetaData('testLongitudeField', 'Test Longitude Field'),
-                colorField: new FieldMetaData('testColorField', 'Test Color Field'),
-                sizeField: new FieldMetaData('testSizeField', 'Test Size Field'),
-                dateField: new FieldMetaData('testDateField', 'Test Date Field')
-            }],
-            andFilters: true,
-            filterable: true,
-            data: [],
-            nextColorIndex: 0,
-            unusedColors: [],
-            clustering: 'clusters',
-            singleColor: true,
-            disableCtrlZoom: false
+    it('does have expected options', () => {
+        expect(component.options.clustering).toEqual('clusters');
+        expect(component.options.clusterPixelRange).toEqual(20);
+        expect(component.options.customServer).toEqual({
+            mapUrl: 'testUrl',
+            layer: 'testLayer'
         });
+        expect(component.options.disableCtrlZoom).toEqual(true);
+        expect(component.options.hoverPopupEnabled).toEqual(true);
+        expect(component.options.hoverSelect).toEqual({
+            hoverTime: 5
+        });
+        expect(component.options.limit).toEqual(9999);
+        expect(component.options.minClusterSize).toEqual(10);
+        expect(component.options.singleColor).toEqual(true);
+        expect(component.options.title).toEqual('Test Title');
+        expect(component.options.type).toEqual(MapType.Leaflet);
+
+        expect(component.options.west).toEqual(1);
+        expect(component.options.east).toEqual(2);
+        expect(component.options.south).toEqual(3);
+        expect(component.options.north).toEqual(4);
     });
 
-    it('onUpdateFields does set expected fields to layers config', () => {
-        component.active.layers[0] = {
-            title: '',
-            latitudeField: new FieldMetaData(),
-            longitudeField: new FieldMetaData(),
-            colorField: new FieldMetaData(),
-            sizeField: new FieldMetaData(),
-            dateField: new FieldMetaData()
-        };
-
-        component.onUpdateFields(component.meta.layers[0], {
-            colorField: 'testColorField',
-            dateField: 'testDateField',
-            latitudeField: 'testLatitudeField',
-            longitudeField: 'testLongitudeField',
-            sizeField: 'testSizeField'
-        });
-        expect(component.active.layers[0]).toEqual({
-            title: 'Test Layer Title',
-            latitudeField: new FieldMetaData('testLatitudeField', 'Test Latitude Field'),
-            longitudeField: new FieldMetaData('testLongitudeField', 'Test Longitude Field'),
-            colorField: new FieldMetaData('testColorField', 'Test Color Field'),
-            sizeField: new FieldMetaData('testSizeField', 'Test Size Field'),
-            dateField: new FieldMetaData('testDateField', 'Test Date Field')
-        });
+    it('does have expected layers', () => {
+        expect(component.options.layers[0].databases).toEqual(DatasetServiceMock.DATABASES);
+        expect(component.options.layers[0].database).toEqual(DatasetServiceMock.DATABASES[0]);
+        expect(component.options.layers[0].tables).toEqual(DatasetServiceMock.TABLES);
+        expect(component.options.layers[0].table).toEqual(DatasetServiceMock.TABLES[0]);
+        expect(component.options.layers[0].fields).toEqual(DatasetServiceMock.FIELDS);
+        expect(component.options.layers[0].title).toEqual('Test Layer Title');
+        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testColorField', 'Test Color Field', false, 'string'));
+        expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field', false, 'date'));
+        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testLatitudeField', 'Test Latitude Field', false,
+            'float'));
+        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testLongitudeField', 'Test Longitude Field', false,
+            'float'));
+        expect(component.options.layers[0].sizeField).toEqual(new FieldMetaData('testSizeField', 'Test Size Field', false, 'float'));
     });
 });

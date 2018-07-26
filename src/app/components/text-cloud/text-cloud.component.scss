@@ -31,5 +31,13 @@
                 color: mat-contrast($primary, A100) !important;
             }
         }
+
+        .filter {
+            color: $accent-bright;
+        }
+
+        .paragraphs {
+            display: block;
+        }
     }
 }

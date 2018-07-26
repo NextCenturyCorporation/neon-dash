@@ -40,6 +40,7 @@ import { FilterService } from '../../services/filter.service';
 import { ThemesService } from '../../services/themes.service';
 import { TranslationService } from '../../services/translation.service';
 import { VisualizationService } from '../../services/visualization.service';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 let d3 = require('../../../assets/d3.min.js');
 
@@ -48,34 +49,35 @@ describe('Component: Timeline', () => {
     let component: TimelineComponent;
     let fixture: ComponentFixture<TimelineComponent>;
 
+    initializeTestBed({
+        declarations: [
+            ChartComponent,
+            TimelineComponent,
+            ExportControlComponent,
+            UnsharedFilterComponent
+        ],
+        providers: [
+            ActiveGridService,
+            ConnectionService,
+            DatasetService,
+            FilterService,
+            ExportService,
+            TranslationService,
+            ErrorNotificationService,
+            VisualizationService,
+            ThemesService,
+            ColorSchemeService,
+            Injector,
+            { provide: 'config', useValue: testConfig }
+        ],
+        imports: [
+            AppMaterialModule,
+            FormsModule,
+            BrowserAnimationsModule
+        ]
+    });
+
     beforeEach(() => {
-        TestBed.configureTestingModule({
-            declarations: [
-                ChartComponent,
-                TimelineComponent,
-                ExportControlComponent,
-                UnsharedFilterComponent
-            ],
-            providers: [
-                ActiveGridService,
-                ConnectionService,
-                DatasetService,
-                FilterService,
-                ExportService,
-                TranslationService,
-                ErrorNotificationService,
-                VisualizationService,
-                ThemesService,
-                ColorSchemeService,
-                Injector,
-                { provide: 'config', useValue: testConfig }
-            ],
-            imports: [
-                AppMaterialModule,
-                FormsModule,
-                BrowserAnimationsModule
-            ]
-        });
         fixture = TestBed.createComponent(TimelineComponent);
         component = fixture.componentInstance;
         fixture.detectChanges();
@@ -86,11 +88,11 @@ describe('Component: Timeline', () => {
     });
 
     it('createClause does return expected object', () => {
-        component.active.dateField = new FieldMetaData('testDateField');
+        component.options.dateField = new FieldMetaData('testDateField');
         expect(component.createClause()).toEqual(neon.query.where('testDateField', '!=', null));
 
-        component.meta.unsharedFilterField = new FieldMetaData('testFilterField');
-        component.meta.unsharedFilterValue = 'testFilterValue';
+        component.options.unsharedFilterField = new FieldMetaData('testFilterField');
+        component.options.unsharedFilterValue = 'testFilterValue';
         expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testDateField', '!=', null),
             neon.query.where('testFilterField', '=', 'testFilterValue')));
     });
@@ -98,14 +100,14 @@ describe('Component: Timeline', () => {
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toBe('No Data');
 
-        component.active.data = [{
+        component.activeData = [{
             date: new Date(),
             value: 0
         }];
         expect(component.getButtonText()).toBe('No Data');
 
-        component.active.docCount = 2;
-        component.active.data = [{
+        component.docCount = 2;
+        component.activeData = [{
             date: new Date(),
             value: 1
         }, {
@@ -114,10 +116,10 @@ describe('Component: Timeline', () => {
         }];
         expect(component.getButtonText()).toBe('Total 2');
 
-        component.active.docCount = 6;
+        component.docCount = 6;
         expect(component.getButtonText()).toBe('2 of 6');
 
-        component.active.data = [{
+        component.activeData = [{
             date: new Date(),
             value: 3
         }, {
