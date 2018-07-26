@@ -224,7 +224,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             value: item.documents,
             prettyField: this.options.documentTextField.prettyName
         };
-        if (this.filterIsUnique(filter)) {
+        if (this.filterIsUnique(filter) && !this.options.respondMode) {
             this.addLocalFilter(filter);
             let whereClause = neon.query.where(filter.field, '=', filter.value);
             this.addNeonFilter(true, filter, whereClause);
