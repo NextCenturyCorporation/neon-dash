@@ -1098,8 +1098,10 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      */
     subGetBindings(bindings: any) {
         bindings.documentTextField = this.options.documentTextField.columnName;
+        bindings.linkField = this.options.linkField.columnName;
         bindings.startCharacterField = this.options.startCharacterField.columnName;
         bindings.endCharacterField = this.options.endCharacterField.columnName;
+        bindings.respondMode = this.options.respondMode;
         bindings.textField = this.options.textField.columnName;
         bindings.typeField = this.options.typeField.columnName;
     }
