@@ -49,7 +49,7 @@
         }
 
         &.with-footer {
-            height: calc(100% - #{$vis-title-expected-height} - 25px);
+            height: calc(100% - #{$vis-title-expected-height} - 5px);
 
             &.with-filter {
                 height: calc(100% - #{$vis-title-expected-height} - 25px);
