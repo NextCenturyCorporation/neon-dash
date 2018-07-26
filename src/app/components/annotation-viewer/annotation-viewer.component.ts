@@ -167,8 +167,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
     // The data shown in the visualization (limited).
     public activeData: any[] = [];
 
-    // The data count used for the settings text and pagination.
-    public docCount: number = 0;
     //Either documentTextField or linkField
     public displayField: string;
 
@@ -705,11 +703,11 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
             return 'No Data';
         }
         if (this.activeData.length === this.responseData.length) {
-            return 'Total ' + super.prettifyInteger(this.activeData.length);
+            return 'Total ' + super.prettifyInteger(this.options.docCount);
         }
         let begin = super.prettifyInteger((this.page - 1) * this.options.documentLimit + 1);
-        let end = super.prettifyInteger(Math.min(this.page * this.options.documentLimit, this.responseData.length));
-        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.responseData.length);
+        let end = super.prettifyInteger(Math.min(this.page * this.options.documentLimit, this.options.docCount));
+        return (begin === end ? begin : (begin + ' - ' + end)) + ' of ' + super.prettifyInteger(this.options.docCount);
     }
 
     /**
@@ -933,7 +931,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
 
         // Check for undefined because the count may be zero.
         if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data[0]._docCount;
+            this.options.docCount = response.data[0]._docCount;
             return;
         }
         this.displayField = this.options.respondMode ? this.options.linkField.columnName : this.options.documentTextField.columnName;
@@ -960,7 +958,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         if (this.responseData.length) {
             this.runDocCountQuery();
         } else {
-            this.docCount = 0;
+            this.options.docCount = 0;
         }
     }
 
@@ -1025,7 +1023,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * Creates and runs the document count query.
      */
     runDocCountQuery() {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createWhere());
+        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createWhere())
+        .aggregate(neonVariables.COUNT, '*', '_docCount');
 
         let ignoreFilters = this.getFiltersToIgnore();
         if (ignoreFilters && ignoreFilters.length) {
@@ -1033,7 +1032,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         }
 
         // The document count query is a count aggregation for all the documents.
-        query.aggregate(neonVariables.COUNT, '*', '_docCount');
 
         this.executeQuery(query);
     }
