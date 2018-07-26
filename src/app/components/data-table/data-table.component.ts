@@ -528,7 +528,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getDocCount() {
-        if (!this.cannotExecuteQuery) {
+        if (!this.cannotExecuteQuery()) {
             let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
                 .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
 

@@ -609,7 +609,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
-        let sliderHeight = this.tabsAndMedia.length && this.tabsAndMedia[0].list.length > 1 ? this.SLIDER_HEIGHT : 0;
+        // TODO FIXME
+        // let sliderHeight = this.tabsAndMedia.length && this.tabsAndMedia[0].list.length > 1 ? this.SLIDER_HEIGHT : 0;
+        let sliderHeight = this.SLIDER_HEIGHT;
 
         frames.forEach((frame) => {
             frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
