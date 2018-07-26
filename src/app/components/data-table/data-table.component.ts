@@ -213,7 +213,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let existingFields = [];
         for (let fieldConfig of this.options.fieldsConfig) {
             let fieldObject = this.options.findField(fieldConfig.name);
-            if (fieldObject.columnName) {
+            if (fieldObject && fieldObject.columnName) {
                 existingFields.push(fieldObject.columnName);
                 this.headers.push({
                     prop: fieldObject.columnName,
@@ -276,6 +276,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.checkDuplicateField = this.options.checkDuplicateField;
 
         bindings.arrayFilterOperator = this.options.arrayFilterOperator;
+        bindings.exceptionsToStatus = this.options.exceptionsToStatus;
         bindings.filterable = this.options.filterable;
         bindings.heatmapDivisor = this.options.heatmapDivisor;
         bindings.ignoreSelf = this.options.ignoreSelf;
