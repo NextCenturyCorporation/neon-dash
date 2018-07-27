@@ -98,6 +98,13 @@ export abstract class BaseNeonOptions {
         let outputFields = this.fields.filter((field: FieldMetaData) => {
             return field.columnName === columnName;
         });
+        if (!outputFields.length && this.fields.length) {
+            // Check if the column name is actually an array index rather than a name.
+            let fieldIndex = parseInt(columnName, 10);
+            if (!isNaN(fieldIndex) && fieldIndex < this.fields.length) {
+                outputFields = [this.fields[fieldIndex]];
+            }
+        }
         return outputFields.length ? outputFields[0] : undefined;
     }
 
@@ -121,6 +128,7 @@ export abstract class BaseNeonOptions {
      */
     public findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
         let bindings = this.injector.get(bindingKey, null) || [];
+        // TODO Should we remove empty field objects from the array?
         return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.getFieldObject(columnName, mappingKey));
     }
 
@@ -156,13 +164,22 @@ export abstract class BaseNeonOptions {
         this.databases = this.datasetService.getDatabases();
         this.database = this.databases[0] || new DatabaseMetaData();
 
-        if (this.databases.length > 0) {
+        if (this.databases.length) {
             let configDatabase = this.injector.get('database', null);
             if (configDatabase) {
+                let isName = false;
                 for (let database of this.databases) {
                     if (configDatabase === database.name) {
                         this.database = database;
+                        isName = true;
                         break;
+                    }
+                }
+                if (!isName) {
+                    // Check if the config database is actually an array index rather than a name.
+                    let databaseIndex = parseInt(configDatabase, 10);
+                    if (!isNaN(databaseIndex) && databaseIndex < this.databases.length) {
+                        this.database = this.databases[databaseIndex];
                     }
                 }
             }
@@ -198,10 +215,19 @@ export abstract class BaseNeonOptions {
         if (this.tables.length > 0) {
             let configTable = this.injector.get('table', null);
             if (configTable) {
+                let isName = false;
                 for (let table of this.tables) {
                     if (configTable === table.name) {
                         this.table = table;
+                        isName = true;
                         break;
+                    }
+                }
+                if (!isName) {
+                    // Check if the config table is actually an array index rather than a name.
+                    let tableIndex = parseInt(configTable, 10);
+                    if (!isNaN(tableIndex) && tableIndex < this.tables.length) {
+                        this.table = this.tables[tableIndex];
                     }
                 }
             }
