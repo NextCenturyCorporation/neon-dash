@@ -364,6 +364,9 @@ export class TextCloudComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getButtonText() {
         if (!this.filters.length && !this.termsCount) {
+            if (this.options.hideUnfiltered) {
+                return 'Please Filter';
+            }
             return 'No Data';
         }
         if (this.termsCount <= this.activeData.length) {

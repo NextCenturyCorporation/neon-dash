@@ -138,8 +138,8 @@ describe('Component: Sample', () => {
     });
 
     it('class options properties are set to expected defaults', () => {
-        expect(component.options.sampleOptionalField).toEqual(new FieldMetaData());
-        expect(component.options.sampleRequiredField).toEqual(new FieldMetaData());
+        expect(component.options.sampleOptionalField).toEqual(component.emptyField);
+        expect(component.options.sampleRequiredField).toEqual(component.emptyField);
         expect(component.options.sortDescending).toEqual(false);
         expect(component.options.subcomponentType).toEqual('Impl1');
         expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
@@ -834,17 +834,6 @@ describe('Component: Sample', () => {
         expect(spy2.calls.count()).toEqual(0);
     });
 
-    it('onInit does set non-field options as expected', () => {
-        component.options.onInit();
-        expect(component.options.subcomponentType).toEqual('Impl1');
-    });
-
-    it('updateFieldsOnTableChanged does set field options as expected', () => {
-        component.options.updateFieldsOnTableChanged();
-        expect(component.options.sampleOptionalField).toEqual(component.emptyField);
-        expect(component.options.sampleRequiredField).toEqual(component.emptyField);
-    });
-
     it('postInit does work as expected', () => {
         let spy = spyOn(component, 'executeQueryChain');
         component.postInit();
@@ -1178,6 +1167,17 @@ describe('Component: Sample', () => {
         expect(spy.calls.count()).toEqual(1);
     });
 
+    it('options.onInit does set non-field options as expected', () => {
+        component.options.onInit();
+        expect(component.options.subcomponentType).toEqual('Impl1');
+    });
+
+    it('options.updateFieldsOnTableChanged does set field options as expected', () => {
+        component.options.updateFieldsOnTableChanged();
+        expect(component.options.sampleOptionalField).toEqual(component.emptyField);
+        expect(component.options.sampleRequiredField).toEqual(component.emptyField);
+    });
+
     it('does show toolbar and sidenav and body-container', () => {
         let container = fixture.debugElement.query(By.css('mat-sidenav-container'));
         expect(container).not.toBeNull();
@@ -1274,7 +1274,7 @@ describe('Component: Sample', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(3);
+            expect(inputs.length).toEqual(3); // The final input is in the unshared filter.
 
             // Title Input
             expect(inputs[0].attributes.placeholder).toBe('Title');
@@ -1286,7 +1286,7 @@ describe('Component: Sample', () => {
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(6);
+            expect(selects.length).toEqual(6); // The final select is in the unshared filter.
             let options;
 
             // Database Dropdown
@@ -1647,8 +1647,8 @@ describe('Component: Sample with config', () => {
             { provide: 'configFilter', useValue: { lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
             { provide: 'database', useValue: 'testDatabase2' },
             { provide: 'limit', useValue: 1234 },
-            { provide: 'sampleOptionalField', useValue: 'testColorField' },
-            { provide: 'sampleRequiredField', useValue: 'testGroupField' },
+            { provide: 'sampleOptionalField', useValue: 'testNameField' },
+            { provide: 'sampleRequiredField', useValue: 'testCategoryField' },
             { provide: 'sortDescending', useValue: true },
             { provide: 'subcomponentType', useValue: 'Impl2' },
             { provide: 'table', useValue: 'testTable2' },
@@ -1667,7 +1667,7 @@ describe('Component: Sample with config', () => {
         fixture.detectChanges();
     });
 
-    it('superclass properties are set to expected values from config', () => {
+    it('superclass options properties are set to expected values from config', () => {
         expect(component.options.database).toEqual(DatasetServiceMock.DATABASES[1]);
         expect(component.options.table).toEqual(DatasetServiceMock.TABLES[1]);
         expect(component.options.limit).toEqual(1234);
@@ -1679,16 +1679,16 @@ describe('Component: Sample with config', () => {
         });
     });
 
-    it('class properties are set to expected values from config', () => {
-        expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.COLOR_FIELD);
-        expect(component.options.sampleRequiredField).toEqual(DatasetServiceMock.GROUP_FIELD);
+    it('class options properties are set to expected values from config', () => {
+        expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component.options.sampleRequiredField).toEqual(DatasetServiceMock.CATEGORY_FIELD);
         expect(component.options.sortDescending).toEqual(true);
         expect(component.options.subcomponentType).toEqual('Impl2');
         expect(component.options.subcomponentTypes).toEqual(['Impl1', 'Impl2']);
         expect(component.subcomponentObject.constructor.name).toEqual(SubcomponentImpl2.name);
     });
 
-    it('onInit does set non-field options as expected from config bindings', () => {
+    it('options.onInit does set non-field options as expected from config bindings', () => {
         component.options.sortDescending = false;
         component.options.subcomponentType = 'Impl1';
 
@@ -1697,13 +1697,13 @@ describe('Component: Sample with config', () => {
         expect(component.options.subcomponentType).toEqual('Impl2');
     });
 
-    it('updateFieldsOnTableChanged does set field options as expected from config bindings', () => {
+    it('options.updateFieldsOnTableChanged does set field options as expected from config bindings', () => {
         component.options.sampleOptionalField = component.emptyField;
         component.options.sampleRequiredField = component.emptyField;
 
         component.options.updateFieldsOnTableChanged();
-        expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.COLOR_FIELD);
-        expect(component.options.sampleRequiredField).toEqual(DatasetServiceMock.GROUP_FIELD);
+        expect(component.options.sampleOptionalField).toEqual(DatasetServiceMock.NAME_FIELD);
+        expect(component.options.sampleRequiredField).toEqual(DatasetServiceMock.CATEGORY_FIELD);
     });
 
     it('does show header in toolbar with visualization title from config', () => {
@@ -1720,7 +1720,7 @@ describe('Component: Sample with config', () => {
 
             let inputs = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field input'));
-            expect(inputs.length).toEqual(3);
+            expect(inputs.length).toEqual(3); // The final input is in the unshared filter.
 
             // Title Input
             expect(inputs[0].attributes.placeholder).toBe('Title');
@@ -1732,7 +1732,7 @@ describe('Component: Sample with config', () => {
 
             let selects = fixture.debugElement.queryAll(
                 By.css('mat-sidenav-container mat-sidenav mat-card mat-card-content mat-form-field mat-select'));
-            expect(selects.length).toEqual(6);
+            expect(selects.length).toEqual(6); // The final select is in the unshared filter.
             let options;
 
             // Database Dropdown
@@ -1766,7 +1766,7 @@ describe('Component: Sample with config', () => {
             // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
                 expect(options[i].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testGroupField');
+                expect(options[i].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testCategoryField');
             }
 
             // Sample Optional Field Dropdown
@@ -1780,7 +1780,7 @@ describe('Component: Sample with config', () => {
             // Normally you shouldn't use a loop to test elements in an array but the FIELDS are updated for use by many visualizations.
             for (let i = 0; i < DatasetServiceMock.FIELDS.length; ++i) {
                 expect(options[i + 1].getLabel()).toEqual(DatasetServiceMock.FIELDS[i].prettyName);
-                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testColorField');
+                expect(options[i + 1].selected).toEqual(DatasetServiceMock.FIELDS[i].columnName === 'testNameField');
             }
 
             // Subcomponent Type Dropdown

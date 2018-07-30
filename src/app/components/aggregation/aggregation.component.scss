@@ -1,0 +1,119 @@
+/*
+ * Copyright 2016 Next Century Corporation
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+@import '../base-neon-component/base-neon.component.scss';
+
+.subcomponent-container {
+    height: 100%;
+    min-height: 100px;
+    min-width: 100px;
+
+    &.zoom {
+        height: calc(75% - 1px);
+    }
+
+    &.main {
+        height: calc(25% - 1px);
+    }
+
+    &.hide {
+        display: none;
+    }
+
+    .subcomponent-element {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        user-select: none;
+    }
+
+    .subcomponent-selection {
+        background-color: mat-color($primary, 400, .4);
+        height: 10px;
+        width: 10px;
+        position: absolute;
+    }
+}
+
+.hidden-canvas {
+    display: none;
+    height: auto;
+    position: absolute;
+    white-space: nowrap;
+    width: auto;
+}
+
+:host ::ng-deep .list-subcomponent {
+    .list-item {
+        cursor: pointer;
+        padding: 2px 10px;
+
+        .list-text {
+            font-size: 14px;
+            line-height: 16px;
+            height: 16px;
+
+            &.list-selectable {
+                &.heat-1 {
+                    color: #01579b; // light-blue-900
+                }
+
+                &.heat-2 {
+                    color: #1a237e; // indigo-900
+                }
+
+                &.heat-3 {
+                    color: #4a148c; // purple-900
+                }
+
+                &.heat-4 {
+                    color: #b71c1c; // red-900
+                }
+
+                &.heat-5 {
+                    color: #e65100; // orange-900
+                }
+            }
+        }
+
+        &.active,
+        &:hover {
+            .list-selectable {
+                color: $accent-bright;
+
+                &.heat-1 {
+                    color: #29b6f6; // light-blue-400
+                }
+
+                &.heat-2 {
+                    color: #5c6bc0; // indigo-400
+                }
+
+                &.heat-3 {
+                    color: #ab47bc; // purple-400
+                }
+
+                &.heat-4 {
+                    color: #ef5350; // red-400
+                }
+
+                &.heat-5 {
+                    color: #ffa726; // orange-400
+                }
+            }
+        }
+    }
+}
+

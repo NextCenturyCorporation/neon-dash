@@ -118,6 +118,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public edgeWidth: number;
     public limit: number;
     public andFilters: boolean;
+    public showSelect: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -134,6 +135,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.edgeWidth = this.injector.get('edgeWidth', 1);
         this.limit = this.injector.get('limit', Infinity);
         this.andFilters = this.injector.get('andFilters', true);
+        this.showSelect = this.injector.get('showSelect', false);
     }
 
     /**

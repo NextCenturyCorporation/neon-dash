@@ -23,6 +23,7 @@ import 'hammerjs';
 import { AppComponent } from './app.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
+import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { DatasetSelectorComponent } from './components/dataset-selector/dataset-selector.component';
@@ -82,6 +83,7 @@ describe('App: NeonGtd', () => {
                 ChartComponent,
                 AppComponent,
                 AboutNeonComponent,
+                AggregationComponent,
                 AnnotationViewerComponent,
                 BarChartComponent,
                 ChartComponent,

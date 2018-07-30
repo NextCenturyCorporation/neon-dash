@@ -14,7 +14,6 @@
  *
  */
 import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
@@ -127,16 +126,14 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        let params: URLSearchParams = new URLSearchParams();
-        let dashboardStateId: string = params.get('dashboard_state_id');
-        let filterStateId: string = params.get('filter_state_id');
+        let dashboardStateId: string = this.parameterService.findDashboardStateIdInUrl();
 
         this.messenger = new neon.eventing.Messenger();
         this.datasets = this.datasetService.getDatasets();
         this.layouts = this.datasetService.getLayouts();
 
-        if (params.get('dashboard_state_id')) {
-            this.parameterService.loadState(dashboardStateId, filterStateId);
+        if (dashboardStateId) {
+            this.parameterService.loadState(dashboardStateId, this.parameterService.findFilterStateIdInUrl());
         } else {
             let activeDataset: string = (this.parameterService.findActiveDatasetInUrl() || '').toLowerCase();
             this.datasets.some((dataset, index) => {
@@ -312,9 +309,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             this.activeGridService.addItem(layout);
         });
 
-        // TODO: Clear any saved states loaded through the parameters
-        // $location.search("dashboard_state_id", null);
-        // $location.search("filter_state_id", null);
+        this.parameterService.removeStateParameters();
 
         this.gridItemsChanged.emit(this.customVisualizations.length);
         this.parameterService.addFiltersFromUrl();

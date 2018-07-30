@@ -37,6 +37,7 @@ import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
 import { ThemesService } from '../../services/themes.service';
 import { TranslationService } from '../../services/translation.service';
 import { VisualizationService } from '../../services/visualization.service';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
 import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
 import { By } from '@angular/platform-browser';
 import * as neon from 'neon-framework';
@@ -57,7 +58,7 @@ describe('Component: DataTable', () => {
         providers: [
             ActiveGridService,
             ConnectionService,
-            DatasetService,
+            { provide: DatasetService, useClass: DatasetServiceMock },
             { provide: FilterService, useClass: FilterServiceMock },
             ExportService,
             TranslationService,
@@ -80,10 +81,6 @@ describe('Component: DataTable', () => {
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
-
-    it('exists', (() => {
-        expect(component).toBeTruthy();
-    }));
 
     it('createClause does return expected object', () => {
         component.options.sortField = new FieldMetaData('testSortField');
@@ -203,5 +200,250 @@ describe('Component: DataTable', () => {
         expect(refs.headerText).toBeDefined();
         expect(refs.infoText).toBeDefined();
         expect(refs.visualization).toBeDefined();
+    });
+
+    it('getOptions does return options object', () => {
+        expect(component.getOptions()).toEqual(component.options);
+    });
+
+    it('getRowClassFunction does return function', () => {
+        expect(typeof component.getRowClassFunction()).toEqual('function');
+    });
+
+    it('getRowClassFunction function does set active to false', () => {
+        let rowClassFunction = component.getRowClassFunction();
+
+        expect(rowClassFunction({})).toEqual({
+            active: false
+        });
+
+        expect(rowClassFunction({
+            testFilterField: 'testFilterValue'
+        })).toEqual({
+            active: false
+        });
+    });
+
+    it('getRowClassFunction function with filters and filterFields does set active to expected boolean', () => {
+        let rowClassFunction = component.getRowClassFunction();
+
+        component.options.filterFields = [DatasetServiceMock.FILTER_FIELD];
+
+        expect(rowClassFunction({})).toEqual({
+            active: false
+        });
+
+        expect(rowClassFunction({
+            testFilterField: 'testFilterValue'
+        })).toEqual({
+            active: false
+        });
+
+        component.filters = [{
+            id: undefined,
+            field: 'testFilterField',
+            prettyField: 'Test Filter Field',
+            value: 'testFilterValue'
+        }];
+
+        expect(rowClassFunction({
+            testFilterField: 'testFilterValue'
+        })).toEqual({
+            active: true
+        });
+
+        expect(rowClassFunction({
+            testFilterField: 'testFilterValue2'
+        })).toEqual({
+            active: false
+        });
+
+        expect(rowClassFunction({
+            testFilterField2: 'testFilterValue'
+        })).toEqual({
+            active: false
+        });
+
+        component.filters = [{
+            id: undefined,
+            field: 'testFilterField2',
+            prettyField: 'Test Filter Field 2',
+            value: 'testFilterValue2'
+        }];
+
+        expect(rowClassFunction({
+            testFilterField: 'testFilterValue'
+        })).toEqual({
+            active: false
+        });
+    });
+
+    it('getRowClassFunction function with heatmapField and heatmapDivisor does set expected heat', () => {
+        let rowClassFunction = component.getRowClassFunction();
+
+        component.options.heatmapDivisor = 1.5;
+        component.options.heatmapField = DatasetServiceMock.SIZE_FIELD;
+
+        expect(rowClassFunction({
+            testSizeField: 0
+        })).toEqual({
+            'active': false,
+            'heat-1': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 1.5
+        })).toEqual({
+            'active': false,
+            'heat-1': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 3.0
+        })).toEqual({
+            'active': false,
+            'heat-2': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 4.5
+        })).toEqual({
+            'active': false,
+            'heat-3': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 6.0
+        })).toEqual({
+            'active': false,
+            'heat-4': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 7.5
+        })).toEqual({
+            'active': false,
+            'heat-5': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 9.0
+        })).toEqual({
+            'active': false,
+            'heat-5': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: '5.0'
+        })).toEqual({
+            'active': false,
+            'heat-3': true
+        });
+    });
+
+    it('getRowClassFunction function with heatmapDivisor less than 1 does set expected heat', () => {
+        let rowClassFunction = component.getRowClassFunction();
+
+        component.options.heatmapDivisor = 0.2;
+        component.options.heatmapField = DatasetServiceMock.SIZE_FIELD;
+
+        expect(rowClassFunction({
+            testSizeField: 0
+        })).toEqual({
+            'active': false,
+            'heat-1': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 0.2
+        })).toEqual({
+            'active': false,
+            'heat-1': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 0.4
+        })).toEqual({
+            'active': false,
+            'heat-2': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 0.6
+        })).toEqual({
+            'active': false,
+            'heat-3': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 0.8
+        })).toEqual({
+            'active': false,
+            'heat-4': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 1.0
+        })).toEqual({
+            'active': false,
+            'heat-5': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 2.0
+        })).toEqual({
+            'active': false,
+            'heat-5': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: '0.5'
+        })).toEqual({
+            'active': false,
+            'heat-2': true
+        });
+    });
+
+    it('getRowClassFunction function with heatmapField and heatmapDivisor does set expected heat of non-numbers', () => {
+        let rowClassFunction = component.getRowClassFunction();
+
+        component.options.heatmapDivisor = 0.2;
+        component.options.heatmapField = DatasetServiceMock.SIZE_FIELD;
+
+        expect(rowClassFunction({})).toEqual({
+            'active': false,
+            'heat-0': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: ''
+        })).toEqual({
+            'active': false,
+            'heat-0': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 'Text'
+        })).toEqual({
+            'active': false,
+            'heat-0': true
+        });
+
+        expect(rowClassFunction({
+            testSizeField: 'NaN'
+        })).toEqual({
+            'active': false,
+            'heat-0': true
+        });
+    });
+
+    it('getTableHeaderHeight and getTableRowHeight both return expected number', () => {
+        expect(component.getTableHeaderHeight()).toEqual(30);
+        expect(component.getTableRowHeight()).toEqual(25);
+
+        component.options.skinny = true;
+
+        expect(component.getTableHeaderHeight()).toEqual(20);
+        expect(component.getTableRowHeight()).toEqual(20);
     });
 });

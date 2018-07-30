@@ -25,7 +25,7 @@
 }
 
 .neon-link {
-    color: mat-color($white);
+    color: #fafafa;
     height: 30px;
     margin: 0 5px;
 
@@ -39,7 +39,7 @@
 }
 
 .neon-dash {
-    background-color: #efefef;
+    background-color: #fafafa;
     /* 60 = 50 px toolbar + 10 px padding */
     height: calc(100% - 60px);
     padding: 5px;

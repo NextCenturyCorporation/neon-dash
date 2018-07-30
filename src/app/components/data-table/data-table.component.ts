@@ -48,6 +48,8 @@ export class DataTableOptions extends BaseNeonOptions {
     public fieldsConfig: any[];
     public filterable: boolean;
     public filterFields: FieldMetaData[];
+    public heatmapDivisor: number;
+    public heatmapField: FieldMetaData;
     public idField: FieldMetaData;
     public ignoreSelf: boolean;
     public singleFilter: boolean;
@@ -66,6 +68,7 @@ export class DataTableOptions extends BaseNeonOptions {
         this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
         this.fieldsConfig = this.injector.get('fieldsConfig', []);
         this.filterable = this.injector.get('filterable', false);
+        this.heatmapDivisor = this.injector.get('heatmapDivisor', 0);
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.singleFilter = this.injector.get('singleFilter', false);
         this.skinny = this.injector.get('skinny', false);
@@ -78,6 +81,7 @@ export class DataTableOptions extends BaseNeonOptions {
      * @override
      */
     updateFieldsOnTableChanged() {
+        this.heatmapField = this.findFieldObject('heatmapField');
         this.idField = this.findFieldObject('idField');
         this.sortField = this.findFieldObject('sortField');
         this.filterFields = this.findFieldObjects('filterFields');
@@ -245,12 +249,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     subGetBindings(bindings: any) {
+        bindings.heatmapField = this.options.heatmapField.columnName;
         bindings.idField = this.options.idField.columnName;
         bindings.sortField = this.options.sortField.columnName;
         bindings.filterFields = this.options.filterFields;
 
         bindings.arrayFilterOperator = this.options.arrayFilterOperator;
         bindings.filterable = this.options.filterable;
+        bindings.heatmapDivisor = this.options.heatmapDivisor;
         bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.singleFilter = this.options.singleFilter;
         bindings.skinny = this.options.skinny;
@@ -522,15 +528,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getDocCount() {
-        let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createClause())
-            .aggregate(neonVariables.COUNT, '*', '_docCount');
+        if (!this.cannotExecuteQuery()) {
+            let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
+                .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
 
-        let ignoreFilters = this.getFiltersToIgnore();
-        if (ignoreFilters && ignoreFilters.length) {
-            countQuery.ignoreFilters(ignoreFilters);
+            let ignoreFilters = this.getFiltersToIgnore();
+            if (ignoreFilters && ignoreFilters.length) {
+                countQuery.ignoreFilters(ignoreFilters);
+            }
+
+            this.executeQuery(countQuery);
         }
-
-        this.executeQuery(countQuery);
     }
 
     setupFilters() {
@@ -592,7 +600,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.drag.downIndex = i;
             this.drag.mousedown = true;
             this.setStyle(i, 'backgroundColor', 'rgba(0, 0, 0, .2)');
-            this.setStyle(i, 'border', 'gray dashed 1px');
+            this.setStyle(i, 'border', 'grey dashed 1px');
         }
     }
 
@@ -600,7 +608,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     onMouseEnter(i) {
         if (this.isDragging()) {
             this.drag.currentIndex = i;
-            let style = 'thick solid gray';
+            let style = 'thick solid grey';
             if (i < this.drag.downIndex) {
                 this.setStyle(i, 'borderTop', style);
             } else if (i > this.drag.downIndex) {
@@ -671,6 +679,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getButtonText() {
         if (!this.docCount) {
+            if (this.options.hideUnfiltered) {
+                return 'Please Filter';
+            }
             return 'No Data';
         }
         if (this.docCount <= this.options.limit) {
@@ -689,19 +700,20 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @private
      */
     onSelect({ selected }) {
-        if (selected && selected.length && this.options.idField.columnName && selected[0][this.options.idField.columnName]) {
-            this.publishSelectId(selected[0][this.options.idField.columnName]);
+        let selectedItem = selected && selected.length ? selected[0] : null;
+        if (this.options.idField.columnName && selectedItem[this.options.idField.columnName]) {
+            this.publishSelectId(selectedItem[this.options.idField.columnName]);
         }
         this.selected.splice(0, this.selected.length);
         this.selected.push(...selected);
 
         if (this.options.filterable) {
             let dataObject = this.responseData.filter((obj) =>
-                obj[this.options.idField.columnName] === selected[0][this.options.idField.columnName])[0];
+                obj[this.options.idField.columnName] === selectedItem[this.options.idField.columnName])[0];
 
             this.options.filterFields.forEach((filterField: any) => {
                 let filterFieldObject = this.options.findField(filterField.columnName);
-                let value = (this.options.idField.columnName.length === 0) ? selected[0][filterFieldObject.columnName] :
+                let value = (this.options.idField.columnName.length === 0) ? selectedItem[filterFieldObject.columnName] :
                     dataObject[filterFieldObject.columnName];
                 let filter = this.createFilterObject(filterFieldObject.columnName, value, filterFieldObject.prettyName);
 
@@ -723,6 +735,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 }
             });
         }
+
+        this.publishAnyCustomEvents(selectedItem, this.options.idField.columnName);
     }
 
     createFilterObject(field: string, value: string, prettyField: string): any {
@@ -799,19 +813,45 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return this.options;
     }
 
-    getRowClassFunction() {
+    /**
+     * Returns a function for the rowClass property of the ngx-datatable that, given a row, returns an object with the style classes for
+     * the row as keys and booleans as values.
+     *
+     * @return {function}
+     */
+    getRowClassFunction(): any {
         let self = this;
-        return function(row) {
-            let active = self.options.filterFields.some((filterField: any) => {
+        return function(row): any {
+            let rowClass: any = {};
+            rowClass.active = self.options.filterFields.some((filterField: any) => {
                 return self.filters.some((filter) => {
                     return filterField.columnName && filterField.columnName === filter.field &&
                         row[filterField.columnName] === filter.value;
                 });
             });
 
-            return {
-                active: active
-            };
+            if (self.options.heatmapField.columnName && self.options.heatmapDivisor) {
+                let heatmapClass = 'heat-0';
+                let heatmapDivisor = self.options.heatmapDivisor;
+                let heatmapValue = row[self.options.heatmapField.columnName];
+
+                // Ignore undefined, nulls, strings, or NaNs.
+                if (typeof heatmapValue !== 'undefined' && self.isNumber(heatmapValue)) {
+                    // If the divisor is a fraction, transform it and the value into whole numbers in order to avoid floating point errors.
+                    if (heatmapDivisor % 1) {
+                        // Find the number of digits following the decimal point in the divisor.
+                        let digits = ('' + heatmapDivisor).substring(('' + heatmapDivisor).indexOf('.') + 1).length;
+                        // Transform the divisor and the value into whole numbers using the number of digits.
+                        heatmapDivisor = heatmapDivisor * Math.pow(10, digits);
+                        heatmapValue = heatmapValue * Math.pow(10, digits);
+                    }
+                    heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
+                    heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
+                }
+                rowClass[heatmapClass] = true;
+            }
+
+            return rowClass;
         };
     }
 
