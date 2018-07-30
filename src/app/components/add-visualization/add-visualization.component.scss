@@ -15,33 +15,13 @@
  */
  @import '../base-neon-component/base-neon.component.scss';
 
- .add-visualization {
-
-    .add-visualization-button{
-        padding: 0px;
-        display: block;
-
-        a {
-            background: none;
-            border: 0;
-            display: block;
-            padding-bottom: 15px;
-            padding-top: 15px;
-
-            &.collapsed:hover,
-            &:focus,
-            &:hover {
-                cursor: pointer;
-            }
-        }
-    }
-}
-
 .add-visualization-grid-container {
     height: 400px;
-    overflow-y: auto;
     margin: 10px;
-    width: 550px;
+    overflow-y: auto;
+    /* Add padding between tile and scrollbar. */
+    padding-right: 10px;
+    width: 560px;
 }
 
 .add-visualization-message {
@@ -63,10 +43,9 @@
 
     a {
         background: none;
-        border: 0;
+        border: 1px solid transparent;
         display: block;
-        padding-bottom: 15px;
-        padding-top: 15px;
+        padding: 15px 5px;
         outline: 0;
         width: 100%;
 
