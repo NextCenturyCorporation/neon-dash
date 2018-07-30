@@ -16,6 +16,9 @@
 @import '../base-neon-component/base-neon.component.scss';
 
 .filter-tray-item {
+    margin-top: 15px;
+    margin-bottom: 15px;
+
     .mat-icon-button {
         position: relative;
         bottom: 1px;
