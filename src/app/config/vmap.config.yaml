@@ -1,189 +1,14 @@
 datasets:
   -
-    name: Medifor User Workbench (NC2017 Dev + TA1 Set A)
-    datastore: elasticsearch
-    hostname: localhost
-    layout: NC2017_Dev_A
-    databases:
-      -
-        name: nc2017_dev_1_output_070118
-        prettyName: TA1
-        tables:
-          -
-            name: doc
-            prettyName: Item
-            fields:
-              -
-                columnName: FileID
-                prettyName: File Name
-              -
-                columnName: MergedMask
-                prettyName: Overlay
-              -
-                columnName: NormalizedScore
-                prettyName: Score
-              -
-                columnName: OutputMask
-                prettyName: Mask
-      -
-        name: nc2017_dev_070118
-        prettyName: Input
-        tables:
-          -
-            name: doc
-            prettyName: Item
-            fields:
-              -
-                columnName: MasksDir
-                prettyName: GT Mask
-              -
-                columnName: ProbeDir
-                prettyName: Medium
-              -
-                columnName: ProbeFileID
-                prettyName: File Name
-              -
-                columnName: ThumbDir
-                prettyName: Thumbnail
-    relations:
-      -
-        members:
-          -
-            database: nc2017_dev_1_output_070118
-            table: doc
-            field: FileID
-          -
-            database: nc2017_dev_070118
-            table: doc
-            field: ProbeFileID
-
-  -
-    name: Medifor User Workbench (NC2017 Dev + TA1 Set B)
-    datastore: elasticsearch
-    hostname: localhost
-    layout: NC2017_Dev_B
-    databases:
-      -
-        name: nc2017_dev_2_output_070118
-        prettyName: TA1
-        tables:
-          -
-            name: doc
-            prettyName: Item
-            fields:
-              -
-                columnName: FileID
-                prettyName: File Name
-              -
-                columnName: MergedMask
-                prettyName: Overlay
-              -
-                columnName: NormalizedScore
-                prettyName: Score
-              -
-                columnName: OutputMask
-                prettyName: Mask
-      -
-        name: nc2017_dev_070118
-        prettyName: Input
-        tables:
-          -
-            name: doc
-            prettyName: Item
-            fields:
-              -
-                columnName: MasksDir
-                prettyName: GT Mask
-              -
-                columnName: ProbeDir
-                prettyName: Medium
-              -
-                columnName: ProbeFileID
-                prettyName: File Name
-              -
-                columnName: ThumbDir
-                prettyName: Thumbnail
-    relations:
-      -
-        members:
-          -
-            database: nc2017_dev_2_output_070118
-            table: doc
-            field: FileID
-          -
-            database: nc2017_dev_070118
-            table: doc
-            field: ProbeFileID
-
-  -
-    name: Medifor User Workbench (NC2017 Eval + TA1 Set C)
-    datastore: elasticsearch
-    hostname: localhost
-    layout: NC2017_Eval_C
-    connectOnLoad: true
-    databases:
-      -
-        name: nc2017_eval_1_output_070118
-        prettyName: TA1
-        tables:
-          -
-            name: doc
-            prettyName: Item
-            fields:
-              -
-                columnName: FileID
-                prettyName: File Name
-              -
-                columnName: MergedMask
-                prettyName: Overlay
-              -
-                columnName: NormalizedScore
-                prettyName: Score
-              -
-                columnName: OutputMask
-                prettyName: Mask
-      -
-        name: nc2017_eval_070118
-        prettyName: Input
-        tables:
-          -
-            name: doc
-            prettyName: Item
-            fields:
-              -
-                columnName: MasksDir
-                prettyName: GT Mask
-              -
-                columnName: ProbeDir
-                prettyName: Medium
-              -
-                columnName: ProbeFileID
-                prettyName: File Name
-              -
-                columnName: ThumbDir
-                prettyName: Thumbnail
-    relations:
-      -
-        members:
-          -
-            database: nc2017_eval_1_output_070118
-            table: doc
-            field: FileID
-          -
-            database: nc2017_eval_070118
-            table: doc
-            field: ProbeFileID
-
-  -
-    name: Medifor User Workbench (All)
+    name: Medifor Workbench (All)
     datastore: elasticsearch
     hostname: localhost
     layout: All
-    connectOnLoad: false
+    connectOnLoad: true
     databases:
       -
         name: output_070118
-        prettyName: TA1
+        prettyName: Indicator
         tables:
           -
             name: doc
@@ -197,7 +22,7 @@ datasets:
                 prettyName: Overlay
               -
                 columnName: NormalizedScore
-                prettyName: Score
+                prettyName: Percentage
               -
                 columnName: OutputMask
                 prettyName: Mask
@@ -211,7 +36,271 @@ datasets:
             fields:
               -
                 columnName: MasksDir
+                prettyName: NIST GT
+              -
+                columnName: InvertedMask
                 prettyName: GT Mask
+              -
+                columnName: MergedMask
+                prettyName: Overlay
+              -
+                columnName: ProbeDir
+                prettyName: Medium
+              -
+                columnName: ProbeFileID
+                prettyName: File Name
+              -
+                columnName: ThumbDir
+                prettyName: Thumbnail
+    relations:
+      -
+        members:
+          -
+            database: output_070118
+            table: doc
+            field: FileID
+          -
+            database: merged_070118
+            table: doc
+            field: ProbeFileID
+
+  -
+    name: Medifor Workbench (Dev-17 + Baseline)
+    connectOnLoad: false
+    datastore: elasticsearch
+    hostname: localhost
+    layout: NC2017_Dev_Baseline
+    databases:
+      -
+        name: nc2017_dev_baseline_output_070118
+        prettyName: Indicator
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+              -
+                columnName: FileID
+                prettyName: File Name
+              -
+                columnName: MergedMask
+                prettyName: Overlay
+              -
+                columnName: NormalizedScore
+                prettyName: Percentage
+              -
+                columnName: OutputMask
+                prettyName: Mask
+      -
+        name: nc2017_dev_070118
+        prettyName: Input
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+              -
+                columnName: MasksDir
+                prettyName: NIST GT
+              -
+                columnName: InvertedMask
+                prettyName: GT Mask
+              -
+                columnName: MergedMask
+                prettyName: Overlay
+              -
+                columnName: ProbeDir
+                prettyName: Medium
+              -
+                columnName: ProbeFileID
+                prettyName: File Name
+              -
+                columnName: ThumbDir
+                prettyName: Thumbnail
+    relations:
+      -
+        members:
+          -
+            database: nc2017_dev_baseline_output_070118
+            table: doc
+            field: FileID
+          -
+            database: nc2017_dev_070118
+            table: doc
+            field: ProbeFileID
+
+  -
+    name: Medifor Workbench (Dev-17 + II-17)
+    datastore: elasticsearch
+    hostname: localhost
+    layout: NC2017_Dev
+    databases:
+      -
+        name: nc2017_dev_output_070118
+        prettyName: Indicator
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+              -
+                columnName: FileID
+                prettyName: File Name
+              -
+                columnName: MergedMask
+                prettyName: Overlay
+              -
+                columnName: NormalizedScore
+                prettyName: Percentage
+              -
+                columnName: OutputMask
+                prettyName: Mask
+      -
+        name: nc2017_dev_070118
+        prettyName: Input
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+              -
+                columnName: MasksDir
+                prettyName: NIST GT
+              -
+                columnName: InvertedMask
+                prettyName: GT Mask
+              -
+                columnName: MergedMask
+                prettyName: Overlay
+              -
+                columnName: ProbeDir
+                prettyName: Medium
+              -
+                columnName: ProbeFileID
+                prettyName: File Name
+              -
+                columnName: ThumbDir
+                prettyName: Thumbnail
+    relations:
+      -
+        members:
+          -
+            database: nc2017_dev_output_070118
+            table: doc
+            field: FileID
+          -
+            database: nc2017_dev_070118
+            table: doc
+            field: ProbeFileID
+
+  -
+    name: Medifor Workbench (Eval-17 + II-18)
+    datastore: elasticsearch
+    hostname: localhost
+    layout: NC2017_Eval
+    databases:
+      -
+        name: nc2017_eval_output_070118
+        prettyName: Indicator
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+              -
+                columnName: FileID
+                prettyName: File Name
+              -
+                columnName: MergedMask
+                prettyName: Overlay
+              -
+                columnName: NormalizedScore
+                prettyName: Percentage
+              -
+                columnName: OutputMask
+                prettyName: Mask
+      -
+        name: nc2017_eval_070118
+        prettyName: Input
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+              -
+                columnName: MasksDir
+                prettyName: NIST GT
+              -
+                columnName: InvertedMask
+                prettyName: GT Mask
+              -
+                columnName: MergedMask
+                prettyName: Overlay
+              -
+                columnName: ProbeDir
+                prettyName: Medium
+              -
+                columnName: ProbeFileID
+                prettyName: File Name
+              -
+                columnName: ThumbDir
+                prettyName: Thumbnail
+    relations:
+      -
+        members:
+          -
+            database: nc2017_eval_output_070118
+            table: doc
+            field: FileID
+          -
+            database: nc2017_eval_070118
+            table: doc
+            field: ProbeFileID
+
+  -
+    name: Medifor Workbench (Manipulations)
+    datastore: elasticsearch
+    hostname: localhost
+    layout: Manipulations
+    connectOnLoad: true
+    databases:
+      -
+        name: output_070118
+        prettyName: Indicator
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+              -
+                columnName: FileID
+                prettyName: File Name
+              -
+                columnName: MergedMask
+                prettyName: Overlay
+              -
+                columnName: NormalizedScore
+                prettyName: Percentage
+              -
+                columnName: OutputMask
+                prettyName: Mask
+      -
+        name: merged_070118
+        prettyName: Input
+        tables:
+          -
+            name: doc
+            prettyName: Item
+            fields:
+              -
+                columnName: MasksDir
+                prettyName: NIST GT
+              -
+                columnName: InvertedMask
+                prettyName: GT Mask
+              -
+                columnName: MergedMask
+                prettyName: Overlay
               -
                 columnName: ProbeDir
                 prettyName: Medium
@@ -241,7 +330,7 @@ datasets:
 #    databases:
 #      -
 #        name: output_070118
-#        prettyName: TA1
+#        prettyName: Indicator
 #        tables:
 #          -
 #            name: doc
@@ -272,12 +361,12 @@ layouts:
     -
       col: 1
       row: 1
-      sizex: 8
-      sizey: 10
+      sizex: 6
+      sizey: 12
       type: thumbnailGrid
       bindings:
         title: Probe Gallery
-        limit: 20
+        limit: 30
         database: merged_070118
         table: doc
         ascending: true
@@ -316,56 +405,28 @@ layouts:
             id: show_medium
             fields:
               -
-                field: ProbeDir
+                field: MergedMask
               -
-                field: MasksDir
+                field: InvertedMask
 
     -
       col: 1
-      row: 11
-      sizex: 8
-      sizey: 2
+      row: 13
+      sizex: 12
+      sizey: 4
       type: filterBuilder
 
-#    -
-#      col: 9
-#      row: 1
-#      sizex: 8
-#      sizey: 4
-#      type: aggregation
-#      bindings:
-#        type: list
-#        title: Indicators
-#        limit: 100
-#        database: output_070118
-#        table: doc
-#        aggregation: average
-#        aggregationField: NormalizedScore
-#        noFilter: true
-#        showHeat: true
-#        sortByAggregation: true
-#        xField: Indicator
-#        customEventsToPublish:
-#          -
-#            id: show_mask
-#            fields:
-#              -
-#                columnName: OutputMask
-#                prettyName: Mask
-#              -
-#                columnName: MergedMask
-#                prettyName: Overlay
-
     -
-      col: 9
+      col: 7
       row: 1
-      sizex: 8
+      sizex: 6
       sizey: 4
       type: dataTable
       bindings:
         title: Scores
         database: output_070118
         table: doc
+        hideUnfiltered: true
         heatmapDivisor: 0.2
         heatmapField: NormalizedScore
         idField: Indicator
@@ -390,9 +451,9 @@ layouts:
                 field: MergedMask
 
     -
-      col: 9
+      col: 7
       row: 5
-      sizex: 8
+      sizex: 6
       sizey: 8
       type: documentViewer
       bindings:
@@ -400,10 +461,11 @@ layouts:
         limit: 1
         database: merged_070118
         table: doc
+        hideUnfiltered: true
         dataField: ProbeFileID
+        hideSource: true
         idField: ProbeFileID
-        nameWidthCss: 220px
-        showSelect: true
+        nameWidthCss: 50%
         metadataFields:
           -
             name: File Name
@@ -419,10 +481,10 @@ layouts:
             field: Exif
 
     -
-      col: 17
+      col: 13
       row: 1
-      sizex: 8
-      sizey: 6
+      sizex: 12
+      sizey: 8
       type: mediaViewer
       bindings:
         title: Probe
@@ -432,7 +494,6 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeDir
-          - MasksDir
         linkPrefix: http://10.107.5.189:8000
         typeMap:
             arw:
@@ -454,29 +515,30 @@ layouts:
                 field: ProbeDir
                 label: Medium
               -
-                field: MasksDir
-                label: GT Mask
+                field: MergedMask
+                label: Overlay
               -
                 field: OutputMask
                 label: Mask
               -
-                field: MergedMask
-                label: Overlay
+                field: InvertedMask
+                label: GT Mask
 
     -
-      col: 17
-      row: 7
-      sizex: 8
+      col: 13
+      row: 9
+      sizex: 12
       sizey: 4
       type: thumbnailGrid
       bindings:
         title: Masks
-        limit: 10
+        limit: 30
         database: output_070118
         table: doc
+        hideUnfiltered: true
         ascending: true
         border: grey
-        cropAndScale:
+        cropAndScale: scale
         filterField: FileID
         idField: FileID
         ignoreSelf: false
@@ -504,24 +566,226 @@ layouts:
             mp4: vid
 
     -
-      col: 17
-      row: 11
-      sizex: 8
-      sizey: 2
+      col: 13
+      row: 13
+      sizex: 12
+      sizey: 4
       type: documentViewer
       bindings:
         title: Supplemental Information
 
-  NC2017_Dev_A:
+  Manipulations:
     -
       col: 1
       row: 1
-      sizex: 8
-      sizey: 10
+      sizex: 6
+      sizey: 12
       type: thumbnailGrid
       bindings:
         title: Probe Gallery
-        limit: 20
+        limit: 30
+        database: merged_070118
+        table: doc
+        ascending: true
+        border: grey
+        cropAndScale:
+        filterField: ProbeFileID
+        idField: ProbeFileID
+        linkField: ThumbDir
+        linkPrefix: http://10.107.5.189:8000
+        nameField: ProbeFileID
+        objectIdField:
+        objectNameField:
+        openOnMouseClick: false
+        percentField: ManipulationPercentage
+        predictedNameField:
+        sortField: ProbeFileID
+        styleClass: style2
+        textMap:
+            actual: Truth
+            percentage: Score
+            prediction:
+        typeMap:
+            arw:
+            bmp: img
+            cr2:
+            iiq:
+            jpg: img
+            jpeg: img
+            nef:
+            png: img
+            tif:
+            avi: vid
+            mp4: vid
+        customEventsToPublish:
+          -
+            id: show_medium
+            fields:
+              -
+                field: MergedMask
+              -
+                field: InvertedMask
+
+    -
+      col: 1
+      row: 13
+      sizex: 12
+      sizey: 4
+      type: filterBuilder
+
+    -
+      col: 7
+      row: 1
+      sizex: 6
+      sizey: 4
+      type: aggregation
+      bindings:
+        type: bar-h
+        title: Manipulations
+        limit: 100
+        database: merged_070118
+        table: doc
+        aggregation: count
+        logScaleX: true
+        notFilterable: true
+        sortByAggregation: true
+        xField: Manipulations
+        yPercentage: 0.3
+
+    -
+      col: 7
+      row: 5
+      sizex: 6
+      sizey: 8
+      type: documentViewer
+      bindings:
+        title: Metadata
+        limit: 1
+        database: merged_070118
+        table: doc
+        hideUnfiltered: true
+        dataField: ProbeFileID
+        hideSource: true
+        idField: ProbeFileID
+        nameWidthCss: 50%
+        metadataFields:
+          -
+            name: File Name
+            field: ProbeFileID
+          -
+            name: File Type
+            field: FileType
+          -
+            name: Camera Type
+            field: CameraID
+          -
+            name: Exif Data
+            field: Exif
+
+    -
+      col: 13
+      row: 1
+      sizex: 12
+      sizey: 8
+      type: mediaViewer
+      bindings:
+        title: Probe
+        database: merged_070118
+        table: doc
+        border: grey
+        idField: ProbeFileID
+        linkFields:
+          - ProbeDir
+        linkPrefix: http://10.107.5.189:8000
+        typeMap:
+            arw:
+            bmp: img
+            cr2:
+            iiq:
+            jpg: img
+            jpeg: img
+            nef:
+            png: img
+            tif:
+            avi: vid
+            mp4: vid
+        customEventsToReceive:
+          -
+            id: show_medium
+            fields:
+              -
+                field: ProbeDir
+                label: Medium
+              -
+                field: MergedMask
+                label: Overlay
+              -
+                field: OutputMask
+                label: Mask
+              -
+                field: InvertedMask
+                label: GT Mask
+
+    -
+      col: 13
+      row: 9
+      sizex: 12
+      sizey: 4
+      type: thumbnailGrid
+      bindings:
+        title: Masks
+        limit: 30
+        database: output_070118
+        table: doc
+        hideUnfiltered: true
+        ascending: true
+        border: grey
+        cropAndScale: scale
+        filterField: FileID
+        idField: FileID
+        ignoreSelf: false
+        linkField: OutputMask
+        linkPrefix: http://10.107.5.189:8000
+        nameField: Indicator
+        objectIdField:
+        objectNameField:
+        openOnMouseClick: false
+        percentField:
+        predictedNameField:
+        sortField: Indicator
+        styleClass: style2
+        typeMap:
+            arw:
+            bmp: img
+            cr2:
+            iiq:
+            jpg: img
+            jpeg: img
+            nef:
+            png: img
+            tif:
+            avi: vid
+            mp4: vid
+
+    -
+      col: 13
+      row: 13
+      sizex: 12
+      sizey: 4
+      type: documentViewer
+      bindings:
+        title: Supplemental Information
+
+  NC2017_Dev:
+    -
+      col: 1
+      row: 1
+      sizex: 6
+      sizey: 12
+      type: thumbnailGrid
+      bindings:
+        title: Probe Gallery
+        limit: 30
         database: nc2017_dev_070118
         table: doc
         ascending: true
@@ -560,27 +824,28 @@ layouts:
             id: show_medium
             fields:
               -
-                field: ProbeDir
+                field: MergedMask
               -
-                field: MasksDir
+                field: InvertedMask
 
     -
       col: 1
-      row: 11
-      sizex: 8
-      sizey: 2
+      row: 13
+      sizex: 12
+      sizey: 4
       type: filterBuilder
 
     -
-      col: 9
+      col: 7
       row: 1
-      sizex: 8
+      sizex: 6
       sizey: 4
       type: dataTable
       bindings:
         title: Scores
-        database: nc2017_dev_1_output_070118
+        database: nc2017_dev_output_070118
         table: doc
+        hideUnfiltered: true
         heatmapDivisor: 0.2
         heatmapField: NormalizedScore
         idField: Indicator
@@ -605,9 +870,9 @@ layouts:
                 field: MergedMask
 
     -
-      col: 9
+      col: 7
       row: 5
-      sizex: 8
+      sizex: 6
       sizey: 8
       type: documentViewer
       bindings:
@@ -615,10 +880,11 @@ layouts:
         limit: 1
         database: nc2017_dev_070118
         table: doc
+        hideUnfiltered: true
         dataField: ProbeFileID
+        hideSource: true
         idField: ProbeFileID
-        nameWidthCss: 220px
-        showSelect: true
+        nameWidthCss: 50%
         metadataFields:
           -
             name: File Name
@@ -634,10 +900,10 @@ layouts:
             field: Exif
 
     -
-      col: 17
+      col: 13
       row: 1
-      sizex: 8
-      sizey: 6
+      sizex: 12
+      sizey: 8
       type: mediaViewer
       bindings:
         title: Probe
@@ -647,7 +913,6 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeDir
-          - MasksDir
         linkPrefix: http://10.107.5.189:8000
         typeMap:
             arw:
@@ -669,29 +934,30 @@ layouts:
                 field: ProbeDir
                 label: Medium
               -
-                field: MasksDir
-                label: GT Mask
+                field: MergedMask
+                label: Overlay
               -
                 field: OutputMask
                 label: Mask
               -
-                field: MergedMask
-                label: Overlay
+                field: InvertedMask
+                label: GT Mask
 
     -
-      col: 17
-      row: 7
-      sizex: 8
+      col: 13
+      row: 9
+      sizex: 12
       sizey: 4
       type: thumbnailGrid
       bindings:
         title: Masks
-        limit: 10
-        database: nc2017_dev_1_output_070118
+        limit: 30
+        database: nc2017_dev_output_070118
         table: doc
+        hideUnfiltered: true
         ascending: true
         border: grey
-        cropAndScale:
+        cropAndScale: scale
         filterField: FileID
         idField: FileID
         ignoreSelf: false
@@ -719,24 +985,24 @@ layouts:
             mp4: vid
 
     -
-      col: 17
-      row: 11
-      sizex: 8
-      sizey: 2
+      col: 13
+      row: 13
+      sizex: 12
+      sizey: 4
       type: documentViewer
       bindings:
         title: Supplemental Information
 
-  NC2017_Dev_B:
+  NC2017_Dev_Baseline:
     -
       col: 1
       row: 1
-      sizex: 8
-      sizey: 10
+      sizex: 6
+      sizey: 12
       type: thumbnailGrid
       bindings:
         title: Probe Gallery
-        limit: 20
+        limit: 30
         database: nc2017_dev_070118
         table: doc
         ascending: true
@@ -775,27 +1041,28 @@ layouts:
             id: show_medium
             fields:
               -
-                field: ProbeDir
+                field: MergedMask
               -
-                field: MasksDir
+                field: InvertedMask
 
     -
       col: 1
-      row: 11
-      sizex: 8
-      sizey: 2
+      row: 13
+      sizex: 12
+      sizey: 4
       type: filterBuilder
 
     -
-      col: 9
+      col: 7
       row: 1
-      sizex: 8
+      sizex: 6
       sizey: 4
       type: dataTable
       bindings:
         title: Scores
-        database: nc2017_dev_2_output_070118
+        database: nc2017_dev_baseline_output_070118
         table: doc
+        hideUnfiltered: true
         heatmapDivisor: 0.2
         heatmapField: NormalizedScore
         idField: Indicator
@@ -820,9 +1087,9 @@ layouts:
                 field: MergedMask
 
     -
-      col: 9
+      col: 7
       row: 5
-      sizex: 8
+      sizex: 6
       sizey: 8
       type: documentViewer
       bindings:
@@ -830,10 +1097,11 @@ layouts:
         limit: 1
         database: nc2017_dev_070118
         table: doc
+        hideUnfiltered: true
         dataField: ProbeFileID
+        hideSource: true
         idField: ProbeFileID
-        nameWidthCss: 220px
-        showSelect: true
+        nameWidthCss: 50%
         metadataFields:
           -
             name: File Name
@@ -849,10 +1117,10 @@ layouts:
             field: Exif
 
     -
-      col: 17
+      col: 13
       row: 1
-      sizex: 8
-      sizey: 6
+      sizex: 12
+      sizey: 8
       type: mediaViewer
       bindings:
         title: Probe
@@ -862,7 +1130,6 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeDir
-          - MasksDir
         linkPrefix: http://10.107.5.189:8000
         typeMap:
             arw:
@@ -884,29 +1151,30 @@ layouts:
                 field: ProbeDir
                 label: Medium
               -
-                field: MasksDir
-                label: GT Mask
+                field: MergedMask
+                label: Overlay
               -
                 field: OutputMask
                 label: Mask
               -
-                field: MergedMask
-                label: Overlay
+                field: InvertedMask
+                label: GT Mask
 
     -
-      col: 17
-      row: 7
-      sizex: 8
+      col: 13
+      row: 9
+      sizex: 12
       sizey: 4
       type: thumbnailGrid
       bindings:
         title: Masks
-        limit: 10
-        database: nc2017_dev_2_output_070118
+        limit: 30
+        database: nc2017_dev_baseline_output_070118
         table: doc
+        hideUnfiltered: true
         ascending: true
         border: grey
-        cropAndScale:
+        cropAndScale: scale
         filterField: FileID
         idField: FileID
         ignoreSelf: false
@@ -934,24 +1202,24 @@ layouts:
             mp4: vid
 
     -
-      col: 17
-      row: 11
-      sizex: 8
-      sizey: 2
+      col: 13
+      row: 13
+      sizex: 12
+      sizey: 4
       type: documentViewer
       bindings:
         title: Supplemental Information
 
-  NC2017_Eval_C:
+  NC2017_Eval:
     -
       col: 1
       row: 1
-      sizex: 8
-      sizey: 10
+      sizex: 6
+      sizey: 12
       type: thumbnailGrid
       bindings:
         title: Probe Gallery
-        limit: 20
+        limit: 30
         database: nc2017_eval_070118
         table: doc
         ascending: true
@@ -990,27 +1258,28 @@ layouts:
             id: show_medium
             fields:
               -
-                field: ProbeDir
+                field: MergedMask
               -
-                field: MasksDir
+                field: InvertedMask
 
     -
       col: 1
-      row: 11
-      sizex: 8
-      sizey: 2
+      row: 13
+      sizex: 12
+      sizey: 4
       type: filterBuilder
 
     -
-      col: 9
+      col: 7
       row: 1
-      sizex: 8
+      sizex: 6
       sizey: 4
       type: dataTable
       bindings:
         title: Scores
-        database: nc2017_eval_1_output_070118
+        database: nc2017_eval_output_070118
         table: doc
+        hideUnfiltered: true
         heatmapDivisor: 0.2
         heatmapField: NormalizedScore
         idField: Indicator
@@ -1035,9 +1304,9 @@ layouts:
                 field: MergedMask
 
     -
-      col: 9
+      col: 7
       row: 5
-      sizex: 8
+      sizex: 6
       sizey: 8
       type: documentViewer
       bindings:
@@ -1045,10 +1314,11 @@ layouts:
         limit: 1
         database: nc2017_eval_070118
         table: doc
+        hideUnfiltered: true
         dataField: ProbeFileID
+        hideSource: true
         idField: ProbeFileID
-        nameWidthCss: 220px
-        showSelect: true
+        nameWidthCss: 50%
         metadataFields:
           -
             name: File Name
@@ -1064,10 +1334,10 @@ layouts:
             field: Exif
 
     -
-      col: 17
+      col: 13
       row: 1
-      sizex: 8
-      sizey: 6
+      sizex: 12
+      sizey: 8
       type: mediaViewer
       bindings:
         title: Probe
@@ -1077,7 +1347,6 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeDir
-          - MasksDir
         linkPrefix: http://10.107.5.189:8000
         typeMap:
             arw:
@@ -1099,29 +1368,30 @@ layouts:
                 field: ProbeDir
                 label: Medium
               -
-                field: MasksDir
-                label: GT Mask
+                field: MergedMask
+                label: Overlay
               -
                 field: OutputMask
                 label: Mask
               -
-                field: MergedMask
-                label: Overlay
+                field: InvertedMask
+                label: GT Mask
 
     -
-      col: 17
-      row: 7
-      sizex: 8
+      col: 13
+      row: 9
+      sizex: 12
       sizey: 4
       type: thumbnailGrid
       bindings:
         title: Masks
-        limit: 10
-        database: nc2017_eval_1_output_070118
+        limit: 30
+        database: nc2017_eval_output_070118
         table: doc
+        hideUnfiltered: true
         ascending: true
         border: grey
-        cropAndScale:
+        cropAndScale: scale
         filterField: FileID
         idField: FileID
         ignoreSelf: false
@@ -1149,10 +1419,10 @@ layouts:
             mp4: vid
 
     -
-      col: 17
-      row: 11
-      sizex: 8
-      sizey: 2
+      col: 13
+      row: 13
+      sizex: 12
+      sizey: 4
       type: documentViewer
       bindings:
         title: Supplemental Information
@@ -1308,8 +1578,8 @@ layouts:
 #        database: merged_070118
 #        table: doc
 #        dataField: ProbeFileID
+#        hideSource: true
 #        idField: _id
-#        showSelect: true
 #        metadataFields:
 #          -
 #            name: Media

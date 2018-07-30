@@ -222,6 +222,9 @@ describe('Component: DocumentViewer', () => {
             calledExecuteQuery = true;
             component.onQuerySuccess(docCountResponse);
         };
+        component.cannotExecuteQuery = () => {
+            return false;
+        };
 
         component.onQuerySuccess(response);
 
@@ -262,6 +265,9 @@ describe('Component: DocumentViewer', () => {
         component.executeQuery = () => {
             calledExecuteQuery = true;
             component.onQuerySuccess(docCountResponse);
+        };
+        component.cannotExecuteQuery = () => {
+            return false;
         };
 
         component.onQuerySuccess(response);
@@ -316,6 +322,9 @@ describe('Component: DocumentViewer', () => {
         component.executeQuery = () => {
             calledExecuteQuery = true;
             component.onQuerySuccess(docCountResponse);
+        };
+        component.cannotExecuteQuery = () => {
+            return false;
         };
 
         component.getDocCount();

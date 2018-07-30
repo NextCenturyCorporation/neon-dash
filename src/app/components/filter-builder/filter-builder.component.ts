@@ -345,9 +345,11 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @arg {FilterClauseMetaData} clause
      */
     handleChangeDataOfClause(clause: FilterClauseMetaData) {
-        clause.active = false;
-        let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name, clause.field.columnName);
-        this.updateFiltersOfKey(databaseTableFieldKey);
+        if (clause.active) {
+            clause.active = false;
+            let databaseTableFieldKey = this.getDatabaseTableFieldKey(clause.database.name, clause.table.name, clause.field.columnName);
+            this.updateFiltersOfKey(databaseTableFieldKey);
+        }
     }
 
     /**
