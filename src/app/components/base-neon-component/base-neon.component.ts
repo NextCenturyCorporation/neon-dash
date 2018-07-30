@@ -41,6 +41,7 @@ export abstract class BaseNeonOptions {
     public databases: DatabaseMetaData[] = [];
     public database: DatabaseMetaData;
     public fields: FieldMetaData[] = [];
+    public hideUnfiltered: boolean;
     public limit: number;
     public newLimit: number;
     public tables: TableMetaData[] = [];
@@ -79,6 +80,7 @@ export abstract class BaseNeonOptions {
         this.customEventsToPublish = injector.get('customEventsToPublish', []);
         this.customEventsToReceive = injector.get('customEventsToReceive', []);
         this.filter = injector.get('configFilter', null);
+        this.hideUnfiltered = injector.get('hideUnfiltered', false);
         this.limit = injector.get('limit', defaultLimit);
         this.newLimit = this.limit;
         this.title = injector.get('title', visualizationTitle);
@@ -96,6 +98,13 @@ export abstract class BaseNeonOptions {
         let outputFields = this.fields.filter((field: FieldMetaData) => {
             return field.columnName === columnName;
         });
+        if (!outputFields.length && this.fields.length) {
+            // Check if the column name is actually an array index rather than a name.
+            let fieldIndex = parseInt(columnName, 10);
+            if (!isNaN(fieldIndex) && fieldIndex < this.fields.length) {
+                outputFields = [this.fields[fieldIndex]];
+            }
+        }
         return outputFields.length ? outputFields[0] : undefined;
     }
 
@@ -119,6 +128,7 @@ export abstract class BaseNeonOptions {
      */
     public findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
         let bindings = this.injector.get(bindingKey, null) || [];
+        // TODO Should we remove empty field objects from the array?
         return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.getFieldObject(columnName, mappingKey));
     }
 
@@ -154,13 +164,22 @@ export abstract class BaseNeonOptions {
         this.databases = this.datasetService.getDatabases();
         this.database = this.databases[0] || new DatabaseMetaData();
 
-        if (this.databases.length > 0) {
+        if (this.databases.length) {
             let configDatabase = this.injector.get('database', null);
             if (configDatabase) {
+                let isName = false;
                 for (let database of this.databases) {
                     if (configDatabase === database.name) {
                         this.database = database;
+                        isName = true;
                         break;
+                    }
+                }
+                if (!isName) {
+                    // Check if the config database is actually an array index rather than a name.
+                    let databaseIndex = parseInt(configDatabase, 10);
+                    if (!isNaN(databaseIndex) && databaseIndex < this.databases.length) {
+                        this.database = this.databases[databaseIndex];
                     }
                 }
             }
@@ -196,10 +215,19 @@ export abstract class BaseNeonOptions {
         if (this.tables.length > 0) {
             let configTable = this.injector.get('table', null);
             if (configTable) {
+                let isName = false;
                 for (let table of this.tables) {
                     if (configTable === table.name) {
                         this.table = table;
+                        isName = true;
                         break;
+                    }
+                }
+                if (!isName) {
+                    // Check if the config table is actually an array index rather than a name.
+                    let tableIndex = parseInt(configTable, 10);
+                    if (!isNaN(tableIndex) && tableIndex < this.tables.length) {
+                        this.table = this.tables[tableIndex];
                     }
                 }
             }
@@ -625,17 +653,35 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Returns whether this visualization cannot execute its query right now.
+     *
+     * @return {boolean}
+     */
+    cannotExecuteQuery(): boolean {
+        let connection = this.connectionService.getActiveConnection();
+        let options = this.getOptions();
+        let database = options.database.name;
+        let table = options.table.name;
+        return (!connection || (options.hideUnfiltered && !this.filterService.getFiltersForFields(database, table).length));
+    }
+
+    /**
      * Execute a neon query
      * @param query The query to execute
      */
     executeQuery(query: neon.query.Query) {
-        let database = this.getOptions().database.name;
-        let table = this.getOptions().table.name;
+        let options = this.getOptions();
+        let database = options.database.name;
+        let table = options.table.name;
         let connection = this.connectionService.getActiveConnection();
 
-        if (!connection) {
+        if (this.cannotExecuteQuery()) {
+            this.baseOnQuerySuccess({
+                data: []
+            });
             return;
         }
+
         // Cancel any previous data query currently running.
         if (this.outstandingDataQuery[database] && this.outstandingDataQuery[database][table]) {
             this.outstandingDataQuery[database][table].abort();
@@ -849,6 +895,25 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
 
     getButtonText() {
         return '';
+    }
+
+    /**
+     * Publishes any custom events in the options (from the config file) using the given data item and event field.
+     *
+     * @arg {any} dataItem
+     * @arg {string} eventField
+     */
+    publishAnyCustomEvents(dataItem: any, eventField: string) {
+        this.getOptions().customEventsToPublish.forEach((config) => {
+            let metadata = {};
+            (config.fields || []).forEach((fieldsConfig) => {
+                metadata[fieldsConfig.field] = dataItem[fieldsConfig.field];
+            });
+            this.messenger.publish(config.id, {
+                item: eventField ? dataItem[eventField] : dataItem,
+                metadata: metadata
+            });
+        });
     }
 
     /**

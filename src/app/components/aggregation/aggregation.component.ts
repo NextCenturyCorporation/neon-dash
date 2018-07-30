@@ -453,6 +453,9 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      */
     getButtonText(): string {
         if (!this.responseData.length || !this.activeData.length) {
+            if (this.options.hideUnfiltered) {
+                return 'Please Filter';
+            }
             return 'No Data';
         }
         if (this.activeData.length === this.responseData.length) {
@@ -470,7 +473,7 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     getCloseableFilters(): any[] {
-        return [this.filterToPassToSuperclass];
+        return this.filterToPassToSuperclass.id ? [this.filterToPassToSuperclass] : [];
     }
 
     /**
@@ -1245,7 +1248,11 @@ export class AggregationComponent extends BaseNeonComponent implements OnInit, O
         if (event) {
             this.stopEventPropagation(event);
         }
-        this.changeDetection.detectChanges();
+        /* tslint:disable:no-string-literal */
+        if (!this.changeDetection['destroyed']) {
+            this.changeDetection.detectChanges();
+        }
+        /* tslint:enable:no-string-literal */
     }
 
     /**

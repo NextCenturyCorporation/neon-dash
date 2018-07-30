@@ -101,7 +101,8 @@ export class MediaViewerOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    protected MEDIA_PADDING: number = 5;
+    protected MEDIA_PADDING: number = 10;
+    protected SLIDER_HEIGHT: number = 30;
     protected TAB_HEIGHT: number = 30;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
@@ -110,16 +111,29 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
     public options: MediaViewerOptions;
 
-    public documentArray: {
-        border: string,
-        link: string,
+    public mediaTypes: any = MediaTypes;
+
+    public tabsAndMedia: {
         name: string,
-        type: string
+        selected: {
+            border: string,
+            link: string,
+            name: string,
+            type: string
+        },
+        list: {
+            border: string,
+            link: string,
+            name: string,
+            type: string
+        }[]
     }[] = [];
 
     public isLoadingMedia: boolean = false;
+    public noDataId: string = undefined;
+    public onlyShowingQueryData: boolean = false;
     public previousId: string = '';
-    public mediaTypes: any = MediaTypes;
+    public queryLinks: any[] = [];
     public selectedTabIndex: number = 0;
 
     constructor(
@@ -153,33 +167,62 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
         this.options.customEventsToReceive.forEach((config) => {
             this.messenger.subscribe(config.id, (eventMessage) => {
-                let tabIndex = this.documentArray.length;
-                (config.fields || []).forEach((fieldsConfig) => {
-                    this.addLinks(eventMessage.metadata[fieldsConfig.field], [], [], eventMessage.item + ' ' + fieldsConfig.label);
-                });
-                if (this.documentArray.length > tabIndex) {
-                    this.selectedTabIndex = tabIndex;
-                    this.refreshVisualization();
-                }
+                this.waitForQuery(config.fields || [], eventMessage.metadata, eventMessage.item);
             });
         });
     }
 
     /**
+     * Adds the links for the given fields in the given metadata object to the component as a new tab with the given name next to the
+     * existing queryLinks.
+     *
+     * @arg {any[]} fields
+     * @arg {any} metadata
+     * @arg {string} name
+     */
+    addEventLinks(fields: any[], metadata: any, name: string) {
+        let tabIndex = this.tabsAndMedia.length;
+        let tab = {
+            selected: undefined,
+            name: name,
+            // Use concat to copy the list.
+            list: [].concat(this.queryLinks)
+        };
+        fields.forEach((fieldsConfig) => {
+            this.addLinks(tab, metadata[fieldsConfig.field], [], [], fieldsConfig.label);
+        });
+        if (tab.list.length) {
+            tab.selected = tab.list[0];
+            // If only showing tabs with query data, remove them because the query data will be shown in the new tabs.
+            if (this.onlyShowingQueryData) {
+                tabIndex = 0;
+                this.tabsAndMedia = [];
+                this.onlyShowingQueryData = false;
+            }
+            this.tabsAndMedia.push(tab);
+            if (this.tabsAndMedia.length > tabIndex) {
+                this.selectedTabIndex = tabIndex;
+            }
+            this.refreshVisualization();
+        }
+    }
+
+    /**
      * Adds the given links to the global list.
      *
+     * @arg {any} tab
      * @arg {any} links
      * @arg {any[]} names
      * @arg {any[]} types
      * @arg {string} prettyName
      */
-    addLinks(links: any, names: any[], types: any[], prettyName: string) {
+    addLinks(tab, links: any, names: any[], types: any[], prettyName: string) {
         let linksArray = this.transformToStringArray(links, this.options.delimiter);
         linksArray.forEach((link, index) => {
             let nameWithArrayIndex = prettyName + (linksArray.length > 1 ? ' ' + (index + 1) : '');
             let linkTypeFromConfig = this.options.typeMap[link.substring(link.lastIndexOf('.') + 1).toLowerCase()] || '';
             if (link) {
-                this.documentArray.push({
+                tab.list.push({
                     // TODO Add a boolean borderField with border options like:  true = red, false = yellow
                     border: this.options.border,
                     link: this.options.linkPrefix + link,
@@ -188,6 +231,17 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 });
             }
         });
+    }
+
+    /**
+     * Changes the selected medium in the given tab to the element in the tab's list at the given index.
+     *
+     * @arg {any} tab
+     * @arg {number} index
+     */
+    changeSelectedMedium(tab, index: number) {
+        tab.selected = tab.list[index];
+        this.refreshVisualization();
     }
 
     /**
@@ -226,12 +280,18 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     getButtonText() {
-        if (!this.documentArray.length && !this.options.url) {
-            return 'No Data';
-        } else if (this.options.url) {
-            return '';
+        if (!this.tabsAndMedia.length && !this.options.url) {
+            return 'Please Select';
         }
-        return 'Total Files ' + super.prettifyInteger(this.documentArray.length);
+        if (!this.tabsAndMedia.length && this.options.url) {
+            if (this.options.hideUnfiltered) {
+                return 'Please Filter';
+            }
+            return 'No Data';
+        }
+        return 'Total Files ' + super.prettifyInteger(this.tabsAndMedia.reduce((sum, tab) => {
+            return sum + tab.list.length;
+        }, 0));
     }
 
     /**
@@ -343,7 +403,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             if (eventMessage.database === this.options.database.name && eventMessage.table === this.options.table.name) {
                 this.options.id = Array.isArray(eventMessage.id) ? eventMessage.id[0] : eventMessage.id;
                 if (this.options.id !== this.previousId) {
-                    this.documentArray = [];
+                    this.tabsAndMedia = [];
                     this.previousId = this.options.id;
                     this.executeQueryChain();
                 }
@@ -384,8 +444,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     onQuerySuccess(response: any) {
-        this.documentArray = [];
+        let tabName = this.options.id;
+        this.noDataId = this.options.id;
+        this.options.id = undefined;
+        this.tabsAndMedia = [];
         this.selectedTabIndex = 0;
+        this.queryLinks = [];
+        this.onlyShowingQueryData = true;
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
@@ -405,9 +470,24 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     types = this.transformToStringArray(types, this.options.delimiter);
                 }
 
+                let tab = {
+                    selected: undefined,
+                    name: tabName,
+                    list: []
+                };
+
                 this.options.linkFields.forEach((linkField) => {
-                    this.addLinks(neonUtilities.deepFind(response.data[0], linkField.columnName) || '', names, types, linkField.prettyName);
+                    this.addLinks(tab, neonUtilities.deepFind(response.data[0], linkField.columnName) || '', names, types,
+                        linkField.prettyName);
                 });
+
+                if (tab.list.length) {
+                    tab.selected = tab.list[0];
+                    this.tabsAndMedia.push(tab);
+                    // Use concat to copy the list.
+                    this.queryLinks = [].concat(tab.list);
+                    this.noDataId = undefined;
+                }
 
                 this.isLoadingMedia = false;
             } else {
@@ -438,7 +518,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     refreshVisualization() {
-        this.changeDetection.detectChanges();
+        /* tslint:disable:no-string-literal */
+        if (!this.changeDetection['destroyed']) {
+            this.changeDetection.detectChanges();
+        }
+        /* tslint:enable:no-string-literal */
         this.subOnResizeStop();
     }
 
@@ -525,24 +609,28 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
+        // TODO FIXME
+        // let sliderHeight = this.tabsAndMedia.length && this.tabsAndMedia[0].list.length > 1 ? this.SLIDER_HEIGHT : 0;
+        let sliderHeight = this.SLIDER_HEIGHT;
+
         frames.forEach((frame) => {
             frame.style.height = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING) + 'px';
+                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
             frame.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING) + 'px';
+                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
             frame.style.width = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
             frame.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
 
         images.forEach((image) => {
             image.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING) + 'px';
+                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
             image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
 
         videos.forEach((video) => {
             video.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING) + 'px';
+                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
             video.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
     }
@@ -558,7 +646,33 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @return {string[]}
      */
     transformToStringArray(input, delimiter: string) {
-        return input ? (Array.isArray(input) ? input : (input.toString().indexOf(delimiter) > -1 ? input.toString().split(',') :
-            [input])) : [];
+        if (Array.isArray(input)) {
+            return input;
+        }
+        if (input !== '' && input !== null && typeof input !== 'undefined') {
+            let inputValue = input.toString();
+            if (inputValue.indexOf('[') === 0 && inputValue.lastIndexOf(']') === (inputValue.length - 1)) {
+                inputValue = inputValue.substring(1, inputValue.length - 1);
+            }
+            return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];
+        }
+        return [];
+    }
+
+    /**
+     * Waits for the current query to end, if it is running, then calls addEventLinks with the given data.
+     *
+     * @arg {any[]} fields
+     * @arg {any} metadata
+     * @arg {string} name
+     */
+    waitForQuery(fields: any[], metadata: any, name: string) {
+        if (this.isLoading) {
+            setTimeout(() => {
+                this.waitForQuery(fields, metadata, name);
+            }, 500);
+        } else {
+            this.addEventLinks(fields, metadata, name);
+        }
     }
 }
