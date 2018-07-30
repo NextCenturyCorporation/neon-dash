@@ -142,6 +142,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             visualizationService
         );
 
+        console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
+
         this.options = new TimelineOptions(this.injector, this.datasetService, 'Timeline', 10);
 
         this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';
@@ -327,9 +329,11 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
     }
 
     getDocCount() {
-        let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createClause())
-            .aggregate(neonVariables.COUNT, '*', '_docCount');
-        this.executeQuery(countQuery);
+        if (!this.cannotExecuteQuery()) {
+            let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
+                .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
+            this.executeQuery(countQuery);
+        }
     }
 
     getFiltersToIgnore() {

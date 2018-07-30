@@ -59,7 +59,8 @@
                 <p></p>
 
                 <mat-form-field>
-                    <mat-select placeholder="Link Field" [(ngModel)]="options.linkField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                    <mat-select placeholder="Link Fields" [(ngModel)]="options.linkFields" required="true"
+                                (ngModelChange)="handleChangeFilterField()" multiple [disabled]="options.fields.length < 1">
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -118,35 +119,41 @@
     </div>
 
     <div *ngIf="options.url == ''">
-        <div *ngIf="options.id && documentArray.length == 0" class="viewer-text">No Data: {{ options.id }}</div>
+        <div *ngIf="tabsAndMedia.length == 0" class="viewer-text">No Data: {{ noDataId }}</div>
 
-        <mat-tab-group *ngIf="documentArray.length > 1">
-            <mat-tab *ngFor="let document of documentArray" [label]="document.name">
-                <div [ngSwitch]="document.type">
-                    <img #image *ngSwitchCase="mediaTypes.image" [src]="document.link" [alt]="options.linkField.prettyName"
-                        [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
-                    <video #video *ngSwitchCase="mediaTypes.video" controls
-                        [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
-                        <source [src]="document.link">
+        <mat-tab-group *ngIf="tabsAndMedia.length > 1" [selectedIndex]="selectedTabIndex" (selectedTabChange)="subOnResizeStop()">
+            <mat-tab class="tab" *ngFor="let tab of tabsAndMedia" [label]="tab.name">
+                <div [ngSwitch]="tab.selected.type">
+                    <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
+                        [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
+                    <video *ngSwitchCase="mediaTypes.video" controls
+                        [class]="tab.selected.border ? ('video with-border border-mat-' + tab.selected.border) : 'video'">
+                        <source [src]="tab.selected.link">
                     </video>
-                    <iframe #frame *ngSwitchDefault [src]="sanitize(document.link)" frameborder="0"  [ngStyle]="setResize()"
-                        [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
+                    <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
+                        [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
                     </iframe>
                 </div>
+                <mat-slider *ngIf="tab.list.length > 1" color="primary" min="0" [max]="tab.list.length - 1" step="1"
+                    (change)="changeSelectedMedium(tab, $event.value)"></mat-slider>
             </mat-tab>
         </mat-tab-group>
 
-        <div class="full-height single-medium" *ngIf="documentArray.length == 1" [ngSwitch]="documentArray[0].type">
-            <div class="viewer-text">{{ documentArray[0].name }}</div>
-            <img #image *ngSwitchCase="mediaTypes.image" [src]="documentArray[0].link" [alt]="options.linkField.prettyName"
-                [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
-            <video #video *ngSwitchCase="mediaTypes.video" controls
-                [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
-                <source [src]="documentArray[0].link">
+        <div class="full-height single-medium" *ngIf="tabsAndMedia.length == 1 && tabsAndMedia[0].selected"
+            [ngSwitch]="tabsAndMedia[0].selected.type">
+
+            <div class="viewer-text">{{ tabsAndMedia[0].name }}</div>
+            <img *ngSwitchCase="mediaTypes.image" [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name"
+                [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border) : 'image'">
+            <video *ngSwitchCase="mediaTypes.video" controls
+                [class]="tabsAndMedia[0].selected.border ? ('video with-border border-mat-' + tabsAndMedia[0].selected.border) : 'video'">
+                <source [src]="tabsAndMedia[0].selected.link">
             </video>
-            <iframe #frame *ngSwitchDefault [src]="sanitize(documentArray[0].link)" frameborder="0"  [ngStyle]="setResize()"
-                [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
+            <iframe *ngSwitchDefault [src]="sanitize(tabsAndMedia[0].selected.link)" frameborder="0"
+                [class]="tabsAndMedia[0].selected.border ? ('frame with-border border-mat-' + tabsAndMedia[0].selected.border) : 'frame'">
             </iframe>
+            <mat-slider *ngIf="tabsAndMedia[0].list.length > 1" color="primary" min="0" [max]="tabsAndMedia[0].list.length - 1" step="1"
+                    (change)="changeSelectedMedium(tabsAndMedia[0], $event.value)"></mat-slider>
         </div>
     </div>
 

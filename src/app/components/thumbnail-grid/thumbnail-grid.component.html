@@ -78,6 +78,14 @@
                 <p></p>
 
                 <mat-form-field>
+                    <mat-select placeholder="Comparison Field" [(ngModel)]="options.compareField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
                     <mat-select placeholder="Filter Field" [(ngModel)]="options.filterField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
                         <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
@@ -152,6 +160,16 @@
 
                 <mat-form-field>
                     <input matInput placeholder="Border" [(ngModel)]="options.border" required="false">
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <input matInput placeholder="Border By Comparison To Category" [(ngModel)]="options.borderCompareValue" required="false">
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
+                    <input matInput placeholder="Border Percent Threshold" [(ngModel)]="options.borderPercentThreshold" required="false">
                 </mat-form-field>
                 <p></p>
 

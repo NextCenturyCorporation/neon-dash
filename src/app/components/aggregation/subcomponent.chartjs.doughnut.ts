@@ -13,7 +13,16 @@
  * limitations under the License.
  *
  */
-export const environment = {
-    config: ['./app/config/config.json', './app/config/config.yaml'],
-    production: true
-};
+import { ChartJsPieSubcomponent } from './subcomponent.chartjs.pie';
+
+export class ChartJsDoughnutSubcomponent extends ChartJsPieSubcomponent {
+    /**
+     * Returns the ChartJs chart type.
+     *
+     * @return {string}
+     * @override
+     */
+    protected getChartType(): string {
+        return 'doughnut';
+    }
+}

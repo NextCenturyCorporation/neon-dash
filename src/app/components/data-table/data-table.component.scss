@@ -35,7 +35,7 @@
         text-align: center;
         vertical-align: middle;
         font-size: 1.4em;
-        border: 1px solid lightgrey;
+        border: 1px solid mat-color($accent);
     }
 
     .column-selector-close {
@@ -91,7 +91,7 @@
 }
 
 /deep/ .datatable-row-even {
-    background-color: mat-color($white);
+    background-color: #fafafa;
 }
 
 /deep/ .datatable-header-inner {
@@ -100,7 +100,7 @@
 
 /deep/ .datatable-header-cell {
     /* Background fade from $white to $accent. */
-    background: linear-gradient(#fff,#e6e7e8);
+    background: linear-gradient(#fafafa,#e6e7e8);
     border-bottom: 1px solid $black-87-opacity;
     border-right: 1px solid $black-87-opacity;
     line-height: 20px !important;
@@ -166,7 +166,47 @@
 
 /deep/ .datatable-body-row.active .datatable-row-group {
     background-color: mat-color($primary);
-    color: mat-color($white);
+    color: #fafafa;
+}
+
+/deep/ .datatable-body-row.heat-1 .datatable-row-group {
+    color: #01579b; // light-blue-900
+}
+
+/deep/ .datatable-body-row.heat-2 .datatable-row-group {
+    color: #1a237e; // indigo-900
+}
+
+/deep/ .datatable-body-row.heat-3 .datatable-row-group {
+    color: #4a148c; // purple-900
+}
+
+/deep/ .datatable-body-row.heat-4 .datatable-row-group {
+    color: #b71c1c; // red-900
+}
+
+/deep/ .datatable-body-row.heat-5 .datatable-row-group {
+    color: #e65100; // orange-900
+}
+
+/deep/ .datatable-body-row.active.heat-1 .datatable-row-group {
+    background-color: #29b6f6; // light-blue-400
+}
+
+/deep/ .datatable-body-row.active.heat-2 .datatable-row-group {
+    background-color: #5c6bc0; // indigo-400
+}
+
+/deep/ .datatable-body-row.active.heat-3 .datatable-row-group {
+    background-color: #ab47bc; // purple-400
+}
+
+/deep/ .datatable-body-row.active.heat-4 .datatable-row-group {
+    background-color: #ef5350; // red-400
+}
+
+/deep/ .datatable-body-row.active.heat-5 .datatable-row-group {
+    background-color: #ffa726; // orange-400
 }
 
 /deep/ .datatable-body {
@@ -217,6 +257,41 @@
         background-color: $accent-bright-opacity;
         color: $black-87-opacity;
         cursor: pointer;
+    }
+
+    /deep/ .datatable-body-row.heat-1:hover .datatable-row-group,
+    /deep/ .datatable-body-row.active.heat-1:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.heat-1:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.active.heat-1:hover .datatable-row-group {
+        background-color: #29b6f6; // light-blue-400
+    }
+
+    /deep/ .datatable-body-row.heat-2:hover .datatable-row-group,
+    /deep/ .datatable-body-row.active.heat-2:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.heat-2:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.active.heat-2:hover .datatable-row-group {
+        background-color: #5c6bc0; // indigo-400
+    }
+
+    /deep/ .datatable-body-row.heat-3:hover .datatable-row-group,
+    /deep/ .datatable-body-row.active.heat-3:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.heat-3:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.active.heat-3:hover .datatable-row-group {
+        background-color: #ab47bc; // purple-400
+    }
+
+    /deep/ .datatable-body-row.heat-4:hover .datatable-row-group,
+    /deep/ .datatable-body-row.active.heat-4:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.heat-4:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.active.heat-4:hover .datatable-row-group {
+        background-color: #ef5350; // red-400
+    }
+
+    /deep/ .datatable-body-row.heat-5:hover .datatable-row-group,
+    /deep/ .datatable-body-row.active.heat-5:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.heat-5:hover .datatable-row-group,
+    &.skinny /deep/ .datatable-body-row.active.heat-5:hover .datatable-row-group {
+        background-color: #ffa726; // orange-400
     }
 }
 

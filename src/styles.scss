@@ -76,6 +76,7 @@ body {
 
 /* Angular2-Grid Overrides */
 .grid {
+    background-color: #fafafa !important;
     position: relative;
 }
 
@@ -297,7 +298,7 @@ body {
     height: 20px !important;
     width: 20px !important;
     vertical-align: bottom !important;
-    
+
     &.neon-icon-large {
         font-size: 30px !important;
         line-height: 30px !important;
@@ -355,6 +356,23 @@ body {
 .mat-sidenav {
     > .mat-card {
         padding: 20px !important;
+    }
+}
+
+.mat-slider {
+    padding: 0 !important;
+}
+
+.mat-slider-horizontal {
+    height: 30px !important;
+    min-width: unset !important;
+
+    .mat-slider-wrapper {
+        /* Position the slider in the center of the 30px height. */
+        top: 14px !important;
+        /* Add the same margin to the left and right. */
+        left: 14px !important;
+        right: 14px !important;
     }
 }
 

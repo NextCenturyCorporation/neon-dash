@@ -241,6 +241,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             visualizationService
         );
 
+        console.warn('The bar-chart component is deprecated.  Please use the aggregation component with type=bar-v or type=bar-h.');
+
         this.options = new BarChartOptions(this.injector, this.datasetService, 'Bar Chart', 10);
 
         this.onClick = this.onClick.bind(this);
@@ -286,7 +288,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             // Format number strings first.
             let formatted = this.formatNumber(text);
             // Subtract three characters for the ellipsis.
-            let truncated = ('' + text).substring(0, ('' + text).length - 3);
+            let truncated = ('' + formatted).substring(0, ('' + formatted).length - 3);
             let elementWidth = calculateTextWidth(formatted + suffix);
 
             if (!elementWidth || elementWidth < 0 || !containerWidth || containerWidth < 0 || elementWidth < containerWidth) {

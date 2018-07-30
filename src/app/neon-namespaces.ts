@@ -110,65 +110,104 @@ export namespace neonVisualizationMinPixel { // jshint ignore:line
 export const neonVisualizations: any[] = [{
     name: 'Annotation Viewer',
     type: 'annotationViewer',
-    icon: 'annotation_viewer'
+    icon: 'annotation_viewer',
+    bindings: {}
 }, {
     name: 'Bar Chart',
-    type: 'barChart',
-    icon: 'bar_chart'
+    type: 'aggregation',
+    icon: 'bar_chart',
+    bindings: {
+        title: 'Bar Chart',
+        type: 'bar-v'
+    }
 }, {
     name: 'Data Table',
     type: 'dataTable',
-    icon: 'view_data'
+    icon: 'view_data',
+    bindings: {}
 }, {
     name: 'Document Viewer',
     type: 'documentViewer',
-    icon: 'document_viewer'
+    icon: 'document_viewer',
+    bindings: {}
+}, {
+    name: 'Doughnut Chart',
+    type: 'aggregation',
+    icon: 'pie_chart',
+    bindings: {
+        title: 'Doughnut Chart',
+        type: 'doughnut'
+    }
 }, {
     name: 'Filter Builder',
     type: 'filterBuilder',
-    icon: 'create_filter'
+    icon: 'create_filter',
+    bindings: {}
+}, {
+    name: 'Histogram',
+    type: 'aggregation',
+    icon: 'timeline',
+    bindings: {
+        title: 'Histogram',
+        type: 'histogram'
+    }
 }, {
     name: 'Line Chart',
-    type: 'lineChart',
-    icon: 'line_chart'
+    type: 'aggregation',
+    icon: 'line_chart',
+    bindings: {
+        title: 'Line Chart',
+        type: 'line-xy'
+    }
 }, {
     name: 'Map',
     type: 'map',
-    icon: 'map'
+    icon: 'map',
+    bindings: {}
 }, {
     name: 'Media Viewer',
     type: 'mediaViewer',
-    icon: 'media_viewer'
+    icon: 'media_viewer',
+    bindings: {}
 }, {
     name: 'Network Graph',
     type: 'networkGraph',
-    icon: 'network_graph'
+    icon: 'network_graph',
+    bindings: {}
+}, {
+    name: 'Pie Chart',
+    type: 'aggregation',
+    icon: 'pie_chart',
+    bindings: {
+        title: 'Pie Chart',
+        type: 'pie'
+    }
 }, {
     name: 'Sample',
     type: 'sample',
-    icon: 'neon_logo'
+    icon: 'neon_logo',
+    bindings: {}
 }, {
     name: 'Scatter Plot',
-    type: 'scatterPlot',
-    icon: 'scatter_plot'
-}, {
-    name: 'Stacked Timeline',
-    type: 'stackedTimeline',
-    icon: 'stacked_timeline'
+    type: 'aggregation',
+    icon: 'scatter_plot',
+    bindings: {
+        title: 'Scatter Plot',
+        type: 'scatter-xy'
+    }
 }, {
     name: 'Text Cloud',
     type: 'textCloud',
-    icon: 'text_cloud'
+    icon: 'text_cloud',
+    bindings: {}
 }, {
     name: 'Thumbnail Grid',
     type: 'thumbnailGrid',
-    icon: 'thumbnail_grid'
-}, {
-    name: 'Timeline',
-    type: 'timeline',
-    icon: 'timeline'
+    icon: 'thumbnail_grid',
+    bindings: {}
 }, {
     name: 'Wiki Viewer',
     type: 'wikiViewer',
-    icon: 'wiki_viewer'
+    icon: 'wiki_viewer',
+    bindings: {}
 }];

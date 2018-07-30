@@ -76,32 +76,25 @@ let injector = ReflectiveInjector.resolveAndCreate([HTTP_PROVIDERS, {
 }]);
 let http = injector.get(Http);
 
-function handleConfigJsonError(error) {
-    if (isErrorNotFound(error, 'json')) {
+function handleConfigFileError(error, file) {
+    if (error.status === 404) {
         // Fail silently.
     } else {
         console.error(error);
-        showError('Error reading config.json: ' + error.message);
+        showError('Error reading config file ' + file);
+        showError(error.message);
     }
 }
 
-function loadConfigJson() {
-    return http.get('./app/config/config.json')
-        .map((response) => response.json())
-        .toPromise();
-}
-
-function isErrorNotFound(error, fileType) {
-    // TODO could add other server errors
-    return error.status === 404;
-}
-
-function handleConfigYamlError(error) {
-    if (isErrorNotFound(error, 'yaml')) {
+function handleConfigPropertyServiceError(error) {
+    if (error.message === 'No config') {
+        // Do nothing, this is the expected response
+    } else if (error.status === 404) {
         // Fail silently.
     } else {
         console.error(error);
-        showError('Error reading config.yaml: ' + error.message);
+        showError('Error reading Property Service config!');
+        showError(error.message);
     }
 }
 
@@ -117,19 +110,14 @@ function loadConfigFromPropertyService() {
         .toPromise();
 }
 
-function handleConfigPropertyServiceError(error) {
-    if (error.message === 'No config') {
-        // Do nothing, this is the expected response
-    } else if (isErrorNotFound(error, 'Property Service')) {
-        // Fail silently.
-    } else {
-        console.error(error);
-        showError('Error reading Property Service config: ' + error.message);
-    }
+function loadConfigJson(path) {
+    return http.get(path)
+        .map((response) => response.json())
+        .toPromise();
 }
 
-function loadConfigYaml() {
-   return http.get('./app/config/config.yaml')
+function loadConfigYaml(path) {
+   return http.get(path)
        .map((response) => yaml.load(response.text()))
        .toPromise();
 }
@@ -138,8 +126,8 @@ function validateConfig(config) {
     if (config) {
         return config;
     } else {
-        showError('Config from config.yaml or config.json is empty');
-        console.error('Config appears to be empty', config);
+        console.error('Config is empty', config);
+        showError('Config is empty!');
         return EMPTY_CONFIG;
     }
 }
@@ -164,18 +152,24 @@ function showError(error) {
     neonConfigErrors.push(error);
 }
 
+function loadNextConfig(configList) {
+    if (!configList.length) {
+        loadConfigFromPropertyService().then(bootstrapWithData, function(propertyError) {
+            handleConfigPropertyServiceError(propertyError);
+            showError('Cannot find an acceptable config file!');
+            bootstrapWithData(EMPTY_CONFIG);
+        });
+        return;
+    }
+
+    let loadFunction = configList[0].substring(configList[0].lastIndexOf('.') + 1) === 'yaml' ? loadConfigYaml : loadConfigJson;
+    loadFunction(configList[0]).then(bootstrapWithData, function(fileError) {
+        handleConfigFileError(fileError, configList[0]);
+        loadNextConfig(configList.slice(1));
+    });
+}
+
 neon.ready(function() {
     neon.setNeonServerUrl('../neon');
-    let config;
-    config = loadConfigJson().then(bootstrapWithData, function(error1) {
-        handleConfigJsonError(error1);
-        loadConfigYaml().then(bootstrapWithData, function(error2) {
-            handleConfigYamlError(error2);
-            loadConfigFromPropertyService().then(bootstrapWithData, function(error3) {
-                handleConfigPropertyServiceError(error3);
-                showError('Cannot find valid config.json or config.yaml.');
-                bootstrapWithData(EMPTY_CONFIG);
-            });
-        });
-  });
+    loadNextConfig(environment.config);
 });

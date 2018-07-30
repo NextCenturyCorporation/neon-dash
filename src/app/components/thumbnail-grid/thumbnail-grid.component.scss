@@ -83,8 +83,13 @@
     width: 35px;
 }
 
+.border-mat-gray,
 .border-mat-grey {
     border: 5px solid #9e9e9e; /* mat-color-grey-500 */
+}
+
+.border-mat-blue {
+    border: 5px solid #2196f3; /* mat-color-blue-500 */
 }
 
 .border-mat-red {
