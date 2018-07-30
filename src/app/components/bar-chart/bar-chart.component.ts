@@ -241,6 +241,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             visualizationService
         );
 
+        console.warn('The bar-chart component is deprecated.  Please use the aggregation component with type=bar-v or type=bar-h.');
+
         this.options = new BarChartOptions(this.injector, this.datasetService, 'Bar Chart', 10);
 
         this.onClick = this.onClick.bind(this);

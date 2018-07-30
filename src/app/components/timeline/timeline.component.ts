@@ -142,6 +142,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             visualizationService
         );
 
+        console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
+
         this.options = new TimelineOptions(this.injector, this.datasetService, 'Timeline', 10);
 
         this.timelineData.focusGranularityDifferent = this.options.granularity.toLowerCase() === 'minute';

@@ -172,6 +172,8 @@ export class LineChartComponent extends BaseNeonComponent implements OnInit, OnD
             visualizationService
         );
 
+        console.warn('The line-chart component is deprecated.  Please use the aggregation component with type=line.');
+
         this.options = new LineChartOptions(this.injector, this.datasetService, 'Line Chart', 10);
 
         this.onHover = this.onHover.bind(this);
