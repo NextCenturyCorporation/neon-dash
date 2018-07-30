@@ -105,105 +105,21 @@ body {
     display: flex;
 }
 
-.neon-sprite {
+.neon-svg-icon {
     display: inline-block;
     vertical-align: middle;
-    background-image: url("assets/images/spritesheet.png");
-    width: 64px;
-    height: 64px;
-    /* Use the Neon icon for the default. */
-    background-position: -124px -256px;
+    width: 60px;
+    height: 60px;
+    margin: 5px;
 }
 
-/* Icons */
-.icon-BarChart64 {
-    background-position: -192px -64px
+.neon-icon-navBar {
+    display: inline-block;
+    vertical-align: middle;
+    width: 25px;
+    height: 25px;
+    margin: 5px;
 }
-
-.icon-Count64 {
-    background-position: -192px -128px
-}
-
-.icon-CreateFilter64 {
-    background-position: 0 -192px
-}
-
-.icon-DocumentViewer64 {
-    background-position: -290px -256px
-}
-
-.icon-Gantt64 {
-    background-position: -64px -192px
-}
-
-.icon-Graph64 {
-    background-position: -128px -192px
-}
-
-.icon-LineChart64 {
-    background-position: 0 0
-}
-
-.icon-Map64 {
-    background-position: -256px 0
-}
-
-.icon-MediaViewer64 {
-    // TODO
-}
-
-.icon-Neon64 {
-    background-position: -124px -256px;
-}
-
-.icon-NetworkGraph64 {
-    background-position: -128px -192px
-}
-
-.icon-News64 {
-    background-position: -256px -64px
-}
-
-.icon-OPS64 {
-    background-position: -256px -128px
-}
-
-.icon-OpsClock64 {
-    background-position: -256px -192px
-}
-
-.icon-PieChart64 {
-    background-position: 0 -256px;
-}
-
-.icon-ScatterPlot64 {
-    background-position: -64px -256px
-}
-
-.icon-Sunburst64 {
-    background-position: -192px 0
-}
-
-.icon-TagCloud64 {
-    background-position: -128px -128px
-}
-
-.icon-ThumbnailGrid64 {
-    // TODO
-}
-
-.icon-Timeline64 {
-    background-position: -64px -128px
-}
-
-.icon-ViewData64 {
-    background-position: 0 -128px
-}
-
-.icon-WikiViewer64 {
-    background-position: -5px -320px
-}
-/* End Icons */
 
 /* Loading Spinner */
 .loading-overlay {
@@ -489,3 +405,12 @@ body {
     }
 }
 
+.simpleSnackBar .mat-simple-snackbar{
+    padding-left: 60px;
+
+    & button{
+        position: absolute; 
+        top: 0;
+        right: 0;
+    }
+}

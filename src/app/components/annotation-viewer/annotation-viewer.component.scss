@@ -15,15 +15,21 @@
  */
 @import '../base-neon-component/base-neon.component.scss';
 
+.annotation-viewer-table {
+    padding: 5px;
+    margin: 0;
+}
+
 .document-row {
     list-style-type: none;
     border-bottom:grey solid 1px;
     padding: 5px;
-}
 
-.annotation-viewer-table {
-    padding: 5px;
-    margin: 0;
+    &:hover {
+        cursor: pointer;
+        text-decoration: none;
+        background-color: #b4E2E4!important;
+    }
 }
 
 .legend-container {
@@ -32,4 +38,24 @@
     justify-content: space-between;
     position: absolute;
     z-index: 1000; 
+}
+
+.visualization-sidenav {
+
+    .body-container {
+        top: calc(#{$vis-title-expected-height} - 25px);
+
+        &.with-filter {
+            top: calc(#{$vis-title-expected-height} + 20px);
+            height: calc(100% - #{$vis-title-expected-height} - 25px);
+        }
+
+        &.with-footer {
+            height: calc(100% - #{$vis-title-expected-height} - 25px);
+
+            &.with-filter {
+                height: calc(100% - #{$vis-title-expected-height} - 25px);
+            }
+        }
+    }
 }
