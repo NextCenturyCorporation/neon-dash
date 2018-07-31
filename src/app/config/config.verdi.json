@@ -274,7 +274,8 @@
                     "table": "normal",
                     "idField": "@id",
                     "linkField": "docLocation",
-                    "typeField": "docType"
+                    "typeField": "docType",
+                    "clearMedia": true
                 },
                 "row": 13,
                 "col": 0

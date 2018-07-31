@@ -54,6 +54,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
     public typeField: FieldMetaData;
     public typeMap: any;
     public url: string;
+    public clearMedia: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -67,6 +68,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
         this.resize = this.injector.get('resize', true);
         this.typeMap = this.injector.get('typeMap', {});
         this.url = this.injector.get('url', '');
+        this.clearMedia = this.injector.get('clearMedia', false);
     }
 
     /**
@@ -93,7 +95,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    protected MEDIA_PADDING: number = 10;
+    protected MEDIA_PADDING: number = 5;
     protected TAB_HEIGHT: number = 30;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
@@ -103,6 +105,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     // Must have a ViewChild with a set function because the element is in an ngIf/ngFor.
     private frame: ElementRef;
     private image: ElementRef;
+    private video: ElementRef;
 
     @ViewChild('frame') set frameViewChild(frame: ElementRef) {
         this.frame = frame;
@@ -110,6 +113,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
     @ViewChild('image') set imageViewChild(image: ElementRef) {
         this.image = image;
+        this.subOnResizeStop();
+    }
+    @ViewChild('video') set videoViewChild(video: ElementRef) {
+        this.video = video;
         this.subOnResizeStop();
     }
 
@@ -346,14 +353,15 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     onQuerySuccess(response: any) {
         this.documentArray = [];
 
-        let neonFilters = this.options.idField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, [this.options.idField.columnName]) : [];
+        if(this.options.clearMedia){
+            let neonFilters = this.options.idField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
+                this.options.table.name, [this.options.idField.columnName]) : [];
 
-        if (!neonFilters[0] || (neonFilters[0] && !neonFilters[0].filter.whereClause.rhs)) {
-            this.errorMessage = 'No Data';
-            this.options.id = '_id';
-            this.refreshVisualization();
-            return;
+            if (!neonFilters[0] || (neonFilters[0] && !neonFilters[0].filter.whereClause.rhs)) {
+                this.errorMessage = 'No Data';
+                this.options.id = '_id';
+                return;
+            }
         }
 
         try {
@@ -496,6 +504,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 this.image.nativeElement.style.maxHeight = '';
                 this.image.nativeElement.style.maxWidth = '';
             }
+            if (this.video) {
+                this.video.nativeElement.style.maxHeight = '';
+                this.video.nativeElement.style.maxWidth = '';
+            }
             return;
         }
 
@@ -504,22 +516,37 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         }
 
         if (this.frame) {
-            this.frame.nativeElement.style.height = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.frame.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.frame.nativeElement.style.width = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
-                this.MEDIA_PADDING) + 'px';
-            this.frame.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
-                this.MEDIA_PADDING) + 'px';
+            this.frame.nativeElement.style.height = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT
+                - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
+            this.frame.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT
+                - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
+            this.frame.nativeElement.style.width = (refs.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+            this.frame.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         }
 
         if (this.image) {
-            this.image.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.image.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
-                this.MEDIA_PADDING) + 'px';
+            this.image.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT
+                - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
+            this.image.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         }
+
+        if (this.video) {
+            this.video.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT
+                - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
+            this.video.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
+        }
+    }
+
+    setResize() {
+        let size = {
+            'height':  this.frame ? this.frame.nativeElement.style.height : '',
+            'max-height':  this.video  ? this.video.nativeElement.style.maxHeight : this.image ? this.image.nativeElement.style.maxHeight
+                : this.frame ? this.frame.nativeElement.style.maxHeight : '',
+            'width':   this.frame  ? this.frame.nativeElement.style.width : '',
+            'max-width':   this.video  ? this.video.nativeElement.style.maxWidth : this.image ? this.image.nativeElement.style.maxWidth
+                : this.frame ? this.frame.nativeElement.style.maxWidth : ''
+        };
+        return size;
     }
 
     sanitize(url) {

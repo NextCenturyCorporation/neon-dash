@@ -1988,6 +1988,13 @@ describe('Component: ThumbnailGrid', () => {
         component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
         component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
+        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
+        component.options.ascending = true;
+        component.options.border = 'grey';
+        component.options.cropAndScale = 'both';
+        component.options.ignoreSelf = true;
+        component.options.linkPrefix = 'prefix/';
+        component.options.openOnMouseClick = false;
         component.options.textMap = {
             actual: 'Truth',
             percentage: 'Score'
@@ -2015,7 +2022,7 @@ describe('Component: ThumbnailGrid', () => {
             nameField: 'testNameField',
             objectIdField: 'testObjectIdField',
             objectNameField: 'testObjectNameField',
-            openOnMouseClick: true,
+            openOnMouseClick: false,
             percentField: 'testPercentField',
             predictedNameField: 'testPredictedNameField',
             sortField: 'testSortField',
@@ -2091,6 +2098,11 @@ describe('Component: ThumbnailGrid with config', () => {
             ThemesService,
             VisualizationService,
             Injector,
+            { provide: 'config', useValue: new NeonGTDConfig() },
+            { provide: 'database', useValue: 'testDatabase2' },
+            { provide: 'table', useValue: 'testTable2' },
+            { provide: 'configFilter', useValue: {lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
+            { provide: 'limit', useValue: 10 },
             { provide: 'ascending', useValue: true },
             { provide: 'border', useValue: 'grey' },
             { provide: 'categoryField', useValue: 'testGroupField' },
@@ -2103,6 +2115,14 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'ignoreSelf', useValue: true },
             { provide: 'linkField', useValue: 'testLinkField' },
             { provide: 'linkPrefix', useValue: 'prefix/' },
+            { provide: 'openOnMouseClick', useValue: false },
+            { provide: 'styleClass', useValue: 'style2' },
+            { provide: 'textMap', useValue: { actual: 'Truth', percentage: 'Score' } },
+            { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } },
+            { provide: 'categoryField', useValue: 'testGroupField' },
+            { provide: 'filterField', useValue: 'testFilterField' },
+            { provide: 'idField', useValue: 'testIdField' },
+            { provide: 'linkField', useValue: 'testLinkField' },
             { provide: 'nameField', useValue: 'testNameField' },
             { provide: 'objectIdField', useValue: 'testIdField' },
             { provide: 'objectNameField', useValue: 'testNameField' },
@@ -2401,5 +2421,4 @@ describe('Component: ThumbnailGrid with config', () => {
             expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
         });
     }));
-
 });
