@@ -214,7 +214,7 @@
     /deep/ .datatable-body-row.active:hover .datatable-row-group,
     &.skinny /deep/ .datatable-body-row:hover .datatable-row-group,
     &.skinny /deep/ .datatable-body-row.active:hover .datatable-row-group {
-        background-color: #ffeb3b; /* mat-color-yellow-500 */
+        background-color: $accent-bright-opacity;
         color: $black-87-opacity;
         cursor: pointer;
     }

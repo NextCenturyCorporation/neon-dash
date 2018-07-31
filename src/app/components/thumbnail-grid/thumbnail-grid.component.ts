@@ -52,6 +52,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
+    public ignoreSelf: boolean;
     public linkField: FieldMetaData;
     public linkPrefix: string;
     public nameField: FieldMetaData;
@@ -60,7 +61,6 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public openOnMouseClick: boolean;
     public percentField: FieldMetaData;
     public predictedNameField: FieldMetaData;
-    public scaleThumbnails: boolean; // Deprecated - Use cropAndScale = 'scale'
     public sortField: FieldMetaData;
     public styleClass: string;
     public textMap: any;
@@ -77,9 +77,9 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.border = this.injector.get('border', '');
         this.cropAndScale = this.injector.get('cropAndScale', '') || '';
         this.id = this.injector.get('id', '');
+        this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
-        this.scaleThumbnails = this.injector.get('scaleThumbnails', false); // Deprecated - Use cropAndScale = 'scale'
         this.styleClass = this.injector.get('styleClass', '');
         this.textMap = this.injector.get('textMap', {});
         this.typeMap = this.injector.get('typeMap', {});
@@ -175,20 +175,21 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         };
 
         let clause = neon.query.where(filter.field, '=', filter.value);
+        let runQuery = !this.options.ignoreSelf;
 
         if (!this.filters.length) {
             this.filters = [filter];
-            this.addNeonFilter(false, filter, clause);
+            this.addNeonFilter(runQuery, filter, clause);
         } else if (this.filters.length === 1) {
             if (!this.filterExists(filter.field, filter.value)) {
                 filter.id = this.filters[0].id;
                 this.filters = [filter];
-                this.replaceNeonFilter(false, filter, clause);
+                this.replaceNeonFilter(runQuery, filter, clause);
             }
         } else {
             this.removeAllFilters([].concat(this.filters), () => {
                 this.filters = [filter];
-                this.addNeonFilter(false, filter, clause);
+                this.addNeonFilter(runQuery, filter, clause);
             });
         }
     }
@@ -312,6 +313,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.lastPage = (this.gridArray.length <= (offset + this.options.limit));
         this.pagingGrid = this.gridArray.slice(offset,
             Math.min(this.page * this.options.limit, this.gridArray.length));
+        this.showGrid = true;
         this.refreshVisualization();
         this.createMediaThumbnail();
     }
@@ -391,6 +393,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     getFiltersToIgnore(): any[] {
+        if (!this.options.ignoreSelf) {
+            return null;
+        }
+
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             this.options.filterField.columnName ? [this.options.filterField.columnName] : undefined);
 
@@ -453,15 +459,11 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             let predictionText = this.options.textMap.prediction || 'Prediction';
             text.push((predictionText ? predictionText + ' : ' : '') + item[this.options.predictedNameField.columnName]);
         }
-        if (this.options.percentField.columnName && item[this.options.percentField.columnName]) {
-            let precentageText = this.options.textMap.percentage || '';
-            text.push((precentageText ? precentageText + ' : ' : '') + this.getThumbnailPercent(item));
-        }
         if (this.options.objectNameField.columnName && item[this.options.objectNameField.columnName]) {
             let actualText = this.options.textMap.actual || 'Actual';
             text.push((actualText ? actualText + ' : ' : '') + item[this.options.objectNameField.columnName]);
         }
-        return text.join(' ');
+        return text.join(', ');
     }
 
     /**
@@ -628,22 +630,29 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     let image: HTMLImageElement = new Image();
                     image.src = link;
                     image.onload = () => {
-                        if (this.options.cropAndScale === 'both') {
-                            // Use the MIN to crop the scale
-                            let size = Math.min(image.width, image.height);
-                            let multiplier = this.CANVAS_SIZE / size;
-                            thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
-                        } else if (this.options.cropAndScale === 'crop') {
-                            thumbnail.drawImage(image, 0, 0, image.width, image.height);
-                        } else if (this.options.cropAndScale === 'scale' || this.options.scaleThumbnails) {
-                            // Use the MAX to scale
-                            let size = Math.max(image.width, image.height);
-                            let multiplier = this.CANVAS_SIZE / size;
-                            thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
-                        } else {
-                            thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                        switch (this.options.cropAndScale) {
+                            case 'both' : {
+                                // Use the MIN to crop the scale
+                                let size = Math.min(image.width, image.height);
+                                let multiplier = this.CANVAS_SIZE / size;
+                                thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                                break;
+                            }
+                            case 'crop' : {
+                                thumbnail.drawImage(image, 0, 0, image.width, image.height);
+                                break;
+                            }
+                            case 'scale' : {
+                                // Use the MAX to scale
+                                let size = Math.max(image.width, image.height);
+                                let multiplier = this.CANVAS_SIZE / size;
+                                thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                                break;
+                            }
+                            default : {
+                                thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                            }
                         }
-
                     };
                     break;
                 }
@@ -651,20 +660,28 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     let video: HTMLVideoElement = document.createElement('video');
                     video.src = link;
                     video.onloadeddata = () => {
-                        if (this.options.cropAndScale === 'both') {
-                            // Use the MIN to crop the scale
-                            let size = Math.min(video.width, video.height);
-                            let multiplier = this.CANVAS_SIZE / size;
-                            thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
-                        } else if (this.options.cropAndScale === 'crop') {
-                            thumbnail.drawImage(video, 0, 0, video.width, video.height);
-                        } else if (this.options.cropAndScale === 'scale' || this.options.scaleThumbnails) {
-                            // Use the MAX to scale
-                            let size = Math.max(video.width, video.height);
-                            let multiplier = this.CANVAS_SIZE / size;
-                            thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
-                        } else {
-                            thumbnail.drawImage(video, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                        switch (this.options.cropAndScale) {
+                            case 'both' : {
+                                // Use the MIN to crop the scale
+                                let size = Math.min(video.width, video.height);
+                                let multiplier = this.CANVAS_SIZE / size;
+                                thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                                break;
+                            }
+                            case 'crop' : {
+                                thumbnail.drawImage(video, 0, 0, video.width, video.height);
+                                break;
+                            }
+                            case 'scale' : {
+                                // Use the MAX to scale
+                                let size = Math.max(video.width, video.height);
+                                let multiplier = this.CANVAS_SIZE / size;
+                                thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                                break;
+                            }
+                            default : {
+                                thumbnail.drawImage(video, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                            }
                         }
                     };
                     break;
@@ -746,6 +763,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.categoryField = this.options.categoryField.columnName;
         bindings.filterField = this.options.filterField.columnName;
         bindings.idField = this.options.idField.columnName;
+        bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.linkField = this.options.linkField.columnName;
         bindings.nameField = this.options.nameField.columnName;
         bindings.objectIdField = this.options.objectIdField.columnName;

@@ -63,15 +63,11 @@
                     "linkField": "docLocation",
                     "objectNameField": "ObjectName",
                     "objectIdField": "ObjectID",
-                    "widthField": "ImageWidth",
-                    "heightField": "ImageHeight",
                     "typeField": "docType",
                     "categoryField": "PredictionCategory",
                     "predictedNameField": "PredictedName",
                     "percentField": "PredictedProbability",
-                    "sortField": "PredictedProbability",
-                    "filterable": true,
-                    "scaleThumbnails": false
+                    "sortField": "PredictedProbability"
                 },
                 "row": 12,
                 "col": 0
@@ -97,15 +93,11 @@
                     "linkField": "docLocation",
                     "objectNameField": "ObjectName",
                     "objectIdField": "ObjectID",
-                    "widthField": "ImageWidth",
-                    "heightField": "ImageHeight",
                     "typeField": "docType",
                     "categoryField": "PredictionCategory",
                     "predictedNameField": "PredictedName",
                     "percentField": "PredictedProbability",
-                    "sortField": "PredictedProbability",
-                    "filterable": true,
-                    "scaleThumbnails": false
+                    "sortField": "PredictedProbability"
                 },
                 "row": 12,
                 "col": 13

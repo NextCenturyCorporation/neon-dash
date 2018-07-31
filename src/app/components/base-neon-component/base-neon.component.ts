@@ -789,9 +789,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     removeLocalFilterFromLocalAndNeon(filter: any, requery: boolean, refresh: boolean, callback?: Function) {
         // If we are removing a filter, assume its both local and neon so it should be removed in both
-        this.filterService.removeFilter(
+        this.filterService.removeFilters(
             this.messenger,
-            filter.id,
+            [filter.id],
             (removedFilter) => {
                 if (removedFilter) {
                     this.removeFilter(removedFilter);

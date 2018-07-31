@@ -17,7 +17,7 @@ import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 import { FilterService, ServiceFilter } from '../../app/services/filter.service';
 
-export class FilterMock extends FilterService {
+export class FilterServiceMock extends FilterService {
     addFilter(messenger: neon.eventing.Messenger,
         ownerId: string,
         database: string,
