@@ -600,7 +600,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
                 neon.query.where(this.options.unsharedFilterField.columnName, '=', this.options.unsharedFilterValue));
         }
 
-        if (this.options.respondMode && this.options.idField && !this.id) {
+        if (this.options.respondMode && this.options.idField && this.previousId) {
             let fields = [this.options.idField.columnName, this.options.linkField.columnName];
 
             let whereClauses = [
@@ -933,6 +933,10 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @override
      */
     onQuerySuccess(response: any) {
+        //The init for no respond mode
+        if (this.options.respondMode && !this.previousId) {
+            return;
+        }
 
         // Check for undefined because the count may be zero.
         if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
