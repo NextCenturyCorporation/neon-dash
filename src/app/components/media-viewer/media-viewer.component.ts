@@ -54,6 +54,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
     public typeField: FieldMetaData;
     public typeMap: any;
     public url: string;
+    public clearMedia: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -67,6 +68,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
         this.resize = this.injector.get('resize', true);
         this.typeMap = this.injector.get('typeMap', {});
         this.url = this.injector.get('url', '');
+        this.clearMedia = this.injector.get('clearMedia', false);
     }
 
     /**
@@ -351,14 +353,15 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     onQuerySuccess(response: any) {
         this.documentArray = [];
 
-        let neonFilters = this.options.idField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
-            this.options.table.name, [this.options.idField.columnName]) : [];
+        if(this.options.clearMedia){
+            let neonFilters = this.options.idField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
+                this.options.table.name, [this.options.idField.columnName]) : [];
 
-        if (!neonFilters[0] || (neonFilters[0] && !neonFilters[0].filter.whereClause.rhs)) {
-            this.errorMessage = 'No Data';
-            this.options.id = '_id';
-            this.refreshVisualization();
-            return;
+            if (!neonFilters[0] || (neonFilters[0] && !neonFilters[0].filter.whereClause.rhs)) {
+                this.errorMessage = 'No Data';
+                this.options.id = '_id';
+                return;
+            }
         }
 
         try {
