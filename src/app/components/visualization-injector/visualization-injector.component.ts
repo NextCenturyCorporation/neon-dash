@@ -24,19 +24,20 @@ import { LineChartComponent } from '../line-chart/line-chart.component';
 import { MapComponent } from '../map/map.component';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
+import { NewsFeedComponent } from '../news-feed/news-feed.component';
+import { QueryBarComponent } from '../query-bar/query-bar.component';
 import { SampleComponent } from '../sample/sample.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
 import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
+import { TaxonomyViewerComponent } from '../taxonomy-viewer/taxonomy-viewer.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
+import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
+import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { WikiViewerComponent } from '../wiki-viewer/wiki-viewer.component';
 
 import { NeonGridItem } from '../../neon-grid-item';
 import { VisualizationService } from '../../services/visualization.service';
-import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
-import { NewsFeedComponent } from '../news-feed/news-feed.component';
-import { QueryBarComponent } from '../query-bar/query-bar.component';
-import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
 
 @Component({
     selector: 'app-visualization-injector',
@@ -55,6 +56,7 @@ import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent 
         SampleComponent,
         ScatterPlotComponent,
         StackedTimelineComponent,
+        TaxonomyViewerComponent,
         TextCloudComponent,
         ThumbnailDetailsContractedComponent,
         ThumbnailDetailsExpandedComponent,
@@ -131,6 +133,7 @@ export class VisualizationInjectorComponent {
             case 'sample': return SampleComponent;
             case 'scatterPlot': return ScatterPlotComponent;
             case 'stackedTimeline': return StackedTimelineComponent;
+            case 'taxonomyViewer': return TaxonomyViewerComponent;
             case 'textCloud': return TextCloudComponent;
             case 'thumbnailGrid': return ThumbnailGridComponent;
             case 'timeline': return TimelineComponent;
