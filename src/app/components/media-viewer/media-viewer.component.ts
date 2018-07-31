@@ -103,7 +103,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     // Must have a ViewChild with a set function because the element is in an ngIf/ngFor.
     private frame: ElementRef;
     private image: ElementRef;
-    private video: ElementRef;
 
     @ViewChild('frame') set frameViewChild(frame: ElementRef) {
         this.frame = frame;
@@ -111,10 +110,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
     @ViewChild('image') set imageViewChild(image: ElementRef) {
         this.image = image;
-        this.subOnResizeStop();
-    }
-    @ViewChild('video') set videoViewChild(video: ElementRef) {
-        this.video = video;
         this.subOnResizeStop();
     }
 
@@ -351,6 +346,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     onQuerySuccess(response: any) {
         this.documentArray = [];
 
+        let neonFilters = this.options.idField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
+            this.options.table.name, [this.options.idField.columnName]) : [];
+
+        if (!neonFilters[0] || (neonFilters[0] && !neonFilters[0].filter.whereClause.rhs)) {
+            this.errorMessage = 'No Data';
+            this.options.id = '_id';
+            this.refreshVisualization();
+            return;
+        }
+
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.errorMessage = '';
@@ -491,10 +496,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 this.image.nativeElement.style.maxHeight = '';
                 this.image.nativeElement.style.maxWidth = '';
             }
-            if (this.video) {
-                this.video.nativeElement.style.maxHeight = '';
-                this.video.nativeElement.style.maxWidth = '';
-            }
             return;
         }
 
@@ -517,13 +518,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             this.image.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
                 this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
             this.image.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
-                this.MEDIA_PADDING) + 'px';
-        }
-
-        if (this.video) {
-            this.video.nativeElement.style.maxHeight = (refs.visualization.nativeElement.clientHeight - this.VISUALIZATION_PADDING -
-                this.TOOLBAR_HEIGHT - this.TAB_HEIGHT - this.MEDIA_PADDING) + 'px';
-            this.video.nativeElement.style.maxWidth = (refs.visualization.nativeElement.clientWidth - this.VISUALIZATION_PADDING -
                 this.MEDIA_PADDING) + 'px';
         }
     }

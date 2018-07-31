@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,6 +41,7 @@ import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import { Key } from 'protractor';
 
 /**
  * Manages configurable options for the specific visualization.
@@ -49,6 +51,8 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public border: string;
     public categoryField: FieldMetaData;
     public cropAndScale: string;
+    public dateField: FieldMetaData;
+    public detailedThumbnails: boolean;
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
@@ -61,6 +65,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public openOnMouseClick: boolean;
     public percentField: FieldMetaData;
     public predictedNameField: FieldMetaData;
+    public showOnlyFiltered: boolean;
     public sortField: FieldMetaData;
     public styleClass: string;
     public textMap: any;
@@ -80,9 +85,11 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
+        this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
         this.styleClass = this.injector.get('styleClass', '');
         this.textMap = this.injector.get('textMap', {});
         this.typeMap = this.injector.get('typeMap', {});
+        this.detailedThumbnails = this.injector.get('detailedThumbnails', false);
     }
 
     /**
@@ -95,6 +102,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.filterField = this.findFieldObject('filterField');
         this.idField = this.findFieldObject('idField');
         this.linkField = this.findFieldObject('linkField');
+        this.dateField = this.findFieldObject('dateField');
         this.nameField = this.findFieldObject('nameField');
         this.objectIdField = this.findFieldObject('objectIdField');
         this.objectNameField = this.findFieldObject('objectNameField');
@@ -142,9 +150,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
     public lastPage: boolean = true;
     public page: number = 1;
-
+    public neonFilters: any[] = [];
     public isLoading: boolean = false;
-    public showGrid: boolean = true;
+    public showGrid: boolean;
     public mediaTypes: any = MediaTypes;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
@@ -155,6 +163,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             filterService, exportService, injector, themesService, ref, visualizationService);
 
         this.options = new ThumbnailGridOptions(this.injector, this.datasetService, 'Thumbnail Grid', 30);
+        this.showGrid = !this.options.showOnlyFiltered;
     }
 
     /**
@@ -241,6 +250,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             fields.push(this.options.typeField.columnName);
         }
 
+        if (this.options.dateField.columnName) {
+            fields.push(this.options.dateField.columnName);
+        }
+
         let whereClauses = [
             neon.query.where(this.options.linkField.columnName, '!=', null),
             neon.query.where(this.options.linkField.columnName, '!=', '')
@@ -273,6 +286,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     getButtonText() {
         if (!this.gridArray.length) {
             return 'No Data';
+        }
+
+        if (this.options.showOnlyFiltered && !this.neonFilters.length) {
+            return 'No Filter Selected';
         }
 
         if (this.gridArray.length <= this.options.limit) {
@@ -316,6 +333,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.showGrid = true;
         this.refreshVisualization();
         this.createMediaThumbnail();
+        this.thumbnailGrid.nativeElement.scrollTop = 0;
     }
 
     /**
@@ -362,6 +380,9 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }, {
             columnName: this.options.linkField.columnName,
             prettyName: this.options.linkField.prettyName
+        }, {
+            columnName: this.options.dateField.columnName,
+            prettyName: this.options.dateField.prettyName
         }, {
             columnName: this.options.nameField.columnName,
             prettyName: this.options.nameField.prettyName
@@ -487,13 +508,10 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.gridArray = [];
         this.errorMessage = '';
         this.lastPage = true;
-        this.page = 1;
-        this.showGrid = false;
-
+        
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.isLoading = true;
-                this.showGrid = true;
                 response.data.forEach((d) => {
                     let item = {},
                         links: any;
@@ -512,8 +530,19 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                         this.retreiveMedia(item, link);
                     }
                 });
-                this.lastPage = (this.gridArray.length <= this.options.limit);
-                this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+
+                this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
+                    this.options.table.name, [this.options.filterField.columnName]);
+
+                if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+                    this.lastPage = (this.gridArray.length <= this.options.limit);
+                    this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+                    this.showGrid = true;
+                } else {
+                    this.pagingGrid = [];
+                    this.showGrid = false;
+                }
+
                 this.refreshVisualization();
                 this.createMediaThumbnail();
                 this.isLoading = false;
@@ -658,7 +687,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
                 case this.mediaTypes.video : {
                     let video: HTMLVideoElement = document.createElement('video');
-                    video.src = link;
+                    video.src = link + '#t=1,1.1'; //1 second starting place for video screenshot
+
                     video.onloadeddata = () => {
                         switch (this.options.cropAndScale) {
                             case 'both' : {
@@ -684,6 +714,27 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             }
                         }
                     };
+
+                    video.onerror = () => {
+                        if (link.includes('youtube')) {
+                            let img: HTMLImageElement = new Image();
+                            img.src = './assets/images/youtube_logo.png';
+                            img.onload = () => {
+                                thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
+                            };
+                        }
+                    };
+
+                    break;
+                }
+                case this.mediaTypes.audio : {
+                    let image: HTMLImageElement = new Image();
+                    image.src = '/assets/images/volume_up.svg';
+                    image.onclick = () => this.displayMediaTab(grid);
+                    image.onload = () => {
+                        thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                    };
+
                     break;
                 }
                 default : {
@@ -721,6 +772,31 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
         }
+    }
+
+    /**
+     * checks to see if the media type is valid and a thumbnail image will be displayed
+     * @arg {object} item
+     * @return boolean
+     */
+    isValidMediaType(item) {
+        let values = Object.keys(this.mediaTypes).map((key) => {
+            return this.mediaTypes[key];
+        });
+        if (values.includes(item[this.options.typeField.columnName])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Opens media in browser tab
+     *
+     * @arg {object} item
+     * @private
+     */
+    displayMediaTab(item) {
         if (this.options.openOnMouseClick) {
             window.open(item[this.options.linkField.columnName]);
         }
@@ -765,6 +841,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.idField = this.options.idField.columnName;
         bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.linkField = this.options.linkField.columnName;
+        bindings.dateField = this.options.dateField.columnName;
         bindings.nameField = this.options.nameField.columnName;
         bindings.objectIdField = this.options.objectIdField.columnName;
         bindings.objectNameField = this.options.objectNameField.columnName;
@@ -780,6 +857,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.openOnMouseClick = this.options.openOnMouseClick;
         bindings.textMap = this.options.textMap;
         bindings.typeMap = this.options.typeMap;
+        bindings.detailedThumbnails = this.options.detailedThumbnails;
     }
 
     /**

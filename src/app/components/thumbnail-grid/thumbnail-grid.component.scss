@@ -26,10 +26,13 @@
 
 .thumbnail-grid-div{
     display: flex;
-    flex-direction: column;
-    flex: 0 0;
+    flex: 1 auto;
     margin: .4em;
     align-items: center;
+}
+
+.flex-grow{
+    flex: 1 auto;
 }
 
 .title-bold{
@@ -40,6 +43,7 @@
     width: auto;
     height: auto;
     box-shadow: 0px 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
+    margin-right: 12px;
 }
 
 .blue-border{
@@ -58,17 +62,18 @@
     display: flex;
     flex-direction: column;
     font-size: .7em;
+
+    p{
+        margin: .2em;
+        display: inline-flex;
+        flex-flow: row nowrap;
+    }
+
+    span{
+        white-space: nowrap;
+    }
 }
 
-.thumbnail-details p{
-    margin: .2em;
-    display: inline-flex;
-    flex-flow: row nowrap;
-}
-
-.thumbnail-details span{
-    white-space: nowrap;
-}
 
 .detail-ellipses{
     flex:1;
@@ -122,4 +127,70 @@
             }
         }
     }
+}
+
+
+.thumbnail-flags{
+    display:flex;
+    flex-direction:row;
+    border-bottom: solid 1px darkgray;
+    padding: 0em .4em .6em .4em;
+    flex: 0 0;
+    max-height:113px;
+}
+
+.thumbnail-flag-details{
+    max-width:65%;
+    flex: auto;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    display: flex;
+    flex-direction: column;
+
+    p{
+        font-size: .8em;
+        margin: 4px;
+    }
+
+    p:first-child{
+        font-size: .9em;
+        @extend .title-bold;
+        color: #27607e;
+    }
+}
+
+.flag-ellipses {
+    max-height: 50%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    position: relative;
+    line-height: 1.2em;
+    /* max-height = line-height (1.2) * lines max number (3) */
+    max-height: 3.6em;
+    /* elimates space between last visible word with ellipses  */
+    text-align: justify;
+    /* place for '...' */
+    margin-right: -1em;
+    padding-right: 1em;
+
+    &:before {
+        content: '...';
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
+
+    &:after {
+        content: '';
+        position: absolute;
+        right: 0;
+        width: 1em;
+        height: 1em;
+        margin-top: 0.2em;
+        background: white;
+    }
+}
+
+.text-highlight{
+    color:#027276; /*#4dbec2;*/
 }

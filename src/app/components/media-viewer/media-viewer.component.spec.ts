@@ -17,7 +17,7 @@ import { AppMaterialModule } from '../../app.material.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { By, DomSanitizer } from '@angular/platform-browser';
 import { async, ComponentFixture, inject, TestBed } from '@angular/core/testing';
-import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { DatabaseMetaData, FieldMetaData, TableMetaData, MediaTypes } from '../../dataset';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NeonGTDConfig } from '../../neon-gtd-config';
@@ -94,6 +94,8 @@ describe('Component: MediaViewer', () => {
     it('does have expected class properties', () => {
         expect(component.documentArray).toEqual([]);
         expect(component.isLoadingMedia).toEqual(false);
+        expect(component.previousId).toEqual('');
+        expect(component.mediaTypes).toEqual(MediaTypes);
     });
 
     it('createQuery does return expected query', (() => {
@@ -258,7 +260,57 @@ describe('Component: MediaViewer', () => {
         expect(component.isValidQuery()).toBe(true);
     }));
 
-    it('onQuerySuccess does set expected properties if response returns no data', (() => {
+    it('onQuerySuccess does reset options.id and return correct error if no filter is selected,', (() => {
+        component.errorMessage = 'testErrorMessage';
+        component.options.idField = new FieldMetaData('testIdField');
+        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.nameField = new FieldMetaData('testNameField');
+        component.options.typeField = new FieldMetaData('testTypeField');
+
+        component.onQuerySuccess({
+            data: [{
+                testIdField: 'testIdValue',
+                testLinkField: 'testLinkValue',
+                testNameField: 'testNameValue',
+                testTypeField: 'testTypeValue'
+            }]
+        });
+
+        expect(component.errorMessage).toBe('No Data');
+        expect(component.options.id).toBe('_id');
+
+    }));
+
+    //failed test
+    it('onQuerySuccess does reset options.id and return correct error if filter is selected but rhs is empty,', (() => {
+        component.errorMessage = 'testErrorMessage';
+        component.options.idField = new FieldMetaData('testIdField');
+        component.options.linkField = new FieldMetaData('testLinkField');
+        component.options.nameField = new FieldMetaData('testNameField');
+        component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.id = 'testId';
+
+        getService(FilterService).addFilter(null, 'testName2', DatasetServiceMock.DATABASES[1].name, DatasetServiceMock.TABLES[1].name,
+            neon.query.where('testIdField', '==', ''), 'testFilterName');
+
+        component.onQuerySuccess({
+            data: [{
+                testIdField: 'testIdValue',
+                testLinkField: 'testLinkValue',
+                testNameField: 'testNameValue',
+                testTypeField: 'testTypeValue'
+            }]
+        });
+
+        expect(component.errorMessage).toBe('No Data');
+        expect(component.options.id).toBe('_id');
+
+    }));
+
+    it('onQuerySuccess does set expected properties if filter selected and response returns no data', (() => {
+
         component.errorMessage = 'testErrorMessage';
         component.documentArray = [{
             border: '',
@@ -266,6 +318,12 @@ describe('Component: MediaViewer', () => {
             name: 'testName',
             type: ''
         }];
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.id = 'testId';
+
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
         component.onQuerySuccess({
             data: []
@@ -275,12 +333,18 @@ describe('Component: MediaViewer', () => {
         expect(component.documentArray).toEqual([]);
     }));
 
-    it('onQuerySuccess does set expected properties if response returns data', () => {
+    it('onQuerySuccess does set expected properties if filter selected and response returns data', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.nameField = new FieldMetaData('testNameField');
         component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.id = 'testId';
+
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
         component.onQuerySuccess({
             data: [{
@@ -300,12 +364,19 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does set expected properties if response failed', () => {
+    it('onQuerySuccess does set expected properties if filter selected and response failed', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.nameField = new FieldMetaData('testNameField');
         component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.id = 'testId';
+
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testIdField', '==', '123'), 'testFilterName');
+
         component.documentArray = [{
             border: '',
             link: 'testLinkValue',
@@ -331,12 +402,18 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does set expected properties if response returns data with multiple links', () => {
+    it('onQuerySuccess does set expected properties if filter selected and response returns data with multiple links', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.nameField = new FieldMetaData('testNameField');
         component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.id = 'testId';
+
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
         component.onQuerySuccess({
             data: [{
@@ -361,12 +438,18 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does set expected properties if response returns data with multiple links/names/types', () => {
+    it('onQuerySuccess does set expected properties if filter selected and response returns data with multiple links/names/types', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.nameField = new FieldMetaData('testNameField');
         component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.id = 'testId';
+
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
         component.onQuerySuccess({
             data: [{
@@ -396,6 +479,12 @@ describe('Component: MediaViewer', () => {
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkPrefix = 'prefix/';
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.id = 'testId';
+
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
         component.onQuerySuccess({
             data: [{
@@ -408,11 +497,17 @@ describe('Component: MediaViewer', () => {
         expect(component.documentArray).toEqual([]);
     });
 
-    it('onQuerySuccess does add border', () => {
+    it('onQuerySuccess does add border if filter selected', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.border = 'grey';
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.id = 'testId';
+
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
         component.onQuerySuccess({
             data: [{
@@ -430,11 +525,17 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does use linkPrefix', () => {
+    it('onQuerySuccess does use linkPrefix if filter selected', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.linkPrefix = 'prefix/';
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.id = 'testId';
+
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
         component.onQuerySuccess({
             data: [{
@@ -452,7 +553,7 @@ describe('Component: MediaViewer', () => {
         }]);
     });
 
-    it('onQuerySuccess does use typeMap', () => {
+    it('onQuerySuccess does use typeMap if filter selected', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = new FieldMetaData('testIdField');
         component.options.linkField = new FieldMetaData('testLinkField');
@@ -461,6 +562,12 @@ describe('Component: MediaViewer', () => {
             jpg: 'img',
             txt: 'txt'
         };
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.id = 'testId';
+
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
         component.onQuerySuccess({
             data: [{
@@ -811,58 +918,13 @@ describe('Component: MediaViewer', () => {
         });
     })));
 
-    it('does show single video tag according to the video type', async(inject([DomSanitizer], (sanitizer) => {
-        let vidSrc = 'https://youtu.be/Mxesac55Puo';
+    it('does show single iframe tag according to the video type', async(inject([DomSanitizer], (sanitizer) => {
+        let vidSrc = 'https://www.youtube.com/embed/ByziC1-u0IE';
         component.documentArray = [{
             border: '',
             link: vidSrc,
             name: 'testName',
             type: 'vid'
-        }];
-        fixture.detectChanges();
-
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<video');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
-        });
-    })));
-
-    it('does show multiple video tags in tabs according to the video type', async(inject([DomSanitizer], (sanitizer) => {
-        let vidSrc = 'https://youtu.be/Mxesac55Puo';
-        component.documentArray = [{
-            border: '',
-            link: vidSrc,
-            name: 'testName',
-            type: 'vid'
-        }, {
-            border: '',
-            link: vidSrc,
-            name: 'testName',
-            type: 'vid'
-        }];
-        fixture.detectChanges();
-
-        fixture.whenStable().then(() => {
-            fixture.detectChanges();
-            let tabs = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group .mat-tab-label'));
-            expect(tabs.length).toBe(2);
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-tab-body > div > div'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<video');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
-        });
-    })));
-
-    it('does show single iframe tag according to the empty type', async(inject([DomSanitizer], (sanitizer) => {
-        let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
-        component.documentArray = [{
-            border: '',
-            link: docSrc,
-            name: 'testName',
-            type: ''
         }];
         fixture.detectChanges();
 
@@ -871,7 +933,7 @@ describe('Component: MediaViewer', () => {
             let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
             expect(media.length).toBe(1);
             expect(media[0].nativeElement.innerHTML).toContain('<iframe');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + docSrc + '"');
+            expect(media[0].nativeElement.innerHTML).toContain('src="' + vidSrc + '"');
         });
     })));
 

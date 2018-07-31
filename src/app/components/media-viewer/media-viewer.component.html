@@ -125,10 +125,6 @@
                 <div [ngSwitch]="document.type">
                     <img #image *ngSwitchCase="mediaTypes.image" [src]="document.link" [alt]="options.linkField.prettyName"
                         [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
-                    <video #video *ngSwitchCase="mediaTypes.video" controls
-                        [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
-                        <source [src]="document.link">
-                    </video>
                     <iframe #frame *ngSwitchDefault [src]="sanitize(document.link)" frameborder="0"
                         [class]="document.border ? ('with-border border-mat-' + document.border) : ''">
                     </iframe>
@@ -140,10 +136,6 @@
             <div class="viewer-text">{{ documentArray[0].name }}</div>
             <img #image *ngSwitchCase="mediaTypes.image" [src]="documentArray[0].link" [alt]="options.linkField.prettyName"
                 [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
-            <video #video *ngSwitchCase="mediaTypes.video" controls
-                [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
-                <source [src]="documentArray[0].link">
-            </video>
             <iframe #frame *ngSwitchDefault [src]="sanitize(documentArray[0].link)" frameborder="0"
                 [class]="documentArray[0].border ? ('with-border border-mat-' + documentArray[0].border) : ''">
             </iframe>
