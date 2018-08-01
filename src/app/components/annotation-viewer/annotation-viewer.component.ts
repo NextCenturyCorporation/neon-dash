@@ -1096,7 +1096,7 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @return {boolean}
      */
     showFooterContainer(): boolean {
-        return this.activeData.length < this.responseData.length;
+        return (this.activeData.length < this.responseData.length) && (this.activeData.length > 1);
     }
 
     /**
