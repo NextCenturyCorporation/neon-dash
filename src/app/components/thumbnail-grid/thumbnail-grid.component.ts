@@ -41,7 +41,6 @@ import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import { Key } from 'protractor';
 
 /**
  * Manages configurable options for the specific visualization.
@@ -508,7 +507,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.gridArray = [];
         this.errorMessage = '';
         this.lastPage = true;
-        
+
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.isLoading = true;
