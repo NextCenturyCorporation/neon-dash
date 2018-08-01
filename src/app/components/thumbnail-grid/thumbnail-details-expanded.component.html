@@ -1,4 +1,4 @@
-
+<div *ngIf="thumbnailGrid.isValidMediaType(item)">
 <div class="thumbnail-flags" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)" >
     <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"
             (click)="thumbnailGrid.displayMediaTab(item)">
@@ -8,5 +8,19 @@
         <p class="flag-ellipses">{{ item[options.idField.columnName] }}</p>
         <p>{{ item[options.dateField.columnName] }}</p>
         <p>{{ item[options.typeField.columnName] }}</p>
+    </div>
+</div>
+</div>
+
+<div *ngIf="!thumbnailGrid.isValidMediaType(item)">
+    <div class="thumbnail-flags" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)" >
+        <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100">
+        </canvas>
+        <div class="thumbnail-flag-details">
+            <p>{{ item[options.objectIdField.columnName] }}</p>
+            <p class="flag-ellipses">{{ item[options.idField.columnName] }}</p>
+            <p>{{ item[options.dateField.columnName] }}</p>
+            <p>{{ item[options.typeField.columnName] }}</p>
+        </div>
     </div>
 </div>
