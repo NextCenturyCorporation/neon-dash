@@ -42,13 +42,15 @@
 
     .body-container {
         top: calc(#{$vis-title-expected-height} - 25px);
-
+        bottom: -35px;
+        
         &.with-filter {
             top: calc(#{$vis-title-expected-height} + 20px);
             height: calc(100% - #{$vis-title-expected-height} + 20px);
         }
 
         &.with-footer {
+            
             height: calc(100% - #{$vis-title-expected-height} - 5px);
 
             &.with-filter {
