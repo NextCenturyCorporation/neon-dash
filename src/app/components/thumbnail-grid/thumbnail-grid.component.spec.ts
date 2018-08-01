@@ -1539,7 +1539,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.errorMessage).toEqual('');
         expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
+        expect(component.page).toEqual(2);
         expect(component.showGrid).toEqual(true);
 
         expect(component.gridArray).toEqual([{
@@ -1589,7 +1589,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.errorMessage).toEqual('No Data');
         expect(component.lastPage).toEqual(true);
-        expect(component.page).toEqual(1);
+        expect(component.page).toEqual(2);
         expect(component.showGrid).toEqual(false);
 
         expect(component.gridArray).toEqual([]);
@@ -1628,7 +1628,7 @@ describe('Component: ThumbnailGrid', () => {
 
         expect(component.errorMessage).toEqual('');
         expect(component.lastPage).toEqual(false);
-        expect(component.page).toEqual(1);
+        expect(component.page).toEqual(2);
         expect(component.showGrid).toEqual(true);
 
         expect(component.gridArray).toEqual([{
@@ -1799,6 +1799,13 @@ describe('Component: ThumbnailGrid', () => {
         });
         expect(spy.calls.count()).toEqual(1);
         expect(spy.calls.argsFor(0)).toEqual(['filter1']);
+    });
+
+    it('isValideMediaType does return true if a MediaType is valid', () => {
+        let random = 'random';
+        let correctMedia = 'img';
+        expect(!component.isValidMediaType(random));
+        expect(component.isValidMediaType(correctMedia));
     });
 
     it('setupFilters does not do anything if no filter exists', () => {
@@ -2091,11 +2098,6 @@ describe('Component: ThumbnailGrid with config', () => {
             ThemesService,
             VisualizationService,
             Injector,
-            { provide: 'config', useValue: new NeonGTDConfig() },
-            { provide: 'database', useValue: 'testDatabase2' },
-            { provide: 'table', useValue: 'testTable2' },
-            { provide: 'configFilter', useValue: {lhs: 'testConfigFilterField', operator: '=', rhs: 'testConfigFilterValue' } },
-            { provide: 'limit', useValue: 10 },
             { provide: 'ascending', useValue: true },
             { provide: 'border', useValue: 'grey' },
             { provide: 'categoryField', useValue: 'testGroupField' },
@@ -2108,14 +2110,6 @@ describe('Component: ThumbnailGrid with config', () => {
             { provide: 'ignoreSelf', useValue: true },
             { provide: 'linkField', useValue: 'testLinkField' },
             { provide: 'linkPrefix', useValue: 'prefix/' },
-            { provide: 'openOnMouseClick', useValue: false },
-            { provide: 'styleClass', useValue: 'style2' },
-            { provide: 'textMap', useValue: { actual: 'Truth', percentage: 'Score' } },
-            { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } },
-            { provide: 'categoryField', useValue: 'testGroupField' },
-            { provide: 'filterField', useValue: 'testFilterField' },
-            { provide: 'idField', useValue: 'testIdField' },
-            { provide: 'linkField', useValue: 'testLinkField' },
             { provide: 'nameField', useValue: 'testNameField' },
             { provide: 'objectIdField', useValue: 'testIdField' },
             { provide: 'objectNameField', useValue: 'testNameField' },

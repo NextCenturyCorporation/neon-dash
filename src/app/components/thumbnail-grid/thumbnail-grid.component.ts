@@ -331,6 +331,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.showGrid = true;
         this.refreshVisualization();
         this.createMediaThumbnail();
+        this.thumbnailGrid.nativeElement.scrollTop = 0;
     }
 
     /**
@@ -505,7 +506,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.gridArray = [];
         this.errorMessage = '';
         this.lastPage = true;
-        this.page = 1;
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
@@ -716,7 +716,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     video.onerror = () => {
                         if (link.includes('youtube')) {
                             let img: HTMLImageElement = new Image();
-                            img.src = '/assets/images/youtube_logo.png';
+                            img.src = './assets/images/youtube_logo.png';
                             img.onload = () => {
                                 thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
                             };
@@ -769,6 +769,22 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
+        }
+    }
+
+    /**
+     * checks to see if the media type is valid and a thumbnail image will be displayed
+     * @arg {object} item
+     * @return boolean
+     */
+    isValidMediaType(item) {
+        let values = Object.keys(this.mediaTypes).map((key) => {
+            return this.mediaTypes[key];
+        });
+        if (values.includes(item[this.options.typeField.columnName])) {
+            return true;
+        } else {
+            return false;
         }
     }
 
