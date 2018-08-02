@@ -379,7 +379,33 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         this.addLocalFilter(localFilters);
         for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
             let neonFilters = this.filterService.getFiltersByOwner(this.id);
-            let neonFilter = this.createNeonFilter(this.filterBoundingBox, localFilters.fieldsByLayer[i].latitude,
+            let neonFilter = this.createNeonBoxFilter(this.filterBoundingBox, localFilters.fieldsByLayer[i].latitude,
+                localFilters.fieldsByLayer[i].longitude);
+
+            if (neonFilters && neonFilters.length) {
+                localFilters.id = neonFilters[0].id;
+                this.replaceNeonFilter(i, true, localFilters, neonFilter);
+            } else {
+                this.addNeonFilter(i, true, localFilters, neonFilter);
+            }
+        }
+    }
+
+    filterByMapPoint(lat: number, lon: number) {
+        let fieldsByLayer = this.options.layers.map((layer) => {
+            return {
+                latitude: layer.latitudeField.columnName,
+                longitude: layer.longitudeField.columnName,
+                prettyLatitude: layer.latitudeField.prettyName,
+                prettyLongitude: layer.longitudeField.prettyName
+            };
+        });
+        let localLayerName = 'latitude equals ' + lat + ' and longitude equals ' + lon;
+        let localFilters = this.createFilter(fieldsByLayer, localLayerName);
+        this.addLocalFilter(localFilters);
+        for (let i = 0; i < localFilters.fieldsByLayer.length; i++) {
+            let neonFilters = this.filterService.getFiltersByOwner(this.id);
+            let neonFilter = this.createNeonPointFilter(lat, lon, localFilters.fieldsByLayer[i].latitude,
                 localFilters.fieldsByLayer[i].longitude);
 
             if (neonFilters && neonFilters.length) {
@@ -423,7 +449,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * @arg {string} longitudeField
      * @return {neon.query.WherePredicate}
      */
-    createNeonFilter(boundingBox: BoundingBoxByDegrees, latitudeField: string, longitudeField: string): neon.query.WherePredicate {
+    createNeonBoxFilter(boundingBox: BoundingBoxByDegrees, latitudeField: string, longitudeField: string): neon.query.WherePredicate {
         let filterClauses = [
             neon.query.where(latitudeField, '>=', boundingBox.south),
             neon.query.where(latitudeField, '<=', boundingBox.north),
@@ -431,6 +457,13 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             neon.query.where(longitudeField, '<=', boundingBox.east)
         ];
         return neon.query.and.apply(neon.query, filterClauses);
+    }
+
+    createNeonPointFilter(lat: number, lon: number, latitudeField: string, longitudeField: string): neon.query.WherePredicate {
+        return neon.query.and(
+            neon.query.where(latitudeField, '=', lat),
+            neon.query.where(longitudeField, '=', lon)
+        );
     }
 
     /**
