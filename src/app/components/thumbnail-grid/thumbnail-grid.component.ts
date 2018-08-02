@@ -508,7 +508,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.gridArray = [];
         this.errorMessage = '';
         this.lastPage = true;
-        
+
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.isLoading = true;
