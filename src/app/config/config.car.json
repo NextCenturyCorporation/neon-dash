@@ -90,7 +90,9 @@
 						"Type",
 						"location",
 						"JustificationEN"
-					]
+					],
+					"filterable": true,
+					"filterFields": ["id"]
 				},
 				"row": 0,
 				"col": 17
@@ -291,7 +293,30 @@
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 11,
 				"col": 12
-			}
+			},
+            {
+                "name": "Annotation Viewer",
+                "type": "annotationViewer",
+                "icon": "documentViewer64",
+				"col": 18,
+                "sizex": 7,
+				"row": 7,
+                "sizey": 6,
+                "bindings": {
+					"title": "Document Viewer",
+                    "database": "elisa_car_2",
+                    "table": "annotations",
+                    "documentTextField": "JustificationIL",
+                    "startCharacterField": "entities.start",
+                    "endCharacterField": "entities.end",
+                    "textField": "entities.name",
+                    "typeField": "entities.type"
+                },
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 2,
+				"minSizey": 2
+            }
 		]
 	},
 	"legends": {
