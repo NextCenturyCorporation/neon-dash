@@ -1988,6 +1988,13 @@ describe('Component: ThumbnailGrid', () => {
         component.options.percentField = new FieldMetaData('testPercentField', 'Test Percent Field');
         component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
+        component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
+        component.options.ascending = true;
+        component.options.border = 'grey';
+        component.options.cropAndScale = 'both';
+        component.options.ignoreSelf = true;
+        component.options.linkPrefix = 'prefix/';
+        component.options.openOnMouseClick = false;
         component.options.textMap = {
             actual: 'Truth',
             percentage: 'Score'
@@ -2015,7 +2022,7 @@ describe('Component: ThumbnailGrid', () => {
             nameField: 'testNameField',
             objectIdField: 'testObjectIdField',
             objectNameField: 'testObjectNameField',
-            openOnMouseClick: true,
+            openOnMouseClick: false,
             percentField: 'testPercentField',
             predictedNameField: 'testPredictedNameField',
             sortField: 'testSortField',
@@ -2401,5 +2408,4 @@ describe('Component: ThumbnailGrid with config', () => {
             expect(toggles[9].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
         });
     }));
-
 });
