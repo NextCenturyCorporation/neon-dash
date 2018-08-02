@@ -81,5 +81,4 @@ describe('Component: TaxonomyViewer', () => {
         fixture.detectChanges();
     });
 
-
 });
