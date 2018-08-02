@@ -17,12 +17,12 @@ import { Component, Input } from '@angular/core';
 import { ThumbnailGridOptions, ThumbnailGridComponent } from './thumbnail-grid.component';
 
 @Component({
-    selector: 'app-thumbnail-contracted-details',
-    templateUrl: './thumbnail-contracted-details.component.html',
+    selector: 'app-thumbnail-details-contracted',
+    templateUrl: './thumbnail-details-contracted.component.html',
     styleUrls: ['./thumbnail-grid.component.scss']
 })
 
-export class ThumbnailContractedDetailsComponent {
+export class ThumbnailDetailsContractedComponent {
     @Input() item: any;
     @Input() options: ThumbnailGridOptions;
 
@@ -34,12 +34,12 @@ export class ThumbnailContractedDetailsComponent {
 }
 
 @Component({
-    selector: 'app-thumbnail-expanded-details',
-    templateUrl: './thumbnail-expanded-details.component.html',
+    selector: 'app-thumbnail-details-expanded',
+    templateUrl: './thumbnail-details-expanded.component.html',
     styleUrls: ['./thumbnail-grid.component.scss']
 })
 
-export class ThumbnailExpandedDetailsComponent {
+export class ThumbnailDetailsExpandedComponent {
 
     @Input() item: any;
     @Input() options: ThumbnailGridOptions;

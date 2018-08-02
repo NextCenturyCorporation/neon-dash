@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,6 +41,7 @@ import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import { Key } from 'protractor';
 
 /**
  * Manages configurable options for the specific visualization.
@@ -331,6 +333,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.showGrid = true;
         this.refreshVisualization();
         this.createMediaThumbnail();
+        this.thumbnailGrid.nativeElement.scrollTop = 0;
     }
 
     /**
@@ -505,8 +508,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.gridArray = [];
         this.errorMessage = '';
         this.lastPage = true;
-        this.page = 1;
-
+        
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.isLoading = true;
@@ -685,7 +687,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
                 case this.mediaTypes.video : {
                     let video: HTMLVideoElement = document.createElement('video');
-                    video.src = link;
+                    video.src = link + '#t=1,1.1'; //1 second starting place for video screenshot
+
                     video.onloadeddata = () => {
                         switch (this.options.cropAndScale) {
                             case 'both' : {
@@ -711,11 +714,22 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             }
                         }
                     };
+
+                    video.onerror = () => {
+                        if (link.includes('youtube')) {
+                            let img: HTMLImageElement = new Image();
+                            img.src = './assets/images/youtube_logo.png';
+                            img.onload = () => {
+                                thumbnail.drawImage(img, 2, 40, img.width - 12, img.height);
+                            };
+                        }
+                    };
+
                     break;
                 }
                 case this.mediaTypes.audio : {
                     let image: HTMLImageElement = new Image();
-                    image.src = "/assets/images/volume_up.svg";
+                    image.src = '/assets/images/volume_up.svg';
                     image.onclick = () => this.displayMediaTab(grid);
                     image.onload = () => {
                         thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
@@ -757,6 +771,22 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         }
         if (this.options.filterField.columnName) {
             this.createFilter(item[this.options.filterField.columnName]);
+        }
+    }
+
+    /**
+     * checks to see if the media type is valid and a thumbnail image will be displayed
+     * @arg {object} item
+     * @return boolean
+     */
+    isValidMediaType(item) {
+        let values = Object.keys(this.mediaTypes).map((key) => {
+            return this.mediaTypes[key];
+        });
+        if (values.includes(item[this.options.typeField.columnName])) {
+            return true;
+        } else {
+            return false;
         }
     }
 

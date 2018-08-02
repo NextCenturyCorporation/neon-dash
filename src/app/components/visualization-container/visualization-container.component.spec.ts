@@ -50,7 +50,7 @@ import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.compone
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 import { NewsFeedComponent } from '../news-feed/news-feed.component';
 import { QueryBarComponent } from '../query-bar/query-bar.component';
-import { ThumbnailContractedDetailsComponent, ThumbnailExpandedDetailsComponent } from '../thumbnail-grid/thumbnail-details.component';
+import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
 import { MatAutocompleteModule } from '@angular/material';
 
 describe('Component: VisualizationContainer', () => {
@@ -79,8 +79,8 @@ describe('Component: VisualizationContainer', () => {
             ScatterPlotComponent,
             StackedTimelineComponent,
             TextCloudComponent,
-            ThumbnailContractedDetailsComponent,
-            ThumbnailExpandedDetailsComponent,
+            ThumbnailDetailsContractedComponent,
+            ThumbnailDetailsExpandedComponent,
             ThumbnailGridComponent,
             TimelineComponent,
             UnsharedFilterComponent,
