@@ -225,7 +225,7 @@
 
 //     // TODO Remove this sample function.
 //     /**
-//      * Adds a filter for the given item both in neon and for the visualization or replaces all the existing 
+//      * Adds a filter for the given item both in neon and for the visualization or replaces all the existing
 //      * filters if replaceAll is true.
 //      *
 //      * @arg {object} item
@@ -509,7 +509,7 @@
 //                 let field = this.options.findField(neonFilter.filter.whereClause.lhs);
 //                 let value = neonFilter.filter.whereClause.rhs;
 //                 if (this.isVisualizationFilterUnique(field.columnName, value)) {
-//                     this.addVisualizationFilter(this.createVisualizationFilter(neonFilter.id, field.columnName, 
+//                     this.addVisualizationFilter(this.createVisualizationFilter(neonFilter.id, field.columnName,
 //                     field.prettyName, value));
 //                 }
 //             }
