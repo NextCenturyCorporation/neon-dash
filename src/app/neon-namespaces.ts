@@ -185,7 +185,7 @@ export const neonVisualizations: any[] = [{
 }, {
     name: 'News Feed',
     type: 'newsFeed',
-    icon: 'NewsFeed'
+    icon: 'newspaper'
 }, {
     name: 'Sample',
     type: 'sample',
