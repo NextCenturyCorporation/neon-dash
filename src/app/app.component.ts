@@ -71,11 +71,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         cascade: 'up',
         fix_to_grid: true,
         limit_to_screen: true,
-        resize_directions: ["bottomright", "bottomleft", "right", "left", "bottom"]
+        resize_directions: ['bottomright', 'bottomleft', 'right', 'left', 'bottom']
     };
 
     public projectTitle: string = 'Neon';
-    public projectIcon: string = 'favicon.ico?v=2';
+    public projectIcon: string = 'assets/favicon.blue.ico?v=1';
 
     /* A reference to the dialog for adding visualizations. */
     private addVisDialogRef: MatDialogRef<AddVisualizationComponent>;
