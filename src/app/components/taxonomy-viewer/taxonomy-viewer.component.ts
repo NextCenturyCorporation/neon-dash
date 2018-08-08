@@ -169,7 +169,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             neon.query.where(this.options.linkField.columnName, '!=', '')
         ];
 
-
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
     }
 
@@ -339,7 +338,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             this.docCount = response.data[0]._docCount;
             return;
         }
-
 
         // TODO If you need to show an error message, set this.options.errorMessage as needed.
 
