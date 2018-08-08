@@ -78,6 +78,7 @@ import {
 } from './components/thumbnail-grid/thumbnail-details.component';
 import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
+import { TreeModule } from 'angular-tree-component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
 import { VisualizationContainerComponent } from './components/visualization-container/visualization-container.component';
 import { VisualizationInjectorComponent } from './components/visualization-injector/visualization-injector.component';
@@ -146,7 +147,8 @@ export function getAppConfig() {
         MatAutocompleteModule,
         NgxGraphModule,
         NgxChartsModule,
-        ReactiveFormsModule
+        ReactiveFormsModule,
+        TreeModule
     ],
     providers: [
         ActiveGridService,
