@@ -30,6 +30,17 @@
     }
 }
 
+.document-row-no-highlight-respond {
+    list-style-type: none;
+    border-bottom:grey solid 1px;
+    padding: 5px;
+
+    &:hover {
+        cursor: pointer;
+        text-decoration: none;
+    }
+}
+
 .legend-container {
     display: flex;
     flex-direction: row;

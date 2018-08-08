@@ -84,6 +84,7 @@ export class AnnotationViewerOptions extends BaseNeonOptions {
     singleColor: boolean;
 
     respondMode: boolean;
+    highlightInRespondMode: boolean; // True if text should be highlighted on hover while responseMode is true, false otherwise.
 
     onInit() {
         this.documentLimit = this.injector.get('documentLimit', 50);
@@ -91,6 +92,7 @@ export class AnnotationViewerOptions extends BaseNeonOptions {
         this.idField = this.injector.get('idField', '');
         this.linkField = this.injector.get('linkField', '');
         this.respondMode = this.injector.get('respondMode', false);
+        this.highlightInRespondMode = this.injector.get('highlightInRespondMode', false);
         this.singleColor = this.injector.get('singleColor', false);
     }
 
