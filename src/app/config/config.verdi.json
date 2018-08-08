@@ -4,7 +4,7 @@
             "title": "VERDI",
             "name": "VERDI LDC TA1",
             "icon": "assets/images/verdi-favicon.ico",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta1-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -43,7 +43,7 @@
         },
         {
             "name": "VERDI LDC TA2",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta2-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -300,10 +300,14 @@
                     "colorField": "",
                     "nodeField": "subject",
                     "linkField": "object",
+                    "nodeColor": ["#ADD8E6", "#D98C8C", "#FFE4B5"],
+                    "linkColor": "#D1C2F0",
+                    "edgeColor": "#CCFFE6",
                     "showOnlyFiltered": true,
                     "filterFields": ["subject", "object", "predicate", "provenance"],
                     "isReified": true,
-                    "isDirected": true
+                    "isDirected": true,
+                    "edgeColorField": "predicate"
                 },
                 "row": 13,
                 "col": 13
@@ -443,8 +447,12 @@
                     "colorField": "",
                     "nodeField": "subject",
                     "linkField": "object",
+                    "nodeColor": ["#ADD8E6", "#D98C8C", "#FFE4B5"],
+                    "linkColor": "#D1C2F0",
+                    "edgeColor": "#CCFFE6",
                     "isReified": true,
-                    "isDirected": true
+                    "isDirected": true,
+                    "edgeColorField": "predicate"
                 },
                 "row": 13,
                 "col": 0
@@ -554,16 +562,19 @@
                     "table": "reified",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
-                    "colorField": "",
                     "nodeField": "subject",
                     "linkField": "object",
+                    "nodeColor": ["#ADD8E6", "#D98C8C", "#FFE4B5"],
+                    "linkColor": "#D1C2F0",
+                    "edgeColor": "#CCFFE6",
                     "isReified": true,
                     "isDirected": true,
                     "showOnlyFiltered": true,
                     "filterFields": ["hypothesis", "provenance"],
                     "idField": "@id",
                     "id": "_id",
-                    "multiFilter": true
+                    "multiFilter": true,
+                    "edgeColorField": "predicate"
                 },
                 "row": 2,
                 "col": 7
