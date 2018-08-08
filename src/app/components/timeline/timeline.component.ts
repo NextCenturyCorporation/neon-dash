@@ -73,7 +73,7 @@ export class TimelineOptions extends BaseNeonOptions {
      * @override
      */
     updateFieldsOnTableChanged() {
-        this.dateField = this.findFieldObject('dateField', neonMappings.DATE);
+        this.dateField = this.findFieldObject('dateField');
     }
 }
 

@@ -266,6 +266,7 @@ describe('Component: MediaViewer', () => {
         component.options.linkField = new FieldMetaData('testLinkField');
         component.options.nameField = new FieldMetaData('testNameField');
         component.options.typeField = new FieldMetaData('testTypeField');
+        component.options.clearMedia = true;
 
         component.onQuerySuccess({
             data: [{
@@ -281,7 +282,6 @@ describe('Component: MediaViewer', () => {
 
     }));
 
-    //failed test
     it('onQuerySuccess does reset options.id and return correct error if filter is selected but rhs is empty,', (() => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = new FieldMetaData('testIdField');
@@ -291,6 +291,7 @@ describe('Component: MediaViewer', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.id = 'testId';
+        component.options.clearMedia = true;
 
         getService(FilterService).addFilter(null, 'testName2', DatasetServiceMock.DATABASES[1].name, DatasetServiceMock.TABLES[1].name,
             neon.query.where('testIdField', '==', ''), 'testFilterName');
@@ -321,6 +322,7 @@ describe('Component: MediaViewer', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.id = 'testId';
+        component.options.clearMedia = false;
 
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');

@@ -41,7 +41,6 @@ import { FieldMetaData, MediaTypes } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
-import { Key } from 'protractor';
 
 /**
  * Manages configurable options for the specific visualization.
