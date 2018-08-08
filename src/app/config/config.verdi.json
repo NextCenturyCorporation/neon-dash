@@ -4,7 +4,7 @@
             "title": "VERDI",
             "name": "VERDI LDC TA1",
             "icon": "assets/images/verdi-favicon.ico",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta1-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -43,7 +43,7 @@
         },
         {
             "name": "VERDI LDC TA2",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta2-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -274,7 +274,8 @@
                     "table": "normal",
                     "idField": "@id",
                     "linkField": "docLocation",
-                    "typeField": "docType"
+                    "typeField": "docType",
+                    "clearMedia": true
                 },
                 "row": 13,
                 "col": 0
