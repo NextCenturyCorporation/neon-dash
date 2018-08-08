@@ -177,7 +177,12 @@
                 <!-- TODO Do not use <table> elements!  Use flex styling! -->
                 <ul class="annotation-viewer-table">
                     <ng-template ngFor let-item [ngForOf]="activeData">
-                        <li class="document-row" (click)="onClick(item)">
+                        <li [ngClass]="{
+                                'document-row': !options.respondMode || options.highlightInRespondMode,
+                                'document-row-no-highlight-respond': options.respondMode && !options.highlightInRespondMode
+                            }"
+                            (click)="onClick(item)"
+                        >
                             <span *ngFor="let parts of item.parts" [style.background-color]="parts.highlightColor" [matTooltip]="parts.type" (click)="onClickPart(parts, item); stopEventPropagation($event)"
                                 tooltip-position="below">{{ parts.text }}</span>
                         </li>
