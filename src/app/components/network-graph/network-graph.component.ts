@@ -115,7 +115,9 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public fontColor: string;
     public edgeColorField: FieldMetaData;
     public linkField: FieldMetaData;
+    public linkNameField: FieldMetaData;
     public nodeField: FieldMetaData;
+    public nodeNameField: FieldMetaData;
     public edgeWidth: number;
     public limit: number;
     public andFilters: boolean;
@@ -148,7 +150,9 @@ export class NetworkGraphOptions extends BaseNeonOptions {
      */
     updateFieldsOnTableChanged() {
         this.nodeField = this.findFieldObject('nodeField');
+        this.nodeNameField = this.findFieldObject('nodeNameField');
         this.linkField = this.findFieldObject('linkField');
+        this.linkNameField = this.findFieldObject('linkNameField');
         this.edgeColorField = this.findFieldObject('edgeColorField');
     }
 }
@@ -290,7 +294,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     subGetBindings(bindings: any) {
         bindings.nodeField = this.options.nodeField.columnName;
+        bindings.nodeNameField = this.options.nodeNameField.columnName;
         bindings.linkField = this.options.linkField.columnName;
+        bindings.linkNameField = this.options.linkNameField.columnName;
         bindings.edgeColorField = this.options.edgeColorField.columnName;
         bindings.andFilters = this.options.andFilters;
     }
@@ -377,15 +383,19 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let tableName = this.options.table.name;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
         let nodeField = this.options.nodeField.columnName;
+        let nodeNameField = this.options.nodeNameField.columnName;
         let linkField = this.options.linkField.columnName;
+        let linkNameField = this.options.linkNameField.columnName;
         let edgeColorField = this.options.edgeColorField.columnName;
         let whereClauses: neon.query.WherePredicate[] = [];
         //whereClauses.push(neon.query.where(this.options.linkField.columnName, '!=', null));
         let groupBy: any[] = [this.options.nodeField.columnName];
 
         let fields = [nodeField, linkField];
-        if (edgeColorField) {
-            fields.push(edgeColorField);
+        for (const field of [edgeColorField, nodeNameField, linkNameField]) {
+            if (field) {
+                fields.push(field);
+            }
         }
 
         query = query.withFields(fields);
@@ -582,24 +592,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         graph.addEdge(new Edge(subject, object, predicate, {to: this.options.isDirected}));
     }
 
-    private addEdgesFromField(graph: GraphProperties, linkField: string | string[], source: string,
-                              colorValue?: string, edgeColorField?: string) {
-        let edgeColor = { color: colorValue, highlight: colorValue};
-        //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
-        // let edgeWidth = this.options.edgeWidth;
-        if (Array.isArray(linkField)) {
-            for (const linkEntry of linkField) {
-                graph.addEdge(new Edge(source, linkEntry, '', null, 1, edgeColor, edgeColorField));
-            }
-        } else if (linkField) {
-            graph.addEdge(new Edge(source, linkField, '', null, 1, edgeColor, edgeColorField));
-        }
-    }
-
     private createTabularGraphProperties() {
         let graph = new GraphProperties(),
             linkName = this.options.linkField.columnName,
+            linkNameColumn = this.options.linkNameField.columnName,
             nodeName = this.options.nodeField.columnName,
+            nodeNameColumn = this.options.nodeNameField.columnName,
             edgeColorField = this.options.edgeColorField.columnName,
             nodeColor = this.options.nodeColor,
             edgeColor = this.options.edgeColor,
@@ -607,9 +605,27 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             textColor = {color: this.options.fontColor},
             limit = this.options.limit;
 
+        // assume nodes will take precedence over edges so create nodes first
+        for (let entry of this.activeData) {
+            let nodeField = entry[nodeName],
+                nodeNameField = nodeNameColumn && entry[nodeNameColumn];
+
+            // create a new node for each unique nodeId
+            let nodes = Array.isArray(nodeField) ? nodeField : [nodeField],
+                nodeNames = !nodeNameField ? nodes : Array.isArray(nodeNameField) ? nodeNameField : [nodeNameField];
+            for (let j = 0; j < nodes.length && graph.nodes.length < limit; j++) {
+                let nodeEntry = nodes[j];
+                if (this.isUniqueNode(nodeEntry)) {
+                    graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor, false, textColor));
+                }
+            }
+        }
+
+        // create edges and destination nodes only if required
         for (let entry of this.activeData) {
             let linkField = entry[linkName],
                 edgeType = entry[edgeColorField],
+                linkNameField = entry[linkNameColumn],
                 nodeField = entry[nodeName];
 
             // if there is a valid edgeColorField, override the edgeColor
@@ -618,35 +634,25 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 edgeColor = this.colorSchemeService.getColorFor(edgeColorField, colorMapVal).toRgb();
             }
 
-            //if the linkfield is an array, it'll iterate and create a node for each unique linkfield
-            if (Array.isArray(linkField)) {
-                for (const linkEntry of linkField) {
-                    if (this.isUniqueNode(linkEntry) && graph.nodes.length < limit) {
-                        graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor));
-                    }
-                }
-            } else if (linkField) {
-                if (this.isUniqueNode(linkField) && graph.nodes.length < limit) {
-                    graph.addNode(new Node(linkField, linkField, linkName, 1, linkColor, true, textColor));
+            // create a node if linkfield doesn't point to a node that already exists
+            let links = Array.isArray(linkField) ? linkField : [linkField];
+            for (const linkEntry of links) {
+                if (this.isUniqueNode(linkEntry) && graph.nodes.length < limit) {
+                    graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor));
                 }
             }
 
-            //if node field is an array create a new node for each unique nodeId
-            if (Array.isArray(nodeField)) {
-                for (const nodeEntry of nodeField) {
-                    if (graph.nodes.length < limit) {
-                        if (this.isUniqueNode(nodeEntry)) {
-                            graph.addNode(new Node(nodeEntry, nodeEntry, nodeName, 1, nodeColor, false, textColor));
-                        }
-                        this.addEdgesFromField(graph, linkField, nodeEntry, edgeColor, edgeType);
-                    }
-                }
-            } else if (nodeField) {
-                if (graph.nodes.length < limit) {
-                    if (this.isUniqueNode(nodeField)) {
-                        graph.addNode(new Node(nodeField, nodeField, nodeName, 1, nodeColor, false, textColor));
-                    }
-                    this.addEdgesFromField(graph, linkField, nodeField, edgeColor);
+            // create edges between nodes and destinations specified by linkfield
+            let linkNames = !linkNameField ? [].fill('', 0, links.length) : Array.isArray(linkNameField) ? linkNameField : [linkNameField],
+                nodes = Array.isArray(nodeField) ? nodeField : [nodeField];
+            for (const nodeEntry of nodes) {
+                let edgeColorObject = { color: edgeColor, highlight: edgeColor};
+                //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
+                // let edgeWidth = this.options.edgeWidth;
+
+                for (let i = 0; i < links.length; i++) {
+                    graph.addEdge(new Edge(nodeEntry, links[i], linkNames[i], {to: this.options.isDirected}, 1,
+                        edgeColorObject, edgeType));
                 }
             }
         }
