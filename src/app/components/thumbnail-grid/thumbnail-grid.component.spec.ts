@@ -86,7 +86,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.cropAndScale).toEqual('');
         expect(component.options.defaultLabel).toEqual('');
         expect(component.options.defaultPercent).toEqual('');
-        expect(component.options.id).toEqual('');
         expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.linkPrefix).toEqual('');
         expect(component.options.openOnMouseClick).toEqual(true);
@@ -2193,7 +2192,6 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(component.options.cropAndScale).toEqual('both');
         expect(component.options.defaultLabel).toEqual('testDefaultLabel');
         expect(component.options.defaultPercent).toEqual('testDefaultPercent');
-        expect(component.options.id).toEqual('testId');
         expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.linkPrefix).toEqual('prefix/');
         expect(component.options.openOnMouseClick).toEqual(false);
