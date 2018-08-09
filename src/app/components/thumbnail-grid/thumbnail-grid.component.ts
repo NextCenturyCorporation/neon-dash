@@ -54,7 +54,6 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public defaultLabel: string;
     public defaultPercent: string;
     public filterField: FieldMetaData;
-    public id: string;
     public idField: FieldMetaData;
     public ignoreSelf: boolean;
     public linkField: FieldMetaData;
@@ -84,7 +83,6 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.cropAndScale = this.injector.get('cropAndScale', '') || '';
         this.defaultLabel = this.injector.get('defaultLabel', '');
         this.defaultPercent = this.injector.get('defaultPercent', '');
-        this.id = this.injector.get('id', '');
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
