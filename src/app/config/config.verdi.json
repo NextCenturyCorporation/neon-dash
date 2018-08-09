@@ -14,6 +14,10 @@
                     "prettyName": "VERDI",
                     "tables": [
                         {
+                            "name": "kb",
+                            "prettyName": "Knowledge Base"
+                        },
+                        {
                             "name": "normal",
                             "prettyName": "Normal"
                         },
@@ -69,10 +73,11 @@
                 {
                     "name": "verdi-support",
                     "prettyName": "VERDI",
-                    "tables": [{
-                        "name": "hypothesis_info",
-                        "prettyName": "Hypothesis Info"
-                    },
+                    "tables": [
+                        {
+                            "name": "hypothesis_info",
+                            "prettyName": "Hypothesis Info"
+                        },
                         {
                             "name": "parent_children",
                             "prettyName": "Parent Children"
@@ -81,10 +86,15 @@
                 {
                     "name": "verdi-rdf",
                     "prettyName": "VERDI",
-                    "tables": [{
-                        "name": "normal",
-                        "prettyName": "Normal"
-                    },
+                    "tables": [
+                        {
+                            "name": "kb",
+                            "prettyName": "Knowledge Base"
+                        },
+                        {
+                            "name": "normal",
+                            "prettyName": "Normal"
+                        },
                         {
                             "name": "reified",
                             "prettyName": "Reified"
@@ -101,8 +111,8 @@
                         },
                         {
                             "database": "verdi-rdf",
-                            "table": "reified",
-                            "field": "hypothesis"
+                            "table": "kb",
+                            "field": "hypotheses"
                         }
                     ]
                 },
@@ -115,8 +125,8 @@
                         },
                         {
                             "database": "verdi-rdf",
-                            "table": "reified",
-                            "field": "provenance"
+                            "table": "kb",
+                            "field": "docIds"
                         }
                     ]
                 }
@@ -274,7 +284,8 @@
                     "table": "normal",
                     "idField": "@id",
                     "linkField": "docLocation",
-                    "typeField": "docType"
+                    "typeField": "docType",
+                    "clearMedia": true
                 },
                 "row": 13,
                 "col": 0
@@ -505,9 +516,9 @@
                             "filterField" : "query"
                         },
                         {"database": "verdi-rdf",
-                            "table": "reified",
-                            "idField": "provenance",
-                            "filterField" : "hypothesis"
+                            "table": "kb",
+                            "idField": "docIds",
+                            "filterField" : "hypotheses"
                         }
                     ]
                 },
@@ -559,22 +570,25 @@
                 "bindings": {
                     "title": "Network Graph",
                     "database": "verdi-rdf",
-                    "table": "reified",
+                    "table": "kb",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
-                    "nodeField": "subject",
-                    "linkField": "object",
+                    "colorField": "",
+                    "nodeField": "kbid",
+                    "nodeNameField": "name",
+                    "linkField": "edgeTarget",
+                    "linkNameField": "edgeLabel",
                     "nodeColor": ["#ADD8E6", "#D98C8C", "#FFE4B5"],
                     "linkColor": "#D1C2F0",
                     "edgeColor": "#CCFFE6",
-                    "isReified": true,
+                    "isReified": false,
                     "isDirected": true,
                     "showOnlyFiltered": true,
-                    "filterFields": ["hypothesis", "provenance"],
+                    "filterFields": ["hypotheses", "docIds"],
                     "idField": "@id",
                     "id": "_id",
                     "multiFilter": true,
-                    "edgeColorField": "predicate"
+                    "edgeColorField": "docIds"
                 },
                 "row": 2,
                 "col": 7
