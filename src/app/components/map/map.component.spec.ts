@@ -463,7 +463,7 @@ describe('Component: Map', () => {
 
         addFilter(box, dbName, tableName, latName, lngName);
 
-        let whereClauses = component.createNeonFilter(box, latName, lngName),
+        let whereClauses = component.createNeonBoxFilter(box, latName, lngName),
             filterClauses = [
                 neon.query.where(latName, '>=', box.south),
                 neon.query.where(latName, '<=', box.north),
@@ -748,7 +748,7 @@ describe('Component: Map', () => {
         }]);
     });
 
-    it('createNeonFilter does return expected object', () => {
+    it('createNeonBoxFilter does return expected object', () => {
         let box1 = new BoundingBoxByDegrees(1, 2, 3, 4);
 
         let query1 = neon.query.and.apply(neon.query, [
@@ -758,7 +758,7 @@ describe('Component: Map', () => {
             neon.query.where('testLongitude1', '<=', 4)
         ]);
 
-        expect(component.createNeonFilter(box1, 'testLatitude1', 'testLongitude1')).toEqual(query1);
+        expect(component.createNeonBoxFilter(box1, 'testLatitude1', 'testLongitude1')).toEqual(query1);
 
         let box2 = new BoundingBoxByDegrees(5, 6, 7, 8);
 
@@ -769,7 +769,7 @@ describe('Component: Map', () => {
             neon.query.where('testLongitude1', '<=', 8)
         ]);
 
-        expect(component.createNeonFilter(box2, 'testLatitude1', 'testLongitude1')).toEqual(query2);
+        expect(component.createNeonBoxFilter(box2, 'testLatitude1', 'testLongitude1')).toEqual(query2);
     });
 
     it('getFilterText does return expected string', () => {
