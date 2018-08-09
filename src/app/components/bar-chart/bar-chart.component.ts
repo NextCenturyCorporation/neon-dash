@@ -40,6 +40,7 @@ import { Chart } from 'chart.js';
 import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
 import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
+import { IfStmt } from '@angular/compiler';
 
 /**
  * Data used to draw the bar chart
@@ -176,7 +177,8 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         id: string,
         field: string,
         value: string,
-        prettyField: string
+        prettyField: string,
+        operator: any
     }[] = [];
 
     public options: BarChartOptions;
@@ -495,12 +497,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 id: undefined,
                 field: this.options.dataField.columnName,
                 value: elements[0]._model.label,
-                prettyField: this.options.dataField.prettyName
+                prettyField: this.options.dataField.prettyName,
+                operator: '='
             };
             if (_event.ctrlKey || _event.metaKey) { // If Ctrl (or Command on Mac) is pressed...
                 if (this.filterIsUnique(filter)) {
                     this.addLocalFilter(filter);
-                    let whereClause = neon.query.where(filter.field, '=', filter.value);
+                    let whereClause = neon.query.where(filter.field, filter.operator, filter.value);
                     this.addNeonFilter(true, filter, whereClause);
                 } else {
                     for (let existingFilter of this.filters) {
@@ -595,20 +598,39 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     refreshVisualization() {
         let selectedLabels: string[] = [];
-        if (this.filters.length >= 1) {
-            let activeFilterValues = this.filters.map((el) => el.value);
-            let activeLabelIndexes = this.chartInfo.data.labels.map((label, index) => {
-                return (activeFilterValues.indexOf(label) >= 0 ? index : -1);
-            }).filter((index) => {
+        if (this.filters.length > 0) {
+            let activeLabelIndexes = [];
+            for (let thisFilter of this.filters) {
+                let activeFilterValue = thisFilter.value;
+                activeLabelIndexes = activeLabelIndexes.concat(this.chartInfo.data.labels.map((label, index) => {
+                    switch (thisFilter.operator) {
+                        case '<':
+                            return label < activeFilterValue ? index : -1;
+                        case '>':
+                            return label > activeFilterValue ? index : -1;
+                        case '>=':
+                            return label >= activeFilterValue ? index : -1;
+                        case '<=':
+                            return label <= activeFilterValue ? index : -1;
+                        case 'not contains':
+                            return !label.includes(activeFilterValue) ? index : -1;
+                        case 'contains':
+                            return label.includes(activeFilterValue) ? index : -1;
+                        case '!=':
+                            return label !== activeFilterValue ? index : -1;
+                        case '=':
+                            return label === activeFilterValue ? index : -1;
+                    }
+                }));
+            }
+            activeLabelIndexes.filter((index) => {
                 return index >= 0;
             });
-
+            //change bars to the correct color
             for (let dataset of this.chartInfo.data.datasets) {
                 dataset.setAllInactive();
                 for (let index = activeLabelIndexes.length - 1; index >= 0; index--) {
                     dataset.setActiveColor(activeLabelIndexes[index]);
-                }
-                for (let index = activeLabelIndexes.length - 1; index >= 0; index--) {
                     if (dataset.data[activeLabelIndexes[index]] > 0) {
                         selectedLabels.push(dataset.label);
                         continue;
@@ -621,7 +643,6 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 dataset.setAllActive();
             }
         }
-
         this.selectedLabels = selectedLabels;
         this.subOnResizeStop();
     }
@@ -991,11 +1012,13 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             if (!neonFilter.filter.whereClause.whereClauses) {
                 let field = this.options.findField(neonFilter.filter.whereClause.lhs);
                 let value = neonFilter.filter.whereClause.rhs;
+                let operator = neonFilter.filter.whereClause.operator;
                 let filter = {
                     id: neonFilter.id,
                     field: field.columnName,
                     value: value,
-                    prettyField: field.prettyName
+                    prettyField: field.prettyName,
+                    operator: operator
                 };
                 if (this.filterIsUnique(filter)) {
                     this.addLocalFilter(filter);
