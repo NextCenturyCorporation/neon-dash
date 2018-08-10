@@ -308,17 +308,12 @@
                     "table": "reified",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
-                    "colorField": "",
                     "nodeField": "subject",
                     "linkField": "object",
-                    "nodeColor": ["#ADD8E6", "#D98C8C", "#FFE4B5"],
-                    "linkColor": "#D1C2F0",
-                    "edgeColor": "#CCFFE6",
                     "showOnlyFiltered": true,
                     "filterFields": ["subject", "object", "predicate", "provenance"],
                     "isReified": true,
-                    "isDirected": true,
-                    "edgeColorField": "predicate"
+                    "isDirected": true
                 },
                 "row": 13,
                 "col": 13
@@ -455,15 +450,10 @@
                     "table": "reified",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
-                    "colorField": "",
                     "nodeField": "subject",
                     "linkField": "object",
-                    "nodeColor": ["#ADD8E6", "#D98C8C", "#FFE4B5"],
-                    "linkColor": "#D1C2F0",
-                    "edgeColor": "#CCFFE6",
                     "isReified": true,
-                    "isDirected": true,
-                    "edgeColorField": "predicate"
+                    "isDirected": true
                 },
                 "row": 13,
                 "col": 0
@@ -573,14 +563,15 @@
                     "table": "kb",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
-                    "colorField": "",
                     "nodeField": "kbid",
                     "nodeNameField": "name",
                     "linkField": "edgeTarget",
                     "linkNameField": "edgeLabel",
-                    "nodeColor": ["#ADD8E6", "#D98C8C", "#FFE4B5"],
+                    "nodeColor": ["#ADD8E6", "#DF9F9F", "#FFDA99", "#FFFFEF"],
                     "linkColor": "#D1C2F0",
-                    "edgeColor": "#CCFFE6",
+                    "edgeColor": "#63B4CF",
+                    "categoryField" : "categories",
+                    "typeField" : "types",
                     "isReified": false,
                     "isDirected": true,
                     "showOnlyFiltered": true,
@@ -588,7 +579,7 @@
                     "idField": "@id",
                     "id": "_id",
                     "multiFilter": true,
-                    "edgeColorField": "docIds"
+                    "edgeColorField": ""
                 },
                 "row": 2,
                 "col": 7
