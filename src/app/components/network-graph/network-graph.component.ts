@@ -490,13 +490,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.activeData.forEach((d) => {
             for (let field of this.options.fields) {
                 if (field.columnName === this.options.categoryField.columnName) {
-                    this.nodeTypes.push(neonUtilities.deepFind(d, this.options.categoryField.columnName));
+                    this.nodeCategories.push(neonUtilities.deepFind(d, this.options.categoryField.columnName));
                 }
                 if (field.columnName === this.options.typeField.columnName) {
                     let types = neonUtilities.deepFind(d, this.options.typeField.columnName);
                     for (let value of types) {
                         let type = value.includes('.') ? value.split('.')[0] : value;
-                        this.nodeCategories.push(type);
+                        this.nodeTypes.push(type);
                     }
                 }
             }
@@ -658,8 +658,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 let nodeEntry = nodes[j];
                 if (this.isUniqueNode(nodeEntry)) {
                     if (nodeColor.length > 1) {
-                        let index = categoryField.includes('EVENT') ? this.nodeTypes.indexOf('EVENT') : categoryField.includes('RELATION') ?
-                            this.nodeTypes.indexOf('RELATION') : this.nodeTypes.indexOf(categoryField[0]);
+                        let index = categoryField.includes('EVENT') ? this.nodeCategories.indexOf('EVENT') :
+                            categoryField.includes('RELATION') ? this.nodeCategories.indexOf('RELATION') :
+                                this.nodeCategories.indexOf(categoryField[0]);
                         graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[index], false, textColor, nodeShape));
 
                     } else {
@@ -690,8 +691,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor, nodeShape));
 
                     if (nodeColor.length > 1) {
-                        let index = categoryField.includes('EVENT') ? this.nodeTypes.indexOf('EVENT') : categoryField.includes('RELATION') ?
-                            this.nodeTypes.indexOf('RELATION') : this.nodeTypes.indexOf(categoryField[0]);
+                        let index = categoryField.includes('EVENT') ? this.nodeCategories.indexOf('EVENT') :
+                            categoryField.includes('RELATION') ? this.nodeCategories.indexOf('RELATION') :
+                                this.nodeCategories.indexOf(categoryField[0]);
                         graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, nodeColor[index], true, textColor, nodeShape));
 
                     } else {
