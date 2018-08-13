@@ -53,7 +53,7 @@ export class DashboardOptionsComponent implements OnInit {
 
     constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
         private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
-        private matSnackBar: MatSnackBar, private parameterService: ParameterService,
+        private snackBar: MatSnackBar, private parameterService: ParameterService,
         public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MatDialog,
         private visualizationService: VisualizationService) { }
 
@@ -108,6 +108,7 @@ export class DashboardOptionsComponent implements OnInit {
 
             connection.saveState(stateParams, (response) => {
                 this.handleSaveStateSuccess(response);
+                this.openNotification(name, 'saved');
             }, (response) => {
                 this.handleStateFailure(response);
             });
@@ -136,6 +137,7 @@ export class DashboardOptionsComponent implements OnInit {
             connection.loadState(stateParams, (dashboardState) => {
                 if (_.keys(dashboardState).length) {
                     this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
+                    this.openNotification(name, 'loaded');
                 } else {
                     this.errorNotificationService.showErrorMessage(null, 'State ' + name + ' not found.');
                 }
@@ -157,6 +159,7 @@ export class DashboardOptionsComponent implements OnInit {
         if (connection) {
             connection.deleteState(this.formData.stateToDelete, (stateIds) => {
                 this.loadStateNames();
+                this.openNotification(name, 'deleted');
             }, (response) => {
                 this.handleStateFailure(response);
             });
@@ -219,5 +222,13 @@ export class DashboardOptionsComponent implements OnInit {
 
     setStateToDelete(name: string) {
         this.formData.stateToDelete = name;
+    }
+
+    public openNotification(stateName: String, actionName: String) {
+        let message = 'State "' + stateName + '" has been ' + actionName;
+        this.snackBar.open(message, '', {
+            duration: 60000,
+            verticalPosition: 'top'
+        });
     }
 }
