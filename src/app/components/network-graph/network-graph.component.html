@@ -60,21 +60,41 @@
                 </mat-button-toggle-group>
                 <p></p>
 
-                <mat-form-field *ngIf="!options.isReified">
-                    <mat-select placeholder="Node Field" [(ngModel)]="options.nodeField" required="true" (ngModelChange)="handleChangeData()"
-                        [disabled]="options.fields.length == 0">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
+                <div *ngIf="!options.isReified">
+                    <mat-form-field>
+                        <mat-select placeholder="Node Field" [(ngModel)]="options.nodeField" required="true" (ngModelChange)="handleChangeData()"
+                                    [disabled]="options.fields.length == 0">
+                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <p></p>
 
-                <mat-form-field *ngIf="!options.isReified">
-                    <mat-select placeholder="Link Field" [(ngModel)]="options.linkField" required="true" (ngModelChange)="handleChangeData()"
-                        [disabled]="options.fields.length == 0">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
+                    <mat-form-field>
+                        <mat-select placeholder="Node Name Field" [(ngModel)]="options.nodeNameField" required="false" (ngModelChange)="handleChangeData()"
+                                    [disabled]="options.fields.length == 0">
+                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <p></p>
+
+                    <mat-form-field>
+                        <mat-select placeholder="Link Field" [(ngModel)]="options.linkField" required="true" (ngModelChange)="handleChangeData()"
+                                    [disabled]="options.fields.length == 0">
+                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <p></p>
+
+                    <mat-form-field>
+                        <mat-select placeholder="Link Name Field" [(ngModel)]="options.linkNameField" required="false" (ngModelChange)="handleChangeData()"
+                                    [disabled]="options.fields.length == 0">
+                            <mat-option [value]="emptyField">(None)</mat-option>
+                            <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                    <p></p>
+                </div>
 
                 <span class="toggle-text">Show Directed:</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.isDirected" (ngModelChange)="handleChangeDirected()">
