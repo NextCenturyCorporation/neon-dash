@@ -37,9 +37,10 @@ import { VisualizationService } from '../../services/visualization.service';
 
 import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
 import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
-import { neonVariables } from '../../neon-namespaces';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { TreeModule } from 'angular-tree-component';
+
 
 /**
  * Manages configurable options for the specific visualization.
@@ -58,6 +59,7 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
     public linkField: FieldMetaData;
     public showOnlyFiltered: boolean;
     public typeField: FieldMetaData;
+    public subTypeField: FieldMetaData;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -84,6 +86,7 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
         this.idField = this.findFieldObject('idField');
         this.linkField = this.findFieldObject('linkField');
         this.typeField = this.findFieldObject('typeField');
+        this.subTypeField = this.findFieldObject('subTypeField');
 
     }
 }
@@ -118,6 +121,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     public activeData: any[] = [];
     public docCount: number = 0;
     public responseData: any[] = [];
+    public nodeCategories: string[] = [];
+    public nodeTypes: string[] = [];
+    public nodeSubTypes: string[] = [];
 
     constructor(
         activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
@@ -164,12 +170,25 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             fields.push(this.options.typeField.columnName);
         }
 
+        if (this.options.subTypeField.columnName) {
+            fields.push(this.options.subTypeField.columnName);
+        }
+
         let whereClauses = [
             neon.query.where(this.options.linkField.columnName, '!=', null),
             neon.query.where(this.options.linkField.columnName, '!=', '')
         ];
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
+    }
+   
+
+    createTaxonomy (chategories: string[], types: string[], subTypes: string[]){
+    //Todo: firgure our a way to take nodeType, nodeSubTypes, and nodeCategories
+    //and turn them into a tree strucutere
+
+    //What way can we assign specific types to categories and subtypes to types?
+
     }
 
     // TODO Change arguments as needed.
@@ -326,6 +345,15 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     }
 
     /**
+     * TODO create description
+     * @param array 
+     * @param value 
+     */
+    flattenArray(array, value) {
+        return array.concat(value);
+     }
+
+    /**
      * Handles the query results for the visualization; updates and/or redraws any properties as needed.
      *
      * @arg {object} response
@@ -339,9 +367,37 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             return;
         }
 
-        // TODO If you need to show an error message, set this.options.errorMessage as needed.
-
-        // TODO Change this behavior as needed to handle your query results.
+        this.nodeCategories = [];
+        this.nodeTypes = [];
+        this.nodeSubTypes = [];
+        this.activeData = response.data;
+        this.activeData.forEach((d) => {
+            for (let field of this.options.fields) {
+                if (field.columnName === this.options.categoryField.columnName) {
+                    this.nodeCategories.push(neonUtilities.deepFind(d, this.options.categoryField.columnName));
+                }
+                if (field.columnName === this.options.typeField.columnName) {
+                    let types = neonUtilities.deepFind(d, this.options.typeField.columnName);
+                    for (let value of types) {
+                        let type = value.includes('.') ? value.split('.')[0] : value;
+                        this.nodeTypes.push(type);
+                    }
+                }
+                if (field.columnName === this.options.subTypeField.columnName){
+                    let types = neonUtilities.deepFind(d, this.options.subTypeField.columnName);
+                    for (let value of types) {
+                        let type = value.includes('.') ? value.slice(value.indexOf('.')) : null;
+                        this.nodeTypes.push(type);
+                    }
+                }
+            }
+        });
+         this.nodeCategories = this.nodeCategories.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index).sort();
+        this.nodeTypes = this.nodeTypes.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index).sort();
+        this.nodeSubTypes = this.nodeSubTypes.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index).sort();
 
         // The aggregation query response data will have a count field and all visualization fields.
         this.responseData = response.data.map((item) => {
