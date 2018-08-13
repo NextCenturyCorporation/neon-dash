@@ -39,15 +39,12 @@ import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-
 import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
-import { TreeModule } from 'angular-tree-component';
 
 /**
  * Manages configurable options for the specific visualization.
  */
 export class TaxonomyViewerOptions extends BaseNeonOptions {
     // TODO Add and remove properties as needed.  Do NOT assign defaults to fields or else they will override updateFieldsOnTableChanged.
-    public sampleOptionalField: FieldMetaData;
-    public sampleRequiredField: FieldMetaData;
 
     public ascending: boolean;
     public id: string;
@@ -56,9 +53,9 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
     public displayField: FieldMetaData;
     public idField: FieldMetaData;
     public linkField: FieldMetaData;
-    public showOnlyFiltered: boolean;
     public typeField: FieldMetaData;
     public subTypeField: FieldMetaData;
+    public showOnlyFiltered: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -77,9 +74,6 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
      * @override
      */
     updateFieldsOnTableChanged() {
-        this.sampleOptionalField = this.findFieldObject('sampleOptionalField');
-        this.sampleRequiredField = this.findFieldObject('sampleRequiredField');
-
         this.categoryField = this.findFieldObject('categoryField');
         this.displayField = this.findFieldObject('displayField');
         this.idField = this.findFieldObject('idField');
@@ -124,6 +118,33 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     public nodeTypes: string[] = [];
     public nodeSubTypes: string[] = [];
 
+    //todo: remove once real data gets mapped
+    public testNodes = [
+        {
+            id: 1,
+            name: 'root1',
+            children: [
+                { id: 2, name: 'child1' },
+                { id: 3, name: 'child2' }
+            ]
+        },
+        {
+            id: 4,
+            name: 'root2',
+            children: [
+                { id: 5, name: 'child2.1' },
+                {
+                    id: 6,
+                    name: 'child2.2',
+                    children: [
+                        { id: 7, name: 'subsub' }
+                    ]
+                }
+            ]
+        }
+    ];
+    public testOptions = {};
+
     constructor(
         activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
@@ -147,7 +168,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     createQuery(): neon.query.Query {
         let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
 
-        let fields = [this.options.linkField.columnName];
+        let fields = [this.options.idField.columnName];
 
         if (this.options.categoryField.columnName) {
             fields.push(this.options.categoryField.columnName);
@@ -155,10 +176,6 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         if (this.options.displayField.columnName) {
             fields.push(this.options.displayField.columnName);
-        }
-
-        if (this.options.idField.columnName) {
-            fields.push(this.options.idField.columnName);
         }
 
         if (this.options.linkField.columnName) {
@@ -174,14 +191,14 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }
 
         let whereClauses = [
-            neon.query.where(this.options.linkField.columnName, '!=', null),
-            neon.query.where(this.options.linkField.columnName, '!=', '')
+            neon.query.where(this.options.idField.columnName, '!=', null),
+            neon.query.where(this.options.idField.columnName, '!=', '')
         ];
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
     }
 
-    createTaxonomy(chategories: string[], types: string[], subTypes: string[]) {
+    createTaxonomy(categories: string[], types: string[], subTypes: string[]) {
     //Todo: firgure our a way to take nodeType, nodeSubTypes, and nodeCategories
     //and turn them into a tree strucutere
 
@@ -262,11 +279,23 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     getExportFields(): any[] {
         // TODO Add or remove fields and properties as needed.
         return [{
-            columnName: this.options.sampleOptionalField.columnName,
-            prettyName: this.options.sampleOptionalField.prettyName
+            columnName: this.options.categoryField.columnName,
+            prettyName: this.options.categoryField.prettyName
         }, {
-            columnName: this.options.sampleRequiredField.columnName,
-            prettyName: this.options.sampleRequiredField.prettyName
+            columnName: this.options.typeField.columnName,
+            prettyName: this.options.typeField.prettyName
+        }, {
+            columnName: this.options.idField.columnName,
+            prettyName: this.options.idField.prettyName
+        }, {
+            columnName: this.options.displayField.columnName,
+            prettyName: this.options.displayField.prettyName
+        }, {
+            columnName: this.options.linkField.columnName,
+            prettyName: this.options.linkField.prettyName
+        }, {
+            columnName: this.options.subTypeField.columnName,
+            prettyName: this.options.subTypeField.prettyName
         }];
     }
 
@@ -282,7 +311,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         // TODO Change the list of filter fields here as needed.
         // Get all the neon filters relevant to this visualization.
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.sampleRequiredField.columnName]);
+            [this.options.idField.columnName]);
 
         let filterIdsToIgnore = [];
         for (let neonFilter of neonFilters) {
@@ -324,7 +353,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     isValidQuery(): boolean {
         // TODO Add or remove fields and properties as needed.
-        return !!(this.options.database.name && this.options.table.name && this.options.sampleRequiredField.columnName);
+        return !!(this.options.database && this.options.database.name && this.options.table && this.options.table.name &&
+            this.options.idField && this.options.idField.columnName && this.options.categoryField &&
+            this.options.categoryField.columnName && this.options.typeField && this.options.typeField.columnName);
     }
 
     // TODO Change arguments as needed.
@@ -358,58 +389,53 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     onQuerySuccess(response: any) {
-        // TODO Remove this part if you don't need a document count query.
-        // Check for undefined because the count may be zero.
-        if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data[0]._docCount;
-            return;
-        }
-
         this.nodeCategories = [];
         this.nodeTypes = [];
         this.nodeSubTypes = [];
-        this.activeData = response.data;
-        this.activeData.forEach((d) => {
-            for (let field of this.options.fields) {
-                if (field.columnName === this.options.categoryField.columnName) {
-                    this.nodeCategories.push(neonUtilities.deepFind(d, this.options.categoryField.columnName));
-                }
-                if (field.columnName === this.options.typeField.columnName) {
-                    let types = neonUtilities.deepFind(d, this.options.typeField.columnName);
-                    for (let value of types) {
-                        let type = value.includes('.') ? value.split('.')[0] : value;
-                        this.nodeTypes.push(type);
+
+        try {
+            if (response && response.data && response.data.length && response.data[0]) {
+                this.isLoading = true;
+                response.data.forEach((d) => {
+                    for (let field of this.options.fields) {
+                        if (field.columnName === this.options.categoryField.columnName) {
+                            this.nodeCategories.push(neonUtilities.deepFind(d, this.options.categoryField.columnName));
+                        }
+                        if (field.columnName === this.options.typeField.columnName) {
+                            let types = neonUtilities.deepFind(d, this.options.typeField.columnName);
+                            for (let value of types) {
+                                let type = value.includes('.') ? value.split('.')[0] : value;
+                                this.nodeTypes.push(type);
+                            }
+                        }
+                        if (field.columnName === this.options.subTypeField.columnName) {
+                            let types = neonUtilities.deepFind(d, this.options.subTypeField.columnName);
+                            for (let value of types) {
+                                let type = value.includes('.') ? value.slice(value.indexOf('.')) : null;
+                                this.nodeTypes.push(type);
+                            }
+                        }
                     }
-                }
-                if (field.columnName === this.options.subTypeField.columnName) {
-                    let types = neonUtilities.deepFind(d, this.options.subTypeField.columnName);
-                    for (let value of types) {
-                        let type = value.includes('.') ? value.slice(value.indexOf('.')) : null;
-                        this.nodeTypes.push(type);
-                    }
-                }
+                });
+
+                this.nodeCategories = this.nodeCategories.reduce(this.flattenArray, [])
+                    .filter((value, index, array) => array.indexOf(value) === index).sort();
+                this.nodeTypes = this.nodeTypes.reduce(this.flattenArray, [])
+                    .filter((value, index, array) => array.indexOf(value) === index).sort();
+                this.nodeSubTypes = this.nodeSubTypes.reduce(this.flattenArray, [])
+                    .filter((value, index, array) => array.indexOf(value) === index).sort();
+
+                this.refreshVisualization();
+
+            } else {
+                this.errorMessage = 'No Data';
+                this.refreshVisualization();
             }
-        });
-         this.nodeCategories = this.nodeCategories.reduce(this.flattenArray, [])
-            .filter((value, index, array) => array.indexOf(value) === index).sort();
-        this.nodeTypes = this.nodeTypes.reduce(this.flattenArray, [])
-            .filter((value, index, array) => array.indexOf(value) === index).sort();
-        this.nodeSubTypes = this.nodeSubTypes.reduce(this.flattenArray, [])
-            .filter((value, index, array) => array.indexOf(value) === index).sort();
-
-        // The aggregation query response data will have a count field and all visualization fields.
-        this.responseData = response.data.map((item) => {
-            let label = item[this.options.sampleRequiredField.columnName] + (this.options.sampleOptionalField.columnName ? ' - ' +
-                item[this.options.sampleOptionalField.columnName] : '');
-
-            return {
-                count: item.count,
-                field: this.options.sampleRequiredField.columnName,
-                label: label,
-                prettyField: this.options.sampleRequiredField.prettyName,
-                value: item[this.options.sampleRequiredField.columnName]
-            };
-        });
+        } catch (e) {
+            console.error(this.options.title + ' Error: ' + e);
+            this.errorMessage = 'Error';
+            this.refreshVisualization();
+        }
 
     }
 
@@ -473,8 +499,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      */
     subGetBindings(bindings: any) {
         // TODO Add or remove fields and properties as needed.
-        bindings.sampleOptionalField = this.options.sampleOptionalField.columnName;
-        bindings.sampleRequiredField = this.options.sampleRequiredField.columnName;
+        bindings.idField = this.options.idField.columnName;
+        bindings.categoryField = this.options.categoryField.columnName;
+        bindings.typeField = this.options.typeField.columnName;
 
     }
 
