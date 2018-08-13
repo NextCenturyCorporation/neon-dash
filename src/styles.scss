@@ -405,12 +405,18 @@ body {
     }
 }
 
-.simpleSnackBar .mat-simple-snackbar{
-    padding-left: 60px;
+.simpleSnackBar {
+    background-color: rgba(0, 0, 0, 0.54) !important;
+    
 
-    & button{
+    .mat-simple-snackbar-action {
         position: absolute; 
         top: 0;
         right: 0;
+        font-weight: 800;
+    }
+
+    .mat-simple-snackbar{
+        justify-content: center;
     }
 }
