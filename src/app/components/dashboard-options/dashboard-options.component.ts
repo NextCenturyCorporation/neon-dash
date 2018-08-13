@@ -226,9 +226,10 @@ export class DashboardOptionsComponent implements OnInit {
 
     public openNotification(stateName: String, actionName: String) {
         let message = 'State "' + stateName + '" has been ' + actionName;
-        this.snackBar.open(message, '', {
-            duration: 60000,
-            verticalPosition: 'top'
-        });
+        this.snackBar.open(message, 'x', {
+            duration: 5000,
+            verticalPosition: 'top',
+            panelClass: ['simpleSnackBar']
+         });
     }
 }
