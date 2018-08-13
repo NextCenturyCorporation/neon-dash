@@ -65,7 +65,7 @@
             "title": "VERDI",
             "name": "VERDI LDC TA3",
             "icon": "assets/images/verdi-favicon.ico",
-            "connectOnLoad": true,
+            "connectOnLoad": false,
             "layout": "verdi-ta3-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
@@ -131,6 +131,22 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "Taxonomy",
+            "connectOnLoad": true,
+            "layout": "verdi-taxonomy",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [{
+                "name": "verdi-rdf",
+                "prettyName": "VERDI",
+                "tables": [
+                    {
+                        "name": "kb",
+                        "prettyName": "Knowledge Base"
+                    }]
+            }]
         }
     ],
     "layouts": {
@@ -616,6 +632,35 @@
                 },
                 "row": 2,
                 "col": 19
+            }
+        ],
+        "verdi-taxonomy": [
+            {
+                "name": "Taxonomy Viewer",
+                "type": "taxonomyViewer",
+                "sizex": 6,
+                "sizey": 14,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4,
+                "$$hashKey": "object:35",
+                "selected": true,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Taxonomy",
+                    "database": "verdi-rdf",
+                    "table": "kb",
+                    "typeField": "types",
+                    "subTypeField": "",
+                    "categoryField": "categories",
+                    "idField": "kbid",
+                    "linkField": "",
+                    "showOnlyFiltered" : false,
+                    "ascending": true
+                },
+                "row": 0,
+                "col": 0
             }
         ]
     }
