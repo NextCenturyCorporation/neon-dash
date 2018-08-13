@@ -41,7 +41,6 @@ import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import { TreeModule } from 'angular-tree-component';
 
-
 /**
  * Manages configurable options for the specific visualization.
  */
@@ -181,9 +180,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
     }
-   
 
-    createTaxonomy (chategories: string[], types: string[], subTypes: string[]){
+    createTaxonomy(chategories: string[], types: string[], subTypes: string[]) {
     //Todo: firgure our a way to take nodeType, nodeSubTypes, and nodeCategories
     //and turn them into a tree strucutere
 
@@ -346,8 +344,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     /**
      * TODO create description
-     * @param array 
-     * @param value 
+     * @param array
+     * @param value
      */
     flattenArray(array, value) {
         return array.concat(value);
@@ -383,7 +381,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                         this.nodeTypes.push(type);
                     }
                 }
-                if (field.columnName === this.options.subTypeField.columnName){
+                if (field.columnName === this.options.subTypeField.columnName) {
                     let types = neonUtilities.deepFind(d, this.options.subTypeField.columnName);
                     for (let value of types) {
                         let type = value.includes('.') ? value.slice(value.indexOf('.')) : null;
