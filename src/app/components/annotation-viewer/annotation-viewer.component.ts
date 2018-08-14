@@ -867,7 +867,8 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         return !!(
             this.options.database.name &&
             this.options.table.name &&
-            (this.options.documentTextField.columnName || this.options.linkField.columnName)
+            (this.options.documentTextField.columnName || this.options.linkField.columnName) &&
+            (!this.options.respondMode || this.previousId)
         );
     }
 
@@ -935,11 +936,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @override
      */
     onQuerySuccess(response: any) {
-        //The init for no respond mode
-        if (this.options.respondMode && !this.previousId) {
-            return;
-        }
-
         // Check for undefined because the count may be zero.
         if (response && response.data && response.data.length && response.data[0]._docCount !== undefined) {
             this.options.docCount = response.data[0]._docCount;
