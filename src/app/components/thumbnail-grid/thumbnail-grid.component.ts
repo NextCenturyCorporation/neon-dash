@@ -332,6 +332,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.showGrid = true;
         this.refreshVisualization();
         this.createMediaThumbnail();
+
         this.thumbnailGrid.nativeElement.scrollTop = 0;
     }
 
@@ -535,7 +536,14 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
                 if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
                     this.lastPage = (this.gridArray.length <= this.options.limit);
-                    this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+                    if(this.page > 1 && !this.lastPage){
+                        let offset = (this.page - 1) * this.options.limit;
+                        this.pagingGrid = this.gridArray.slice(offset,
+                            Math.min(this.page * this.options.limit, this.gridArray.length));
+                    }
+                    else{
+                        this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+                    }
                     this.showGrid = true;
                 } else {
                     this.pagingGrid = [];
@@ -543,7 +551,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
 
                 this.refreshVisualization();
-                this.createMediaThumbnail();
+                    this.createMediaThumbnail();
                 this.isLoading = false;
 
             } else {
