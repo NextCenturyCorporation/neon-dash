@@ -148,7 +148,7 @@ export function getAppConfig() {
         NgxGraphModule,
         NgxChartsModule,
         ReactiveFormsModule,
-        TreeModule
+        TreeModule.forRoot()
     ],
     providers: [
         ActiveGridService,
