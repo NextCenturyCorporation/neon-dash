@@ -120,6 +120,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public andFilters: boolean;
     public showOnlyFiltered: boolean;
     public filterFields: string[];
+    public categoryList: string[];
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -138,6 +139,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.andFilters = this.injector.get('andFilters', true);
         this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
         this.filterFields = this.injector.get('filterFields', []);
+        this.categoryList = this.injector.get('categoryList', []);
     }
 
     /**
@@ -658,9 +660,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 let nodeEntry = nodes[j];
                 if (this.isUniqueNode(nodeEntry)) {
                     if (nodeColor.length > 1) {
-                        let index = categoryField.includes('EVENT') ? this.nodeCategories.indexOf('EVENT') :
-                            categoryField.includes('RELATION') ? this.nodeCategories.indexOf('RELATION') :
-                                this.nodeCategories.indexOf(categoryField[0]);
+                        let index = this.nodeCategories.indexOf(categoryField[0]);
+                        for(let item of this.options.categoryList){
+                            if(categoryField.includes(item)){
+                                index = this.nodeCategories.indexOf(item);
+                                break;
+                            }
+                        }
+
                         graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[index], false, textColor, nodeShape));
 
                     } else {
@@ -691,9 +698,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor, nodeShape));
 
                     if (nodeColor.length > 1) {
-                        let index = categoryField.includes('EVENT') ? this.nodeCategories.indexOf('EVENT') :
-                            categoryField.includes('RELATION') ? this.nodeCategories.indexOf('RELATION') :
-                                this.nodeCategories.indexOf(categoryField[0]);
+                        let index = this.nodeCategories.indexOf(categoryField[0]);
+                        for(let item of this.options.categoryList){
+                            if(categoryField.includes(item)){
+                                index = this.nodeCategories.indexOf(item);
+                                break;
+                            }
+                        }
+
                         graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, nodeColor[index], true, textColor, nodeShape));
 
                     } else {

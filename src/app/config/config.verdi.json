@@ -571,6 +571,7 @@
                     "linkColor": "#D1C2F0",
                     "edgeColor": "#63B4CF",
                     "categoryField" : "categories",
+                    "categoryList" : ["EVENT", "RELATION"],
                     "typeField" : "types",
                     "isReified": false,
                     "isDirected": true,
