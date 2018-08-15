@@ -541,7 +541,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     addLocalFilter(filter: any) {
         this.filters = this.filters.filter((existingFilter) => {
-            return existingFilter.id !== filter.id;
+            return existingFilter.value !== filter.value;
         }).concat([filter]);
     }
 
@@ -736,9 +736,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
             [this.options.dataField.columnName]);
 
-        let ignoredFilterIds = neonFilters.filter((neonFilter) => {
-            return !neonFilter.filter.whereClause.whereClauses;
-        }).map((neonFilter) => {
+        let ignoredFilterIds = neonFilters.map((neonFilter) => {
             return neonFilter.id;
         });
 
@@ -1022,6 +1020,22 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 };
                 if (this.filterIsUnique(filter)) {
                     this.addLocalFilter(filter);
+                }
+            } else {
+                for (let clause of neonFilter.filter.whereClause.whereClauses) {
+                    let field = this.options.findField(clause.lhs);
+                    let value = clause.rhs;
+                    let operator = clause.operator;
+                    let filter = {
+                        id: neonFilter.id,
+                        field: field.columnName,
+                        value: value,
+                        prettyField: field.prettyName,
+                        operator: operator
+                    };
+                    if (this.filterIsUnique(filter)) {
+                        this.addLocalFilter(filter);
+                    }
                 }
             }
         }
