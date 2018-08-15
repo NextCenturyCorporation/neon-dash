@@ -113,11 +113,20 @@
                             "database": "verdi-rdf",
                             "table": "kb",
                             "field": "hypotheses"
+                        },                        {
+                            "database": "verdi-support",
+                            "table": "parent_children",
+                            "field": "hypotheses"
                         }
                     ]
                 },
                 {
                     "members": [
+                        {
+                            "database": "verdi-support",
+                            "table": "hypothesis_info",
+                            "field": "docIds"
+                        },
                         {
                             "database": "verdi-support",
                             "table": "parent_children",
@@ -452,6 +461,8 @@
                     "unsharedFilterValue": "",
                     "nodeField": "subject",
                     "linkField": "object",
+                    "showOnlyFiltered": true,
+                    "filterFields": ["subject", "object", "predicate", "provenance"],
                     "isReified": true,
                     "isDirected": true
                 },
@@ -539,7 +550,7 @@
                     "contentField":"hypothesis",
                     "showOnlyFiltered": true,
                     "filterField": "hypothesis_id",
-                    "sortField": "id",
+                    "sortField": "hypothesis_id",
                     "ignoreSelf": false
                 },
                 "row": 2,
@@ -565,13 +576,13 @@
                     "unsharedFilterValue": "",
                     "nodeField": "kbid",
                     "nodeNameField": "name",
+                    "nodeShape" : "box",
                     "linkField": "edgeTarget",
                     "linkNameField": "edgeLabel",
                     "nodeColor": ["#ADD8E6", "#DF9F9F", "#FFDA99", "#FFFFEF"],
                     "linkColor": "#D1C2F0",
                     "edgeColor": "#63B4CF",
                     "categoryField" : "categories",
-                    "categoryList" : ["EVENT", "RELATION"],
                     "typeField" : "types",
                     "isReified": false,
                     "isDirected": true,
@@ -580,6 +591,7 @@
                     "idField": "@id",
                     "id": "_id",
                     "multiFilter": true,
+                    "ascending": true,
                     "edgeColorField": ""
                 },
                 "row": 2,
@@ -616,7 +628,16 @@
                     "filterField": "id",
                     "ascending": true,
                     "detailedThumbnails": true,
-                    "limit":8
+                    "limit":8,
+                    "typeMap": {
+                        "jpg": "img",
+                        "mp4": "vid",
+                        "pdf": "pdf",
+                        "ltf": "pdf",
+                        "gif": "img",
+                        "mp3": "aud",
+                        "svg": "img"
+                    }
                 },
                 "row": 2,
                 "col": 19
