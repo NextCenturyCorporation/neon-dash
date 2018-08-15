@@ -688,8 +688,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 if (this.isUniqueNode(nodeEntry)) {
                     if (nodeColor.length > 1) {
                         let index = this.nodeCategories.indexOf(categoryField[0]);
-                        for(let item of this.options.categoryList){
-                            if(categoryField.includes(item)){
+                        for (let item of this.options.categoryList) {
+                            if (categoryField.includes(item)) {
                                 index = this.nodeCategories.indexOf(item);
                                 break;
                             }
@@ -726,8 +726,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
                     if (nodeColor.length > 1) {
                         let index = this.nodeCategories.indexOf(categoryField[0]);
-                        for(let item of this.options.categoryList){
-                            if(categoryField.includes(item)){
+                        for (let item of this.options.categoryList) {
+                            if (categoryField.includes(item)) {
                                 index = this.nodeCategories.indexOf(item);
                                 break;
                             }
