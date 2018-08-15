@@ -603,6 +603,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
             for (let thisFilter of this.filters) {
                 let activeFilterValue = thisFilter.value;
                 activeLabelIndexes = activeLabelIndexes.concat(this.chartInfo.data.labels.map((label, index) => {
+                    let labelNum = <any> label;
                     switch (thisFilter.operator) {
                         case '<':
                             return label < activeFilterValue ? index : -1;
@@ -613,9 +614,15 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                         case '<=':
                             return label <= activeFilterValue ? index : -1;
                         case 'not contains':
-                            return !label.includes(activeFilterValue) ? index : -1;
+                            if (isNaN(labelNum)) { //.incluses() created an error if label is a number.
+                                return !label.includes(activeFilterValue) ? index : -1;
+                            }
+                            return index;
                         case 'contains':
-                            return label.includes(activeFilterValue) ? index : -1;
+                            if (isNaN(labelNum)) { //.incluses() created an error if label is a number.
+                                return label.includes(activeFilterValue) ? index : -1;
+                            }
+                            return index;
                         case '!=':
                             return label !== activeFilterValue ? index : -1;
                         case '=':
