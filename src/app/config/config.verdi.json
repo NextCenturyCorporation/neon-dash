@@ -583,6 +583,8 @@
                     "nodeColor": ["#ADD8E6", "#DF9F9F", "#FFDA99", "#FFFFEF"],
                     "linkColor": "#D1C2F0",
                     "edgeColor": "#63B4CF",
+                    "xPositionField" : "x",
+                    "yPositionField" : "y",
                     "categoryField" : "categories",
                     "categoryList" : ["EVENT", "RELATION"],
                     "typeField" : "types",

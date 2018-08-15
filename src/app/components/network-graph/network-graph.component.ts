@@ -317,10 +317,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     ngAfterViewInit() {
         // note: options is REQUIRED. Fails to initialize physics properly without at least empty object
-        let options: vis.Options = {
-            layout: {randomSeed: 0},
-            physics: false
-        };
+        let options: vis.Options = {layout: {randomSeed: 0}};
         this.graph = new vis.Network(this.graphElement.nativeElement, this.graphData, options);
         this.graph.on('stabilized', (params) => this.graph.setOptions({physics: {enabled: false}}));
         if (!this.options.isReified) {
@@ -529,16 +526,25 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private resetGraphData() {
-        let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
+        let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties(),
+            nodeIds: string[] = [];
         this.totalNodes = graphProperties.nodes.length;
         this.clearGraphData();
         if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+        /*graphProperties.nodes.forEach((node) => {nodeIds.push(node.id); });*/
+
             this.graph.setOptions({
                 physics: {enabled: false}
             });
             this.displayGraph = true;
             this.graphData.nodes.update(graphProperties.nodes);
             this.graphData.edges.update(graphProperties.edges);
+
+/*            let fitOptions: vis.FitOptions = {nodes: nodeIds,
+                animation: false
+            };
+            this.graph.fit(fitOptions);*/
+
             this.isLoading = false;
         } else {
             this.displayGraph = false;
