@@ -4,8 +4,8 @@
             (click)="thumbnailGrid.displayMediaTab(item)">
         </canvas>
         <div class="thumbnail-flag-details">
-            <p>{{ item[options.objectIdField.columnName] }}</p>
-            <p class="flag-ellipses">{{ item[options.idField.columnName] }}</p>
+            <p>{{ item[options.idField.columnName] }}</p>
+            <p class="flag-ellipses">{{ item[options.objectIdField.columnName] }}</p>
             <p>{{ item[options.dateField.columnName] }}</p>
             <p>{{ item[options.typeField.columnName] }}</p>
         </div>
@@ -17,8 +17,8 @@
         <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100">
         </canvas>
         <div class="thumbnail-flag-details">
-            <p>{{ item[options.objectIdField.columnName] }}</p>
-            <p class="flag-ellipses">{{ item[options.idField.columnName] }}</p>
+            <p>{{ item[options.idField.columnName] }}</p>
+            <p class="flag-ellipses">{{ item[options.objectIdField.columnName] }}</p>
             <p>{{ item[options.dateField.columnName] }}</p>
             <p>{{ item[options.typeField.columnName] }}</p>
         </div>
