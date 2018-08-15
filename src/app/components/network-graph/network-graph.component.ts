@@ -528,10 +528,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private resetGraphData() {
-        let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
+        let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties(),
+            nodeIds: string[] = [];
         this.totalNodes = graphProperties.nodes.length;
         this.clearGraphData();
         if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
+        graphProperties.nodes.forEach((node) => {nodeIds.push(node.id); });
+
             this.graph.setOptions({
                 physics: {
                     forceAtlas2Based: {
@@ -545,12 +548,19 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     timestep: 0.35,
                     stabilization: {
                         iterations: 150,
+                        enabled: true,
                         fit: true}
                 }
             });
             this.displayGraph = true;
             this.graphData.nodes.update(graphProperties.nodes);
             this.graphData.edges.update(graphProperties.edges);
+
+            let fitOptions: vis.FitOptions = {nodes: nodeIds,
+                animation: false
+            };
+            this.graph.fit(fitOptions);
+
             this.isLoading = false;
         } else {
             this.displayGraph = false;
