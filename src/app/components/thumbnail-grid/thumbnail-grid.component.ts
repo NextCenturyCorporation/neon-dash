@@ -535,7 +535,14 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
                 if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
                     this.lastPage = (this.gridArray.length <= this.options.limit);
+                    if(this.page > 1 && !this.lastPage){
+                        let offset = (this.page - 1) * this.options.limit;
+                        this.pagingGrid = this.gridArray.slice(offset,
+                            Math.min(this.page * this.options.limit, this.gridArray.length));
+                    }
+                    else{
                     this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+                    }
                     this.showGrid = true;
                 } else {
                     this.pagingGrid = [];
@@ -645,7 +652,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             let link = grid[this.options.linkField.columnName];
             let fileType = link.substring(link.lastIndexOf('.') + 1).toLowerCase();
             let typeFromConfig = this.options.typeMap[fileType];
-            let type = grid[this.options.typeField.columnName] || typeFromConfig,
+            let type = typeFromConfig ? typeFromConfig : grid[this.options.typeField.columnName],
                 objectId = grid[this.options.objectIdField.columnName],
                 categoryId = grid[this.options.categoryField.columnName],
                 thumbnail = canvases[index].getContext('2d');
@@ -779,10 +786,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
      * @return boolean
      */
     isValidMediaType(item) {
-        let values = Object.keys(this.mediaTypes).map((key) => {
-            return this.mediaTypes[key];
-        });
-        if (values.includes(item[this.options.typeField.columnName])) {
+        if (this.options.typeField.columnName) {
             return true;
         } else {
             return false;
