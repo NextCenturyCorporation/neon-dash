@@ -15,3 +15,23 @@
  */
 
  @import '~angular-tree-component/dist/angular-tree-component.css';
+ 
+
+ /deep/ .mat-drawer-content{
+    overflow: unset;
+}
+
+.taxonomy-viewer-container{
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    overflow: hidden;
+}
+
+.taxonomy-viewer-div{
+    display: flex;
+    flex-direction: column;
+    flex: 1 0;
+    margin: .4em;
+    border-bottom: solid 1px darkgray;
+}
