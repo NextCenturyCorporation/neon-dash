@@ -531,7 +531,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.totalNodes = graphProperties.nodes.length;
         this.clearGraphData();
         if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
-        /*graphProperties.nodes.forEach((node) => {nodeIds.push(node.id); });*/
+        graphProperties.nodes.forEach((node) => {nodeIds.push(node.id); });
 
             this.graph.setOptions({
                 physics: {enabled: false}
@@ -540,10 +540,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.graphData.nodes.update(graphProperties.nodes);
             this.graphData.edges.update(graphProperties.edges);
 
-/*            let fitOptions: vis.FitOptions = {nodes: nodeIds,
+            let fitOptions: vis.FitOptions = {nodes: nodeIds,
                 animation: false
             };
-            this.graph.fit(fitOptions);*/
+            this.graph.fit(fitOptions);
 
             this.isLoading = false;
         } else {
