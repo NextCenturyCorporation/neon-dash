@@ -464,7 +464,8 @@
                     "showOnlyFiltered": true,
                     "filterFields": ["subject", "object", "predicate", "provenance"],
                     "isReified": true,
-                    "isDirected": true
+                    "isDirected": true,
+                    "showOnlyFiltered": true
                 },
                 "row": 13,
                 "col": 0
