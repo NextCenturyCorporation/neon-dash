@@ -55,6 +55,7 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
     public linkField: FieldMetaData;
     public typeField: FieldMetaData;
     public subTypeField: FieldMetaData;
+    public nodeNameField: FieldMetaData;
     public showOnlyFiltered: boolean;
 
     /**
@@ -80,6 +81,7 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
         this.linkField = this.findFieldObject('linkField');
         this.typeField = this.findFieldObject('typeField');
         this.subTypeField = this.findFieldObject('subTypeField');
+        this.nodeNameField = this.findFieldObject('nodeNameField');
 
     }
 }
@@ -117,6 +119,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     public nodeCategories: string[] = [];
     public nodeTypes: string[] = [];
     public nodeSubTypes: string[] = [];
+    public taxonomyNodes: any[] = [];
 
     //todo: remove once real data gets mapped
     public testNodes = [
@@ -138,6 +141,26 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                     name: 'child2.2',
                     children: [
                         { id: 7, name: 'subsub' }
+                    ]
+                }
+            ]
+        },
+        {
+            id: 3,
+            name: 'EVENT',
+            children: [
+                {
+                    id: '3_1',
+                    name: 'Conflict',
+                    children: [
+                        { id: '3_1_1',
+                            name: 'Attack',
+                            children: [
+                                { id: 'NIL737.780192',
+                                    name: 'Ukrainian fighter jet fired at MH17 flight deck'
+                                }
+                            ]
+                        }
                     ]
                 }
             ]
@@ -188,6 +211,10 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
         if (this.options.subTypeField.columnName) {
             fields.push(this.options.subTypeField.columnName);
+        }
+
+        if (this.options.nodeNameField.columnName) {
+            fields.push(this.options.nodeNameField.columnName);
         }
 
         let whereClauses = [
@@ -296,6 +323,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         }, {
             columnName: this.options.subTypeField.columnName,
             prettyName: this.options.subTypeField.prettyName
+        }, {
+            columnName: this.options.nodeNameField.columnName,
+            prettyName: this.options.nodeNameField.prettyName
         }];
     }
 
@@ -392,39 +422,72 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         this.nodeCategories = [];
         this.nodeTypes = [];
         this.nodeSubTypes = [];
+        let counter = 0;
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.isLoading = true;
                 response.data.forEach((d) => {
+                    let types = neonUtilities.deepFind(d, this.options.typeField.columnName);
                     for (let field of this.options.fields) {
                         if (field.columnName === this.options.categoryField.columnName) {
                             this.nodeCategories.push(neonUtilities.deepFind(d, this.options.categoryField.columnName));
                         }
                         if (field.columnName === this.options.typeField.columnName) {
-                            let types = neonUtilities.deepFind(d, this.options.typeField.columnName);
+
                             for (let value of types) {
                                 let type = value.includes('.') ? value.split('.')[0] : value;
                                 this.nodeTypes.push(type);
                             }
                         }
                         if (field.columnName === this.options.subTypeField.columnName) {
-                            let types = neonUtilities.deepFind(d, this.options.subTypeField.columnName);
                             for (let value of types) {
-                                let type = value.includes('.') ? value.slice(value.indexOf('.')) : null;
-                                this.nodeTypes.push(type);
+                                let subType = value.includes('.') ? value.slice(value.indexOf('.') + 1) : null;
+
+                                if (subType) {
+                                    this.nodeSubTypes.push(subType);
+                                }
                             }
                         }
                     }
+
+                    this.nodeCategories = this.nodeCategories.reduce(this.flattenArray, [])
+                        .filter((value, index, array) => array.indexOf(value) === index).sort();
+                    this.nodeTypes = this.nodeTypes.reduce(this.flattenArray, [])
+                        .filter((value, index, array) => array.indexOf(value) === index).sort();
+                    this.nodeSubTypes = this.nodeSubTypes.reduce(this.flattenArray, [])
+                        .filter((value, index, array) => array.indexOf(value) === index).sort();
+
+                    let childObject: any, childArray = [], subTypeArray = [], typeArray = [];
+
+                    childObject = {id : neonUtilities.deepFind(d, this.options.idField.columnName), name :
+                            neonUtilities.deepFind(d, this.options.nodeNameField.columnName)};
+                    childArray.push(childObject);
+
+                    for (let value of types) {
+                        let subType = value.includes('.') ? value.slice(value.indexOf('.') + 1) : null;
+
+                        if (subType) {
+                            childObject = {id: counter++, name: subType, children: childArray};
+                            subTypeArray.push(childObject);
+                        }
+
+                        let type = value.includes('.') ? value.split('.')[0] : value;
+                        childObject = subTypeArray.length ? {id : counter++, name : type, children : subTypeArray} :
+                            {id : counter++, name : type};
+                        typeArray.push(childObject);
+
+                    }
+
+                    let categories = neonUtilities.deepFind(d, this.options.categoryField.columnName);
+                    for (let value of categories) {
+                        let parent = {id: counter++, name: value, children: typeArray};
+                        this.taxonomyNodes.push(parent);
+                    }
+
                 });
 
-                this.nodeCategories = this.nodeCategories.reduce(this.flattenArray, [])
-                    .filter((value, index, array) => array.indexOf(value) === index).sort();
-                this.nodeTypes = this.nodeTypes.reduce(this.flattenArray, [])
-                    .filter((value, index, array) => array.indexOf(value) === index).sort();
-                this.nodeSubTypes = this.nodeSubTypes.reduce(this.flattenArray, [])
-                    .filter((value, index, array) => array.indexOf(value) === index).sort();
-
+                this.testNodes = this.taxonomyNodes;
                 this.refreshVisualization();
 
             } else {
