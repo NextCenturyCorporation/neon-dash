@@ -474,9 +474,8 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                         let type = value.includes('.') ? value.split('.')[0] : value;
                         childObject = subTypeArray.length ? {id : counter++, name : type, children : subTypeArray} :
-                            {id : counter++, name : type};
+                            {id : counter++, name : type, children : childArray};
                         typeArray.push(childObject);
-
                     }
 
                     let categories = neonUtilities.deepFind(d, this.options.categoryField.columnName);
