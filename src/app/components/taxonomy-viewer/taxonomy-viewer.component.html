@@ -137,15 +137,9 @@
     </div>
 
     <div #taxonomyViewer class="body-container" [class.with-filter]="getCloseableFilters().length" >
-        <div class="taxonomy-viewer-container" [hidden]="!showGrid">
-            <div class="taxonomy-viewer-div" *ngFor="let item of pagingGrid"
-                (click)="selectGridItem(item)" [class.selectable]="isSelectable()" [class.selected]="isSelected(item)">
-            </div>
+        <div class="taxonomy-viewer-container">
+            <tree-root [nodes]="testNodes" [options]="testOptions"></tree-root>
         </div>
     </div>
-
-
-    <tree-root [nodes]="testNodes" [options]="testOptions"></tree-root>
-
 
 </mat-sidenav-container>
