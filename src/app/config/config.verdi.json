@@ -638,7 +638,7 @@
             {
                 "name": "Taxonomy Viewer",
                 "type": "taxonomyViewer",
-                "sizex": 6,
+                "sizex": 24,
                 "sizey": 14,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -652,10 +652,11 @@
                     "database": "verdi-rdf",
                     "table": "kb",
                     "typeField": "types",
-                    "subTypeField": "",
+                    "subTypeField": "types",
                     "categoryField": "categories",
                     "idField": "kbid",
                     "linkField": "",
+                    "nodeNameField": "name",
                     "showOnlyFiltered" : false,
                     "ascending": true
                 },
