@@ -429,7 +429,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                 this.isLoading = true;
                 response.data.forEach((d) => {
                     let types = neonUtilities.deepFind(d, this.options.typeField.columnName);
-                    for (let field of this.options.fields) {
+/*                    for (let field of this.options.fields) {
                         if (field.columnName === this.options.categoryField.columnName) {
                             this.nodeCategories.push(neonUtilities.deepFind(d, this.options.categoryField.columnName));
                         }
@@ -456,13 +456,16 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                     this.nodeTypes = this.nodeTypes.reduce(this.flattenArray, [])
                         .filter((value, index, array) => array.indexOf(value) === index).sort();
                     this.nodeSubTypes = this.nodeSubTypes.reduce(this.flattenArray, [])
-                        .filter((value, index, array) => array.indexOf(value) === index).sort();
+                        .filter((value, index, array) => array.indexOf(value) === index).sort();*/
 
-                    let childObject: any, childArray = [], subTypeArray = [], typeArray = [];
+                    let baseObject: any, childObject: any, childArray = [], subTypeArray = [], typeArray = [];
+                    let categoryIndex = -1, typeIndex = -1, subTypeIndex = -1;
 
-                    childObject = {id : neonUtilities.deepFind(d, this.options.idField.columnName), name :
+                    baseObject = {id : neonUtilities.deepFind(d, this.options.idField.columnName), name :
                             neonUtilities.deepFind(d, this.options.nodeNameField.columnName)};
-                    childArray.push(childObject);
+
+                    //TODO: need a way to check for if taxonomyNodes is not empty and the category is found skip this logic...
+                    childArray.push(baseObject);
 
                     for (let value of types) {
                         let subType = value.includes('.') ? value.slice(value.indexOf('.') + 1) : null;
@@ -482,8 +485,49 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                     for (let value of categories) {
                         let parent = {id: counter++, name: value, children: typeArray};
                         this.taxonomyNodes.push(parent);
-                    }
 
+                    //TODO: ...and perform the logic below instead...kinda
+
+                        // todo: finds place in taxonomy that the new object should go.
+                        // todo: Using counter to limit amount of console statements that are printed, this will be removed
+                        if (counter < 8) {
+
+                            let foundCategory = this.taxonomyNodes.find((category, index) => {
+                                let found = category.name === value;
+                                categoryIndex = index;
+                                return found;
+                            });
+
+                            if (foundCategory) {
+                                for (let item of types) {
+                                    let foundType = foundCategory.children.find((type, index) => {
+                                        let found = type.name === item.split('.')[0];
+                                        typeIndex = index;
+                                        return found;
+                                    });
+                                    if (foundType) {
+                                        let foundSubType = foundType.children.find((subType, index) => {
+                                            subTypeIndex = index;
+                                            let found = subType.name === item.slice(item.indexOf('.') + 1);
+                                            return found;
+                                        });
+
+                                        if (foundSubType) {
+                                            //console.log(this.taxonomyNodes[categoryIndex].children[typeIndex].
+                                            // children[subTypeIndex].children);
+                                            //push baseObject in here
+                                        }
+
+                                        //console.log(this.taxonomyNodes[categoryIndex].children[typeIndex].children);
+                                        //push baseObject in here
+                                    }
+
+                                }
+                            }
+
+                        }
+
+                    }
                 });
 
                 this.testNodes = this.taxonomyNodes;
