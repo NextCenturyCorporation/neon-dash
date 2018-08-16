@@ -100,84 +100,8 @@
                 </mat-form-field>
                 <p></p>
 
-                <mat-form-field>
-                    <mat-select placeholder="Name Field" [(ngModel)]="options.nameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="emptyField">(None)</mat-option>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Predicted Name Field" [(ngModel)]="options.predictedNameField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="emptyField">(None)</mat-option>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Predicted Probability Field" [(ngModel)]="options.percentField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="emptyField">(None)</mat-option>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Sort Field" [(ngModel)]="options.sortField" required="true" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <mat-select placeholder="Type Field" [(ngModel)]="options.typeField" required="false" (ngModelChange)="handleChangeData()" [disabled]="options.fields.length < 1">
-                        <mat-option [value]="emptyField">(None)</mat-option>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
-                <p></p>
-
-                <div mat-fill class="flex center">
-                    <mat-form-field>
-                        <input matInput placeholder="Thumbnail Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
-                    </mat-form-field>
-
-                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
-                        <mat-icon>refresh</mat-icon>
-                    </button>
-                </div>
-                <p></p>
-
-                <mat-form-field>
-                    <input matInput placeholder="Border" [(ngModel)]="options.border" required="false">
-                </mat-form-field>
-                <p></p>
-
-                <mat-form-field>
-                    <input matInput placeholder="Link Prefix" [(ngModel)]="options.linkPrefix" required="false">
-                </mat-form-field>
-                <p></p>
-
-                <span class="toggle-text">Crop or Scale:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.cropAndScale" (ngModelChange)="updatePageData()">
-                    <mat-button-toggle value="">None</mat-button-toggle>
-                    <mat-button-toggle value="scale">Scale</mat-button-toggle>
-                    <mat-button-toggle value="crop">Crop</mat-button-toggle>
-                    <mat-button-toggle value="both">Both</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
                 <span class="toggle-text">Ignore Own Filters:</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.ignoreSelf" (ngModelChange)="handleFiltersChangedEvent()">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span class="toggle-text">Open Media on Mouse Click:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.openOnMouseClick">
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
                     <mat-button-toggle [value]="false">No</mat-button-toggle>
                 </mat-button-toggle-group>

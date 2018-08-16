@@ -160,6 +160,10 @@ export const neonVisualizations: any[] = [{
     type: 'stackedTimeline',
     icon: 'stacked_timeline'
 }, {
+    name: 'Taxonomy Viewer',
+    type: 'taxonomyViewer',
+    icon: 'taxonomy_viewer'
+}, {
     name: 'Text Cloud',
     type: 'textCloud',
     icon: 'text_cloud'

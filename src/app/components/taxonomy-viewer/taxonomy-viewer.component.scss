@@ -14,12 +14,17 @@
  *
  */
 
- @import '~angular-tree-component/dist/angular-tree-component.css';
- 
+@import '../base-neon-component/base-neon.component.scss';
 
- /deep/ .mat-drawer-content{
+.full-height,
+.mat-tab-group {
+    height: calc(100% - #{$vis-title-expected-height});
+}
+
+/deep/ .mat-drawer-content{
     overflow: unset;
 }
+
 
 .taxonomy-viewer-container{
     display: flex;
@@ -35,3 +40,5 @@
     margin: .4em;
     border-bottom: solid 1px darkgray;
 }
+
+
