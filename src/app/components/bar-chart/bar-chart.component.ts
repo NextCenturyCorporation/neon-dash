@@ -598,40 +598,61 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
      */
     refreshVisualization() {
         let selectedLabels: string[] = [];
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
+            [this.options.dataField.columnName]);
+        let andFilter;
         if (this.filters.length > 0) {
             let activeLabelIndexes = [];
+
+            if (neonFilters[0].filter.whereClause.type === undefined) {
+                andFilter = false;
+            } else {
+                andFilter = neonFilters[0].filter.whereClause.type === 'and';
+            }
             for (let thisFilter of this.filters) {
                 let activeFilterValue = thisFilter.value;
                 activeLabelIndexes = activeLabelIndexes.concat(this.chartInfo.data.labels.map((label, index) => {
                     let labelNum = <any> label;
-                    switch (thisFilter.operator) {
-                        case '<':
-                            return label < activeFilterValue ? index : -1;
-                        case '>':
-                            return label > activeFilterValue ? index : -1;
-                        case '>=':
-                            return label >= activeFilterValue ? index : -1;
-                        case '<=':
-                            return label <= activeFilterValue ? index : -1;
-                        case 'not contains':
-                            if (isNaN(labelNum)) { //.incluses() created an error if label is a number.
-                                return !label.includes(activeFilterValue) ? index : -1;
-                            }
-                            return index;
-                        case 'contains':
-                            if (isNaN(labelNum)) { //.incluses() created an error if label is a number.
-                                return label.includes(activeFilterValue) ? index : -1;
-                            }
-                            return index;
-                        case '!=':
-                            return label !== activeFilterValue ? index : -1;
-                        case '=':
-                            return label === activeFilterValue ? index : -1;
-                    }
+                        switch (thisFilter.operator) {
+                            case '<':
+                                return label < activeFilterValue ? index : -1;
+                            case '>':
+                                return label > activeFilterValue ? index : -1;
+                            case '>=':
+                                return label >= activeFilterValue ? index : -1;
+                            case '<=':
+                                return label <= activeFilterValue ? index : -1;
+                            case 'not contains':
+                                if (isNaN(labelNum)) { //.incluses() created an error if label is a number.
+                                    return !label.includes(activeFilterValue) ? index : -1;
+                                }
+                                return index;
+                            case 'contains':
+                                if (isNaN(labelNum)) { //.incluses() created an error if label is a number.
+                                    return label.includes(activeFilterValue) ? index : -1;
+                                }
+                                return index;
+                            case '!=':
+                                return label !== activeFilterValue ? index : -1;
+                            case '=':
+                                return label === activeFilterValue ? index : -1;
+                        }
+
                 }));
             }
-            activeLabelIndexes.filter((index) => {
-                return index >= 0;
+            activeLabelIndexes = activeLabelIndexes.filter((index) => {
+                if (index < 0) {
+                    return false;
+                } else {
+                    if (andFilter) {
+                        let count = activeLabelIndexes.reduce(function(n, val) {
+                            return n + (val === index);
+                        }, 0);
+                        return (count === this.filters.length);
+                    } else {
+                        return true;
+                    }
+                }
             });
             //change bars to the correct color
             for (let dataset of this.chartInfo.data.datasets) {
