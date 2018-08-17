@@ -197,7 +197,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     view: any[];
     width: number = 400;
     height: number = 400;
-    fitContainer: boolean = true;
+    fitContainer: boolean = false;
     autoZoom: boolean = false;
     // options
     showLegend = false;
@@ -540,10 +540,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             this.graphData.nodes.update(graphProperties.nodes);
             this.graphData.edges.update(graphProperties.edges);
 
-            let fitOptions: vis.FitOptions = {nodes: nodeIds,
-                animation: false
-            };
-            this.graph.fit(fitOptions);
+            // let fitOptions: vis.FitOptions = {nodes: nodeIds,
+            //     animation: false
+            // };
+            // this.graph.fit(fitOptions);
 
             this.isLoading = false;
         } else {
