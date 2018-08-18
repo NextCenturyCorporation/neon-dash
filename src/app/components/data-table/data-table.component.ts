@@ -54,6 +54,8 @@ export class DataTableOptions extends BaseNeonOptions {
     public skinny: boolean;
     public sortField: FieldMetaData;
     public sortDescending: boolean;
+    public aggregate: boolean;
+    public nonNullFields: string[];
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -70,6 +72,8 @@ export class DataTableOptions extends BaseNeonOptions {
         this.singleFilter = this.injector.get('singleFilter', false);
         this.skinny = this.injector.get('skinny', false);
         this.sortDescending = this.injector.get('sortDescending', true);
+        this.aggregate = this.injector.get('aggregate', false);
+        this.nonNullFields = this.injector.get('nonNullFields', []);
     }
 
     /**
@@ -255,6 +259,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.singleFilter = this.options.singleFilter;
         bindings.skinny = this.options.skinny;
         bindings.sortDescending = this.options.sortDescending;
+        bindings.aggregate = this.options.aggregate;
 
         bindings.fieldsConfig = this.headers.map((header) => {
             return {
@@ -422,6 +427,10 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     createClause(): any {
         let clause = neon.query.where(this.options.sortField.columnName, '!=', null);
 
+        for (let field of this.options.nonNullFields) {
+            clause = neon.query.and(clause, neon.query.where(field, '!=', null));
+        }
+
         if (this.hasUnsharedFilter()) {
             clause = neon.query.and(clause, neon.query.where(this.options.unsharedFilterField.columnName, '=',
                 this.options.unsharedFilterValue));
@@ -503,15 +512,29 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.docCount = response.data[0]._docCount;
         } else {
-            let data = response.data.map((d) => {
-                let row = {};
+            let idField = this.options.idField,
+                idFieldName = (idField && idField.columnName) || '_id',
+                ids = new Set(),
+                data = [];
+            for (let dataRow of response.data) {
+                let row = {},
+                    id = null;
                 for (let field of this.options.fields) {
-                    if (field.type || field.columnName === '_id') {
-                        row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
+                    let isIdField = field.columnName === idFieldName;
+                    if (field.type || isIdField) {
+                        row[field.columnName] = this.toCellString(neonUtilities.deepFind(dataRow, field.columnName), field.type);
+                        if (isIdField) {
+                            id = row[field.columnName];
+                        }
                     }
                 }
-                return row;
-            });
+                if (!ids.has(id)) {
+                    data.push(row);
+                    if (this.options.aggregate && id) {
+                        ids.add(id);
+                    }
+                }
+            }
             this.activeData = data;
             // The query response is being stringified and stored in activeData
             // Store the response in responseData to preserve the data in its raw form for querying and filtering purposes

@@ -57,10 +57,6 @@
                     "prettyName": "VERDI",
                     "tables": [
                         {
-                            "name": "hypothesis_info",
-                            "prettyName": "Hypothesis Info"
-                        },
-                        {
                             "name": "parent_children",
                             "prettyName": "Parent Children"
                         }]
@@ -97,7 +93,7 @@
                         }
                     ]
                 }
-            ]    
+            ]
         },
         {
             "title": "VERDI",
@@ -402,18 +398,21 @@
                 "bindings": {
                     "title": "Subject",
                     "database": "verdi-rdf",
-                    "table": "reified",
-                    "sortField": "subject",
-                    "idField": "@id",
+                    "table": "kb",
+                    "sortField": "name",
+                    "idField": "kbid",
                     "arrayFilterOperator": "or",
                     "filterable": true,
                     "filterFields": [
-                        "subject"
+                        "kbid",
+                        "docIds"
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "subject"
-                    ]
+                        "name"
+                    ],
+                    "aggregate": true,
+                    "nonNullFields": ["edgeTarget"]
                 },
                 "row": 7,
                 "col": 0
@@ -432,18 +431,20 @@
                 "bindings": {
                     "title": "Predicate",
                     "database": "verdi-rdf",
-                    "table": "reified",
-                    "sortField": "predicate",
-                    "idField": "@id",
+                    "table": "kb",
+                    "sortField": "edgeLabel",
+                    "idField": "edgeLabel",
                     "arrayFilterOperator": "or",
                     "filterable": true,
                     "filterFields": [
-                        "predicate"
+                        "edgeLabel",
+                        "docIds"
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "predicate"
-                    ]
+                        "edgeLabel"
+                    ],
+                    "aggregate": true
                 },
                 "row": 7,
                 "col": 9
@@ -463,18 +464,20 @@
                 "bindings": {
                     "title": "Object",
                     "database": "verdi-rdf",
-                    "table": "reified",
-                    "sortField": "object",
-                    "idField": "@id",
+                    "table": "kb",
+                    "sortField": "targetName",
+                    "idField": "edgeTarget",
                     "arrayFilterOperator": "or",
                     "filterable": true,
                     "filterFields": [
-                        "object"
+                        "edgeTarget",
+                        "docIds"
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "object"
-                    ]
+                        "targetName"
+                    ],
+                    "aggregate": true
                 },
                 "row": 7,
                 "col": 17
@@ -506,6 +509,9 @@
                     "edgeColor": "#63B4CF",
                     "xPositionField" : "x",
                     "yPositionField" : "y",
+                    "xTargetPositionField" : "targetX",
+                    "yTargetPositionField" : "targetY",
+                    "targetNameField" : "targetName",
                     "categoryField" : "categories",
                     "categoryList" : ["EVENT", "RELATION"],
                     "typeField" : "types",

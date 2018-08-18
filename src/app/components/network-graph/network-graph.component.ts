@@ -113,6 +113,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public edgeColorField: FieldMetaData;
     public linkField: FieldMetaData;
     public linkNameField: FieldMetaData;
+    public targetNameField: FieldMetaData;
     public nodeField: FieldMetaData;
     public nodeNameField: FieldMetaData;
     public categoryField: FieldMetaData;
@@ -125,6 +126,8 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public categoryList: string[];
     public xPositionField: FieldMetaData;
     public yPositionField: FieldMetaData;
+    public xTargetPositionField: FieldMetaData;
+    public yTargetPositionField: FieldMetaData;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -156,11 +159,14 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.nodeNameField = this.findFieldObject('nodeNameField');
         this.linkField = this.findFieldObject('linkField');
         this.linkNameField = this.findFieldObject('linkNameField');
+        this.targetNameField = this.findFieldObject('targetNameField');
         this.edgeColorField = this.findFieldObject('edgeColorField');
         this.categoryField = this.findFieldObject('categoryField');
         this.typeField = this.findFieldObject('typeField');
         this.xPositionField = this.findFieldObject('xPositionField');
         this.yPositionField = this.findFieldObject('yPositionField');
+        this.xTargetPositionField = this.findFieldObject('xTargetPositionField');
+        this.yTargetPositionField = this.findFieldObject('yTargetPositionField');
     }
 }
 
@@ -309,10 +315,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         bindings.nodeNameField = this.options.nodeNameField.columnName;
         bindings.linkField = this.options.linkField.columnName;
         bindings.linkNameField = this.options.linkNameField.columnName;
+        bindings.targetNameField = this.options.targetNameField.columnName;
         bindings.edgeColorField = this.options.edgeColorField.columnName;
         bindings.andFilters = this.options.andFilters;
         bindings.xPositionField = this.options.xPositionField.columnName;
         bindings.yPositionField = this.options.yPositionField.columnName;
+        bindings.xTargetPositionField = this.options.xTargetPositionField.columnName;
+        bindings.yTargetPositionField = this.options.yTargetPositionField.columnName;
     }
 
     ngAfterViewInit() {
@@ -399,18 +408,21 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let nodeNameField = this.options.nodeNameField.columnName;
         let linkField = this.options.linkField.columnName;
         let linkNameField = this.options.linkNameField.columnName;
+        let targetNameField = this.options.targetNameField.columnName;
         let edgeColorField = this.options.edgeColorField.columnName;
         let typeField = this.options.typeField.columnName;
         let categoryField = this.options.categoryField.columnName;
         let xPositionField = this.options.xPositionField.columnName;
         let yPositionField = this.options.yPositionField.columnName;
+        let xTargetPositionField = this.options.xTargetPositionField.columnName;
+        let yTargetPositionField = this.options.yTargetPositionField.columnName;
         let whereClauses: neon.query.WherePredicate[] = [];
         //whereClauses.push(neon.query.where(this.options.linkField.columnName, '!=', null));
         let groupBy: any[] = [this.options.nodeField.columnName];
 
         let fields = [nodeField, linkField];
-        for (const field of [edgeColorField, nodeNameField, linkNameField, typeField, categoryField, xPositionField, yPositionField]
-            .concat(this.options.filterFields)) {
+        for (const field of [edgeColorField, nodeNameField, linkNameField, typeField, categoryField, xPositionField,
+            yPositionField, xTargetPositionField, yTargetPositionField, targetNameField].concat(this.options.filterFields)) {
             if (field) {
                 fields.push(field);
             }
@@ -656,6 +668,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let graph = new GraphProperties(),
             linkName = this.options.linkField.columnName,
             linkNameColumn = this.options.linkNameField.columnName,
+            targetNameColumn = this.options.targetNameField.columnName,
             nodeName = this.options.nodeField.columnName,
             nodeNameColumn = this.options.nodeNameField.columnName,
             categoryName = this.options.categoryField.columnName,
@@ -667,7 +680,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             limit = this.options.limit,
             nodeShape = 'box',
             xPositionField = this.options.xPositionField.columnName,
-            yPositionField = this.options.yPositionField.columnName;
+            yPositionField = this.options.yPositionField.columnName,
+            xTargetPositionField = this.options.xTargetPositionField.columnName,
+            yTargetPositionField = this.options.yTargetPositionField.columnName;
 
         // assume nodes will take precedence over edges so create nodes first
         for (let entry of this.activeData) {
@@ -684,15 +699,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 let nodeEntry = nodes[j];
                 if (this.isUniqueNode(nodeEntry)) {
                     if (nodeColor.length > 1) {
-                        let index = this.nodeCategories.indexOf(categoryField[0]);
-                        for (let item of this.options.categoryList) {
-                            if (categoryField.includes(item)) {
-                                index = this.nodeCategories.indexOf(item);
-                                break;
-                            }
-                        }
+                        //TODO: refactor color to use map
+                        let index = this.options.categoryList.indexOf(categoryField[0]);
 
-                        graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[index], false, textColor, nodeShape,
+                        graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[index + 1], false, textColor, nodeShape,
                              xPosition, yPosition));
 
                     } else {
@@ -706,12 +716,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         // create edges and destination nodes only if required
         for (let entry of this.activeData) {
             let linkField = entry[linkName],
+                targetNameField = targetNameColumn && entry[targetNameColumn],
                 categoryField = entry[categoryName],
                 edgeType = entry[edgeColorField],
                 linkNameField = entry[linkNameColumn],
                 nodeField = entry[nodeName],
-                xPosition = entry[xPositionField],
-                yPosition = entry[yPositionField];
+                xTargetPosition = entry[xTargetPositionField],
+                yTargetPosition = entry[yTargetPositionField];
 
             // if there is a valid edgeColorField, override the edgeColor
             if (entry[edgeColorField]) {
@@ -720,26 +731,20 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             }
 
             // create a node if linkfield doesn't point to a node that already exists
-            let links = Array.isArray(linkField) ? linkField : [linkField];
-            for (const linkEntry of links) {
-                if (this.isUniqueNode(linkEntry) && graph.nodes.length < limit) {
-                    graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor, nodeShape));
-
+            let links = Array.isArray(linkField) ? linkField : [linkField],
+                targetNames = !targetNameField ? links : Array.isArray(targetNameField) ? targetNameField : [targetNameField];
+            for (let j = 0; j < links.length && graph.nodes.length < limit; j++) {
+                let linkEntry = links[j];
+                if (this.isUniqueNode(linkEntry)) {
                     if (nodeColor.length > 1) {
-                        let index = this.nodeCategories.indexOf(categoryField[0]);
-                        for (let item of this.options.categoryList) {
-                            if (categoryField.includes(item)) {
-                                index = this.nodeCategories.indexOf(item);
-                                break;
-                            }
-                        }
+                        let index = this.options.categoryList.indexOf(categoryField[0]);
 
-                        graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, nodeColor[index], true, textColor, nodeShape,
-                             xPosition, yPosition));
+                        graph.addNode(new Node(linkEntry, targetNames[j], linkName, 1, nodeColor[index + 1], true, textColor, nodeShape,
+                             xTargetPosition, yTargetPosition));
 
                     } else {
-                        graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor, nodeShape,
-                             xPosition, yPosition));
+                        graph.addNode(new Node(linkEntry, targetNames[j], linkName, 1, linkColor, true, textColor, nodeShape,
+                             xTargetPosition, yTargetPosition));
                     }
                 }
             }
