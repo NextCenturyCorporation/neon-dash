@@ -739,7 +739,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     if (nodeColor.length > 1) {
                         let index = this.options.categoryList.indexOf(categoryField[0]);
 
-                        graph.addNode(new Node(linkEntry, targetNames[j], linkName, 1, nodeColor[index + 1], true, textColor, nodeShape,
+                        graph.addNode(new Node(linkEntry, targetNames[j], linkName, 1, nodeColor[0], true, textColor, nodeShape,
                              xTargetPosition, yTargetPosition));
 
                     } else {
