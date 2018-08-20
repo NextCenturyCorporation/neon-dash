@@ -604,7 +604,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
         if (this.filters.length > 0) {
             let activeLabelIndexes = [];
 
-            if (neonFilters[0].filter.whereClause.type === undefined) {
+            if (neonFilters.length === 0 || neonFilters[0].filter.whereClause.type === undefined) {
                 andFilter = false;
             } else {
                 andFilter = neonFilters[0].filter.whereClause.type === 'and';
