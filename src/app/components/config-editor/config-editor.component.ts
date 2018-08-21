@@ -22,6 +22,7 @@ import { PropertyService } from '../../services/property.service';
 import * as JSONEditor from 'jsoneditor';
 declare var editor: any;
 import * as _ from 'lodash';
+import { windowCount } from 'rxjs/operator/windowCount';
 
 @Component({
   selector: 'app-config-editor',
@@ -106,17 +107,18 @@ export class ConfigEditorComponent implements AfterViewInit, OnInit {
     }
 
     public delete() {
-        this.propertyService.deleteProperty(this.CONFIG_PROP_NAME, (response) => {
-            this.snackBar.open('Configuration deleted from Property Service successfully.  ' +
-              'Configuration will be loaded from internal \'json\' or \'yaml\' files.', 'OK',
-               {duration: this.DEFAULT_SNACK_BAR_DURATION});
-        },
-        (response) => {
-            this.snackBar.open('Error attempting to delete property configuration', 'OK', {duration: this.DEFAULT_SNACK_BAR_DURATION});
-            console.warn('Error attempting to delete property configuration:');
-            console.warn(response);
+        if (window.confirm('Are you sure you want to delete this?')) {
+            this.propertyService.deleteProperty(this.CONFIG_PROP_NAME, (response) => {
+                this.snackBar.open('Configuration deleted from Property Service successfully.  ' +
+                'Configuration will be loaded from internal \'json\' or \'yaml\' files.', 'OK',
+                {duration: this.DEFAULT_SNACK_BAR_DURATION});
+            },
+            (response) => {
+                this.snackBar.open('Error attempting to delete property configuration', 'OK', {duration: this.DEFAULT_SNACK_BAR_DURATION});
+                console.warn('Error attempting to delete property configuration:');
+                console.warn(response);
+            });
         }
-      );
     }
 
     public reset() {
