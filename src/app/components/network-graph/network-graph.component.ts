@@ -267,7 +267,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.updateData();
         this.createQuery();
         //setInterval(this.updateData.bind(this), 2000);
-
         if (!this.fitContainer) {
             this.applyDimensions();
         }
@@ -660,13 +659,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 let nodeEntry = nodes[j];
                 if (this.isUniqueNode(nodeEntry)) {
                     if (nodeColor.length > 1) {
-                        let index = this.nodeCategories.indexOf(categoryField[0]);
-                        for(let item of this.options.categoryList){
-                            if(categoryField.includes(item)){
-                                index = this.nodeCategories.indexOf(item);
-                                break;
-                            }
-                        }
+                        let index = this.options.categoryList.indexOf(categoryField[0]);
 
                         graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[index], false, textColor, nodeShape));
 
@@ -721,7 +714,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 let edgeColorObject = { color: edgeColor, highlight: edgeColor};
                 //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
                 // let edgeWidth = this.options.edgeWidth;
-
                 for (let i = 0; i < links.length; i++) {
                     graph.addEdge(new Edge(nodeEntry, links[i], linkNames[i], {to: this.options.isDirected}, 1,
                         edgeColorObject, edgeType));
