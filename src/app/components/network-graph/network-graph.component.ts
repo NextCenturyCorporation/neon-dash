@@ -267,7 +267,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.updateData();
         this.createQuery();
         //setInterval(this.updateData.bind(this), 2000);
-        
         if (!this.fitContainer) {
             this.applyDimensions();
         }
@@ -662,7 +661,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     if (nodeColor.length > 1) {
                         let index = this.options.categoryList.indexOf(categoryField[0]);
 
-                        graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[index], false, textColor, nodeShape));
+                        graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[index + 1], false, textColor, nodeShape));
 
                     } else {
                         graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[0], false, textColor, nodeShape));
@@ -692,15 +691,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor, nodeShape));
 
                     if (nodeColor.length > 1) {
-                        let index = this.nodeCategories.indexOf(categoryField[0]);
-                        for (let item of this.options.categoryList) {
-                            if (categoryField.includes(item)) {
-                                index = this.nodeCategories.indexOf(item);
-                                break;
-                            }
-                        }
+                        let index = this.options.categoryList.indexOf(categoryField[0]);
 
-                        graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, nodeColor[index], true, textColor, nodeShape));
+                        graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, nodeColor[0], true, textColor, nodeShape));
 
                     } else {
                         graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor, nodeShape));
@@ -715,7 +708,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 let edgeColorObject = { color: edgeColor, highlight: edgeColor};
                 //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
                 // let edgeWidth = this.options.edgeWidth;
-
                 for (let i = 0; i < links.length; i++) {
                     graph.addEdge(new Edge(nodeEntry, links[i], linkNames[i], {to: this.options.isDirected}, 1,
                         edgeColorObject, edgeType));
