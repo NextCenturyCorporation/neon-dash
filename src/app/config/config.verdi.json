@@ -51,15 +51,49 @@
             "layout": "verdi-ta2-layout",
             "datastore": "elasticsearch",
             "hostname": "localhost",
-            "databases": [{
-                "name": "verdi-rdf",
-                "prettyName": "VERDI",
-                "tables": [
-                    {
-                        "name": "reified",
-                        "prettyName": "Reified"
-                    }]
-            }]
+            "databases": [
+                {
+                    "name": "verdi-support",
+                    "prettyName": "VERDI",
+                    "tables": [
+                        {
+                            "name": "parent_children",
+                            "prettyName": "Parent Children"
+                        }]
+                },
+                {
+                    "name": "verdi-rdf",
+                    "prettyName": "VERDI",
+                    "tables": [
+                        {
+                            "name": "kb",
+                            "prettyName": "Knowledge Base"
+                        },
+                        {
+                            "name": "normal",
+                            "prettyName": "Normal"
+                        },
+                        {
+                            "name": "reified",
+                            "prettyName": "Reified"
+                        }]
+                }],
+            "relations":[
+                {
+                    "members": [
+                        {
+                            "database": "verdi-support",
+                            "table": "parent_children",
+                            "field": "id"
+                        },
+                        {
+                            "database": "verdi-rdf",
+                            "table": "kb",
+                            "field": "docIds"
+                        }
+                    ]
+                }
+            ]
         },
         {
             "title": "VERDI",
@@ -113,11 +147,20 @@
                             "database": "verdi-rdf",
                             "table": "kb",
                             "field": "hypotheses"
+                        },                        {
+                            "database": "verdi-support",
+                            "table": "parent_children",
+                            "field": "hypotheses"
                         }
                     ]
                 },
                 {
                     "members": [
+                        {
+                            "database": "verdi-support",
+                            "table": "hypothesis_info",
+                            "field": "docIds"
+                        },
                         {
                             "database": "verdi-support",
                             "table": "parent_children",
@@ -355,18 +398,21 @@
                 "bindings": {
                     "title": "Subject",
                     "database": "verdi-rdf",
-                    "table": "reified",
-                    "sortField": "subject",
-                    "idField": "@id",
+                    "table": "kb",
+                    "sortField": "name",
+                    "idField": "kbid",
                     "arrayFilterOperator": "or",
                     "filterable": true,
                     "filterFields": [
-                        "subject"
+                        "kbid",
+                        "docIds"
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "subject"
-                    ]
+                        "name"
+                    ],
+                    "aggregate": true,
+                    "nonNullFields": ["edgeTarget"]
                 },
                 "row": 7,
                 "col": 0
@@ -385,18 +431,20 @@
                 "bindings": {
                     "title": "Predicate",
                     "database": "verdi-rdf",
-                    "table": "reified",
-                    "sortField": "predicate",
-                    "idField": "@id",
+                    "table": "kb",
+                    "sortField": "edgeLabel",
+                    "idField": "edgeLabel",
                     "arrayFilterOperator": "or",
                     "filterable": true,
                     "filterFields": [
-                        "predicate"
+                        "edgeLabel",
+                        "docIds"
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "predicate"
-                    ]
+                        "edgeLabel"
+                    ],
+                    "aggregate": true
                 },
                 "row": 7,
                 "col": 9
@@ -416,18 +464,20 @@
                 "bindings": {
                     "title": "Object",
                     "database": "verdi-rdf",
-                    "table": "reified",
-                    "sortField": "object",
-                    "idField": "@id",
+                    "table": "kb",
+                    "sortField": "targetName",
+                    "idField": "edgeTarget",
                     "arrayFilterOperator": "or",
                     "filterable": true,
                     "filterFields": [
-                        "object"
+                        "edgeTarget",
+                        "docIds"
                     ],
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-                        "object"
-                    ]
+                        "targetName"
+                    ],
+                    "aggregate": true
                 },
                 "row": 7,
                 "col": 17
@@ -436,8 +486,8 @@
                 "name": "Network Graph",
                 "type": "networkGraph",
                 "icon": "Graph",
-                "sizex": 24,
-                "sizey": 16,
+                "sizex": 20,
+                "sizey": 12,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -447,16 +497,82 @@
                 "bindings": {
                     "title": "Network Graph",
                     "database": "verdi-rdf",
-                    "table": "reified",
+                    "table": "kb",
                     "unsharedFilterField": "",
                     "unsharedFilterValue": "",
-                    "nodeField": "subject",
-                    "linkField": "object",
-                    "isReified": true,
-                    "isDirected": true
+                    "nodeField": "kbid",
+                    "nodeNameField": "name",
+                    "linkField": "edgeTarget",
+                    "linkNameField": "edgeLabel",
+                    "nodeColor": ["#ADD8E6", "#DF9F9F", "#FFDA99", "#FFFFEF"],
+                    "linkColor": "#D1C2F0",
+                    "edgeColor": "#63B4CF",
+                    "xPositionField" : "x",
+                    "yPositionField" : "y",
+                    "xTargetPositionField" : "targetX",
+                    "yTargetPositionField" : "targetY",
+                    "targetNameField" : "targetName",
+                    "categoryField" : "categories",
+                    "categoryList" : ["EVENT", "RELATION"],
+                    "typeField" : "types",
+                    "isReified": false,
+                    "isDirected": true,
+                    "showOnlyFiltered": false,
+                    "physics": false,
+                    "filterFields": ["hypotheses", "docIds"],
+                    "idField": "@id",
+                    "id": "_id",
+                    "multiFilter": true,
+                    "edgeColorField": ""
                 },
                 "row": 13,
                 "col": 0
+            },
+            {
+                "name": "Thumbnail Grid",
+                "type": "thumbnailGrid",
+                "icon": "ThumbnailGrid",
+                "sizex": 4,
+                "sizey": 12,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4,
+                "$$hashKey": "object:35",
+                "selected": true,
+                "bindings": {
+                    "id": "_id",
+                    "title": "Documents",
+                    "database": "verdi-support",
+                    "table": "parent_children",
+                    "idField": "id",
+                    "linkField": "url",
+                    "dateField": "download_date",
+                    "objectNameField": "",
+                    "objectIdField": "parent_uid",
+                    "typeField": "dtyp",
+                    "predictedNameField": "",
+                    "percentField": "",
+                    "openOnMouseClick" : true,
+                    "showOnlyFiltered" : false,
+                    "sortField": "dtyp",
+                    "filterField": "id",
+                    "ascending": true,
+                    "detailedThumbnails": true,
+                    "limit":8,
+                    "typeMap": {
+                        "jpg": "img",
+                        "png": "img",
+                        "mp4": "vid",
+                        "pdf": "pdf",
+                        "ltf": "pdf",
+                        "gif": "img",
+                        "mp3": "aud",
+                        "svg": "img"
+                    }
+                },
+                "row": 13,
+                "col": 21
             },
             {
                 "name": "Filter Builder",
@@ -539,7 +655,8 @@
                     "contentField":"hypothesis",
                     "showOnlyFiltered": true,
                     "filterField": "hypothesis_id",
-                    "sortField": "id",
+                    "sortField": "hypothesis_id",
+                    "ascending": true,
                     "ignoreSelf": false
                 },
                 "row": 2,
@@ -570,12 +687,15 @@
                     "nodeColor": ["#ADD8E6", "#DF9F9F", "#FFDA99", "#FFFFEF"],
                     "linkColor": "#D1C2F0",
                     "edgeColor": "#63B4CF",
+                    "xPositionField" : "x",
+                    "yPositionField" : "y",
                     "categoryField" : "categories",
                     "categoryList" : ["EVENT", "RELATION"],
                     "typeField" : "types",
                     "isReified": false,
                     "isDirected": true,
                     "showOnlyFiltered": true,
+                    "physics": false,
                     "filterFields": ["hypotheses", "docIds"],
                     "idField": "@id",
                     "id": "_id",
@@ -616,7 +736,17 @@
                     "filterField": "id",
                     "ascending": true,
                     "detailedThumbnails": true,
-                    "limit":8
+                    "limit":8,
+                    "typeMap": {
+                        "jpg": "img",
+                        "png": "img",
+                        "mp4": "vid",
+                        "pdf": "pdf",
+                        "ltf": "pdf",
+                        "gif": "img",
+                        "mp3": "aud",
+                        "svg": "img"
+                    }
                 },
                 "row": 2,
                 "col": 19
