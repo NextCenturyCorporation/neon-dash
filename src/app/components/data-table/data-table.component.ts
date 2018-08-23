@@ -22,7 +22,8 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
-    ViewEncapsulation
+    ViewEncapsulation,
+    HostListener
 } from '@angular/core';
 
 import { ActiveGridService } from '../../services/active-grid.service';
@@ -175,6 +176,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
         this.options = new DataTableOptions(this.injector, this.datasetService, 'Data Table', 100);
         this.enableRedrawAfterResize(true);
+    }
+
+    @HostListener('window:resize')
+    onResize() {
+        this.refreshVisualization();
     }
 
     initializeHeadersFromExceptionsToStatus() {
