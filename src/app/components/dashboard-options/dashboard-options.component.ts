@@ -137,6 +137,7 @@ export class DashboardOptionsComponent implements OnInit {
             connection.loadState(stateParams, (dashboardState) => {
                 if (_.keys(dashboardState).length) {
                     // ensure that active dataset matches the one we're attempting to load
+                    dashboardState.dataset.name += ' (' + name + ')';
                     this.datasetService.setActiveDataset(dashboardState.dataset);
                     this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
                     this.openNotification(name, 'loaded');
