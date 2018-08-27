@@ -46,6 +46,7 @@ import * as _ from 'lodash';
  */
 export class NewsFeedOptions extends BaseNeonOptions {
     public showOnlyFiltered: boolean;
+    public ascending: boolean;
     public filterField: FieldMetaData;
     public id: string;
     public idField: FieldMetaData;
@@ -64,6 +65,7 @@ export class NewsFeedOptions extends BaseNeonOptions {
      */
     onInit() {
         this.id = this.injector.get('id', '');
+        this.ascending = this.injector.get('ascending', false);
         this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
     }
 
@@ -210,7 +212,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         ];
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses))
-            .sortBy(this.options.sortField.columnName, neonVariables.DESCENDING);
+            .sortBy(this.options.sortField.columnName,this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
     }
 
     /**
