@@ -70,7 +70,9 @@ class Node {
         public color?: string,
         public isLink?: boolean,
         public font?: Object,
-        public shape?: string
+        public shape?: string,
+        public x?: number,
+        public y?: number
     ) {}
 }
 
@@ -121,6 +123,11 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public showOnlyFiltered: boolean;
     public filterFields: string[];
     public categoryList: string[];
+    public xPositionField: FieldMetaData;
+    public yPositionField: FieldMetaData;
+    public xTargetPositionField: FieldMetaData;
+    public yTargetPositionField: FieldMetaData;
+    public physics: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -140,6 +147,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
         this.filterFields = this.injector.get('filterFields', []);
         this.categoryList = this.injector.get('categoryList', []);
+        this.physics = this.injector.get('physics', true);
     }
 
     /**
@@ -155,6 +163,10 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.edgeColorField = this.findFieldObject('edgeColorField');
         this.categoryField = this.findFieldObject('categoryField');
         this.typeField = this.findFieldObject('typeField');
+        this.xPositionField = this.findFieldObject('xPositionField');
+        this.yPositionField = this.findFieldObject('yPositionField');
+        this.xTargetPositionField = this.findFieldObject('xTargetPositionField');
+        this.yTargetPositionField = this.findFieldObject('yTargetPositionField');
     }
 }
 
@@ -304,6 +316,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         bindings.linkNameField = this.options.linkNameField.columnName;
         bindings.edgeColorField = this.options.edgeColorField.columnName;
         bindings.andFilters = this.options.andFilters;
+        bindings.xPositionField = this.options.xPositionField.columnName;
+        bindings.yPositionField = this.options.yPositionField.columnName;
+        bindings.xTargetPositionField = this.options.xTargetPositionField.columnName;
+        bindings.yTargetPositionField = this.options.yTargetPositionField.columnName;
     }
 
     ngAfterViewInit() {
@@ -394,12 +410,17 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let edgeColorField = this.options.edgeColorField.columnName;
         let typeField = this.options.typeField.columnName;
         let categoryField = this.options.categoryField.columnName;
+        let xPositionField = this.options.xPositionField.columnName;
+        let yPositionField = this.options.yPositionField.columnName;
+        let xTargetPositionField = this.options.xTargetPositionField.columnName;
+        let yTargetPositionField = this.options.yTargetPositionField.columnName;
         let whereClauses: neon.query.WherePredicate[] = [];
         //whereClauses.push(neon.query.where(this.options.linkField.columnName, '!=', null));
         let groupBy: any[] = [this.options.nodeField.columnName];
 
         let fields = [nodeField, linkField];
-        for (const field of [edgeColorField, nodeNameField, linkNameField, typeField, categoryField].concat(this.options.filterFields)) {
+        for (const field of [edgeColorField, nodeNameField, linkNameField, typeField, categoryField, xPositionField,
+            yPositionField, xTargetPositionField, yTargetPositionField].concat(this.options.filterFields)) {
             if (field) {
                 fields.push(field);
             }
@@ -519,7 +540,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.totalNodes = graphProperties.nodes.length;
         this.clearGraphData();
         if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
-            this.graph.setOptions({physics: {enabled: true}});
+            this.graph.setOptions({physics: {enabled: this.options.physics}});
             this.displayGraph = true;
             this.graphData.nodes.update(graphProperties.nodes);
             this.graphData.edges.update(graphProperties.edges);
@@ -644,13 +665,19 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             linkColor = this.options.linkColor,
             textColor = {color: this.options.fontColor},
             limit = this.options.limit,
-            nodeShape = 'box';
+            nodeShape = 'box',
+            xPositionField = this.options.xPositionField.columnName,
+            yPositionField = this.options.yPositionField.columnName,
+            xTargetPositionField = this.options.xTargetPositionField.columnName,
+            yTargetPositionField = this.options.yTargetPositionField.columnName;
 
         // assume nodes will take precedence over edges so create nodes first
         for (let entry of this.activeData) {
             let categoryField = entry[categoryName],
                 nodeField = entry[nodeName],
-                nodeNameField = nodeNameColumn && entry[nodeNameColumn];
+                nodeNameField = nodeNameColumn && entry[nodeNameColumn],
+                xPosition = entry[xPositionField],
+                yPosition = entry[yPositionField];
 
             // create a new node for each unique nodeId
             let nodes = Array.isArray(nodeField) ? nodeField : [nodeField],
@@ -661,10 +688,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     if (nodeColor.length > 1) {
                         let index = this.options.categoryList.indexOf(categoryField[0]);
 
-                        graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[index + 1], false, textColor, nodeShape));
+                        graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[index + 1], false, textColor, nodeShape,
+                            xPosition, yPosition));
 
                     } else {
-                        graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[0], false, textColor, nodeShape));
+                        graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor[0], false, textColor, nodeShape,
+                            xPosition, yPosition));
                     }
                 }
             }
