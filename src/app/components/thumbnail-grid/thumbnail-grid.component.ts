@@ -332,6 +332,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         this.showGrid = true;
         this.refreshVisualization();
         this.createMediaThumbnail();
+
         this.thumbnailGrid.nativeElement.scrollTop = 0;
     }
 
@@ -541,7 +542,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                             Math.min(this.page * this.options.limit, this.gridArray.length));
                     }
                     else{
-                    this.pagingGrid = this.gridArray.slice(0, this.options.limit);
+                        this.pagingGrid = this.gridArray.slice(0, this.options.limit);
                     }
                     this.showGrid = true;
                 } else {
@@ -550,7 +551,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
 
                 this.refreshVisualization();
-                this.createMediaThumbnail();
+                    this.createMediaThumbnail();
                 this.isLoading = false;
 
             } else {
