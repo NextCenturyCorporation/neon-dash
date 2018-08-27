@@ -156,7 +156,7 @@ export class QueryBarComponent  extends BaseNeonComponent {
                 });
 
                 if (setValues) {
-                    this.queryValues = this.queryValues.filter((value, index, array) => array.indexOf(value) === index);
+                    this.queryValues = this.queryValues.filter((value, index, array) => array.indexOf(value) === index).sort();
                 }
 
                 this.queryBarSetup();
@@ -402,7 +402,6 @@ export class QueryBarComponent  extends BaseNeonComponent {
     private extensionAddFilter(text: string, fields: any, array: any[]) {
         let whereClauses = [],
             clause: WherePredicate;
-
         for (let item of array) {
             if ((typeof item === 'object')) {
                 if (item.hasOwnProperty(fields.idField)) {

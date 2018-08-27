@@ -682,6 +682,7 @@
                     "unsharedFilterValue": "",
                     "nodeField": "kbid",
                     "nodeNameField": "name",
+                    "nodeShape" : "box",
                     "linkField": "edgeTarget",
                     "linkNameField": "edgeLabel",
                     "nodeColor": ["#ADD8E6", "#DF9F9F", "#FFDA99", "#FFFFEF"],
