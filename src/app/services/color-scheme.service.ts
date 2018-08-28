@@ -227,7 +227,7 @@ export class Color {
      * @return {string}
      */
     getInactiveRgba(): string {
-        return this.toRgba(0.3);
+        return this.toRgba(0.2);
     }
 
     /**
