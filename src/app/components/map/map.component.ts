@@ -173,6 +173,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         filterName: string
     }[] = [];
 
+    protected filterHistory = new Array();
+
     public options: MapOptions;
 
     public docCount: number[] = [];
@@ -383,6 +385,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 localFilters.fieldsByLayer[i].longitude);
 
             if (neonFilters && neonFilters.length) {
+                this.filterHistory.push(neonFilters[0]);
                 localFilters.id = neonFilters[0].id;
                 this.replaceNeonFilter(i, true, localFilters, neonFilter);
             } else {
@@ -409,6 +412,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                 localFilters.fieldsByLayer[i].longitude);
 
             if (neonFilters && neonFilters.length) {
+                this.filterHistory.push(neonFilters[0]);
                 localFilters.id = neonFilters[0].id;
                 this.replaceNeonFilter(i, true, localFilters, neonFilter);
             } else {
@@ -900,6 +904,8 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
      * Removes the map component filter and neon filter.
      */
     handleRemoveFilter(filter: any): void {
+        let neonFilters = this.filterService.getFiltersByOwner(this.id);
+        this.filterHistory.push(neonFilters[0]);
         for (let i = 0; i < this.options.layers.length; i++) {
             this.removeLocalFilterFromLocalAndNeon(i, filter, true, false);
         }
