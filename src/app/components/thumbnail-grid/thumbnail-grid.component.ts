@@ -254,6 +254,16 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             fields.push(this.options.typeField.columnName);
         }
 
+        let wheres: neon.query.WherePredicate[] = [neon.query.where(this.options.linkField.columnName, '!=', null)];
+
+        if (this.options.filter) {
+            wheres.push(neon.query.where(this.options.filter.lhs, this.options.filter.operator, this.options.filter.rhs));
+        }
+
+        if (this.hasUnsharedFilter()) {
+            wheres.push(neon.query.where(this.options.unsharedFilterField.columnName, '=', this.options.unsharedFilterValue));
+        }
+
         this.options.customEventsToPublish.forEach((config) => {
             (config.fields || []).forEach((fieldsConfig) => {
                 if (fields.indexOf(fieldsConfig.field) < 0) {
@@ -262,7 +272,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             });
         });
 
-        return query.withFields(fields).where(this.options.linkField.columnName, '!=', null)
+        return query.withFields(fields).where(wheres.length > 1 ? neon.query.and.apply(neon.query, wheres) : wheres[0])
             .sortBy(this.options.sortField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
     }
 
@@ -738,32 +748,46 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             }
 
             if (this.options.border) {
-                if (this.options.border === 'percentField') {
-                    if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
-                        let percentageAsNumber = parseFloat(percentage);
-                        if (percentageAsNumber >= this.options.borderPercentThreshold) {
+                switch (this.options.border) {
+                    case 'percentField': {
+                        if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
+                            let percentFloat = parseFloat(percentage);
+                            if (percentFloat >= this.options.borderPercentThreshold) {
+                                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-blue');
+                            } else {
+                                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-red');
+                            }
+                        } else {
+                            thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-grey');
+                        }
+                        break;
+                    }
+                    case 'percentCompare': {
+                        if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
+                            let percentFloat = parseFloat(percentage);
+                            if ((percentFloat >= this.options.borderPercentThreshold && comparison === this.options.borderCompareValue) ||
+                                (percentFloat < this.options.borderPercentThreshold && comparison !== this.options.borderCompareValue)) {
+                                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-blue');
+                            } else {
+                                thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-red');
+                            }
+                        } else {
+                            thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-grey');
+                        }
+                        break;
+                    }
+                    case 'valueCompare': {
+                        if (comparison === this.options.borderCompareValue) {
                             thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-blue');
                         } else {
                             thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-red');
                         }
-                    } else {
-                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-grey');
+                        break;
                     }
-                } else if (this.options.border === 'percentCompare') {
-                    if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
-                        let percentageAsNumber = parseFloat(percentage);
-                        if ((percentageAsNumber >= this.options.borderPercentThreshold && comparison === this.options.borderCompareValue) ||
-                            (percentageAsNumber < this.options.borderPercentThreshold && comparison !== this.options.borderCompareValue)) {
-                            thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-blue');
-                        } else {
-                            thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-red');
-                        }
-                    } else {
-                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-grey');
+                    default: {
+                        thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' +
+                            this.options.border);
                     }
-                } else {
-                    thumbnail.canvas.setAttribute('class', thumbnail.canvas.getAttribute('class') + ' ' + 'border-mat-' +
-                        this.options.border);
                 }
             } else if (objectId && categoryId) {
                 if (objectId === categoryId) {
