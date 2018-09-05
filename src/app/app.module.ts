@@ -62,7 +62,6 @@ import { MediaViewerComponent } from './components/media-viewer/media-viewer.com
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
-import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
@@ -116,7 +115,6 @@ export function getAppConfig() {
         ScatterPlotComponent,
         SimpleFilterComponent,
         SnackBarComponent,
-        StackedTimelineComponent,
         TextCloudComponent,
         ThumbnailGridComponent,
         TimelineComponent,
