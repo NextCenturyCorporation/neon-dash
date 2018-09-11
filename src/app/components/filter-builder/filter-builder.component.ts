@@ -420,7 +420,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      * @override
      */
     postInit() {
-        // Do nothing.
+        this.updateFilters();
     }
 
     /**
@@ -591,9 +591,10 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             clause.changeTable = clause.table;
             clause.changeField = clause.field;
             if (clause.database && clause.table) {
+                let filterId = clauseConfig.id || this.filterService.createFilterId(clauseConfig.database, clauseConfig.table);
                 this.clauses.push(clause);
                 this.databaseTableFieldKeysToFilterIds.set(this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
-                    clause.field.columnName), clauseConfig.id);
+                    clause.field.columnName), filterId);
             }
         });
 

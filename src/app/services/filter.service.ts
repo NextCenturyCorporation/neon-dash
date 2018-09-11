@@ -320,7 +320,7 @@ export class FilterService {
         return filter;
     }
 
-    protected createFilterId(database: string, table: string) {
+    public createFilterId(database: string, table: string) {
         return database + '-' + table + '-' + uuid.v4();
     }
 
