@@ -115,6 +115,13 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
     public mediaTypes: any = MediaTypes;
 
+    public documentArray: {
+        border: string,
+        link: string,
+        name: string,
+        type: string
+    }[] = [];
+
     public tabsAndMedia: {
         name: string,
         selected: {
