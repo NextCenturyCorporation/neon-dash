@@ -1773,7 +1773,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(spy2.calls.count()).toEqual(1);
     });
 
-
     it('onQuerySuccess with link prefix does update expected properties and call expected functions', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
