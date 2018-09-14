@@ -15,7 +15,7 @@
  */
 import { async, ComponentFixture, fakeAsync, inject, TestBed, tick } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import {Injector, CUSTOM_ELEMENTS_SCHEMA
+import { Injector, CUSTOM_ELEMENTS_SCHEMA
 } from '@angular/core';
 import { } from 'jasmine-core';
 import * as neon from 'neon-framework';
