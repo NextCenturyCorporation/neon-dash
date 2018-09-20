@@ -28,7 +28,7 @@
     &:hover {
         cursor: pointer;
         text-decoration: none;
-        background-color: #b4E2E4!important;
+        color: mat-contrast($primary, A100) !important;
     }
 }
 
