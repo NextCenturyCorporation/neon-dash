@@ -190,7 +190,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         };
         fields.forEach((fieldsConfig) => {
             let links = this.transformToStringArray(metadata[fieldsConfig.field], this.options.delimiter);
-            this.addLinks(tab, links, [], [], fieldsConfig.label);
+            this.addLinks(tab, links, [], []);
         });
         if (tab.list.length) {
             tab.selected = tab.list[0];
@@ -215,10 +215,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @arg {any[]} links
      * @arg {any[]} names
      * @arg {any[]} types
-     * @arg {string} prettyName
      */
-    addLinks(tab, links: any, names: any[], types: any[], prettyName: string) {
+    addLinks(tab, links: any, names: any[], types: any[]) {
         links.forEach((link, index) => {
+            let prettyName = link.substring(link.lastIndexOf('/') + 1);
             let nameWithArrayIndex = prettyName + (links.length > 1 ? ' ' + (index + 1) : '');
             let linkTypeFromConfig = this.options.typeMap[link.substring(link.lastIndexOf('.') + 1).toLowerCase()] || '';
             if (link) {
@@ -480,7 +480,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     this.options.linkFields.forEach((linkField) => {
                         let links = neonUtilities.deepFind(responseItem, linkField.columnName) || '';
                         links = this.transformToStringArray(links, this.options.delimiter);
-                        this.addLinks(tab, links, names, types, linkField.prettyName);
+                        this.addLinks(tab, links, names, types);
                     });
 
                     if (tab.list.length) {
