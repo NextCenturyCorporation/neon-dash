@@ -112,10 +112,11 @@
 					"database": "ll_nepal_06_14_2",
 					"table": "annotations1Author",
 					"isDirected": true,
+					"nodeColorField": "enrichedEnities.entity_type",
 					"nodeField": "entities",
 					"linkField": "author",
 					"nodeColor": "#4DBCC1",
-            		"linkColor": "#F68B4E",
+            		                "linkColor": "#F68B4E",
 					"limit": 100,
 					"edgeColorField": "sentimentString"
 				},
