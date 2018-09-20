@@ -189,7 +189,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             list: [].concat(this.queryLinks)
         };
         fields.forEach((fieldsConfig) => {
-            this.addLinks(tab, metadata[fieldsConfig.field], [], [], fieldsConfig.label);
+            let links = this.transformToStringArray(metadata[fieldsConfig.field], this.options.delimiter);
+            this.addLinks(tab, links, [], [], fieldsConfig.label);
         });
         if (tab.list.length) {
             tab.selected = tab.list[0];
@@ -211,15 +212,14 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * Adds the given links to the global list.
      *
      * @arg {any} tab
-     * @arg {any} links
+     * @arg {any[]} links
      * @arg {any[]} names
      * @arg {any[]} types
      * @arg {string} prettyName
      */
     addLinks(tab, links: any, names: any[], types: any[], prettyName: string) {
-        let linksArray = this.transformToStringArray(links, this.options.delimiter);
-        linksArray.forEach((link, index) => {
-            let nameWithArrayIndex = prettyName + (linksArray.length > 1 ? ' ' + (index + 1) : '');
+        links.forEach((link, index) => {
+            let nameWithArrayIndex = prettyName + (links.length > 1 ? ' ' + (index + 1) : '');
             let linkTypeFromConfig = this.options.typeMap[link.substring(link.lastIndexOf('.') + 1).toLowerCase()] || '';
             if (link) {
                 tab.list.push({
@@ -457,37 +457,40 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 this.errorMessage = '';
                 this.isLoadingMedia = true;
 
-                let names = [];
-                let types = [];
+                response.data.forEach((responseItem) => {
+                    let names = [];
+                    let types = [];
 
-                if (this.options.nameField.columnName) {
-                    names = neonUtilities.deepFind(response.data[0], this.options.nameField.columnName) || '';
-                    names = this.transformToStringArray(names, this.options.delimiter);
-                }
+                    if (this.options.nameField.columnName) {
+                        names = neonUtilities.deepFind(responseItem, this.options.nameField.columnName) || '';
+                        names = this.transformToStringArray(names, this.options.delimiter);
+                    }
 
-                if (this.options.typeField.columnName) {
-                    types = neonUtilities.deepFind(response.data[0], this.options.typeField.columnName) || '';
-                    types = this.transformToStringArray(types, this.options.delimiter);
-                }
+                    if (this.options.typeField.columnName) {
+                        types = neonUtilities.deepFind(responseItem, this.options.typeField.columnName) || '';
+                        types = this.transformToStringArray(types, this.options.delimiter);
+                    }
 
-                let tab = {
-                    selected: undefined,
-                    name: tabName,
-                    list: []
-                };
+                    let tab = {
+                        selected: undefined,
+                        name: tabName,
+                        list: []
+                    };
 
-                this.options.linkFields.forEach((linkField) => {
-                    this.addLinks(tab, neonUtilities.deepFind(response.data[0], linkField.columnName) || '', names, types,
-                        linkField.prettyName);
+                    this.options.linkFields.forEach((linkField) => {
+                        let links = neonUtilities.deepFind(responseItem, linkField.columnName) || '';
+                        links = this.transformToStringArray(links, this.options.delimiter);
+                        this.addLinks(tab, links, names, types, linkField.prettyName);
+                    });
+
+                    if (tab.list.length) {
+                        tab.selected = tab.list[0];
+                        this.tabsAndMedia.push(tab);
+                        // Use concat to copy the list.
+                        this.queryLinks = [].concat(tab.list);
+                        this.noDataId = undefined;
+                    }
                 });
-
-                if (tab.list.length) {
-                    tab.selected = tab.list[0];
-                    this.tabsAndMedia.push(tab);
-                    // Use concat to copy the list.
-                    this.queryLinks = [].concat(tab.list);
-                    this.noDataId = undefined;
-                }
 
                 this.isLoadingMedia = false;
             } else {
