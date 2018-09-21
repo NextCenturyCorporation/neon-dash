@@ -4,7 +4,8 @@ MAINTAINER patrick.sharkey@nextcentury.com
 # Update system packages and remove any downloaded files
 RUN \
   rm -rf /var/lib/apt/lists/* && \
-  apt-get clean && apt-get -y update
+  apt-get clean && \
+  apt-get -y update
 
 # Install system packages
 RUN apt-get -qqy install \
@@ -75,13 +76,20 @@ RUN set -x \
 	&& tar -xvf tomcat.tar.gz --strip-components=1 \
 	&& rm tomcat.tar.gz* 
 
+# Create user for Tomcat Web Management Interface
+COPY ["scripts/tomcat/create_tomcat_admin_user.sh", "$CATALINA_HOME/"]
+RUN chmod +x $CATALINA_HOME/create_tomcat_admin_user.sh
+RUN $CATALINA_HOME/create_tomcat_admin_user.sh
+
+
+
 #-------------------------------------------------------------
 # Update Configurations and Start Supervisor
 #-------------------------------------------------------------
 COPY ["configs/supervisord.conf", "/etc/supervisor/conf.d/"]
 
 # Expose Ports
-EXPOSE 22
+EXPOSE 22 8080
 
 # Define default command.
 CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]

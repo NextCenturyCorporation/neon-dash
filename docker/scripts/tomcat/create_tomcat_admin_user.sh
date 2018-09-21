@@ -5,6 +5,9 @@ if [ -f /.tomcat_admin_created ]; then
     exit 0
 fi
 
+#define tomcat root installation
+CATALINA_HOME='/usr/local/tomcat'
+
 #generate password
 TOMCAT_PASS='password'
 PASS=${TOMCAT_PASS:-$(pwgen -s 12 1)}
@@ -28,3 +31,11 @@ echo ""
 echo "    admin:${PASS}"
 echo ""
 echo "========================================================================"
+
+echo "=> Removing IP restrictions for host-manager and manager"
+sed -i '/<Valve className="org.apache.catalina.valves.RemoteAddrValve/d' ${CATALINA_HOME}/webapps/host-manager/META-INF/context.xml
+sed -i '/allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1/d' ${CATALINA_HOME}/webapps/host-manager/META-INF/context.xml
+sed -i '/<Valve className="org.apache.catalina.valves.RemoteAddrValve/d' ${CATALINA_HOME}/webapps/manager/META-INF/context.xml
+sed -i '/allow="127\.\d+\.\d+\.\d+|::1|0:0:0:0:0:0:0:1/d' ${CATALINA_HOME}/webapps/manager/META-INF/context.xml
+
+

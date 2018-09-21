@@ -22,6 +22,12 @@ sudo docker ps -a
 # Stop Docker Container
 sudo docker stop <container_id>
 
+# Delete Docker Container
+sudo docker rm <container_id>
+
+# Force Delete Container Without Stopping
+sudo docker rm -f <container_id>
+
 # Kill All Running Containers
 sudo docker kill $(sudo docker ps -q)
 
