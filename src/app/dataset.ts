@@ -98,5 +98,6 @@ export const MediaTypes = {
     image: 'img',
     video: 'vid',
     html: 'htm',
-    pdf: 'pdf'
+    pdf: 'pdf',
+    maskImage: 'mask'
 };

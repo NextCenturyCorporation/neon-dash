@@ -433,7 +433,7 @@ layouts:
             id: show_medium
             fields:
               -
-                field: MergedMask
+                field: ThumbDir
               -
                 field: InvertedMask
         detailedThumbnails: true
@@ -509,18 +509,19 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeDir
+        maskField: InvertedMask
         linkPrefix: http://10.107.5.189:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         typeMap:
             arw:
-            bmp: img
+            bmp: mask
             cr2:
-            gif: img
+            gif: mask
             iiq:
-            jpg: img
-            jpeg: img
+            jpg: mask
+            jpeg: mask
             nef:
-            png: img
+            png: mask
             tif:
             avi: vid
             mp4: vid
@@ -529,20 +530,9 @@ layouts:
             id: show_medium
             fields:
               -
-                field: ProbeDir
+                field: ThumbDir
                 label: Medium
-              -
-                field: MergedMask
-                label: Overlay
-              -
-                field: InvertedMask
-                label: Mask
-              -
-                field: ReasoningMergedMask
-                label: Overlay
-              -
-                field: ReasoningInvertedMask
-                label: Mask
+                mask: InvertedMask
 
     -
       col: 13
