@@ -22,7 +22,8 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
-    ViewEncapsulation
+    ViewEncapsulation,
+    Renderer2
 } from '@angular/core';
 
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -48,6 +49,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
     public delimiter: string;
     public id: string;
     public idField: FieldMetaData;
+    public maskField: FieldMetaData;
     public linkField: FieldMetaData;
     public linkFields: FieldMetaData[];
     public linkPrefix: string;
@@ -56,6 +58,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
     public typeField: FieldMetaData;
     public typeMap: any;
     public url: string;
+    public clearMedia: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -70,6 +73,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
         this.resize = this.injector.get('resize', true);
         this.typeMap = this.injector.get('typeMap', {});
         this.url = this.injector.get('url', '');
+        this.clearMedia = this.injector.get('clearMedia', false);
     }
 
     /**
@@ -81,7 +85,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
         this.idField = this.findFieldObject('idField');
         this.nameField = this.findFieldObject('nameField');
         this.typeField = this.findFieldObject('typeField');
-
+        this.maskField = this.findFieldObject('maskField');
         this.linkField = this.findFieldObject('linkField');
         this.linkFields = this.findFieldObjects('linkFields');
         if (this.linkField.columnName && !this.linkFields.length) {
@@ -101,13 +105,15 @@ export class MediaViewerOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    protected MEDIA_PADDING: number = 10;
+    protected MEDIA_PADDING: number = 5;
     protected SLIDER_HEIGHT: number = 30;
     protected TAB_HEIGHT: number = 30;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
+    @ViewChild('imageMedium') imageMedium: ElementRef;
+    @ViewChild('imageMask') imageMask: ElementRef;
 
     public options: MediaViewerOptions;
 
@@ -118,12 +124,14 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         selected: {
             border: string,
             link: string,
+            mask: string,
             name: string,
             type: string
         },
         list: {
             border: string,
             link: string,
+            mask: string,
             name: string,
             type: string
         }[]
@@ -135,6 +143,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     public previousId: string = '';
     public queryLinks: any[] = [];
     public selectedTabIndex: number = 0;
+    public renderer: Renderer2;
 
     constructor(
         activeGridService: ActiveGridService,
@@ -146,6 +155,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         themesService: ThemesService,
         ref: ChangeDetectorRef,
         visualizationService: VisualizationService,
+        renderer2: Renderer2,
         private sanitizer: DomSanitizer
     ) {
 
@@ -162,6 +172,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         );
 
         this.options = new MediaViewerOptions(this.injector, this.datasetService, 'Media Viewer', 10);
+        this.renderer = renderer2;
 
         this.subscribeToSelectId(this.getSelectIdCallback());
 
@@ -189,7 +200,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             list: [].concat(this.queryLinks)
         };
         fields.forEach((fieldsConfig) => {
-            this.addLinks(tab, metadata[fieldsConfig.field], [], [], fieldsConfig.label);
+            this.addLinks(tab, metadata[fieldsConfig.field], metadata[fieldsConfig.mask], [], [], fieldsConfig.label);
         });
         if (tab.list.length) {
             tab.selected = tab.list[0];
@@ -208,6 +219,17 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * returns the media type for the thumbnail
+     * @arg {object} item
+     * @return string
+     */
+    getMediaType(item) {
+        let fileType = item.substring(item.lastIndexOf('.') + 1).toLowerCase();
+        return this.options.typeField.columnName ? this.options.typeField.columnName : this.options.typeMap[fileType] ?
+            this.options.typeMap[fileType] : '';
+    }
+
+    /**
      * Adds the given links to the global list.
      *
      * @arg {any} tab
@@ -216,16 +238,19 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @arg {any[]} types
      * @arg {string} prettyName
      */
-    addLinks(tab, links: any, names: any[], types: any[], prettyName: string) {
+    addLinks(tab, links: any, maskLinks: any, names: any[], types: any[], prettyName: string) {
         let linksArray = this.transformToStringArray(links, this.options.delimiter);
+        let maskLinksArray = this.transformToStringArray(maskLinks, this.options.delimiter);
         linksArray.forEach((link, index) => {
-            let nameWithArrayIndex = prettyName + (linksArray.length > 1 ? ' ' + (index + 1) : '');
-            let linkTypeFromConfig = this.options.typeMap[link.substring(link.lastIndexOf('.') + 1).toLowerCase()] || '';
             if (link) {
+                let nameWithArrayIndex = prettyName + (linksArray.length > 1 ? ' ' + (index + 1) : '');
+                let linkTypeFromConfig = this.getMediaType(link) || '';
                 tab.list.push({
                     // TODO Add a boolean borderField with border options like:  true = red, false = yellow
                     border: this.options.border,
-                    link: this.options.linkPrefix + link,
+                    link: link.includes(this.options.linkPrefix) ? link : this.options.linkPrefix + link,
+                    mask: maskLinksArray[index].includes(this.options.linkPrefix) ? maskLinksArray[index] :
+                    this.options.linkPrefix + maskLinksArray[index],
                     name: (names.length > 1 ? (index < names.length ? names[index] : '') : names[0]) || nameWithArrayIndex,
                     type: (types.length > 1 ? (index < types.length ? types[index] : '') : types[0]) || linkTypeFromConfig
                 });
@@ -240,7 +265,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @arg {number} index
      */
     changeSelectedMedium(tab, index: number) {
-        tab.selected = tab.list[index];
+        //tab.selected = tab.list[index];
+        this.renderer.setStyle(this.imageMedium.nativeElement, 'opacity', index / 100);
         this.refreshVisualization();
     }
 
@@ -304,7 +330,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         return {
             visualization: this.visualization,
             headerText: this.headerText,
-            infoText: this.infoText
+            infoText: this.infoText,
+            imageMedium:  this.imageMedium,
+            imageMask:  this.imageMask
         };
     }
 
@@ -452,6 +480,17 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         this.queryLinks = [];
         this.onlyShowingQueryData = true;
 
+        if (this.options.clearMedia) {
+            let neonFilters = this.options.idField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
+                this.options.table.name, [this.options.idField.columnName]) : [];
+
+            if (!neonFilters[0] || (neonFilters[0] && !neonFilters[0].filter.whereClause.rhs)) {
+                this.errorMessage = 'No Data';
+                this.options.id = '_id';
+                return;
+            }
+        }
+
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.errorMessage = '';
@@ -477,7 +516,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 };
 
                 this.options.linkFields.forEach((linkField) => {
-                    this.addLinks(tab, neonUtilities.deepFind(response.data[0], linkField.columnName) || '', names, types,
+                    this.addLinks(tab, neonUtilities.deepFind(response.data[0], linkField.columnName) || '',
+                    neonUtilities.deepFind(response.data[0],this.options.maskField.columnName) || '', names, types,
                         linkField.prettyName);
                 });
 
@@ -485,7 +525,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     tab.selected = tab.list[0];
                     this.tabsAndMedia.push(tab);
                     // Use concat to copy the list.
-                    this.queryLinks = [].concat(tab.list);
+                    if (!this.queryLinks.length) {
+                        this.queryLinks = [].concat(tab.list);
+                    }
+
                     this.noDataId = undefined;
                 }
 
@@ -589,9 +632,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             return;
         }
 
+        //Removed video element because it did not work with youtube videos, the Iframe is a catch all and works
         let frames = this.visualization.nativeElement.querySelectorAll('.frame');
         let images = this.visualization.nativeElement.querySelectorAll('.image');
-        let videos = this.visualization.nativeElement.querySelectorAll('.video');
 
         if (!this.options.resize) {
             frames.forEach((frame) => {
@@ -601,10 +644,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             images.forEach((image) => {
                 image.style.maxHeight = '';
                 image.style.maxWidth = '';
-            });
-            videos.forEach((video) => {
-                video.style.maxHeight = '';
-                video.style.maxWidth = '';
             });
             return;
         }
@@ -627,12 +666,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 this.MEDIA_PADDING - sliderHeight - 5) + 'px';
             image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
-
-        videos.forEach((video) => {
-            video.style.maxHeight = (this.visualization.nativeElement.clientHeight - this.TOOLBAR_HEIGHT - this.TAB_HEIGHT -
-                this.MEDIA_PADDING - sliderHeight - 5) + 'px';
-            video.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
-        });
     }
 
     sanitize(url) {
@@ -651,7 +684,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         }
         if (input !== '' && input !== null && typeof input !== 'undefined') {
             let inputValue = input.toString();
-            if (inputValue.indexOf('[') === 0 && inputValue.lastIndexOf(']') === (inputValue.length - 1)) {
+            if (inputValue.indexOf('[') === 0 && inputValue.lastIndexOf(']') === (inputValue.length - 1) &&
+                typeof inputValue !== 'undefined') {
                 inputValue = inputValue.substring(1, inputValue.length - 1);
             }
             return inputValue.indexOf(delimiter) > -1 ? inputValue.split(delimiter) : [inputValue];

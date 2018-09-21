@@ -124,18 +124,20 @@
         <mat-tab-group *ngIf="tabsAndMedia.length > 1" [selectedIndex]="selectedTabIndex" (selectedTabChange)="subOnResizeStop()">
             <mat-tab class="tab" *ngFor="let tab of tabsAndMedia" [label]="tab.name">
                 <div [ngSwitch]="tab.selected.type">
+                    <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
+                        <img #imageMedium [src]="tab.selected.link" [alt]="tab.selected.name"
+                             [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
+                        <img #imageMask [src]="tab.selected.mask" [alt]="tab.selected.name"
+                             [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
+                    </div>
                     <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
                         [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
-                    <video *ngSwitchCase="mediaTypes.video" controls
-                        [class]="tab.selected.border ? ('video with-border border-mat-' + tab.selected.border) : 'video'">
-                        <source [src]="tab.selected.link">
-                    </video>
                     <iframe *ngSwitchDefault [src]="sanitize(tab.selected.link)" frameborder="0"
                         [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
                     </iframe>
                 </div>
-                <mat-slider *ngIf="tab.list.length > 1" color="primary" min="0" [max]="tab.list.length - 1" step="1"
-                    (change)="changeSelectedMedium(tab, $event.value)"></mat-slider>
+                <mat-slider invert color="primary" min="0" max="100" step="1" thumbLabel value="100"
+                            (input)="changeSelectedMedium(tab, $event.value)"></mat-slider>
             </mat-tab>
         </mat-tab-group>
 
@@ -143,17 +145,19 @@
             [ngSwitch]="tabsAndMedia[0].selected.type">
 
             <div class="viewer-text">{{ tabsAndMedia[0].name }}</div>
+            <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
+                <img #imageMedium [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name"
+                     [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border + ' medium') : 'image medium'">
+                <img #imageMask [src]="tabsAndMedia[0].selected.mask" [alt]="tabsAndMedia[0].selected.name"
+                     [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border + ' mask') : 'image mask'">
+            </div>
             <img *ngSwitchCase="mediaTypes.image" [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name"
                 [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border) : 'image'">
-            <video *ngSwitchCase="mediaTypes.video" controls
-                [class]="tabsAndMedia[0].selected.border ? ('video with-border border-mat-' + tabsAndMedia[0].selected.border) : 'video'">
-                <source [src]="tabsAndMedia[0].selected.link">
-            </video>
             <iframe *ngSwitchDefault [src]="sanitize(tabsAndMedia[0].selected.link)" frameborder="0"
                 [class]="tabsAndMedia[0].selected.border ? ('frame with-border border-mat-' + tabsAndMedia[0].selected.border) : 'frame'">
             </iframe>
-            <mat-slider *ngIf="tabsAndMedia[0].list.length > 1" color="primary" min="0" [max]="tabsAndMedia[0].list.length - 1" step="1"
-                    (change)="changeSelectedMedium(tabsAndMedia[0], $event.value)"></mat-slider>
+            <mat-slider invert color="primary" min="0" max="100" step="1" thumbLabel value="100"
+                        (input)="changeSelectedMedium(tabsAndMedia[0], $event.value)"></mat-slider>
         </div>
     </div>
 

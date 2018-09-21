@@ -66,3 +66,32 @@ img, video {
     width: calc(100% - 20px);
 }
 
+.maskingDiv{
+    position: relative;
+    margin-bottom: 24px;
+
+    .medium {
+        z-index: 3;
+        position: relative;
+    }
+
+    .mask {
+        z-index: 1;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+}
+
+.mat-slider ::ng-deep div.mat-slider-thumb-label{
+    padding: 3px;
+
+    ::after{
+        content: "%";
+    }
+}
+
+
+
+
+
