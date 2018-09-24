@@ -79,7 +79,7 @@ export class Dataset {
     public databases: DatabaseMetaData[] = [];
     public hasUpdatedFields: boolean = false;
     public layout: string = ''; // TODO: 825: layout will be specified in options
-    public options: DatasetOptions = new DatasetOptions(); // TODO: 825: different from new options object -- leave this alone for now
+    public options: DatasetOptions = new DatasetOptions(); // TODO: 825: might move this -- leave this alone for now
     public relations: Relation[] = []; // TODO: 825: this will move into options
 
     constructor(
@@ -95,7 +95,7 @@ export class Datastore {
     public connectOnLoad: boolean = false;
     public databases: DatabaseMetaData[] = [];
     public hasUpdatedFields: boolean = false;
-    //public
+    public options: DatasetOptions = new DatasetOptions(); // TODO: 825: might move this -- leave this alone for now
 
     // TODO: 825: remove layout later
     public layout: string = '';
