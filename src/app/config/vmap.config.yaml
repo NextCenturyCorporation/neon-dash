@@ -1,10 +1,24 @@
 datasets:
   -
+    name: NIST
+    datastore: elasticsearchrest
+    hostname: 10.107.5.227
+    layout: NIST
+    databases:
+      -
+        name: nist_data
+        prettyName: NIST
+        tables:
+          -
+            name: _doc
+            prettyName: Item
+            fields:
+
+  -
     name: EVAL17PART1_II17_SRI17_MDL
-    datastore: elasticsearch
+    datastore: elasticsearchrest
     hostname: localhost
     layout: REASONING
-    connectOnLoad: true
     databases:
       -
         name: nc2017_eval_part_1_sri_072018
@@ -102,7 +116,7 @@ datasets:
 
   -
     name: EVAL17PART1_II18_RF18_MDL
-    datastore: elasticsearch
+    datastore: elasticsearchrest
     hostname: localhost
     layout: REASONING_GT
     databases:
@@ -202,7 +216,7 @@ datasets:
 
   -
     name: EVAL17PART1_REFMAN_REF_MDL
-    datastore: elasticsearch
+    datastore: elasticsearchrest
     hostname: localhost
     layout: MANIPULATIONS
     connectOnLoad: true
@@ -254,10 +268,9 @@ datasets:
 
   -
     name: DEMO_II18_NC18_MDL_RUN_b153d2db-8340-40ac-9327-3bcde5fe2cc4
-    datastore: elasticsearch
+    datastore: elasticsearchrest
     hostname: localhost
     layout: RUN
-    connectOnLoad: true
     databases:
       -
         name: demo_inputs_b153d2db-8340-40ac-9327-3bcde5fe2cc4
@@ -363,21 +376,6 @@ datasets:
             database: demo_scores_b153d2db-8340-40ac-9327-3bcde5fe2cc4
             table: doc
             field: run
-
-  -
-    name: NIST
-    datastore: elasticsearch
-    hostname: 10.107.5.227
-    layout: NIST
-    databases:
-      -
-        name: nist_data
-        prettyName: NIST
-        tables:
-          -
-            name: doc
-            prettyName: Item
-            fields:
 
 layouts:
   MANIPULATIONS:
@@ -1253,14 +1251,14 @@ layouts:
     -
       col: 1
       row: 1
-      sizex: 6
-      sizey: 12
+      sizex: 8
+      sizey: 11
       type: thumbnailGrid
       bindings:
         title: Probe Image Gallery
-        limit: 15
+        limit: 16
         database: nist_data
-        table: doc
+        table: _doc
         unsharedFilterField: ProjectType
         unsharedFilterValue: image
         ascending: true
@@ -1273,17 +1271,17 @@ layouts:
         filterField: ProbeFileID
         idField: ProbeFileID
         linkField: ProbeFileName
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         nameField: ProbeFileID
         objectIdField:
-        objectNameField:
+        objectNameField: TaskID
         openOnMouseClick: false
         percentField:
         predictedNameField:
         sortField: ProbeFileID
         styleClass: style2
         textMap:
-            actual:
+            actual: Task
             percentage:
             prediction:
         typeMap:
@@ -1304,15 +1302,15 @@ layouts:
 
     -
       col: 1
-      row: 13
-      sizex: 6
-      sizey: 10
+      row: 12
+      sizex: 8
+      sizey: 5
       type: thumbnailGrid
       bindings:
         title: Probe Video Gallery
-        limit: 12
+        limit: 4
         database: nist_data
-        table: doc
+        table: _doc
         unsharedFilterField: ProjectType
         unsharedFilterValue: video
         ascending: true
@@ -1325,17 +1323,17 @@ layouts:
         filterField: ProbeFileID
         idField: ProbeFileID
         linkField: ProbeFileName
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         nameField: ProbeFileID
         objectIdField:
-        objectNameField:
+        objectNameField: TaskID
         openOnMouseClick: false
         percentField:
         predictedNameField:
         sortField: ProbeFileID
         styleClass: style2
         textMap:
-            actual:
+            actual: Task
             percentage:
             prediction:
         typeMap:
@@ -1353,23 +1351,62 @@ layouts:
             mp4: vid
 
     -
-      col: 13
-      row: 19
-      sizex: 12
-      sizey: 4
+      col: 1
+      row: 17
+      sizex: 8
+      sizey: 5
       type: filterBuilder
+      bindings:
+        requireAll: true
+        clauseConfig:
+          -
+            database: nist_data
+            table: _doc
+            field: FileType
+            operator: '!='
+            value: arw
+          -
+            database: nist_data
+            table: _doc
+            field: FileType
+            operator: '!='
+            value: cr2
+          -
+            database: nist_data
+            table: _doc
+            field: FileType
+            operator: '!='
+            value: dng
+          -
+            database: nist_data
+            table: _doc
+            field: FileType
+            operator: '!='
+            value: nef
+          -
+            database: nist_data
+            table: _doc
+            field: FileType
+            operator: '!='
+            value: raf
+          -
+            database: nist_data
+            table: _doc
+            field: FileType
+            operator: '!='
+            value: tif
 
     -
-      col: 7
+      col: 9
       row: 1
-      sizex: 6
+      sizex: 8
       sizey: 4
       type: aggregation
       bindings:
         type: bar-h
         title: Datasets
         database: nist_data
-        table: doc
+        table: _doc
         aggregation: count
         logScaleX: true
         sortByAggregation: true
@@ -1377,16 +1414,16 @@ layouts:
         yPercentage: 0.3
 
     -
-      col: 7
+      col: 9
       row: 5
-      sizex: 6
+      sizex: 8
       sizey: 4
       type: aggregation
       bindings:
         type: bar-h
         title: Tasks
         database: nist_data
-        table: doc
+        table: _doc
         aggregation: count
         logScaleX: true
         sortByAggregation: true
@@ -1394,16 +1431,16 @@ layouts:
         yPercentage: 0.3
 
     -
-      col: 7
+      col: 9
       row: 9
-      sizex: 6
+      sizex: 8
       sizey: 4
       type: aggregation
       bindings:
         type: bar-h
         title: Is Target
         database: nist_data
-        table: doc
+        table: _doc
         aggregation: count
         logScaleX: true
         sortByAggregation: true
@@ -1411,16 +1448,16 @@ layouts:
         yPercentage: 0.3
 
     -
-      col: 7
+      col: 9
       row: 13
-      sizex: 6
-      sizey: 8
+      sizex: 8
+      sizey: 9
       type: aggregation
       bindings:
         type: bar-h
         title: Manipulations
         database: nist_data
-        table: doc
+        table: _doc
         aggregation: count
         logScaleX: true
         sortByAggregation: true
@@ -1428,20 +1465,20 @@ layouts:
         yPercentage: 0.3
 
     -
-      col: 13
+      col: 17
       row: 1
-      sizex: 6
-      sizey: 6
+      sizex: 8
+      sizey: 7
       type: mediaViewer
       bindings:
         title: Probe
         database: nist_data
-        table: doc
+        table: _doc
         border: grey
         idField: ProbeFileID
         linkFields:
           - ProbeFileName
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         typeMap:
             arw:
             bmp: img
@@ -1457,20 +1494,20 @@ layouts:
             mp4: vid
 
     -
-      col: 19
-      row: 7
-      sizex: 6
-      sizey: 6
+      col: 17
+      row: 8
+      sizex: 8
+      sizey: 7
       type: mediaViewer
       bindings:
         title: Probe GT Mask
         database: nist_data
-        table: doc
+        table: _doc
         border: grey
         idField: ProbeFileID
         linkFields:
           - ProbeMaskFileName
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         typeMap:
             arw:
             bmp: img
@@ -1486,20 +1523,20 @@ layouts:
             mp4: vid
 
     -
-      col: 13
-      row: 7
-      sizex: 6
-      sizey: 6
+      col: 17
+      row: 15
+      sizex: 8
+      sizey: 7
       type: mediaViewer
       bindings:
         title: Base
         database: nist_data
-        table: doc
+        table: _doc
         border: grey
         idField: ProbeFileID
         linkFields:
           - BaseFileName
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         typeMap:
             arw:
             bmp: img
@@ -1515,49 +1552,20 @@ layouts:
             mp4: vid
 
     -
-      col: 19
-      row: 7
-      sizex: 6
-      sizey: 6
-      type: mediaViewer
-      bindings:
-        title: Binary Probe GT Mask
-        database: nist_data
-        table: doc
-        border: grey
-        idField: ProbeFileID
-        linkFields:
-          - BinaryProbeMaskFileName
-        linkPrefix: http://10.107.5.189:8000
-        typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
-            jpeg: img
-            nef:
-            png: img
-            tif:
-            avi: vid
-            mp4: vid
-
-    -
-      col: 13
-      row: 13
-      sizex: 6
-      sizey: 6
+      col: 1
+      row: 22
+      sizex: 8
+      sizey: 7
       type: mediaViewer
       bindings:
         title: Donor
         database: nist_data
-        table: doc
+        table: _doc
         border: grey
         idField: ProbeFileID
         linkFields:
           - DonorFileName
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         typeMap:
             arw:
             bmp: img
@@ -1573,20 +1581,20 @@ layouts:
             mp4: vid
 
     -
-      col: 19
-      row: 13
-      sizex: 6
-      sizey: 6
+      col: 9
+      row: 22
+      sizex: 8
+      sizey: 7
       type: mediaViewer
       bindings:
         title: Donor GT Mask
         database: nist_data
-        table: doc
+        table: _doc
         border: grey
         idField: ProbeFileID
         linkFields:
           - DonorMaskFileName
-        linkPrefix: http://10.107.5.189:8000
+        linkPrefix: http://10.107.5.227:8000
         typeMap:
             arw:
             bmp: img
@@ -1600,4 +1608,77 @@ layouts:
             tif:
             avi: vid
             mp4: vid
+
+    -
+      col: 17
+      row: 22
+      sizex: 8
+      sizey: 7
+      type: mediaViewer
+      bindings:
+        title: Binary Probe GT Mask
+        database: nist_data
+        table: _doc
+        border: grey
+        idField: ProbeFileID
+        linkFields:
+          - BinaryProbeMaskFileName
+        linkPrefix: http://10.107.5.227:8000
+        typeMap:
+            arw:
+            bmp: img
+            cr2:
+            gif: img
+            iiq:
+            jpg: img
+            jpeg: img
+            nef:
+            png: img
+            tif:
+            avi: vid
+            mp4: vid
+
+    -
+      col: 1
+      row: 29
+      sizex: 24
+      sizey: 6
+      type: dataTable
+      bindings:
+        title: Data
+        database: nist_data
+        table: _doc
+        filterable: true
+        filterFields:
+          - ProbeFileID
+        idField: ProbeFileID
+        sortField: ProbeFileID
+        skinny: true
+        sortDescending: false
+        allColumnStatus: hide
+        fieldsConfig:
+          -
+            name: ProbeFileID
+          -
+            name: Dataset
+          -
+            name: TaskID
+          -
+            name: IsTarget
+          -
+            name: Manipulations
+          -
+            name: ProbeFileName
+          -
+            name: ProbeMaskFileName
+          -
+            name: BaseFileName
+          -
+            name: DonorFileName
+          -
+            name: DonorMaskFileName
+          -
+            name: BinaryProbeMaskFileName
+          -
+            name: JournalFileName
 
