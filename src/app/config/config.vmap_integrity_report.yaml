@@ -1,0 +1,329 @@
+datasets:
+  -
+    name: EVAL18PART1_REF
+    datastore: elasticsearch
+    hostname: localhost
+    layout: INTEGRITY_REPORT
+    databases:
+      -
+        name: integrity_report_probes_091418
+        prettyName: Probes
+        tables:
+          -
+            name: doc
+            prettyName: Data
+            fields:
+      -
+        name: integrity_report_operations_091418
+        prettyName: Operations
+        tables:
+          -
+            name: doc
+            prettyName: Data
+            fields:
+      -
+        name: integrity_report_donors_091418
+        prettyName: Donors
+        tables:
+          -
+            name: doc
+            prettyName: Data
+            fields:
+    relations:
+      -
+        members:
+          -
+            database: integrity_report_probes_091418
+            table: doc
+            field: ProbeFileID
+          -
+            database: integrity_report_operations_091418
+            table: doc
+            field: ProbeFileID
+          -
+            database: integrity_report_donors_091418
+            table: doc
+            field: ProbeFileID
+
+layouts:
+  INTEGRITY_REPORT:
+    -
+      col: 1
+      row: 1
+      sizex: 8
+      sizey: 14
+      type: thumbnailGrid
+      bindings:
+        title: Probe Gallery
+        limit: 200
+        database: 0
+        table: doc
+        ascending: true
+        border: percentField
+        cropAndScale:
+        defaultPercent: N/A
+        filterField: ProbeFileID
+        idField: ProbeFileID
+        linkField: NeonThumbnailPath
+        linkPrefix: http://10.107.5.227:8000
+        nameField: ProbeFileID
+        objectIdField:
+        objectNameField:
+        openOnMouseClick: false
+        percentField: NeonReasoningScore
+        predictedNameField:
+        sortField: ProbeFileID
+        styleClass: style2
+        textMap:
+            actual: Truth
+            percentage: Score
+            prediction:
+        typeMap:
+            jpeg: img
+            arw:
+            bmp: img
+            cr2:
+            dng:
+            iiq:
+            jpg: img
+            mts:
+            nef:
+            png: img
+            raf:
+            tif:
+            3gp:
+            gif:
+            avi: vid
+            mov: vid
+            mp4: vid
+        customEventsToPublish:
+          -
+            id: show_probe
+            fields:
+              -
+                field: NeonProbeMaskOverlayPaths
+              -
+                field: NeonProbeMaskPath
+
+    -
+      col: 1
+      row: 15
+      sizex: 14
+      sizey: 6
+      type: filterBuilder
+
+    -
+      col: 9
+      row: 1
+      sizex: 6
+      sizey: 6
+      type: dataTable
+      bindings:
+        title: Manipulations
+        database: 1
+        table: doc
+        filterable: false
+        filterFields:
+        hideUnfiltered: true
+        heatmapDivisor: 0.2
+        heatmapField: OperationScore
+        idField: OperationGroup
+        ignoreSelf: true
+        sortField: OperationOrder
+        skinny: true
+        sortDescending: false
+        allColumnStatus: hide
+        fieldsConfig:
+          -
+            name: OperationGroup
+          -
+            name: OperationScore
+          -
+            name: OperationOrder
+          -
+            name: OperationSubtype
+        customEventsToPublish:
+          -
+            id: show_probe
+            fields:
+              -
+                field: OperationMaskPath
+              -
+                field: OperationOverlayPaths
+
+    -
+      col: 9
+      row: 7
+      sizex: 6
+      sizey: 8
+      type: documentViewer
+      bindings:
+        title: Metadata
+        limit: 1
+        database: 0
+        table: doc
+        hideUnfiltered: true
+        dataField: ProbeFileID
+        hideSource: true
+        idField: ProbeFileID
+        nameWidthCss: 50%
+        metadataFields:
+          -
+            name: File Name
+            field: ProbeFileID
+          -
+            name: EXIF Data
+            field: Exif
+
+    -
+      col: 15
+      row: 1
+      sizex: 10
+      sizey: 8
+      type: mediaViewer
+      bindings:
+        title: Probe
+        database: 0
+        table: doc
+        border: grey
+        idField: ProbeFileID
+        linkFields:
+          - NeonProbePath
+        linkPrefix: http://10.107.5.227:8000
+        typeMap:
+            jpeg: img
+            arw:
+            bmp: img
+            cr2:
+            dng:
+            iiq:
+            jpg: img
+            mts:
+            nef:
+            png: img
+            raf:
+            tif:
+            3gp:
+            gif:
+            avi: vid
+            mov: vid
+            mp4: vid
+        customEventsToReceive:
+          -
+            id: show_probe
+            fields:
+              -
+                field: NeonProbePath
+                label: Probe
+              -
+                field: NeonProbeMaskOverlayPaths
+                label: Overlay
+              -
+                field: NeonProbeMaskPath
+                label: Mask
+              -
+                field: OperationOverlayPaths
+                label: Overlay
+              -
+                field: OperationMaskPath
+                label: Mask
+
+    -
+      col: 15
+      row: 9
+      sizex: 10
+      sizey: 4
+      type: thumbnailGrid
+      bindings:
+        title: Donor Gallery
+        limit: 10
+        database: 2
+        table: doc
+        hideUnfiltered: true
+        ascending: true
+        border: percentField
+        cropAndScale: scale
+        filterField:
+        idField: ProbeFileID
+        ignoreSelf: false
+        linkField: DonorPath
+        linkPrefix: http://10.107.5.227:8000
+        nameField: DonorFileID
+        objectIdField:
+        objectNameField:
+        openOnMouseClick: false
+        percentField: DonorScore
+        predictedNameField:
+        sortField: DonorFileID
+        styleClass: style2
+        typeMap:
+            jpeg: img
+            arw:
+            bmp: img
+            cr2:
+            dng:
+            iiq:
+            jpg: img
+            mts:
+            nef:
+            png: img
+            raf:
+            tif:
+            3gp:
+            gif:
+            avi: vid
+            mov: vid
+            mp4: vid
+        customEventsToPublish:
+          -
+            id: show_donor
+            fields:
+              -
+                field: DonorPath
+              -
+                field: DonorMaskPath
+
+    -
+      col: 15
+      row: 13
+      sizex: 10
+      sizey: 8
+      type: mediaViewer
+      bindings:
+        title: Donor
+        database: 2
+        table: doc
+        border: grey
+        idField: DonorFileID
+        linkFields:
+          - DonorPath
+        linkPrefix: http://10.107.5.227:8000
+        typeMap:
+            jpeg: img
+            arw:
+            bmp: img
+            cr2:
+            dng:
+            iiq:
+            jpg: img
+            mts:
+            nef:
+            png: img
+            raf:
+            tif:
+            3gp:
+            gif:
+            avi: vid
+            mov: vid
+            mp4: vid
+        customEventsToReceive:
+          -
+            id: show_donor
+            fields:
+              -
+                field: DonorPath
+                label: Donor
+              -
+                field: DonorMaskPath
+                label: Mask
+
