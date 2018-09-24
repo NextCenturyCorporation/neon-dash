@@ -46,7 +46,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppMaterialModule } from '../../app.material.module';
 import { ChartComponent } from '../chart/chart.component';
 import { MediaViewerComponent } from '../media-viewer/media-viewer.component';
-import { ThumbnailGridComponent } from '../thumbnail-grid/thumbnail-grid.component';
+import { ThumbnailDetailsContractedComponent, ThumbnailDetailsExpandedComponent } from '../thumbnail-grid/thumbnail-details.component';
 import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: VisualizationContainer', () => {
@@ -72,7 +72,8 @@ describe('Component: VisualizationContainer', () => {
             ScatterPlotComponent,
             StackedTimelineComponent,
             TextCloudComponent,
-            ThumbnailGridComponent,
+            ThumbnailDetailsContractedComponent,
+            ThumbnailDetailsExpandedComponent,
             TimelineComponent,
             UnsharedFilterComponent,
             VisualizationContainerComponent,
