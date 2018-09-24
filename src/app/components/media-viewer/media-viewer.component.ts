@@ -105,7 +105,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
-    protected MEDIA_PADDING: number = 5;
+    protected MEDIA_PADDING: number = 10;
     protected SLIDER_HEIGHT: number = 30;
     protected TAB_HEIGHT: number = 30;
 
@@ -200,7 +200,8 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             list: [].concat(this.queryLinks)
         };
         fields.forEach((fieldsConfig) => {
-            this.addLinks(tab, metadata[fieldsConfig.field], metadata[fieldsConfig.mask], [], [], fieldsConfig.label);
+            let links = this.transformToStringArray(metadata[fieldsConfig.field], this.options.delimiter);
+            this.addLinks(tab, links, metadata[fieldsConfig.mask],[], []);
         });
         if (tab.list.length) {
             tab.selected = tab.list[0];
@@ -233,27 +234,30 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * Adds the given links to the global list.
      *
      * @arg {any} tab
-     * @arg {any} links
+     * @arg {any[]} links
      * @arg {any[]} names
      * @arg {any[]} types
-     * @arg {string} prettyName
      */
-    addLinks(tab, links: any, maskLinks: any, names: any[], types: any[], prettyName: string) {
-        let linksArray = this.transformToStringArray(links, this.options.delimiter);
-        let maskLinksArray = this.transformToStringArray(maskLinks, this.options.delimiter);
-        linksArray.forEach((link, index) => {
-            if (link) {
-                let nameWithArrayIndex = prettyName + (linksArray.length > 1 ? ' ' + (index + 1) : '');
+    addLinks(tab, links: any, maskLinks: any, names: any[], types: any[]) {
+        links.forEach((link, index) => {
+        if (link) {
+            let prettyName = link.substring(link.lastIndexOf('/') + 1);
+            let nameWithArrayIndex = prettyName + (links.length > 1 ? ' ' + (index + 1) : '');
+            let linkTypeFromConfig = this.options.typeMap[link.substring(link.lastIndexOf('.') + 1).toLowerCase()] || '';
+/*                let nameWithArrayIndex = prettyName + (linksArray.length > 1 ? ' ' + (index + 1) : '');
                 let linkTypeFromConfig = this.getMediaType(link) || '';
-                tab.list.push({
+* */
+            tab.list.push({
                     // TODO Add a boolean borderField with border options like:  true = red, false = yellow
                     border: this.options.border,
-                    link: link.includes(this.options.linkPrefix) ? link : this.options.linkPrefix + link,
-                    mask: maskLinksArray[index].includes(this.options.linkPrefix) ? maskLinksArray[index] :
-                    this.options.linkPrefix + maskLinksArray[index],
+                    link: link.indexOf(this.options.linkPrefix) !== 0 ? this.options.linkPrefix + link : link,
                     name: (names.length > 1 ? (index < names.length ? names[index] : '') : names[0]) || nameWithArrayIndex,
                     type: (types.length > 1 ? (index < types.length ? types[index] : '') : types[0]) || linkTypeFromConfig
                 });
+
+           /* link: link.includes(this.options.linkPrefix) ? link : this.options.linkPrefix + link,
+                mask: maskLinksArray[index].includes(this.options.linkPrefix) ? maskLinksArray[index] :
+                this.options.linkPrefix + maskLinksArray[index],*/
             }
         });
     }
@@ -496,41 +500,43 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 this.errorMessage = '';
                 this.isLoadingMedia = true;
 
-                let names = [];
-                let types = [];
+                response.data.forEach((responseItem) => {
+                    let names = [];
+                    let types = [];
 
-                if (this.options.nameField.columnName) {
-                    names = neonUtilities.deepFind(response.data[0], this.options.nameField.columnName) || '';
-                    names = this.transformToStringArray(names, this.options.delimiter);
-                }
-
-                if (this.options.typeField.columnName) {
-                    types = neonUtilities.deepFind(response.data[0], this.options.typeField.columnName) || '';
-                    types = this.transformToStringArray(types, this.options.delimiter);
-                }
-
-                let tab = {
-                    selected: undefined,
-                    name: tabName,
-                    list: []
-                };
-
-                this.options.linkFields.forEach((linkField) => {
-                    this.addLinks(tab, neonUtilities.deepFind(response.data[0], linkField.columnName) || '',
-                    neonUtilities.deepFind(response.data[0], this.options.maskField.columnName) || '', names, types,
-                        linkField.prettyName);
-                });
-
-                if (tab.list.length) {
-                    tab.selected = tab.list[0];
-                    this.tabsAndMedia.push(tab);
-                    // Use concat to copy the list.
-                    if (!this.queryLinks.length) {
-                        this.queryLinks = [].concat(tab.list);
+                    if (this.options.nameField.columnName) {
+                        names = neonUtilities.deepFind(responseItem, this.options.nameField.columnName) || '';
+                        names = this.transformToStringArray(names, this.options.delimiter);
                     }
 
-                    this.noDataId = undefined;
-                }
+                    if (this.options.typeField.columnName) {
+                        types = neonUtilities.deepFind(responseItem, this.options.typeField.columnName) || '';
+                        types = this.transformToStringArray(types, this.options.delimiter);
+                    }
+
+                    let tab = {
+                        selected: undefined,
+                        name: tabName,
+                        list: []
+                    };
+
+                    this.options.linkFields.forEach((linkField) => {
+                        let links = neonUtilities.deepFind(responseItem, linkField.columnName) || '';
+                        links = this.transformToStringArray(links, this.options.delimiter);
+                        let maskLinks = neonUtilities.deepFind(responseItem, this.options.maskField.columnName) || '';
+                        this.addLinks(tab, links, maskLinks, names, types);
+                    });
+
+                    if (tab.list.length) {
+                        tab.selected = tab.list[0];
+                        this.tabsAndMedia.push(tab);
+                        // Use concat to copy the list.
+                        if (!this.queryLinks.length) {
+                            this.queryLinks = [].concat(tab.list);
+                        }
+                        this.noDataId = undefined;
+                    }
+                });
 
                 this.isLoadingMedia = false;
             } else {
