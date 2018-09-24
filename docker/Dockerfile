@@ -76,20 +76,71 @@ RUN set -x \
 	&& tar -xvf tomcat.tar.gz --strip-components=1 \
 	&& rm tomcat.tar.gz* 
 
+# Create Tomcat user and group
+RUN groupadd tomcat
+RUN useradd -s /bin/false -g tomcat -d $CATALINA_HOME tomcat
+
 # Create user for Tomcat Web Management Interface
-COPY ["scripts/tomcat/create_tomcat_admin_user.sh", "$CATALINA_HOME/"]
-RUN chmod +x $CATALINA_HOME/create_tomcat_admin_user.sh
-RUN $CATALINA_HOME/create_tomcat_admin_user.sh
+COPY ["scripts/tomcat/tomcat_setup.sh", "$CATALINA_HOME/"]
+RUN chmod +x $CATALINA_HOME/tomcat_setup.sh
+RUN $CATALINA_HOME/tomcat_setup.sh
+
+# Update Tomcat directory permissions
+RUN chown -R tomcat:tomcat $CATALINA_HOME
+
+#------------------------------------------------------------
+# Install Elasticsearch 2.5.4
+#------------------------------------------------------------
+ENV ELASTICSEARCH_HOME /usr/local/elasticsearch
+WORKDIR $ELASTICSEARCH_HOME
+
+ENV ELASTCSEARCH_MAJOR 2
+ENV ELATICSEARCH_VERSION 2.5.4
+ENV ELASTICSEARCH_TGZ_URL https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.5/elasticsearch-2.4.5.tar.gz
+
+# Download and extract Elasticesarch archive
+RUN set -x \
+        \
+        && wget -O elasticesarch.tar.gz "$ELASTICSEARCH_TGZ_URL" \
+        && tar -xvf elasticesarch.tar.gz --strip-components=1 \
+        && rm elasticesarch.tar.gz*
+
+# Create Elasticsearch user and group
+RUN groupadd elasticsearch
+RUN useradd -s /bin/false -g elasticsearch -d $ELASTICSEARCH_HOME elasticsearch
+
+# Update Elastcisearch permissions
+RUN chown -R elasticsearch:elasticsearch $ELASTICSEARCH_HOME
+
+# Update permissions on scripts
+RUN \
+   chmod +x $ELASTICSEARCH_HOME/bin/*.sh && \
+   chmod +x $ELASTICSEARCH_HOME/bin/elasticsearch && \
+   chmod +x $ELASTICSEARCH_HOME/bin/plugin
 
 
+# Define mountable directories.
+VOLUME ["${ELASTICEARCH_HOME}/data"]
+
+# Copy elasticsearch.yml configuration file
+COPY ["configs/elasticsearch/elasticsearch.yml", "$ELASTICSEARCH_HOME/config/"]
 
 #-------------------------------------------------------------
-# Update Configurations and Start Supervisor
+# Install Elasticesarch-head 2.x
 #-------------------------------------------------------------
-COPY ["configs/supervisord.conf", "/etc/supervisor/conf.d/"]
+WORKDIR $ELASTICSEARCH_HOME
+RUN bin/plugin install mobz/elasticsearch-head
+
+#-------------------------------------------------------------
+# Clean up, Update Configurations and Start Supervisor
+#-------------------------------------------------------------
+RUN \
+   rm -rf /var/lib/apt/lists/*
+
+COPY ["configs/supervisor/supervisord.conf", "/etc/supervisor/conf.d/"]
 
 # Expose Ports
-EXPOSE 22 8080
+EXPOSE 22 8080 9200
 
 # Define default command.
-CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD ["/usr/bin/supervisord"]
