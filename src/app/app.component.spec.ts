@@ -70,6 +70,10 @@ import { NgxGraphModule } from '@swimlane/ngx-graph';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import { MediaViewerComponent } from './components/media-viewer/media-viewer.component';
 import { ThumbnailGridComponent } from './components/thumbnail-grid/thumbnail-grid.component';
+import {
+    ThumbnailDetailsContractedComponent,
+    ThumbnailDetailsExpandedComponent
+} from './components/thumbnail-grid/thumbnail-details.component';
 
 describe('App: NeonGtd', () => {
     let fixture: ComponentFixture<AppComponent>;
@@ -101,6 +105,8 @@ describe('App: NeonGtd', () => {
                 SimpleFilterComponent,
                 StackedTimelineComponent,
                 TextCloudComponent,
+                ThumbnailDetailsContractedComponent,
+                ThumbnailDetailsExpandedComponent,
                 ThumbnailGridComponent,
                 TimelineComponent,
                 UnsharedFilterComponent,
