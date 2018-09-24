@@ -1,0 +1,67 @@
+datastores:
+    es_1:
+        host: localhost
+        type: elasticsearch
+        databases:
+            ldc_uyg_jul_18:
+                prettyName: Uyghur LDC, July 2018
+                tables:
+                    ui_out:
+                        prettyName: UI out
+
+options:
+    darpa60:
+        name: DARPA60
+        options:
+            Uyghur:
+                name: Uyghur
+                options:
+                    uyg_discovery:
+                        name: Uyghur LDC Situation Discovery
+                        layout: DISCOVERY
+                        tables:
+                            # TODO: better table/field key names
+                            table_key_1: es_1.ldc_uyg_jul_18.ui_out
+                            # datastore_id.database_name.table_name
+                        fields:
+                            field_key_1: es_1.ldc_uyg_jul_18.ui_out.originalText
+
+layouts:
+    id: DISCOVERY
+    view:
+        -
+            type: dataTable
+            icon: ViewData64
+            col: 1
+            row": 1
+            sizex: 4
+            sizey: 14
+            bindings:
+                title: Document Feed
+                tableKey: table_key_1
+                # TODO: these would probably be specified in options???
+                #idField": "_id",
+                #sortField": "createdDate",
+                #filterFields: ["id"]
+                limit: 100
+                allColumnStatus: hide
+                exceptionsToStatus:
+                    -
+                        createdDate
+                    -
+                        originalText
+                customColumnWidths:
+                    -
+                        createdDate
+                        15
+                    -
+                        originalText
+                        360
+                filterable: false
+                singleFilter: true
+                ignoreSelf: false
+                checkDuplicateField: originalText
+            minPixelx: 320
+            minPixely: 240
+            minSizex: 7
+            minSizey: 3

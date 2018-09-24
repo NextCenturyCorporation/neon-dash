@@ -27,7 +27,7 @@ import {
 } from '@angular/core';
 
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
-import { Dataset } from './dataset';
+import { Datastore } from './dataset';
 
 import { NeonGTDConfig } from './neon-gtd-config';
 import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav } from '@angular/material';
@@ -66,7 +66,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     public gridItems: NeonGridItem[] = [];
 
-    public datasets: Dataset[] = [];
+    public datasets: Datastore[] = [];
 
     public gridConfig: NgGridConfig = {
         resizable: true,
@@ -83,8 +83,9 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         auto_resize: true,
         cascade: 'up',
         fix_to_grid: true,
-        limit_to_screen: true,
-        resize_directions: ['bottomright', 'bottomleft', 'right', 'left', 'bottom']
+        limit_to_screen: true
+        //,
+        //resize_directions: ['bottomright', 'bottomleft', 'right', 'left', 'bottom']
     };
 
     public projectTitle: string = 'Neon';
@@ -119,10 +120,12 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
             snackBarRef.instance.addErrors('Configuration Errors', neonConfig.errors);
         }
 
+        // TODO: 825: incorporate into options or layout later
+        /*
         if (this.datasets && this.datasets.length > 0) {
             this.projectTitle = this.datasets[0].title ? this.datasets[0].title : this.projectTitle;
             this.projectIcon = this.datasets[0].icon ? this.datasets[0].icon : this.projectIcon;
-        }
+        }*/
 
         this.changeFavicon();
 
@@ -132,7 +135,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         return JSON.stringify(this.gridItems);
     }
 
-    getDatasets(): Dataset[] {
+    getDatasets(): Datastore[] {
         return this.datasets;
     }
 

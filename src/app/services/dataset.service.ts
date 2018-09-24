@@ -16,7 +16,7 @@
 import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
-import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData, Relation } from '../dataset';
+import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData, Relation, Datastore } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
@@ -27,10 +27,10 @@ export class DatasetService {
     // The Dataset Service may ask the visualizations to update their data.
     static UPDATE_DATA_CHANNEL: string = 'update_data';
 
-    private datasets: Dataset[] = [];
+    private datasets: Datastore[] = [];
 
     // The active dataset.
-    private dataset: Dataset = new Dataset();
+    private dataset: Datastore = new Datastore();
 
     // Use the Dataset Service to save settings for specific databases/tables and
     // publish messages to all visualizations if those settings change.
@@ -93,8 +93,42 @@ export class DatasetService {
     }
 
     constructor(@Inject('config') private config: NeonGTDConfig) {
-        this.datasets = (config.datasets ? config.datasets : []);
+        this.datasets = [];
+        let datastores = (config.datastores ? config.datastores : {});
+
+        // convert datastore key/value pairs into an array
+        Object.keys(datastores).forEach((datastoreKey) => {
+            let datastore = datastores[datastoreKey];
+            datastore.name = datastoreKey;
+
+            let databases = (datastore.databases ? datastore.databases : {});
+            let newDatabasesArray: DatabaseMetaData[] = [];
+
+            Object.keys(databases).forEach((databaseKey) => {
+                let database = databases[databaseKey];
+                database.name = databaseKey;
+
+                let tables = (database.tables ? database.tables : {});
+                let newTablesArray: TableMetaData[] = [];
+
+                Object.keys(tables).forEach((tableKey) => {
+                    let table = tables[tableKey];
+                    table.name = tableKey;
+                    newTablesArray.push(table);
+                });
+
+                database.tables = newTablesArray;
+                newDatabasesArray.push(database);
+            });
+
+            datastore.databases = newDatabasesArray;
+
+            // then push converted object onto datasets array
+            this.datasets.push(datastore);
+        });
+
         this.messenger = new neon.eventing.Messenger();
+
         this.datasets.forEach((dataset) => {
             DatasetService.validateDatabases(dataset);
         });
@@ -127,7 +161,7 @@ export class DatasetService {
      * Returns the list of datasets maintained by this service
      * @return {Array}
      */
-    public getDatasets(): Dataset[] {
+    public getDatasets(): Datastore[] {
         return this.datasets;
     }
 
@@ -135,7 +169,7 @@ export class DatasetService {
      * Adds the given dataset to the list of datasets maintained by this service and returns the new list.
      * @return {Array}
      */
-    public addDataset(dataset): Dataset[] {
+    public addDataset(dataset): Datastore[] {
         DatasetService.validateDatabases(dataset);
         this.datasets.push(dataset);
         return this.datasets;
@@ -151,15 +185,12 @@ export class DatasetService {
      * names as keys and field names as values.
      */
     public setActiveDataset(dataset): void {
+        // TODO: 825: structure will likely change here
         this.dataset.name = dataset.name || 'Unknown Dataset';
         this.dataset.layout = dataset.layout || '';
-        this.dataset.datastore = dataset.datastore || '';
-        this.dataset.hostname = dataset.hostname || '';
-        this.dataset.title = dataset.title || '';
-        this.dataset.icon = dataset.icon || '';
+        this.dataset.type = dataset.type || '';
+        this.dataset.host = dataset.host || '';
         this.dataset.databases = dataset.databases || [];
-        this.dataset.options = dataset.options || {};
-        this.dataset.relations = dataset.relations || [];
 
         // Shutdown any previous update intervals.
         if (this.updateInterval) {
@@ -167,20 +198,22 @@ export class DatasetService {
             delete this.updateSubscription;
             delete this.updateInterval;
         }
+        // TODO: 825: move to options
+        /*
         if (this.dataset.options.requeryInterval) {
             let delay = Math.max(0.5, this.dataset.options.requeryInterval) * 60000;
             this.updateInterval = Observable.interval(delay);
             this.updateSubscription = this.updateInterval.subscribe(() => {
                 this.publishUpdateData();
             });
-        }
+        }*/
     }
 
     /**
      * Returns the active dataset object
      * @return {Object}
      */
-    public getDataset(): Dataset {
+    public getDataset(): Datastore {
         return this.getDatasetWithName(this.dataset.name) || this.dataset;
     }
 
@@ -189,7 +222,7 @@ export class DatasetService {
      * @return {Boolean}
      */
     public hasDataset(): boolean {
-        return (this.dataset.datastore && this.dataset.hostname && (this.dataset.databases.length > 0));
+        return (this.dataset.type && this.dataset.host && (this.dataset.databases.length > 0));
     }
 
     /**
@@ -228,8 +261,9 @@ export class DatasetService {
      * Returns the datastore for the active dataset.
      * @return {String}
      */
+    // TODO: 825: rename to type?
     public getDatastore(): string {
-        return this.dataset.datastore;
+        return this.dataset.type;
     }
 
     /**
@@ -237,7 +271,7 @@ export class DatasetService {
      * @return {String}
      */
     public getHostname(): string {
-        return this.dataset.hostname;
+        return this.dataset.host;
     }
 
     /**
@@ -253,7 +287,7 @@ export class DatasetService {
      * @param {String} The dataset name
      * @return {Object} The dataset object if a match exists or undefined otherwise.
      */
-    public getDatasetWithName(datasetName: string): Dataset {
+    public getDatasetWithName(datasetName: string): Datastore {
         for (let dataset of this.datasets) {
             if (dataset.name === datasetName) {
                 return dataset;
@@ -492,6 +526,8 @@ export class DatasetService {
      * the given field names to the field names in the other tables ({Object} fields).  This array will also contain
      * the relation object for the table and fields given in the arguments
      */
+    // TODO: 825: moving relations to options
+    /*
     public getRelations(databaseName: string, tableName: string, fieldNames: string[]): any[] {
         let relations = this.dataset.relations;
 
@@ -536,8 +572,10 @@ export class DatasetService {
                             if (existingFieldIndex >= 0) {
                                 relationFieldNames.forEach((relationFieldName) => {
                                     // If the relation fields do not exist in the relation, add them to the mapping.
-                                    if (relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.indexOf(relationFieldName) < 0) { /* tslint:disable:max-line-length */
-                                        relationToFields[relationDatabaseName][relationTableName][existingFieldIndex].related.push(relationFieldName); /* tslint:disable:max-line-length */
+                                    if (relationToFields[relationDatabaseName][relationTableName][existingFieldIndex]
+                                        .related.indexOf(relationFieldName) < 0) { /* tslint:disable:max-line-length
+                                        relationToFields[relationDatabaseName][relationTableName][existingFieldIndex]
+                                        .related.push(relationFieldName); /* tslint:disable:max-line-length
                                     }
                                 });
                             } else {
@@ -588,7 +626,7 @@ export class DatasetService {
         });
 
         return [result];
-    }
+    }*/
 
     public findMentionedFields(filter: neon.query.Filter): { database: string, table: string, field: string }[] {
         let findMentionedFieldsHelper = (clause: neon.query.WherePredicate) => {
@@ -643,7 +681,8 @@ export class DatasetService {
                     if (!relatedField.hasBeenChecked) {
                         let values = this.findValueInRelations(kvPair[1].database, kvPair[1].table, relatedField);
                         for (let newValue of values) {
-                            valueAdded = valueAdded || this.addRelatedFieldToMapping(relatedFields, field, newValue.database, newValue.table, newValue.field);
+                            valueAdded = valueAdded ||
+                                this.addRelatedFieldToMapping(relatedFields, field, newValue.database, newValue.table, newValue.field);
                         }
                         relatedField.hasBeenChecked = true;
                     }
@@ -711,14 +750,15 @@ export class DatasetService {
     // Returns every member of every relation that contains the given database/table/field combination.
     private findValueInRelations(db: string, t: string, f: string): { database: string, table: string, field: string }[] {
         let values = [];
-        this.dataset.relations.forEach((relation) => {
+        // TODO: 825: moving relations
+        /*this.dataset.relations.forEach((relation) => {
             for (let x = relation.members.length - 1; x >= 0; x--) {
                 if (relation.members[x].database === db && relation.members[x].table === t && relation.members[x].field === f) {
                     values = values.concat(relation.members);
                     return; // Return from this instance of forEach so we don't add the contents of this relation multiple times.
                 }
             }
-        });
+        });*/
         return values;
     }
 
@@ -730,7 +770,7 @@ export class DatasetService {
      * @param {Number} index (optional)
      * @private
      */
-    public updateDatabases(dataset: Dataset, connection: neon.query.Connection, callback?: Function, index?: number): void {
+    public updateDatabases(dataset: Datastore, connection: neon.query.Connection, callback?: Function, index?: number): void {
         let databaseIndex = index ? index : 0;
         let database = dataset.databases[databaseIndex];
         let pendingTypesRequests = 0;
@@ -780,9 +820,12 @@ export class DatasetService {
      * Returns the options for the active dataset.
      * @method getActiveDatasetOptions
      * @return {Object}
+     * TODO: 825: options will be moved
+     *
      */
     public getActiveDatasetOptions(): DatasetOptions {
-        return this.dataset.options;
+        return {};
+        //return this.dataset.options;
     }
 
     /**
@@ -792,6 +835,7 @@ export class DatasetService {
      * @param {String} fieldName
      * @method getActiveDatasetColorMaps
      * @return {Object}
+     * TODO: 825: options will be moved
      */
     public getActiveDatasetColorMaps(databaseName: string, tableName: string, fieldName: string): Object {
         let colorMaps = this.getActiveDatasetOptions().colorMaps || {};

@@ -17,7 +17,7 @@ import { Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 import * as $ from 'jquery';
 
-import { Dataset, DatabaseMetaData, TableMetaData } from '../dataset';
+import { DatabaseMetaData, TableMetaData, Datastore } from '../dataset';
 import { ConnectionService } from './connection.service';
 import { DatasetService } from './dataset.service';
 import { ErrorNotificationService } from './error-notification.service';
@@ -305,18 +305,18 @@ export class ParameterService {
     loadStateSuccess(dashboardState: any, dashboardStateId: number | string) {
         if (_.keys(dashboardState).length) {
             if (dashboardStateId) {
-                let matchingDataset: Dataset = this.datasetService.getDatasetWithName(dashboardState.dataset.name);
+                let matchingDataset: Datastore = this.datasetService.getDatasetWithName(dashboardState.dataset.name);
                 if (!matchingDataset) {
                     this.datasetService.addDataset(dashboardState.dataset);
                     matchingDataset = dashboardState.dataset;
                 }
 
                 let connection: neon.query.Connection = this.connectionService.createActiveConnection(
-                    matchingDataset.datastore, matchingDataset.hostname
+                    matchingDataset.type, matchingDataset.host
                 );
 
                 // Update dataset fields, then set as active and update the dashboard
-                this.datasetService.updateDatabases(matchingDataset, connection, (dataset: Dataset) => {
+                this.datasetService.updateDatabases(matchingDataset, connection, (dataset: Datastore) => {
                     this.filterService.getFilterState(() => {
                         for (let i = 0; i < dataset.databases.length; i++) {
                             for (let j = 0; j < dataset.databases[i].tables.length; j++) {
