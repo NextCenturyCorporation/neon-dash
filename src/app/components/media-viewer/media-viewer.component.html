@@ -125,9 +125,9 @@
             <mat-tab class="tab" *ngFor="let tab of tabsAndMedia" [label]="tab.name">
                 <div [ngSwitch]="tab.selected.type">
                     <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
-                        <img #imageMedium [src]="tab.selected.link" [alt]="tab.selected.name"
+                        <img #imageSource *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name"
                              [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
-                        <img #imageMask [src]="tab.selected.mask" [alt]="tab.selected.name"
+                        <img #imageMask *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name"
                              [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
                     </div>
                     <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
@@ -137,7 +137,7 @@
                     </iframe>
                 </div>
                 <mat-slider invert color="primary" min="0" max="100" step="1" thumbLabel value="100"
-                            (input)="changeSelectedMedium(tab, $event.value)"></mat-slider>
+                            (input)="changeSelectedSource(tab, $event.value)"></mat-slider>
             </mat-tab>
         </mat-tab-group>
 
@@ -146,9 +146,9 @@
 
             <div class="viewer-text">{{ tabsAndMedia[0].name }}</div>
             <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
-                <img #imageMedium [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name"
+                <img #imageSource *ngIf="tabsAndMedia[0].selected.link" [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name"
                      [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border + ' medium') : 'image medium'">
-                <img #imageMask [src]="tabsAndMedia[0].selected.mask" [alt]="tabsAndMedia[0].selected.name"
+                <img #imageMask *ngIf="tabsAndMedia[0].selected.mask" [src]="tabsAndMedia[0].selected.mask" [alt]="tabsAndMedia[0].selected.name"
                      [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border + ' mask') : 'image mask'">
             </div>
             <img *ngSwitchCase="mediaTypes.image" [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name"
@@ -157,7 +157,7 @@
                 [class]="tabsAndMedia[0].selected.border ? ('frame with-border border-mat-' + tabsAndMedia[0].selected.border) : 'frame'">
             </iframe>
             <mat-slider invert color="primary" min="0" max="100" step="1" thumbLabel value="100"
-                        (input)="changeSelectedMedium(tabsAndMedia[0], $event.value)"></mat-slider>
+                        (input)="changeSelectedSource(tabsAndMedia[0], $event.value)"></mat-slider>
         </div>
     </div>
 

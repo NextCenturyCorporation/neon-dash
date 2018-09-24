@@ -4,6 +4,7 @@ datasets:
     datastore: elasticsearch
     hostname: localhost
     layout: INTEGRITY_REPORT
+    connectOnLoad: true
     databases:
       -
         name: integrity_report_probes_091418
@@ -67,6 +68,9 @@ layouts:
         linkField: NeonThumbnailPath
         linkPrefix: http://10.107.5.227:8000
         nameField: ProbeFileID
+        detailedThumbnails: true
+        showLabelName: true
+        flagSubLabel1: NeonReasoningScore
         objectIdField:
         objectNameField:
         openOnMouseClick: false
@@ -190,17 +194,18 @@ layouts:
         linkFields:
           - NeonProbePath
         linkPrefix: http://10.107.5.227:8000
+        maskField: NeonProbeMaskPath
         typeMap:
-            jpeg: img
+            jpeg: mask
             arw:
-            bmp: img
+            bmp: mask
             cr2:
             dng:
             iiq:
-            jpg: img
+            jpg: mask
             mts:
             nef:
-            png: img
+            png: mask
             raf:
             tif:
             3gp:
@@ -215,19 +220,7 @@ layouts:
               -
                 field: NeonProbePath
                 label: Probe
-              -
-                field: NeonProbeMaskOverlayPaths
-                label: Overlay
-              -
-                field: NeonProbeMaskPath
-                label: Mask
-              -
-                field: OperationOverlayPaths
-                label: Overlay
-              -
-                field: OperationMaskPath
-                label: Mask
-
+                mask: NeonProbeMaskPath
     -
       col: 15
       row: 9
@@ -298,17 +291,18 @@ layouts:
         linkFields:
           - DonorPath
         linkPrefix: http://10.107.5.227:8000
+        maskField: DonorMaskPath
         typeMap:
-            jpeg: img
+            jpeg: mask
             arw:
-            bmp: img
+            bmp: mask
             cr2:
             dng:
             iiq:
-            jpg: img
+            jpg: mask
             mts:
             nef:
-            png: img
+            png: mask
             raf:
             tif:
             3gp:
@@ -323,6 +317,7 @@ layouts:
               -
                 field: DonorPath
                 label: Donor
+                mask: DonorMaskPath
               -
                 field: DonorMaskPath
                 label: Mask
