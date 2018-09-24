@@ -225,7 +225,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 tab.list.push({
                     // TODO Add a boolean borderField with border options like:  true = red, false = yellow
                     border: this.options.border,
-                    link: this.options.linkPrefix + link,
+                    link: link.indexOf(this.options.linkPrefix) !== 0 ? this.options.linkPrefix + link : link,
                     name: (names.length > 1 ? (index < names.length ? names[index] : '') : names[0]) || nameWithArrayIndex,
                     type: (types.length > 1 ? (index < types.length ? types[index] : '') : types[0]) || linkTypeFromConfig
                 });
