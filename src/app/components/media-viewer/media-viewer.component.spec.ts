@@ -471,7 +471,6 @@ describe('Component: MediaViewer', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
-        component.options.linkPrefix = 'prefix/';
 
         component.onQuerySuccess({
             data: [{
@@ -504,13 +503,13 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: 'grey',
                 link: 'testLinkValue',
-                name: 'Test Link Field',
+                name: 'testLinkValue',
                 type: ''
             },
             list: [{
                 border: 'grey',
                 link: 'testLinkValue',
-                name: 'Test Link Field',
+                name: 'testLinkValue',
                 type: ''
             }]
         }]);
@@ -520,7 +519,7 @@ describe('Component: MediaViewer', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
-        component.options.linkPrefix = 'prefix/';
+        component.options.linkPrefix = 'linkPrefix/';
         component.options.id = 'testTabName';
 
         component.onQuerySuccess({
@@ -535,14 +534,77 @@ describe('Component: MediaViewer', () => {
             name: 'testTabName',
             selected: {
                 border: '',
+                link: 'linkPrefix/testLinkValue',
+                name: 'testLinkValue',
+                type: ''
+            },
+            list: [{
+                border: '',
+                link: 'linkPrefix/testLinkValue',
+                name: 'testLinkValue',
+                type: ''
+            }]
+        }]);
+    });
+
+    it('onQuerySuccess does ignore existing linkPrefix', () => {
+        component.errorMessage = 'testErrorMessage';
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.linkPrefix = 'linkPrefix/';
+        component.options.id = 'testTabName';
+
+        component.onQuerySuccess({
+            data: [{
+                testIdField: 'testIdValue',
+                testLinkField: 'linkPrefix/testLinkValue'
+            }]
+        });
+
+        expect(component.errorMessage).toBe('');
+        expect(component.tabsAndMedia).toEqual([{
+            name: 'testTabName',
+            selected: {
+                border: '',
+                link: 'linkPrefix/testLinkValue',
+                name: 'testLinkValue',
+                type: ''
+            },
+            list: [{
+                border: '',
+                link: 'linkPrefix/testLinkValue',
+                name: 'testLinkValue',
+                type: ''
+            }]
+        }]);
+    });
+
+    it('onQuerySuccess does remove existing prefix from name', () => {
+        component.errorMessage = 'testErrorMessage';
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.id = 'testTabName';
+
+        component.onQuerySuccess({
+            data: [{
+                testIdField: 'testIdValue',
+                testLinkField: 'prefix/testLinkValue'
+            }]
+        });
+
+        expect(component.errorMessage).toBe('');
+        expect(component.tabsAndMedia).toEqual([{
+            name: 'testTabName',
+            selected: {
+                border: '',
                 link: 'prefix/testLinkValue',
-                name: 'Test Link Field',
+                name: 'testLinkValue',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'prefix/testLinkValue',
-                name: 'Test Link Field',
+                name: 'testLinkValue',
                 type: ''
             }]
         }]);
@@ -572,28 +634,28 @@ describe('Component: MediaViewer', () => {
             selected: {
                 border: '',
                 link: 'video.avi',
-                name: 'Test Link Field 1',
+                name: 'video.avi',
                 type: 'vid'
             },
             list: [{
                 border: '',
                 link: 'video.avi',
-                name: 'Test Link Field 1',
+                name: 'video.avi',
                 type: 'vid'
             }, {
                 border: '',
                 link: 'image.jpg',
-                name: 'Test Link Field 2',
+                name: 'image.jpg',
                 type: 'img'
             }, {
                 border: '',
                 link: 'alpha.txt',
-                name: 'Test Link Field 3',
+                name: 'alpha.txt',
                 type: 'txt'
             }, {
                 border: '',
                 link: 'other.xyz',
-                name: 'Test Link Field 4',
+                name: 'other.xyz',
                 type: ''
             }]
         }]);
