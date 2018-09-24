@@ -242,7 +242,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         links.forEach((link, index) => {
         if (link) {
             let prettyName = link.substring(link.lastIndexOf('/') + 1);
-            let nameWithArrayIndex = prettyName + (links.length > 1 ? ' ' + (index + 1) : '');
             let linkTypeFromConfig = this.options.typeMap[link.substring(link.lastIndexOf('.') + 1).toLowerCase()] || '';
 /*                let nameWithArrayIndex = prettyName + (linksArray.length > 1 ? ' ' + (index + 1) : '');
                 let linkTypeFromConfig = this.getMediaType(link) || '';
@@ -251,7 +250,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                     // TODO Add a boolean borderField with border options like:  true = red, false = yellow
                     border: this.options.border,
                     link: link.indexOf(this.options.linkPrefix) !== 0 ? this.options.linkPrefix + link : link,
-                    name: (names.length > 1 ? (index < names.length ? names[index] : '') : names[0]) || nameWithArrayIndex,
+                    name: (names.length > 1 ? (index < names.length ? names[index] : '') : names[0]) || prettyName,
                     type: (types.length > 1 ? (index < types.length ? types[index] : '') : types[0]) || linkTypeFromConfig
                 });
 
