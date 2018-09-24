@@ -1,20 +1,9 @@
-FROM ubuntu:18.04
+FROM alpine:latest
 MAINTAINER patrick.sharkey@nextcentury.com
 
-# Prevent dialog during apt install
-ENV DEBIAN_FRONTEND noninteractive
-
-# Replace shell with bash so we can source files
-RUN rm /bin/sh && ln -s /bin/bash /bin/sh
-
-# Update system packages and remove any downloaded files
-RUN \
-  rm -rf /var/lib/apt/lists/* \
-  && apt-get clean \
-  && apt-get -y update --fix-missing
-
 # Install system packages
-RUN apt-get -qqy install \
+RUN apk add --update --no-cache \
+  bash \
   curl \
   git \
   wget \
@@ -24,7 +13,7 @@ RUN apt-get -qqy install \
 #  Install Java OpenJDK 8
 # ------------------------------------------------------------
 RUN \
-  apt-get install -y --fix-missing openjdk-8-jdk
+  apk add --update --no-cache openjdk8
 
 # Define JAVA_HOME variable
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
@@ -33,7 +22,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 #  Install Supervisor
 #-------------------------------------------------------------
 RUN \
-  apt-get install -y --fix-missing supervisor 
+  apk add --update --no-cache supervisor 
 
 # Create log directory
 RUN mkdir -p /var/log/supervisor
@@ -49,7 +38,7 @@ WORKDIR /etc/supervisor/conf.d
 #------------------------------------------------------------
 ENV SSHD_HOME /var/run/sshd
 RUN \
-  apt-get install -y openssh-server
+  apk add --update --no-cache openssh
 
 # Configure OpenSSH
 RUN mkdir $SSHD_HOME
@@ -59,7 +48,7 @@ RUN echo 'root:lorelei' | chpasswd
 RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
 # SSH login fix. Otherwise user is kicked off after login
-RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
+#RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 
 ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
@@ -83,8 +72,8 @@ RUN set -x \
   && rm tomcat.tar.gz* 
 
 # Create Tomcat user and group
-RUN groupadd tomcat
-RUN useradd -s /bin/false -g tomcat -d $CATALINA_HOME tomcat
+RUN addgroup -S tomcat
+RUN adduser -s /bin/false -S -G tomcat -h $CATALINA_HOME tomcat
 
 # Set sudoer for "tomcat"
 RUN echo 'tomcat ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
@@ -115,20 +104,20 @@ RUN set -x \
   && rm elasticesarch.tar.gz*
 
 # Create Elasticsearch user and group
-RUN groupadd elasticsearch
-RUN useradd -s /bin/false -g elasticsearch -d $ELASTICSEARCH_HOME elasticsearch
+RUN addgroup -S  elasticsearch
+RUN adduser -s /bin/false -S -G elasticsearch -h $ELASTICSEARCH_HOME elasticesarch
 
-# Set sudoer for "tomcat"
+# Set sudoer for "elasticsearch"
 RUN echo 'elasticsearch ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 # Update Elastcisearch permissions
-RUN chown -R elasticsearch:elasticsearch $ELASTICSEARCH_HOME
+#RUN chown -R elasticsearch:elasticsearch $ELASTICSEARCH_HOME
 
 # Update permissions on scripts
-RUN \
-  chmod +x $ELASTICSEARCH_HOME/bin/*.sh && \
-  chmod +x $ELASTICSEARCH_HOME/bin/elasticsearch && \
-  chmod +x $ELASTICSEARCH_HOME/bin/plugin
+#RUN \
+#  chmod +x $ELASTICSEARCH_HOME/bin/*.sh && \
+#  chmod +x $ELASTICSEARCH_HOME/bin/elasticsearch && \
+#  chmod +x $ELASTICSEARCH_HOME/bin/plugin
 
 # Define mountable directories.
 VOLUME ["${ELASTICEARCH_HOME}/data"]
@@ -139,50 +128,50 @@ COPY ["configs/elasticsearch/elasticsearch.yml", "$ELASTICSEARCH_HOME/config/"]
 #-------------------------------------------------------------
 # Install Elasticesarch-head 2.x
 #-------------------------------------------------------------
-WORKDIR $ELASTICSEARCH_HOME
-RUN bin/plugin install mobz/elasticsearch-head
+#WORKDIR $ELASTICSEARCH_HOME
+#RUN bin/plugin install mobz/elasticsearch-head
 
 #-------------------------------------------------------------
 # Install Node 8.12.0 via (NVM)
 #-------------------------------------------------------------
-ENV NVM_DIR $HOME/.nvm
-RUN mkdir -p $NVM_DIR
-ENV NODE_VERSION 8.12.0
+#ENV NVM_DIR $HOME/.nvm
+#RUN mkdir -p $NVM_DIR
+#ENV NODE_VERSION 8.12.0
 
 # Install NMV
 # https://github.com/creationix/nvm#install-script
-RUN curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
+#RUN curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
 
 # Update permissions on nvm.sh
-RUN chmod +x $NVM_DIR/nvm.sh
+#RUN chmod +x $NVM_DIR/nvm.sh
 
 # install node and npm
-RUN \
- source $NVM_DIR/nvm.sh \
- && nvm install $NODE_VERSION \ 
- && nvm alias default $NODE_VERSION \
- && nvm use default
+#RUN \
+# source $NVM_DIR/nvm.sh \
+# && nvm install $NODE_VERSION \ 
+# && nvm alias default $NODE_VERSION \
+# && nvm use default
 
 # Add node and npm to path so the commands are available
-ENV NODE_PATH $NVM_DIR/$NODE_VERSION/lib/node_modules
-ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+#ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
+#ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 # Confirm Installation
-RUN node -v
-RUN npm -v
+#RUN node -v
+#RUN npm -v
 
 #-------------------------------------------------------------
 # Install Elasticdump
 #-------------------------------------------------------------
 # install elasticdump to global repo
-RUN \
-  npm install elasticdump -g
+#RUN \
+#  npm install elasticdump -g
 
 #-------------------------------------------------------------
 # Clean up, Update Configurations and Start Supervisor
 #-------------------------------------------------------------
 RUN \
-  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+  rm -rf /var/cache/apk/* /tmp/* /var/tmp/*
 
 COPY ["configs/supervisor/supervisord.conf", "/etc/supervisor/conf.d/"]
 
