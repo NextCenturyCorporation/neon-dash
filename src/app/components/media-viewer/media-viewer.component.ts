@@ -517,7 +517,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
                 this.options.linkFields.forEach((linkField) => {
                     this.addLinks(tab, neonUtilities.deepFind(response.data[0], linkField.columnName) || '',
-                    neonUtilities.deepFind(response.data[0],this.options.maskField.columnName) || '', names, types,
+                    neonUtilities.deepFind(response.data[0], this.options.maskField.columnName) || '', names, types,
                         linkField.prettyName);
                 });
 
