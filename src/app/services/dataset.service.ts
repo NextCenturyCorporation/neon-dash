@@ -191,6 +191,7 @@ export class DatasetService {
         this.dataset.type = dataset.type || '';
         this.dataset.host = dataset.host || '';
         this.dataset.databases = dataset.databases || [];
+        this.dataset.options = dataset.options || {};
 
         // Shutdown any previous update intervals.
         if (this.updateInterval) {
@@ -198,15 +199,14 @@ export class DatasetService {
             delete this.updateSubscription;
             delete this.updateInterval;
         }
-        // TODO: 825: move to options
-        /*
+
         if (this.dataset.options.requeryInterval) {
             let delay = Math.max(0.5, this.dataset.options.requeryInterval) * 60000;
             this.updateInterval = Observable.interval(delay);
             this.updateSubscription = this.updateInterval.subscribe(() => {
                 this.publishUpdateData();
             });
-        }*/
+        }
     }
 
     /**
@@ -824,8 +824,7 @@ export class DatasetService {
      *
      */
     public getActiveDatasetOptions(): DatasetOptions {
-        return {};
-        //return this.dataset.options;
+        return this.dataset.options;
     }
 
     /**
