@@ -434,6 +434,8 @@ layouts:
                 field: MergedMask
               -
                 field: InvertedMask
+        detailedThumbnails: true
+        showLabelName: true
 
     -
       col: 1
@@ -605,6 +607,8 @@ layouts:
                 field: InvertedMask
               -
                 field: MergedMask
+        detailedThumbnails: true
+        showLabelName: true
 
     -
       col: 1
@@ -772,6 +776,8 @@ layouts:
             tif:
             avi: vid
             mp4: vid
+        detailedThumbnails: true
+        showLabelName: true
 
     -
       col: 13
@@ -838,6 +844,8 @@ layouts:
                 field: ReasoningInvertedMask
               -
                 field: ReasoningMergedMask
+        detailedThumbnails: true
+        showLabelName: true
 
     -
       col: 1
@@ -1005,6 +1013,8 @@ layouts:
             tif:
             avi: vid
             mp4: vid
+        detailedThumbnails: true
+        showLabelName: true
 
     -
       col: 13
@@ -1069,6 +1079,8 @@ layouts:
                 field: reasoning_inverted_mask
               -
                 field: reasoning_merged_mask
+        detailedThumbnails: true
+        showLabelName: true
 
     -
       col: 1
@@ -1233,6 +1245,8 @@ layouts:
             tif:
             avi: vid
             mp4: vid
+        detailedThumbnails: true
+        showLabelName: true
 
     -
       col: 13
@@ -1293,6 +1307,8 @@ layouts:
             tif:
             avi: vid
             mp4: vid
+        detailedThumbnails: true
+        showLabelName: true
 
     -
       col: 1
