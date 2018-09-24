@@ -701,6 +701,7 @@
                     "idField": "@id",
                     "id": "_id",
                     "multiFilter": true,
+                    "multiFilterOperator": "or",
                     "edgeColorField": ""
                 },
                 "row": 2,
