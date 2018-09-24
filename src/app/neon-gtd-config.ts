@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Dataset } from './dataset';
+import { Datastore } from './dataset';
 
 export class DashboardConfig {
     translationKeys: { [ key: string ]: string} = {};
@@ -23,7 +23,8 @@ export class NeonGTDConfig {
     dashboard: DashboardConfig = {
         translationKeys: {}
     };
-    datasets: Dataset[] = [];
+    datastores: { [ key: string ]: Datastore } = {};
+    options: { [ key: string ]: any } = {};
     layouts: { [ key: string ]: any } = {};
     errors: String[];
 }

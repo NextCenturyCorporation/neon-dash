@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angu
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
-import { Dataset, DatabaseMetaData, TableMetaData, FieldMetaData, Relation } from '../../dataset';
+import { Datastore, DatabaseMetaData, TableMetaData, FieldMetaData, Relation } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ParameterService } from '../../services/parameter.service';
@@ -65,7 +65,7 @@ export interface CustomDatabase {
 export class DatasetSelectorComponent implements OnInit, OnDestroy {
     public static HIDE_INFO_POPOVER: string = 'sr-only';
 
-    public datasets: Dataset[] = [];
+    public datasets: Datastore[] = [];
     private datasetName: string = '';
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';
@@ -127,7 +127,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     ) {
     }
 
-    getDatasets(): Dataset[] {
+    getDatasets(): Datastore[] {
         return this.datasets;
     }
 
@@ -200,8 +200,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
             data: true
         };
-        this.datastoreType = this.datasets[index].datastore;
-        this.datastoreHost = this.datasets[index].hostname;
+        this.datastoreType = this.datasets[index].type;
+        this.datastoreHost = this.datasets[index].host;
 
         let connection: neon.query.Connection = this.connectionService.createActiveConnection(this.datastoreType, this.datastoreHost);
         if (!connection) {
@@ -224,7 +224,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         });
     }
 
-    finishConnectToPreset(dataset: Dataset, loadDashboardState: boolean) {
+    finishConnectToPreset(dataset: Datastore, loadDashboardState: boolean) {
         this.datasetService.setActiveDataset(dataset);
         this.updateLayout(loadDashboardState);
         this.filterService.clearFilters();
@@ -334,8 +334,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      * Creates and returns a new custom dataset object using the user configuration saved in the global variables.
      * @return {Object}
      */
-    createCustomDataset(): Dataset {
-        let dataset: Dataset = new Dataset(this.datasetName, this.datastoreType, this.datastoreHost);
+    createCustomDataset(): Datastore {
+        let dataset: Datastore = new Datastore(this.datasetName, this.datastoreType, this.datastoreHost);
 
         this.customDatabases.forEach((customDatabase: CustomDatabase) => {
             let database: DatabaseMetaData = new DatabaseMetaData(customDatabase.database.name, customDatabase.database.prettyName);
@@ -349,6 +349,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             dataset.databases.push(database);
         });
 
+        /*
+        TODO: 825: relations goes under options
         this.customRelations.forEach((customRelation) => {
             let relation = new Relation();
 
@@ -369,7 +371,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                 });
             });
             dataset.relations.push(relation);
-        });
+        });*/
 
         return dataset;
     }

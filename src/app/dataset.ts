@@ -72,20 +72,38 @@ export class SimpleFilter {
     ) {}
 }
 
+// TODO: 825: this will change, or maybe not (databases and tables can probably remain,
+// but how we'd get those properties from config might change???)
 export class Dataset {
     public connectOnLoad: boolean = false;
     public databases: DatabaseMetaData[] = [];
     public hasUpdatedFields: boolean = false;
-    public layout: string = '';
-    public options: DatasetOptions = new DatasetOptions();
-    public relations: Relation[] = [];
+    public layout: string = ''; // TODO: 825: layout will be specified in options
+    public options: DatasetOptions = new DatasetOptions(); // TODO: 825: different from new options object -- leave this alone for now
+    public relations: Relation[] = []; // TODO: 825: this will move into options
 
     constructor(
         public name: string = '',
-        public datastore: string = '',
-        public hostname: string = '',
-        public title: string = '',
-        public icon: string = ''
+        public datastore: string = '', // TODO: 825: this will become 'type'
+        public hostname: string = '', // TODO: 825: this will change to 'host'
+        public title: string = '', // TODO: 825: move this into layout or options
+        public icon: string = '' // TODO: 825: move this into layout or options
+    ) {}
+}
+
+export class Datastore {
+    public connectOnLoad: boolean = false;
+    public databases: DatabaseMetaData[] = [];
+    public hasUpdatedFields: boolean = false;
+    //public
+
+    // TODO: 825: remove layout later
+    public layout: string = '';
+
+    constructor(
+        public name: string = '',
+        public host: string = '',
+        public type: string = ''
     ) {}
 }
 
