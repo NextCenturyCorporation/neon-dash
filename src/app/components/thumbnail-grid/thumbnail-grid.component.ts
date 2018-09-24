@@ -845,7 +845,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
             }
 
-            if (this.options.border && !this.borderColor) {
+            if (this.options.border) {
                 switch (this.options.border) {
                     case 'percentField': {
                         if (typeof percentage !== 'undefined' && this.isNumber(percentage)) {
