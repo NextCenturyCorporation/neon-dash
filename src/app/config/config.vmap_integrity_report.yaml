@@ -195,6 +195,7 @@ layouts:
           - NeonProbePath
         linkPrefix: http://10.107.5.227:8000
         maskField: NeonProbeMaskPath
+        sliderValue: 50
         typeMap:
             jpeg: mask
             arw:
