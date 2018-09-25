@@ -282,6 +282,22 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             fields.push(this.options.dateField.columnName);
         }
 
+        if (this.options.flagLabel.columnName) {
+            fields.push(this.options.flagLabel.columnName);
+        }
+
+        if (this.options.flagSubLabel1.columnName) {
+            fields.push(this.options.flagSubLabel1.columnName);
+        }
+
+        if (this.options.flagSubLabel2.columnName) {
+            fields.push(this.options.flagSubLabel2.columnName);
+        }
+
+        if (this.options.flagSubLabel3.columnName) {
+            fields.push(this.options.flagSubLabel3.columnName);
+        }
+
         let wheres: neon.query.WherePredicate[] = [neon.query.where(this.options.linkField.columnName, '!=', null),
             neon.query.where(this.options.linkField.columnName, '!=', '')];
 
@@ -609,6 +625,18 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     }
                     if (this.options.dateField.columnName) {
                         item[this.options.dateField.columnName] = neonUtilities.deepFind(d, this.options.dateField.columnName);
+                    }
+                    if (this.options.flagLabel.columnName) {
+                        item[this.options.flagLabel.columnName] = neonUtilities.deepFind(d, this.options.flagLabel.columnName);
+                    }
+                    if (this.options.flagSubLabel1.columnName) {
+                        item[this.options.flagSubLabel1.columnName] = neonUtilities.deepFind(d, this.options.flagSubLabel1.columnName);
+                    }
+                    if (this.options.flagSubLabel2.columnName) {
+                        item[this.options.flagSubLabel2.columnName] = neonUtilities.deepFind(d, this.options.flagSubLabel2.columnName);
+                    }
+                    if (this.options.flagSubLabel3.columnName) {
+                        item[this.options.flagSubLabel3.columnName] = neonUtilities.deepFind(d, this.options.flagSubLabel3.columnName);
                     }
 
                     this.options.customEventsToPublish.forEach((config) => {
