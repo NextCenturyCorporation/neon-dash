@@ -106,7 +106,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
 })
 export class MediaViewerComponent extends BaseNeonComponent implements OnInit, OnDestroy {
     protected MEDIA_PADDING: number = 10;
-    protected SLIDER_HEIGHT: number = 30;
+    protected SLIDER_HEIGHT: number = 66;
     protected TAB_HEIGHT: number = 30;
 
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
@@ -144,6 +144,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     public queryLinks: any[] = [];
     public selectedTabIndex: number = 0;
     public renderer: Renderer2;
+    public sourceLoaded: boolean;
 
     constructor(
         activeGridService: ActiveGridService,
@@ -214,6 +215,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 this.onlyShowingQueryData = false;
             }
 
+            //Check to see if the tab already exists before adding it again
             let tabExists = false;
             this.tabsAndMedia.forEach((previousTab) => {
                 if (previousTab.selected.name === tab.selected.name) {
@@ -271,15 +273,22 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         });
     }
     /**
-     * Changes the selected image source in the given tab to the element in the tab's list at the given index.
+     * Changes the selected source image in the given tab to the element in the tab's list at the given index.
      *
      * @arg {any} tab
      * @arg {number} index
      */
     changeSelectedSource(tab, index: number) {
         //tab.selected = tab.list[index];
-        this.renderer.setStyle(this.imageSource.nativeElement, 'opacity', index / 100);
+        this.renderer.setStyle(this.imageSource.nativeElement, 'opacity', (100 - index)/100);
         this.refreshVisualization();
+    }
+    /**
+     * Ensures that the source image loads before the mask.
+     */
+
+    setSourceLoaded() {
+        this.sourceLoaded = true;
     }
 
     /**
@@ -502,6 +511,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         this.selectedTabIndex = 0;
         this.queryLinks = [];
         this.onlyShowingQueryData = true;
+        this.sourceLoaded = false;
 
         if (this.options.clearMedia) {
             let neonFilters = this.options.idField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
