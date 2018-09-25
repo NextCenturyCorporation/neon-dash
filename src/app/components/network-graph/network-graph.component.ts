@@ -506,7 +506,38 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     setupFilters() {
-        //
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
+            this.options.table.name, this.options.filterFields);
+        this.filters = [];
+        for (let neonFilter of neonFilters) {
+            if (!neonFilter.filter.whereClause.whereClauses) {
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
+                let value = neonFilter.filter.whereClause.rhs;
+                let myFilter = {
+                    id: neonFilter.id,
+                    field: field.columnName,
+                    prettyField: field.prettyName,
+                    value: value
+                };
+                if (!this.filterExists(myFilter.field, myFilter.value)) {
+                    this.addLocalFilter(myFilter);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns whether a visualization filter object with the given field and value strings exists in the list of visualization filters.
+     *
+     * @arg {string} field
+     * @arg {string} value
+     * @return {boolean}
+     * @private
+     */
+    filterExists(field: string, value: string) {
+        return this.filters.some((existingFilter) => {
+            return field === existingFilter.field && value === existingFilter.value;
+        });
     }
 
     flattenArray(array, value) {
@@ -697,10 +728,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 yPosition = entry[yPositionField],
                 filterFields: any[] = [];
 
-            for (let i = 0; i < fFields.length; i++) {
+            for (let i of fFields) {
                 filterFields.push({
-                    field: fFields[i],
-                    data: entry[fFields[i]]
+                    field: i,
+                    data: entry[i]
                 });
             }
 
@@ -899,11 +930,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 id: undefined,
                 field: field.columnName,
                 prettyField: field.prettyName,
-                value: value,
-                operator: '!='
+                value: value
             };
-
-            //this.addFilter(myFilter);
+            let whereClause = neon.query.where(myFilter.field, '!=', myFilter.value);
+            this.addFilter(myFilter, whereClause);
             this.disabledSet.push([field.columnName, value]);
         } else {
             //find the filter to remove
@@ -937,19 +967,19 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
             // create filter
             //let field = selectedNode.isLink ? this.options.linkField : this.options.nodeField;
-            for (let i = 0; i < selectedNode.filterFields.length; i++) {
+            for (let filterField of selectedNode.filterFields) {
                 if (this.options.multiFilterOperator === 'or') {
-                    let clauses = selectedNode.filterFields[i].data.map((element) => 
-                        neon.query.where(selectedNode.filterFields[i].field, '=', element));
-                    value = selectedNode.filterFields[i].data.toString();
-                    myFilter = this.createFilterObject(selectedNode.filterFields[i].field, value, selectedNode.filterFields[i].field);
+                    let clauses = filterField.data.map((element) =>
+                        neon.query.where(filterField.field, '=', element));
+                    value = filterField.data.toString();
+                    myFilter = this.createFilterObject(filterField.field, value, filterField.field);
                     clause = neon.query.or.apply(neon.query, clauses);
                     this.addFilter(myFilter, clause);
                 } else {
-                    for (let j = 0; j < selectedNode.filterFields[i].data.length; j++) {
-                        value = selectedNode.filterFields[i].data[j];
-                        myFilter = this.createFilterObject(selectedNode.filterFields[i].field, value, selectedNode.filterFields[i].field);
-                        clause = neon.query.where(myFilter.field, myFilter.operator, myFilter.value);
+                    for (let data of filterField.data) {
+                        value = data;
+                        myFilter = this.createFilterObject(filterField.field, value, filterField.field);
+                        clause = neon.query.where(myFilter.field, '=', myFilter.value);
                         this.addFilter(myFilter, clause);
                     }
                 }
@@ -963,8 +993,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             id: undefined, // This will be set in the success callback of addNeonFilter.
             field: field,
             value: value,
-            prettyField: prettyField,
-            operator: '='
+            prettyField: prettyField
         };
         return myFilter;
     }
