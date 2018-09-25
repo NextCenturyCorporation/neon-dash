@@ -64,11 +64,21 @@ img, video {
 .mat-slider {
     margin: 0 10px;
     width: calc(100% - 20px);
+    z-index: 4;
+
+    ::ng-deep div.mat-slider-thumb-label {
+        ::after {
+            content: "%";
+        }
+    }
+
+    ::ng-deep span.mat-slider-thumb-label-text {
+        font-size: 11px;
+    }
 }
 
 .maskingDiv{
     position: relative;
-    margin-bottom: 24px;
 
     .medium {
         z-index: 3;
@@ -83,13 +93,7 @@ img, video {
     }
 }
 
-.mat-slider ::ng-deep div.mat-slider-thumb-label{
-    padding: 2px;
 
-    ::after{
-        content: "%";
-    }
-}
 
 
 

@@ -30,15 +30,15 @@ body {
     word-wrap: normal;
     white-space: nowrap;
     direction: ltr;
-  
+
     /* Support for all WebKit browsers. */
     -webkit-font-smoothing: antialiased;
     /* Support for Safari and Chrome. */
     text-rendering: optimizeLegibility;
-  
+
     /* Support for Firefox. */
     -moz-osx-font-smoothing: grayscale;
-  
+
     /* Support for IE. */
     font-feature-settings: 'liga';
 }
@@ -448,15 +448,15 @@ body {
 }
 
 .mat-slider-horizontal {
-    height: 30px !important;
+    height: 76px !important;
     min-width: unset !important;
 
     .mat-slider-wrapper {
         /* Position the slider in the center of the 30px height. */
-        top: 14px !important;
+        top: 38px !important;
         /* Add the same margin to the left and right. */
-        left: 14px !important;
-        right: 14px !important;
+        left: 10px !important;
+        right: 10px !important;
     }
 }
 
