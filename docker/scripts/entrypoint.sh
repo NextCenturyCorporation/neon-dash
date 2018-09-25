@@ -3,7 +3,7 @@
 # Start Supervisor if not already running
 if ! ps aux | grep -q "[s]upervisor"; then
   echo "Starting supervisor service"
-  /usr/bin/supervisord -nc /etc/supervisor/supervisord.conf
+  /usr/bin/supervisord -nc /etc/supervisor/supervisord.conf &
 
   echo "creating /.es_created"
   touch /.es_created
