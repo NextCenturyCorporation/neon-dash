@@ -59,6 +59,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
     public typeMap: any;
     public url: string;
     public clearMedia: boolean;
+    public sliderValue: number;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -74,6 +75,7 @@ export class MediaViewerOptions extends BaseNeonOptions {
         this.typeMap = this.injector.get('typeMap', {});
         this.url = this.injector.get('url', '');
         this.clearMedia = this.injector.get('clearMedia', false);
+        this.sliderValue = this.injector.get('sliderValue', 0);
     }
 
     /**
@@ -217,9 +219,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
             //Check to see if the tab already exists before adding it again
             let tabExists = false;
-            this.tabsAndMedia.forEach((previousTab) => {
+            this.tabsAndMedia.forEach((previousTab, index) => {
                 if (previousTab.selected.name === tab.selected.name) {
                     tabExists = true;
+                    tabIndex = index;
                     return false;
                 }
             });
@@ -228,7 +231,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 this.tabsAndMedia.push(tab);
             }
 
-            if (this.tabsAndMedia.length > tabIndex) {
+            if (this.tabsAndMedia.length >= tabIndex) {
                 this.selectedTabIndex = tabIndex;
             }
             this.refreshVisualization();
@@ -272,6 +275,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             }
         });
     }
+
+    private calculateOpacity(percent:number){
+        return (100 - percent) / 100;
+    }
+
     /**
      * Changes the selected source image in the given tab to the element in the tab's list at the given index.
      *
@@ -280,7 +288,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     changeSelectedSource(tab, index: number) {
         //tab.selected = tab.list[index];
-        this.renderer.setStyle(this.imageSource.nativeElement, 'opacity', (100 - index)/100);
+        this.renderer.setStyle(this.imageSource.nativeElement, 'opacity', this.calculateOpacity(index));
         this.refreshVisualization();
     }
     /**
@@ -288,8 +296,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
 
     setSourceLoaded() {
+        this.renderer.setStyle(this.imageSource.nativeElement, 'opacity', this.calculateOpacity(this.options.sliderValue));
         this.sourceLoaded = true;
     }
+
 
     /**
      * Creates and returns the query for the media viewer.
@@ -525,6 +535,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         }
 
         try {
+
             if (response && response.data && response.data.length && response.data[0]) {
                 this.errorMessage = '';
                 this.isLoadingMedia = true;
@@ -576,6 +587,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 this.isLoadingMedia = false;
             } else {
                 this.errorMessage = 'No Data';
+
             }
 
             this.refreshVisualization();

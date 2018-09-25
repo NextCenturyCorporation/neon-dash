@@ -136,7 +136,7 @@
                         [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
                     </iframe>
                 </div>
-                <mat-slider color="primary" min="0" max="100" step="1" thumbLabel
+                <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]=options.sliderValue
                             (input)="changeSelectedSource(tab, $event.value)"></mat-slider>
             </mat-tab>
         </mat-tab-group>
@@ -156,7 +156,7 @@
             <iframe *ngSwitchDefault [src]="sanitize(tabsAndMedia[0].selected.link)" frameborder="0"
                 [class]="tabsAndMedia[0].selected.border ? ('frame with-border border-mat-' + tabsAndMedia[0].selected.border) : 'frame'">
             </iframe>
-            <mat-slider color="primary" min="0" max="100" step="1" thumbLabel
+            <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]=options.sliderValue
                         (input)="changeSelectedSource(tabsAndMedia[0], $event.value)"></mat-slider>
         </div>
     </div>
