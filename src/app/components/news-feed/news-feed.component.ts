@@ -212,7 +212,7 @@ export class NewsFeedComponent extends BaseNeonComponent implements OnInit, OnDe
         ];
 
         return query.withFields(fields).where(neon.query.and.apply(query, whereClauses))
-            .sortBy(this.options.sortField.columnName,this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
+            .sortBy(this.options.sortField.columnName, this.options.ascending ? neonVariables.ASCENDING : neonVariables.DESCENDING);
     }
 
     /**
