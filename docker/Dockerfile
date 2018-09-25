@@ -101,6 +101,7 @@ RUN chown -R tomcat:tomcat $CATALINA_HOME
 # Install Elasticsearch 2.5.4
 #------------------------------------------------------------
 ENV ELASTICSEARCH_HOME /usr/local/elasticsearch
+ENV PATH $ELASTICSEARCH_HOME/bin:$PATH
 RUN mkdir -p $ELASTICSEARCH_HOME
 WORKDIR $ELASTICSEARCH_HOME
 
@@ -121,9 +122,6 @@ RUN useradd -s /bin/false -g elasticsearch -d $ELASTICSEARCH_HOME elasticsearch
 # Set sudoer for "tomcat"
 RUN echo 'elasticsearch ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
-# Update Elastcisearch permissions
-RUN chown -R elasticsearch:elasticsearch $ELASTICSEARCH_HOME
-
 # Update permissions on scripts
 RUN \
   chmod +x $ELASTICSEARCH_HOME/bin/*.sh && \
@@ -132,6 +130,9 @@ RUN \
 
 # Define mountable directories.
 VOLUME ["${ELASTICEARCH_HOME}/data"]
+
+# Update Elastcisearch permissions
+RUN chown -R elasticsearch:elasticsearch $ELASTICSEARCH_HOME
 
 # Copy elasticsearch.yml configuration file
 COPY ["configs/elasticsearch/elasticsearch.yml", "$ELASTICSEARCH_HOME/config/"]
@@ -179,15 +180,36 @@ RUN \
   npm install elasticdump -g
 
 #-------------------------------------------------------------
+# Start Supervisor 
+#-------------------------------------------------------------
+RUN /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+
+#-------------------------------------------------------------
+# Populate Elasitcsearch with THOR_DATA 
+#-------------------------------------------------------------
+ENV THOR_DATA $ELASTICSEARCH_HOME/thor_data
+RUN mkdir -p $THOR_DATA
+WORKDIR $THOR_DATA
+
+# //TODO Update with Gitclone
+# Copy over the data and mapping files
+COPY ["data/ldc_uyg_jul_18.json", \
+      "data/ldc_uyg_jul_18_mapping.json", "$THOR_DATA/"]
+
+# Copy over Elasticsearch configs files
+COPY ["configs/elasticsearch/index-settings.json", "$THOR_DATA/"] 
+
+#-------------------------------------------------------------
 # Clean up, Update Configurations and Start Supervisor
 #-------------------------------------------------------------
 RUN \
   rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 COPY ["configs/supervisor/supervisord.conf", "/etc/supervisor/conf.d/"]
+COPY ["scripts/entrypoint.sh", "/usr/local/startup/"]
+RUN chmod +x /usr/local/startup/entrypoint.sh
 
 # Expose Ports
 EXPOSE 22 8080 9200
 
-# Define default command.
-CMD ["/usr/bin/supervisord"]
+ENTRYPOINT ["/usr/local/startup/entrypoint.sh"]
