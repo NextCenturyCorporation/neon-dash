@@ -11,8 +11,81 @@ datasets:
         tables:
           -
             name: _doc
-            prettyName: Item
+            prettyName: Data
             fields:
+
+  -
+    name: EVAL18PART1_REF
+    datastore: elasticsearchrest
+    hostname: 10.107.5.227
+    layout: INTEGRITY_REPORT
+    databases:
+      -
+        name: integrity_report_probes_091418
+        prettyName: Probes
+        tables:
+          -
+            name: _doc
+            prettyName: Data
+            fields:
+              -
+                columnName: Exif.DateTimeOriginal
+              -
+                columnName: Exif.Make
+              -
+                columnName: Exif.Model
+      -
+        name: integrity_report_operations_091418
+        prettyName: Operations
+        tables:
+          -
+            name: _doc
+            prettyName: Data
+            fields:
+              -
+                columnName: OperationGroup
+                prettyName: Group
+              -
+                columnName: OperationSubtype
+                prettyName: Subtype
+              -
+                columnName: OperationScore
+                prettyName: Score
+              -
+                columnName: OperationOrder
+                prettyName: Order
+              -
+                columnName: OperationColor
+                prettyName: Color
+              -
+                columnName: OperationMaskPath
+                prettyName: Mask
+              -
+                columnName: OperationOverlayPaths
+                prettyName: Overlays
+      -
+        name: integrity_report_donors_091418
+        prettyName: Donors
+        tables:
+          -
+            name: _doc
+            prettyName: Data
+            fields:
+    relations:
+      -
+        members:
+          -
+            database: integrity_report_probes_091418
+            table: _doc
+            field: ProbeFileID
+          -
+            database: integrity_report_operations_091418
+            table: _doc
+            field: ProbeFileID
+          -
+            database: integrity_report_donors_091418
+            table: _doc
+            field: ProbeFileID
 
   -
     name: EVAL17PART1_II17_SRI17_MDL
@@ -26,7 +99,7 @@ datasets:
         tables:
           -
             name: doc
-            prettyName: Item
+            prettyName: Data
             fields:
               -
                 columnName: ProbeDir
@@ -70,7 +143,7 @@ datasets:
         tables:
           -
             name: doc
-            prettyName: Item
+            prettyName: Data
             fields:
               -
                 columnName: FileID
@@ -126,7 +199,7 @@ datasets:
         tables:
           -
             name: doc
-            prettyName: Item
+            prettyName: Data
             fields:
               -
                 columnName: ProbeDir
@@ -170,7 +243,7 @@ datasets:
         tables:
           -
             name: doc
-            prettyName: Item
+            prettyName: Data
             fields:
               -
                 columnName: FileID
@@ -227,7 +300,7 @@ datasets:
         tables:
           -
             name: doc
-            prettyName: Item
+            prettyName: Data
             fields:
               -
                 columnName: ProbeDir
@@ -278,7 +351,7 @@ datasets:
         tables:
           -
             name: doc
-            prettyName: Item
+            prettyName: Data
             fields:
               -
                 columnName: extension
@@ -313,7 +386,7 @@ datasets:
         tables:
           -
             name: doc
-            prettyName: Item
+            prettyName: Data
             fields:
               -
                 columnName: indicator
@@ -431,11 +504,9 @@ layouts:
             id: show_medium
             fields:
               -
-                field: ThumbDir
+                field: MergedMask
               -
                 field: InvertedMask
-        detailedThumbnails: true
-        showLabelName: true
 
     -
       col: 1
@@ -507,19 +578,18 @@ layouts:
         idField: ProbeFileID
         linkFields:
           - ProbeDir
-        maskField: InvertedMask
         linkPrefix: http://10.107.5.189:8000
         #linkPrefix: http://workbench-demo-data.mediforprogram.com
         typeMap:
             arw:
-            bmp: mask
+            bmp: img
             cr2:
-            gif: mask
+            gif: img
             iiq:
-            jpg: mask
-            jpeg: mask
+            jpg: img
+            jpeg: img
             nef:
-            png: mask
+            png: img
             tif:
             avi: vid
             mp4: vid
@@ -528,9 +598,20 @@ layouts:
             id: show_medium
             fields:
               -
-                field: ThumbDir
+                field: ProbeDir
                 label: Medium
-                mask: InvertedMask
+              -
+                field: MergedMask
+                label: Overlay
+              -
+                field: InvertedMask
+                label: Mask
+              -
+                field: ReasoningMergedMask
+                label: Overlay
+              -
+                field: ReasoningInvertedMask
+                label: Mask
 
     -
       col: 13
@@ -597,8 +678,6 @@ layouts:
                 field: InvertedMask
               -
                 field: MergedMask
-        detailedThumbnails: true
-        showLabelName: true
 
     -
       col: 1
@@ -766,8 +845,6 @@ layouts:
             tif:
             avi: vid
             mp4: vid
-        detailedThumbnails: true
-        showLabelName: true
 
     -
       col: 13
@@ -834,8 +911,6 @@ layouts:
                 field: ReasoningInvertedMask
               -
                 field: ReasoningMergedMask
-        detailedThumbnails: true
-        showLabelName: true
 
     -
       col: 1
@@ -1003,8 +1078,6 @@ layouts:
             tif:
             avi: vid
             mp4: vid
-        detailedThumbnails: true
-        showLabelName: true
 
     -
       col: 13
@@ -1069,8 +1142,6 @@ layouts:
                 field: reasoning_inverted_mask
               -
                 field: reasoning_merged_mask
-        detailedThumbnails: true
-        showLabelName: true
 
     -
       col: 1
@@ -1235,8 +1306,6 @@ layouts:
             tif:
             avi: vid
             mp4: vid
-        detailedThumbnails: true
-        showLabelName: true
 
     -
       col: 13
@@ -1270,8 +1339,9 @@ layouts:
         defaultPercent:
         filterField: ProbeFileID
         idField: ProbeFileID
-        linkField: ProbeFileName
-        linkPrefix: http://10.107.5.227:8000
+        linkField: ProbeThumbnailPath
+        linkPrefix: http://10.107.5.227:3000/thumbnail/
+        #linkPrefix: http://10.107.5.227:8000/mnt/datasets/
         nameField: ProbeFileID
         objectIdField:
         objectNameField: TaskID
@@ -1285,20 +1355,23 @@ layouts:
             percentage:
             prediction:
         typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
             jpeg: img
-            nef:
+            arw: img
+            bmp: img
+            cr2: img
+            dng: img
+            iiq: img
+            jpg: img
+            mts: img
+            nef: img
             png: img
-            tif:
-            avi: vid
-            mp4: vid
-        detailedThumbnails: true
-        showLabelName: true
+            raf: img
+            tif: img
+            3gp: img
+            gif: img
+            avi: img
+            mov: img
+            mp4: img
 
     -
       col: 1
@@ -1322,8 +1395,9 @@ layouts:
         defaultPercent:
         filterField: ProbeFileID
         idField: ProbeFileID
-        linkField: ProbeFileName
-        linkPrefix: http://10.107.5.227:8000
+        linkField: ProbeThumbnailPath
+        linkPrefix: http://10.107.5.227:3000/thumbnail/
+        #linkPrefix: http://10.107.5.227:8000/mnt/datasets/
         nameField: ProbeFileID
         objectIdField:
         objectNameField: TaskID
@@ -1337,18 +1411,23 @@ layouts:
             percentage:
             prediction:
         typeMap:
-            arw:
-            bmp: img
-            cr2:
-            gif: img
-            iiq:
-            jpg: img
             jpeg: img
-            nef:
+            arw: img
+            bmp: img
+            cr2: img
+            dng: img
+            iiq: img
+            jpg: img
+            mts: img
+            nef: img
             png: img
-            tif:
-            avi: vid
-            mp4: vid
+            raf: img
+            tif: img
+            3gp: img
+            gif: img
+            avi: img
+            mov: img
+            mp4: img
 
     -
       col: 1
@@ -1358,43 +1437,6 @@ layouts:
       type: filterBuilder
       bindings:
         requireAll: true
-        clauseConfig:
-          -
-            database: nist_data
-            table: _doc
-            field: FileType
-            operator: '!='
-            value: arw
-          -
-            database: nist_data
-            table: _doc
-            field: FileType
-            operator: '!='
-            value: cr2
-          -
-            database: nist_data
-            table: _doc
-            field: FileType
-            operator: '!='
-            value: dng
-          -
-            database: nist_data
-            table: _doc
-            field: FileType
-            operator: '!='
-            value: nef
-          -
-            database: nist_data
-            table: _doc
-            field: FileType
-            operator: '!='
-            value: raf
-          -
-            database: nist_data
-            table: _doc
-            field: FileType
-            operator: '!='
-            value: tif
 
     -
       col: 9
@@ -1480,17 +1522,22 @@ layouts:
           - ProbeFileName
         linkPrefix: http://10.107.5.227:8000
         typeMap:
+            jpeg: img
             arw:
             bmp: img
             cr2:
-            gif: img
+            dng:
             iiq:
             jpg: img
-            jpeg: img
+            mts:
             nef:
             png: img
-            tif:
+            raf:
+            tif: img
+            3gp:
+            gif:
             avi: vid
+            mov: vid
             mp4: vid
 
     -
@@ -1509,17 +1556,22 @@ layouts:
           - ProbeMaskFileName
         linkPrefix: http://10.107.5.227:8000
         typeMap:
+            jpeg: img
             arw:
             bmp: img
             cr2:
-            gif: img
+            dng:
             iiq:
             jpg: img
-            jpeg: img
+            mts:
             nef:
             png: img
+            raf:
             tif:
+            3gp:
+            gif:
             avi: vid
+            mov: vid
             mp4: vid
 
     -
@@ -1538,17 +1590,22 @@ layouts:
           - BaseFileName
         linkPrefix: http://10.107.5.227:8000
         typeMap:
+            jpeg: img
             arw:
             bmp: img
             cr2:
-            gif: img
+            dng:
             iiq:
             jpg: img
-            jpeg: img
+            mts:
             nef:
             png: img
+            raf:
             tif:
+            3gp:
+            gif:
             avi: vid
+            mov: vid
             mp4: vid
 
     -
@@ -1567,17 +1624,22 @@ layouts:
           - DonorFileName
         linkPrefix: http://10.107.5.227:8000
         typeMap:
+            jpeg: img
             arw:
             bmp: img
             cr2:
-            gif: img
+            dng:
             iiq:
             jpg: img
-            jpeg: img
+            mts:
             nef:
             png: img
+            raf:
             tif:
+            3gp:
+            gif:
             avi: vid
+            mov: vid
             mp4: vid
 
     -
@@ -1596,17 +1658,22 @@ layouts:
           - DonorMaskFileName
         linkPrefix: http://10.107.5.227:8000
         typeMap:
+            jpeg: img
             arw:
             bmp: img
             cr2:
-            gif: img
+            dng:
             iiq:
             jpg: img
-            jpeg: img
+            mts:
             nef:
             png: img
+            raf:
             tif:
+            3gp:
+            gif:
             avi: vid
+            mov: vid
             mp4: vid
 
     -
@@ -1625,17 +1692,22 @@ layouts:
           - BinaryProbeMaskFileName
         linkPrefix: http://10.107.5.227:8000
         typeMap:
+            jpeg: img
             arw:
             bmp: img
             cr2:
-            gif: img
+            dng:
             iiq:
             jpg: img
-            jpeg: img
+            mts:
             nef:
             png: img
+            raf:
             tif:
+            3gp:
+            gif:
             avi: vid
+            mov: vid
             mp4: vid
 
     -
@@ -1681,4 +1753,293 @@ layouts:
             name: BinaryProbeMaskFileName
           -
             name: JournalFileName
+
+  INTEGRITY_REPORT:
+    -
+      col: 1
+      row: 1
+      sizex: 8
+      sizey: 14
+      type: thumbnailGrid
+      bindings:
+        title: Probe Gallery
+        limit: 200
+        database: 0
+        table: _doc
+        ascending: true
+        border: percentCompare
+        borderCompareValue: 1
+        compareField: NeonReasoningScore
+        cropAndScale:
+        defaultPercent: N/A
+        detailedThumbnails: true
+        filterField: ProbeFileID
+        flagLabel: ProbeFileID
+        flagSubLabel1: NeonReasoningScore
+        flagSubLabel2: Exif.Model
+        flagSubLabel3: Exif.DateTimeOriginal
+        idField: ProbeFileID
+        linkField: NeonThumbnailPath
+        linkPrefix: http://10.107.5.227:8000
+        nameField: ProbeFileID
+        objectIdField:
+        objectNameField:
+        openOnMouseClick: false
+        percentField: NeonReasoningScore
+        predictedNameField:
+        sortField: ProbeFileID
+        styleClass: style2
+        textMap:
+            actual: Truth
+            percentage: Score
+            prediction:
+        typeMap:
+            jpeg: img
+            arw:
+            bmp: img
+            cr2:
+            dng:
+            iiq:
+            jpg: img
+            mts:
+            nef:
+            png: img
+            raf:
+            tif:
+            3gp:
+            gif:
+            avi: vid
+            mov: vid
+            mp4: vid
+        customEventsToPublish:
+          -
+            id: show_probe
+            fields:
+              -
+                field: NeonProbeMaskOverlayPaths
+              -
+                field: NeonProbeMaskPath
+
+    -
+      col: 1
+      row: 15
+      sizex: 14
+      sizey: 6
+      type: filterBuilder
+
+    -
+      col: 9
+      row: 1
+      sizex: 6
+      sizey: 6
+      type: dataTable
+      bindings:
+        title: Manipulations
+        database: 1
+        table: _doc
+        colorField: OperationColor
+        filterable: false
+        filterFields:
+        hideUnfiltered: true
+        idField: OperationGroup
+        ignoreSelf: true
+        sortField: OperationOrder
+        skinny: true
+        sortDescending: false
+        allColumnStatus: hide
+        fieldsConfig:
+          -
+            name: OperationGroup
+          -
+            name: OperationOrder
+          -
+            name: OperationColor
+          -
+            name: OperationSubtype
+          -
+            name: OperationScore
+        customEventsToPublish:
+          -
+            id: show_probe
+            fields:
+              -
+                field: OperationMaskPath
+              -
+                field: OperationOverlayPaths
+
+    -
+      col: 9
+      row: 7
+      sizex: 6
+      sizey: 8
+      type: documentViewer
+      bindings:
+        title: Metadata
+        limit: 1
+        database: 0
+        table: _doc
+        hideUnfiltered: true
+        dataField: ProbeFileID
+        hideSource: true
+        idField: ProbeFileID
+        nameWidthCss: 50%
+        metadataFields:
+          -
+            name: File Name
+            field: ProbeFileID
+          -
+            name: EXIF Data
+            field: Exif
+
+    -
+      col: 15
+      row: 1
+      sizex: 10
+      sizey: 8
+      type: mediaViewer
+      bindings:
+        title: Probe
+        database: 0
+        table: _doc
+        border: grey
+        idField: ProbeFileID
+        linkFields:
+          - NeonProbePath
+        linkPrefix: http://10.107.5.227:8000
+        typeMap:
+            jpeg: img
+            arw:
+            bmp: img
+            cr2:
+            dng:
+            iiq:
+            jpg: img
+            mts:
+            nef:
+            png: img
+            raf:
+            tif:
+            3gp:
+            gif:
+            avi: vid
+            mov: vid
+            mp4: vid
+        customEventsToReceive:
+          -
+            id: show_probe
+            fields:
+              -
+                field: NeonProbePath
+                label: Probe
+              -
+                field: NeonProbeMaskOverlayPaths
+                label: Overlay
+              -
+                field: NeonProbeMaskPath
+                label: Mask
+              -
+                field: OperationOverlayPaths
+                label: Overlay
+              -
+                field: OperationMaskPath
+                label: Mask
+
+    -
+      col: 15
+      row: 9
+      sizex: 10
+      sizey: 4
+      type: thumbnailGrid
+      bindings:
+        title: Donor Gallery
+        limit: 10
+        database: 2
+        table: _doc
+        hideUnfiltered: true
+        ascending: true
+        border: percentField
+        cropAndScale: scale
+        filterField:
+        idField: ProbeFileID
+        ignoreSelf: false
+        linkField: DonorPath
+        linkPrefix: http://10.107.5.227:8000
+        nameField: DonorFileID
+        objectIdField:
+        objectNameField:
+        openOnMouseClick: false
+        percentField: DonorScore
+        predictedNameField:
+        sortField: DonorFileID
+        styleClass: style2
+        typeMap:
+            jpeg: img
+            arw:
+            bmp: img
+            cr2:
+            dng:
+            iiq:
+            jpg: img
+            mts:
+            nef:
+            png: img
+            raf:
+            tif:
+            3gp:
+            gif:
+            avi: vid
+            mov: vid
+            mp4: vid
+        customEventsToPublish:
+          -
+            id: show_donor
+            fields:
+              -
+                field: DonorPath
+              -
+                field: DonorMaskPath
+
+    -
+      col: 15
+      row: 13
+      sizex: 10
+      sizey: 8
+      type: mediaViewer
+      bindings:
+        title: Donor
+        database: 2
+        table: _doc
+        border: grey
+        idField: DonorFileID
+        linkFields:
+          - DonorPath
+        linkPrefix: http://10.107.5.227:8000
+        typeMap:
+            jpeg: img
+            arw:
+            bmp: img
+            cr2:
+            dng:
+            iiq:
+            jpg: img
+            mts:
+            nef:
+            png: img
+            raf:
+            tif:
+            3gp:
+            gif:
+            avi: vid
+            mov: vid
+            mp4: vid
+        customEventsToReceive:
+          -
+            id: show_donor
+            fields:
+              -
+                field: DonorPath
+                label: Donor
+              -
+                field: DonorMaskPath
+                label: Mask
 
