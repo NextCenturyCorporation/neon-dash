@@ -10,15 +10,18 @@ fi
 
 # Elasticsearch variables
 ES_DATA="/usr/local/elasticsearch/thor_data"
-ES_INDEX="ldc_uyg_jul_18"
-ES_MAPPING="ui_out"
-PORT=9200
-URL="http://localhost:$PORT"
+#ES_URL="http://localhost:9200"
+#ES_INDEX="ldc_uyg_jul_18"
+#ES_MAPPING="ui_out"
+
+echo "ES_URL: $ES_URL"
+echo "ES_INDEX: $ES_INDEX"
+
 
 # Wait until Elasticsearch is up and running
-until curl -s --output /dev/null -XGET $URL/; do
+until curl -s --output /dev/null -XGET $ES_URL/; do
   echo "Elasticsearch is unavailable - sleeping 2s"
-  sleep 2
+  sleep 5
 done
 
 # Verify if elasticsearch was already setup
@@ -26,14 +29,14 @@ if [ ! -f /.es_created ]; then
   echo "Setting up Elasticsearch index and ingesting data"
 
   # Create Elasticsearch index and mapping
-  curl -XPUT "$URL/$ES_INDEX/" -d @"$ES_DATA/index-settings.json"
-  curl -XPUT "$URL/$ES_INDEX/$ES_MAPPING/_mapping" -d @"$ES_DATA/${ES_INDEX}_mapping.json"
+  curl -XPUT "$ES_URL/$ES_INDEX/" -d @"$ES_DATA/index-settings.json"
+  curl -XPUT "$ES_URL/$ES_INDEX/$ES_MAPPING/_mapping" -d @"$ES_DATA/${ES_INDEX}_mapping.json"
 
   # Insert Elasticsearch data
   elasticdump \
     --bulk=true \
     --input="$ES_DATA/${ES_INDEX}.json" \
-    --output="$URL/$ES_INDEX"
+    --output="$ES_URL/$ES_INDEX"
 
   echo "creating /.es_created"
   touch /.es_created

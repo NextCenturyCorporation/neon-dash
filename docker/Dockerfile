@@ -18,7 +18,11 @@ RUN apt-get -qqy install \
   curl \
   git \
   wget \
-  vim
+  vim \
+  zip
+
+# Set the root install directory env variable
+ENV INST_HOME /usr/local
 
 # ------------------------------------------------------------
 #  Install Java OpenJDK 8
@@ -67,7 +71,7 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 #------------------------------------------------------------
 #  Install Tomcat 8.5.34 
 #------------------------------------------------------------
-ENV CATALINA_HOME /usr/local/tomcat
+ENV CATALINA_HOME $INST_HOME/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
 RUN mkdir -p $CATALINA_HOME
 WORKDIR $CATALINA_HOME
@@ -100,7 +104,7 @@ RUN chown -R tomcat:tomcat $CATALINA_HOME
 #------------------------------------------------------------
 # Install Elasticsearch 2.5.4
 #------------------------------------------------------------
-ENV ELASTICSEARCH_HOME /usr/local/elasticsearch
+ENV ELASTICSEARCH_HOME $INST_HOME/elasticsearch
 ENV PATH $ELASTICSEARCH_HOME/bin:$PATH
 RUN mkdir -p $ELASTICSEARCH_HOME
 WORKDIR $ELASTICSEARCH_HOME
@@ -193,11 +197,71 @@ WORKDIR $THOR_DATA
 
 # //TODO Update with Gitclone
 # Copy over the data and mapping files
-COPY ["data/ldc_uyg_jul_18.json", \
-      "data/ldc_uyg_jul_18_mapping.json", "$THOR_DATA/"]
+COPY ["transfer/ldc_uyg_jul_18.json", \
+      "transfer/ldc_uyg_jul_18_mapping.json", "$THOR_DATA/"]
 
 # Copy over Elasticsearch configs files
-COPY ["configs/elasticsearch/index-settings.json", "$THOR_DATA/"] 
+COPY ["configs/elasticsearch/index-settings.json", "$THOR_DATA/"]
+
+#-------------------------------------------------------------
+# Install Neon
+#------------------------------------------------------------- 
+ENV NEON_HOME $INST_HOME/neon
+RUN mkdir -p $NEON_HOME
+WORKDIR $INST_HOME
+
+#Define default arguments if nothing is supplied using --build-args
+ARG CREDS=user:pass
+ARG NEON_REPO=https://gitlab.nextcentury.com/LORELEI.THOR/neon.git
+ARG NEON_BRANCH=master
+
+# Pull Neon Git Repo
+RUN git clone https://$CREDS@gitlab.nextcentury.com/LORELEI.THOR/neon.git -b $NEON_BRANCH
+
+# Run Neon Gradle Build
+WORKDIR $NEON_HOME
+RUN cp gradle.properties.sample gradle.properties
+RUN ./gradlew war
+
+# Copy Neon war into Tomcat webapps directory
+RUN cp neon-server/build/libs/neon-*-SNAPSHOT.war $CATALINA_HOME/webapps/neon.war
+
+# Clean up Neon git directory and Downloaded dependencies
+RUN rm -rf ~/.gradle
+RUN rm -rf $NEON_HOME
+
+#-------------------------------------------------------------
+# Install LORELEI-Demo
+#-------------------------------------------------------------
+ENV LORELEI_HOME $INST_HOME/Lorelei-demo
+RUN mkdir -p $LORELEI_HOME
+WORKDIR $INST_HOME
+
+#Define default arguments if nothing is supplied using --build-args during build
+ARG CREDS=user:pass
+ARG LORELEI_REPO=https://gitlab.nextcentury.com/LORELEI.THOR/Lorelei-demo.git
+ARG LORELEI_BRANCH=master
+ARG LORELEI_CONFIG=config.json
+
+# Pull Lorelei-demo Git Repo
+RUN git clone https://$CREDS@gitlab.nextcentury.com/LORELEI.THOR/Lorelei-demo.git -b $LORELEI_BRANCH
+
+# Install Angualr and NPM Dependencies
+WORKDIR $LORELEI_HOME
+RUN npm install -g @angular/cli
+RUN npm install
+
+# Create config file
+RUN cp src/app/config/$LORELEI_CONFIG src/app/config/config.json
+
+# Build for Deployment
+RUN npm run build
+
+# Copy Neon war into Tomcat webapps directory
+RUN cp target/lorelei.war $CATALINA_HOME/webapps/lorelei.war
+
+# Clean up Lorelei git directory
+RUN rm -rf $LORELEI_HOME
 
 #-------------------------------------------------------------
 # Clean up, Update Configurations and Start Supervisor
