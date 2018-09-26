@@ -697,10 +697,12 @@
                     "isDirected": true,
                     "showOnlyFiltered": true,
                     "physics": false,
-                    "filterFields": ["hypotheses", "docIds"],
+                    "filterFields": ["docIds"],
                     "idField": "@id",
                     "id": "_id",
+                    "filterable": true,
                     "multiFilter": true,
+                    "multiFilterOperator": "or",
                     "edgeColorField": ""
                 },
                 "row": 2,

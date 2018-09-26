@@ -555,6 +555,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 this.isLoading = false;
 
             } else {
+                this.pagingGrid = [];
                 this.errorMessage = 'No Data';
                 this.refreshVisualization();
             }

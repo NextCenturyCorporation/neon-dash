@@ -24,6 +24,10 @@
     flex-flow: row wrap;
 }
 
+.thumbnail-grid{
+    position: initial !important;
+}
+
 .thumbnail-grid-div{
     display: flex;
     flex: 1 auto;
