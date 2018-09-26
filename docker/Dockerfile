@@ -199,9 +199,9 @@ RUN /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 #-------------------------------------------------------------
 ENV ES_THOR_DATA $ELASTICSEARCH_HOME/thor_data
 ENV THOR_DATA $INST_HOME/thor_data
-RUN mkdir -p ES_THOR_DATA
+RUN mkdir -p $ES_THOR_DATA
 RUN mkdir -p $THOR_DATA
-WORKDIR $THOR_DATA
+WORKDIR $INST_HOME
 
 # Set default args or update from passed in --build-args
 ARG CREDS=user:pass
@@ -211,15 +211,11 @@ ARG THOR_DATA_BRANCH=master
 
 # Clone the THOR_DATA git repo
 RUN git clone https://$CREDS@$GIT_REPO/$THOR_DATA_REPO -b master
+WORKDIR $THOR_DATA
 
 # Copy over the data and mapping files based on ES_INDEX --build-arg
-#RUN cp ./$ES_INDEX.json $ES_THOR_DATA/
-#RUN cp ./ES_INDEX_mapping.json $ES_THOR_DATA/
-#COPY ["transfer/ldc_uyg_jul_18.json", \
-#      "transfer/ldc_uyg_jul_18_mapping.json", "$THOR_DATA/"]
-
-# Copy over Elasticsearch configs files
-#COPY ["configs/elasticsearch/index-settings.json", "$THOR_DATA/"]
+RUN cp ${ES_INDEX}.json $ES_THOR_DATA/
+RUN cp ${ES_INDEX}_mapping.json $ES_THOR_DATA/
 
 # Clean up THOR_DATA git repo
 RUN rm -rf $THOR_DATA
