@@ -17,7 +17,7 @@ ES_URL="http://localhost:9200"
 # Wait until Elasticsearch is up and running
 until curl -s --output /dev/null -XGET $ES_URL/; do
   echo "Elasticsearch is unavailable - sleeping 2s"
-  sleep 5
+  sleep 2
 done
 
 # Verify if elasticsearch was already setup

@@ -287,6 +287,21 @@ RUN cp target/lorelei.war $CATALINA_HOME/webapps/lorelei.war
 RUN rm -rf $LORELEI_HOME
 
 #-------------------------------------------------------------
+# Install GeoServer 2.14.x
+#-------------------------------------------------------------
+ENV GEOSERVER_HOME $INST_HOME/geoserver
+ENV PATH $GEOSERVER_HOME/bin:$PATH
+RUN mkdir -p $GEOSERVER_HOME
+WORKDIR $GEOSERVER_HOME
+
+ENV GEOSERVER_VERSION=2.14.x
+
+# Download Geoserver war into tomcat webapps 
+RUN wget -c http://build.geonode.org/geoserver/latest/geoserver-${GEOSERVER_VERSION}.war \
+    -O $CATALINA_HOME/webapps/geoserver.war \
+    && rm -rf $CATALINA_HOME/webapps/geoserver/data 
+
+#-------------------------------------------------------------
 # Clean up, Update Configurations and Start Supervisor
 #-------------------------------------------------------------
 RUN \
