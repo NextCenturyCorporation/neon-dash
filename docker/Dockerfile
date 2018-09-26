@@ -213,6 +213,9 @@ ARG THOR_DATA_BRANCH=master
 RUN git clone https://$CREDS@$GIT_REPO/$THOR_DATA_REPO -b master
 WORKDIR $THOR_DATA
 
+# Copy over Elasticsearch config files
+COPY ["configs/elasticsearch/index-settings.json", "$ES_THOR_DATA/"] 
+
 # Copy over the data and mapping files based on ES_INDEX --build-arg
 RUN cp ${ES_INDEX}.json $ES_THOR_DATA/
 RUN cp ${ES_INDEX}_mapping.json $ES_THOR_DATA/
