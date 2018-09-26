@@ -23,7 +23,7 @@ done
 
 # Verify if elasticsearch was already setup
 if [ ! -f /.es_created ]; then
-  echo "Setting up Elasticsearch index and ingesting dat"
+  echo "Setting up Elasticsearch index and ingesting data"
 
   # Create Elasticsearch index and mapping
   curl -XPUT "$URL/$ES_INDEX/" -d @"$ES_DATA/index-settings.json"
