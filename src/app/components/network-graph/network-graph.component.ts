@@ -346,6 +346,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 solver: 'forceAtlas2Based',
                 timestep: 0.35,
                 stabilization: {iterations: 150}
+            },
+            edges:{
+               smooth:{
+                   enabled: true,
+                   type: 'continuous',
+                   roundness: 0
+               }
             }};
         this.graph = new vis.Network(this.graphElement.nativeElement, this.graphData, options);
         this.graph.on('stabilized', (params) => this.graph.setOptions({physics: {enabled: false}}));
