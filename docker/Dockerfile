@@ -113,6 +113,12 @@ ENV ELASTCSEARCH_MAJOR 2
 ENV ELATICSEARCH_VERSION 2.5.4
 ENV ELASTICSEARCH_TGZ_URL https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.5/elasticsearch-2.4.5.tar.gz
 
+# Set Elasticsearch environments variables passed in from build.sh or defaults
+ARG ES_INDEX=index
+ARG ES_MAPPING=mapping
+ENV ES_INDEX $ES_INDEX
+ENV ES_MAPPING $ES_MAPPING
+
 # Download and extract Elasticesarch archive
 RUN set -x \
   && wget -q -O elasticesarch.tar.gz "$ELASTICSEARCH_TGZ_URL" \
@@ -191,17 +197,32 @@ RUN /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
 #-------------------------------------------------------------
 # Populate Elasitcsearch with THOR_DATA 
 #-------------------------------------------------------------
-ENV THOR_DATA $ELASTICSEARCH_HOME/thor_data
+ENV ES_THOR_DATA $ELASTICSEARCH_HOME/thor_data
+ENV THOR_DATA $INST_HOME/thor_data
+RUN mkdir -p ES_THOR_DATA
 RUN mkdir -p $THOR_DATA
 WORKDIR $THOR_DATA
 
-# //TODO Update with Gitclone
-# Copy over the data and mapping files
-COPY ["transfer/ldc_uyg_jul_18.json", \
-      "transfer/ldc_uyg_jul_18_mapping.json", "$THOR_DATA/"]
+# Set default args or update from passed in --build-args
+ARG CREDS=user:pass
+ARG GIT_REPO=gitlab.nextcentury.com
+ARG THOR_DATA_REPO=LORELEI.THOR/thor_data.git
+ARG THOR_DATA_BRANCH=master
+
+# Clone the THOR_DATA git repo
+RUN git clone https://$CREDS@$GIT_REPO/$THOR_DATA_REPO -b master
+
+# Copy over the data and mapping files based on ES_INDEX --build-arg
+#RUN cp ./$ES_INDEX.json $ES_THOR_DATA/
+#RUN cp ./ES_INDEX_mapping.json $ES_THOR_DATA/
+#COPY ["transfer/ldc_uyg_jul_18.json", \
+#      "transfer/ldc_uyg_jul_18_mapping.json", "$THOR_DATA/"]
 
 # Copy over Elasticsearch configs files
-COPY ["configs/elasticsearch/index-settings.json", "$THOR_DATA/"]
+#COPY ["configs/elasticsearch/index-settings.json", "$THOR_DATA/"]
+
+# Clean up THOR_DATA git repo
+RUN rm -rf $THOR_DATA
 
 #-------------------------------------------------------------
 # Install Neon
@@ -212,11 +233,13 @@ WORKDIR $INST_HOME
 
 #Define default arguments if nothing is supplied using --build-args
 ARG CREDS=user:pass
-ARG NEON_REPO=https://gitlab.nextcentury.com/LORELEI.THOR/neon.git
+ARG GIT_REPO=gitlab.nextcentury.com
+ARG NEON_REPO=LORELEI.THOR/neon.git
 ARG NEON_BRANCH=master
 
 # Pull Neon Git Repo
-RUN git clone https://$CREDS@gitlab.nextcentury.com/LORELEI.THOR/neon.git -b $NEON_BRANCH
+#RUN git clone https://$CREDS@$NEON_REPO -b $NEON_BRANCH
+RUN git clone https://$CREDS@$GIT_REPO/$NEON_REPO -b $NEON_BRANCH
 
 # Run Neon Gradle Build
 WORKDIR $NEON_HOME
@@ -239,12 +262,13 @@ WORKDIR $INST_HOME
 
 #Define default arguments if nothing is supplied using --build-args during build
 ARG CREDS=user:pass
-ARG LORELEI_REPO=https://gitlab.nextcentury.com/LORELEI.THOR/Lorelei-demo.git
+ARG GIT_REPO=gitlab.nextcentury.com
+ARG LORELEI_REPO=LORELEI.THOR/Lorelei-demo.git
 ARG LORELEI_BRANCH=master
 ARG LORELEI_CONFIG=config.json
 
 # Pull Lorelei-demo Git Repo
-RUN git clone https://$CREDS@gitlab.nextcentury.com/LORELEI.THOR/Lorelei-demo.git -b $LORELEI_BRANCH
+RUN git clone https://$CREDS@$GIT_REPO/$LORELEI_REPO -b $LORELEI_BRANCH
 
 # Install Angualr and NPM Dependencies
 WORKDIR $LORELEI_HOME

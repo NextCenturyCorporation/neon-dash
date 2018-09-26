@@ -14,6 +14,7 @@ docker/transfer/*
 # ignore environmental file in docker
 docker/build.env
 docker/run.env
+docker/build.sh
 
 # dependencies
 /node_modules

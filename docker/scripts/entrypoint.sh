@@ -10,13 +10,9 @@ fi
 
 # Elasticsearch variables
 ES_DATA="/usr/local/elasticsearch/thor_data"
-#ES_URL="http://localhost:9200"
+ES_URL="http://localhost:9200"
 #ES_INDEX="ldc_uyg_jul_18"
 #ES_MAPPING="ui_out"
-
-echo "ES_URL: $ES_URL"
-echo "ES_INDEX: $ES_INDEX"
-
 
 # Wait until Elasticsearch is up and running
 until curl -s --output /dev/null -XGET $ES_URL/; do
