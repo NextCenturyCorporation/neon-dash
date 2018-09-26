@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# If you have an @ symbol in your CREDS password you will need to escape it by replacing it with %40
+sudo docker build \
+	--build-arg CREDS= \
+	--build-arg GIT_REPO=gitlab.nextcentury.com \
+	--build-arg NEON_REPO=LORELEI.THOR/neon.git \
+        --build-arg NEON_BRANCH=master \
+	--build-arg LORELEI_REPO=LORELEI.THOR/Lorelei-demo.git \
+	--build-arg LORELEI_BRANCH=feature/docker-build \
+        --build-arg LORELEI_CONFIG=config.darpa-July2018.json \
+	--build-arg THOR_DATA_REPO=LORELEI.THOR/thor_data.git \
+	--build-arg THOR_DATA_BRANCH=master \
+	--build-arg ES_INDEX=ldc_uyg_jul_18 \
+	--build-arg ES_MAPPING=ui_out \
+	--squash \
+	-t lorelei .
