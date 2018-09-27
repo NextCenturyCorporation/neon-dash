@@ -1,12 +1,14 @@
+# TODO: incorporate into dashboards?
 dashboard:
-  translationKeys:
-    google: AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8
+    translationKeys:
+        google: AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8
 
 datastores:
-    "DARPA60: Uyghur LDC Situation Discovery":
+    es1:
         host: localhost
         type: elasticsearch
         connectOnLoad: true
+        # TODO: move to dashboards/options
         layout: uyghur-ldc-sd
         databases:
             ldc_uyg_jul_18:
@@ -52,26 +54,39 @@ datastores:
             checkForCoordinateValidation: null_values
             simpleFilter:
                 databaseName: ldc_uyg_jul_18
-                tableName: ui_out # TODO: might want to update to use keys from options?
-                fieldName: translatedText # TODO: might want to update to use keys from options?
+                tableName: ui_out
+                fieldName: translatedText
                 placeHolder: Search
 
-options:
+# TODO: new dashboards/options object
+# TODO: 825: update ticket config with prettyName changes
+# left-panel and title need to come from here, not datasets
+# layout needs to come from here, not datasets
+# probably will need to incorporate into active datasets for now somehow
+
+dashboards:
     darpa60:
-        name: DARPA60
-        options:
+        prettyName: DARPA60 # pretty name
+        choices:
             Uyghur:
-                name: Uyghur
-                options:
-                    uyg_discovery:
-                        name: Uyghur LDC Situation Discovery
-                        layout: DISCOVERY
+                prettyName: Uyghur LDC
+                choices:
+                    uyg_ldc_discovery:
+                        prettyName: Situation Discovery
+                        layout: uyghur-ldc-sd
+                        # todo: temporary reference to datastore
+                        datastore: es1
+                        # new layout name: DISCOVERY
                         tables:
                             # TODO: better table/field key names
                             table_key_1: es_1.ldc_uyg_jul_18.ui_out
                             # datastore_id.database_name.table_name
                         fields:
                             field_key_1: es_1.ldc_uyg_jul_18.ui_out.originalText
+                        options:
+                            # TODO: this is where current dashboard - translation key would go
+                            # TODO: how do we know what value to get (based on current translation.service.ts)???
+                            test: someValue
 
 layouts:
   uyghur-ldc-sd:
@@ -115,6 +130,7 @@ layouts:
         minSizex: 7
         minSizey: 3
 
+# TODO: change layout to this format
 # layouts:
 #     id: DISCOVERY
 #     view:

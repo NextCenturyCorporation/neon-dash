@@ -16,7 +16,8 @@
 import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
-import { Dataset, DatasetOptions, DatabaseMetaData, TableMetaData, TableMappings, FieldMetaData, Relation, Datastore } from '../dataset';
+import { DatasetOptions, DatabaseMetaData, TableMetaData,
+    TableMappings, FieldMetaData, Relation, Datastore, Dashboard, DashboardDatastoreChoice, DashboardChoice } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
@@ -31,6 +32,12 @@ export class DatasetService {
 
     // The active dataset.
     private dataset: Datastore = new Datastore();
+
+    private dashboards: { [key: string]: Dashboard } = {};
+
+    // The currently selected dashboard.
+    private currentDashboardConfigName: string;
+    private currentDashboardConfig: DashboardDatastoreChoice;
 
     // Use the Dataset Service to save settings for specific databases/tables and
     // publish messages to all visualizations if those settings change.
@@ -95,6 +102,9 @@ export class DatasetService {
     constructor(@Inject('config') private config: NeonGTDConfig) {
         this.datasets = [];
         let datastores = (config.datastores ? config.datastores : {});
+        this.dashboards = (config.dashboards ? config.dashboards : {});
+        // TODO: 825: wouldnt we need to validate dashboards objects like
+        // we do with datastores?
 
         // convert datastore key/value pairs into an array
         Object.keys(datastores).forEach((datastoreKey) => {
@@ -184,6 +194,8 @@ export class DatasetService {
      * identifier used by the visualizations and each value is a field name.  Each relation is an Object with table
      * names as keys and field names as values.
      */
+    // TODO: 825: this will likely be more like "set active dashboard/config" to allow
+    // to connect to multiple datasets
     public setActiveDataset(dataset): void {
         // TODO: 825: structure will likely change here
         this.dataset.name = dataset.name || 'Unknown Dataset';
@@ -207,6 +219,43 @@ export class DatasetService {
                 this.publishUpdateData();
             });
         }
+    }
+
+    /**
+     * Sets the current dashboard config name.
+     */
+    public setCurrentDashboardConfigName(name: string) {
+        this.currentDashboardConfigName = name;
+    }
+
+    /**
+     * Returns the current dashboard config name.
+     * @return {string}
+     */
+    public getCurrentDashboardConfigName() {
+        return this.currentDashboardConfigName;
+    }
+
+    /**
+     * Sets the current dashboard config.
+     */
+    public setCurrentDashboardConfig(config: DashboardDatastoreChoice) {
+        this.currentDashboardConfig = config;
+    }
+
+    /**
+     * Returns the current dashboard config.
+     * @return {DashboardDatastoreChoice}
+     */
+    public getCurrentDashboardConfig() {
+        return this.currentDashboardConfig;
+    }
+
+    /**
+     * Returns all of the dashboards.
+     */
+    public getDashboards(): { [key: string]: Dashboard } {
+        return this.dashboards;
     }
 
     /**

@@ -30,7 +30,8 @@
                 tooltip-position="below" matTooltip="Select a Dataset" (click)="sidenav.toggle()">
             <mat-icon class="neon-icon-large">menu</mat-icon>
         </button>
-        <span>{{ datasetService.getName() || "Choose Data..." }}</span>
+        <!-- TODO: 825: will this change? -->
+        <span>{{ datasetService.getCurrentDashboardConfigName() || "Choose Data..." }}</span>
         <span class="fill-remaining"></span>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Add Visualization" tooltip-position="below"
                 matTooltip="Add a New Visualization" (click)="openAddVisualizationDialog()" *ngIf="showAddVisualizationButton">

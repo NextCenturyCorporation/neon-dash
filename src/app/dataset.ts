@@ -107,6 +107,28 @@ export class Datastore {
     ) {}
 }
 
+export class Dashboard {
+    public prettyName: string = '';
+    public choices: { [key: string]: DashboardChoice } = {};
+}
+
+export class DashboardChoice {
+    public prettyName: string = '';
+    public choices: { [key: string ]: DashboardDatastoreChoice } = {};
+}
+
+// TODO: 825: find better name??
+// DashboardConfigChoice?
+
+export class DashboardDatastoreChoice {
+    public prettyName: string = '';
+    public datastore: string = ''; // TODO: 825: temporary until table/field keys are used and multiple connections are supported
+    public layout: string = '';
+    public tables: {[key: string]: string } = {};
+    public fields: {[key: string]: string } = {};
+    public options: {[key: string]: string } = {}; // TODO: 825
+}
+
 export class Relation {
     members: {
         database: string,
