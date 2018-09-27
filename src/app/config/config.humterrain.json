@@ -114,7 +114,7 @@
 					"isDirected": true,
 					"nodeColorField": "enrichedEnities.entity_type",
 					"nodeField": "entities",
-					"linkField": "author",
+					"linkField": "authorScreenName",
 					"nodeColor": "#4DBCC1",
             		                "linkColor": "#F68B4E",
 					"limit": 100,
