@@ -923,6 +923,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
         bindings.compareField = this.options.compareField.columnName;
         bindings.filterField = this.options.filterField.columnName;
         bindings.idField = this.options.idField.columnName;
+        bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.linkField = this.options.linkField.columnName;
         bindings.dateField = this.options.dateField.columnName;
         bindings.nameField = this.options.nameField.columnName;

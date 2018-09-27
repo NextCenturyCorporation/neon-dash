@@ -1170,14 +1170,16 @@ describe('Component: Map with config', () => {
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase1' },
             { provide: 'table', useValue: 'testTable1' },
-            { provide: 'layers', useValue: [{
-                colorField: 'testCategoryField',
-                dateField: 'testDateField',
-                latitudeField: 'testYField',
-                longitudeField: 'testXField',
-                sizeField: 'testSizeField',
-                title: 'Test Layer Title'
-            }] },
+            {
+                provide: 'layers', useValue: [{
+                    colorField: 'testColorField',
+                    dateField: 'testDateField',
+                    latitudeField: 'testLatitudeField',
+                    longitudeField: 'testLongitudeField',
+                    sizeField: 'testSizeField',
+                    title: 'Test Layer Title'
+                }]
+            },
             { provide: 'limit', useValue: 9999 },
             { provide: 'clustering', useValue: 'clusters' },
             { provide: 'clusterPixelRange', useValue: 20 },

@@ -681,6 +681,13 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             });
             return;
         }
+        /* tslint:disable:no-string-literal */
+        let clauses = query['filter']['whereClause'];
+
+        if (clauses && !clauses['whereClauses']) {
+            query['filter']['whereClause'] = this.datifyWherePredicate(clauses);
+        }
+        /* tslint:enable:no-string-literal */
 
         // Cancel any previous data query currently running.
         if (this.outstandingDataQuery[database] && this.outstandingDataQuery[database][table]) {
@@ -978,4 +985,61 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     prettifyInteger(item: number): string {
         return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
+
+    /**
+     * Returns the result of converting labels in the response query data
+     * into pretty labels specified in the config.
+     */
+    private prettifyLabels(response) {
+        let labelOptions = this.getLabelOptions();
+        let labelKeys = Object.keys(labelOptions);
+        let itemKeys;
+        for (let item of response.data) {
+            itemKeys = Object.keys(item);
+            for (let key of itemKeys) {
+                if (labelKeys.includes(key)) {
+                    if (item[key] instanceof Array) {
+                        let newItemParam = [];
+                        for (let element of item[key]) {
+                            if (labelOptions[key][element]) {
+                                newItemParam.push(labelOptions[key][element]);
+                            } else {
+                                newItemParam.push(element);
+                            }
+                        }
+                        item[key] = newItemParam;
+                    } else if (labelOptions[key][item[key]]) {
+                        item[key] = labelOptions[key][item[key]];
+                    }
+                }
+            }
+        }
+        return response;
+    }
+
+    private datifyWherePredicate(predicate) {
+        let labelOptions = this.getLabelOptions();
+        let labelKeys = Object.keys(labelOptions);
+        let key = predicate.lhs;
+        if (labelKeys.includes(key)) {
+            let prettyLabels = labelOptions[key];
+            let labels = Object.keys(prettyLabels);
+            for (let label of labels) {
+                let possiblePrettyLabel = predicate.rhs;
+                if (prettyLabels[label] === possiblePrettyLabel) {
+                    predicate.rhs = label;
+                }
+            }
+        }
+        return predicate;
+    }
+
+    private getLabelOptions() {
+        let dataset = this.datasetService.getDataset();
+        let database = _.find(dataset.databases, (db) => db.name === this.getOptions().database.name);
+        let tableName = _.find(database.tables, (table) => table.name === this.getOptions().table.name);
+        let labelOptions = tableName.labelOptions;
+        return labelOptions;
+    }
+
 }

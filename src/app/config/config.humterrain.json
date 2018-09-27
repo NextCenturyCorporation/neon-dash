@@ -116,7 +116,7 @@
 					"nodeField": "entities",
 					"linkField": "authorScreenName",
 					"nodeColor": "#4DBCC1",
-            		                "linkColor": "#F68B4E",
+            		"linkColor": "#F68B4E",
 					"limit": 100,
 					"edgeColorField": "sentimentString"
 				},
