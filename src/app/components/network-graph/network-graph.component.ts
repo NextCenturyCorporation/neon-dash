@@ -136,7 +136,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.edgeColor = this.injector.get('edgeColor', '#2b7ce9');
         this.fontColor = this.injector.get('fontColor', '#343434');
         this.edgeWidth = this.injector.get('edgeWidth', 1);
-        this.limit = this.injector.get('limit', Infinity);
+        this.limit = this.injector.get('limit', 10000);
         this.andFilters = this.injector.get('andFilters', true);
         this.showSelect = this.injector.get('showSelect', false);
         this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
