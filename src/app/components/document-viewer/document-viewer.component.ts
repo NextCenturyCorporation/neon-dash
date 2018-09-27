@@ -51,12 +51,14 @@ export class DocumentViewerOptions extends BaseNeonOptions {
     public dataField: FieldMetaData;
     public dateField: FieldMetaData;
     public hideSource: boolean;
+    public sortField: FieldMetaData;
     public idField: FieldMetaData;
     public metadataFields: any[];
     public nameWidthCss: string;
     public popoutFields: any[];
     public showSelect: boolean;
     public showText: boolean;
+    public sortDescending: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -70,6 +72,7 @@ export class DocumentViewerOptions extends BaseNeonOptions {
         this.popoutFields = neonUtilities.flatten(this.injector.get('popoutFields', []));
         this.showSelect = this.injector.get('showSelect', false);
         this.showText = this.injector.get('showText', false);
+        this.sortDescending = this.injector.get('sortDescending', true);
     }
 
     /**
@@ -79,7 +82,8 @@ export class DocumentViewerOptions extends BaseNeonOptions {
      */
     updateFieldsOnTableChanged() {
         this.dataField = this.findFieldObject('dataField');
-        this.dateField = this.findFieldObject('dateField');
+        this.sortField = this.findFieldObject('sortField').columnName ?
+            this.findFieldObject('sortField') : this.findFieldObject('dateField');
         this.idField = this.findFieldObject('idField');
     }
 }
@@ -159,6 +163,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         bindings.popoutFields = this.options.popoutFields;
         bindings.showSelect = this.options.showSelect;
         bindings.showText = this.options.showText;
+        bindings.sortDescending = this.options.sortDescending;
         */
     }
 
@@ -168,8 +173,8 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             prettyName: this.options.dataField.prettyName
         },
         {
-            columnName: this.options.dateField.columnName,
-            prettyName: this.options.dateField.prettyName
+            columnName: this.options.sortField.columnName,
+            prettyName: this.options.sortField.prettyName
         },
         {
             columnName: this.options.idField.columnName,
@@ -190,7 +195,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         valid = (this.options.database && this.options.database.name && valid);
         valid = (this.options.table && this.options.table.name && valid);
         valid = (this.options.dataField && this.options.dataField.columnName && valid);
-        // We intentionally don't include dateField or idField in the validity check, because we're allowed to leave it null.
+        // We intentionally don't include sortField or idField in the validity check, because we're allowed to leave it null.
         return !!(valid);
     }
 
@@ -218,9 +223,10 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         })).concat(this.options.popoutFields.map((item) => {
             return item.field;
         }));
-        if (this.options.dateField.columnName) {
-            fields = fields.concat(this.options.dateField.columnName);
-            query = query.sortBy(this.options.dateField.columnName, neonVariables.DESCENDING);
+        if (this.options.sortField.columnName) {
+            fields = fields.concat(this.options.sortField.columnName);
+            query = query.sortBy(this.options.sortField.columnName, this.options.sortDescending ?
+                neonVariables.DESCENDING : neonVariables.ASCENDING);
         }
         if (this.options.idField.columnName) {
             fields = fields.concat(this.options.idField.columnName);
@@ -231,9 +237,28 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     onQuerySuccess(response) {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.docCount = response.data[0]._docCount;
-            return;
+        } else {
+            let fields = [this.options.dataField.columnName].concat(this.options.metadataFields.map((item) => {
+                return item.field;
+            })).concat(this.options.popoutFields.map((item) => {
+                return item.field;
+            }));
+            if (this.options.sortField.columnName) {
+                fields = fields.concat(this.options.sortField.columnName);
+            }
+            if (this.options.idField.columnName) {
+                fields = fields.concat(this.options.idField.columnName);
+            }
+            let data = response.data.map((element) => {
+                let elem = {};
+                for (let field of fields) {
+                    elem[field] = neonUtilities.deepFind(element, field);
+                }
+                return elem;
+            });
+            this.activeData = data;
         }
-
+        
         let configFields: { name?: string, field: string, arrayFilter?: any }[] = this.options.metadataFields.concat(
             this.options.popoutFields);
 
