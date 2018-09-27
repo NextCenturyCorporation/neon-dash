@@ -94,6 +94,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.defaultPercent).toEqual('');
         expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.linkPrefix).toEqual('');
+        expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.openOnMouseClick).toEqual(true);
         expect(component.options.styleClass).toEqual('');
         expect(component.options.textMap).toEqual({});

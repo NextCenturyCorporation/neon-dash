@@ -94,6 +94,16 @@
                 </mat-form-field>
                 <p></p>
 
+                <!-- Sort field selector -->
+                <mat-form-field>
+                    <mat-select placeholder="Sort Field" [(ngModel)]="options.sortField" (ngModelChange)="handleChangeData()"
+                        [disabled]="options.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
                 <div mat-fill class="flex center">
                     <mat-form-field>
                         <input matInput placeholder="Document Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">

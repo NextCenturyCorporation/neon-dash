@@ -43,6 +43,14 @@ import * as neon from 'neon-framework';
  */
 export class FilterBuilderOptions extends BaseNeonOptions {
     public clauseConfig: any[];
+    public initialFilters: {
+        database: string,
+        table: string,
+        field: string,
+        operator: string,
+        value: string
+    }[];
+    public multiFilter: boolean;
     public requireAll: boolean;
 
     /**
@@ -52,6 +60,8 @@ export class FilterBuilderOptions extends BaseNeonOptions {
      */
     onInit() {
         this.clauseConfig = this.injector.get('clauseConfig', []);
+        this.initialFilters = this.injector.get('initialFilters', []);
+        this.multiFilter = this.injector.get('multiFilter', false);
         this.requireAll = this.injector.get('requireAll', false);
     }
 
@@ -119,6 +129,10 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
 
         this.options = new FilterBuilderOptions(this.injector, this.datasetService, 'Filter Builder');
         this.isExportable = false;
+    }
+
+    postInit() {
+        this.createInitialFilters();
     }
 
     /**
@@ -415,15 +429,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
-     * Handles any post-initialization behavior needed.
-     *
-     * @override
-     */
-    postInit() {
-        // Do nothing.
-    }
-
-    /**
      * Redraws the visualization.
      *
      * @override
@@ -652,6 +657,36 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
      */
     validateClause(clause: FilterClauseMetaData) {
         return clause.database && clause.table && clause.field && clause.field.columnName;
+    }
+
+    createInitialFilters() {
+        this.options.initialFilters.forEach((clause) => {
+            let clauseDatabase = this.datasetService.getDatabaseWithName(clause.database);
+            let clauseTable = this.datasetService.getTableWithName(clause.database, clause.table);
+            let clauseField = this.datasetService.getFields(clause.database, clause.table)
+                .find((field) => field.columnName === clause.field);
+            let clauseOperator = this.operators.find((op) => op.value === clause.operator);
+
+            if (!clauseDatabase || !clauseTable || !clauseField || !clauseOperator) {
+                return;
+            }
+            let visClause = new FilterClauseMetaData(this.injector, this.datasetService);
+            visClause.changeDatabase = clauseDatabase;
+            visClause.changeTable = clauseTable;
+            visClause.changeField = clauseField;
+            visClause.field = clauseField;
+            visClause.operator = clauseOperator;
+            visClause.value = clause.value;
+            visClause.active = true;
+            visClause.id = ++this.counter;
+
+            this.clauses.push(visClause);
+            let dbTableFieldKey = this.getDatabaseTableFieldKey(visClause.database.name, visClause.table.name, visClause.field.columnName);
+            this.databaseTableFieldKeysToFilterIds.set(dbTableFieldKey, '');
+        });
+        if (this.options.initialFilters.length > 0) {
+            this.updateFilters();
+        }
     }
 }
 

@@ -419,4 +419,8 @@ export class FilterService {
     public clearFilters() {
         this.filters = [];
     }
+
+    public clearFilters() {
+        this.filters = [];
+    }
 }

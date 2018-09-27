@@ -57,6 +57,7 @@ export class DataTableOptions extends BaseNeonOptions {
     public skinny: boolean;
     public sortField: FieldMetaData;
     public sortDescending: boolean;
+    public checkDuplicateField: FieldMetaData;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -87,6 +88,7 @@ export class DataTableOptions extends BaseNeonOptions {
         this.idField = this.findFieldObject('idField');
         this.sortField = this.findFieldObject('sortField');
         this.filterFields = this.findFieldObjects('filterFields');
+        this.checkDuplicateField = this.findFieldObject('checkDuplicateField');
     }
 }
 
@@ -143,6 +145,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         x: 0,
         y: 0
     };
+
+    public duplicateNumber = 0;
+    public seenValues = [];
 
     constructor(
         activeGridService: ActiveGridService,
@@ -268,6 +273,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.idField = this.options.idField.columnName;
         bindings.sortField = this.options.sortField.columnName;
         bindings.filterFields = this.options.filterFields;
+        bindings.checkDuplicateField = this.options.checkDuplicateField;
 
         bindings.arrayFilterOperator = this.options.arrayFilterOperator;
         bindings.filterable = this.options.filterable;
@@ -521,10 +527,23 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onQuerySuccess(response): void {
+        let uniqueData = this.ridDuplicates(response);
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.docCount = response.data[0]._docCount;
         } else {
-            let data = response.data.map((d) => {
+            let data;
+            if (this.options.checkDuplicateField) {
+                data = uniqueData.map((d) => {
+                    let row = {};
+                    for (let field of this.options.fields) {
+                        if (field.type || field.columnName === '_id') {
+                            row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
+                        }
+                    }
+                    return row;
+                });
+            } else {
+            data = response.data.map((d) => {
                 let row = {};
                 for (let field of this.options.fields) {
                     if (field.type || field.columnName === '_id') {
@@ -533,13 +552,40 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 }
                 return row;
             });
+        }
             this.activeData = data;
             // The query response is being stringified and stored in activeData
             // Store the response in responseData to preserve the data in its raw form for querying and filtering purposes
             this.responseData = response.data;
             this.getDocCount();
+            this.docCount = this.docCount - this.duplicateNumber;
             this.refreshVisualization();
         }
+    }
+
+    ridDuplicates(data) {
+        let newData = data;
+        this.seenValues = [];
+        this.duplicateNumber = 0;
+
+        newData = newData.data.filter((d) => this.seenBefore(d));
+
+        return newData;
+    }
+
+    seenBefore(data): boolean {
+        let unique = false;
+        let checkField = neonUtilities.deepFind(data, this.options.checkDuplicateField.columnName);
+        if (!this.seenValues.includes(checkField)) {
+            if (checkField) {
+                this.seenValues.push(checkField);
+            }
+            unique = true;
+        } else {
+            this.duplicateNumber++;
+        }
+
+        return unique;
     }
 
     getDocCount() {
@@ -724,15 +770,22 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
         if (this.options.filterable) {
             let dataObject = this.responseData.filter((obj) =>
-                obj[this.options.idField.columnName] === selectedItem[this.options.idField.columnName])[0];
+                obj[this.options.idField.columnName] === selected[0][this.options.idField.columnName])[0];
+            let finalFilterFieldObject = this.options.findField(this.options.filterFields[0].columnName);
+                let value = (this.options.idField.columnName.length === 0) ? selected[0][finalFilterFieldObject.columnName] :
+                    dataObject[finalFilterFieldObject.columnName];
+            let finalFilter = this.createFilterObject(finalFilterFieldObject.columnName, value, finalFilterFieldObject.prettyName);
+
+            let finalClauses = new neon.query.BooleanClause('and', []);
 
             this.options.filterFields.forEach((filterField: any) => {
                 let filterFieldObject = this.options.findField(filterField.columnName);
-                let value = (this.options.idField.columnName.length === 0) ? selectedItem[filterFieldObject.columnName] :
+                value = (this.options.idField.columnName.length === 0) ? selected[0][filterFieldObject.columnName] :
                     dataObject[filterFieldObject.columnName];
                 let filter = this.createFilterObject(filterFieldObject.columnName, value, filterFieldObject.prettyName);
 
-                if (value instanceof Array) {
+                if (value[0] === '[' && value [value.length - 1] === ']') {
+                    value = JSON.parse(value.replace('[', '["').replace(']', '"]').replace(',', '","'));
                     if (this.options.arrayFilterOperator === 'and') {
                         value.forEach((element) => {
                             let arrayFilter = this.createFilterObject(filterFieldObject.columnName, element, filterFieldObject.prettyName);
@@ -746,9 +799,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     }
                 } else {
                     let clause = neon.query.where(filter.field, '=', filter.value);
-                    this.addFilter(filter, clause);
+                    finalClauses.whereClauses.push(clause);
+                    //this.addFilter(filter, clause);
                 }
             });
+            this.addFilter(finalFilter, finalClauses);
         }
 
         this.publishAnyCustomEvents(selectedItem, this.options.idField.columnName);

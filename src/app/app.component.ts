@@ -13,7 +13,17 @@
  * limitations under the License.
  *
  */
-import { AfterViewInit, Component, Inject, OnInit, OnDestroy, QueryList, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    Inject,
+    OnInit,
+    OnDestroy,
+    QueryList,
+    ViewChild,
+    ViewChildren,
+    ViewContainerRef
+} from '@angular/core';
 
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
