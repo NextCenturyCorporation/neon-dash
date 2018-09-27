@@ -258,7 +258,7 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
             });
             this.activeData = data;
         }
-        
+
         let configFields: { name?: string, field: string, arrayFilter?: any }[] = this.options.metadataFields.concat(
             this.options.popoutFields);
 
