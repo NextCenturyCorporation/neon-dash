@@ -19,20 +19,37 @@ RUN apt-get -qqy install \
   git \
   wget \
   vim \
-  zip
+  zip 
 
 # Set the root install directory env variable
 ENV INST_HOME /usr/local
 
-# ------------------------------------------------------------
+#-------------------------------------------------------------
 #  Install Java OpenJDK 8
-# ------------------------------------------------------------
+#-------------------------------------------------------------
 RUN \
   apt-get install -y --fix-missing openjdk-8-jdk
 
 # Define JAVA_HOME variable
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
+#-------------------------------------------------------------
+#  Install Maven
+#-------------------------------------------------------------
+#ENV M2_HOME=$INST_HOME/maven
+#ENV PATH $M2_HOME/bin:$PATH
+#ENV M2_VERSION=3.5.4
+#ENV M2_TGZ_URL=https://apache.osuosl.org/maven/maven-3/${M2_VERSION}/binaries/apache-maven-${M2_VERSION}-bin.tar.gz 
+#ENV M2_CONFIG $HOME/.m2
+#
+#RUN mkdir -p $M2_HOME
+
+# Download and install maven
+#RUN curl -fsSL -o /tmp/apache-maven.tar.gz $M2_TGZ_URL \
+#  && tar -xzf /tmp/apache-maven.tar.gz -C $M2_HOME --strip-components=1 \
+#  && rm -f /tmp/apache-maven.tar.gz 
+
+#RUN mvn -verison
 #-------------------------------------------------------------
 #  Install Supervisor
 #-------------------------------------------------------------
@@ -97,6 +114,9 @@ RUN echo 'tomcat ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 COPY ["scripts/tomcat/tomcat_setup.sh", "$CATALINA_HOME/"]
 RUN chmod +x $CATALINA_HOME/tomcat_setup.sh
 RUN $CATALINA_HOME/tomcat_setup.sh
+
+# Enable CORS in tomcat for geoserver
+RUN sed -i '$i<filter><filter-name>CorsFilter</filter-name><filter-class>org.apache.catalina.filters.CorsFilter</filter-class></filter><filter-mapping><filter-name>CorsFilter</filter-name><url-pattern>/*</url-pattern></filter-mapping>' $CATALINA_HOME/conf/web.xml
 
 # Update Tomcat directory permissions
 RUN chown -R tomcat:tomcat $CATALINA_HOME
@@ -292,15 +312,23 @@ RUN rm -rf $LORELEI_HOME
 ENV GEOSERVER_HOME $INST_HOME/geoserver
 ENV PATH $GEOSERVER_HOME/bin:$PATH
 RUN mkdir -p $GEOSERVER_HOME
+
+ENV GEOSERVER_DATA $CATALINA_HOME/webapps/geoserver/data
+RUN mkdir -p $GEOSERVER_DATA
 WORKDIR $GEOSERVER_HOME
 
 ENV GEOSERVER_VERSION=2.14.x
 
 # Download Geoserver war into tomcat webapps 
 RUN wget -c http://build.geonode.org/geoserver/latest/geoserver-${GEOSERVER_VERSION}.war \
-    -O $CATALINA_HOME/webapps/geoserver.war \
-    && rm -rf $CATALINA_HOME/webapps/geoserver/data 
+    -O $CATALINA_HOME/webapps/geoserver.war 
 
+# Download sample raster data
+#RUN wget https://github.com/nvkelso/natural-earth-raster/raw/master/10m_rasters/NE2_HR_LC_SR_W_DR/NE2_HR_LC_SR_W_DR.tif -P $GEOSERVER_DATA
+#RUN wget https://github.com/nvkelso/natural-earth-raster/raw/master/10m_rasters/NE2_HR_LC_SR_W_DR/NE2_HR_LC_SR_W_DR.prj -P $GEOSERVER_DATA
+#RUN wget https://github.com/nvkelso/natural-earth-raster/raw/master/10m_rasters/NE2_HR_LC_SR_W_DR/NE2_HR_LC_SR_W_DR.tfw -P $GEOSERVER_DATA
+
+#RUN wget https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/raster/NE1_HR_LC_SR_W_DR.zip -P $GEOSERVER_DATA
 #-------------------------------------------------------------
 # Clean up, Update Configurations and Start Supervisor
 #-------------------------------------------------------------
