@@ -1,7 +1,12 @@
 <mat-nav-list mat-layout="column" mat-fill>
-    <mat-list-item  mat-2-line *ngFor="let dataset of datasets; let i = index;" (click)="connectToPreset(i, false)"
-        [class.accent]="(activeDataset.name === dataset.name)">
-        <h3 matLine>{{ dataset.name }}</h3>
-        <p matLine>{{ dataset.databases.length }} {{ dataset.databases.length === 1 ? 'Database' : 'Databases' }}</p>
+    <mat-list-item  mat-2-line *ngFor="let dashboardKey of getDashboardKeys(dashboards);"
+        (click)="connectToPreset(findMatchingIndex(dashboards[dashboardKey]), false, dashboardKey)">
+        <h3 matLine>{{ dashboardKey }}</h3>
+        <!-- TODO: 825: This will likely change-->
+        <p matLine>1 Database</p>
+        <!--<p matLine>
+            {{ dataset.databases.length }} {{ dataset.databases.length === 1 ? 'Database' : 'Databases' }}
+        </p>-->
     </mat-list-item>
 </mat-nav-list>
+

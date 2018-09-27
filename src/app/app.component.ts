@@ -84,6 +84,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         cascade: 'up',
         fix_to_grid: true,
         limit_to_screen: true
+        // TODO: 825: will this be fixed when merge is completed?
         //,
         //resize_directions: ['bottomright', 'bottomleft', 'right', 'left', 'bottom']
     };

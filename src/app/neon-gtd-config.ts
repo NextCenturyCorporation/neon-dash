@@ -24,7 +24,7 @@ export class NeonGTDConfig {
         translationKeys: {}
     };
     datastores: { [ key: string ]: Datastore } = {};
-    options: { [ key: string ]: any } = {};
+    dashboards: { [ key: string ]: any } = {};
     layouts: { [ key: string ]: any } = {};
     errors: String[];
 }

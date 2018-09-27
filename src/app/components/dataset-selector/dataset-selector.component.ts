@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angu
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
-import { Datastore, DatabaseMetaData, TableMetaData, FieldMetaData, Relation } from '../../dataset';
+import { Datastore, DatabaseMetaData, TableMetaData, FieldMetaData, Relation, Dashboard, DashboardDatastoreChoice } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ParameterService } from '../../services/parameter.service';
@@ -70,6 +70,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';
     private layouts: { [key: string]: any } = {};
+    public dashboards: {[key: string]: DashboardDatastoreChoice } = {};
 
     /**
      * This is the array of custom database objects configured by the user through the popup.  Each custom database contains:
@@ -131,20 +132,68 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         return this.datasets;
     }
 
+    // TODO: 825: flatten dashboards here (won't need to flatten structure later
+    // when table/field keys are used)
+    getFlattenedDashboards(): {[key: string]: DashboardDatastoreChoice } {
+        let tempDashboards = this.datasetService.getDashboards();
+        let finalDashboards: {[key: string]: DashboardDatastoreChoice } = {};
+
+        Object.keys(tempDashboards).forEach((dashboardKey) => {
+            let dashboard = tempDashboards[dashboardKey];
+
+            let choices = (dashboard.choices ? dashboard.choices : {});
+
+            Object.keys(choices).forEach((choiceKey) => {
+                let choice = choices[choiceKey];
+                let nestedChoices = choice.choices;
+
+                Object.keys(nestedChoices).forEach((nestedChoiceKey) => {
+                    let nextChoice = nestedChoices[nestedChoiceKey];
+                    let keyToUse = dashboard.prettyName + ': ' + choice.prettyName + ' ' + nextChoice.prettyName;
+                    finalDashboards[keyToUse] = nextChoice;
+                });
+            });
+        });
+
+        return finalDashboards;
+    }
+
+    getDashboardKeys(dashboards: {[key: string]: DashboardDatastoreChoice }) {
+        return Object.keys(this.dashboards);
+    }
+
+    // TODO: 825: using this to match dashboards to datastores for now
+    // until table/field keys are used
+    findMatchingIndex(choice: DashboardDatastoreChoice) {
+        for (let index = 0; index < this.datasets.length; index ++) {
+            if (this.datasets[index].name === choice.datastore) {
+                return index;
+            }
+        }
+    }
+
     ngOnInit(): void {
         let dashboardStateId: string = this.parameterService.findDashboardStateIdInUrl();
 
         this.messenger = new neon.eventing.Messenger();
         this.datasets = this.datasetService.getDatasets();
         this.layouts = this.datasetService.getLayouts();
+        this.dashboards = this.getFlattenedDashboards();
 
         if (dashboardStateId) {
             this.parameterService.loadState(dashboardStateId, this.parameterService.findFilterStateIdInUrl());
         } else {
+            // TODO: 825: what to do for parameter service?
             let activeDataset: string = (this.parameterService.findActiveDatasetInUrl() || '').toLowerCase();
-            this.datasets.some((dataset, index) => {
+
+            Object.keys(this.dashboards).some((dashboardName) => {
+                // TODO: 825: error reporting if dashboards/datastore mismatch?
+                let configItem = this.dashboards[dashboardName];
+                let index = this.findMatchingIndex(configItem);
+                let dataset = this.datasets[index];
+
                 if ((activeDataset && activeDataset === dataset.name.toLowerCase()) || (!activeDataset && dataset.connectOnLoad)) {
-                    this.connectToPreset(index, true);
+                    this.connectToPreset(index, true, dashboardName);
                     this.activeDatasetChanged.emit(); // Close the sidenav opened by connectToPreset.
                     return true;
                 }
@@ -194,7 +243,12 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
      * @param {Boolean} loadDashboardState Whether to load any saved dashboard states shown upon a dataset change
      * @method connectToPreset
      */
-    connectToPreset(index: number, loadDashboardState: boolean) {
+    // TODO: 825: new implementation:
+    // - just focus on one connection for now
+    // - for now using the datastores name to link dashboard and datastore
+    // - then later, use the tablekeys and field keys from dashboards instead of
+    //      the datastores/dashboards combo
+    connectToPreset(index: number, loadDashboardState: boolean, configName: string) {
         this.activeDataset = {
             name: this.datasets[index].name,
             info: DatasetSelectorComponent.HIDE_INFO_POPOVER,
@@ -210,7 +264,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
         // Don't update the dataset if its fields are already updated.
         if (this.datasets[index].hasUpdatedFields) {
-            this.finishConnectToPreset(this.datasets[index], loadDashboardState);
+            this.finishConnectToPreset(this.datasets[index], loadDashboardState, configName);
             return;
         }
 
@@ -220,12 +274,14 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             this.datasets[index] = dataset;
 
             // Wait to update the layout until after we finish the dataset updates.
-            this.finishConnectToPreset(dataset, loadDashboardState);
+            this.finishConnectToPreset(dataset, loadDashboardState, configName);
         });
     }
 
-    finishConnectToPreset(dataset: Datastore, loadDashboardState: boolean) {
+    finishConnectToPreset(dataset: Datastore, loadDashboardState: boolean, configName: string) {
         this.datasetService.setActiveDataset(dataset);
+        this.datasetService.setCurrentDashboardConfigName(configName);
+        this.datasetService.setCurrentDashboardConfig(this.dashboards[configName]);
         this.updateLayout(loadDashboardState);
         this.filterService.clearFilters();
     }

@@ -16,7 +16,7 @@
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { DatasetService } from '../../services/dataset.service';
-import { Dataset } from '../../dataset';
+import { Dataset, Dashboard, DashboardDatastoreChoice } from '../../dataset';
 import { MatDialogRef } from '@angular/material';
 
 import { CustomConnectionStep } from './custom-connection-step';
@@ -81,6 +81,10 @@ export class CustomConnectionComponent implements AfterViewInit {
         dataset.databases = this.data.selectedDatabases;
         this.datasetService.addDataset(dataset);
         this.datasetService.setActiveDataset(dataset);
+
+        // TODO: 825: fix so that the dashboard is added to existing list
+        // TODO: 825: fix so that this uses dashboards properly
+        this.datasetService.setCurrentDashboardConfigName(this.data.datasetName);
 
         this.messenger.clearFiltersSilently();
         this.activeGridService.clear();
