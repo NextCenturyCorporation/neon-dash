@@ -45,6 +45,7 @@ export class DataTableOptions extends BaseNeonOptions {
     public allColumnStatus: string;
     public arrayFilterOperator: string;
     public exceptionsToStatus: string[];
+    public customColumnWidths: [[string, number]];
     public fieldsConfig: any[];
     public filterable: boolean;
     public filterFields: FieldMetaData[];
@@ -66,6 +67,7 @@ export class DataTableOptions extends BaseNeonOptions {
         this.allColumnStatus = this.injector.get('allColumnStatus', 'show');
         this.arrayFilterOperator = this.injector.get('arrayFilterOperator', 'and');
         this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
+        this.customColumnWidths = this.injector.get('customColumnWidths', {});
         this.fieldsConfig = this.injector.get('fieldsConfig', []);
         this.filterable = this.injector.get('filterable', false);
         this.heatmapDivisor = this.injector.get('heatmapDivisor', 0);
@@ -185,7 +187,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     name: fieldObject.prettyName,
                     active: !show && orderedHeaders.length < initialHeaderLimit,
                     style: {},
-                    width: this.DEFAULT_COLUMN_WIDTH
+                    width: this.getColumnWidth(fieldObject)
                 });
             } else {
                 unorderedHeaders.push({
@@ -193,7 +195,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     name: fieldObject.prettyName,
                     active: show && unorderedHeaders.length < initialHeaderLimit,
                     style: {},
-                    width: this.DEFAULT_COLUMN_WIDTH
+                    width: this.getColumnWidth(fieldObject)
                 });
             }
         }
@@ -213,7 +215,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     name: fieldObject.prettyName,
                     active: !fieldConfig.hide,
                     style: {},
-                    width: this.DEFAULT_COLUMN_WIDTH
+                    width: this.getColumnWidth(fieldConfig)
                 });
             }
         }
@@ -224,10 +226,23 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     name: fieldObject.prettyName,
                     active: (this.options.allColumnStatus === 'show'),
                     style: {},
-                    width: this.DEFAULT_COLUMN_WIDTH
+                    width: this.getColumnWidth(fieldObject)
                 });
             }
         }
+    }
+
+    /**
+     * Returns the custom width for a column (or default if not specified in the config)
+     * @returns width for a specific column
+     */
+    getColumnWidth(fieldConfig) {
+        for (let miniArray of this.options.customColumnWidths) {
+            if (fieldConfig.columnName === miniArray[0]) {
+                return miniArray[1];
+            }
+        }
+        return this.DEFAULT_COLUMN_WIDTH;
     }
 
     subNgOnInit() {
