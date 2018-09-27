@@ -79,7 +79,7 @@
 
                 <div mat-fill class="flex center">
                     <mat-form-field>
-                        <input matInput placeholder="Node Limit" [(ngModel)]="options.limit" (keyup.enter)="reloadGraph()">
+                        <input matInput placeholder="Node/Link Limit" [(ngModel)]="options.limit" (keyup.enter)="reloadGraph()">
                     </mat-form-field>
 
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="reloadGraph()">
@@ -87,17 +87,9 @@
                     </button>
                 </div>
                 <p></p>
-
-                <!-- Color Options -->
-                <mat-form-field *ngIf="!options.isReified">
-                    <mat-select placeholder="Edge Color Field" [(ngModel)]="options.edgeColorField" (ngModelChange)="handleChangeData()"
-                        [disabled]="options.fields.length == 0">
-                        <mat-option [value]="emptyField">(None)</mat-option>
-                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
-                    </mat-select>
-                </mat-form-field>
                 <p></p>
 
+                <!-- Color Options -->
                 <mat-form-field *ngIf="!options.isReified">
                     <input matInput type="color" placeholder="Node Color" [(ngModel)]="options.nodeColor" [value]="options.nodeColor" (ngModelChange)="reloadGraph()">
                   </mat-form-field>
@@ -109,8 +101,22 @@
                 <p></p>
 
                 <mat-form-field *ngIf="!options.isReified">
+                    <input matInput type="color" placeholder="Text Color" [(ngModel)]="options.fontColor" [value]="options.fontColor" (ngModelChange)="reloadGraph()">
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field *ngIf="!options.isReified">
                     <input matInput type="color" placeholder="Edge Color" [(ngModel)]="options.edgeColor" [value]="options.edgeColor" (ngModelChange)="reloadGraph()">
-                  </mat-form-field>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field *ngIf="!options.isReified">
+                    <mat-select placeholder="Edge Color Field" [(ngModel)]="options.edgeColorField" (ngModelChange)="handleChangeData()"
+                        [disabled]="options.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
                 <p></p>
 
                 <!-- Directed Options -->

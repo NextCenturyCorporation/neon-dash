@@ -620,7 +620,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             edgeColor = this.options.edgeColor,
             linkColor = this.options.linkColor,
             textColor = {color: this.options.fontColor},
-            limit = (this.options.limit) ? this.options.limit : Infinity;
+            limit = (this.options.limit) ? this.options.limit : Infinity; //check incase the user changes it to nothing
 
         for (let entry of this.activeData) {
             let linkField = entry[linkName],
