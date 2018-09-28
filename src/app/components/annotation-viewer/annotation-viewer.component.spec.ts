@@ -246,6 +246,7 @@ describe('Component: AnnotationViewer', () => {
 
     it('createWhere does return expected where predicate', () => {
         component.options.documentTextField = new FieldMetaData('testRequiredField1', 'Test Required Field 1');
+        component.displayField = 'testRequiredField1';
 
         expect(component.createWhere()).toEqual(neon.query.where('testRequiredField1', '!=', null));
     });
