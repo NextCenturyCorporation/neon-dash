@@ -357,7 +357,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Get the list of fields to export
      * @return {[]} List of {columnName, prettyName} values of the fields
      */
-    abstract getExportFields(): {columnName: string, prettyName: string}[];
+    abstract getExportFields(): { columnName: string, prettyName: string }[];
 
     /**
      * Add any fields needed to restore the state to the bindings parameter.
@@ -646,8 +646,8 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Generic query success method
      * @param response
      */
-     baseOnQuerySuccess(response) {
-        //response = this.prettifyLabels(response);
+    baseOnQuerySuccess(response) {
+        //Converts the response to have the pretty names from the labelOptions in config to display
         this.onQuerySuccess(this.prettifyLabels(response));
         this.isLoading = false;
         this.changeDetection.detectChanges();
@@ -688,11 +688,12 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             return;
         }
         /* tslint:disable:no-string-literal */
-        let clauses = query['filter']['whereClause'];
 
-        if (clauses && !clauses['whereClauses']) {
-            query['filter']['whereClause'] = this.datifyWherePredicate(clauses);
-        }
+        let filter = _.cloneDeep(query['filter']);
+        //If we have any labelOptions in the config, we want to edit the data to convert whatever data items that are specified to the
+        //"pretty" name. The pretty name goes to the visualizations, but it must be converted back before doing a query as the
+        //database won't recognize the pretty name.
+        this.datifyWherePredicates(filter.whereClause);
         /* tslint:enable:no-string-literal */
 
         // Cancel any previous data query currently running.
@@ -999,22 +1000,29 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         let labelOptions = this.getLabelOptions();
         let labelKeys = Object.keys(labelOptions);
         let itemKeys;
+        //Go through each item in the response data
         for (let item of response.data) {
             itemKeys = Object.keys(item);
+            //for each key in the data item
             for (let key of itemKeys) {
+                //if that key exists in the labelOptions as keys for which there is a value to change
                 if (labelKeys.includes(key)) {
-                    if (item[key] instanceof Array) {
+                    //data items can have arrays of values, and we have to change all of them otherwise,
+                    //there is only one, and we have to change that one
+                    let value = item[key];
+                    if (value instanceof Array) {
                         let newItemParam = [];
-                        for (let element of item[key]) {
-                            if (labelOptions[key][element]) {
-                                newItemParam.push(labelOptions[key][element]);
-                            } else {
-                                newItemParam.push(element);
-                            }
+                        //for each value in that array, if that element is a key in the options,
+                        //push into the new array the pretty name, otherwize push the original value
+                        for (let element of value) {
+                            let possibleNewValue = labelOptions[key][element];
+                            let newValue = possibleNewValue ? possibleNewValue : element;
+                            newItemParam.push(newValue);
                         }
                         item[key] = newItemParam;
-                    } else if (labelOptions[key][item[key]]) {
-                        item[key] = labelOptions[key][item[key]];
+                    } else if (labelOptions[key][value]) {
+                        //if it's not an array, check to see if its a value in the options, set it if it is
+                        item[key] = labelOptions[key][value];
                     }
                 }
             }
@@ -1022,9 +1030,31 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         return response;
     }
 
-    private datifyWherePredicate(predicate) {
+    /**
+     * Converts data elements that are specified to have a pretty name back to their original data label so that the database can
+     * correctly query. When it comes back in onQuerySuccess, the response will be converted back to their "pretty" form
+     * Will probably skew the data if the config specifies a data label to have a pretty name that is the same as another data label
+     */
+    private datifyWherePredicates(whereClause) {
         let labelOptions = this.getLabelOptions();
+        switch (whereClause.type) {
+            case 'or':
+            case 'and':
+                let newFilters = [];
+                for (let clause of whereClause.whereClauses) {
+                    //recursively edit where clauses that contain multiple whereClauses
+                    newFilters.push(this.datifyWherePredicates(clause));
+                }
+                return newFilters;
+            case 'where':
+                return this.datifyWherePredicate(whereClause, labelOptions);
+        }
+    }
+
+    //Base case of datifyWherePredicates() when there is a single where clause
+    private datifyWherePredicate(predicate, labelOptions) {
         let labelKeys = Object.keys(labelOptions);
+
         let key = predicate.lhs;
         if (labelKeys.includes(key)) {
             let prettyLabels = labelOptions[key];
@@ -1036,9 +1066,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                 }
             }
         }
-        return predicate;
     }
 
+    //Grabs labelOptions specified in the config
     private getLabelOptions() {
         let dataset = this.datasetService.getDataset();
         let database = _.find(dataset.databases, (db) => db.name === this.getOptions().database.name);

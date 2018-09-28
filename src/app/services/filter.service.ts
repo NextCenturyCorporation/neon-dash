@@ -179,7 +179,7 @@ export class FilterService {
             let sibId = this.createFilterId(sibling.databaseName, sibling.tableName);
             serviceFilters.push(new ServiceFilter(sibId, undefined, sibling.databaseName, sibling.tableName, sibling));
         });
-        //TODO convert pretty labels to data labels or vice versa
+
         for (let sib = serviceFilters.length - 1; sib >= 0; sib--) {
             for (let i = serviceFilters.length - 1; i >= 0; i--) {
                 if (sib !== i) {
@@ -192,7 +192,7 @@ export class FilterService {
             serviceFilters.map((sFilter) => {
                 let fId = sFilter.id;
                 let fFilter = _.cloneDeep(sFilter.filter);
-                fFilter = this.datifyWherePredicate(fFilter);
+                this.datifyWherePredicates(fFilter.whereClause, fFilter.databaseName, fFilter.tableName);
                 return [id, fFilter];
             }),
             () => {
@@ -224,8 +224,7 @@ export class FilterService {
         let siblingIds = this.filters[originalIndex].siblings;
         let newFilters = this.createChildrenFromRelations(filter, filterName);
         let newSiblings = [];
-        let idAndFilterList = [[id, this.datifyWherePredicate(filter)]];
-        //TODO convert pretty labels to data labels or vice versa
+        let idAndFilterList = [[id, filter]];
 
         // For each sibling, find a new filter with the same database and table (the particular field is irrelevant),
         // and make a replacement for that sibling with the new filter so that on success we can easily replace it.
@@ -250,7 +249,13 @@ export class FilterService {
         }
 
         messenger.replaceFilters(
-            idAndFilterList,
+            idAndFilterList.map((idAndSFilterArray) => {
+                let fId = idAndSFilterArray[0];
+                let sFilter = idAndSFilterArray[1];
+                let fFilter = _.cloneDeep(sFilter) as neon.query.Filter;
+                this.datifyWherePredicates(fFilter.whereClause, fFilter.databaseName, fFilter.tableName);
+                return [id, fFilter];
+            }),
             () => {
                 let index = _.findIndex(this.filters, { id: id });
                 this.filters[index] = new ServiceFilter(id, ownerId, database, table, filter, this.filters[index].siblings);
@@ -274,7 +279,6 @@ export class FilterService {
 
         let baseFilter = this.filters.find((filter) => filter.id === id);
         let siblings = baseFilter ? baseFilter.siblings.concat(id) : [];
-        //TODO convert pretty labels to data labels or vice versa
 
         if (!siblings.length) {
             return;
@@ -423,10 +427,29 @@ export class FilterService {
         return newFilter;
     }
 
-    private datifyWherePredicate(filter) {
-        let labelOptions = this.datasetService.getTableWithName(filter.databaseName, filter.tableName).labelOptions;
+    /**
+     * Converts data elements that are specified to have a pretty name back to their original data label so that the database can
+     * correctly query. When it comes back in onQuerySuccess, the response will be converted back to their "pretty" form
+     * Will probably skew the data if the config specifies a data label to have a pretty name that is the same as another data label
+     */
+    private datifyWherePredicates(whereClause, databaseName, tableName) {
+        let labelOptions = this.datasetService.getTableWithName(databaseName, tableName).labelOptions;
+        switch (whereClause.type) {
+            case 'or':
+            case 'and':
+                let newFilters = [];
+                for (let clause of whereClause.whereClauses) {
+                    //recursively edit where clauses that contain multiple whereClauses
+                    newFilters.push(this.datifyWherePredicates(clause, databaseName, tableName));
+                }
+                return newFilters;
+            case 'where':
+                return this.datifyWherePredicate(whereClause, labelOptions);
+        }
+    }
 
-        let predicate = filter.whereClause;
+    //Base case of datifyWherePredicates() when there is a single where clause
+    private datifyWherePredicate(predicate, labelOptions) {
         let labelKeys = Object.keys(labelOptions);
 
         let key = predicate.lhs;
@@ -440,28 +463,6 @@ export class FilterService {
                 }
             }
         }
-        filter.whereClause = predicate;
-        return filter;
-    }
-
-    private prettifyLabels(sFilter) {
-        let labelOptions = this.datasetService.getTableWithName(sFilter.database, sFilter.table).labelOptions;
-
-        let predicate = sFilter.filter.whereClause;
-        let labelKeys = Object.keys(labelOptions);
-
-        let key = predicate.lhs;
-        if (labelKeys.includes(key)) {
-            let prettyLabels = labelOptions[key];
-            let labels = Object.keys(prettyLabels);
-            for (let label of labels) {
-                let possiblePrettyLabel = predicate.rhs;
-                if (label === possiblePrettyLabel) {
-                    predicate.rhs = prettyLabels[label];
-                }
-            }
-        }
-        return predicate;
     }
 
     public clearFilters() {
