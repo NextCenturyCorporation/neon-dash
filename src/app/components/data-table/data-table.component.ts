@@ -528,13 +528,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     onQuerySuccess(response): void {
-        let uniqueData = this.ridDuplicates(response);
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data[0]._docCount;
+            this.docCount = response.data[0]._docCount - this.duplicateNumber;
         } else {
-            let data;
-            if (this.options.checkDuplicateField) {
-                data = uniqueData.map((d) => {
+            let responses = (this.options.checkDuplicateField) ? this.ridDuplicates(response) : response.data;
+            let data = responses.map((d) => {
                     let row = {};
                     for (let field of this.options.fields) {
                         if (field.type || field.columnName === '_id') {
@@ -543,23 +541,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     }
                     return row;
                 });
-            } else {
-            data = response.data.map((d) => {
-                let row = {};
-                for (let field of this.options.fields) {
-                    if (field.type || field.columnName === '_id') {
-                        row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
-                    }
-                }
-                return row;
-            });
-        }
             this.activeData = data;
             // The query response is being stringified and stored in activeData
             // Store the response in responseData to preserve the data in its raw form for querying and filtering purposes
             this.responseData = response.data;
             this.getDocCount();
-            this.docCount = this.docCount - this.duplicateNumber;
             this.refreshVisualization();
         }
     }
@@ -772,21 +758,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (this.options.filterable) {
             let dataObject = this.responseData.filter((obj) =>
                 obj[this.options.idField.columnName] === selected[0][this.options.idField.columnName])[0];
-            let finalFilterFieldObject = this.options.findField(this.options.filterFields[0].columnName);
-                let value = (this.options.idField.columnName.length === 0) ? selected[0][finalFilterFieldObject.columnName] :
-                    dataObject[finalFilterFieldObject.columnName];
-            let finalFilter = this.createFilterObject(finalFilterFieldObject.columnName, value, finalFilterFieldObject.prettyName);
-
-            let finalClauses = new neon.query.BooleanClause('and', []);
 
             this.options.filterFields.forEach((filterField: any) => {
                 let filterFieldObject = this.options.findField(filterField.columnName);
-                value = (this.options.idField.columnName.length === 0) ? selected[0][filterFieldObject.columnName] :
+                let value = (this.options.idField.columnName.length === 0) ? selected[0][filterFieldObject.columnName] :
                     dataObject[filterFieldObject.columnName];
                 let filter = this.createFilterObject(filterFieldObject.columnName, value, filterFieldObject.prettyName);
 
-                if (value[0] === '[' && value [value.length - 1] === ']') {
-                    value = JSON.parse(value.replace('[', '["').replace(']', '"]').replace(',', '","'));
+                if (value instanceof Array) {
                     if (this.options.arrayFilterOperator === 'and') {
                         value.forEach((element) => {
                             let arrayFilter = this.createFilterObject(filterFieldObject.columnName, element, filterFieldObject.prettyName);
@@ -800,11 +779,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                     }
                 } else {
                     let clause = neon.query.where(filter.field, '=', filter.value);
-                    finalClauses.whereClauses.push(clause);
-                    //this.addFilter(filter, clause);
+                    this.addFilter(filter, clause);
                 }
             });
-            this.addFilter(finalFilter, finalClauses);
         }
 
         this.publishAnyCustomEvents(selectedItem, this.options.idField.columnName);
