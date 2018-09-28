@@ -270,7 +270,7 @@ describe('Component: AnnotationViewer', () => {
             value: 'value1'
         }, neon.query.where('field1', '=', 'value1')]);
     });
-
+/*
     it('getButtonText does return expected string', () => {
         expect(component.getButtonText()).toEqual('No Data');
 
@@ -291,7 +291,7 @@ describe('Component: AnnotationViewer', () => {
         component.page = 2;
         expect(component.getButtonText()).toEqual('51 - 4 of 4'); //Interesting behavior
     });
-
+*/
     it('getCloseableFilters does return expected array of filters', () => {
         expect(component.getCloseableFilters()).toEqual([]);
 

@@ -88,12 +88,19 @@
                     <mat-form-field>
                         <input matInput placeholder="Document Limit" [(ngModel)]="options.newLimit" required="true" (keyup.enter)="handleChangeLimit()">
                     </mat-form-field>
-
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeLimit()">
                         <mat-icon>refresh</mat-icon>
                     </button>
                 </div>
                 <p></p>
+
+                <span class="toggle-text">Respond Mode:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.respondMode" (ngModelChange)="handleChangeFilterField()">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
                 <mat-toolbar style="cursor: pointer;">
                     <span>Annotations</span>
                     <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="handleChangeFilterField()">
@@ -102,16 +109,16 @@
                 </mat-toolbar>
 
                 <mat-form-field>
-                    <mat-select placeholder="Annotation Start Character Field" [(ngModel)]="options.startCharacterField" required="true"
-                        [disabled]="options.fields.length == 0">
+                    <mat-select placeholder="Annotation Start Character Field" [(ngModel)]="options.startCharacterField" required="true" [disabled]="options.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
 
 
                 <mat-form-field>
-                    <mat-select placeholder="Annotation End Character Field" [(ngModel)]="options.endCharacterField" required="true"
-                        [disabled]="options.fields.length == 0">
+                    <mat-select placeholder="Annotation End Character Field" [(ngModel)]="options.endCharacterField" required="true" [disabled]="options.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -119,6 +126,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Annotation Text Field" [(ngModel)]="options.textField" required="true" [disabled]="options.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -126,6 +134,7 @@
 
                 <mat-form-field>
                     <mat-select placeholder="Annotation Type Field" [(ngModel)]="options.typeField" required="true" [disabled]="options.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
                     </mat-select>
                 </mat-form-field>
@@ -148,9 +157,7 @@
 
     <div class=" top-container ">
         <div class="legend-container" *ngIf="showLegendContainer()">
-            <app-legend [fieldNames]="colorByFields"
-            [disabledSets]="disabledSet"
-            (itemSelected)="legendItemSelected($event)"></app-legend>
+            <app-legend [fieldNames]="colorByFields" [disabledSets]="disabledSet" (itemSelected)="legendItemSelected($event)"></app-legend>
         </div>
         <div class="filter-container" *ngIf="showFilterContainer()">
             <div class="filter-reset" *ngFor="let filter of getCloseableFilters()">
@@ -171,8 +178,8 @@
                 <ul class="annotation-viewer-table">
                     <ng-template ngFor let-item [ngForOf]="activeData">
                         <li class="document-row" (click)="onClick(item)">
-                            <span *ngFor="let parts of item.parts" [style.background-color]="parts.highlightColor" 
-                            [matTooltip]="parts.type" (click)="onClickPart(parts, item); stopEventPropagation($event)" tooltip-position="below">{{ parts.text }}</span>
+                            <span *ngFor="let parts of item.parts" [style.background-color]="parts.highlightColor" [matTooltip]="parts.type" (click)="onClickPart(parts, item); stopEventPropagation($event)"
+                                tooltip-position="below">{{ parts.text }}</span>
                         </li>
                     </ng-template>
                 </ul>

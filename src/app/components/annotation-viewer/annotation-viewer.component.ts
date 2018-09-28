@@ -593,13 +593,14 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
         let tableName = this.options.table.name;
         let limit = this.options.documentLimit;
         let query = new neon.query.Query().selectFrom(databaseName, tableName);
+        this.displayField = this.options.respondMode ? this.options.linkField.columnName : this.options.documentTextField.columnName;
 
         if (this.hasUnsharedFilter()) {
             clause = neon.query.and(clause,
                 neon.query.where(this.options.unsharedFilterField.columnName, '=', this.options.unsharedFilterValue));
         }
 
-        if (this.options.respondMode && this.options.idField) {
+        if (this.options.respondMode && this.options.idField && !this.id) {
             let fields = [this.options.idField.columnName, this.options.linkField.columnName];
 
             let whereClauses = [
@@ -699,11 +700,15 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * @override
      */
     getButtonText(): string {
-        if (!this.responseData.length || !this.activeData.length) {
+        if (this.options.respondMode) {
+            return '';
+        }
+
+        if (!this.responseData.length || !this.activeData.length || !this.options.docCount) {
             return 'No Data';
         }
         if (this.activeData.length === this.responseData.length) {
-            return 'Total ' + super.prettifyInteger(this.options.docCount);
+            return 'Total ' + super.prettifyInteger(this.activeData.length);
         }
         let begin = super.prettifyInteger((this.page - 1) * this.options.documentLimit + 1);
         let end = super.prettifyInteger(Math.min(this.page * this.options.documentLimit, this.options.docCount));
