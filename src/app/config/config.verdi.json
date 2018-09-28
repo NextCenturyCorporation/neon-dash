@@ -129,7 +129,7 @@
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 24,
+                "sizex": 12,
                 "sizey": 4,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -157,14 +157,14 @@
                         "docType"
                     ]
                 },
-                "row": 0,
-                "col": 0
+                "row": 1,
+                "col": 1
             },
             {
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 8,
+                "sizex": 4,
                 "sizey": 4,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -190,13 +190,13 @@
                     ]
                 },
                 "row": 7,
-                "col": 0
+                "col": 1
             },
             {
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 8,
+                "sizex": 4,
                 "sizey": 4,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -221,13 +221,13 @@
                     ]
                 },
                 "row": 7,
-                "col": 9
+                "col": 5
             },
             {
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 8,
+                "sizex": 4,
                 "sizey": 4,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -253,13 +253,13 @@
                     ]
                 },
                 "row": 7,
-                "col": 17
+                "col": 9
             },
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "sizex": 12,
+                "sizex": 6,
                 "sizey": 8,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -278,13 +278,13 @@
                     "clearMedia": true
                 },
                 "row": 13,
-                "col": 0
+                "col": 1
             },
             {
                 "name": "Network Graph",
                 "type": "networkGraph",
                 "icon": "Graph",
-                "sizex": 12,
+                "sizex": 6,
                 "sizey": 8,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -307,13 +307,13 @@
                     "isDirected": true
                 },
                 "row": 13,
-                "col": 13
+                "col": 6
             },
             {
                 "name": "Filter Builder",
                 "type": "filterBuilder",
                 "icon": "CreateFilter64",
-                "sizex": 24,
+                "sizex": 12,
                 "sizey": 4,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -327,7 +327,7 @@
                     "table": "reified"
                 },
                 "row": 22,
-                "col": 0
+                "col": 1
             }
         ],
         "verdi-ta2-layout": [
@@ -335,7 +335,7 @@
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 8,
+                "sizex": 4,
                 "sizey": 5,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -360,13 +360,13 @@
                     ]
                 },
                 "row": 7,
-                "col": 0
+                "col": 1
             },
             {
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 8,
+                "sizex": 4,
                 "sizey": 5,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -390,13 +390,13 @@
                     ]
                 },
                 "row": 7,
-                "col": 9
+                "col": 5
             },
             {
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "sizex": 8,
+                "sizex": 4,
                 "sizey": 5,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -421,13 +421,13 @@
                     ]
                 },
                 "row": 7,
-                "col": 17
+                "col": 8
             },
             {
                 "name": "Network Graph",
                 "type": "networkGraph",
                 "icon": "Graph",
-                "sizex": 24,
+                "sizex": 12,
                 "sizey": 16,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -448,13 +448,13 @@
                     "isDirected": true
                 },
                 "row": 13,
-                "col": 0
+                "col": 1
             },
             {
                 "name": "Filter Builder",
                 "type": "filterBuilder",
                 "icon": "CreateFilter64",
-                "sizex": 24,
+                "sizex": 12,
                 "sizey": 4,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -468,7 +468,7 @@
                     "table": "reified"
                 },
                 "row": 22,
-                "col": 0
+                "col": 1
             }
         ],
         "verdi-ta3-layout": [
@@ -476,7 +476,7 @@
                 "name": "Query Bar",
                 "type": "queryBar",
                 "icon": "QueryBar",
-                "sizex": 24,
+                "sizex": 12,
                 "sizey": 1,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -504,14 +504,14 @@
                         }
                     ]
                 },
-                "row": 0,
-                "col": 0
+                "row": 1,
+                "col": 1
             },
             {
                 "name": "News Feed",
                 "type": "newsFeed",
                 "icon": "NewsFeed",
-                "sizex": 6,
+                "sizex": 3,
                 "sizey": 14.5,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -535,13 +535,13 @@
                     "ignoreSelf": false
                 },
                 "row": 2,
-                "col": 0
+                "col": 1
             },
             {
                 "name": "Network Graph",
                 "type": "networkGraph",
                 "icon": "Graph",
-                "sizex": 12,
+                "sizex": 6,
                 "sizey": 14.5,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -567,13 +567,13 @@
                     "multiFilter": true
                 },
                 "row": 2,
-                "col": 7
+                "col": 3
             },
             {
                 "name": "Thumbnail Grid",
                 "type": "thumbnailGrid",
                 "icon": "ThumbnailGrid",
-                "sizex": 6,
+                "sizex": 3,
                 "sizey": 14.5,
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -603,7 +603,7 @@
                     "limit":8
                 },
                 "row": 2,
-                "col": 19
+                "col": 10
             }
         ]
     }
