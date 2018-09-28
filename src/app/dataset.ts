@@ -97,9 +97,6 @@ export class Datastore {
     public hasUpdatedFields: boolean = false;
     public options: DatasetOptions = new DatasetOptions(); // TODO: 825: might move this -- leave this alone for now
 
-    // TODO: 825: remove layout later
-    public layout: string = '';
-
     constructor(
         public name: string = '',
         public host: string = '',
