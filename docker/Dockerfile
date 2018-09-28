@@ -33,22 +33,6 @@ RUN \
 # Define JAVA_HOME variable
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
-#-------------------------------------------------------------
-#  Install Maven
-#-------------------------------------------------------------
-#ENV M2_HOME=$INST_HOME/maven
-#ENV PATH $M2_HOME/bin:$PATH
-#ENV M2_VERSION=3.5.4
-#ENV M2_TGZ_URL=https://apache.osuosl.org/maven/maven-3/${M2_VERSION}/binaries/apache-maven-${M2_VERSION}-bin.tar.gz 
-#ENV M2_CONFIG $HOME/.m2
-#
-#RUN mkdir -p $M2_HOME
-
-# Download and install maven
-#RUN curl -fsSL -o /tmp/apache-maven.tar.gz $M2_TGZ_URL \
-#  && tar -xzf /tmp/apache-maven.tar.gz -C $M2_HOME --strip-components=1 \
-#  && rm -f /tmp/apache-maven.tar.gz 
-
 #RUN mvn -verison
 #-------------------------------------------------------------
 #  Install Supervisor
@@ -116,6 +100,7 @@ RUN chmod +x $CATALINA_HOME/tomcat_setup.sh
 RUN $CATALINA_HOME/tomcat_setup.sh
 
 # Enable CORS in tomcat for geoserver
+# **** Kevin Baik said this is no longer needed 09/28/18 *****
 #RUN sed -i '$i<filter><filter-name>CorsFilter</filter-name><filter-class>org.apache.catalina.filters.CorsFilter</filter-class></filter><filter-mapping><filter-name>CorsFilter</filter-name><url-pattern>/*</url-pattern></filter-mapping>' $CATALINA_HOME/conf/web.xml
 
 # Update Tomcat directory permissions
@@ -307,7 +292,7 @@ RUN cp target/lorelei.war $CATALINA_HOME/webapps/lorelei.war
 RUN rm -rf $LORELEI_HOME
 
 #-------------------------------------------------------------
-# Install GeoServer 2.14.x
+# Install GeoServer 2.12.x
 #-------------------------------------------------------------
 ENV GEOSERVER_HOME $INST_HOME/geoserver
 ENV PATH $GEOSERVER_HOME/bin:$PATH
@@ -316,7 +301,7 @@ RUN mkdir -p $GEOSERVER_HOME
 ENV GEOSERVER_DATA $CATALINA_HOME/webapps/geoserver/data
 WORKDIR $GEOSERVER_HOME
 
-ENV GEOSERVER_VERSION=2.14.x
+ENV GEOSERVER_VERSION=2.12.x
 
 # Download Geoserver war into tomcat webapps 
 RUN wget -c http://build.geonode.org/geoserver/latest/geoserver-${GEOSERVER_VERSION}.war \
@@ -327,7 +312,7 @@ ARG NATURAL_EARTH=empty
 ENV NATURAL_EARTH=$NATURAL_EARTH
 
 # Copy over all geoserver xml config
-COPY ["configs/geoserver/*", "$GEOSERVER_HOME/xml/"]
+COPY ["configs/geoserver/", "$GEOSERVER_HOME/xml/"]
 
 #-------------------------------------------------------------
 # Clean up, Update Configurations and Start Supervisor

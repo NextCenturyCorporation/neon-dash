@@ -8,6 +8,6 @@
 	  <link></link>
   </workspace>
   <__default>true</__default>
-  <url>file:///usr/local/tomcat/webapps/geoserver/data/workspaces/lorelei/NE2_HR_LC_SR_W_DR/NE2_HR_LC_SR_W_DR.tif</url>
+  <url>file:///usr/local/tomcat/webapps/geoserver/data/NE2_HR_LC_SR_W_DR/NE2_HR_LC_SR_W_DR.tif</url>
 </coverageStore>
 
