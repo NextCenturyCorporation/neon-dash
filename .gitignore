@@ -11,6 +11,7 @@
 
 # ignore environmental file in docker
 docker/build.sh
+docker/run.sh
 
 # dependencies
 /node_modules
