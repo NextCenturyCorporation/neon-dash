@@ -340,7 +340,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * Get the list of fields to export for the layer index
      * @return {[]} List of {columnName, prettyName} values of the fields
      */
-    abstract getExportFields(layerIndex: number): {columnName: string, prettyName: string}[];
+    abstract getExportFields(layerIndex: number): { columnName: string, prettyName: string }[];
 
     /**
      * Adds a new layer for the specific visualization using the given config.
@@ -706,8 +706,8 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @param response
      */
     baseOnQuerySuccess(layerIndex: number, response) {
-        //TODO convert pretty labels to data labels or vice versa
-        this.onQuerySuccess(layerIndex, response);
+        //Converts the response to have the pretty names from the labelOptions in config to display
+        this.onQuerySuccess(layerIndex, this.prettifyLabels(layerIndex, response));
         this.isLoading--;
         this.changeDetection.detectChanges();
         // Initialize the header styles.
@@ -720,7 +720,6 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @param query The query to execute
      */
     executeQuery(layerIndex, query: neon.query.Query) {
-        //TODO convert pretty labels to data labels or vice versa
         let database = this.getOptions().getLayers()[layerIndex].database.name;
         let table = this.getOptions().getLayers()[layerIndex].table.name;
         let connection = this.connectionService.getActiveConnection();
@@ -728,6 +727,15 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
         if (!connection) {
             return;
         }
+
+        /* tslint:disable:no-string-literal */
+        let filter = _.cloneDeep(query['filter']);
+        //If we have any labelOptions in the config, we want to edit the data to convert whatever data items that are specified to the
+        //"pretty" name. The pretty name goes to the visualizations, but it must be converted back before doing a query as the
+        //database won't recognize the pretty name.
+        this.datifyWherePredicates(layerIndex, filter.whereClause);
+        /* tslint:enable:no-string-literal */
+
         // Cancel any previous data query currently running.
         if (this.outstandingDataQueriesByLayer[layerIndex] && this.outstandingDataQueriesByLayer[layerIndex][table]) {
             this.outstandingDataQueriesByLayer[layerIndex][table].abort();
@@ -985,5 +993,92 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      */
     prettifyInteger(item: number): string {
         return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    /**
+     * Returns the result of converting labels in the response query data
+     * into pretty labels specified in the config.
+     */
+    private prettifyLabels(layerIndex, response) {
+        let labelOptions = this.getLabelOptions(layerIndex);
+        let labelKeys = Object.keys(labelOptions);
+        let itemKeys;
+        //Go through each item in the response data
+        for (let item of response.data) {
+            itemKeys = Object.keys(item);
+            //for each key in the data item
+            for (let key of itemKeys) {
+                //if that key exists in the labelOptions as keys for which there is a value to change
+                if (labelKeys.includes(key)) {
+                    //data items can have arrays of values, and we have to change all of them otherwise,
+                    //there is only one, and we have to change that one
+                    let value = item[key];
+                    if (value instanceof Array) {
+                        let newItemParam = [];
+                        //for each value in that array, if that element is a key in the options,
+                        //push into the new array the pretty name, otherwize push the original value
+                        for (let element of value) {
+                            let possibleNewValue = labelOptions[key][element];
+                            let newValue = possibleNewValue ? possibleNewValue : element;
+                            newItemParam.push(newValue);
+                        }
+                        item[key] = newItemParam;
+                    } else if (labelOptions[key][value]) {
+                        //if it's not an array, check to see if its a value in the options, set it if it is
+                        item[key] = labelOptions[key][value];
+                    }
+                }
+            }
+        }
+        return response;
+    }
+
+    /**
+     * Converts data elements that are specified to have a pretty name back to their original data label so that the database can
+     * correctly query. When it comes back in onQuerySuccess, the response will be converted back to their "pretty" form
+     * Will probably skew the data if the config specifies a data label to have a pretty name that is the same as another data label
+     */
+    private datifyWherePredicates(layerIndex, whereClause) {
+        let labelOptions = this.getLabelOptions(layerIndex);
+        switch (whereClause.type) {
+            case 'or':
+            case 'and':
+                let newFilters = [];
+                for (let clause of whereClause.whereClauses) {
+                    //recursively edit where clauses that contain multiple whereClauses
+                    newFilters.push(this.datifyWherePredicates(layerIndex, clause));
+                }
+                return newFilters;
+            case 'where':
+                return this.datifyWherePredicate(whereClause, labelOptions);
+        }
+    }
+
+    //Base case of datifyWherePredicates() when there is a single where clause
+    private datifyWherePredicate(predicate, labelOptions) {
+        let labelKeys = Object.keys(labelOptions);
+
+        let key = predicate.lhs;
+        if (labelKeys.includes(key)) {
+            let prettyLabels = labelOptions[key];
+            let labels = Object.keys(prettyLabels);
+            for (let label of labels) {
+                let possiblePrettyLabel = predicate.rhs;
+                if (prettyLabels[label] === possiblePrettyLabel) {
+                    predicate.rhs = label;
+                }
+            }
+        }
+    }
+
+    //Grabs labelOptions specified in the config
+    private getLabelOptions(layerIndex) {
+        let dataset = this.datasetService.getDataset();
+        let databaseName = this.getOptions().getLayers()[layerIndex].database.name;
+        let tableName = this.getOptions().getLayers()[layerIndex].table.name;
+        let database = _.find(dataset.databases, (db) => db.name === databaseName);
+        let table = _.find(database.tables, (t) => t.name === tableName);
+        let labelOptions = table.labelOptions;
+        return labelOptions;
     }
 }
