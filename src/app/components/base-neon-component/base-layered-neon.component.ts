@@ -706,6 +706,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @param response
      */
     baseOnQuerySuccess(layerIndex: number, response) {
+        //TODO convert pretty labels to data labels or vice versa
         this.onQuerySuccess(layerIndex, response);
         this.isLoading--;
         this.changeDetection.detectChanges();
@@ -719,6 +720,7 @@ export abstract class BaseLayeredNeonComponent implements OnInit, OnDestroy {
      * @param query The query to execute
      */
     executeQuery(layerIndex, query: neon.query.Query) {
+        //TODO convert pretty labels to data labels or vice versa
         let database = this.getOptions().getLayers()[layerIndex].database.name;
         let table = this.getOptions().getLayers()[layerIndex].table.name;
         let connection = this.connectionService.getActiveConnection();

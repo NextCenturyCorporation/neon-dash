@@ -179,6 +179,7 @@ export class FilterService {
             let sibId = this.createFilterId(sibling.databaseName, sibling.tableName);
             serviceFilters.push(new ServiceFilter(sibId, undefined, sibling.databaseName, sibling.tableName, sibling));
         });
+        //TODO convert pretty labels to data labels or vice versa
         for (let sib = serviceFilters.length - 1; sib >= 0; sib--) {
             for (let i = serviceFilters.length - 1; i >= 0; i--) {
                 if (sib !== i) {
@@ -186,8 +187,14 @@ export class FilterService {
                 }
             }
         }
+
         messenger.addFilters(
-            serviceFilters.map((sFilter) => [sFilter.id, sFilter.filter]),
+            serviceFilters.map((sFilter) => {
+                let fId = sFilter.id;
+                let fFilter = _.cloneDeep(sFilter.filter);
+                fFilter = this.datifyWherePredicate(fFilter);
+                return [id, fFilter];
+            }),
             () => {
                 for (let i = serviceFilters.length - 1; i >= 0; i--) {
                     this.filters.push(serviceFilters[i]);
@@ -208,9 +215,7 @@ export class FilterService {
         whereClause: any,
         filterName: string | { visName: string, text: string },
         onSuccess?: (resp: any) => any,
-        onError?: (resp: any) => any
-    ) {
-
+        onError?: (resp: any) => any) {
         let filter = this.createNeonFilter(database, table, whereClause, this.createFilterName(database, table, filterName));
         let originalIndex = this.filters.findIndex((f) => f.id === id);
         if (originalIndex === -1) { // If for some reason the filter we're trying to replacew doesn't exist, add it.
@@ -219,7 +224,8 @@ export class FilterService {
         let siblingIds = this.filters[originalIndex].siblings;
         let newFilters = this.createChildrenFromRelations(filter, filterName);
         let newSiblings = [];
-        let idAndFilterList = [[id, filter]];
+        let idAndFilterList = [[id, this.datifyWherePredicate(filter)]];
+        //TODO convert pretty labels to data labels or vice versa
 
         // For each sibling, find a new filter with the same database and table (the particular field is irrelevant),
         // and make a replacement for that sibling with the new filter so that on success we can easily replace it.
@@ -268,6 +274,7 @@ export class FilterService {
 
         let baseFilter = this.filters.find((filter) => filter.id === id);
         let siblings = baseFilter ? baseFilter.siblings.concat(id) : [];
+        //TODO convert pretty labels to data labels or vice versa
 
         if (!siblings.length) {
             return;
@@ -416,8 +423,45 @@ export class FilterService {
         return newFilter;
     }
 
-    public clearFilters() {
-        this.filters = [];
+    private datifyWherePredicate(filter) {
+        let labelOptions = this.datasetService.getTableWithName(filter.databaseName, filter.tableName).labelOptions;
+
+        let predicate = filter.whereClause;
+        let labelKeys = Object.keys(labelOptions);
+
+        let key = predicate.lhs;
+        if (labelKeys.includes(key)) {
+            let prettyLabels = labelOptions[key];
+            let labels = Object.keys(prettyLabels);
+            for (let label of labels) {
+                let possiblePrettyLabel = predicate.rhs;
+                if (prettyLabels[label] === possiblePrettyLabel) {
+                    predicate.rhs = label;
+                }
+            }
+        }
+        filter.whereClause = predicate;
+        return filter;
+    }
+
+    private prettifyLabels(sFilter) {
+        let labelOptions = this.datasetService.getTableWithName(sFilter.database, sFilter.table).labelOptions;
+
+        let predicate = sFilter.filter.whereClause;
+        let labelKeys = Object.keys(labelOptions);
+
+        let key = predicate.lhs;
+        if (labelKeys.includes(key)) {
+            let prettyLabels = labelOptions[key];
+            let labels = Object.keys(prettyLabels);
+            for (let label of labels) {
+                let possiblePrettyLabel = predicate.rhs;
+                if (label === possiblePrettyLabel) {
+                    predicate.rhs = prettyLabels[label];
+                }
+            }
+        }
+        return predicate;
     }
 
     public clearFilters() {

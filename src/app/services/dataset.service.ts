@@ -72,6 +72,7 @@ export class DatasetService {
                 table.prettyName = table.prettyName || table.name;
                 table.fields = table.fields || [];
                 table.mappings = table.mappings || {};
+                table.labelOptions = table.labelOptions || {};
                 DatasetService.validateFields(table);
             }
         });
