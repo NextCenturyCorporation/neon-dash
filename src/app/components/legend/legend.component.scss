@@ -15,11 +15,20 @@
  */
  @import '../base-neon-component/base-neon.component.scss';
 
-.legend-container {
+ .legend-container {
     margin: 5px;
+    background-color: white;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-radius: 5px;
 
-    button {
-        background-color: mat-color($accent) !important;
+    .legend-button {
+        border-radius: 3px !important;
+
+        &:not([disabled]) {
+            &:hover {
+                background-color: #f4f4f4 !important
+            }
+        }
     }
 }
 

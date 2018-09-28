@@ -316,7 +316,7 @@ describe('Component: Map', () => {
         }
     });
 
-    it('should create collapsed map points', () => {
+    it('should create uncollapsed map points, largest first', () => {
         let colorService = getService(ColorSchemeService),
             datasets = [
                 {
@@ -324,13 +324,29 @@ describe('Component: Map', () => {
                         { lat: 0, lng: 0, category: 'a' },
                         { lat: 0, lng: 0, category: 'b' },
                         { lat: 0, lng: 0, category: 'c' },
+                        { lat: 0, lng: 0, category: 'd' },
                         { lat: 0, lng: 0, category: 'd' }
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 4',
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
+                            colorService.getColorFor('category', 'd').toRgb(), 'Count: 2',
+                            'category', 'd'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
+                            'category', 'b'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
+                            'category', 'c'
                         )
                     ]
                 },
@@ -371,9 +387,14 @@ describe('Component: Map', () => {
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 8,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 8',
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 4',
                             'category', 'a'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 4',
+                            'category', 'b'
                         )
                     ]
                 },

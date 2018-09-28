@@ -646,11 +646,11 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
         for (let currentLayer of this.options.layers) {
             this.mapObject.unhideAllPoints(currentLayer);
         }
-        this.disabledSet = [] as [string[]];
 
         this.mapObject.clearLayer(layer);
         this.mapObject.addPoints(mapPoints, layer, this.options.clustering === 'clusters');
 
+        this.filterMapForLegend();
         this.updateLegend();
         this.runDocumentCountQuery(layerIndex);
     }
@@ -666,6 +666,21 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             }
         }
         this.colorByFields = colorByFields;
+    }
+
+    /**
+     * Filters out the disabledSets from the legend after QuerySucess (keeps the disabled sets after a filter is set)
+     */
+    filterMapForLegend() {
+        for (let disabledField of this.disabledSet) {
+            let fieldName = disabledField[0];
+            let value = disabledField[1];
+            for (let layer of this.options.layers) {
+                if (layer.colorField.columnName === fieldName) {
+                    this.mapObject.hidePoints(layer, value);
+                }
+            }
+        }
     }
 
     // This allows the map to function if the config file is a little off, i.e. if point isn't a flat dict;

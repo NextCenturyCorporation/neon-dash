@@ -544,21 +544,21 @@ describe('Component: BarChart', () => {
             }]
         });
 
-        let dataset1 = new BarDataSet(4, 'group1', new Color(31, 120, 180), new Color(255, 255, 255));
+        let dataset1 = new BarDataSet(4, 'group1', new Color(250, 57, 47), new Color(255, 255, 255));
         dataset1.data = [400, 40, 4, 0];
-        expect(dataset1.backgroundColor).toEqual(['rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)']);
+        expect(dataset1.backgroundColor).toEqual(['rgb(250,57,47)', 'rgb(250,57,47)', 'rgb(250,57,47)', 'rgb(250,57,47)']);
 
-        let dataset2 = new BarDataSet(4, 'group2', new Color(51, 160, 44), new Color(255, 255, 255));
+        let dataset2 = new BarDataSet(4, 'group2', new Color(0, 162, 215), new Color(255, 255, 255));
         dataset2.data = [300, 30, 3, 0];
-        expect(dataset2.backgroundColor).toEqual(['rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)']);
+        expect(dataset2.backgroundColor).toEqual(['rgb(0,162,215)', 'rgb(0,162,215)', 'rgb(0,162,215)', 'rgb(0,162,215)']);
 
-        let dataset3 = new BarDataSet(4, 'group3', new Color(227, 26, 28), new Color(255, 255, 255));
+        let dataset3 = new BarDataSet(4, 'group3', new Color(1, 178, 6), new Color(255, 255, 255));
         dataset3.data = [200, 20, 0, 2];
-        expect(dataset3.backgroundColor).toEqual(['rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)']);
+        expect(dataset3.backgroundColor).toEqual(['rgb(1,178,6)', 'rgb(1,178,6)', 'rgb(1,178,6)', 'rgb(1,178,6)']);
 
-        let dataset4 = new BarDataSet(4, 'group4', new Color(255, 127, 0), new Color(255, 255, 255));
+        let dataset4 = new BarDataSet(4, 'group4', new Color(39, 12, 114), new Color(255, 255, 255));
         dataset4.data = [100, 10, 0, 0];
-        expect(dataset4.backgroundColor).toEqual(['rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)']);
+        expect(dataset4.backgroundColor).toEqual(['rgb(39,12,114)', 'rgb(39,12,114)', 'rgb(39,12,114)', 'rgb(39,12,114)']);
 
         expect(component.bars).toEqual(['bar1', 'bar2', 'bar3', 'bar4']);
         expect(component.activeData).toEqual([dataset1, dataset2, dataset3, dataset4]);
