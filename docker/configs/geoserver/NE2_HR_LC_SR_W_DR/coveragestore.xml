@@ -1,0 +1,13 @@
+<coverageStore>
+  <name>NE2_HR_LC_SR_W_DR</name>
+  <description>Natural Earth 2</description>
+  <type>GeoTIFF</type>
+  <enabled>true</enabled>
+  <workspace>
+	  <name>lorelei</name>
+	  <link></link>
+  </workspace>
+  <__default>true</__default>
+  <url>file:///usr/local/tomcat/webapps/geoserver/data/workspaces/lorelei/NE2_HR_LC_SR_W_DR/NE2_HR_LC_SR_W_DR.tif</url>
+</coverageStore>
+
