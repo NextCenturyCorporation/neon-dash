@@ -33,6 +33,7 @@ testem.log
 /typings
 .directory
 .Rhistory
+.history
 
 # e2e
 /e2e/*.js
