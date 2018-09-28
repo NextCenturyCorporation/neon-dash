@@ -603,6 +603,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
                     unique.colorField, unique.colorValue
                 ));
         });
+        mapPoints.sort((a, b) => b.count - a.count);
         return mapPoints;
     }
 
@@ -698,7 +699,7 @@ export class MapComponent extends BaseLayeredNeonComponent implements OnInit, On
             return;
         }
 
-        let hashCode = geohash.encode(lat, lng),
+        let hashCode = geohash.encode(lat, lng) + ' - ' + colorValue,
             obj = map.get(hashCode);
 
         if (!obj) {
