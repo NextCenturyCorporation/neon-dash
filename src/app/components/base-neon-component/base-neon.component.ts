@@ -540,6 +540,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                 this.executeQueryChain();
             }
         };
+
         this.filterService.addFilter(this.messenger,
             this.id,
             this.getOptions().database.name,
@@ -645,8 +646,9 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Generic query success method
      * @param response
      */
-    baseOnQuerySuccess(response) {
-        this.onQuerySuccess(response);
+     baseOnQuerySuccess(response) {
+        //response = this.prettifyLabels(response);
+        this.onQuerySuccess(this.prettifyLabels(response));
         this.isLoading = false;
         this.changeDetection.detectChanges();
         this.updateHeaderTextStyling();
@@ -681,6 +683,10 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
             });
             return;
         }
+
+        if (!connection) {
+            return;
+        }
         /* tslint:disable:no-string-literal */
         let clauses = query['filter']['whereClause'];
 
@@ -708,7 +714,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.outstandingDataQuery[database][table].always(() => {
             this.outstandingDataQuery[database][table] = undefined;
         });
-
         this.outstandingDataQuery[database][table].done(this.baseOnQuerySuccess.bind(this));
 
         this.outstandingDataQuery[database][table].fail((response) => {
