@@ -8,8 +8,6 @@ datastores:
         host: localhost
         type: elasticsearch
         connectOnLoad: true
-        # TODO: move to dashboards/options
-        layout: uyghur-ldc-sd
         databases:
             ldc_uyg_jul_18:
                 prettyName: Uyghur LDC, July 2018
@@ -60,9 +58,6 @@ datastores:
 
 # TODO: new dashboards/options object
 # TODO: 825: update ticket config with prettyName changes
-# left-panel and title need to come from here, not datasets
-# layout needs to come from here, not datasets
-# probably will need to incorporate into active datasets for now somehow
 
 dashboards:
     darpa60:
@@ -73,7 +68,7 @@ dashboards:
                 choices:
                     uyg_ldc_discovery:
                         prettyName: Situation Discovery
-                        layout: uyghur-ldc-sd
+                        layout: DISCOVERY
                         # todo: temporary reference to datastore
                         datastore: es1
                         # new layout name: DISCOVERY
@@ -89,7 +84,7 @@ dashboards:
                             test: someValue
 
 layouts:
-  uyghur-ldc-sd:
+  DISCOVERY:
     -
         name: Data Table
         type: dataTable

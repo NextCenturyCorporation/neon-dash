@@ -201,6 +201,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             });
         }
 
+        // TODO: 825: fix later/what is this for?
         this.messenger.subscribe(ParameterService.STATE_CHANGED_CHANNEL, (message) => {
             if (message && message.dataset) {
                 if (message.dataset) {
@@ -213,6 +214,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
                     };
                     this.activeDatasetChanged.emit(this.activeDataset);
                 }
+                // TODO: 825: need new mechanism to set dashboard config?
                 if (message.dashboard) {
                     let layoutName: string = 'savedDashboard-' + message.dashboardStateId;
 

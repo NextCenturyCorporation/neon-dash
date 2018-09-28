@@ -38,6 +38,7 @@ export class DatasetService {
     // The currently selected dashboard.
     private currentDashboardConfigName: string;
     private currentDashboardConfig: DashboardDatastoreChoice;
+    private layout: string = '';
 
     // Use the Dataset Service to save settings for specific databases/tables and
     // publish messages to all visualizations if those settings change.
@@ -199,7 +200,7 @@ export class DatasetService {
     public setActiveDataset(dataset): void {
         // TODO: 825: structure will likely change here
         this.dataset.name = dataset.name || 'Unknown Dataset';
-        this.dataset.layout = dataset.layout || '';
+        // this.dataset.layout = dataset.layout || '';
         this.dataset.type = dataset.type || '';
         this.dataset.host = dataset.host || '';
         this.dataset.databases = dataset.databases || [];
@@ -283,11 +284,11 @@ export class DatasetService {
     }
 
     /**
-     * Returns the layout name for the active dataset.
+     * Returns the layout name for the currently selected dashboard.
      * @return {String}
      */
     public getLayout(): string {
-        return this.dataset.layout;
+        return this.currentDashboardConfig.layout;
     }
 
     /**
@@ -302,7 +303,7 @@ export class DatasetService {
      * @param {String} layoutName
      */
     public setLayout(layoutName: string): void {
-        this.dataset.layout = layoutName;
+        this.currentDashboardConfig.layout = layoutName;
         this.updateDataset();
     }
 

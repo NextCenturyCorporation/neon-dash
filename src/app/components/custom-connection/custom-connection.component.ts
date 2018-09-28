@@ -83,8 +83,11 @@ export class CustomConnectionComponent implements AfterViewInit {
         this.datasetService.setActiveDataset(dataset);
 
         // TODO: 825: fix so that the dashboard is added to existing list
-        // TODO: 825: fix so that this uses dashboards properly
+
         this.datasetService.setCurrentDashboardConfigName(this.data.datasetName);
+
+        // TODO: 825: fix so that this uses dashboards properly/incorporate next line
+        //this.datasetService.setCurrentDashboardConfig(??)
 
         this.messenger.clearFiltersSilently();
         this.activeGridService.clear();
