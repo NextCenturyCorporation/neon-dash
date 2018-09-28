@@ -193,7 +193,7 @@ export class FilterService {
                 let fId = sFilter.id;
                 let fFilter = _.cloneDeep(sFilter.filter);
                 this.datifyWherePredicates(fFilter.whereClause, fFilter.databaseName, fFilter.tableName);
-                return [id, fFilter];
+                return [sFilter.id, fFilter];
             }),
             () => {
                 for (let i = serviceFilters.length - 1; i >= 0; i--) {
@@ -254,7 +254,7 @@ export class FilterService {
                 let sFilter = idAndSFilterArray[1];
                 let fFilter = _.cloneDeep(sFilter) as neon.query.Filter;
                 this.datifyWherePredicates(fFilter.whereClause, fFilter.databaseName, fFilter.tableName);
-                return [id, fFilter];
+                return [fId, fFilter];
             }),
             () => {
                 let index = _.findIndex(this.filters, { id: id });
