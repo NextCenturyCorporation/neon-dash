@@ -1153,6 +1153,6 @@ export class AnnotationViewerComponent extends BaseNeonComponent implements OnIn
      * Checks the footer for a single annotation in the viewer and the conditions for the pagination(Prev/Next) bar
      */
     checkFooter() {
-        return (this.options.docCount > this.options.documentLimit) && ( this.showFooterContainer() );
+        return (this.options.docCount > this.options.documentLimit) && (this.showFooterContainer());
     }
 }
