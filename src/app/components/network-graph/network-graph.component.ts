@@ -573,7 +573,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     private createReifiedGraphProperties() {
         let graph = new GraphProperties();
         let limit = this.options.limit;
-
         for (const entry of this.activeData) {
             if (graph.nodes.length < limit) {
                 let getArray = (type: any) => (type instanceof Array) ? type : [type],
