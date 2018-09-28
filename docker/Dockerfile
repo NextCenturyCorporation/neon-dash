@@ -116,7 +116,7 @@ RUN chmod +x $CATALINA_HOME/tomcat_setup.sh
 RUN $CATALINA_HOME/tomcat_setup.sh
 
 # Enable CORS in tomcat for geoserver
-RUN sed -i '$i<filter><filter-name>CorsFilter</filter-name><filter-class>org.apache.catalina.filters.CorsFilter</filter-class></filter><filter-mapping><filter-name>CorsFilter</filter-name><url-pattern>/*</url-pattern></filter-mapping>' $CATALINA_HOME/conf/web.xml
+#RUN sed -i '$i<filter><filter-name>CorsFilter</filter-name><filter-class>org.apache.catalina.filters.CorsFilter</filter-class></filter><filter-mapping><filter-name>CorsFilter</filter-name><url-pattern>/*</url-pattern></filter-mapping>' $CATALINA_HOME/conf/web.xml
 
 # Update Tomcat directory permissions
 RUN chown -R tomcat:tomcat $CATALINA_HOME
@@ -314,7 +314,6 @@ ENV PATH $GEOSERVER_HOME/bin:$PATH
 RUN mkdir -p $GEOSERVER_HOME
 
 ENV GEOSERVER_DATA $CATALINA_HOME/webapps/geoserver/data
-RUN mkdir -p $GEOSERVER_DATA
 WORKDIR $GEOSERVER_HOME
 
 ENV GEOSERVER_VERSION=2.14.x
@@ -323,12 +322,13 @@ ENV GEOSERVER_VERSION=2.14.x
 RUN wget -c http://build.geonode.org/geoserver/latest/geoserver-${GEOSERVER_VERSION}.war \
     -O $CATALINA_HOME/webapps/geoserver.war 
 
-# Download sample raster data
-#RUN wget https://github.com/nvkelso/natural-earth-raster/raw/master/10m_rasters/NE2_HR_LC_SR_W_DR/NE2_HR_LC_SR_W_DR.tif -P $GEOSERVER_DATA
-#RUN wget https://github.com/nvkelso/natural-earth-raster/raw/master/10m_rasters/NE2_HR_LC_SR_W_DR/NE2_HR_LC_SR_W_DR.prj -P $GEOSERVER_DATA
-#RUN wget https://github.com/nvkelso/natural-earth-raster/raw/master/10m_rasters/NE2_HR_LC_SR_W_DR/NE2_HR_LC_SR_W_DR.tfw -P $GEOSERVER_DATA
+# Set Natural Earth ENV variables
+ARG NATURAL_EARTH=empty
+ENV NATURAL_EARTH=$NATURAL_EARTH
 
-#RUN wget https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/raster/NE1_HR_LC_SR_W_DR.zip -P $GEOSERVER_DATA
+# Copy over all geoserver xml config
+COPY ["configs/geoserver/*", "$GEOSERVER_HOME/xml/"]
+
 #-------------------------------------------------------------
 # Clean up, Update Configurations and Start Supervisor
 #-------------------------------------------------------------

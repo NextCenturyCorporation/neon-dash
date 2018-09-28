@@ -11,12 +11,12 @@ fi
 # Elasticsearch variables
 ES_DATA="/usr/local/elasticsearch/thor_data"
 ES_URL="http://localhost:9200"
-#ES_INDEX="ldc_uyg_jul_18"
-#ES_MAPPING="ui_out"
+ES_INDEX=$ES_INDEX
+ES_MAPPING=$ES_MAPPING
 
 # Wait until Elasticsearch is up and running
 until curl -s --output /dev/null -XGET $ES_URL/; do
-  echo "Elasticsearch is unavailable - sleeping 2s"
+  echo "Elasticsearch is unavailable - sleeping 2 seconds "
   sleep 2
 done
 
@@ -38,6 +38,68 @@ if [ ! -f /.es_created ]; then
   touch /.es_created
 else 
   echo "Elasticsearch has already been setup"
+fi
+
+# Tomcat variables
+TOMCAT_URL="http://localhost:8080"
+CATALINA_HOME=$CATALINA_HOME
+
+# Wait until Tomcat is up and running
+until curl --output /dev/null --silent --head --fail $TOMCAT_URL; do
+ echo "Tomcat is unavailable - sleeping 5 seconds "
+ sleep 5
+done
+
+# Check if geoserver successfully deployed
+# ******************************************
+# This is a bug, sometimes geoserver does
+# Not deploy. This is an attempt to fix that
+# ******************************************
+#if [ -z $(curl --output /dev/null --silent --head --fail http://localhost:8080/geoserver) ]; then
+#  echo "Restarting tomcat"
+#  /usr/bin/supervisorctl restart tomcat &
+#fi
+
+# Geoserver variables
+GEOSERVER_URL="http://localhost:8080/geoserver"
+GEOSERVER_DATA="/usr/local/geoserver/data"
+GEOSERVER_XML="/usr/local/geoserver/xml"
+NATURAL_EARTH=$NATURAL_EARTH
+
+# Check for geoserver if not available restart and then loop and wait
+
+# Wait until Geoserver is up and running
+until $(curl --output /dev/null --silent --head --fail $GEOSERVER_URL); do
+  echo "Geoserver is unavailable - sleeping 5 seconds"
+  sleep 5
+done
+
+# Verfiy if geoserver was already setup
+# Verfiy if geoserver was already setup
+if [ ! -f /.geoserver_created ]; then
+
+  echo $NATURAL_EARTH
+  # Check for Natural Earth Data Directory and TIF exitss
+  if [ -d "$GEOSERVER_XML/$NATURAL_EARTH" -a -f "$GEOSERVER_DATA/$NATURAL_EARTH/${NATURAL_EARTH}.tif" ]; then
+
+     echo "natural earth data present"
+     # Copy the data to the tomcat geoserver data dir
+     mkdir -p $CATALINA_HOME/webapps/geoserver/data/$NATURAL_EARTH
+     cp "$GEOSERVER_DATA/$NATURAL_EARTH/${NATURAL_EARTH}.tif" $CATALINA_HOME/webapps/geoserver/data/$NATURAL_EARTH
+     chown -R tomcat:tomcat $CATALINA_HOME
+
+     # Create the Natural Earth 2 namespace
+     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/workspace.xml http://localhost:8080/geoserver/rest/workspaces
+
+     # Create the Natural Earth 2 workspace
+     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/namespace.xml http://localhost:8080/geoserver/rest/workspaces
+
+  fi
+
+  # Check for Blue Marble Data
+
+  echo "creating /.geoserver_created"
+  touch /.geoserver_created
 fi
 
 # We are breaking convention and standing everything up in a single container. Because of this
