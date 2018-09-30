@@ -46,6 +46,7 @@ import * as neon from 'neon-framework';
  */
 export class MediaViewerOptions extends BaseNeonOptions {
     public border: string;
+    public clearMedia: boolean;
     public delimiter: string;
     public id: string;
     public idField: FieldMetaData;
@@ -54,12 +55,12 @@ export class MediaViewerOptions extends BaseNeonOptions {
     public linkFields: FieldMetaData[];
     public linkPrefix: string;
     public nameField: FieldMetaData;
+    public oneTabPerArray: boolean;
     public resize: boolean;
+    public sliderValue: number;
     public typeField: FieldMetaData;
     public typeMap: any;
     public url: string;
-    public clearMedia: boolean;
-    public sliderValue: number;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -68,14 +69,15 @@ export class MediaViewerOptions extends BaseNeonOptions {
      */
     onInit() {
         this.border = this.injector.get('border', '');
+        this.clearMedia = this.injector.get('clearMedia', false);
         this.delimiter = this.injector.get('delimiter', ',');
         this.id = this.injector.get('id', '');
         this.linkPrefix = this.injector.get('linkPrefix', '');
+        this.oneTabPerArray = this.injector.get('oneTabPerArray', false);
         this.resize = this.injector.get('resize', true);
+        this.sliderValue = this.injector.get('sliderValue', 0);
         this.typeMap = this.injector.get('typeMap', {});
         this.url = this.injector.get('url', '');
-        this.clearMedia = this.injector.get('clearMedia', false);
-        this.sliderValue = this.injector.get('sliderValue', 0);
     }
 
     /**
@@ -114,15 +116,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     @ViewChild('visualization', {read: ElementRef}) visualization: ElementRef;
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
-    @ViewChild('imageSource') imageSource: ElementRef;
-    @ViewChild('imageMask') imageMask: ElementRef;
 
     public options: MediaViewerOptions;
 
     public mediaTypes: any = MediaTypes;
 
+    // TODO Add a way for the user to select other items from the list.
     public tabsAndMedia: {
+        loaded: boolean,
         name: string,
+        slider: number,
         selected: {
             border: string,
             link: string,
@@ -141,12 +144,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
     public isLoadingMedia: boolean = false;
     public noDataId: string = undefined;
-    public onlyShowingQueryData: boolean = false;
     public previousId: string = '';
-    public queryLinks: any[] = [];
+    public queryItems: any[] = [];
     public selectedTabIndex: number = 0;
-    public renderer: Renderer2;
-    public sourceLoaded: boolean;
 
     constructor(
         activeGridService: ActiveGridService,
@@ -175,7 +175,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         );
 
         this.options = new MediaViewerOptions(this.injector, this.datasetService, 'Media Viewer', 10);
-        this.renderer = renderer2;
 
         this.subscribeToSelectId(this.getSelectIdCallback());
 
@@ -188,7 +187,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
 
     /**
      * Adds the links for the given fields in the given metadata object to the component as a new tab with the given name next to the
-     * existing queryLinks.
+     * existing queryItems.
      *
      * @arg {any[]} fields
      * @arg {any} metadata
@@ -196,46 +195,83 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     addEventLinks(fields: any[], metadata: any, name: string) {
         let tabIndex = this.tabsAndMedia.length;
-        let tab = {
-            selected: undefined,
-            name: '',
-            // Use concat to copy the list.
-            list: [].concat(this.queryLinks)
-        };
+
+        let links = [];
+        let masks = [];
+        let names = [];
+        let types = [];
+
         fields.forEach((fieldsConfig) => {
-            let links = this.transformToStringArray(metadata[fieldsConfig.field], this.options.delimiter);
-            let maskLinks = this.transformToStringArray(metadata[fieldsConfig.mask], this.options.delimiter);
-            this.addLinks(tab, links, maskLinks, [], []);
+            if (fieldsConfig.type === 'base' || fieldsConfig.type === 'link') {
+                links = links.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+            }
+            if (fieldsConfig.type === 'mask') {
+                masks = masks.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+            }
+            if (fieldsConfig.type === 'name') {
+                names = names.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+            }
+            if (fieldsConfig.type === 'type') {
+                types = types.concat(this.transformToStringArray(metadata[fieldsConfig.columnName], this.options.delimiter));
+            }
         });
-        if (tab.list.length) {
-            tab.selected = tab.list[0];
-            tab.name = tab.list[0].name;
-            // If only showing tabs with query data, remove them because the query data will be shown in the new tabs.
-            if (this.onlyShowingQueryData) {
-                tabIndex = 0;
-                this.tabsAndMedia = [];
-                this.onlyShowingQueryData = false;
-            }
 
-            //Check to see if the tab already exists before adding it again
-            let tabExists = false;
-            this.tabsAndMedia.forEach((previousTab, index) => {
-                if (previousTab.selected.name === tab.selected.name) {
-                    tabExists = true;
-                    tabIndex = index;
-                    return false;
+        // If the event has link or mask data, but is missing other data, use the query data as the defaults.
+        if (this.queryItems.length && (links.length || masks.length)) {
+            if (!links.length) {
+                links = this.queryItems.map((item) => item.link);
+            }
+            if (links.length === 1 && masks.length > 1) {
+                while (links.length < masks.length) {
+                    links.push(links[0]);
                 }
-            });
-
-            if (!tabExists) {
-                this.tabsAndMedia.push(tab);
             }
-
-            if (this.tabsAndMedia.length >= tabIndex) {
-                this.selectedTabIndex = tabIndex;
+            if (!masks.length) {
+                masks = this.queryItems.map((item) => item.mask);
             }
-            this.refreshVisualization();
+            if (!names.length) {
+                names = this.queryItems.map((item) => item.name);
+            }
+            if (!types.length) {
+                types = this.queryItems.map((item) => item.type);
+            }
         }
+
+        let tabs = this.createTabs(links, masks, names, types);
+
+        tabs.forEach((tab) => {
+            if (tab.list.length) {
+                // Check to see if the tab already exists before adding it again.
+                let tabExists = false;
+                this.tabsAndMedia.forEach((previousTab, index) => {
+                    if (previousTab.name === tab.name) {
+                        tabExists = true;
+                        tabIndex = index;
+                        return false;
+                    }
+                });
+
+                if (!tabExists) {
+                    this.tabsAndMedia.push(tab);
+                }
+            }
+        });
+
+        if (this.tabsAndMedia.length >= tabIndex) {
+            this.selectedTabIndex = tabIndex;
+        }
+
+        this.refreshVisualization();
+    }
+
+    /**
+     * Appends the global linkPrefix to the given link if it is not already there.
+     *
+     * @arg {string} link
+     * @return {string}
+     */
+    appendLinkPrefixIfNeeded(link: string) {
+        return ((!!link && link.indexOf(this.options.linkPrefix) !== 0) ? (this.options.linkPrefix + link) : link);
     }
 
     /**
@@ -254,29 +290,65 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      *
      * @arg {any} tab
      * @arg {any[]} links
+     * @arg {any[]} masks
      * @arg {any[]} names
      * @arg {any[]} types
+     * @arg {string} [defaultTabName='']
+     * @return {any[]}
      */
-    addLinks(tab, links: any, maskLinks: any, names: any[], types: any[]) {
-        links.forEach((link, index) => {
-        if (link) {
+    createTabs(links: any, masks: any, names: any[], types: any[], defaultTabName: string = '') {
+        let oneTab = {
+            selected: undefined,
+            slider: this.options.sliderValue,
+            name: defaultTabName,
+            loaded: false,
+            list: []
+        };
+
+        let tabs = this.options.oneTabPerArray ? [oneTab] : [];
+
+        links.filter((link) => !!link).forEach((link, index) => {
             let prettyName = link.substring(link.lastIndexOf('/') + 1);
             let linkTypeFromConfig = this.getMediaType(link) || '';
 
+            let tab = oneTab;
+            if (!this.options.oneTabPerArray) {
+                tab = {
+                    selected: undefined,
+                    slider: this.options.sliderValue,
+                    name: (defaultTabName ? (defaultTabName + (links.length > 1 ? (' ' + (index + 1)) : '')) : '') || prettyName,
+                    loaded: false,
+                    list: []
+                };
+            }
+
             tab.list.push({
-                    // TODO Add a boolean borderField with border options like:  true = red, false = yellow
-                    border: this.options.border,
-                    link: link.indexOf(this.options.linkPrefix) !== 0 ? this.options.linkPrefix + link : link,
-                    mask: maskLinks[index] && maskLinks[index].indexOf(this.options.linkPrefix) !== 0 ?
-                        this.options.linkPrefix + maskLinks[index] : maskLinks[index],
-                    name: (names.length > 1 ? (index < names.length ? names[index] : '') : names[0]) || prettyName,
-                    type: (types.length > 1 ? (index < types.length ? types[index] : '') : types[0]) || linkTypeFromConfig
-                });
+                // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                border: this.options.border,
+                link: this.appendLinkPrefixIfNeeded(link),
+                mask: this.appendLinkPrefixIfNeeded(this.findElementAtIndex(masks, index)),
+                name: this.findElementAtIndex(names, index, prettyName),
+                type: this.findElementAtIndex(types, index, linkTypeFromConfig)
+            });
+
+            tab.selected = tab.list[0];
+
+            if (!this.options.oneTabPerArray) {
+                tab.name = tab.list[0].name + (links.length > 1 ? (' ' + (index + 1)) : '');
+                tabs.push(tab);
             }
         });
+
+        return tabs;
     }
 
-    private calculateOpacity(percent:number){
+    /**
+     * Returns the opacity for the given percent.
+     *
+     * @arg {number} percent
+     * @return {number}
+     */
+    calculateOpacity(percent: number): number {
         return (100 - percent) / 100;
     }
 
@@ -284,22 +356,21 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * Changes the selected source image in the given tab to the element in the tab's list at the given index.
      *
      * @arg {any} tab
-     * @arg {number} index
+     * @arg {number} percent
      */
-    changeSelectedSource(tab, index: number) {
-        //tab.selected = tab.list[index];
-        this.renderer.setStyle(this.imageSource.nativeElement, 'opacity', this.calculateOpacity(index));
+    onSliderChange(tab: any, percent: number) {
+        tab.slider = percent;
         this.refreshVisualization();
     }
+
     /**
      * Ensures that the source image loads before the mask.
+     *
+     * @arg {any} tab
      */
-
-    setSourceLoaded() {
-        this.renderer.setStyle(this.imageSource.nativeElement, 'opacity', this.calculateOpacity(this.options.sliderValue));
-        this.sourceLoaded = true;
+    setTabLoaded(tab: any) {
+        tab.loaded = true;
     }
-
 
     /**
      * Creates and returns the query for the media viewer.
@@ -335,6 +406,18 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns the element in the given array at the given index if possible or the first element or the default value.
+     *
+     * @arg {any[]} array
+     * @arg {number} index
+     * @arg {any} defaultValue
+     * @return {any}
+     */
+    findElementAtIndex(array: any[], index: number, defaultValue: any = ''): any {
+        return (array.length > 1 ? (index < array.length ? array[index] : '') : array[0]) || defaultValue;
+    }
+
+    /**
      * Creates and returns the text for the settings button.
      *
      * @return {string}
@@ -365,9 +448,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         return {
             visualization: this.visualization,
             headerText: this.headerText,
-            infoText: this.infoText,
-            imageSource:  this.imageSource,
-            imageMask:  this.imageMask
+            infoText: this.infoText
         };
     }
 
@@ -514,14 +595,11 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @override
      */
     onQuerySuccess(response: any) {
-        let tabName = this.options.id;
         this.noDataId = this.options.id;
         this.options.id = undefined;
         this.tabsAndMedia = [];
         this.selectedTabIndex = 0;
-        this.queryLinks = [];
-        this.onlyShowingQueryData = true;
-        this.sourceLoaded = false;
+        this.queryItems = [];
 
         if (this.options.clearMedia) {
             let neonFilters = this.options.idField.columnName ? this.filterService.getFiltersForFields(this.options.database.name,
@@ -535,15 +613,19 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         }
 
         try {
-
             if (response && response.data && response.data.length && response.data[0]) {
                 this.errorMessage = '';
                 this.isLoadingMedia = true;
 
                 response.data.forEach((responseItem) => {
+                    let masks = [];
                     let names = [];
                     let types = [];
-                    let masks = [];
+
+                    if (this.options.maskField.columnName) {
+                        masks = neonUtilities.deepFind(responseItem, this.options.maskField.columnName) || '';
+                        masks = this.transformToStringArray(masks, this.options.delimiter);
+                    }
 
                     if (this.options.nameField.columnName) {
                         names = neonUtilities.deepFind(responseItem, this.options.nameField.columnName) || '';
@@ -555,33 +637,19 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                         types = this.transformToStringArray(types, this.options.delimiter);
                     }
 
-                    if (this.options.maskField.columnName) {
-                        masks = neonUtilities.deepFind(responseItem, this.options.maskField.columnName) || '';
-                        masks = this.transformToStringArray(masks, this.options.delimiter);
-                    }
-
-                    let tab = {
-                        selected: undefined,
-                        name: tabName,
-                        list: []
-                    };
-
                     this.options.linkFields.forEach((linkField) => {
                         let links = neonUtilities.deepFind(responseItem, linkField.columnName) || '';
                         links = this.transformToStringArray(links, this.options.delimiter);
-
-                        this.addLinks(tab, links, masks, names, types);
+                        let tabs = this.createTabs(links, masks, names, types, this.noDataId);
+                        tabs.forEach((tab) => {
+                            if (tab.list.length) {
+                                this.tabsAndMedia.push(tab);
+                                // Use concat to copy the list.
+                                this.queryItems = this.queryItems.concat(tab.list);
+                                this.noDataId = undefined;
+                            }
+                        });
                     });
-
-                    if (tab.list.length) {
-                        tab.selected = tab.list[0];
-                        this.tabsAndMedia.push(tab);
-                        // Use concat to copy the list.
-                        if (!this.queryLinks.length) {
-                            this.queryLinks = [].concat(tab.list);
-                        }
-                        this.noDataId = undefined;
-                    }
                 });
 
                 this.isLoadingMedia = false;
@@ -658,6 +726,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         bindings.border = this.options.border;
         bindings.delimiter = this.options.delimiter;
         bindings.linkPrefix = this.options.linkPrefix;
+        bindings.oneTabPerArray = this.options.oneTabPerArray;
         bindings.resize = this.options.resize;
         bindings.typeMap = this.options.typeMap;
     }
