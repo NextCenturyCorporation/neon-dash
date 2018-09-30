@@ -275,14 +275,46 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * returns the media type for the thumbnail
-     * @arg {object} item
-     * @return string
+     * Returns the opacity for the given percent.
+     *
+     * @arg {number} percent
+     * @return {number}
      */
-    getMediaType(item) {
-        let fileType = item.substring(item.lastIndexOf('.') + 1).toLowerCase();
-        return this.options.typeField.columnName ? this.options.typeField.columnName : this.options.typeMap[fileType] ?
-            this.options.typeMap[fileType] : '';
+    calculateOpacity(percent: number): number {
+        return (100 - percent) / 100;
+    }
+
+    /**
+     * Creates and returns the query for the media viewer.
+     *
+     * @return {neon.query.Query}
+     * @override
+     */
+    createQuery(): neon.query.Query {
+        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
+
+        let fields = [this.options.idField.columnName].concat(this.options.linkFields.map((linkField) => {
+            return linkField.columnName;
+        }));
+
+        if (this.options.nameField.columnName) {
+            fields.push(this.options.nameField.columnName);
+        }
+
+        if (this.options.typeField.columnName) {
+            fields.push(this.options.typeField.columnName);
+        }
+
+        if (this.options.maskField.columnName) {
+            fields.push(this.options.maskField.columnName);
+        }
+
+        let idFilter = neon.query.where(this.options.idField.columnName, '=', this.options.id);
+        let wherePredicates = [idFilter].concat(this.options.linkFields.map((linkField) => {
+            return neon.query.where(linkField.columnName, '!=', null);
+        }));
+
+        return query.withFields(fields).where(neon.query.and.apply(query, wherePredicates));
     }
 
     /**
@@ -343,69 +375,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the opacity for the given percent.
-     *
-     * @arg {number} percent
-     * @return {number}
-     */
-    calculateOpacity(percent: number): number {
-        return (100 - percent) / 100;
-    }
-
-    /**
-     * Changes the selected source image in the given tab to the element in the tab's list at the given index.
-     *
-     * @arg {any} tab
-     * @arg {number} percent
-     */
-    onSliderChange(tab: any, percent: number) {
-        tab.slider = percent;
-        this.refreshVisualization();
-    }
-
-    /**
-     * Ensures that the source image loads before the mask.
-     *
-     * @arg {any} tab
-     */
-    setTabLoaded(tab: any) {
-        tab.loaded = true;
-    }
-
-    /**
-     * Creates and returns the query for the media viewer.
-     *
-     * @return {neon.query.Query}
-     * @override
-     */
-    createQuery(): neon.query.Query {
-        let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
-
-        let fields = [this.options.idField.columnName].concat(this.options.linkFields.map((linkField) => {
-            return linkField.columnName;
-        }));
-
-        if (this.options.nameField.columnName) {
-            fields.push(this.options.nameField.columnName);
-        }
-
-        if (this.options.typeField.columnName) {
-            fields.push(this.options.typeField.columnName);
-        }
-
-        if (this.options.maskField.columnName) {
-            fields.push(this.options.maskField.columnName);
-        }
-
-        let idFilter = neon.query.where(this.options.idField.columnName, '=', this.options.id);
-        let wherePredicates = [idFilter].concat(this.options.linkFields.map((linkField) => {
-            return neon.query.where(linkField.columnName, '!=', null);
-        }));
-
-        return query.withFields(fields).where(neon.query.and.apply(query, wherePredicates));
-    }
-
-    /**
      * Returns the element in the given array at the given index if possible or the first element or the default value.
      *
      * @arg {any[]} array
@@ -439,6 +408,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns the list of filter objects.
+     *
+     * @return {array}
+     * @override
+     */
+    getCloseableFilters(): any[] {
+        return [];
+    }
+
+    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
@@ -450,16 +429,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             headerText: this.headerText,
             infoText: this.infoText
         };
-    }
-
-    /**
-     * Returns the options for the specific visualization.
-     *
-     * @return {BaseNeonOptions}
-     * @override
-     */
-    getOptions(): BaseNeonOptions {
-        return this.options;
     }
 
     /**
@@ -504,6 +473,17 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Returns the text for the given filter.
+     *
+     * @arg {object} filter
+     * @return {string}
+     * @override
+     */
+    getFilterText(filter: any): string {
+        return '';
+    }
+
+    /**
      * Returns the list filters for the visualization to ignore.
      *
      * @return {array|null}
@@ -523,24 +503,14 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
-     * Returns the text for the given filter.
-     *
-     * @arg {object} filter
-     * @return {string}
-     * @override
+     * returns the media type for the thumbnail
+     * @arg {object} item
+     * @return string
      */
-    getFilterText(filter: any): string {
-        return '';
-    }
-
-    /**
-     * Returns the list of filter objects.
-     *
-     * @return {array}
-     * @override
-     */
-    getCloseableFilters(): any[] {
-        return [];
+    getMediaType(item) {
+        let fileType = item.substring(item.lastIndexOf('.') + 1).toLowerCase();
+        return this.options.typeField.columnName ? this.options.typeField.columnName : this.options.typeMap[fileType] ?
+            this.options.typeMap[fileType] : '';
     }
 
     /**
@@ -560,6 +530,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 }
             }
         };
+    }
+
+    /**
+     * Returns the options for the specific visualization.
+     *
+     * @return {BaseNeonOptions}
+     * @override
+     */
+    getOptions(): BaseNeonOptions {
+        return this.options;
     }
 
     /**
@@ -668,6 +648,17 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
     }
 
     /**
+     * Changes the selected source image in the given tab to the element in the tab's list at the given index.
+     *
+     * @arg {any} tab
+     * @arg {number} percent
+     */
+    onSliderChange(tab: any, percent: number) {
+        tab.slider = percent;
+        this.refreshVisualization();
+    }
+
+    /**
      * Initializes the media viewer by running its query.
      *
      * @override
@@ -700,6 +691,10 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         // Do nothing.
     }
 
+    sanitize(url) {
+        return this.sanitizer.bypassSecurityTrustResourceUrl(url);
+    }
+
     /**
      * Sets filters for the media viewer (does nothing because the media viewer does not filter).
      *
@@ -707,6 +702,15 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      */
     setupFilters() {
         // Do nothing.
+    }
+
+    /**
+     * Ensures that the source image loads before the mask.
+     *
+     * @arg {any} tab
+     */
+    setTabLoaded(tab: any) {
+        tab.loaded = true;
     }
 
     /**
@@ -788,10 +792,6 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 this.MEDIA_PADDING - sliderHeight - 5) + 'px';
             image.style.maxWidth = (this.visualization.nativeElement.clientWidth - this.MEDIA_PADDING) + 'px';
         });
-    }
-
-    sanitize(url) {
-        return this.sanitizer.bypassSecurityTrustResourceUrl(url);
     }
 
     /**
