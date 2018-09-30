@@ -98,6 +98,14 @@
                 <p></p>
 
                 <mat-form-field>
+                    <mat-select placeholder="Color Field" [(ngModel)]="options.colorField" required="false"
+                            (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field>
                     <mat-select placeholder="Heatmap Field" [(ngModel)]="options.heatmapField" required="false"
                             (ngModelChange)="handleChangeData()" [disabled]="options.fields.length == 0">
                         <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>

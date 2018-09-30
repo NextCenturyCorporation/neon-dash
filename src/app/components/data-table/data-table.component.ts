@@ -44,6 +44,7 @@ import * as neon from 'neon-framework';
 export class DataTableOptions extends BaseNeonOptions {
     public allColumnStatus: string;
     public arrayFilterOperator: string;
+    public colorField: FieldMetaData;
     public exceptionsToStatus: string[];
     public fieldsConfig: any[];
     public filterable: boolean;
@@ -81,6 +82,7 @@ export class DataTableOptions extends BaseNeonOptions {
      * @override
      */
     updateFieldsOnTableChanged() {
+        this.colorField = this.findFieldObject('colorField');
         this.heatmapField = this.findFieldObject('heatmapField');
         this.idField = this.findFieldObject('idField');
         this.sortField = this.findFieldObject('sortField');
@@ -119,12 +121,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public docCount: number = 0;
     public responseData: any[] = [];
 
-    public activeHeaders: { prop: string, name: string, active: boolean, style: Object }[] = [];
-    public headers: { prop: string, name: string, active: boolean, style: Object, width: number}[] = [];
+    public activeHeaders: { prop: string, name: string, active: boolean, style: Object, cellClass: any }[] = [];
+    public headers: { prop: string, name: string, active: boolean, style: Object, cellClass: any, width: number }[] = [];
     public headerWidths: Map<string, number> = new Map<string, number>();
     public page: number = 1;
     public selected: any[] = [];
     public showColumnSelector: string = 'hide';
+    public styleRules: string[] = [];
+    public styleSheet: any;
 
     public drag: {
         mousedown: boolean,
@@ -168,6 +172,11 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
         this.options = new DataTableOptions(this.injector, this.datasetService, 'Data Table', 100);
         this.enableRedrawAfterResize(true);
+
+        let style = document.createElement('style');
+        style.appendChild(document.createTextNode(''));
+        document.head.appendChild(style);
+        this.styleSheet = style.sheet;
     }
 
     initializeHeadersFromExceptionsToStatus() {
@@ -181,6 +190,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             // If field is an exception, set active to oppositve of show status.
             if (this.headerIsInExceptions(fieldObject)) {
                 orderedHeaders.push({
+                    cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: !show && orderedHeaders.length < initialHeaderLimit,
@@ -189,6 +199,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 });
             } else {
                 unorderedHeaders.push({
+                    cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: show && unorderedHeaders.length < initialHeaderLimit,
@@ -209,6 +220,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             if (fieldObject.columnName) {
                 existingFields.push(fieldObject.columnName);
                 this.headers.push({
+                    cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: !fieldConfig.hide,
@@ -220,6 +232,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         for (let fieldObject of this.options.fields) {
             if (existingFields.indexOf(fieldObject.columnName) < 0) {
                 this.headers.push({
+                    cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: (this.options.allColumnStatus === 'show'),
@@ -249,6 +262,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     subGetBindings(bindings: any) {
+        bindings.colorField = this.options.colorField.columnName;
         bindings.heatmapField = this.options.heatmapField.columnName;
         bindings.idField = this.options.idField.columnName;
         bindings.sortField = this.options.sortField.columnName;
@@ -787,6 +801,41 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     private setStyle(index: number, style: string, value: string) {
         this.headers[index].style[style] = value;
+    }
+
+    /**
+     * Returns the cellClass property of an ngx-datatable column object that, given a cell, returns an object with the style classes for
+     * the cell as keys and booleans as values.
+     *
+     * @arg {object} column
+     * @arg {string} value
+     * @return {function}
+     */
+    getCellClassFunction(): any {
+        let self = this;
+        return function({ column, value }): any {
+            let cellClass: any = {};
+            if (self.options.colorField.columnName === column.prop) {
+                let colorClass = value;
+                let colorValue = value;
+                if (colorClass.indexOf('#') === 0) {
+                    colorClass = 'hex_' + colorClass.substring(1);
+                } else {
+                    let regexMatch = value.match(/.*?(\d{1,3})\s*(\d{1,3})\s*(\d{1,3}).*?/);
+                    if (regexMatch) {
+                        colorClass = 'rgb_' + regexMatch[1] + '_' + regexMatch[2] + '_' + regexMatch[3];
+                        colorValue = 'rgb(' + regexMatch[1] + ',' + regexMatch[2] + ',' + regexMatch[3] + ')';
+                    }
+                }
+                if (self.styleRules.indexOf(colorClass) < 0) {
+                    self.styleSheet.insertRule('.' + colorClass + ':before { background-color: ' + colorValue + '; }');
+                    self.styleRules.push(colorClass);
+                }
+                cellClass['color-field'] = true;
+                cellClass[colorClass] = true;
+            }
+            return cellClass;
+        };
     }
 
     /**

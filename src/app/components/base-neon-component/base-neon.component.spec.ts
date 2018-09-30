@@ -374,10 +374,10 @@ describe('Component: BaseNeonOptions with config', () => {
             { provide: 'database', useValue: 1 },
             { provide: 'table', useValue: 1 },
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
-            { provide: 'customEventsToPublish', useValue: [ { id: 'testPublishId', fields: [ { field: 'testPublishField',
-                label: 'testPublishLabel' } ] } ] },
-            { provide: 'customEventsToReceive', useValue: [ { id: 'testReceiveId', fields: [ { field: 'testReceiveField',
-                label: 'testReceiveLabel' } ] } ] },
+            { provide: 'customEventsToPublish', useValue: [ { id: 'testPublishId', fields: [ { columnName: 'testPublishColumnName',
+                prettyName: 'testPublishPrettyName' } ] } ] },
+            { provide: 'customEventsToReceive', useValue: [ { id: 'testReceiveId', fields: [ { columnName: 'testReceiveColumnName',
+                type: 'testReceiveType' } ] } ] },
             { provide: 'hideUnfiltered', useValue: true },
             { provide: 'limit', useValue: 1234 },
             { provide: 'title', useValue: 'VisualizationTitle' },
@@ -397,15 +397,15 @@ describe('Component: BaseNeonOptions with config', () => {
         expect(options.customEventsToPublish).toEqual([{
             id: 'testPublishId',
             fields: [{
-                field: 'testPublishField',
-                label: 'testPublishLabel'
+                columnName: 'testPublishColumnName',
+                prettyName: 'testPublishPrettyName'
             }]
         }]);
         expect(options.customEventsToReceive).toEqual([{
             id: 'testReceiveId',
             fields: [{
-                field: 'testReceiveField',
-                label: 'testReceiveLabel'
+                columnName: 'testReceiveColumnName',
+                type: 'testReceiveType'
             }]
         }]);
         expect(options.database).toEqual(DatasetServiceMock.DATABASES[1]);

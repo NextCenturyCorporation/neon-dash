@@ -309,8 +309,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
         this.options.customEventsToPublish.forEach((config) => {
             (config.fields || []).forEach((fieldsConfig) => {
-                if (fields.indexOf(fieldsConfig.field) < 0) {
-                    fields.push(fieldsConfig.field);
+                if (fields.indexOf(fieldsConfig.columnName) < 0) {
+                    fields.push(fieldsConfig.columnName);
                 }
             });
         });
@@ -639,7 +639,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
 
                     this.options.customEventsToPublish.forEach((config) => {
                         (config.fields || []).forEach((fieldsConfig) => {
-                            item[fieldsConfig.field] = neonUtilities.deepFind(d, fieldsConfig.field);
+                            item[fieldsConfig.columnName] = neonUtilities.deepFind(d, fieldsConfig.columnName);
                         });
                     });
 
