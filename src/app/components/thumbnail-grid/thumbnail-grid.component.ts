@@ -69,7 +69,6 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
     public predictedNameField: FieldMetaData;
     public showOnlyFiltered: boolean;
     public sortField: FieldMetaData;
-    public styleClass: string;
     public textMap: any;
     public typeField: FieldMetaData;
     public typeMap: any;
@@ -97,7 +96,6 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
         this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
-        this.styleClass = this.injector.get('styleClass', '');
         this.textMap = this.injector.get('textMap', {});
         this.typeMap = this.injector.get('typeMap', {});
         this.detailedThumbnails = this.injector.get('detailedThumbnails', false);

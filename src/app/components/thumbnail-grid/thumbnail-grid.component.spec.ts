@@ -93,7 +93,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.linkPrefix).toEqual('');
         expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.openOnMouseClick).toEqual(true);
-        expect(component.options.styleClass).toEqual('');
         expect(component.options.textMap).toEqual({});
         expect(component.options.typeMap).toEqual({});
 
@@ -2254,7 +2253,6 @@ describe('Component: ThumbnailGrid with config', () => {
                 { provide: 'percentField', useValue: 'testSizeField' },
                 { provide: 'predictedNameField', useValue: 'testNameField' },
                 { provide: 'sortField', useValue: 'testSortField' },
-            { provide: 'styleClass', useValue: 'style2' },
             { provide: 'textMap', useValue: { actual: 'Truth', percentage: 'Score' } },
                 { provide: 'typeField', useValue: 'testTypeField' },
             { provide: 'typeMap', useValue: { jpg: 'img', mov: 'vid' } },
@@ -2307,7 +2305,6 @@ describe('Component: ThumbnailGrid with config', () => {
         expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.linkPrefix).toEqual('prefix/');
         expect(component.options.openOnMouseClick).toEqual(false);
-        expect(component.options.styleClass).toEqual('style2');
         expect(component.options.textMap).toEqual({
             actual: 'Truth',
             percentage: 'Score'
