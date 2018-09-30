@@ -448,12 +448,12 @@ body {
 }
 
 .mat-slider-horizontal {
-    height: 76px !important;
+    height: 60px !important;
     min-width: unset !important;
 
     .mat-slider-wrapper {
-        /* Position the slider in the center of the 30px height. */
-        top: 38px !important;
+        /* Position the slider near the bottom and save 40px for the thumb-label. */
+        top: 49px !important;
         /* Add the same margin to the left and right. */
         left: 10px !important;
         right: 10px !important;
