@@ -274,16 +274,16 @@
     </div>
 
     <div #thumbnailGrid class="body-container thumbnail-grid" [class.with-filter]="getCloseableFilters().length" [class.with-footer]="gridArray.length > pagingGrid.length">
-       <div class="thumbnail-grid-container" *ngIf="showGrid" [class.style2]="options.styleClass == 'style2'">
-           <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [matTooltip]="getThumbnailTitle(item)"
+        <div class="thumbnail-grid-container" *ngIf="showGrid">
+            <div class="thumbnail-grid-div" *ngFor="let item of pagingGrid" [matTooltip]="getThumbnailTitle(item)"
                 [class.with-text]="getThumbnailLabel(item) != '' || getThumbnailPercent(item) != ''">
-               <app-thumbnail-details-contracted *ngIf="!options.detailedThumbnails" [item]="item" [options]="options">
-               </app-thumbnail-details-contracted>
-               <app-thumbnail-details-expanded class="flex-grow" *ngIf="options.detailedThumbnails" [item]="item" [options]="options">
-               </app-thumbnail-details-expanded>
-           </div>
-       </div>
-   </div>
+                <app-thumbnail-details-contracted *ngIf="!options.detailedThumbnails" [item]="item" [options]="options">
+                </app-thumbnail-details-contracted>
+                <app-thumbnail-details-expanded class="flex-grow" *ngIf="options.detailedThumbnails" [item]="item" [options]="options">
+                </app-thumbnail-details-expanded>
+            </div>
+        </div>
+    </div>
 
     <div class="footer" *ngIf="gridArray.length > pagingGrid.length">
         <div class="footer-button-container">

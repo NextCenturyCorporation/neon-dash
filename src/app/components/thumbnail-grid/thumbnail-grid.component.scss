@@ -99,35 +99,6 @@
     border: 3px solid #ecce76; /* mat-color-yellow-500 */
 }
 
-.style2 {
-    .thumbnail-grid-container{
-        height: 100%;
-    }
-
-    .thumbnail-grid-div {
-        height: 110px;
-        margin: 5px;
-
-        &.with-text {
-            height: 125px;
-            flex: 1 0;
-        }
-
-        .thumbnail-details {
-            font-size: 12px;
-            height: 15px;
-            line-height: 15px;
-            min-height: 15px;
-
-            p {
-                height: unset;
-                margin: 0;
-            }
-        }
-    }
-}
-
-
 .thumbnail-flags{
     display:flex;
     border-bottom: solid 1px darkgray;
