@@ -121,8 +121,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public docCount: number = 0;
     public responseData: any[] = [];
 
-    public activeHeaders: { prop: string, name: string, active: boolean, style: Object, cellClass: function }[] = [];
-    public headers: { prop: string, name: string, active: boolean, style: Object, cellClass: function, width: number }[] = [];
+    public activeHeaders: { prop: string, name: string, active: boolean, style: Object, cellClass: any }[] = [];
+    public headers: { prop: string, name: string, active: boolean, style: Object, cellClass: any, width: number }[] = [];
     public headerWidths: Map<string, number> = new Map<string, number>();
     public page: number = 1;
     public selected: any[] = [];
@@ -818,10 +818,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             if (self.options.colorField.columnName === column.prop) {
                 let colorClass = value;
                 let colorValue = value;
-                let regexMatch = value.match(/.*?(\d{1,3})\s*(\d{1,3})\s*(\d{1,3}).*?/);
-                if (regexMatch) {
-                    colorClass = 'rgb_' + regexMatch[1] + '_' + regexMatch[2] + '_' + regexMatch[3];
-                    colorValue = 'rgb(' + regexMatch[1] + ',' + regexMatch[2] + ',' + regexMatch[3] + ')';
+                if (colorClass.indexOf('#') === 0) {
+                    colorClass = 'hex_' + colorClass.substring(1);
+                } else {
+                    let regexMatch = value.match(/.*?(\d{1,3})\s*(\d{1,3})\s*(\d{1,3}).*?/);
+                    if (regexMatch) {
+                        colorClass = 'rgb_' + regexMatch[1] + '_' + regexMatch[2] + '_' + regexMatch[3];
+                        colorValue = 'rgb(' + regexMatch[1] + ',' + regexMatch[2] + ',' + regexMatch[3] + ')';
+                    }
                 }
                 if (self.styleRules.indexOf(colorClass) < 0) {
                     self.styleSheet.insertRule('.' + colorClass + ':before { background-color: ' + colorValue + '; }');
