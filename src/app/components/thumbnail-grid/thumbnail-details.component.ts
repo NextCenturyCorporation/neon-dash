@@ -27,7 +27,7 @@ export class ThumbnailDetailsContractedComponent {
     @Input() item: any;
     @Input() options: ThumbnailGridOptions;
 
-    private thumbnailGrid: ThumbnailGridComponent;
+    thumbnailGrid: ThumbnailGridComponent;
 
     constructor(grid: ThumbnailGridComponent) {
         this.thumbnailGrid = grid;
@@ -45,7 +45,7 @@ export class ThumbnailDetailsExpandedComponent {
     @Input() item: any;
     @Input() options: ThumbnailGridOptions;
 
-    private thumbnailGrid: ThumbnailGridComponent;
+    thumbnailGrid: ThumbnailGridComponent;
 
     constructor(grid: ThumbnailGridComponent) {
         this.thumbnailGrid = grid;

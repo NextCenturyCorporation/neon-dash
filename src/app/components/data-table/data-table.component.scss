@@ -217,6 +217,14 @@
     height: 100%;
 }
 
+/deep/ .color-field:before {
+    border-radius: 15px;
+    content: '';
+    display: inline-block;
+    height: 15px;
+    width: 15px;
+}
+
 .skinny {
     font-size: 14px;
 

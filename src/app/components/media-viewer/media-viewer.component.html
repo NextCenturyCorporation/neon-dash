@@ -102,6 +102,13 @@
                 </mat-form-field>
                 <p></p>
 
+                <span class="toggle-text">One Tab Per Array:</span>
+                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.oneTabPerArray" (ngModelChange)="subOnResizeStop()">
+                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
+                    <mat-button-toggle [value]="false">No</mat-button-toggle>
+                </mat-button-toggle-group>
+                <p></p>
+
                 <span class="toggle-text">Resize:</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.resize" (ngModelChange)="subOnResizeStop()">
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
@@ -125,10 +132,13 @@
             <mat-tab class="tab" *ngFor="let tab of tabsAndMedia" [label]="tab.name">
                 <div [ngSwitch]="tab.selected.type">
                     <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
-                        <img #imageSource *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name" (load)="setSourceLoaded()"
+                        <img *ngIf="tab.selected.link" [src]="tab.selected.link" [alt]="tab.selected.name"
+                             [style.opacity]="calculateOpacity(tab.slider)" (load)="setTabLoaded(tab)"
                              [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' medium') : 'image medium'">
-                        <img #imageMask *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [hidden]="!sourceLoaded"
+                        <img *ngIf="tab.selected.mask" [src]="tab.selected.mask" [alt]="tab.selected.name" [hidden]="!tab.loaded"
                              [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border + ' mask') : 'image mask'">
+                        <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="tab.slider"
+                                    (input)="onSliderChange(tab, $event.value)"></mat-slider>
                     </div>
                     <img *ngSwitchCase="mediaTypes.image" [src]="tab.selected.link" [alt]="tab.selected.name"
                         [class]="tab.selected.border ? ('image with-border border-mat-' + tab.selected.border) : 'image'">
@@ -136,8 +146,6 @@
                         [class]="tab.selected.border ? ('frame with-border border-mat-' + tab.selected.border) : 'frame'">
                     </iframe>
                 </div>
-                <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]=options.sliderValue
-                            (input)="changeSelectedSource(tab, $event.value)"></mat-slider>
             </mat-tab>
         </mat-tab-group>
 
@@ -146,18 +154,19 @@
 
             <div class="viewer-text">{{ tabsAndMedia[0].name }}</div>
             <div *ngSwitchCase="mediaTypes.maskImage" class="maskingDiv">
-                <img #imageSource *ngIf="tabsAndMedia[0].selected.link" [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name" (load)="setSourceLoaded()"
+                <img *ngIf="tabsAndMedia[0].selected.link" [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name"
+                     [style.opacity]="calculateOpacity(tabsAndMedia[0].slider)" (load)="setTabLoaded(tabsAndMedia[0])"
                      [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border + ' medium') : 'image medium'">
-                <img #imageMask *ngIf="tabsAndMedia[0].selected.mask" [src]="tabsAndMedia[0].selected.mask" [alt]="tabsAndMedia[0].selected.name" [hidden]="!sourceLoaded"
+                <img *ngIf="tabsAndMedia[0].selected.mask" [src]="tabsAndMedia[0].selected.mask" [alt]="tabsAndMedia[0].selected.name" [hidden]="!tabsAndMedia[0].loaded"
                      [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border + ' mask') : 'image mask'">
+                <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]="tabsAndMedia[0].slider"
+                            (input)="onSliderChange(tabsAndMedia[0], $event.value)"></mat-slider>
             </div>
             <img *ngSwitchCase="mediaTypes.image" [src]="tabsAndMedia[0].selected.link" [alt]="tabsAndMedia[0].selected.name"
                 [class]="tabsAndMedia[0].selected.border ? ('image with-border border-mat-' + tabsAndMedia[0].selected.border) : 'image'">
             <iframe *ngSwitchDefault [src]="sanitize(tabsAndMedia[0].selected.link)" frameborder="0"
                 [class]="tabsAndMedia[0].selected.border ? ('frame with-border border-mat-' + tabsAndMedia[0].selected.border) : 'frame'">
             </iframe>
-            <mat-slider color="primary" min="0" max="100" step="1" thumbLabel [value]=options.sliderValue
-                        (input)="changeSelectedSource(tabsAndMedia[0], $event.value)"></mat-slider>
         </div>
     </div>
 
