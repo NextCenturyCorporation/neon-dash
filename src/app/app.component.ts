@@ -29,7 +29,7 @@ import { DashboardOptionsComponent } from './components/dashboard-options/dashbo
 import { Dataset } from './dataset';
 
 import { NeonGTDConfig } from './neon-gtd-config';
-import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar } from '@angular/material';
+import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav } from '@angular/material';
 import { ActiveGridService } from './services/active-grid.service';
 import { DatasetService } from './services/dataset.service';
 import { ThemesService } from './services/themes.service';
@@ -56,6 +56,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
 
+    @Input() sidenav = MatSidenav;
     // Used to determine which pane is show in the right sidenav
     public showAbout: boolean = true;
     public showAddVisualizationButton: boolean = false;
