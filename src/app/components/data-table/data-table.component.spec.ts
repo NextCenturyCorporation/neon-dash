@@ -206,8 +206,159 @@ describe('Component: DataTable', () => {
         expect(component.getOptions()).toEqual(component.options);
     });
 
-    it('getRowClassFunction does return function', () => {
-        expect(typeof component.getRowClassFunction()).toEqual('function');
+    it('getCellClassFunction does return function', () => {
+        expect(typeof component.getCellClassFunction()).toEqual('function');
+    });
+
+    it('getCellClassFunction function with colorField does set color class', () => {
+        let cellClassFunction = component.getCellClassFunction();
+
+        component.options.colorField = DatasetServiceMock.CATEGORY_FIELD;
+
+        expect(cellClassFunction({
+            column: {
+                prop: 'testCategoryField'
+            },
+            value: 'red'
+        })).toEqual({
+            'color-field': true,
+            'red': true
+        });
+
+        expect(cellClassFunction({
+            column: {
+                prop: 'testCategoryField'
+            },
+            value: 'blue'
+        })).toEqual({
+            'color-field': true,
+            'blue': true
+        });
+
+        expect(component.styleSheet.cssRules.length).toEqual(2);
+        expect(component.styleSheet.cssRules[0].selectorText).toEqual('.blue::before');
+        expect(component.styleSheet.cssRules[0].style.cssText).toEqual('background-color: blue;');
+        expect(component.styleSheet.cssRules[1].selectorText).toEqual('.red::before');
+        expect(component.styleSheet.cssRules[1].style.cssText).toEqual('background-color: red;');
+        expect(component.styleRules).toEqual(['red', 'blue']);
+    });
+
+    it('getCellClassFunction function with colorField does not set repeat color class style rules', () => {
+        let cellClassFunction = component.getCellClassFunction();
+
+        component.options.colorField = DatasetServiceMock.CATEGORY_FIELD;
+
+        expect(cellClassFunction({
+            column: {
+                prop: 'testCategoryField'
+            },
+            value: 'red'
+        })).toEqual({
+            'color-field': true,
+            'red': true
+        });
+
+        expect(cellClassFunction({
+            column: {
+                prop: 'testCategoryField'
+            },
+            value: 'red'
+        })).toEqual({
+            'color-field': true,
+            'red': true
+        });
+
+        expect(component.styleSheet.cssRules.length).toEqual(1);
+        expect(component.styleSheet.cssRules[0].selectorText).toEqual('.red::before');
+        expect(component.styleSheet.cssRules[0].style.cssText).toEqual('background-color: red;');
+        expect(component.styleRules).toEqual(['red']);
+    });
+
+    it('getCellClassFunction function with no colorField does not set color class', () => {
+        let cellClassFunction = component.getCellClassFunction();
+
+        expect(cellClassFunction({
+            column: {
+                prop: 'testCategoryField'
+            },
+            value: 'red'
+        })).toEqual({});
+
+        expect(cellClassFunction({
+            column: {
+                prop: 'testCategoryField'
+            },
+            value: 'blue'
+        })).toEqual({});
+
+        expect(component.styleSheet.cssRules.length).toEqual(0);
+        expect(component.styleRules).toEqual([]);
+    });
+
+    it('getCellClassFunction function with colorField does set hex color class', () => {
+        let cellClassFunction = component.getCellClassFunction();
+
+        component.options.colorField = DatasetServiceMock.CATEGORY_FIELD;
+
+        expect(cellClassFunction({
+            column: {
+                prop: 'testCategoryField'
+            },
+            value: '#ff0000'
+        })).toEqual({
+            'color-field': true,
+            'hex_ff0000': true
+        });
+
+        expect(cellClassFunction({
+            column: {
+                prop: 'testCategoryField'
+            },
+            value: '#0000ff'
+        })).toEqual({
+            'color-field': true,
+            'hex_0000ff': true
+        });
+
+        expect(component.styleSheet.cssRules.length).toEqual(2);
+        expect(component.styleSheet.cssRules[0].selectorText).toEqual('.hex_0000ff::before');
+        expect(component.styleSheet.cssRules[0].style.cssText).toEqual('background-color: rgb(0, 0, 255);');
+        expect(component.styleSheet.cssRules[1].selectorText).toEqual('.hex_ff0000::before');
+        expect(component.styleSheet.cssRules[1].style.cssText).toEqual('background-color: rgb(255, 0, 0);');
+        expect(component.styleRules).toEqual(['hex_ff0000', 'hex_0000ff']);
+    });
+
+    it('getCellClassFunction function with colorField does set RGB color class', () => {
+        let cellClassFunction = component.getCellClassFunction();
+
+        component.options.colorField = DatasetServiceMock.CATEGORY_FIELD;
+
+        expect(cellClassFunction({
+            column: {
+                prop: 'testCategoryField'
+            },
+            value: '12 34 56'
+        })).toEqual({
+            'color-field': true,
+            'rgb_12_34_56': true
+        });
+
+        expect(cellClassFunction({
+            column: {
+                prop: 'testCategoryField'
+            },
+            value: '21,43,65'
+        })).toEqual({
+            'color-field': true,
+            'rgb_21_43_65': true
+        });
+
+        expect(component.styleSheet.cssRules.length).toEqual(2);
+        expect(component.styleSheet.cssRules[0].selectorText).toEqual('.rgb_21_43_65::before');
+        expect(component.styleSheet.cssRules[0].style.cssText).toEqual('background-color: rgb(21, 43, 65);');
+        expect(component.styleSheet.cssRules[1].selectorText).toEqual('.rgb_12_34_56::before');
+        expect(component.styleSheet.cssRules[1].style.cssText).toEqual('background-color: rgb(12, 34, 56);');
+        expect(component.styleRules).toEqual(['rgb_12_34_56', 'rgb_21_43_65']);
     });
 
     it('getRowClassFunction function does set active to false', () => {

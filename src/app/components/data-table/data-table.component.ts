@@ -815,13 +815,13 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let self = this;
         return function({ column, value }): any {
             let cellClass: any = {};
-            if (self.options.colorField.columnName === column.prop) {
+            if (column && self.options.colorField.columnName === column.prop) {
                 let colorClass = value;
                 let colorValue = value;
                 if (colorClass.indexOf('#') === 0) {
                     colorClass = 'hex_' + colorClass.substring(1);
                 } else {
-                    let regexMatch = value.match(/.*?(\d{1,3})\s*(\d{1,3})\s*(\d{1,3}).*?/);
+                    let regexMatch = value.match(/.*?(\d{1,3})[,\s]*(\d{1,3})[,\s]*(\d{1,3}).*?/);
                     if (regexMatch) {
                         colorClass = 'rgb_' + regexMatch[1] + '_' + regexMatch[2] + '_' + regexMatch[3];
                         colorValue = 'rgb(' + regexMatch[1] + ',' + regexMatch[2] + ',' + regexMatch[3] + ')';
