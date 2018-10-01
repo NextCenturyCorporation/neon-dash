@@ -58,7 +58,6 @@ export class DataTableOptions extends BaseNeonOptions {
     public skinny: boolean;
     public sortField: FieldMetaData;
     public sortDescending: boolean;
-    public checkDuplicateField: FieldMetaData;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -89,7 +88,6 @@ export class DataTableOptions extends BaseNeonOptions {
         this.idField = this.findFieldObject('idField');
         this.sortField = this.findFieldObject('sortField');
         this.filterFields = this.findFieldObjects('filterFields');
-        this.checkDuplicateField = this.findFieldObject('checkDuplicateField');
     }
 }
 
@@ -279,7 +277,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         bindings.idField = this.options.idField.columnName;
         bindings.sortField = this.options.sortField.columnName;
         bindings.filterFields = this.options.filterFields;
-        bindings.checkDuplicateField = this.options.checkDuplicateField;
 
         bindings.arrayFilterOperator = this.options.arrayFilterOperator;
         bindings.exceptionsToStatus = this.options.exceptionsToStatus;
@@ -537,7 +534,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.docCount = response.data[0]._docCount - this.duplicateNumber;
         } else {
-            let responses = (this.options.checkDuplicateField) ? this.ridDuplicates(response) : response.data;
+            let responses = response.data;
             let data = responses.map((d) => {
                     let row = {};
                     for (let field of this.options.fields) {
@@ -554,31 +551,6 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.getDocCount();
             this.refreshVisualization();
         }
-    }
-
-    ridDuplicates(data) {
-        let newData = data;
-        this.seenValues = [];
-        this.duplicateNumber = 0;
-
-        newData = newData.data.filter((d) => this.seenBefore(d));
-
-        return newData;
-    }
-
-    seenBefore(data): boolean {
-        let unique = false;
-        let checkField = neonUtilities.deepFind(data, this.options.checkDuplicateField.columnName);
-        if (!this.seenValues.includes(checkField)) {
-            if (checkField) {
-                this.seenValues.push(checkField);
-            }
-            unique = true;
-        } else {
-            this.duplicateNumber++;
-        }
-
-        return unique;
     }
 
     getDocCount() {
