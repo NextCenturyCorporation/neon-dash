@@ -15,14 +15,8 @@
  */
 import { Datastore } from './dataset';
 
-export class DashboardConfig {
-    translationKeys: { [ key: string ]: string} = {};
-}
-
 export class NeonGTDConfig {
-    dashboard: DashboardConfig = {
-        translationKeys: {}
-    };
+    translationKeys: { [ key: string ]: string} = {};
     datastores: { [ key: string ]: Datastore } = {};
     dashboards: { [ key: string ]: any } = {};
     layouts: { [ key: string ]: any } = {};
