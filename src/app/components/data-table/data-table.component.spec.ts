@@ -20,7 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { DataTableComponent } from './data-table.component';
@@ -103,11 +103,11 @@ describe('Component: DataTable', () => {
         component.initializeHeadersFromExceptionsToStatus();
 
         expect(component.headers).toEqual([
-            {prop: 'date', name: 'Date', active: false, style: {}, width: 150},
-            {prop: 'address', name: 'Address', active: false, style: {}, width: 150},
-            {prop: 'field2', name: 'Field 2', active: false, style: {}, width: 150},
-            {prop: 'category', name: 'Category', active: true, style: {}, width: 150},
-            {prop: 'field1', name: 'Field 1', active: true, style: {}, width: 150}
+            { prop: 'date', name: 'Date', active: false, style: {}, width: 150 },
+            { prop: 'address', name: 'Address', active: false, style: {}, width: 150 },
+            { prop: 'field2', name: 'Field 2', active: false, style: {}, width: 150 },
+            { prop: 'category', name: 'Category', active: true, style: {}, width: 150 },
+            { prop: 'field1', name: 'Field 1', active: true, style: {}, width: 150 }
         ]);
     });
 
@@ -121,19 +121,19 @@ describe('Component: DataTable', () => {
         ];
         component.options.allColumnStatus = 'show';
         component.options.fieldsConfig = [
-            {name: 'date'},
-            {name: 'address', hide: true},
-            {name: 'field2', hide: true}
+            { name: 'date' },
+            { name: 'address', hide: true },
+            { name: 'field2', hide: true }
         ];
 
         component.initializeHeadersFromFieldsConfig();
 
         expect(component.headers).toEqual([
-            {prop: 'date', name: 'Date', active: true, style: {}, width: 150},
-            {prop: 'address', name: 'Address', active: false, style: {}, width: 150},
-            {prop: 'field2', name: 'Field 2', active: false, style: {}, width: 150},
-            {prop: 'category', name: 'Category', active: true, style: {}, width: 150},
-            {prop: 'field1', name: 'Field 1', active: true, style: {}, width: 150}
+            { prop: 'date', name: 'Date', active: true, style: {}, width: 150 },
+            { prop: 'address', name: 'Address', active: false, style: {}, width: 150 },
+            { prop: 'field2', name: 'Field 2', active: false, style: {}, width: 150 },
+            { prop: 'category', name: 'Category', active: true, style: {}, width: 150 },
+            { prop: 'field1', name: 'Field 1', active: true, style: {}, width: 150 }
         ]);
     });
 
@@ -155,7 +155,7 @@ describe('Component: DataTable', () => {
 
     it('subNgOnInit does call expected methods if options.fieldsConfig exists', () => {
         component.options.fieldsConfig = [
-            {name: 'testField'}
+            { name: 'testField' }
         ];
         let initHeadersFromFieldsConfigSpy = spyOn(component, 'initializeHeadersFromFieldsConfig');
         let initHeadersFromExceptionsSpy = spyOn(component, 'initializeHeadersFromExceptionsToStatus');
@@ -193,24 +193,69 @@ describe('Component: DataTable', () => {
 
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
+            heatmapField: '',
             idField: '',
             sortField: '',
             filterFields: [],
-            checkDuplicateField: new FieldMetaData('', '', false, ''),
             arrayFilterOperator: 'and',
             exceptionsToStatus: [],
             filterable: false,
+            heatmapDivisor: 0,
             ignoreSelf: false,
             singleFilter: false,
             skinny: false,
             sortDescending: true,
-            fieldsConfig: []
+            fieldsConfig: [({
+                name: 'Test Category Field',
+                hide: false
+            }), ({
+                name: 'Test Date Field',
+                hide: false
+            }), ({
+                name: 'Test Filter Field',
+                hide: false
+            }), ({
+                name: 'Test ID Field',
+                hide: false
+            }), ({
+                name: 'Test Link Field',
+                hide: false
+            }), ({
+                name: 'Test Name Field',
+                hide: false
+            }), ({
+                name: 'Test Relation Field A',
+                hide: false
+            }), ({
+                name: 'Test Relation Field B',
+                hide: false
+            }), ({
+                name: 'Test Size Field',
+                hide: false
+            }), ({
+                name: 'Test Sort Field',
+                hide: false
+            }), ({
+                name: 'Test Text Field',
+                hide: false
+            }), ({
+                name: 'Test Type Field',
+                hide: false
+            }), ({
+                name: 'Test X Field',
+                hide: false
+            }), ({
+                name: 'Test Y Field',
+                hide: false
+            }), ({
+                name: '_id',
+                hide: false
+            })]
         });
 
         component.options.idField = new FieldMetaData('testIdField');
         component.options.sortField = new FieldMetaData('testSortField');
         component.options.filterFields = [new FieldMetaData('filterField')];
-        component.options.checkDuplicateField = new FieldMetaData('testDuplicateField');
         component.options.arrayFilterOperator = 'or';
         component.options.exceptionsToStatus = ['exception1', 'exception2'];
         component.options.filterable = true;
@@ -228,13 +273,14 @@ describe('Component: DataTable', () => {
 
         component.subGetBindings(bindings);
         expect(bindings).toEqual({
+            heatmapField: '',
             idField: 'testIdField',
             sortField: 'testSortField',
             filterFields: [new FieldMetaData('filterField')],
-            checkDuplicateField: new FieldMetaData('testDuplicateField'),
             arrayFilterOperator: 'or',
             exceptionsToStatus: ['exception1', 'exception2'],
             filterable: true,
+            heatmapDivisor: 0,
             ignoreSelf: true,
             singleFilter: true,
             skinny: true,
@@ -249,8 +295,8 @@ describe('Component: DataTable', () => {
     it('headerIsInExceptions does return whether or not header is in options.exceptionsToStatus', (() => {
         component.options.exceptionsToStatus = ['testField2'];
 
-        expect(component.headerIsInExceptions({columnName: 'testField1', prettyName: 'Test Field 1'})).toBeFalsy();
-        expect(component.headerIsInExceptions({columnName: 'testField2', prettyName: 'Test Field 2'})).toBeTruthy();
+        expect(component.headerIsInExceptions({ columnName: 'testField1', prettyName: 'Test Field 1' })).toBeFalsy();
+        expect(component.headerIsInExceptions({ columnName: 'testField2', prettyName: 'Test Field 2' })).toBeTruthy();
     }));
 
     it('sortOrderedHeaders does sort based on options.exceptionsToStatus', (() => {
