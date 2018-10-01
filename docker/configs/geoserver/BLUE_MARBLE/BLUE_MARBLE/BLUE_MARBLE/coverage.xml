@@ -1,16 +1,16 @@
 <coverage>
-  <id>CoverageInfoImpl-362475a5:1661d9591bf:-7ff0</id>
-  <name>NE2_HR_LC_SR_W_DR</name>
-  <nativeName>NE2_HR_LC_SR_W_DR</nativeName>
+  <name>BLUE_MARBLE</name>
+  <nativeName>BLUE_MARBLE</nativeName>
   <namespace>
-    <id>NamespaceInfoImpl-362475a5:1661d9591bf:-7ff4</id>
+	  <name>bm</name>	  
   </namespace>
-  <title>NE2_HR_LC_SR_W_DR</title>
+  <title>BLUE_MARBLE</title>
   <description>Generated from GeoTIFF</description>
   <keywords>
-    <string>NE2_HR_LC_SR_W_DR</string>
+    <string>BlueMarbleNG-TB_2004-12-01_rgb_3600x1800</string>
     <string>WCS</string>
     <string>GeoTIFF</string>
+    <string>BLUE_MARBLE</string>
   </keywords>
   <nativeCRS>GEOGCS[&quot;WGS 84&quot;,
   DATUM[&quot;World Geodetic System 1984&quot;,
@@ -24,50 +24,50 @@
   <srs>EPSG:4326</srs>
   <nativeBoundingBox>
     <minx>-180.0</minx>
-    <maxx>180.00000000007202</maxx>
-    <miny>-90.000000000036</miny>
-    <maxy>90.00000000000001</maxy>
+    <maxx>180.0</maxx>
+    <miny>-90.0</miny>
+    <maxy>90.0</maxy>
     <crs>EPSG:4326</crs>
   </nativeBoundingBox>
   <latLonBoundingBox>
     <minx>-180.0</minx>
-    <maxx>180.00000000007202</maxx>
-    <miny>-90.000000000036</miny>
-    <maxy>90.00000000000001</maxy>
+    <maxx>180.0</maxx>
+    <miny>-90.0</miny>
+    <maxy>90.0</maxy>
     <crs>EPSG:4326</crs>
   </latLonBoundingBox>
-  <projectionPolicy>REPROJECT_TO_DECLARED</projectionPolicy>
+    <projectionPolicy>REPROJECT_TO_DECLARED</projectionPolicy>
   <enabled>true</enabled>
   <metadata>
-    <entry key="dirName">NE2_HR_LC_SR_W_DR_NE2_HR_LC_SR_W_DR</entry>
+    <entry key="dirName">BLUE_MARBLE_BlueMarbleNG-TB_2004-12-01_rgb_3600x1800</entry>
   </metadata>
   <store class="coverageStore">
-    <id>CoverageStoreInfoImpl-362475a5:1661d9591bf:-7ff2</id>
   </store>
   <nativeFormat>GeoTIFF</nativeFormat>
   <grid dimension="2">
     <range>
       <low>0 0</low>
-      <high>21600 10800</high>
+      <high>3600 1800</high>
     </range>
     <transform>
-      <scaleX>0.01666666666667</scaleX>
-      <scaleY>-0.01666666666667</scaleY>
+      <scaleX>0.1</scaleX>
+      <scaleY>-0.1</scaleY>
       <shearX>0.0</shearX>
       <shearY>0.0</shearY>
-      <translateX>-179.99166666666667</translateX>
-      <translateY>89.99166666666667</translateY>
+      <translateX>-179.95</translateX>
+      <translateY>89.95</translateY>
     </transform>
     <crs>EPSG:4326</crs>
   </grid>
   <supportedFormats>
-    <string>ArcGrid</string>
-    <string>GEOTIFF</string>
     <string>GeoPackage (mosaic)</string>
+    <string>Gtopo30</string>
+    <string>ArcGrid</string>
     <string>GIF</string>
     <string>PNG</string>
     <string>JPEG</string>
     <string>TIFF</string>
+    <string>GEOTIFF</string>
     <string>ImageMosaic</string>
   </supportedFormats>
   <interpolationMethods>
@@ -84,6 +84,9 @@
         <min>-inf</min>
         <max>inf</max>
       </range>
+      <nullValues>
+        <double>0.0</double>
+      </nullValues>
       <unit>W.m-2.Sr-1</unit>
       <dimensionType>
         <name>UNSIGNED_8BITS</name>
@@ -96,6 +99,9 @@
         <min>-inf</min>
         <max>inf</max>
       </range>
+      <nullValues>
+        <double>0.0</double>
+      </nullValues>
       <unit>W.m-2.Sr-1</unit>
       <dimensionType>
         <name>UNSIGNED_8BITS</name>
@@ -108,6 +114,9 @@
         <min>-inf</min>
         <max>inf</max>
       </range>
+      <nullValues>
+        <double>0.0</double>
+      </nullValues>
       <unit>W.m-2.Sr-1</unit>
       <dimensionType>
         <name>UNSIGNED_8BITS</name>
@@ -130,5 +139,5 @@
       <string>512,512</string>
     </entry>
   </parameters>
-  <nativeCoverageName>NE2_HR_LC_SR_W_DR</nativeCoverageName>
+  <nativeCoverageName>BlueMarbleNG-TB_2004-12-01_rgb_3600x1800</nativeCoverageName>
 </coverage>
