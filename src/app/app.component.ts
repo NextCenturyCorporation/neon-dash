@@ -18,6 +18,7 @@ import {
     Component,
     Inject,
     OnInit,
+    Input,
     OnDestroy,
     QueryList,
     ViewChild,
