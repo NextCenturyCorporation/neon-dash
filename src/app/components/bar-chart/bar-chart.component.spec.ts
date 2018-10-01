@@ -415,8 +415,8 @@ describe('Component: BarChart', () => {
         expect(component.selectedLabels).toEqual(['group1']);
         expect(activeData.backgroundColor).toEqual(['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)']);
         expect(activeData.hoverBackgroundColor).toEqual(['rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)']);
-        expect(component.chartInfo.data.datasets[0].backgroundColor).toEqual(['rgba(255,255,255,0.3)', 'rgb(255,255,255)',
-            'rgba(255,255,255,0.3)', 'rgba(255,255,255,0.3)']);
+        expect(component.chartInfo.data.datasets[0].backgroundColor).toEqual(['rgba(255,255,255,0.2)', 'rgb(255,255,255)',
+            'rgba(255,255,255,0.2)', 'rgba(255,255,255,0.2)']);
     });
 
     it('onQuerySuccess does update page and lastPage and does call updateBarChart', () => {
