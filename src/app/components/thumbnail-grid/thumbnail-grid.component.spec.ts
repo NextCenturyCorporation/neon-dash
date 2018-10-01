@@ -124,7 +124,8 @@ describe('Component: ThumbnailGrid', () => {
             image: 'img',
             video: 'vid',
             html: 'htm',
-            pdf: 'pdf'
+            pdf: 'pdf',
+            maskImage: 'mask'
         });
         expect(component.page).toEqual(1);
         expect(component.pagingGrid).toEqual([]);
