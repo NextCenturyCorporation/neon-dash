@@ -1,13 +1,12 @@
 <coverageStore>
-  <name>NE2_HR_LC_SR_W_DR</name>
+  <name>NATURAL_EARTH_II</name>
   <description>Natural Earth 2</description>
   <type>GeoTIFF</type>
   <enabled>true</enabled>
   <workspace>
-	  <name>lorelei</name>
-	  <link></link>
+     <name>ne2</name>
   </workspace>
   <__default>true</__default>
-  <url>file:///usr/local/tomcat/webapps/geoserver/data/NE2_HR_LC_SR_W_DR/NE2_HR_LC_SR_W_DR.tif</url>
+  <url>file:///usr/local/tomcat/webapps/geoserver/data/NATURAL_EARTH_II/NE2_HR_LC_SR_W_DR.tif</url>
 </coverageStore>
 

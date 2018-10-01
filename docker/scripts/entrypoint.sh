@@ -54,7 +54,12 @@ done
 GEOSERVER_URL="http://localhost:8080/geoserver"
 GEOSERVER_DATA="/usr/local/geoserver/data"
 GEOSERVER_XML="/usr/local/geoserver/xml"
-NATURAL_EARTH=$NATURAL_EARTH
+NATURAL_EARTH_DIR=$NATURAL_EARTH_DIR
+NATURAL_EARTH_FILE=$NATURAL_EARTH_FILE
+NATURAL_EARTH_NS=$NATURAL_EARTH_NS
+BLUE_MARBLE_DIR=$BLUE_MARBLE_DIR
+BLUE_MARBLE_FILE=$BLUE_MARBLE_FILE
+BLUE_MARBLE_NS=$BLUE_MARBLE_NS
 
 # Wait until Geoserver is up and running
 until $(curl --output /dev/null --silent --head --fail $GEOSERVER_URL); do
@@ -65,31 +70,51 @@ done
 # Verfiy if geoserver was already setup
 if [ ! -f /.geoserver_created ]; then
 
-  echo $NATURAL_EARTH
-  # Check for Natural Earth Data Directory and TIF exitss
-  if [ -d "$GEOSERVER_XML/$NATURAL_EARTH" -a -f "$GEOSERVER_DATA/$NATURAL_EARTH/${NATURAL_EARTH}.tif" ]; then
+  # Check for Natural Earth Data Directory and TIF exist
+  if [ -d "$GEOSERVER_XML/$NATURAL_EARTH_DIR" -a -f "$GEOSERVER_DATA/$NATURAL_EARTH_DIR/$NATURAL_EARTH_FILE" ]; then
 
      echo "Natural Earth data found"
      
      # Copy the data to the tomcat geoserver data dir
-     mkdir -p $CATALINA_HOME/webapps/geoserver/data/$NATURAL_EARTH
-     cp "$GEOSERVER_DATA/$NATURAL_EARTH/${NATURAL_EARTH}.tif" $CATALINA_HOME/webapps/geoserver/data/$NATURAL_EARTH
+     mkdir -p $CATALINA_HOME/webapps/geoserver/data/$NATURAL_EARTH_DIR
+     cp "$GEOSERVER_DATA/$NATURAL_EARTH_DIR/$NATURAL_EARTH_FILE" $CATALINA_HOME/webapps/geoserver/data/$NATURAL_EARTH_DIR
      chown -R tomcat:tomcat $CATALINA_HOME
 
      # Create the Natural Earth namespace
-     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/workspace.xml $GEOSERVER_URL/rest/workspaces
+     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/$NATURAL_EARTH_DIR/namespace.xml $GEOSERVER_URL/rest/namespaces
 
      # Create the Natural Earth workspace
-     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/namespace.xml $GEOSERVER_URL/rest/workspaces
+     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/$NATURAL_EARTH_DIR/workspace.xml $GEOSERVER_URL/rest/workspaces
   
      # Create the Natural Earth coverage store
-     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/$NATURAL_EARTH/coveragestore.xml $GEOSERVER_URL/rest/workspaces/lorelei/coveragestores
+     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/$NATURAL_EARTH_DIR/$NATURAL_EARTH_DIR/coveragestore.xml $GEOSERVER_URL/rest/workspaces/$NATURAL_EARTH_NS/coveragestores
 
      # Create the Natural Earth coverage
-     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/$NATURAL_EARTH/$NATURAL_EARTH/coverage.xml $GEOSERVER_URL/rest/workspaces/lorelei/coveragestores/$NATURAL_EARTH/coverages
+     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/$NATURAL_EARTH_DIR/$NATURAL_EARTH_DIR/$NATURAL_EARTH_DIR/coverage.xml $GEOSERVER_URL/rest/workspaces/$NATURAL_EARTH_NS/coveragestores/$NATURAL_EARTH_DIR/coverages
   fi
 
-  # //TODO Check for Blue Marble Data
+  # Check for Blue Earth Data Directory and if TIF files exist
+  if [ -f "$GEOSERVER_DATA/$BLUE_MARBLE_DIR/$BLUE_MARBLE_FILE" ]; then
+
+     echo "Blue Marble data found"
+
+     # Copy the data to the tomcat geoserver data dir
+     mkdir -p $CATALINA_HOME/webapps/geoserver/data/$BLUE_MARBLE_DIR
+     cp "$GEOSERVER_DATA/$BLUE_MARBLE_DIR/$BLUE_MARBLE_FILE" $CATALINA_HOME/webapps/geoserver/data/$BLUE_MARBLE_DIR
+     chown -R tomcat:tomcat $CATALINA_HOME
+
+     # Create the Natural Earth namespace
+     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/$BLUE_MARBLE_DIR/namespace.xml $GEOSERVER_URL/rest/namespaces
+
+     # Create the Natural Earth workspace
+     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/$BLUE_MARBLE_DIR/workspace.xml $GEOSERVER_URL/rest/workspaces
+
+     # Create the Natural Earth coverage store
+     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/$BLUE_MARBLE_DIR/$BLUE_MARBLE_DIR/coveragestore.xml $GEOSERVER_URL/rest/workspaces/$BLUE_MARBLE_NS/coveragestores
+
+     # Create the Natural Earth coverage
+     curl -u admin:geoserver -v -XPOST -H "Content-type: text/xml" -d @/usr/local/geoserver/xml/$BLUE_MARBLE_DIR/$BLUE_MARBLE_DIR/$BLUE_MARBLE_DIR/coverage.xml $GEOSERVER_URL/rest/workspaces/$BLUE_MARBLE_NS/coveragestores/$BLUE_MARBLE_DIR/coverages
+  fi	 
 
   echo "creating /.geoserver_created"
   touch /.geoserver_created
