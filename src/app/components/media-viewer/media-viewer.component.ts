@@ -325,14 +325,14 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
      * @arg {any[]} masks
      * @arg {any[]} names
      * @arg {any[]} types
-     * @arg {string} [defaultTabName='']
+     * @arg {string} [oneTabName='']
      * @return {any[]}
      */
-    createTabs(links: any, masks: any, names: any[], types: any[], defaultTabName: string = '') {
+    createTabs(links: any, masks: any, names: any[], types: any[], oneTabName: string = '') {
         let oneTab = {
             selected: undefined,
             slider: this.options.sliderValue,
-            name: defaultTabName,
+            name: oneTabName,
             loaded: false,
             list: []
         };
@@ -348,7 +348,7 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
                 tab = {
                     selected: undefined,
                     slider: this.options.sliderValue,
-                    name: (defaultTabName ? (defaultTabName + (links.length > 1 ? (' ' + (index + 1)) : '')) : '') || prettyName,
+                    name: prettyName,
                     loaded: false,
                     list: []
                 };
@@ -366,7 +366,9 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
             tab.selected = tab.list[0];
 
             if (!this.options.oneTabPerArray) {
-                tab.name = tab.list[0].name + (links.length > 1 ? (' ' + (index + 1)) : '');
+                if (tab.list[0].name) {
+                    tab.name = tab.list[0].name + ((links.length > 1 && names.length === 1) ? (' ' + (index + 1)) : '');
+                }
                 tabs.push(tab);
             }
         });
@@ -725,13 +727,16 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         bindings.linkFields = this.options.linkFields.map((linkField) => {
             return linkField.columnName;
         });
+        bindings.maskField = this.options.maskField.columnName;
         bindings.nameField = this.options.nameField.columnName;
         bindings.typeField = this.options.typeField.columnName;
         bindings.border = this.options.border;
+        bindings.clearMedia = this.options.clearMedia;
         bindings.delimiter = this.options.delimiter;
         bindings.linkPrefix = this.options.linkPrefix;
         bindings.oneTabPerArray = this.options.oneTabPerArray;
         bindings.resize = this.options.resize;
+        bindings.sliderValue = this.options.sliderValue;
         bindings.typeMap = this.options.typeMap;
     }
 
