@@ -201,7 +201,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
             });
         }
 
-        // TODO: 825: fix later/what is this for?
+        // TODO: 825: fix later
+        // this is for loading saved state and passing in url params, but
+        // maybe this shouldn't be here
         this.messenger.subscribe(ParameterService.STATE_CHANGED_CHANNEL, (message) => {
             if (message && message.dataset) {
                 if (message.dataset) {

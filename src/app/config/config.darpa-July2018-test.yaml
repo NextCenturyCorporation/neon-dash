@@ -1,7 +1,6 @@
-# TODO: incorporate into dashboards?
-dashboard:
-    translationKeys:
-        google: AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8
+translationKeys:
+    google: AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8
+
 
 datastores:
     es1:

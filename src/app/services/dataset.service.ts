@@ -303,6 +303,7 @@ export class DatasetService {
      * @param {String} layoutName
      */
     public setLayout(layoutName: string): void {
+        // TODO: 825: may need to revisit later
         this.currentDashboardConfig.layout = layoutName;
         this.updateDataset();
     }
