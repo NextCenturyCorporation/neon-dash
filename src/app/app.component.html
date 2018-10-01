@@ -15,7 +15,7 @@
 
         <mat-card align="left">
             <mat-card-content>
-              <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout"></app-dashboard-options>
+              <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout" [sidenav]="sidenavright"></app-dashboard-options>
 
               <div mat-fill class="flex">
                   <span class="fill-remaining"></span>

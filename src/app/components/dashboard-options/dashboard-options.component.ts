@@ -13,9 +13,10 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
+import { URLSearchParams } from '@angular/http';
 
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog, MatSnackBar, MatSidenav } from '@angular/material';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -36,6 +37,9 @@ import { VisualizationService } from '../../services/visualization.service';
   styleUrls: ['./dashboard-options.component.scss']
 })
 export class DashboardOptionsComponent implements OnInit {
+
+    @Input() sidenav: MatSidenav;
+
     public formData: any = {
         exportFormat: 0,
         currentTheme: 'neon-green-theme',
@@ -113,6 +117,7 @@ export class DashboardOptionsComponent implements OnInit {
                 this.handleStateFailure(response);
             });
         }
+        this.sidenav.close();
     }
 
     /*
@@ -148,6 +153,7 @@ export class DashboardOptionsComponent implements OnInit {
                 this.handleStateFailure(response);
             });
         }
+        this.sidenav.close();
     }
 
     /*
@@ -167,6 +173,7 @@ export class DashboardOptionsComponent implements OnInit {
                 this.handleStateFailure(response);
             });
         }
+        this.sidenav.close();
     }
 
     getDefaultOptionTitle() {
