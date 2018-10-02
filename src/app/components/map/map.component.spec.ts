@@ -1260,13 +1260,5 @@ describe('Component: Map with config', () => {
         expect(component.options.layers[0].table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(component.options.layers[0].fields).toEqual(DatasetServiceMock.FIELDS);
         expect(component.options.layers[0].title).toEqual('Test Layer Title');
-        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testCategoryField', 'Test Category Field', false,
-            'string'));
-        expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field', false, 'date'));
-        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testYField', 'Test Y Field', false,
-            'float'));
-        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testXField', 'Test X Field', false,
-            'float'));
-        expect(component.options.layers[0].sizeField).toEqual(new FieldMetaData('testSizeField', 'Test Size Field', false, 'float'));
     });
 });
