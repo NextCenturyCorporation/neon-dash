@@ -75,7 +75,7 @@
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 16,
+				"sizex": 8,
 				"sizey": 2,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -88,14 +88,14 @@
 					"database": "voa_eng",
 					"table": "document"
 				},
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 			{
 				"name": "Data Table",
 				"type": "dataTable",
 				"icon": "ViewData64",
-				"sizex": 8,
+				"sizex": 4,
 				"sizey": 12,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -115,14 +115,14 @@
 						"doc_text_unanalyzed"
 					]
 				},
-				"row": 0,
-				"col": 17
+				"row": 1,
+				"col": 8
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 11,
+				"sizex": 5,
 				"sizey": 6,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -187,13 +187,13 @@
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 3,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -214,13 +214,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 3,
-				"col": 12
+				"col": 6
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -238,13 +238,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 12
+				"col": 6
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 11,
+				"sizex": 5,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -261,13 +261,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 10,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -289,7 +289,7 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 11,
-				"col": 12
+				"col": 6
 			}
 		],
 		
@@ -298,7 +298,7 @@
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 16,
+				"sizex": 8,
 				"sizey": 2,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -311,14 +311,14 @@
 					"database": "voa_eng",
 					"table": "document"
 				},
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 			{
 				"name": "Data Table",
 				"type": "dataTable",
 				"icon": "ViewData64",
-				"sizex": 8,
+				"sizex": 4,
 				"sizey": 12,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -338,14 +338,14 @@
 						"doc_text"
 					]
 				},
-				"row": 0,
-				"col": 17
+				"row": 1,
+				"col": 9
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 11,
+				"sizex": 5,
 				"sizey": 6,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -410,13 +410,13 @@
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
 				"row": 3,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -437,13 +437,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 3,
-				"col": 12
+				"col": 6
 			},
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 3,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -459,13 +459,13 @@
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
-				"col": 12
+				"col": 6
 			},
 			{
 				"name": "Timeline",
 				"type": "timeline",
 				"icon": "Timeline64",
-				"sizex": 11,
+				"sizex": 5,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -482,13 +482,13 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
 				"row": 10,
-				"col": 0
+				"col": 1
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 5,
+				"sizex": 2,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -510,7 +510,7 @@
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
 				"row": 11,
-				"col": 12
+				"col": 6
 			}
 		]
 	}

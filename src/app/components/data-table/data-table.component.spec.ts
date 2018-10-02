@@ -20,7 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
 import { NgxDatatableModule } from '@swimlane/ngx-datatable';
 
-import {} from 'jasmine-core';
+import { } from 'jasmine-core';
 
 import { NeonGTDConfig } from '../../neon-gtd-config';
 import { DataTableComponent } from './data-table.component';
@@ -81,6 +81,233 @@ describe('Component: DataTable', () => {
         component = fixture.componentInstance;
         fixture.detectChanges();
     });
+
+    it('exists', (() => {
+        expect(component).toBeTruthy();
+    }));
+
+    it('initializeHeadersFromExceptionsToStatus does create the expected headers in order', () => {
+        component.options.fields = [
+            new FieldMetaData('category', 'Category'),
+            new FieldMetaData('field1', 'Field 1'),
+            new FieldMetaData('field2', 'Field 2'),
+            new FieldMetaData('date', 'Date'),
+            new FieldMetaData('address', 'Address')
+        ];
+        component.options.exceptionsToStatus = [
+            'date',
+            'address',
+            'field2'
+        ];
+
+        component.initializeHeadersFromExceptionsToStatus();
+
+        expect(component.headers).toEqual([
+            { prop: 'date', name: 'Date', active: false, style: {}, width: 150 },
+            { prop: 'address', name: 'Address', active: false, style: {}, width: 150 },
+            { prop: 'field2', name: 'Field 2', active: false, style: {}, width: 150 },
+            { prop: 'category', name: 'Category', active: true, style: {}, width: 150 },
+            { prop: 'field1', name: 'Field 1', active: true, style: {}, width: 150 }
+        ]);
+    });
+
+    it('getColumnWidth returns the width of the matching column in options.customColumnWidths', () => {
+        component.options.customColumnWidths = [
+            ['fieldWithCustomWidth', 260]
+        ];
+
+        expect(component.getColumnWidth(new FieldMetaData('fieldWithCustomWidth', 'Field 1'))).toEqual(260);
+    });
+
+    it('getColumnWidth returns the default width if field not found in options.customColumnWidths', () => {
+        component.options.customColumnWidths = [
+            ['fieldWithNoMatch', 300]
+        ];
+
+        expect(component.getColumnWidth(new FieldMetaData('anotherColumn', 'Another Column'))).toEqual(150);
+    });
+
+    it('subNgOnInit does call expected methods if options.fieldsConfig exists', () => {
+        component.options.fieldsConfig = [
+            { name: 'testField' }
+        ];
+        let initHeadersFromFieldsConfigSpy = spyOn(component, 'initializeHeadersFromFieldsConfig');
+        let initHeadersFromExceptionsSpy = spyOn(component, 'initializeHeadersFromExceptionsToStatus');
+        let recalcActiveHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
+
+        component.subNgOnInit();
+        expect(initHeadersFromFieldsConfigSpy.calls.count()).toEqual(1);
+        expect(initHeadersFromExceptionsSpy.calls.count()).toEqual(0);
+        expect(recalcActiveHeadersSpy.calls.count()).toEqual(1);
+    });
+
+    it('subNgOnInit does call expected methods if options.fieldsConfig does not exist', () => {
+        let initHeadersFromFieldsConfigSpy = spyOn(component, 'initializeHeadersFromFieldsConfig');
+        let initHeadersFromExceptionsSpy = spyOn(component, 'initializeHeadersFromExceptionsToStatus');
+        let recalcActiveHeadersSpy = spyOn(component, 'recalculateActiveHeaders');
+
+        component.subNgOnInit();
+        expect(initHeadersFromFieldsConfigSpy.calls.count()).toEqual(0);
+        expect(initHeadersFromExceptionsSpy.calls.count()).toEqual(1);
+        expect(recalcActiveHeadersSpy.calls.count()).toEqual(1);
+    });
+
+    it('postInit does call executeQueryChain', () => {
+        let spy = spyOn(component, 'executeQueryChain');
+        component.postInit();
+        expect(spy.calls.count()).toEqual(1);
+    });
+
+    it('subNgOnDestroy function does exist', (() => {
+        expect(component.subNgOnDestroy).toBeDefined();
+    }));
+
+    it('subGetBindings does set expected bindings', (() => {
+        let bindings = {};
+
+        component.subGetBindings(bindings);
+        expect(bindings).toEqual({
+            heatmapField: '',
+            idField: '',
+            sortField: '',
+            filterFields: [],
+            arrayFilterOperator: 'and',
+            exceptionsToStatus: [],
+            filterable: false,
+            heatmapDivisor: 0,
+            ignoreSelf: false,
+            singleFilter: false,
+            skinny: false,
+            sortDescending: true,
+            fieldsConfig: [({
+                name: 'Test Category Field',
+                hide: false
+            }), ({
+                name: 'Test Date Field',
+                hide: false
+            }), ({
+                name: 'Test Filter Field',
+                hide: false
+            }), ({
+                name: 'Test ID Field',
+                hide: false
+            }), ({
+                name: 'Test Link Field',
+                hide: false
+            }), ({
+                name: 'Test Name Field',
+                hide: false
+            }), ({
+                name: 'Test Relation Field A',
+                hide: false
+            }), ({
+                name: 'Test Relation Field B',
+                hide: false
+            }), ({
+                name: 'Test Size Field',
+                hide: false
+            }), ({
+                name: 'Test Sort Field',
+                hide: false
+            }), ({
+                name: 'Test Text Field',
+                hide: false
+            }), ({
+                name: 'Test Type Field',
+                hide: false
+            }), ({
+                name: 'Test X Field',
+                hide: false
+            }), ({
+                name: 'Test Y Field',
+                hide: false
+            }), ({
+                name: '_id',
+                hide: false
+            })]
+        });
+
+        component.options.idField = new FieldMetaData('testIdField');
+        component.options.sortField = new FieldMetaData('testSortField');
+        component.options.filterFields = [new FieldMetaData('filterField')];
+        component.options.arrayFilterOperator = 'or';
+        component.options.exceptionsToStatus = ['exception1', 'exception2'];
+        component.options.filterable = true;
+        component.options.ignoreSelf = true;
+        component.options.singleFilter = true;
+        component.options.skinny = true;
+        component.options.sortDescending = false;
+        component.headers = [{
+            prop: 'name',
+            name: 'Name',
+            active: false,
+            style: {},
+            width: 100
+        }];
+
+        component.subGetBindings(bindings);
+        expect(bindings).toEqual({
+            heatmapField: '',
+            idField: 'testIdField',
+            sortField: 'testSortField',
+            filterFields: [new FieldMetaData('filterField')],
+            arrayFilterOperator: 'or',
+            exceptionsToStatus: ['exception1', 'exception2'],
+            filterable: true,
+            heatmapDivisor: 0,
+            ignoreSelf: true,
+            singleFilter: true,
+            skinny: true,
+            sortDescending: false,
+            fieldsConfig: [{
+                name: 'Name',
+                hide: true
+            }]
+        });
+    }));
+
+    it('headerIsInExceptions does return whether or not header is in options.exceptionsToStatus', (() => {
+        component.options.exceptionsToStatus = ['testField2'];
+
+        expect(component.headerIsInExceptions({ columnName: 'testField1', prettyName: 'Test Field 1' })).toBeFalsy();
+        expect(component.headerIsInExceptions({ columnName: 'testField2', prettyName: 'Test Field 2' })).toBeTruthy();
+    }));
+
+    it('sortOrderedHeaders does sort based on options.exceptionsToStatus', (() => {
+        component.options.exceptionsToStatus = ['testField3', 'testField2'];
+
+        expect(component.sortOrderedHeaders([{
+            prop: 'testField1',
+            name: 'Test Field 1',
+            active: true,
+            style: {},
+            width: 100
+        }, {
+            prop: 'testField2',
+            name: 'Test Field 2',
+            active: false,
+            style: {},
+            width: 120
+        }, {
+            prop: 'testField3',
+            name: 'Test Field 3',
+            active: true,
+            style: {},
+            width: 100
+        }])).toEqual([{
+            prop: 'testField3',
+            name: 'Test Field 3',
+            active: true,
+            style: {},
+            width: 100
+        }, {
+            prop: 'testField2',
+            name: 'Test Field 2',
+            active: false,
+            style: {},
+            width: 120
+        }]);
+    }));
 
     it('createClause does return expected object', () => {
         component.options.sortField = new FieldMetaData('testSortField');

@@ -13,9 +13,10 @@
  * limitations under the License.
  *
  */
-import { Component, OnInit, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewContainerRef, Input } from '@angular/core';
+import { URLSearchParams } from '@angular/http';
 
-import { MatDialog, MatSnackBar } from '@angular/material';
+import { MatDialog, MatSnackBar, MatSidenav } from '@angular/material';
 
 import { ConnectionService } from '../../services/connection.service';
 import { DatasetService } from '../../services/dataset.service';
@@ -36,6 +37,9 @@ import { VisualizationService } from '../../services/visualization.service';
   styleUrls: ['./dashboard-options.component.scss']
 })
 export class DashboardOptionsComponent implements OnInit {
+
+    @Input() sidenav: MatSidenav;
+
     public formData: any = {
         exportFormat: 0,
         currentTheme: 'neon-green-theme',
@@ -53,7 +57,7 @@ export class DashboardOptionsComponent implements OnInit {
 
     constructor(private connectionService: ConnectionService,  private datasetService: DatasetService,
         private errorNotificationService: ErrorNotificationService, public exportService: ExportService,
-        private matSnackBar: MatSnackBar, private parameterService: ParameterService,
+        private snackBar: MatSnackBar, private parameterService: ParameterService,
         public themesService: ThemesService, private viewContainerRef: ViewContainerRef, private dialog: MatDialog,
         private visualizationService: VisualizationService) { }
 
@@ -108,10 +112,12 @@ export class DashboardOptionsComponent implements OnInit {
 
             connection.saveState(stateParams, (response) => {
                 this.handleSaveStateSuccess(response);
+                this.openNotification(name, 'saved');
             }, (response) => {
                 this.handleStateFailure(response);
             });
         }
+        this.sidenav.close();
     }
 
     /*
@@ -135,7 +141,11 @@ export class DashboardOptionsComponent implements OnInit {
             };
             connection.loadState(stateParams, (dashboardState) => {
                 if (_.keys(dashboardState).length) {
+                    // ensure that active dataset matches the one we're attempting to load
+                    dashboardState.dataset.name += ' (' + name + ')';
+                    this.datasetService.setActiveDataset(dashboardState.dataset);
                     this.parameterService.loadStateSuccess(dashboardState, dashboardState.dashboardStateId);
+                    this.openNotification(name, 'loaded');
                 } else {
                     this.errorNotificationService.showErrorMessage(null, 'State ' + name + ' not found.');
                 }
@@ -143,6 +153,7 @@ export class DashboardOptionsComponent implements OnInit {
                 this.handleStateFailure(response);
             });
         }
+        this.sidenav.close();
     }
 
     /*
@@ -157,10 +168,12 @@ export class DashboardOptionsComponent implements OnInit {
         if (connection) {
             connection.deleteState(this.formData.stateToDelete, (stateIds) => {
                 this.loadStateNames();
+                this.openNotification(name, 'deleted');
             }, (response) => {
                 this.handleStateFailure(response);
             });
         }
+        this.sidenav.close();
     }
 
     getDefaultOptionTitle() {
@@ -219,5 +232,14 @@ export class DashboardOptionsComponent implements OnInit {
 
     setStateToDelete(name: string) {
         this.formData.stateToDelete = name;
+    }
+
+    public openNotification(stateName: String, actionName: String) {
+        let message = 'State "' + stateName + '" has been ' + actionName;
+        this.snackBar.open(message, 'x', {
+            duration: 5000,
+            verticalPosition: 'top',
+            panelClass: ['simpleSnackBar']
+         });
     }
 }

@@ -46,20 +46,14 @@
                 </mat-form-field>
                 <p></p>
 
-                <span class="toggle-text">Show Select Button:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.showSelect">
-                    <mat-button-toggle [value]="true">Yes</mat-button-toggle>
-                    <mat-button-toggle [value]="false">No</mat-button-toggle>
-                </mat-button-toggle-group>
-                <p></p>
-
-                <span class="toggle-text">Data Format:</span>
-                <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.isReified" (ngModelChange)="handleChangeReified()">
+                <span *ngIf="options.riefiedOption" class="toggle-text">Data Format:</span>
+                <mat-button-toggle-group *ngIf="options.riefiedOption" class="neon-button-toggle-group-small" [(ngModel)]="options.isReified" (ngModelChange)="handleChangeReified()">
                     <mat-button-toggle [value]="true">Reified</mat-button-toggle>
                     <mat-button-toggle [value]="false">Tabular</mat-button-toggle>
                 </mat-button-toggle-group>
                 <p></p>
 
+                <!-- Node/Link Options -->
                 <mat-form-field *ngIf="!options.isReified">
                     <mat-select placeholder="Node Field" [(ngModel)]="options.nodeField" required="true" (ngModelChange)="handleChangeData()"
                         [disabled]="options.fields.length == 0">
@@ -76,6 +70,55 @@
                 </mat-form-field>
                 <p></p>
 
+                <div mat-fill class="flex center">
+                    <mat-form-field>
+                        <input matInput placeholder="Node/Link Limit" [(ngModel)]="options.limit" (keyup.enter)="reloadGraph()">
+                    </mat-form-field>
+
+                    <button mat-icon-button aria-label="Refresh" matTooltip="Refresh" tooltip-position="below" (click)="reloadGraph()">
+                        <mat-icon>refresh</mat-icon>
+                    </button>
+                </div>
+                <p></p>
+                <p></p>
+
+                <!-- Color Options -->
+                <mat-form-field *ngIf="!options.isReified">
+                    <input matInput type="color" placeholder="Node Color" [(ngModel)]="options.nodeColor" [value]="options.nodeColor" (ngModelChange)="reloadGraph()">
+                  </mat-form-field>
+                <p></p>
+
+                <mat-form-field *ngIf="!options.isReified">
+                    <input matInput type="color" placeholder="Link Color" [(ngModel)]="options.linkColor" [value]="options.linkColor" (ngModelChange)="reloadGraph()">
+                  </mat-form-field>
+                <p></p>
+
+                <mat-form-field *ngIf="!options.isReified">
+                    <input matInput type="color" placeholder="Text Color" [(ngModel)]="options.fontColor" [value]="options.fontColor" (ngModelChange)="reloadGraph()">
+                </mat-form-field>
+                <p></p>
+
+                <mat-form-field *ngIf="!options.isReified">
+                    <input matInput type="color" placeholder="Edge Color" [(ngModel)]="options.edgeColor" [value]="options.edgeColor" (ngModelChange)="reloadGraph()">
+                </mat-form-field>
+                <p></p>
+
+                <button mat-raised-button class="neon-button-small" color="accent" (click)="resetColors()">
+                    <span>Reset Colors</span>
+                </button>
+                <p></p>
+
+                <mat-form-field *ngIf="!options.isReified">
+                    <mat-select placeholder="Edge Color Field" [(ngModel)]="options.edgeColorField" (ngModelChange)="handleChangeData()"
+                        [disabled]="options.fields.length == 0">
+                        <mat-option [value]="emptyField">(None)</mat-option>
+                        <mat-option *ngFor="let field of options.fields" [value]="field">{{ field.prettyName }}</mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <p></p>
+
+                
+                <!-- Directed Options -->
                 <span class="toggle-text">Show Directed:</span>
                 <mat-button-toggle-group class="neon-button-toggle-group-small" [(ngModel)]="options.isDirected" (ngModelChange)="handleChangeDirected()">
                     <mat-button-toggle [value]="true">Yes</mat-button-toggle>
@@ -88,8 +131,12 @@
         </mat-card>
     </mat-sidenav>
 
+    <div [class.loading-overlay]="isLoading" [class.not-loading-overlay]="!isLoading">
+        <mat-spinner></mat-spinner>
+    </div>
+
     <div class="body-container" (click)="stopEventPropagation($event)">
-        <div class="graph-container" (click)="stopEventPropagation($event)">
+        <div class="graph-container" (click)="stopEventPropagation($event)" [hidden]="!displayGraph">
             <div #graphElement id="graphElement" (click)="stopEventPropagation($event)"></div>
             <div class="graph-selection" *ngIf="false" [ngStyle]="{'width.px': selection.width, 'height.px': selection.height, 'left.px':selection.x, 'top.px':selection.y}"></div>
         </div>

@@ -183,6 +183,10 @@ export const neonVisualizations: any[] = [{
         type: 'pie'
     }
 }, {
+    name: 'News Feed',
+    type: 'newsFeed',
+    icon: 'newspaper'
+}, {
     name: 'Sample',
     type: 'sample',
     icon: 'neon_logo',
