@@ -53,7 +53,7 @@
 				"name": "Filter Builder",
 				"type": "filterBuilder",
 				"icon": "CreateFilter64",
-				"sizex": 16,
+				"sizex": 8,
 				"sizey": 2,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -66,14 +66,14 @@
 					"database": "ll_nepal_06_14_2",
 					"table": "annotations1Author"
 				},
-				"row": 0,
-				"col": 0
+				"row": 1,
+				"col": 1
 			},
 			{
 				"name": "Data Table",
 				"type": "dataTable",
 				"icon": "ViewData64",
-				"sizex": 8,
+				"sizex": 4,
 				"sizey": 12,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -93,13 +93,13 @@
 						"translatedText"
 					]
 				},
-				"row": 0,
-				"col": 17
+				"row": 1,
+				"col": 9
 			},{
 				"name": "Network Graph",
 				"type": "networkGraph",
 				"icon": "Graph64",
-				"sizex": 16,
+				"sizex": 8,
 				"sizey": 10,
 				"minPixelx": 320,
 				"minPixely": 240,
@@ -112,15 +112,16 @@
 					"database": "ll_nepal_06_14_2",
 					"table": "annotations1Author",
 					"isDirected": true,
+					"nodeColorField": "enrichedEnities.entity_type",
 					"nodeField": "entities",
-					"linkField": "author",
+					"linkField": "authorScreenName",
 					"nodeColor": "#4DBCC1",
             		"linkColor": "#F68B4E",
 					"limit": 100,
 					"edgeColorField": "sentimentString"
 				},
 				"row": 15,
-				"col": 0			
+				"col": 1			
 			}
 		]
 		}

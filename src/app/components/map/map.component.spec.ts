@@ -316,7 +316,7 @@ describe('Component: Map', () => {
         }
     });
 
-    it('should create collapsed map points', () => {
+    it('should create uncollapsed map points, largest first', () => {
         let colorService = getService(ColorSchemeService),
             datasets = [
                 {
@@ -324,13 +324,29 @@ describe('Component: Map', () => {
                         { lat: 0, lng: 0, category: 'a' },
                         { lat: 0, lng: 0, category: 'b' },
                         { lat: 0, lng: 0, category: 'c' },
+                        { lat: 0, lng: 0, category: 'd' },
                         { lat: 0, lng: 0, category: 'd' }
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 4',
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 2,
+                            colorService.getColorFor('category', 'd').toRgb(), 'Count: 2',
+                            'category', 'd'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 1',
                             'category', 'a'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 1',
+                            'category', 'b'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 1,
+                            colorService.getColorFor('category', 'c').toRgb(), 'Count: 1',
+                            'category', 'c'
                         )
                     ]
                 },
@@ -371,9 +387,14 @@ describe('Component: Map', () => {
                     ],
                     expected: [
                         new MapPoint(
-                            '0.000\u00b0, 0.000\u00b0', 0, 0, 8,
-                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 8',
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                            colorService.getColorFor('category', 'a').toRgb(), 'Count: 4',
                             'category', 'a'
+                        ),
+                        new MapPoint(
+                            '0.000\u00b0, 0.000\u00b0', 0, 0, 4,
+                            colorService.getColorFor('category', 'b').toRgb(), 'Count: 4',
+                            'category', 'b'
                         )
                     ]
                 },
@@ -442,7 +463,7 @@ describe('Component: Map', () => {
 
         addFilter(box, dbName, tableName, latName, lngName);
 
-        let whereClauses = component.createNeonFilter(box, latName, lngName),
+        let whereClauses = component.createNeonBoxFilter(box, latName, lngName),
             filterClauses = [
                 neon.query.where(latName, '>=', box.south),
                 neon.query.where(latName, '<=', box.north),
@@ -727,7 +748,7 @@ describe('Component: Map', () => {
         }]);
     });
 
-    it('createNeonFilter does return expected object', () => {
+    it('createNeonBoxFilter does return expected object', () => {
         let box1 = new BoundingBoxByDegrees(1, 2, 3, 4);
 
         let query1 = neon.query.and.apply(neon.query, [
@@ -737,7 +758,7 @@ describe('Component: Map', () => {
             neon.query.where('testLongitude1', '<=', 4)
         ]);
 
-        expect(component.createNeonFilter(box1, 'testLatitude1', 'testLongitude1')).toEqual(query1);
+        expect(component.createNeonBoxFilter(box1, 'testLatitude1', 'testLongitude1')).toEqual(query1);
 
         let box2 = new BoundingBoxByDegrees(5, 6, 7, 8);
 
@@ -748,7 +769,7 @@ describe('Component: Map', () => {
             neon.query.where('testLongitude1', '<=', 8)
         ]);
 
-        expect(component.createNeonFilter(box2, 'testLatitude1', 'testLongitude1')).toEqual(query2);
+        expect(component.createNeonBoxFilter(box2, 'testLatitude1', 'testLongitude1')).toEqual(query2);
     });
 
     it('getFilterText does return expected string', () => {
@@ -1170,14 +1191,16 @@ describe('Component: Map with config', () => {
             { provide: 'config', useValue: new NeonGTDConfig() },
             { provide: 'database', useValue: 'testDatabase1' },
             { provide: 'table', useValue: 'testTable1' },
-            { provide: 'layers', useValue: [{
-                colorField: 'testCategoryField',
-                dateField: 'testDateField',
-                latitudeField: 'testYField',
-                longitudeField: 'testXField',
-                sizeField: 'testSizeField',
-                title: 'Test Layer Title'
-            }] },
+            {
+                provide: 'layers', useValue: [{
+                    colorField: 'testColorField',
+                    dateField: 'testDateField',
+                    latitudeField: 'testLatitudeField',
+                    longitudeField: 'testLongitudeField',
+                    sizeField: 'testSizeField',
+                    title: 'Test Layer Title'
+                }]
+            },
             { provide: 'limit', useValue: 9999 },
             { provide: 'clustering', useValue: 'clusters' },
             { provide: 'clusterPixelRange', useValue: 20 },
@@ -1237,13 +1260,5 @@ describe('Component: Map with config', () => {
         expect(component.options.layers[0].table).toEqual(DatasetServiceMock.TABLES[0]);
         expect(component.options.layers[0].fields).toEqual(DatasetServiceMock.FIELDS);
         expect(component.options.layers[0].title).toEqual('Test Layer Title');
-        expect(component.options.layers[0].colorField).toEqual(new FieldMetaData('testCategoryField', 'Test Category Field', false,
-            'string'));
-        expect(component.options.layers[0].dateField).toEqual(new FieldMetaData('testDateField', 'Test Date Field', false, 'date'));
-        expect(component.options.layers[0].latitudeField).toEqual(new FieldMetaData('testYField', 'Test Y Field', false,
-            'float'));
-        expect(component.options.layers[0].longitudeField).toEqual(new FieldMetaData('testXField', 'Test X Field', false,
-            'float'));
-        expect(component.options.layers[0].sizeField).toEqual(new FieldMetaData('testSizeField', 'Test Size Field', false, 'float'));
     });
 });

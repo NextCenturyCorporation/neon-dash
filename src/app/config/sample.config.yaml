@@ -73,7 +73,7 @@ datasets:
 layouts:
   default:
     -
-      sizex: 20
+      sizex: 10
       sizey: 6
       type: timeline
       bindings:
@@ -81,7 +81,7 @@ layouts:
           table: earthquakes
           dateField: time
     -
-      sizex: 20
+      sizex: 10
       sizey: 8
       type: scatterPlot
       bindings:
@@ -91,7 +91,7 @@ layouts:
           yField: latitude
           limit: 200
     -
-      sizex: 20
+      sizex: 10
       sizey: 8
       type: map
       bindings:
@@ -116,7 +116,7 @@ layouts:
                 sizeField: mag
                 dateField: date
     -
-      sizex: 20
+      sizex: 10
       sizey: 6
       type: barChart
       bindings:
@@ -135,7 +135,7 @@ layouts:
           groupField: type
           aggregation: count
     -
-      sizex: 20
+      sizex: 10
       sizey: 6
       type: dataTable
       bindings:
@@ -144,7 +144,7 @@ layouts:
           sortField: time
           limit: 20
     -
-      sizex: 20
+      sizex: 10
       sizey: 4
       type: textCloud
       bindings:
@@ -152,7 +152,7 @@ layouts:
           table: earthquakes
           dataField: magType
     -
-      sizex: 20
+      sizex: 10
       sizey: 4
       type: filterBuilder
       bindings:

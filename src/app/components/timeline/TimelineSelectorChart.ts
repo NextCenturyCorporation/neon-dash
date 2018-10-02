@@ -81,9 +81,9 @@ export class TimelineSelectorChart {
     private data: TimelineData;
     private dateFormats = {
         year: '%Y',
-        month: '%b %Y',
-        day: '%d %b %Y',
-        hour: '%d %b %Y %H:%M'
+        month: '%Y-%m',
+        day: '%Y-%m-%d',
+        hour: '%Y-%m-%dT%H:%MZ'
     };
 
     marginFocus: {

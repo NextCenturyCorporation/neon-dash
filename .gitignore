@@ -33,6 +33,7 @@ testem.log
 /typings
 .directory
 .Rhistory
+.history
 
 # e2e
 /e2e/*.js
@@ -45,6 +46,7 @@ Thumbs.db
 #config files
 src/app/config/config.json
 src/app/config/config.yaml
+src/app/config/config\.working\.json
 
 # Lockfiles
 # The build should depend on the package.json, so don't depend on the lockfiles

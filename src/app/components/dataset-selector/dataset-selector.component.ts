@@ -19,6 +19,7 @@ import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
 import { Dataset, DatabaseMetaData, TableMetaData, FieldMetaData, Relation } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
 import { ParameterService } from '../../services/parameter.service';
 import { neonVisualizationMinPixel } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
@@ -117,8 +118,13 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
     private messenger: neon.eventing.Messenger;
 
-    constructor(private connectionService: ConnectionService, private datasetService: DatasetService,
-        private parameterService: ParameterService, private activeGridService: ActiveGridService) {
+    constructor(
+        private connectionService: ConnectionService,
+        private datasetService: DatasetService,
+        private filterService: FilterService,
+        private parameterService: ParameterService,
+        private activeGridService: ActiveGridService
+    ) {
     }
 
     getDatasets(): Dataset[] {
@@ -221,6 +227,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     finishConnectToPreset(dataset: Dataset, loadDashboardState: boolean) {
         this.datasetService.setActiveDataset(dataset);
         this.updateLayout(loadDashboardState);
+        this.filterService.clearFilters();
     }
 
     /**

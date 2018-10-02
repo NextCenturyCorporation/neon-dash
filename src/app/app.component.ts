@@ -13,13 +13,24 @@
  * limitations under the License.
  *
  */
-import { AfterViewInit, Component, Inject, OnInit, OnDestroy, QueryList, ViewChild, ViewChildren, ViewContainerRef } from '@angular/core';
+import {
+    AfterViewInit,
+    Component,
+    Inject,
+    OnInit,
+    Input,
+    OnDestroy,
+    QueryList,
+    ViewChild,
+    ViewChildren,
+    ViewContainerRef
+} from '@angular/core';
 
 import { DashboardOptionsComponent } from './components/dashboard-options/dashboard-options.component';
 import { Dataset } from './dataset';
 
 import { NeonGTDConfig } from './neon-gtd-config';
-import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar } from '@angular/material';
+import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav } from '@angular/material';
 import { ActiveGridService } from './services/active-grid.service';
 import { DatasetService } from './services/dataset.service';
 import { ThemesService } from './services/themes.service';
@@ -46,6 +57,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     @ViewChild(NgGrid) grid: NgGrid;
     @ViewChildren(VisualizationContainerComponent) visualizations: QueryList<VisualizationContainerComponent>;
 
+    @Input() sidenav = MatSidenav;
     // Used to determine which pane is show in the right sidenav
     public showAbout: boolean = true;
     public showAddVisualizationButton: boolean = false;
@@ -60,12 +72,13 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         resizable: true,
         margins: [5, 5, 5, 5],
         min_cols: 1,
-        max_cols: 24,
+        max_cols: 12,
         min_rows: 0,
         max_rows: 0,
         min_width: 50,
         min_height: 50,
-        maintain_ratio: true,
+        row_height: 54,
+        maintain_ratio: false, //NOTE!!!!! I changed this to false because it messes with the row height when it is true
         auto_style: true,
         auto_resize: true,
         cascade: 'up',

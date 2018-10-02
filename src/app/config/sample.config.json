@@ -57,10 +57,10 @@
     "layouts": {
         "default": [
           {
-                "sizex": 20,
+                "sizex": 10,
                 "sizey": 3,
-                "row": 0,
-                "col": 0,
+                "row": 1,
+                "col": 1,
                 "type": "filterBuilder",
                 "bindings": {
                     "database": "earthquakes",
@@ -69,10 +69,10 @@
                 }
             },
             {
-                "sizex": 10,
+                "sizex": 5,
                 "sizey": 5,
                 "row": 4,
-                "col": 0,
+                "col": 1,
                 "type": "timeline",
                 "bindings": {
                     "database": "earthquakes",
@@ -82,10 +82,10 @@
                 }
             },
             {
-                "sizex": 10,
+                "sizex": 5,
                 "sizey": 5,
                 "row": 4,
-                "col": 11,
+                "col": 5,
                 "type": "scatterPlot",
                 "bindings": {
                     "title" : "Mangitude vs Depth",
@@ -96,11 +96,11 @@
                 }
             },
             {
-                "sizex": 20,
+                "sizex": 10,
                 "sizey": 6,
                 "type": "map",
                 "row":10,
-                "col": 0,
+                "col": 1,
                 "bindings": {
                     "title":"Earthquake Locations ",
                     "database": "earthquakes",
@@ -114,10 +114,10 @@
                 }
             },
             {
-                "sizex":6,
+                "sizex":3,
                 "sizey": 6,
                 "row": 16,
-                "col":0,
+                "col":1,
                 "type": "barChart",
                 "bindings": {
                     "database": "earthquakes",
@@ -128,10 +128,10 @@
                 }
             },
             {
-                "sizex": 6,
+                "sizex": 3,
                 "sizey": 6,
                 "row": 16,
-                "col":7,
+                "col":3,
                 "type": "lineChart",
                 "bindings": {
                     "database": "earthquakes",
@@ -142,7 +142,7 @@
                     "title":"Earthquake Type over Time"
                 }
             },    {
-                "sizex": 4,
+                "sizex": 2,
                 "sizey": 6,
                 "row":16,
                 "col":13,
@@ -155,7 +155,7 @@
                 }
             },
             {
-                "sizex": 24,
+                "sizex": 12,
                 "sizey": 6,
                 "type": "dataTable",
                 "bindings": {
