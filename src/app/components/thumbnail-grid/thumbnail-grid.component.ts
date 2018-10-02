@@ -92,7 +92,7 @@ export class ThumbnailGridOptions extends BaseNeonOptions {
         this.defaultLabel = this.injector.get('defaultLabel', '');
         this.defaultPercent = this.injector.get('defaultPercent', '');
         this.id = this.injector.get('id', '');
-        this.ignoreSelf = this.injector.get('ignoreSelf', true);
+        this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.linkPrefix = this.injector.get('linkPrefix', '');
         this.openOnMouseClick = this.injector.get('openOnMouseClick', true);
         this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
@@ -544,10 +544,6 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
             let predictionText = this.options.textMap.prediction || 'Prediction';
             text.push((predictionText ? predictionText + ' : ' : '') + item[this.options.predictedNameField.columnName]);
         }
-        if (this.options.percentField.columnName && item[this.options.percentField.columnName]) {
-            let precentageText = this.options.textMap.percentage || '';
-            text.push((precentageText ? precentageText + ' : ' : '') + this.getThumbnailPercent(item));
-        }
         if (this.options.objectNameField.columnName && item[this.options.objectNameField.columnName]) {
             let actualText = this.options.textMap.actual || 'Actual';
             text.push((actualText ? actualText + ' : ' : '') + item[this.options.objectNameField.columnName]);
@@ -787,26 +783,26 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     image.onload = () => {
                         switch (this.options.cropAndScale) {
                             case 'both' : {
-                            // Use the MIN to crop the scale
-                            let size = Math.min(image.width, image.height);
-                            let multiplier = this.CANVAS_SIZE / size;
-                            thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                                // Use the MIN to crop the scale
+                                let size = Math.min(image.width, image.height);
+                                let multiplier = this.CANVAS_SIZE / size;
+                                thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
                                 break;
                             }
                             case 'crop' : {
-                            thumbnail.drawImage(image, 0, 0, image.width, image.height);
+                                thumbnail.drawImage(image, 0, 0, image.width, image.height);
                                 break;
                             }
                             case 'scale' : {
-                            // Use the MAX to scale
-                            let size = Math.max(image.width, image.height);
-                            let multiplier = this.CANVAS_SIZE / size;
-                            thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
+                                // Use the MAX to scale
+                                let size = Math.max(image.width, image.height);
+                                let multiplier = this.CANVAS_SIZE / size;
+                                thumbnail.drawImage(image, 0, 0, image.width * multiplier, image.height * multiplier);
                                 break;
                             }
                             default : {
-                            thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
-                        }
+                                thumbnail.drawImage(image, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                            }
                         }
                     };
                     break;
@@ -818,26 +814,26 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                     video.onloadeddata = () => {
                         switch (this.options.cropAndScale) {
                             case 'both' : {
-                            // Use the MIN to crop the scale
-                            let size = Math.min(video.width, video.height);
-                            let multiplier = this.CANVAS_SIZE / size;
-                            thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                                // Use the MIN to crop the scale
+                                let size = Math.min(video.width, video.height);
+                                let multiplier = this.CANVAS_SIZE / size;
+                                thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
                                 break;
                             }
                             case 'crop' : {
-                            thumbnail.drawImage(video, 0, 0, video.width, video.height);
+                                thumbnail.drawImage(video, 0, 0, video.width, video.height);
                                 break;
                             }
                             case 'scale' : {
-                            // Use the MAX to scale
-                            let size = Math.max(video.width, video.height);
-                            let multiplier = this.CANVAS_SIZE / size;
-                            thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
+                                // Use the MAX to scale
+                                let size = Math.max(video.width, video.height);
+                                let multiplier = this.CANVAS_SIZE / size;
+                                thumbnail.drawImage(video, 0, 0, video.width * multiplier, video.height * multiplier);
                                 break;
                             }
                             default : {
-                            thumbnail.drawImage(video, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
-                        }
+                                thumbnail.drawImage(video, 0, 0, this.CANVAS_SIZE, this.CANVAS_SIZE);
+                            }
                         }
                     };
 
@@ -871,6 +867,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
                 }
             }
 
+            // TODO Move this to a separate function and unit test all behavior.
             if (this.options.border) {
                 switch (this.options.border) {
                     case 'percentField': {

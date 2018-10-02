@@ -81,69 +81,133 @@ export namespace neonMappings {
     export const URL = 'url';
 }
 
+export const neonCustomConnectionMappings: { name: string, prettyName: string }[] = [{
+        name: 'date',
+        prettyName: 'Date'
+    },
+    {
+        name: 'id',
+        prettyName: 'ID'
+    },
+    {
+        name: 'latitude',
+        prettyName: 'Latitude'
+    },
+    {
+        name: 'longitude',
+        prettyName: 'Longitude'
+    },
+    {
+        name: 'url',
+        prettyName: 'URL'
+}];
+
 export namespace neonVisualizationMinPixel { // jshint ignore:line
     export const x = 320;
     export const y = 240;
 }
 
 export const neonVisualizations: any[] = [{
+    name: 'Annotation Viewer',
+    type: 'annotationViewer',
+    icon: 'annotation_viewer',
+    bindings: {}
+}, {
     name: 'Bar Chart',
-    type: 'barChart',
-    icon: 'BarChart64'
+    type: 'aggregation',
+    icon: 'bar_chart',
+    bindings: {
+        title: 'Bar Chart',
+        type: 'bar-v'
+    }
 }, {
     name: 'Data Table',
     type: 'dataTable',
-    icon: 'ViewData64'
+    icon: 'view_data',
+    bindings: {}
 }, {
     name: 'Document Viewer',
     type: 'documentViewer',
-    icon: 'DocumentViewer64'
+    icon: 'document_viewer',
+    bindings: {}
+}, {
+    name: 'Doughnut Chart',
+    type: 'aggregation',
+    icon: 'pie_chart',
+    bindings: {
+        title: 'Doughnut Chart',
+        type: 'doughnut'
+    }
 }, {
     name: 'Filter Builder',
     type: 'filterBuilder',
-    icon: 'CreateFilter64'
+    icon: 'create_filter',
+    bindings: {}
+}, {
+    name: 'Histogram',
+    type: 'aggregation',
+    icon: 'timeline',
+    bindings: {
+        title: 'Histogram',
+        type: 'histogram'
+    }
 }, {
     name: 'Line Chart',
-    type: 'lineChart',
-    icon: 'LineChart64'
+    type: 'aggregation',
+    icon: 'line_chart',
+    bindings: {
+        title: 'Line Chart',
+        type: 'line-xy'
+    }
 }, {
     name: 'Map',
     type: 'map',
-    icon: 'Map64'
+    icon: 'map',
+    bindings: {}
 }, {
     name: 'Media Viewer',
     type: 'mediaViewer',
-    icon: 'MediaViewer64'
+    icon: 'media_viewer',
+    bindings: {}
 }, {
     name: 'Network Graph',
     type: 'networkGraph',
-    icon: 'NetworkGraph64'
+    icon: 'network_graph',
+    bindings: {}
+}, {
+    name: 'Pie Chart',
+    type: 'aggregation',
+    icon: 'pie_chart',
+    bindings: {
+        title: 'Pie Chart',
+        type: 'pie'
+    }
 }, {
     name: 'Sample',
     type: 'sample',
-    icon: 'Neon64'
+    icon: 'neon_logo',
+    bindings: {}
 }, {
     name: 'Scatter Plot',
-    type: 'scatterPlot',
-    icon: 'ScatterPlot64'
-}, {
-    name: 'Stacked Timeline',
-    type: 'stackedTimeline',
-    icon: 'Timeline64'
+    type: 'aggregation',
+    icon: 'scatter_plot',
+    bindings: {
+        title: 'Scatter Plot',
+        type: 'scatter-xy'
+    }
 }, {
     name: 'Text Cloud',
     type: 'textCloud',
-    icon: 'TagCloud64'
+    icon: 'text_cloud',
+    bindings: {}
 }, {
     name: 'Thumbnail Grid',
     type: 'thumbnailGrid',
-    icon: 'ThumbnailGrid'
-}, {
-    name: 'Timeline',
-    type: 'timeline',
-    icon: 'Timeline64'
+    icon: 'thumbnail_grid',
+    bindings: {}
 }, {
     name: 'Wiki Viewer',
     type: 'wikiViewer',
-    icon: 'WikiViewer64'
+    icon: 'wiki_viewer',
+    bindings: {}
 }];

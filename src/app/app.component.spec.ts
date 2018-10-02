@@ -21,6 +21,7 @@ import { APP_BASE_HREF, CommonModule } from '@angular/common';
 import 'hammerjs';
 
 import { AppComponent } from './app.component';
+import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
@@ -35,7 +36,6 @@ import { LineChartComponent } from './components/line-chart/line-chart.component
 import { MapComponent } from './components//map/map.component';
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
-import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
@@ -87,6 +87,7 @@ describe('App: NeonGtd', () => {
                 AppComponent,
                 AboutNeonComponent,
                 AggregationComponent,
+                AnnotationViewerComponent,
                 BarChartComponent,
                 ChartComponent,
                 DashboardOptionsComponent,
@@ -103,7 +104,6 @@ describe('App: NeonGtd', () => {
                 SampleComponent,
                 ScatterPlotComponent,
                 SimpleFilterComponent,
-                StackedTimelineComponent,
                 TextCloudComponent,
                 ThumbnailDetailsContractedComponent,
                 ThumbnailDetailsExpandedComponent,

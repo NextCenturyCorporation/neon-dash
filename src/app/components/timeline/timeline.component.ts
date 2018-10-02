@@ -73,7 +73,7 @@ export class TimelineOptions extends BaseNeonOptions {
      * @override
      */
     updateFieldsOnTableChanged() {
-        this.dateField = this.findFieldObject('dateField', neonMappings.DATE);
+        this.dateField = this.findFieldObject('dateField');
     }
 }
 
@@ -141,6 +141,8 @@ export class TimelineComponent extends BaseNeonComponent implements OnInit, OnDe
             ref,
             visualizationService
         );
+
+        console.warn('The timeline component is deprecated.  Please use the aggregation component with type=histogram.');
 
         this.options = new TimelineOptions(this.injector, this.datasetService, 'Timeline', 10);
 

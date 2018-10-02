@@ -40,10 +40,8 @@ import { TranslationService } from './services/translation.service';
 import { VisualizationService } from './services/visualization.service';
 
 import { AboutNeonComponent } from './components/about-neon/about-neon.component';
-import {
-    AddVisualizationComponent,
-    SimpleSnackBarComponent
-} from './components/add-visualization/add-visualization.component';
+import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
+import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AppComponent } from './app.component';
 import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
@@ -64,7 +62,6 @@ import { MediaViewerComponent } from './components/media-viewer/media-viewer.com
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
-import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
@@ -84,6 +81,9 @@ import {
     ThumbnailDetailsExpandedComponent
 } from './components/thumbnail-grid/thumbnail-details.component';
 
+import { CustomConnectionComponent } from './components/custom-connection/custom-connection.component';
+import { CustomConnectionSimpleSetupStepComponent } from './components/custom-connection/simple-setup.component';
+
 export function getAppConfig() {
     /* tslint:disable:no-string-literal */
     return window['appConfig'];
@@ -94,11 +94,14 @@ export function getAppConfig() {
     declarations: [
         AboutNeonComponent,
         AddVisualizationComponent,
+        AnnotationViewerComponent,
         AppComponent,
         AggregationComponent,
         BarChartComponent,
         ChartComponent,
         ConfigEditorComponent,
+        CustomConnectionComponent,
+        CustomConnectionSimpleSetupStepComponent,
         DashboardOptionsComponent,
         DatasetSelectorComponent,
         DataTableComponent,
@@ -115,9 +118,7 @@ export function getAppConfig() {
         SampleComponent,
         ScatterPlotComponent,
         SimpleFilterComponent,
-        SimpleSnackBarComponent,
         SnackBarComponent,
-        StackedTimelineComponent,
         TextCloudComponent,
         ThumbnailDetailsContractedComponent,
         ThumbnailDetailsExpandedComponent,
@@ -160,8 +161,8 @@ export function getAppConfig() {
             useFactory: getAppConfig
         }
     ],
-    entryComponents: [AppComponent, AddVisualizationComponent, DocumentViewerSingleItemComponent, FilterTrayComponent, SnackBarComponent,
-        ConfigEditorComponent, SimpleSnackBarComponent],
+    entryComponents: [AppComponent, AddVisualizationComponent, CustomConnectionComponent, DocumentViewerSingleItemComponent,
+        FilterTrayComponent, SnackBarComponent, ConfigEditorComponent],
     bootstrap: [AppComponent]
 })
 
