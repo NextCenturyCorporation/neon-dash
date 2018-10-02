@@ -36,6 +36,10 @@
                 matTooltip="Add a New Visualization" (click)="openAddVisualizationDialog()" *ngIf="showAddVisualizationButton">
             <mat-icon class="neon-icon-large">add_circle</mat-icon>
         </button>
+        <button mat-icon-button class="neon-icon-button-large" aria-label="Connect to a Custom Data Source" tooltip-position="below"
+                matTooltip="Connect to a Custom Data Source" (click)="openCustomConnectionDialog()" *ngIf="showCustomConnectionButton">
+            <mat-icon class="neon-icon-large">storage</mat-icon>
+        </button>
         <app-simple-filter #simpleFilter></app-simple-filter>
         <button mat-icon-button class="neon-icon-button-large" aria-label="Show Filters" tooltip-position="below"
                 matTooltip="Show Filters" (click)="openFilterTrayDialog()" *ngIf="showFilterTrayButton">

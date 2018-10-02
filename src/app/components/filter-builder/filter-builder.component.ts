@@ -216,7 +216,7 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             let value: any = clause.value;
             if (operator !== 'contains' && operator !== 'not contains') {
                 value = parseFloat(clause.value);
-                if (isNaN(value)) {
+                if (isNaN(value) || value.toString() !== clause.value) { // The second check catches values larger than Number.MAX_SAFE_INT
                     value = clause.value;
                 }
             }

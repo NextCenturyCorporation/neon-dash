@@ -71,15 +71,29 @@ export class ColorSchemeService {
     // Palette generated with http://tools.medialab.sciences-po.fr/iwanthue/
     private colorList = [
         [
-            new Color(31, 120, 180), new Color(51, 160, 44), new Color(227, 26, 28),
-            new Color(255, 127, 0), new Color(106, 61, 154), new Color(177, 89, 40),
-            new Color(166, 206, 227), new Color(178, 223, 138), new Color(251, 154, 153),
-            new Color(253, 191, 111), new Color(202, 178, 214), new Color(255, 255, 153)
+            new Color(31, 120, 180),
+            new Color(51, 160, 44),
+            new Color(227, 26, 28),
+            new Color(255, 127, 0),
+            new Color(106, 61, 154),
+            new Color(177, 89, 40),
+            new Color(166, 206, 227),
+            new Color(178, 223, 138),
+            new Color(251, 154, 153),
+            new Color(253, 191, 111),
+            new Color(202, 178, 214),
+            new Color(255, 255, 153)
         ],
         [
-            new Color(228, 26, 28), new Color(55, 126, 184), new Color(77, 175, 74),
-            new Color(152, 78, 163), new Color(255, 127, 0), new Color(255, 255, 51),
-            new Color(166, 86, 40), new Color(247, 129, 191), new Color(153, 153, 153)
+            new Color(228, 26, 28),
+            new Color(55, 126, 184),
+            new Color(77, 175, 74),
+            new Color(152, 78, 163),
+            new Color(255, 127, 0),
+            new Color(255, 255, 51),
+            new Color(166, 86, 40),
+            new Color(247, 129, 191),
+            new Color(153, 153, 153)
         ],
         [
             new Color(1, 63, 165),
@@ -110,10 +124,17 @@ export class ColorSchemeService {
             new Color(119, 79, 0)
         ],
         [
-            new Color(103, 0, 31), new Color(178, 24, 43), new Color(214, 96, 77),
-            new Color(244, 165, 130), new Color(253, 219, 199), new Color(247, 247, 247),
-            new Color(209, 229, 240), new Color(146, 197, 222), new Color(67, 147, 195),
-            new Color(33, 102, 172), new Color(5, 48, 97)
+            new Color(103, 0, 31),
+            new Color(178, 24, 43),
+            new Color(214, 96, 77),
+            new Color(244, 165, 130),
+            new Color(253, 219, 199),
+            new Color(247, 247, 247),
+            new Color(209, 229, 240),
+            new Color(146, 197, 222),
+            new Color(67, 147, 195),
+            new Color(33, 102, 172),
+            new Color(5, 48, 97)
         ]
     ];
     private colorPosition = 0;

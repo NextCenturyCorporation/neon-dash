@@ -219,6 +219,8 @@ export class ScatterPlotComponent extends BaseNeonComponent implements OnInit, O
             visualizationService
         );
 
+        console.warn('The scatter-plot component is deprecated.  Please use the aggregation component with type=scatter-xy.');
+
         this.options = new ScatterPlotOptions(this.injector, this.datasetService, 'Scatter Plot', 1000);
 
         this.onHover = this.onHover.bind(this);

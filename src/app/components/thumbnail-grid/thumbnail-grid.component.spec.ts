@@ -90,8 +90,8 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.options.defaultLabel).toEqual('');
         expect(component.options.defaultPercent).toEqual('');
         expect(component.options.id).toEqual('');
+        expect(component.options.ignoreSelf).toEqual(false);
         expect(component.options.linkPrefix).toEqual('');
-        expect(component.options.ignoreSelf).toEqual(true);
         expect(component.options.openOnMouseClick).toEqual(true);
         expect(component.options.textMap).toEqual({});
         expect(component.options.typeMap).toEqual({});
@@ -416,11 +416,11 @@ describe('Component: ThumbnailGrid', () => {
             expect(toggles[5].nativeElement.textContent).toContain('Both');
             expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
-            expect(toggles[6].componentInstance.value).toEqual(false);
+            expect(toggles[6].componentInstance.value).toEqual(true);
             expect(toggles[6].nativeElement.textContent).toContain('Yes');
             expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
-            expect(toggles[7].componentInstance.value).toEqual(true);
+            expect(toggles[7].componentInstance.value).toEqual(false);
             expect(toggles[7].nativeElement.textContent).toContain('No');
             expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
@@ -1225,6 +1225,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.ignoreSelf = false;
 
         expect(component.getFiltersToIgnore()).toEqual(null);
 
@@ -1233,23 +1234,7 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.getFiltersToIgnore()).toEqual(null);
     });
 
-    it('getFiltersToIgnore does return expected array of IDs if filters are set matching database/table/field', () => {
-        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
-            neon.query.where('testFilterField', '!=', null), 'testFilterName1');
-
-        component.options.database = DatasetServiceMock.DATABASES[0];
-        component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
-
-        expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1']);
-
-        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
-            return filter.id;
-        }));
-    });
-
-    it('getFiltersToIgnore does return null if filters are set if ignoreSelf=false', () => {
+    it('getFiltersToIgnore with ignoreSelf=false does return null if filters are set', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '!=', null), 'testFilterName1');
 
@@ -1266,7 +1251,7 @@ describe('Component: ThumbnailGrid', () => {
         }));
     });
 
-    it('getFiltersToIgnore does return expected array of IDs if filters are set matching database/table/field', () => {
+    it('getFiltersToIgnore with ignoreSelf=true does return expected array of IDs if filters are set matching database/table/field', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '!=', null), 'testFilterName1');
 
@@ -1283,7 +1268,27 @@ describe('Component: ThumbnailGrid', () => {
         }));
     });
 
-    it('getFiltersToIgnore does return null if no filters are set matching database/table/field', () => {
+    it('getFiltersToIgnore with ignoreSelf=true does return null if filters have multiple clauses', () => {
+        getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
+            neon.query.and.apply(neon.query, [
+                neon.query.where('testFilterField', '!=', null),
+                neon.query.where('testLinkField', '!=', null)
+            ]), 'testFilterName1');
+
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
+        component.options.ignoreSelf = true;
+
+        expect(component.getFiltersToIgnore()).toEqual(null);
+
+        getService(FilterService).removeFilters(null, getService(FilterService).getFilters().map((filter) => {
+            return filter.id;
+        }));
+    });
+
+    it('getFiltersToIgnore with ignoreSelf=true does return null if no filters are set matching database/table/field', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testFilterField', '!=', null), 'testFilterName1');
 
@@ -1291,6 +1296,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
         component.options.filterField = new FieldMetaData('testField', 'Test Field');
+        component.options.ignoreSelf = true;
 
         // Test matching database/table but not field.
         expect(component.getFiltersToIgnore()).toEqual(null);
@@ -1312,7 +1318,7 @@ describe('Component: ThumbnailGrid', () => {
         }));
     });
 
-    it('getFiltersToIgnore does return expected array of IDs if no filterField is set', () => {
+    it('getFiltersToIgnore with ignoreSelf=true does return expected array of IDs if no filterField is set', () => {
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testField1', '!=', null), 'testFilterName1');
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
@@ -1321,6 +1327,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.ignoreSelf = true;
 
         expect(component.getFiltersToIgnore()).toEqual(['testDatabase1-testTable1-testFilterName1',
             'testDatabase1-testTable1-testFilterName2']);
@@ -1426,7 +1433,7 @@ describe('Component: ThumbnailGrid', () => {
             testObjectNameField: 'myObjectName',
             testPercentField: 0.1234,
             testPredictedNameField: 'myPredictedName'
-        })).toEqual('myName, Prediction : myPredictedName, 12.3%, Actual : myObjectName');
+        })).toEqual('myName, Prediction : myPredictedName, Actual : myObjectName');
     });
 
     it('getThumbnailTitle does use textMap', () => {
@@ -1446,7 +1453,7 @@ describe('Component: ThumbnailGrid', () => {
             testObjectNameField: 'myObjectName',
             testPercentField: 0.1234,
             testPredictedNameField: 'myPredictedName'
-        })).toEqual('MyNameText : myName, MyPredictionText : myPredictedName, MyPercentageText : 12.3%, MyActualText : myObjectName');
+        })).toEqual('MyNameText : myName, MyPredictionText : myPredictedName, MyActualText : myObjectName');
     });
 
     it('goToNextPage does not update page or call updatePageData if lastPage is true', () => {
@@ -1559,6 +1566,7 @@ describe('Component: ThumbnailGrid', () => {
         component.options.compareField = new FieldMetaData('testCompareField', 'Test Compare Field');
         component.options.filterField = new FieldMetaData('testFilterField', 'Test Filter Field');
         component.options.idField = new FieldMetaData('_id', 'Test ID Field');
+        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.options.nameField = new FieldMetaData('testNameField', 'Test Name Field');
         component.options.objectIdField = new FieldMetaData('testObjectIdField', 'Test Object ID Field');
         component.options.objectNameField = new FieldMetaData('testObjectNameField', 'Test Object Name Field');
@@ -1566,7 +1574,6 @@ describe('Component: ThumbnailGrid', () => {
         component.options.predictedNameField = new FieldMetaData('testPredictedNameField', 'Test Predicted Name Field');
         component.options.sortField = new FieldMetaData('testSortField', 'Test Sort Field');
         component.options.typeField = new FieldMetaData('testTypeField', 'Test Type Field');
-        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.errorMessage = 'Previous Error Message';
         component.lastPage = false;
         component.page = 2;
@@ -2072,7 +2079,7 @@ describe('Component: ThumbnailGrid', () => {
             flagSubLabel2: '',
             flagSubLabel3: '',
             idField: '',
-            ignoreSelf: true,
+            ignoreSelf: false,
             linkField: '',
             linkPrefix: '',
             nameField: '',
@@ -2534,13 +2541,13 @@ describe('Component: ThumbnailGrid with config', () => {
             expect(toggles[5].nativeElement.textContent).toContain('Both');
             expect(toggles[5].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
-            expect(toggles[6].componentInstance.value).toEqual(false);
+            expect(toggles[6].componentInstance.value).toEqual(true);
             expect(toggles[6].nativeElement.textContent).toContain('Yes');
-            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
+            expect(toggles[6].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
 
-            expect(toggles[7].componentInstance.value).toEqual(true);
+            expect(toggles[7].componentInstance.value).toEqual(false);
             expect(toggles[7].nativeElement.textContent).toContain('No');
-            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(true);
+            expect(toggles[7].nativeElement.classList.contains('mat-button-toggle-checked')).toEqual(false);
 
             expect(toggles[8].componentInstance.value).toEqual(true);
             expect(toggles[8].nativeElement.textContent).toContain('Yes');

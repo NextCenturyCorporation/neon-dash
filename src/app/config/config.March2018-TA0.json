@@ -502,8 +502,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "documents",
 					"dataField": "hashtags.text",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "horizontalBar",
 					"colors": [
 						{
@@ -582,8 +580,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "documents",
 					"dataField": "sentimentString",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -754,8 +750,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "annotations2",
 					"dataField": "topic",
-					"aggregation": "",
-					"aggregationField": "",
 					"limit": 11,
 					"chartType": "horizontalBar",
 					"colors": [
@@ -835,8 +829,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "annotations2",
 					"dataField": "sentimentString",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -870,8 +862,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "annotations2",
 					"dataField": "llAnnotation.Type",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -905,8 +895,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "annotations2",
 					"dataField": "llAnnotation.Status.Need",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -1102,8 +1090,6 @@
 					"database": "ll_nepal_situation_raw",
 					"table": "situations",
 					"dataField": "topic",
-					"aggregation": "",
-					"aggregationField": "",
 					"limit" : 11,
 					"chartType": "horizontalBar",
 					"colors": [
@@ -1183,8 +1169,6 @@
 					"database": "ll_nepal_situation_raw",
 					"table": "situations",
 					"dataField": "sentiment",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -1353,8 +1337,6 @@
 					"database": "il3_uyghur",
 					"table": "tweets",
 					"dataField": "hashtagEntities.text",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "horizontalBar",
 					"colors": [
 						{
@@ -1433,8 +1415,6 @@
 					"database": "il3_uyghur",
 					"table": "tweets",
 					"dataField": "sentimentString",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -1607,8 +1587,6 @@
 					"database": "il3_uyghur_ariel_simplified_out",
 					"table": "annotations",
 					"dataField": "topic",
-					"aggregation": "",
-					"aggregationField": "",
 					"limit": 11,
 					"chartType": "horizontalBar",
 					"colors": [
@@ -1688,8 +1666,6 @@
 					"database": "il3_uyghur_ariel_simplified_out",
 					"table": "annotations",
 					"dataField": "sentimentString",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -1860,8 +1836,6 @@
 					"database": "ldc_uyghur_03_08",
 					"table": "annotations",
 					"dataField": "topic",
-					"aggregation": "",
-					"aggregationField": "",
 					"limit": 11,
 					"chartType": "horizontalBar",
 					"colors": [
@@ -1941,8 +1915,6 @@
 					"database": "ldc_uyghur_03_08",
 					"table": "annotations",
 					"dataField": "sentimentString",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -2116,9 +2088,7 @@
 					"title": "Topics",
 					"database": "ll_nepal_simplified_03_08",
 					"table": "documents",
-					"dataField": "hashtags.text",
-					"aggregation": "",
-					"aggregationField": "",
+					"dataField": "topics",
 					"limit": 11,
 					"chartType": "horizontalBar",
 					"colors": [
@@ -2152,7 +2122,7 @@
 					"title": "People/Groups",
 					"database": "ll_nepal_simplified_03_08",
 					"table": "documents",
-					"dataField": "author"
+					"dataField": "entities"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
 				"row": 8,
@@ -2198,8 +2168,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "documents",
 					"dataField": "sentimentString",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -2370,8 +2338,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "annotations2",
 					"dataField": "topic",
-					"aggregation": "",
-					"aggregationField": "",
 					"limit": 11,
 					"chartType": "horizontalBar",
 					"colors": [
@@ -2451,8 +2417,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "annotations2",
 					"dataField": "sentimentString",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -2486,8 +2450,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "annotations2",
 					"dataField": "llAnnotation.Type",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -2521,8 +2483,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "annotations2",
 					"dataField": "llAnnotation.Status.Need",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar",
 					"colors": [
 						{
@@ -2556,8 +2516,6 @@
 					"database": "ll_nepal_simplified_03_08",
 					"table": "annotations2",
 					"dataField": "nri",
-					"aggregation": "",
-					"aggregationField": "",
 					"chartType": "bar"
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
