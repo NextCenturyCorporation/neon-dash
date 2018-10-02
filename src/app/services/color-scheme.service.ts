@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 
 /**
  * A set of colors, used to keep track of which values map to which colors
@@ -56,7 +56,7 @@ export class ColorSet {
      * @return {string[]}
      */
     getAllKeys(): string[] {
-        return Array.from(this.mappings.keys());
+        return Array.from(this.mappings.keys()).sort();
     }
 }
 
@@ -70,7 +70,36 @@ export class ColorSchemeService {
 
     // Palette generated with http://tools.medialab.sciences-po.fr/iwanthue/
     private colorList = [
-        [
+        [   //3 colors
+            new Color(173, 216, 230),
+            new Color(223, 159, 159),
+            new Color(255, 218, 153)
+        ],
+        [   //9 colors
+            new Color(228, 26, 28),
+            new Color(55, 126, 184),
+            new Color(77, 175, 74),
+            new Color(152, 78, 163),
+            new Color(255, 127, 0),
+            new Color(255, 255, 51),
+            new Color(166, 86, 40),
+            new Color(247, 129, 191),
+            new Color(153, 153, 153)
+        ],
+        [   //11 colors
+            new Color(103, 0, 31),
+            new Color(178, 24, 43),
+            new Color(214, 96, 77),
+            new Color(244, 165, 130),
+            new Color(253, 219, 199),
+            new Color(247, 247, 247),
+            new Color(209, 229, 240),
+            new Color(146, 197, 222),
+            new Color(67, 147, 195),
+            new Color(33, 102, 172),
+            new Color(5, 48, 97)
+        ],
+        [   //12 colors
             new Color(31, 120, 180),
             new Color(51, 160, 44),
             new Color(227, 26, 28),
@@ -84,18 +113,8 @@ export class ColorSchemeService {
             new Color(202, 178, 214),
             new Color(255, 255, 153)
         ],
-        [
-            new Color(228, 26, 28),
-            new Color(55, 126, 184),
-            new Color(77, 175, 74),
-            new Color(152, 78, 163),
-            new Color(255, 127, 0),
-            new Color(255, 255, 51),
-            new Color(166, 86, 40),
-            new Color(247, 129, 191),
-            new Color(153, 153, 153)
-        ],
-        [
+
+        [   //12 colors
             new Color(1, 63, 165),
             new Color(0, 161, 73),
             new Color(171, 79, 193),
@@ -109,7 +128,7 @@ export class ColorSchemeService {
             new Color(230, 65, 81),
             new Color(192, 0, 89)
         ],
-        [
+        [   //12 colors
             new Color(217, 66, 163),
             new Color(144, 186, 48),
             new Color(31, 137, 255),
@@ -123,18 +142,42 @@ export class ColorSchemeService {
             new Color(255, 143, 132),
             new Color(119, 79, 0)
         ],
-        [
+        [   //35 colors - random color set
+            new Color(31, 120, 180),
+            new Color(127, 19, 242),
+            new Color(7, 87, 8),
+            new Color(177, 89, 40),
+            new Color(227, 26, 28),
+            new Color(51, 160, 44),
+            new Color(241, 103, 32),
             new Color(103, 0, 31),
-            new Color(178, 24, 43),
-            new Color(214, 96, 77),
-            new Color(244, 165, 130),
+            new Color(5, 48, 97),
+            new Color(251, 154, 153),
+            new Color(178, 223, 138),
+            new Color(77, 207, 214),
+            new Color(253, 191, 111),
+            new Color(166, 206, 227),
+            new Color(20, 171, 145),
+            new Color(255, 255, 153),
+            new Color(200, 22, 192),
+            new Color(136, 232, 164),
             new Color(253, 219, 199),
-            new Color(247, 247, 247),
-            new Color(209, 229, 240),
-            new Color(146, 197, 222),
+            new Color(0, 89, 162),
+            new Color(178, 141, 124),
             new Color(67, 147, 195),
-            new Color(33, 102, 172),
-            new Color(5, 48, 97)
+            new Color(255, 163, 72),
+            new Color(209, 229, 240),
+            new Color(177, 177, 177),
+            new Color(31, 137, 255),
+            new Color(146, 197, 222),
+            new Color(202, 178, 214),
+            new Color(144, 186, 48),
+            new Color(250, 122, 109),
+            new Color(111, 0, 60),
+            new Color(217, 66, 163),
+            new Color(0, 123, 45),
+            new Color(221, 142, 194),
+            new Color(119, 79, 0)
         ]
     ];
     private colorPosition = 0;
@@ -163,6 +206,26 @@ export class ColorSchemeService {
      */
     getColorSet(set: string): ColorSet {
         return this.colorMaps.get(set);
+    }
+    /**
+     * Sets the colorList position based on the amount of available colors being greater than the array length
+     * in order to provide color uniqueness
+     * @param {number} length
+     */
+    public setColorListByLength(length: number) {
+        for (let i = 0; i < this.colorList.length; i++) {
+            if (length <= this.colorList[i].length) {
+                this.colorPosition = i;
+                break;
+            }
+        }
+    }
+    /**
+     * Sets the colorList position based on a given index
+     * @param {number} index
+     */
+    public setColorListByIndex(index: number) {
+        this.colorPosition = index;
     }
 }
 
