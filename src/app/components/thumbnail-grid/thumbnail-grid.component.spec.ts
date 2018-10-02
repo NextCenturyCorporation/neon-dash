@@ -126,7 +126,6 @@ describe('Component: ThumbnailGrid', () => {
         expect(component.lastPage).toEqual(true);
         expect(component.mediaTypes).toEqual({
             image: 'img',
-            photo: 'photo',
             video: 'vid',
             html: 'htm',
             pdf: 'pdf',
