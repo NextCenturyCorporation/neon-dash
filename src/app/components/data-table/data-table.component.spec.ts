@@ -111,32 +111,6 @@ describe('Component: DataTable', () => {
         ]);
     });
 
-    it('initializeHeadersFromFieldsConfig does create the expected headers in order', () => {
-        component.options.fields = [
-            new FieldMetaData('category', 'Category'),
-            new FieldMetaData('field1', 'Field 1'),
-            new FieldMetaData('field2', 'Field 2'),
-            new FieldMetaData('date', 'Date'),
-            new FieldMetaData('address', 'Address')
-        ];
-        component.options.allColumnStatus = 'show';
-        component.options.fieldsConfig = [
-            { name: 'date' },
-            { name: 'address', hide: true },
-            { name: 'field2', hide: true }
-        ];
-
-        component.initializeHeadersFromFieldsConfig();
-
-        expect(component.headers).toEqual([
-            { prop: 'date', name: 'Date', active: true, style: {}, width: 150 },
-            { prop: 'address', name: 'Address', active: false, style: {}, width: 150 },
-            { prop: 'field2', name: 'Field 2', active: false, style: {}, width: 150 },
-            { prop: 'category', name: 'Category', active: true, style: {}, width: 150 },
-            { prop: 'field1', name: 'Field 1', active: true, style: {}, width: 150 }
-        ]);
-    });
-
     it('getColumnWidth returns the width of the matching column in options.customColumnWidths', () => {
         component.options.customColumnWidths = [
             ['fieldWithCustomWidth', 260]
