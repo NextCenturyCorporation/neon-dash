@@ -1,4 +1,4 @@
 <namespace>
   <prefix>ne2</prefix>
-  <uri>http://localhost:8080/geoserver/ne2</uri>
+  <uri>ne2</uri>
 </namespace>
