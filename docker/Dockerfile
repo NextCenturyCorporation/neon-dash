@@ -298,9 +298,6 @@ ENV GEOSERVER_HOME $INST_HOME/geoserver
 ENV PATH $GEOSERVER_HOME/bin:$PATH
 RUN mkdir -p $GEOSERVER_HOME
 
-ENV GEOSERVER_DATA $CATALINA_HOME/webapps/geoserver/data
-WORKDIR $GEOSERVER_HOME
-
 ENV GEOSERVER_VERSION=2.12.x
 
 # Download Geoserver war into tomcat webapps 
