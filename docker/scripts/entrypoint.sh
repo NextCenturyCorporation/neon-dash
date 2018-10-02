@@ -71,7 +71,7 @@ done
 if [ ! -f /.geoserver_created ]; then
 
   # Remove all default workpsaces
-  curl -u admin:geoser -X DELETE $GEOSERVER_URL/rest/workspaces/geonode?recurse=true
+  curl -u admin:geoserver -X DELETE $GEOSERVER_URL/rest/workspaces/geonode?recurse=true
 
   # Check for Natural Earth Data Directory and TIF exist
   if [ -d "$GEOSERVER_XML/$NATURAL_EARTH_DIR" -a -f "$GEOSERVER_DATA/$NATURAL_EARTH_DIR/$NATURAL_EARTH_FILE" ]; then
