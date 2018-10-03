@@ -26,38 +26,30 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import {ActiveGridService} from '../../services/active-grid.service';
+import {ColorSchemeService} from '../../services/color-scheme.service';
+import {ConnectionService} from '../../services/connection.service';
+import {DatasetService} from '../../services/dataset.service';
+import {ExportService} from '../../services/export.service';
+import {FilterService} from '../../services/filter.service';
+import {ThemesService} from '../../services/themes.service';
+import {VisualizationService} from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
-import { neonVariables } from '../../neon-namespaces';
+import {BaseNeonComponent, BaseNeonOptions} from '../base-neon-component/base-neon.component';
+import {FieldMetaData} from '../../dataset';
+import {neonUtilities, neonVariables} from '../../neon-namespaces';
 
-import * as shape from 'd3-shape';
+import * as d3shape from 'd3-shape';
 import 'd3-transition';
 import * as neon from 'neon-framework';
 import * as vis from 'vis';
-import { findNode } from '@angular/compiler';
-import { filter } from 'rxjs/operators';
 
 class GraphData {
-    constructor(
-        public nodes = new vis.DataSet(),
-        public edges = new vis.DataSet()
-    ) {}
+    constructor(public nodes = new vis.DataSet(), public edges = new vis.DataSet()) {}
 }
 
 class GraphProperties {
-    constructor(
-        public nodes: Node[] = [],
-        public edges: Edge[] = []
-    ) {}
+    constructor(public nodes: Node[] = [], public edges: Edge[] = []) {}
     addNode(node: Node) {
         this.nodes.push(node);
     }
@@ -75,7 +67,11 @@ class Node {
         public size?: number,
         public color?: string,
         public isLink?: boolean,
-        public font?: Object
+        public font?: Object,
+        public shape?: string,
+        public x?: number,
+        public y?: number,
+        public filterFields?: any[]
     ) {}
 }
 
@@ -86,6 +82,12 @@ interface ArrowProperties {
 interface ArrowUpdate {
     id: string;
     arrows: ArrowProperties;
+    color: Object;
+}
+
+interface EdgeColorProperties {
+    color: string;
+    highlight: string;
 }
 
 class Edge {
@@ -96,8 +98,8 @@ class Edge {
         public label?: string,
         public arrows?: ArrowProperties,
         public count?: number,
-        public color?: Object,
-        public type?: string //used to identify that catagory of edge (to hide/show when legend option is clicked)
+        public color?: EdgeColorProperties,
+        public type?: string //used to identify that category of edge (to hide/show when legend option is clicked)
     /* TODO: width seem to breaking directed arrows, removing for now
     public width?: number*/
     ) {}
@@ -109,20 +111,34 @@ class Edge {
 export class NetworkGraphOptions extends BaseNeonOptions {
     public isDirected: boolean;
     public isReified: boolean;
-    public linkColor: string;
+    public displayLegend: boolean;
     public nodeColor: string;
+    public nodeShape: string;
+    public linkColor: string;
     public edgeColor: string;
     public fontColor: string;
+    public nodeColorField: FieldMetaData;
     public edgeColorField: FieldMetaData;
     public linkField: FieldMetaData;
     public linkNameField: FieldMetaData;
     public nodeField: FieldMetaData;
     public nodeNameField: FieldMetaData;
+    public typeField: FieldMetaData;
     public edgeWidth: number;
     public limit: number;
     public andFilters: boolean;
     public showOnlyFiltered: boolean;
     public filterFields: string[];
+    public xPositionField: FieldMetaData;
+    public yPositionField: FieldMetaData;
+    public xTargetPositionField: FieldMetaData;
+    public yTargetPositionField: FieldMetaData;
+    public physics: boolean;
+    public filterable: boolean;
+    public multiFilterOperator: string;
+    public cleanLegendLabels: boolean;
+    public setColorScheme: boolean;
+    public legendFiltering: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -132,15 +148,23 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     onInit() {
         this.isDirected = this.injector.get('isDirected', false);
         this.isReified = this.injector.get('isReified', false);
-        this.linkColor = this.injector.get('linkColor', '#96c1fc');
+        this.displayLegend = this.injector.get('displayLegend', false);
+        this.nodeShape = this.injector.get('nodeShape', 'box');
         this.nodeColor = this.injector.get('nodeColor', '#96c1fc');
+        this.linkColor = this.injector.get('linkColor', '#96c1fc');
         this.edgeColor = this.injector.get('edgeColor', '#2b7ce9');
         this.fontColor = this.injector.get('fontColor', '#343434');
         this.edgeWidth = this.injector.get('edgeWidth', 1);
         this.limit = this.injector.get('limit', Infinity);
-        this.andFilters = this.injector.get('andFilters', true);
         this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
         this.filterFields = this.injector.get('filterFields', []);
+        this.physics = this.injector.get('physics', true);
+        this.filterable = this.injector.get('filterable', false);
+        this.multiFilterOperator = this.injector.get('multiFilterOperator', 'or');
+        this.cleanLegendLabels = this.injector.get('cleanLegendLabels', false);
+        this.setColorScheme = this.injector.get('setColorScheme', false);
+        this.legendFiltering = this.injector.get('legendFiltering', true);
+
     }
 
     /**
@@ -153,7 +177,13 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.nodeNameField = this.findFieldObject('nodeNameField');
         this.linkField = this.findFieldObject('linkField');
         this.linkNameField = this.findFieldObject('linkNameField');
+        this.nodeColorField = this.findFieldObject('nodeColorField');
         this.edgeColorField = this.findFieldObject('edgeColorField');
+        this.typeField = this.findFieldObject('typeField');
+        this.xPositionField = this.findFieldObject('xPositionField');
+        this.yPositionField = this.findFieldObject('yPositionField');
+        this.xTargetPositionField = this.findFieldObject('xTargetPositionField');
+        this.yTargetPositionField = this.findFieldObject('yTargetPositionField');
     }
 }
 
@@ -171,7 +201,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         id: string,
         field: string,
         prettyField: string,
-        value: any
+        value: any,
+        operator: any
     }[] = [];
 
     public options: NetworkGraphOptions;
@@ -180,6 +211,8 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     public displayGraph: boolean;
     public neonFilters: any[] = [];
     public totalNodes: number;
+    public prettifiedNodeLabels: string[] = [];
+    public prettifiedEdgeLabels: string[] = [];
 
     graphType = 'Network Graph';
 
@@ -190,7 +223,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     fitContainer: boolean = true;
     autoZoom: boolean = false;
     // options
-    showLegend = false;
     orientation: string = 'TB'; // LR, RL, TB, BT
     orientations: any[] = [
         {
@@ -210,11 +242,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     // line interpolation
     curveType: string = 'Linear';
-    curve: any = shape.curveLinear;
+    curve: any = d3shape.curveLinear;
     interpolationTypes = [
         'Bundle', 'Cardinal', 'Catmull Rom', 'Linear', 'Monotone X',
         'Monotone Y', 'Natural', 'Step', 'Step After', 'Step Before'
     ];
+
+    nodeShapes = ['box', 'diamond', 'dot', 'square', 'triangle', 'triangleDown', 'star'];
 
     colorSets: any;
     colorScheme: any;
@@ -251,7 +285,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             visualizationService
         );
 
-        this.options = new NetworkGraphOptions(this.injector, this.datasetService, 'Network Graph', 500000);
+        this.options = new NetworkGraphOptions(this.injector, this.datasetService, this.graphType, 500000);
 
         this.graphData = new GraphData();
         this.displayGraph = !this.options.showOnlyFiltered;
@@ -263,10 +297,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.updateData();
         this.createQuery();
         //setInterval(this.updateData.bind(this), 2000);
-
         if (!this.fitContainer) {
             this.applyDimensions();
         }
+        this.removeAllFilters(this.filterService.getFilters());
+
     }
 
     applyDimensions() {
@@ -297,53 +332,77 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         bindings.nodeNameField = this.options.nodeNameField.columnName;
         bindings.linkField = this.options.linkField.columnName;
         bindings.linkNameField = this.options.linkNameField.columnName;
+        bindings.nodeColorField = this.options.nodeColorField.columnName;
         bindings.edgeColorField = this.options.edgeColorField.columnName;
         bindings.andFilters = this.options.andFilters;
+        bindings.xPositionField = this.options.xPositionField.columnName;
+        bindings.yPositionField = this.options.yPositionField.columnName;
+        bindings.xTargetPositionField = this.options.xTargetPositionField.columnName;
+        bindings.yTargetPositionField = this.options.yTargetPositionField.columnName;
     }
 
     ngAfterViewInit() {
         // note: options is REQUIRED. Fails to initialize physics properly without at least empty object
-        let options: vis.Options = {layout: {randomSeed: 0}};
+        let options: vis.Options = {
+            layout: {randomSeed: 0},
+            physics: {
+                forceAtlas2Based: {
+                    gravitationalConstant: -26,
+                    centralGravity: 0.005,
+                    springLength: 230,
+                    springConstant: 0.18
+                },
+                maxVelocity: 146,
+                solver: 'forceAtlas2Based',
+                timestep: 0.35,
+                stabilization: {iterations: 150}
+            },
+            edges: {
+               smooth: {
+                   enabled: true,
+                   type: 'continuous',
+                   roundness: 0
+               }
+            }};
         this.graph = new vis.Network(this.graphElement.nativeElement, this.graphData, options);
-        this.graph.on('stabilized', (params) => this.graph.setOptions({physics: {enabled: false}}));
-
-        if (!this.options.isReified) {
-            let nodeSelected = this.onSelect.bind(this);
-            this.graph.on('doubleClick', nodeSelected);
+        this.graph.on('stabilized', () => this.graph.setOptions({physics: {enabled: false}}));
+        if (this.options.filterable) {
+            // let nodeSelected = this.onSelect.bind(this);
+            this.graph.on('doubleClick', this.onSelect);
         }
     }
 
     setInterpolationType(curveType) {
         this.curveType = curveType;
         if (curveType === 'Bundle') {
-            this.curve = shape.curveBundle.beta(1);
+            this.curve = d3shape.curveBundle.beta(1);
         }
         if (curveType === 'Cardinal') {
-            this.curve = shape.curveCardinal;
+            this.curve = d3shape.curveCardinal;
         }
         if (curveType === 'Catmull Rom') {
-            this.curve = shape.curveCatmullRom;
+            this.curve = d3shape.curveCatmullRom;
         }
         if (curveType === 'Linear') {
-            this.curve = shape.curveLinear;
+            this.curve = d3shape.curveLinear;
         }
         if (curveType === 'Monotone X') {
-            this.curve = shape.curveMonotoneX;
+            this.curve = d3shape.curveMonotoneX;
         }
         if (curveType === 'Monotone Y') {
-            this.curve = shape.curveMonotoneY;
+            this.curve = d3shape.curveMonotoneY;
         }
         if (curveType === 'Natural') {
-            this.curve = shape.curveNatural;
+            this.curve = d3shape.curveNatural;
         }
         if (curveType === 'Step') {
-            this.curve = shape.curveStep;
+            this.curve = d3shape.curveStep;
         }
         if (curveType === 'Step After') {
-            this.curve = shape.curveStepAfter;
+            this.curve = d3shape.curveStepAfter;
         }
         if (curveType === 'Step Before') {
-            this.curve = shape.curveStepBefore;
+            this.curve = d3shape.curveStepBefore;
         }
     }
 
@@ -354,6 +413,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         }, {
             columnName: this.options.linkField.columnName,
             prettyName: this.options.linkField.prettyName
+        }, {
+            columnName: this.options.nodeColorField.columnName,
+            prettyName: this.options.nodeColorField.prettyName
         }, {
             columnName: this.options.edgeColorField.columnName,
             prettyName: this.options.edgeColorField.prettyName
@@ -386,13 +448,21 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         let nodeNameField = this.options.nodeNameField.columnName;
         let linkField = this.options.linkField.columnName;
         let linkNameField = this.options.linkNameField.columnName;
+        let nodeColorField = this.options.nodeColorField.columnName;
         let edgeColorField = this.options.edgeColorField.columnName;
+        let typeField = this.options.typeField.columnName;
+        let xPositionField = this.options.xPositionField.columnName;
+        let yPositionField = this.options.yPositionField.columnName;
+        let xTargetPositionField = this.options.xTargetPositionField.columnName;
+        let yTargetPositionField = this.options.yTargetPositionField.columnName;
         let whereClauses: neon.query.WherePredicate[] = [];
         //whereClauses.push(neon.query.where(this.options.linkField.columnName, '!=', null));
-        let groupBy: any[] = [this.options.nodeField.columnName];
+        let groupBy: any[] = [nodeField];
+        let sortField: any = nodeColorField ? nodeColorField : edgeColorField ? edgeColorField : nodeField;
 
         let fields = [nodeField, linkField];
-        for (const field of [edgeColorField, nodeNameField, linkNameField]) {
+        for (const field of [nodeColorField, edgeColorField, nodeNameField, linkNameField, typeField, xPositionField,
+            yPositionField, xTargetPositionField, yTargetPositionField].concat(this.options.filterFields)) {
             if (field) {
                 fields.push(field);
             }
@@ -400,8 +470,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
         query = query.withFields(fields);
         let whereClause = neon.query.and.apply(neon.query, whereClauses);
-
-        query.where(whereClause);
+        query.where(whereClause).sortBy(sortField, neonVariables.ASCENDING);
 
         return query;
     }
@@ -411,26 +480,15 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return null;
     }
 
-    addFilter(myFilter, operator: string) {
-        if (!this.filters.length || this.filters.length === 0) {
-            this.filters.push(myFilter);
-            let whereClause = neon.query.where(myFilter.field, operator, myFilter.value);
-            this.addNeonFilter(true, myFilter, whereClause);
-        } else if (this.filterIsUnique(filter)) {
-            myFilter.id = this.filters[0].id;
-            this.filters.push(myFilter);
-            let whereClauses = this.filters.map((existingFilter) => {
-                return neon.query.where(existingFilter.field, operator, existingFilter.value);
-            });
-            let whereClause = whereClauses.length === 1 ? whereClauses[0] : (this.options.andFilters ? neon.query.and.apply(neon.query,
-                whereClauses) : neon.query.or.apply(neon.query, whereClauses));
-            this.replaceNeonFilter(true, myFilter, whereClause);
+    addFilter(myFilter, clause) {
+        if (this.filterIsUnique(myFilter)) {
+            this.addLocalFilter(myFilter);
+            this.addNeonFilter(true, myFilter, clause);
         }
     }
 
-    removeFilter() {
-        //EDIT: all filter ID's are identical so you can not remove just one (must remove all)
-        this.filters = [];
+    removeFilter(myFilter: any) {
+        this.filters = this.filters.filter((element) => element.id !== myFilter.id);
         //EDIT: meaning that you also have to reset the legend
         this.disabledSet = [] as [string[]];
         this.updateLegend();
@@ -445,6 +503,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return true;
     }
 
+    addLocalFilter(myFilter) {
+        this.filters.push(myFilter);
+    }
+
     /**
      * Returns the list of filter objects.
      *
@@ -452,13 +514,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * @override
      */
     getCloseableFilters() {
-        let nodeFilters = [];
-        this.filters.forEach((myFilter) => {
-            if (myFilter.field !== this.options.edgeColorField.columnName) {
-                nodeFilters.push(myFilter);
-            }
-        });
-        return nodeFilters;
+        return this.filters;
     }
 
     getFilterText(myFilter) {
@@ -466,14 +522,98 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     setupFilters() {
-        //
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
+            this.options.table.name, this.options.filterFields);
+        this.filters = [];
+        for (let neonFilter of neonFilters) {
+            if (!neonFilter.filter.whereClause.whereClauses) {
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
+                let value = neonFilter.filter.whereClause.rhs;
+                let myFilter = {
+                    id: neonFilter.id,
+                    field: field.columnName,
+                    prettyField: field.prettyName,
+                    value: value
+                };
+                if (!this.filterExists(myFilter.field, myFilter.value)) {
+                    this.addLocalFilter(myFilter);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns whether a visualization filter object with the given field and value strings exists in the list of visualization filters.
+     *
+     * @arg {string} field
+     * @arg {string} value
+     * @return {boolean}
+     */
+    filterExists(field: string, value: string) {
+        return this.filters.some((existingFilter) => {
+            return field === existingFilter.field && value === existingFilter.value;
+        });
+    }
+
+    flattenArray(array, value) {
+        return array.concat(value);
+    }
+
+    /**
+     *  Whether label is an array, a string with commas, or a string with dot notation; the first value is taken
+     *
+     * @arg {any} label
+     * @return {string}
+     */
+    labelCleanUp(label: any) {
+        let cleanLabel = label instanceof Array ? label[0] : label;
+        cleanLabel = cleanLabel.indexOf('.') > -1 ? cleanLabel.split('.')[0] : cleanLabel;
+        cleanLabel = cleanLabel.indexOf(',') > -1 ? cleanLabel.split(',')[0] : cleanLabel;
+        return cleanLabel;
     }
 
     onQuerySuccess(response): void {
+
         this.neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
             this.options.table.name, this.options.filterFields);
 
+        this.prettifiedNodeLabels = [];
+        this.prettifiedEdgeLabels = [];
+
         this.activeData = response.data;
+        this.activeData.forEach((d) => {
+            for (let field of this.options.fields) {
+                if (field.columnName === this.options.nodeColorField.columnName && this.options.cleanLegendLabels
+                    && this.options.displayLegend) {
+                    let types = neonUtilities.deepFind(d, this.options.nodeColorField.columnName);
+                    if (types instanceof Array) {
+                        for (let value of types) {
+                            this.prettifiedNodeLabels.push(this.labelCleanUp(value));
+                        }
+                    } else {
+                        this.prettifiedNodeLabels.push(types);
+                    }
+                }
+                if (field.columnName === this.options.edgeColorField.columnName && this.options.cleanLegendLabels
+                    && this.options.displayLegend) {
+                    let types = neonUtilities.deepFind(d, this.options.edgeColorField.columnName);
+                    if (types instanceof Array) {
+                        for (let value of types) {
+                            this.prettifiedEdgeLabels.push(this.labelCleanUp(value));
+                        }
+                    } else {
+                        this.prettifiedEdgeLabels.push(types);
+                    }
+                }
+            }
+        });
+
+        //Flattens multi-level arrays, removes duplicates, and sorts alphabetically
+        this.prettifiedNodeLabels = this.prettifiedNodeLabels.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index).sort();
+        this.prettifiedEdgeLabels = this.prettifiedEdgeLabels.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index).sort();
+
         this.existingNodeNames = [];
         this.isLoading = true;
         this.resetGraphData();
@@ -482,10 +622,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private resetGraphData() {
         let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
-        this.totalNodes = graphProperties.nodes.length;
+
+        this.totalNodes = graphProperties.nodes.filter((value, index, array) =>
+            array.findIndex((object) => object.id === value.id) === index).length;
+
         this.clearGraphData();
         if (this.options.showOnlyFiltered && this.neonFilters.length || !this.options.showOnlyFiltered) {
-            this.graph.setOptions({physics: {enabled: true}});
+            this.graph.setOptions({physics: {enabled: this.options.physics}});
             this.displayGraph = true;
             this.graphData.nodes.update(graphProperties.nodes);
             this.graphData.edges.update(graphProperties.edges);
@@ -552,7 +695,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             if (!data || !visibleNodeCount) {
                 return 'No Data';
             } else if (visibleNodeCount === this.totalNodes) {
-                return 'Total ' + super.prettifyInteger(this.totalNodes);
+                return 'Total Nodes: ' + super.prettifyInteger(this.totalNodes);
             } else {
                 return '1 - ' + super.prettifyInteger(visibleNodeCount) + ' of ' + super.prettifyInteger(this.totalNodes);
             }
@@ -564,11 +707,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     private createReifiedGraphProperties() {
-        let graph = new GraphProperties();
-        let limit = this.options.limit;
+        let graph = new GraphProperties(),
+            limit = this.options.limit,
+            nodeColor = this.options.nodeColor,
+            textColor = {color: this.options.fontColor},
+            nodeShape = this.options.nodeShape;
 
         for (const entry of this.activeData) {
-            if (graph.nodes.length < limit) {
+            if (graph.nodes.length <= limit) {
                 let getArray = (type: any) => (type instanceof Array) ? type : [type],
                     subject = getArray(entry.subject),
                     predicate = entry.predicate,
@@ -576,7 +722,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
                 for (let sNode of subject) {
                     for (let oNode of object) {
-                        this.addTriple(graph, sNode, predicate, oNode);
+                        this.addTriple(graph, sNode, predicate, oNode, nodeColor, textColor, nodeShape);
                     }
                 }
             }
@@ -586,9 +732,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         return graph;
     }
 
-    private addTriple(graph: GraphProperties, subject: string, predicate: string, object: string) {
-        graph.addNode(new Node(subject, subject));
-        graph.addNode(new Node(object, object));
+    private addTriple(graph: GraphProperties, subject: string, predicate: string, object: string, nodeColor?: string,
+                      textColor?: any, nodeShape?: string) {
+
+        graph.addNode(new Node(subject, subject, '', null, nodeColor, false, textColor, nodeShape));
+        graph.addNode(new Node(object, object, '', null, nodeColor, false, textColor, nodeShape));
         graph.addEdge(new Edge(subject, object, predicate, {to: this.options.isDirected}));
     }
 
@@ -598,25 +746,73 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             linkNameColumn = this.options.linkNameField.columnName,
             nodeName = this.options.nodeField.columnName,
             nodeNameColumn = this.options.nodeNameField.columnName,
+            nodeColorField = this.options.nodeColorField.columnName,
             edgeColorField = this.options.edgeColorField.columnName,
             nodeColor = this.options.nodeColor,
             edgeColor = this.options.edgeColor,
             linkColor = this.options.linkColor,
             textColor = {color: this.options.fontColor},
-            limit = this.options.limit;
+            limit = this.options.limit,
+            nodeShape = this.options.nodeShape,
+            xPositionField = this.options.xPositionField.columnName,
+            yPositionField = this.options.yPositionField.columnName,
+            xTargetPositionField = this.options.xTargetPositionField.columnName,
+            yTargetPositionField = this.options.yTargetPositionField.columnName,
+            fFields = this.options.filterFields;
+
+        //sets the colorList for nodes index based on the length of an array in order to provide color uniqueness
+        if (this.options.setColorScheme) {
+            this.colorSchemeService.setColorListByLength(this.prettifiedNodeLabels.length);
+        }
 
         // assume nodes will take precedence over edges so create nodes first
         for (let entry of this.activeData) {
-            let nodeField = entry[nodeName],
-                nodeNameField = nodeNameColumn && entry[nodeNameColumn];
+            let nodeType = entry[nodeColorField],
+                nodeField = entry[nodeName],
+                nodeNameField = nodeNameColumn && entry[nodeNameColumn],
+                xPosition = entry[xPositionField],
+                yPosition = entry[yPositionField],
+                filterFields: any[] = [];
+
+            for (let i of fFields) {
+                filterFields.push({
+                    field: i,
+                    data: entry[i]
+                });
+            }
+
+            //sets the colorList index based on the length of an array in order to provide color uniqueness
+            if (this.options.cleanLegendLabels) {
+                this.colorSchemeService.setColorListByLength(this.prettifiedNodeLabels.length);
+            }
+
+            // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
+            if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
+                let colorMapVal = nodeColorField && nodeType;
+                nodeColor = this.colorSchemeService.getColorFor(nodeColorField, colorMapVal).toRgb();
+            }
 
             // create a new node for each unique nodeId
-            let nodes = Array.isArray(nodeField) ? nodeField : [nodeField],
-                nodeNames = !nodeNameField ? nodes : Array.isArray(nodeNameField) ? nodeNameField : [nodeNameField];
+            let nodes = nodeField instanceof Array ? nodeField : [nodeField],
+                nodeNames = !nodeNameField ? nodes : nodeNameField instanceof Array ? nodeNameField : [nodeNameField];
             for (let j = 0; j < nodes.length && graph.nodes.length < limit; j++) {
                 let nodeEntry = nodes[j];
                 if (this.isUniqueNode(nodeEntry)) {
-                    graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor, false, textColor));
+                    //If legend labels have been modified, override the node color
+                    if (this.prettifiedNodeLabels.length > 0 && this.options.displayLegend && nodeType && nodeType !== '') {
+                        let shortName = this.labelCleanUp(nodeType);
+
+                        for (const nodeLabel of this.prettifiedNodeLabels) {
+                            if (nodeLabel === shortName) {
+                                let colorMapVal = nodeColorField && nodeLabel;
+                                nodeColor = this.colorSchemeService.getColorFor(nodeColorField, colorMapVal).toRgb();
+                                break;
+                            }
+                        }
+                    }
+
+                    graph.addNode(new Node(nodeEntry, nodeNames[j], nodeName, 1, nodeColor, false, textColor, nodeShape,
+                        xPosition, yPosition, filterFields));
                 }
             }
         }
@@ -624,33 +820,78 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         // create edges and destination nodes only if required
         for (let entry of this.activeData) {
             let linkField = entry[linkName],
+                nodeType = entry[nodeColorField],
                 edgeType = entry[edgeColorField],
                 linkNameField = entry[linkNameColumn],
                 nodeField = entry[nodeName];
 
-            // if there is a valid edgeColorField, override the edgeColor
-            if (entry[edgeColorField]) {
-                let colorMapVal = edgeColorField && edgeType;
-                edgeColor = this.colorSchemeService.getColorFor(edgeColorField, colorMapVal).toRgb();
+            //sets the colorList for link nodes index based on the length of an array in order to provide color uniqueness
+            if (this.options.setColorScheme) {
+                this.colorSchemeService.setColorListByLength(this.prettifiedNodeLabels.length);
+            }
+
+            // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
+            if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
+                let colorMapVal = nodeColorField && nodeType;
+                linkColor = this.colorSchemeService.getColorFor(nodeColorField, colorMapVal).toRgb();
             }
 
             // create a node if linkfield doesn't point to a node that already exists
-            let links = Array.isArray(linkField) ? linkField : [linkField];
+            let links = linkField instanceof Array ? linkField : [linkField];
             for (const linkEntry of links) {
                 if (this.isUniqueNode(linkEntry) && graph.nodes.length < limit) {
-                    graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor));
+                    //If legend labels have been modified, override the link
+                    if (this.prettifiedNodeLabels.length > 0 && this.options.displayLegend && nodeType && nodeType !== '') {
+                        let shortName = this.labelCleanUp(nodeType);
+
+                        for (const nodeLabel of this.prettifiedNodeLabels) {
+                            if (nodeLabel === shortName) {
+                                let colorMapVal = nodeColorField && nodeLabel;
+                                linkColor = this.colorSchemeService.getColorFor(nodeColorField, colorMapVal).toRgb();
+                                break;
+                            }
+                        }
+                    }
+
+                    graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor, nodeShape));
                 }
             }
 
+            //sets the colorList index for edges based on the length of an array in order to provide color uniqueness
+            if (this.options.setColorScheme) {
+                this.colorSchemeService.setColorListByLength(this.prettifiedEdgeLabels.length);
+            }
+
             // create edges between nodes and destinations specified by linkfield
-            let linkNames = !linkNameField ? [].fill('', 0, links.length) : Array.isArray(linkNameField) ? linkNameField : [linkNameField],
-                nodes = Array.isArray(nodeField) ? nodeField : [nodeField];
+            let linkNames = !linkNameField ? [].fill('', 0, links.length)
+                : linkNameField instanceof Array ? linkNameField : [linkNameField],
+                nodes = nodeField instanceof Array ? nodeField : [nodeField];
             for (const nodeEntry of nodes) {
+                // if there is a valid edgeColorField and no modifications to the legend labels, override the default edgeColor
+                if (edgeColorField && this.prettifiedEdgeLabels.length === 0) {
+                    let colorMapVal = edgeColorField && edgeType;
+                    edgeColor = this.colorSchemeService.getColorFor(edgeColorField, colorMapVal).toRgb();
+                }
+
                 let edgeColorObject = { color: edgeColor, highlight: edgeColor};
                 //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
                 // let edgeWidth = this.options.edgeWidth;
 
                 for (let i = 0; i < links.length; i++) {
+                    // if legend labels have been modified, override the edgeColor and edgeColorObject
+                    if (this.prettifiedEdgeLabels.length > 0 && this.options.displayLegend && linkNames[i] && linkNames[i] !== '') {
+                        let shortName = this.labelCleanUp(linkNames[i]);
+                        for (const edgeLabel of this.prettifiedEdgeLabels) {
+                            if (edgeLabel === shortName) {
+                                let colorMapVal = edgeColorField && edgeLabel;
+                                edgeType = edgeLabel;
+                                edgeColor = this.colorSchemeService.getColorFor(edgeColorField, colorMapVal).toRgb();
+                                edgeColorObject = { color: edgeColor, highlight: edgeColor};
+                                break;
+                            }
+                        }
+                    }
+
                     graph.addEdge(new Edge(nodeEntry, links[i], linkNames[i], {to: this.options.isDirected}, 1,
                         edgeColorObject, edgeType));
                 }
@@ -728,6 +969,10 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         list[i + 1] = element;
     }
 
+    /**
+     * Inserts a unique nodeName into the existingNodeNames array in order
+     * @param element
+     */
     handleChangeDirected() {
         let arrowUpdates: ArrowUpdate[] = this.graphData.edges.map(
             (edge: ArrowUpdate) => ({id: edge.id, arrows: {to: this.options.isDirected}}),
@@ -757,8 +1002,11 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     }
 
     legendIsNeeded() {
+        let nodeColorField = this.options.nodeColorField.columnName;
         let edgeColorField = this.options.edgeColorField.columnName;
-        return (edgeColorField !== '' && edgeColorField);
+        return (this.displayGraph && this.options.displayLegend &&
+            ((nodeColorField && nodeColorField !== '') || (edgeColorField && edgeColorField !== ''))
+        );
     }
 
     /**
@@ -766,7 +1014,9 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      */
     updateLegend() {
         let colorByFields: string[] = [];
-        if (this.options.edgeColorField.columnName !== '') {
+        if (this.options.nodeColorField.columnName !== '') {
+            colorByFields.push(this.options.nodeColorField.columnName);
+        } else if (this.options.edgeColorField.columnName !== '') {
             colorByFields.push(this.options.edgeColorField.columnName);
         }
         this.colorByFields = colorByFields;
@@ -787,26 +1037,24 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                 id: undefined,
                 field: field.columnName,
                 prettyField: field.prettyName,
-                value: value.toLowerCase() //EDIT: should not need to make this to lowercase
+                value: value
             };
-
-            this.addFilter(myFilter, '!=');
+            let whereClause = neon.query.where(myFilter.field, '!=', myFilter.value);
+            this.addFilter(myFilter, whereClause);
             this.disabledSet.push([field.columnName, value]);
         } else {
-            //find the filter to remove
-            let index;
+            //find the filter to remove and remove the item from the disabled set
             for (let i = 0; i < this.filters.length; i++) {
                 let currentFilter = this.filters[i];
-                //EDIT: should not need to make this to lowercase
-                if (field.columnName === currentFilter.field && value.toLowerCase() === currentFilter.value) {
-                    index = i;
+                let currentSet = this.disabledSet[i];
+
+                if (field.columnName === currentFilter.field && value === currentFilter.value) {
+                    this.removeLocalFilterFromLocalAndNeon(this.filters[i], true, true);
+                }
+                if (currentSet && field.columnName === currentSet[0] && value === currentSet[1]) {
+                    this.disabledSet.splice(i, 1);
                 }
             }
-            let removeFilter = this.filters[index];
-
-            //remove all filters
-            this.removeLocalFilterFromLocalAndNeon(removeFilter, true, true);
-            this.disabledSet = [] as [string[]]; //resets the legend
         }
     }
 
@@ -814,26 +1062,46 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * Filters the data using the name of the selected node
      * @param properties
      */
-    onSelect(properties) {
+    onSelect = (properties: {nodes: string[]}) => {
         if (properties.nodes.length === 1) {
             //find the selected node
             let nodeName = properties.nodes[0];
-            let selectedNode = <Node> this.graphData.nodes.get({
-                filter: function(item: Node) {
-                    return (item.label === nodeName);
-                }
-            })[0];
+            let selectedNode = <Node> this.graphData.nodes.get(nodeName);
+            let value;
+            let clause;
+            let myFilter;
 
-            //create filter
-            let field = selectedNode.isLink ? this.options.linkField : this.options.nodeField;
-            let myFilter = {
-                id: undefined,
-                field: field.columnName,
-                prettyField: field.prettyName,
-                value: nodeName.toLowerCase() //EDIT: should not need to make this to lowercase
-            };
-            this.addFilter(myFilter, '=');
+            // create filter
+            //let field = selectedNode.isLink ? this.options.linkField : this.options.nodeField;
+            for (let filterField of selectedNode.filterFields) {
+                if (this.options.multiFilterOperator === 'or') {
+                    let clauses = filterField.data.map((element) =>
+                        neon.query.where(filterField.field, '=', element));
+                    value = filterField.data.toString();
+                    myFilter = this.createFilterObject(filterField.field, value, filterField.field);
+                    clause = neon.query.or.apply(neon.query, clauses);
+                    this.addFilter(myFilter, clause);
+                } else {
+                    for (let data of filterField.data) {
+                        value = data;
+                        myFilter = this.createFilterObject(filterField.field, value, filterField.field);
+                        clause = neon.query.where(myFilter.field, '=', myFilter.value);
+                        this.addFilter(myFilter, clause);
+                    }
+                }
+            }
+
         }
+    };
+
+    createFilterObject(field: string, value: string, prettyField: string): any {
+        let myFilter = {
+            id: undefined, // This will be set in the success callback of addNeonFilter.
+            field: field,
+            value: value,
+            prettyField: prettyField
+        };
+        return myFilter;
     }
 
 }
