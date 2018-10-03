@@ -119,6 +119,7 @@ export class DashboardChoice {
 
 export class DashboardDatastoreChoice {
     public prettyName: string = '';
+    // TODO: 825: temporary link for dashboards and datastores until UI is updated
     public datastore: string = ''; // TODO: 825: temporary until table/field keys are used and multiple connections are supported
     public layout: string = '';
     public tables: {[key: string]: string } = {};

@@ -1,7 +1,6 @@
 translationKeys:
     google: AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8
 
-
 datastores:
     es1:
         host: localhost
@@ -55,12 +54,9 @@ datastores:
                 fieldName: translatedText
                 placeHolder: Search
 
-# TODO: new dashboards/options object
-# TODO: 825: update ticket config with prettyName changes
-
 dashboards:
     darpa60:
-        prettyName: DARPA60 # pretty name
+        prettyName: DARPA60
         choices:
             Uyghur:
                 prettyName: Uyghur LDC
@@ -68,18 +64,15 @@ dashboards:
                     uyg_ldc_discovery:
                         prettyName: Situation Discovery
                         layout: DISCOVERY
-                        # todo: temporary reference to datastore
+                        # TODO: 825: temporary reference to datastore
                         datastore: es1
-                        # new layout name: DISCOVERY
                         tables:
-                            # TODO: better table/field key names
+                            # TODO: 825: better table/field key names
                             table_key_1: es_1.ldc_uyg_jul_18.ui_out
-                            # datastore_id.database_name.table_name
                         fields:
                             field_key_1: es_1.ldc_uyg_jul_18.ui_out.originalText
                         options:
-                            # TODO: this is where current dashboard - translation key would go
-                            # TODO: how do we know what value to get (based on current translation.service.ts)???
+                            # TODO: 825: perhaps make options here later if needed
                             test: someValue
 
 layouts:
@@ -94,9 +87,8 @@ layouts:
         sizey: 14
         bindings:
             title: Document Feed
-            database: ldc_uyg_jul_18
-            table: ui_out
-            idField: _id
+            tableKey: table_key_1
+            idField: _id # TODO: 825: potentially make fieldKeys later
             sortField: createdDate
             limit: 100
             allColumnStatus: hide
@@ -123,46 +115,6 @@ layouts:
         minPixely: 240
         minSizex: 7
         minSizey: 3
-
-# TODO: change layout to this format
-# layouts:
-#     id: DISCOVERY
-#     view:
-#         -
-#             type: dataTable
-#             icon: ViewData64
-#             col: 1
-#             row": 1
-#             sizex: 4
-#             sizey: 14
-#             bindings:
-#                 title: Document Feed
-#                 tableKey: table_key_1
-#                 # TODO: these would probably be specified in options???
-#                 #idField": "_id",
-#                 #sortField": "createdDate",
-#                 #filterFields: ["id"]
-#                 limit: 100
-#                 allColumnStatus: hide
-#                 exceptionsToStatus:
-#                     -
-#                         createdDate
-#                     -
-#                         originalText
-#                 customColumnWidths:
-#                     -
-#                         createdDate
-#                         15
-#                     -
-#                         originalText
-#                         360
-#                 filterable: false
-#                 singleFilter: true
-#                 ignoreSelf: false
-#                 checkDuplicateField: originalText
-#             minPixelx: 320
-#             minPixely: 240
-#             minSizex: 7
 
 routeService:
     url: http://localhost:8090/ghREST/

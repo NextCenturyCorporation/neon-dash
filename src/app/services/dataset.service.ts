@@ -931,4 +931,36 @@ export class DatasetService {
         });
         return name;
     }
+
+    // used to link layouts with dashboards
+    public getTableByKey(key: string): string {
+        let currentConfig = this.getCurrentDashboardConfig();
+        if (currentConfig) {
+            return currentConfig.tables[key];
+        }
+    }
+
+    public getFieldByKey(key: string): string {
+        let currentConfig = this.getCurrentDashboardConfig();
+        if (currentConfig) {
+            return currentConfig.fields[key];
+        }
+    }
+
+    // TODO: 825: entire key may be more important later when
+    // connecting to multiple databases -- for now we can just
+    // use a partial key
+    public getDatabaseNameByKey(key: string): string {
+        let currentConfig = this.getCurrentDashboardConfig();
+        if (currentConfig) {
+            return currentConfig.tables[key].split('.')[1];
+        }
+    }
+
+    public getTableNameByKey(key: string): string {
+        let currentConfig = this.getCurrentDashboardConfig();
+        if (currentConfig) {
+            return currentConfig.tables[key].split('.')[2];
+        }
+    }
 }
