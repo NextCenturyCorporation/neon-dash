@@ -1601,10 +1601,97 @@ describe('Component: ThumbnailGrid', () => {
 
     it('onQuerySuccess with limited aggregation query data does update expected properties and call expected functions', () => {
         component.options.fields = DatasetServiceMock.FIELDS;
-        component.options.limit = 1;
+        component.options.limit = 2;
         component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
         component.errorMessage = 'Previous Error Message';
-        component.lastPage = true;
+        component.lastPage = false;
+        component.page = 1;
+        component.showGrid = false;
+        let spy1 = spyOn(component, 'refreshVisualization');
+        let spy2 = spyOn(component, 'createMediaThumbnail');
+
+        component.onQuerySuccess({
+            data: [{
+                _id: 'id1',
+                testLinkField: 'link1',
+                testNameField: 'name1',
+                testSizeField: 0.1,
+                testTypeField: 'type1'
+            }, {
+                _id: 'id2',
+                testLinkField: 'link2',
+                testNameField: 'name2',
+                testSizeField: 0.2,
+                testTypeField: 'type2'
+            }, {
+                _id: 'id3',
+                testLinkField: 'link3',
+                testNameField: 'name3',
+                testSizeField: 0.3,
+                testTypeField: 'type3'
+            }, {
+                _id: 'id4',
+                testLinkField: 'link4',
+                testNameField: 'name4',
+                testSizeField: 0.4,
+                testTypeField: 'type4'
+            }]
+        });
+
+        expect(component.errorMessage).toEqual('');
+        expect(component.lastPage).toEqual(false);
+        expect(component.page).toEqual(1);
+        expect(component.showGrid).toEqual(true);
+
+        expect(component.gridArray).toEqual([{
+                _id: 'id1',
+                testLinkField: 'link1',
+                testNameField: 'name1',
+                testSizeField: 0.1,
+                testTypeField: 'type1'
+            }, {
+                _id: 'id2',
+                testLinkField: 'link2',
+                testNameField: 'name2',
+                testSizeField: 0.2,
+                testTypeField: 'type2'
+            }, {
+                _id: 'id3',
+                testLinkField: 'link3',
+                testNameField: 'name3',
+                testSizeField: 0.3,
+                testTypeField: 'type3'
+            }, {
+                _id: 'id4',
+                testLinkField: 'link4',
+                testNameField: 'name4',
+                testSizeField: 0.4,
+                testTypeField: 'type4'
+        }]);
+        expect(component.pagingGrid).toEqual([{
+                _id: 'id1',
+                testLinkField: 'link1',
+                testNameField: 'name1',
+                testSizeField: 0.1,
+                testTypeField: 'type1'
+            }, {
+                _id: 'id2',
+                testLinkField: 'link2',
+                testNameField: 'name2',
+                testSizeField: 0.2,
+                testTypeField: 'type2'
+        }]);
+
+        expect(spy1.calls.count()).toEqual(1);
+        expect(spy2.calls.count()).toEqual(1);
+    });
+
+    it('onQuerySuccess with data set to the last page does update expected properties and call expected functions', () => {
+        component.options.fields = DatasetServiceMock.FIELDS;
+        component.options.limit = 2;
+        component.options.linkField = new FieldMetaData('testLinkField', 'Test Link Field');
+        component.errorMessage = 'Previous Error Message';
+        component.lastPage = false;
         component.page = 2;
         component.showGrid = false;
         let spy1 = spyOn(component, 'refreshVisualization');
@@ -1623,33 +1710,63 @@ describe('Component: ThumbnailGrid', () => {
                 testNameField: 'name2',
                 testSizeField: 0.2,
                 testTypeField: 'type2'
+            }, {
+                _id: 'id3',
+                testLinkField: 'link3',
+                testNameField: 'name3',
+                testSizeField: 0.3,
+                testTypeField: 'type3'
+            }, {
+                _id: 'id4',
+                testLinkField: 'link4',
+                testNameField: 'name4',
+                testSizeField: 0.4,
+                testTypeField: 'type4'
             }]
         });
 
         expect(component.errorMessage).toEqual('');
-        expect(component.lastPage).toEqual(false);
+        expect(component.lastPage).toEqual(true);
         expect(component.page).toEqual(2);
         expect(component.showGrid).toEqual(true);
 
         expect(component.gridArray).toEqual([{
-            _id: 'id1',
-            testLinkField: 'link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1'
-        }, {
-            _id: 'id2',
-            testLinkField: 'link2',
-            testNameField: 'name2',
-            testSizeField: 0.2,
-            testTypeField: 'type2'
+                _id: 'id1',
+                testLinkField: 'link1',
+                testNameField: 'name1',
+                testSizeField: 0.1,
+                testTypeField: 'type1'
+            }, {
+                _id: 'id2',
+                testLinkField: 'link2',
+                testNameField: 'name2',
+                testSizeField: 0.2,
+                testTypeField: 'type2'
+            }, {
+                _id: 'id3',
+                testLinkField: 'link3',
+                testNameField: 'name3',
+                testSizeField: 0.3,
+                testTypeField: 'type3'
+            }, {
+                _id: 'id4',
+                testLinkField: 'link4',
+                testNameField: 'name4',
+                testSizeField: 0.4,
+                testTypeField: 'type4'
         }]);
         expect(component.pagingGrid).toEqual([{
-            _id: 'id1',
-            testLinkField: 'link1',
-            testNameField: 'name1',
-            testSizeField: 0.1,
-            testTypeField: 'type1'
+                _id: 'id3',
+                testLinkField: 'link3',
+                testNameField: 'name3',
+                testSizeField: 0.3,
+                testTypeField: 'type3'
+            }, {
+                _id: 'id4',
+                testLinkField: 'link4',
+                testNameField: 'name4',
+                testSizeField: 0.4,
+                testTypeField: 'type4'
         }]);
 
         expect(spy1.calls.count()).toEqual(1);
