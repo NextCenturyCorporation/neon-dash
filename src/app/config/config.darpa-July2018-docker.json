@@ -131,7 +131,7 @@
                     }],
                     "customServer": {
                         "useCustomServer": true,
-                        "mapUrl": "http://localhost:8080/geoserver/ne2/wms",
+                        "mapUrl": "http://admin:geoserver@localhost:8080/geoserver/ne2/wms",
                         "layer": " ne2:NE2_HR_LC_SR_W_DR"
                     },
                     "mapType": "leaflet",
