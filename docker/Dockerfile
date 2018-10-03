@@ -76,6 +76,7 @@ ENV CATALINA_HOME $INST_HOME/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
 RUN mkdir -p $CATALINA_HOME
 WORKDIR $CATALINA_HOME
+ENV TOMCAT_URL="http://localhost:8888"
 
 ENV TOMCAT_MAJOR 8
 ENV TOMCAT_VERSION 8.5.34
@@ -103,6 +104,9 @@ RUN $CATALINA_HOME/tomcat_setup.sh
 # **** Kevin Baik said this is no longer needed 09/28/18 *****
 #RUN sed -i '$i<filter><filter-name>CorsFilter</filter-name><filter-class>org.apache.catalina.filters.CorsFilter</filter-class></filter><filter-mapping><filter-name>CorsFilter</filter-name><url-pattern>/*</url-pattern></filter-mapping>' $CATALINA_HOME/conf/web.xml
 
+# Update Tomcat to use port 8888
+RUN sed -i 's/port="8080"/port="8888"/' $CATALINA_HOME/conf/server.xml
+
 # Update Tomcat directory permissions
 RUN chown -R tomcat:tomcat $CATALINA_HOME
 
@@ -113,6 +117,9 @@ ENV ELASTICSEARCH_HOME $INST_HOME/elasticsearch
 ENV PATH $ELASTICSEARCH_HOME/bin:$PATH
 RUN mkdir -p $ELASTICSEARCH_HOME
 WORKDIR $ELASTICSEARCH_HOME
+
+ENV ES_DATA="/usr/local/elasticsearch/thor_data"
+ENV ES_URL="http://localhost:9200"
 
 ENV ELASTCSEARCH_MAJOR 2
 ENV ELATICSEARCH_VERSION 2.5.4
@@ -134,7 +141,7 @@ RUN set -x \
 RUN groupadd elasticsearch
 RUN useradd -s /bin/false -g elasticsearch -d $ELASTICSEARCH_HOME elasticsearch
 
-# Set sudoer for "tomcat"
+# Set sudoer for "elasticsearch"
 RUN echo 'elasticsearch ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 # Update permissions on scripts
@@ -297,12 +304,21 @@ RUN rm -rf $LORELEI_HOME
 ENV GEOSERVER_HOME $INST_HOME/geoserver
 ENV PATH $GEOSERVER_HOME/bin:$PATH
 RUN mkdir -p $GEOSERVER_HOME
+ENV GEOSERVER_URL="http://localhost:8080/geoserver"
+ENV GEOSERVER_HOME_DATA="/usr/local/geoserver/data"
+ENV GEOSERVER_DATA="/usr/local/data/geoserver/data"
+ENV GEOSERVER_XML="/usr/local/geoserver/xml"
 
-ENV GEOSERVER_VERSION=2.12.x
+ENV GEOSERVER_VERSION=2.14.0
+ENV GEOSERVER_ZIP_URL=https://versaweb.dl.sourceforge.net/project/geoserver/GeoServer/${GEOSERVER_VERSION}/geoserver-${GEOSERVER_VERSION}-bin.zip
 
-# Download Geoserver war into tomcat webapps 
-RUN wget -c http://build.geonode.org/geoserver/latest/geoserver-${GEOSERVER_VERSION}.war \
-    -O $CATALINA_HOME/webapps/geoserver.war 
+WORKDIR $GEOSERVER_HOME
+
+RUN set -x \
+  && wget -O geoserver.zip "$GEOSERVER_ZIP_URL" \
+  && unzip geoserver.zip -d /tmp/ \
+  && cp -R /tmp/geoserver-$GEOSERVER_VERSION/* $GEOSERVER_HOME \
+  && rm geoserver.zip
 
 # Set Natural Earth and Blue Marble ENV variables
 ARG NATURAL_EARTH_DIR=empty

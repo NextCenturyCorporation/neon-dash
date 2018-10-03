@@ -7,6 +7,6 @@
      <name>ne2</name>
   </workspace>
   <__default>true</__default>
-  <url>file:///usr/local/tomcat/webapps/geoserver/data/NATURAL_EARTH_II/NE2_HR_LC_SR_W_DR.tif</url>
+  <url>file:///usr/local/geoserver/data/NATURAL_EARTH_II/NE2_HR_LC_SR_W_DR.tif</url>
 </coverageStore>
 
