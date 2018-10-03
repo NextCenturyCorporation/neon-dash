@@ -1,250 +1,71 @@
 {
-	"comment": "config for demo with Humanity Roads at Nepal August 15-17 2018",
-	"datasets": [{
-			"name": "DARPA60: Nepal ELISA Situation Discovery",
-			"connectOnLoad": false,
-			"layout": "nepal-elisa-sd",
-			"datastore": "elasticsearch",
-			"hostname": "localhost",
-			"databases": [{
-				"name": "ll_nepal_07_11_3",
-				"prettyName": "Nepal 07_11_3",
-				"tables": [{
-					"name": "annotations",
-					"prettyName": "Annotations",
-					"mappings": {
-						"date": "createdAt"
-					}
-				}]
-			}],
-			"options": {
-				"checkForCoordinateValidation": "null_values",
-				"simpleFilter": {
-					"databaseName": "Nepal 07_11_3",
-					"tableName": "annotations",
-					"fieldName": "originalText",
-					"placeHolder": "Search"
-				}
-			}
-		},
-		{
-			"name": "DEV: Nepal ELISA Situation Awareness",
-			"connectOnLoad": true,
-			"layout": "nepal-elisa-sa",
-			"datastore": "elasticsearch",
-			"hostname": "localhost",
-			"databases": [{
-				"name": "ll_nepal_06_14",
-				"prettyName": "Nepal Earthquake 2015, ELISA Annotations",
-				"tables": [{
-						"name": "annotations",
-						"prettyName": "Annotations",
-						"mappings": {
-							"date": "createdAt"
-						}
-					},
-					{
-						"name": "situations",
-						"prettyName": "Situations",
-						"mappings": {}
-					}
-				]
-			}],
-			"options": {
-				"checkForCoordinateValidation": "null_values",
-				"simpleFilter": {
-					"databaseName": "ll_nepal_06_14",
-					"tableName": "annotations",
-					"fieldName": "originalText",
-					"placeHolder": "Search"
-				}
-			},
-			"relations": [{
-					"members": [{
-							"database": "ll_nepal_06_14",
-							"table": "situations",
-							"field": "documents"
-						},
-						{
-							"database": "ll_nepal_06_14",
-							"table": "annotations",
-							"field": "id"
-						}
-					]
-				},
-				{
-					"members": [{
-							"database": "ll_nepal_06_14",
-							"table": "situations",
-							"field": "topic"
-						},
-						{
-							"database": "ll_nepal_06_14",
-							"table": "annotations",
-							"field": "llAnnotation.Type"
-						}
-					]
-				}
-			]
-		}
-	],
-	"layouts": {
-		"nepal-elisa-sd": [{
-				"name": "Data Table",
-				"type": "dataTable",
-				"icon": "ViewData64",
-				"col": 0,
-				"row": 0,
-				"sizex": 8,
-				"sizey": 7,
-				"bindings": {
-					"title": "Situation Frames",
-					"database": "ll_nepal_07_11_3",
-					"table": "annotations",
-					"sortField": "createdAt",
-					"limit": 100,
-					"allColumnStatus": "hide",
-					"exceptionsToStatus": [
-						"createdAt",
-						"topic",
-						"location",
-						"need"
-					],
-					"customColumnWidths": [
-						["createdAt", 182],
-						["topic", 85],
-						["need", 105]
-					],
-					"filterable": true,
-					"filterFields": ["_id"],
-					"singleFilter": true,
-					"ignoreSelf": false
-				},
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 7,
-				"minSizey": 3
-			},
-			{
-				"name": "Map",
-				"type": "map",
-				"icon": "Map64",
-				"col": 9,
-				"row": 0,
-				"sizex": 9,
-				"sizey": 6,
-				"bindings": {
-					"title": "Locations",
-					"database": "ll_nepal_07_11_3",
-					"table": "annotations",
-					"filterable": true,
-					"name": "EVENTS",
-					"show": true,
-					"type": "cluster",
-					"limit": 5000,
-					"layers": [{
-						"title": "Map",
-						"database": "ll_nepal_07_11_3",
-						"table": "annotations",
-						"latitudeField": "geoLocation.lat",
-						"longitudeField": "geoLocation.lon",
-						"dateField": "createdDate",
-						"colorField": "topic"
-					}],
-					"mapType": "leaflet"
-				},
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 6,
-				"minSizey": 5
-			},
-			{
-				"name": "Data Table",
-				"type": "dataTable",
-				"icon": "ViewData64",
-				"col": 18,
-				"sizex": 7,
-				"row": 0,
-				"sizey": 7,
-				"bindings": {
-					"title": "Documents",
-					"database": "ll_nepal_07_11_3",
-					"table": "annotations",
-					"idField": "id",
-					"sortField": "createdAt",
-					"limit": "100",
-					"allColumnStatus": "hide",
-					"exceptionsToStatus": [
-						"createdAt",
-						"translatedText",
-						"mediaEntities.displayURL"
-					],
-					"customColumnWidths": [
-						["createdAt", 182],
-						["mediaEntities.displayURL", 118]
-					],
-					"filterable": true,
-					"filterFields": ["id"],
-					"singleFilter": true,
-					"ignoreSelf": false,
-					"checkDuplicateField": "translatedText"
-				},
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 7,
-				"minSizey": 3
-			},
-			{
-				"name": "Bar Chart",
-				"type": "barChart",
-				"icon": "BarChart64",
-				"col": 0,
-				"row": 7,
-				"sizex": 8,
-				"sizey": 5,
-				"bindings": {
-					"title": "Topics",
-					"database": "ll_nepal_07_11_3",
-					"table": "annotations",
-					"dataField": "topic",
-					"limit": 10,
-					"chartType": "horizontalBar",
-					"colorField": "topic"
-				},
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 3
-			},
-			{
-				"name": "Text Cloud",
-				"type": "textCloud",
-				"icon": "TagCloud64",
-				"col": 9,
-				"row": 3,
-				"sizex": 5,
-				"sizey": 3,
-				"$$hashKey": "object:35",
-				"selected": true,
-				"bindings": {
-					"title": "Locations",
-					"database": "ll_nepal_07_11_3",
-					"table": "annotations",
-					"dataField": "location",
-					"preFilter": false
-				},
-				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 6,
-				"minSizey": 5
+    "comment": "config for demo with Humanity Roads at Nepal August 15-17 2018",
+    "datasets": [{
+            "name": "Nepal ELISA Situation Discovery",
+            "connectOnLoad": true,
+            "layout": "nepal-elisa-sd",
+            "datastore": "elasticsearch",
+            "hostname": "localhost",
+            "databases": [{
+                "name": "ll_nepal_08_14",
+                "prettyName": "Nepal_08_14",
+                "tables": [{
+                    "name": "annotations",
+                    "prettyName": "Annotations",
+                    "fields": [{
+                            "columnName": "createdAt",
+                            "prettyName": "Date Created"
+                        },
+                        {
+                            "columnName": "topic",
+                            "prettyName": "Need Type"
+                        },
+                        {
+                            "columnName": "location",
+                            "prettyName": "Location"
+                        },
+                        {
+                            "columnName": "status",
+                            "prettyName": "Status"
+                        },
+                        {
+                            "columnName": "llAnnotation.Status",
+                            "prettyName": "Status"
+                        },
+                        {
+                            "columnName": "translatedText",
+                            "prettyName": "Translated Text"
+                        },
+                        {
+                            "columnName": "originalText",
+                            "prettyName": "Original Text"
+                        }
+                    ],
+                    "labelOptions": {
+                        "topic": {
+                            "food": "Food",
+                            "water": "Water",
+                            "shelter": "Shelter",
+                            "med": "Medicine",
+                            "search": "Search and Rescue",
+                            "evac": "Evacuation",
+                            "infra": "Infrastructure",
+                            "utils": "Utilities",
+                            "crimeviolence": "Crime /  Violence",
+                            "terrorism": "Terrorism",
+                            "regimechange": "Regime Change"
+                        }
+                    },
+                    "mappings": {
+                        "date": "createdAt"
+                    }
 
                 }]
             }],
             "options": {
                 "checkForCoordinateValidation": "null_values",
                 "simpleFilter": {
-                    "databaseName": "Nepal_08_14",
+                    "databaseName": "ll_nepal_08_14",
                     "tableName": "annotations",
                     "fieldName": "originalText",
                     "placeHolder": "Search"
@@ -326,7 +147,7 @@
                 "icon": "Map64",
                 "col": 1,
                 "row": 1,
-                "sizex": 9,
+                "sizex": 4,
                 "sizey": 7,
                 "bindings": {
                     "title": "Locations",
@@ -350,7 +171,7 @@
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 6,
+                "minSizex": 3,
                 "minSizey": 5
             },
             {
@@ -359,8 +180,8 @@
                 "icon": "Timeline64",
                 "col": 1,
                 "row": 8,
-                "sizex": 9,
-                "sizey": 5,
+                "sizex": 4,
+                "sizey": 6,
                 "bindings": {
                     "title": "Timeline",
                     "database": "ll_nepal_08_14",
@@ -370,17 +191,17 @@
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 6,
+                "minSizex": 3,
                 "minSizey": 3
             },
             {
                 "name": "Text Cloud",
                 "type": "textCloud",
                 "icon": "TagCloud64",
-                "col": 10,
+                "col": 5,
                 "row": 1,
-                "sizex": 5,
-                "sizey": 6,
+                "sizex": 3,
+                "sizey": 5,
                 "$$hashKey": "object:35",
                 "selected": true,
                 "bindings": {
@@ -393,17 +214,17 @@
                 "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 6,
-                "minSizey": 5
+                "minSizex": 4,
+                "minSizey": 3
             },
             {
                 "name": "Bar Chart",
                 "type": "barChart",
                 "icon": "BarChart64",
-                "col": 10,
-                "row": 8,
-                "sizex": 5,
-                "sizey": 6,
+                "col": 5,
+                "row": 6,
+                "sizex": 3,
+                "sizey": 8,
                 "bindings": {
                     "title": "Need Type",
                     "database": "ll_nepal_08_14",
@@ -415,16 +236,16 @@
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
+                "minSizex": 3,
                 "minSizey": 3
             },
             {
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "col": 15,
+                "col": 8,
                 "row": 1,
-                "sizex": 10,
+                "sizex": 5,
                 "sizey": 7,
                 "bindings": {
                     "title": "Tweet List",
@@ -432,7 +253,6 @@
                     "table": "Annotations",
                     "idField": "_id",
                     "sortField": "createdAt",
-                    "linkPrefix": "http://0.0.0.0:8000/Data/ll_nepal_08_14/",
                     "limit": 100,
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
@@ -453,17 +273,17 @@
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 7,
+                "minSizex": 4,
                 "minSizey": 3
             },
             {
                 "name": "Annotation Viewer",
                 "type": "annotationViewer",
                 "icon": "documentViewer64",
-                "col": 15,
+                "col": 8,
                 "row": 8,
-                "sizex": 3,
-                "sizey": 5,
+                "sizex": 2,
+                "sizey": 6,
                 "bindings": {
                     "title": "Selected Text",
                     "database": "ll_nepal_08_14",
@@ -474,17 +294,17 @@
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
+                "minSizex": 2,
                 "minSizey": 3
             },
             {
                 "name": "Media Viewer",
                 "type": "mediaViewer",
                 "icon": "mediaViewer",
-                "col": 18,
+                "col": 10,
                 "row": 8,
-                "sizex": 7,
-                "sizey": 5,
+                "sizex": 3,
+                "sizey": 6,
                 "bindings": {
                     "title": "Media Viewer",
                     "database": "ll_nepal_08_14",
@@ -504,7 +324,7 @@
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
+                "minSizex": 3,
                 "minSizey": 4
             },
             {
@@ -512,8 +332,8 @@
                 "type": "filterBuilder",
                 "icon": "CreateFilter64",
                 "col": 1,
-                "row": 13,
-                "sizex": 24,
+                "row": 14,
+                "sizex": 12,
                 "sizey": 2,
                 "bindings": {
                     "title": "Filter Builder",
@@ -532,7 +352,7 @@
                 "icon": "ViewData64",
                 "col": 1,
                 "row": 1,
-                "sizex": 8,
+                "sizex": 4,
                 "sizey": 12,
                 "bindings": {
                     "title": "Document Feed",
@@ -558,16 +378,16 @@
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 7,
+                "minSizex": 3,
                 "minSizey": 3
             },
             {
                 "name": "Map",
                 "type": "map",
                 "icon": "Map64",
-                "col": 9,
+                "col": 5,
                 "row": 1,
-                "sizex": 8,
+                "sizex": 4,
                 "sizey": 7,
                 "bindings": {
                     "title": "Locations",
@@ -595,16 +415,16 @@
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 6,
+                "minSizex": 3,
                 "minSizey": 5
             },
             {
                 "name": "Bar Chart",
                 "type": "barChart",
                 "icon": "BarChart64",
-                "col": 9,
-                "row": 9,
-                "sizex": 8,
+                "col": 5,
+                "row": 8,
+                "sizex": 4,
                 "sizey": 5,
                 "bindings": {
                     "title": "Need Type",
@@ -617,16 +437,16 @@
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
+                "minSizex": 2,
                 "minSizey": 3
             },
             {
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
-                "col": 17,
+                "col": 9,
                 "row": 1,
-                "sizex": 8,
+                "sizex": 4,
                 "sizey": 8,
                 "bindings": {
                     "title": "Situation Frames",
@@ -656,16 +476,16 @@
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 5,
+                "minSizex": 3,
                 "minSizey": 3
             },
             {
                 "name": "Annotation Viewer",
                 "type": "annotationViewer",
                 "icon": "documentViewer64",
-                "col": 17,
+                "col": 9,
                 "row": 9,
-                "sizex": 4,
+                "sizex": 2,
                 "sizey": 4,
                 "bindings": {
                     "title": "Original Text",
@@ -677,16 +497,16 @@
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
+                "minSizex": 2,
                 "minSizey": 3
             },
             {
                 "name": "Annotation Viewer",
                 "type": "annotationViewer",
                 "icon": "documentViewer64",
-                "col": 21,
+                "col": 11,
                 "row": 9,
-                "sizex": 4,
+                "sizex": 2,
                 "sizey": 4,
                 "bindings": {
                     "title": "Translated Text",
@@ -698,7 +518,7 @@
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 4,
+                "minSizex": 2,
                 "minSizey": 3
             },
             {
@@ -707,7 +527,7 @@
                 "icon": "CreateFilter64",
                 "col": 1,
                 "row": 13,
-                "sizex": 8,
+                "sizex": 4,
                 "sizey": 2,
                 "bindings": {
                     "title": "Filter Builder",
@@ -723,9 +543,9 @@
                 "name": "Text Cloud",
                 "type": "textCloud",
                 "icon": "TagCloud64",
-                "col": 9,
+                "col": 5,
                 "row": 13,
-                "sizex": 5,
+                "sizex": 3,
                 "sizey": 4,
                 "$$hashKey": "object:35",
                 "selected": true,
@@ -739,8 +559,8 @@
                 "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
                 "minPixelx": 320,
                 "minPixely": 240,
-                "minSizex": 6,
-                "minSizey": 5
+                "minSizex": 3,
+                "minSizey": 4
             }
         ]
     },
@@ -938,244 +758,4 @@
             "google": "AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8"
         }
     }
-}
-
-			},
-			{
-				"name": "Timeline",
-				"type": "timeline",
-				"icon": "Timeline64",
-				"col": 7,
-				"sizex": 5,
-				"row": 10,
-				"sizey": 3,
-				"bindings": {
-					"title": "Times",
-					"database": "ll_nepal_06_14",
-					"table": "annotations",
-					"dateField": "createdAt",
-					"granularity": "hour"
-				},
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 6,
-				"minSizey": 3
-			},
-			{
-				"name": "Media Viewer",
-				"type": "mediaViewer",
-				"icon": "mediaViewer",
-				"col": 17,
-				"sizex": 8,
-				"row": 13,
-				"sizey": 5,
-				"bindings": {
-					"title": "Media Viewer",
-					"database": "ll_nepal_06_14",
-					"table": "annotations",
-					"id": "_id",
-					"idField": "id",
-					"linkField": "mediaEntities.mediaURLHttps"
-				},
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 4
-			}
-		]
-	},
-	"legends": {
-		"ll_nepal_07_02": {
-			"documents": [{
-					"label": "Text",
-					"customized": {
-						"field": "originalText",
-						"operator": "contains"
-					},
-					"items": [{
-							"label": "Evacuation",
-							"field": "originalText",
-							"operator": "contains",
-							"value": "evac"
-						},
-						{
-							"label": "Food",
-							"field": "originalText",
-							"operator": "contains",
-							"value": "food"
-						},
-						{
-							"label": "Rescue",
-							"field": "originalText",
-							"operator": "contains",
-							"value": "rescue"
-						},
-						{
-							"label": "Water",
-							"field": "originalText",
-							"operator": "contains",
-							"value": "water"
-						}
-					]
-				},
-				{
-					"label": "Situation Frame Type",
-					"items": [{
-							"label": "Any",
-							"field": "topics",
-							"operator": "!=",
-							"value": "None"
-						},
-						{
-							"label": "Energy",
-							"field": "topics",
-							"operator": "contains",
-							"value": "Energy"
-						},
-						{
-							"label": "Evacuation",
-							"field": "topics",
-							"operator": "contains",
-							"value": "evac"
-						},
-						{
-							"label": "Food",
-							"field": "topics",
-							"operator": "contains",
-							"value": "food"
-						},
-						{
-							"label": "Infrastructure",
-							"field": "topics",
-							"operator": "contains",
-							"value": "infra"
-						},
-						{
-							"label": "Medical",
-							"field": "topics",
-							"operator": "contains",
-							"value": "med"
-						},
-						{
-							"label": "Rescue",
-							"field": "topics",
-							"operator": "contains",
-							"value": "rescue"
-						},
-						{
-							"label": "Sanitation",
-							"field": "topics",
-							"operator": "contains",
-							"value": "Sanitation"
-						},
-						{
-							"label": "Search",
-							"field": "topics",
-							"operator": "contains",
-							"value": "search"
-						},
-						{
-							"label": "Shelter",
-							"field": "topics",
-							"operator": "contains",
-							"value": "shelter"
-						},
-						{
-							"label": "Utilities",
-							"field": "topics",
-							"operator": "contains",
-							"value": "utils"
-						},
-						{
-							"label": "Water",
-							"field": "topics",
-							"operator": "contains",
-							"value": "water"
-						}
-					]
-				},
-				{
-					"label": "SEC",
-					"items": [{
-							"label": "Activation",
-							"field": "sentimentString",
-							"value": "Activation"
-						},
-						{
-							"label": "N/A",
-							"field": "sentimentString",
-							"value": "N/A"
-						},
-						{
-							"label": "Negative",
-							"field": "sentimentString",
-							"value": "Negative"
-						},
-						{
-							"label": "Negative, Activation",
-							"field": "sentimentString",
-							"value": "Negative, Activation"
-						},
-						{
-							"label": "Positive",
-							"field": "sentimentString",
-							"value": "Positive"
-						},
-						{
-							"label": "Positive, Activation",
-							"field": "sentimentString",
-							"value": "Positive, Activation"
-						}
-					]
-				},
-				{
-					"label": "Entity Type",
-					"items": [{
-							"label": "Person",
-							"field": "entities.entityType",
-							"value": "PER"
-						},
-						{
-							"label": "Organization",
-							"field": "entities.entityType",
-							"value": "ORG"
-						},
-						{
-							"label": "Location",
-							"field": "entities.entityType",
-							"value": "LOC"
-						},
-						{
-							"label": "Geopolitical Entity",
-							"field": "entities.entityType",
-							"value": "GPE"
-						}
-					]
-				}
-			]
-		}
-	},
-	"routeService": {
-		"url": "http://localhost:8090/ghREST/",
-		"get": "route?lat1=LAT1&lon1=LON1&lat2=LAT2&lon2=LON2",
-		"post": "dynamicroute",
-		"disabled": true
-	},
-	"dashboard": {
-		"gridsterColumns": 24,
-		"gridsterMargins": 10,
-		"hideNavbarItems": false,
-		"hideAdvancedOptions": false,
-		"hideAddVisualizationsButton": false,
-		"hideErrorNotifications": true,
-		"hideHeaders": false,
-		"showFilterStatusTray": true,
-		"hideCloseButton": false,
-		"showVideoOnLoad": false,
-		"showImport": true,
-		"showExport": true,
-		"translationKeys": {
-			"google": "AIzaSyD6xPBhibimIvzUyncttxwSKmRZ1lq0kL8"
-		}
-	}
 }
