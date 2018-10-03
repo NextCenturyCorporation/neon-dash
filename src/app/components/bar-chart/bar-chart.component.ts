@@ -25,20 +25,20 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color, ColorSchemeService } from '../../services/color-scheme.service';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import {ActiveGridService} from '../../services/active-grid.service';
+import {Color, ColorSchemeService} from '../../services/color-scheme.service';
+import {ConnectionService} from '../../services/connection.service';
+import {DatasetService} from '../../services/dataset.service';
+import {FilterService} from '../../services/filter.service';
+import {ExportService} from '../../services/export.service';
+import {ThemesService} from '../../services/themes.service';
+import {VisualizationService} from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { ChartComponent } from '../chart/chart.component';
-import { Chart } from 'chart.js';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
-import { neonVariables } from '../../neon-namespaces';
+import {BaseNeonComponent, BaseNeonOptions} from '../base-neon-component/base-neon.component';
+import {ChartComponent} from '../chart/chart.component';
+import {Chart} from 'chart.js';
+import {FieldMetaData} from '../../dataset';
+import {neonVariables} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
 /**
@@ -609,7 +609,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
                 for (let index = activeLabelIndexes.length - 1; index >= 0; index--) {
                     if (dataset.data[activeLabelIndexes[index]] > 0) {
                         selectedLabels.push(dataset.label);
-                        continue;
+
                     }
                 }
             }
@@ -781,7 +781,7 @@ export class BarChartComponent extends BaseNeonComponent implements OnInit, OnDe
 
         let groupsToDatasets = new Map<string, BarDataSet>();
         let colorFieldExists = (this.options.colorField && this.options.colorField.columnName !== '');
-
+        this.colorSchemeService.setColorListByIndex(3);
         // Update the segments and counts from the bars and the data.
         for (let item of data) {
             let barLabel: string = item[this.options.dataField.columnName];

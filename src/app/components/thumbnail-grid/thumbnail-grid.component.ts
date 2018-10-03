@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,19 +25,19 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { DomSanitizer } from '@angular/platform-browser';
+import {DomSanitizer} from '@angular/platform-browser';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import {ActiveGridService} from '../../services/active-grid.service';
+import {ConnectionService} from '../../services/connection.service';
+import {DatasetService} from '../../services/dataset.service';
+import {ExportService} from '../../services/export.service';
+import {FilterService} from '../../services/filter.service';
+import {ThemesService} from '../../services/themes.service';
+import {VisualizationService} from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { FieldMetaData, MediaTypes } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {BaseNeonComponent, BaseNeonOptions} from '../base-neon-component/base-neon.component';
+import {FieldMetaData, MediaTypes} from '../../dataset';
+import {neonUtilities, neonVariables} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
 
@@ -155,8 +154,8 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     public mediaTypes: any = MediaTypes;
 
     constructor(activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
-        filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        ref: ChangeDetectorRef, visualizationService: VisualizationService, private sanitizer: DomSanitizer) {
+                filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
+                ref: ChangeDetectorRef, visualizationService: VisualizationService, private sanitizer: DomSanitizer) {
 
         super(activeGridService, connectionService, datasetService,
             filterService, exportService, injector, themesService, ref, visualizationService);
@@ -638,7 +637,7 @@ export class ThumbnailGridComponent extends BaseNeonComponent implements OnInit,
     private getArrayValues(value) {
         return Array.isArray(value) ?
             value : value.toString().search(/,/g) > -1 ?
-            value.toString().split(',') : [value];
+                value.toString().split(',') : [value];
     }
 
     /**

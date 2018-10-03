@@ -126,7 +126,6 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public typeField: FieldMetaData;
     public edgeWidth: number;
     public limit: number;
-    public andFilters: boolean;
     public showOnlyFiltered: boolean;
     public filterFields: string[];
     public xPositionField: FieldMetaData;
@@ -334,7 +333,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         bindings.linkNameField = this.options.linkNameField.columnName;
         bindings.nodeColorField = this.options.nodeColorField.columnName;
         bindings.edgeColorField = this.options.edgeColorField.columnName;
-        bindings.andFilters = this.options.andFilters;
         bindings.xPositionField = this.options.xPositionField.columnName;
         bindings.yPositionField = this.options.yPositionField.columnName;
         bindings.xTargetPositionField = this.options.xTargetPositionField.columnName;
@@ -584,8 +582,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         this.activeData.forEach((d) => {
             for (let field of this.options.fields) {
                 if (field.columnName === this.options.nodeColorField.columnName && this.options.cleanLegendLabels
-                    && this.options.displayLegend)
-                {
+                    && this.options.displayLegend) {
                     let types = neonUtilities.deepFind(d, this.options.nodeColorField.columnName);
                     if (types instanceof Array) {
                         for (let value of types) {
@@ -596,8 +593,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     }
                 }
                 if (field.columnName === this.options.edgeColorField.columnName && this.options.cleanLegendLabels
-                    && this.options.displayLegend)
-                {
+                    && this.options.displayLegend) {
                     let types = neonUtilities.deepFind(d, this.options.edgeColorField.columnName);
                     if (types instanceof Array) {
                         for (let value of types) {
