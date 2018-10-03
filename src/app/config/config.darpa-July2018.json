@@ -1,9 +1,8 @@
 {
-    "datasets": [        
-        {
-            "name": "Uyghur LDC Situation Discovery",
+    "datasets": [{
+            "name": "DARPA60: Uyghur LDC Situation Discovery",
             "connectOnLoad": true,
-            "layout": "uyghur-ldc-layout",
+            "layout": "uyghur-ldc-sd",
             "datastore": "elasticsearch",
             "hostname": "localhost",
             "databases": [{
@@ -79,6 +78,38 @@
                     "tables": [{
                         "name": "ui_out",
                         "prettyName": "ui_out",
+                        "fields": [{
+                                "columnName": "createdAt",
+                                "prettyName": "Date Created"
+                            },
+                            {
+                                "columnName": "location",
+                                "prettyName": "Location"
+                            },
+                            {
+                                "columnName": "JustificationEN",
+                                "prettyName": "Translated Text"
+                            },
+                            {
+                                "columnName": "JustificationIL",
+                                "prettyName": "Original Text"
+                            }
+                        ],
+                        "labelOptions": {
+                            "Type": {
+                                "food" : "Food",
+                                "water": "Water",
+                                "shelter": "Shelter",
+                                "med": "Medicine",
+                                "search": "Search and Rescue",
+                                "evac": "Evacuation",
+                                "infra": "Infrastructure",
+                                "utils": "Utilities",
+                                "crimeviolence": "Crime / Violence",
+                                "terrorism": "Terrorism",
+                                "regimechange": "Regime Change"
+                            }
+                        },
                         "mappings": {
                             "date": "createdAt"
                         }
@@ -87,9 +118,9 @@
             "options": {
                 "checkForCoordinateValidation": "null_values",
                 "simpleFilter": {
-                    "databaseName": "Uyghur ELISA",
+                    "databaseName": "uyg_elisa_sd",
                     "tableName": "ui_out",
-                    "fieldName": "translatedText",
+                    "fieldName": "JustificationEN",
                     "placeHolder": "Search"
                 }
             }
@@ -106,6 +137,46 @@
                     "tables": [{
                         "name": "annotations",
                         "prettyName": "Annotations",
+                        "fields": [{
+                            "columnName": "createdAt",
+                            "prettyName": "Date Created"
+                        },
+                        {
+                            "columnName": "topic",
+                            "prettyName": "Need Type"
+                        },
+                        {
+                            "columnName": "location",
+                            "prettyName": "Location"
+                        },
+                        {
+                            "columnName": "status",
+                            "prettyName": "Status"
+                        },
+                        {
+                            "columnName": "translatedText",
+                            "prettyName": "Translated Text"
+                        },
+                        {
+                            "columnName": "originalText",
+                            "prettyName": "Original Text"
+                        }
+                    ],
+                    "labelOptions": {
+                    "topic": {
+                        "food": "Food",
+                        "water": "Water",
+                        "shelter": "Shelter",
+                        "med": "Medicine",
+                        "search": "Search and Rescue",
+                        "evac": "Evacuation",
+                        "infra": "Infrastructure",
+                        "utils": "Utilities",
+                        "crimeviolence": "Crime /  Violence",
+                        "terrorism": "Terrorism",
+                        "regimechange": "Regime Change"
+                    }
+                },
                         "mappings": {
                             "date": "createdAt"
                         }
@@ -114,15 +185,15 @@
             "options": {
                 "checkForCoordinateValidation": "null_values",
                 "simpleFilter": {
-                    "databaseName": "Nepal 07_11_3",
+                    "databaseName": "ll_nepal_07_11_3",
                     "tableName": "annotations",
                     "fieldName": "originalText",
                     "placeHolder": "Search"
                 }
             }
-		}, 
+		},
 		{
-			"name": "Central African Republic ELISA Situation Discovery",
+			"name": "DARPA60 Central African Republic ELISA Situation Discovery",
 			"connectOnLoad": false,
 			"layout": "car-elisa-sd",
 			"datastore": "elasticsearch",
@@ -132,7 +203,28 @@
 					"prettyName": "ELISA Central African Republic Data",
 					"tables": [{
 							"name": "annotations",
-							"prettyName": "Annotations",
+                            "prettyName": "Annotations",
+                            "fields": [{
+                                "columnName": "createdAt",
+                                "prettyName": "Date Created"
+                            },
+                            {
+                                "columnName": "topic",
+                                "prettyName": "Need Type"
+                            },
+                            {
+                                "columnName": "location",
+                                "prettyName": "Location"
+                            },
+                            {
+                                "columnName": "status",
+                                "prettyName": "Status"
+                            },
+                            {
+                                "columnName": "JustificationEN",
+                                "prettyName": "Original Text"
+                            }
+                            ],
 							"mappings": {
 								"date": "createdAt"
                             },
@@ -264,7 +356,7 @@
 								"PER": "#AEC7E8"
 							},
 							"types": {
-								
+
 							}
 						}
 					}
@@ -279,15 +371,14 @@
 		}
     ],
     "layouts": {
-        "uyghur-ldc-layout": [
-            {
+        "uyghur-ldc-sd": [{
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
                 "col": 1,
                 "row": 1,
                 "sizex": 4,
-                "sizey": 12,
+                "sizey": 14,
                 "bindings": {
                     "title": "Document Feed",
                     "database": "ldc_uyg_jul_18",
@@ -302,7 +393,7 @@
 					],
 					"customColumnWidths": [
                         ["createdDate", 15],
-                        ["originalText", 220]
+                        ["originalText", 360]
                     ],
                     "filterable": false,
                     "filterFields": ["id"],
@@ -322,7 +413,7 @@
                 "col": 5,
                 "row": 1,
                 "sizex": 4,
-                "sizey": 7,
+                "sizey": 9,
                 "bindings": {
                     "title": "Locations",
                     "database": "ldc_uyg_jul_18",
@@ -357,7 +448,7 @@
                 "type": "barChart",
                 "icon": "BarChart64",
                 "col": 5,
-                "row": 7,
+                "row": 9,
                 "sizex": 4,
                 "sizey": 5,
                 "bindings": {
@@ -381,25 +472,24 @@
                 "col": 9,
                 "row": 1,
                 "sizex": 4,
-                "sizey": 8,
+                "sizey": 9,
                 "bindings": {
                     "title": "Situation Frames",
                     "database": "ldc_uyg_jul_18",
                     "table": "ui_out",
                     "sortField": "createdDate",
+                    "idField": "_id",
                     "limit": "100",
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-						"createdDate",
-						"topic",
-                        "location",
-                        "status"
+                        "createdDate",
+                        "topic",
+                        "location"
                     ],
                     "customColumnWidths": [
-                        ["createdDate", 42],
-                        ["topic", 85],
-                        ["location", 85],
-                        ["status", 105]
+                        ["createdDate", 25],
+                        ["topic", 100],
+                        ["location", 150]
                     ],
                     "filterable": false,
                     "filterFields": ["_id"],
@@ -411,16 +501,16 @@
                 "minPixely": 240,
                 "minSizex": 6,
                 "minSizey": 5
-                
+
             },
             {
                 "name": "Annotation Viewer",
                 "type": "annotationViewer",
                 "icon": "documentViewer64",
                 "col": 9,
-                "row": 9,
+                "row": 10,
                 "sizex": 2,
-                "sizey": 4,
+                "sizey": 5,
                 "bindings": {
                     "title": "Original Text",
                     "database": "ldc_uyg_jul_18",
@@ -439,9 +529,9 @@
                 "type": "annotationViewer",
                 "icon": "documentViewer64",
                 "col": 11,
-                "row": 7,
+                "row": 10,
                 "sizex": 2,
-                "sizey": 4,
+                "sizey": 5,
                 "bindings": {
                     "title": "Translated Text",
                     "database": "ldc_uyg_jul_18",
@@ -460,9 +550,9 @@
                 "type": "filterBuilder",
                 "icon": "CreateFilter64",
                 "col": 1,
-                "row": 12,
+                "row": 14,
                 "sizex": 6,
-                "sizey": 3,
+                "sizey": 4,
                 "bindings": {
                     "title": "Filter Builder",
                     "database": "ldc_uyg_jul_18",
@@ -478,9 +568,9 @@
                 "type": "textCloud",
                 "icon": "TagCloud64",
                 "col": 7,
-                "row": 13,
+                "row": 14,
                 "sizex": 6,
-                "sizey": 3,
+                "sizey": 4,
                 "$$hashKey": "object:35",
                 "selected": true,
                 "bindings": {
@@ -498,240 +588,248 @@
             }
         ],
         "uyghur-elisa-sd": [{
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
-                "col": 1,
-                "row": 1,
-                "sizex": 4,
-                "sizey": 7,
-                "bindings": {
-                    "title": "Situation Frames",
+            "name": "Data Table",
+            "type": "dataTable",
+            "icon": "ViewData64",
+            "col": 1,
+            "row": 1,
+            "sizex": 4,
+            "sizey": 14,
+            "bindings": {
+                "title": "Document Feed",
+                "database": "uyg_elisa_sd",
+                "table": "ui_out",
+                "idField": "_id",
+                "sortField": "createdAt",
+                "limit": "100",
+                "allColumnStatus": "hide",
+                "exceptionsToStatus": [
+                    "createdAt",
+                    "JustificationIL"
+                ],
+                "customColumnWidths": [
+                    ["createdAt", 15],
+                    ["JustificationIL", 360]
+                ],
+                "filterable": false,
+                "filterFields": ["id"],
+                "singleFilter": true,
+                "ignoreSelf": false,
+                "checkDuplicateField": "JustificationIL"
+            },
+            "minPixelx": 320,
+            "minPixely": 240,
+            "minSizex": 7,
+            "minSizey": 3
+        },
+        {
+            "name": "Map",
+            "type": "map",
+            "icon": "Map64",
+            "col": 5,
+            "row": 1,
+            "sizex": 4,
+            "sizey": 9,
+            "bindings": {
+                "title": "Locations",
+                "database": "uyg_elisa_sd",
+                "table": "ui_out",
+                "filterable": true,
+                "name": "EVENTS",
+                "show": true,
+                "type": "cluster",
+                "limit": 5000,
+                "layers": [{
+                    "title": "Map",
                     "database": "uyg_elisa_sd",
                     "table": "ui_out",
-                    "limit": "100",
-					"allColumnStatus": "hide",
-					"sortField": "createdAt",
-                    "exceptionsToStatus": [
-						"createdAt",
-						"Type",
-                        "location",
-                        "Status"
-					],
-					"customColumnWidths": [
-						["Type", 85],
-						["Status", 105]
-					],
-                    "filterable": true,
-                    "filterFields": ["_id"],
-                    "singleFilter": true,
-                    "ignoreSelf": false
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 7,
-                "minSizey": 3
-            },
-            {
-                "name": "Map",
-                "type": "map",
-                "icon": "Map64",
-                "col": 5,
-                "row": 1,
-                "sizex": 4,
-                "sizey": 6,
-                "bindings": {
-                    "title": "Locations",
-                    "database": "ldc_uyg_jul_18",
-                    "table": "annotations",
-                    "filterable": true,
-                    "name": "EVENTS",
-                    "show": true,
-                    "type": "cluster",
-                    "limit": 5000,
-                    "layers": [{
-                        "title": "Map",
-                        "database": "ldc_uyg_jul_18",
-                        "table": "ui_out",
-                        "latitudeField": "geoLocation.lat",
-                        "longitudeField": "geoLocation.lon",
-                        "dateField": "createdDate",
-                        "colorField": "topic"
-                    }],
-                    "mapType": "leaflet"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 6,
-                "minSizey": 5
-            },
-            {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
-                "col": 9,
-                "row": 1,
-                "sizex": 4,
-                "sizey": 9,
-                "bindings": {
-                    "title": "Documents",
-                    "database": "ldc_uyg_jul_18",
-                    "table": "ui_out",
-                    "idField": "id",
-                    "sortField": "createdDate",
-                    "limit": "100",
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-						"createdAt",
-						"JustificationEN",
-                        "JustificationIL"
-                    ],
-                    "filterable": true,
-                    "filterFields": ["id"],
-                    "singleFilter": true,
-                    "ignoreSelf": false,
-                    "checkDuplicateField": "translatedText"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 7,
-                "minSizey": 3
-            },
-            {
-                "name": "Bar Chart",
-                "type": "barChart",
-                "icon": "BarChart64",
-                "col": 1,
-                "row": 6,
-                "sizex": 4,
-                "sizey": 5,
-                "bindings": {
-                    "title": "Topics",
-                    "database": "ldc_uyg_jul_18",
-                    "table": "ui_out",
-                    "dataField": "topic",
-                    "limit": 10,
-                    "chartType": "horizontalBar",
-                    "colorField": "topic"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 3
-            },
-            {
-                "name": "Text Cloud",
-                "type": "textCloud",
-                "icon": "TagCloud64",
-                "col": 5,
-                "row": 3,
-                "sizex": 4,
-                "sizey": 3,
-                "$$hashKey": "object:35",
-                "selected": true,
-                "bindings": {
-                    "title": "Locations",
-                    "database": "ldc_uyg_jul_18",
-                    "table": "ui_out",
-                    "dataField": "location",
-                    "preFilter": false
-                },
-                "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 6,
-                "minSizey": 5
-                
-            },
-            {
-                "name": "Timeline",
-                "type": "timeline",
-                "icon": "Timeline64",
-                "col": 5,
-                "row": 9,
-                "sizex": 4,
-                "sizey": 3,
-                "bindings": {
-                    "title": "Timeline",
-                    "database": "ldc_uyg_jul_18",
-                    "table": "ui_out",
+                    "latitudeField": "geoLocation.lat",
+                    "longitudeField": "geoLocation.lon",
                     "dateField": "createdDate",
-                    "granularity": "hour"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 6,
-                "minSizey": 3
+                    "colorField": "Type"
+                }],
+                "mapType": "leaflet",
+                "west": 30.5,
+                "north": 49,
+                "east": 127,
+                "south": 10.6
             },
-            {
-                "name": "Bar Chart",
-                "type": "barChart",
-                "icon": "BarChart64",
-                "col": 9,
-                "row": 8,
-                "sizex": 4,
-                "sizey": 3,
-                "bindings": {
-                    "title": "Status",
-                    "database": "ldc_uyg_jul_18",
-                    "table": "ui_out",
-                    "dataField": "status",
-                    "limit": 10
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 3
+            "minPixelx": 320,
+            "minPixely": 240,
+            "minSizex": 6,
+            "minSizey": 5
+        },
+        {
+            "name": "Bar Chart",
+            "type": "barChart",
+            "icon": "BarChart64",
+            "col": 5,
+            "row": 9,
+            "sizex": 4,
+            "sizey": 5,
+            "bindings": {
+                "title": "Topics",
+                "database": "uyg_elisa_sd",
+                "table": "ui_out",
+                "dataField": "Type",
+                "limit": 101,
+                "chartType": "horizontalBar",
+                "colorField": "Type"
             },
-            {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "col": 1,
-                "row": 13,
-                "sizex": 12,
-                "sizey": 2,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "ldc_uyg_jul_18",
-                    "table": "ui_out"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2
-            }
-		],
+            "minPixelx": 320,
+            "minPixely": 240,
+            "minSizex": 4,
+            "minSizey": 3
+        },
+        {
+            "name": "Data Table",
+            "type": "dataTable",
+            "icon": "ViewData64",
+            "col": 9,
+            "row": 1,
+            "sizex": 4,
+            "sizey": 9,
+            "bindings": {
+                "title": "Situation Frames",
+                "database": "uyg_elisa_sd",
+                "table": "ui_out",
+                "limit": "100",
+                "allColumnStatus": "hide",
+                "sortField": "createdAt",
+                "idField": "_id",
+                "exceptionsToStatus": [
+                    "createdAt",
+                    "Type",
+                    "location"
+                ],
+                "customColumnWidths": [
+                    ["createdAt", 25],
+                    ["Type", 100],
+                    ["Status", 150]
+                ],
+                "filterable": false,
+                "filterFields": ["id"],
+                "singleFilter": true,
+                "ignoreSelf": false
+            },
+            "minPixelx": 320,
+            "minPixely": 240,
+            "minSizex": 6,
+            "minSizey": 5
+        },
+        {
+            "name": "Annotation Viewer",
+            "type": "annotationViewer",
+            "icon": "documentViewer64",
+            "col": 9,
+            "row": 10,
+            "sizex": 2,
+            "sizey": 5,
+            "bindings": {
+                "title": "Original Text",
+                "database": "uyg_elisa_sd",
+                "table": "ui_out",
+                "linkField": "JustificationIL",
+                "idField": "_id",
+                "respondMode": "true"
+            },
+            "minPixelx": 320,
+            "minPixely": 240,
+            "minSizex": 6,
+            "minSizey": 3
+        },
+        {
+            "name": "Annotation Viewer",
+            "type": "annotationViewer",
+            "icon": "documentViewer64",
+            "col": 11,
+            "row": 10,
+            "sizex": 2,
+            "sizey": 5,
+            "bindings": {
+                "title": "Translated Text",
+                "database": "uyg_elisa_sd",
+                "table": "ui_out",
+                "linkField": "JustificationEN",
+                "idField": "_id",
+                "respondMode": "true"
+            },
+            "minPixelx": 320,
+            "minPixely": 240,
+            "minSizex": 4,
+            "minSizey": 3
+        },
+        {
+            "name": "Filter Builder",
+            "type": "filterBuilder",
+            "icon": "CreateFilter64",
+            "col": 1,
+            "row": 14,
+            "sizex": 6,
+            "sizey": 4,
+            "bindings": {
+                "title": "Filter Builder",
+                "database": "uyg_elisa_sd",
+                "table": "ui_out"
+            },
+            "minPixelx": 320,
+            "minPixely": 240,
+            "minSizex": 2,
+            "minSizey": 2
+        },
+        {
+            "name": "Text Cloud",
+            "type": "textCloud",
+            "icon": "TagCloud64",
+            "col": 7,
+            "row": 14,
+            "sizex": 6,
+            "sizey": 4,
+            "$$hashKey": "object:35",
+            "selected": true,
+            "bindings": {
+                "title": "Locations",
+                "database": "uyg_elisa_sd",
+                "table": "ui_out",
+                "dataField": "location",
+                "preFilter": false
+            },
+            "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
+            "minPixelx": 320,
+            "minPixely": 240,
+            "minSizex": 6,
+            "minSizey": 5
+
+        }],
         "nepal-elisa-sd": [{
                 "name": "Data Table",
                 "type": "dataTable",
                 "icon": "ViewData64",
                 "col": 1,
-                "row": 1,
                 "sizex": 4,
-                "sizey": 7,
+                "row": 1,
+                "sizey": 14,
                 "bindings": {
-                    "title": "Situation Frames",
+                    "title": "Documents",
                     "database": "ll_nepal_07_11_3",
                     "table": "annotations",
+                    "idField": "_id",
                     "sortField": "createdAt",
-                    "limit": 100,
+                    "limit": "100",
                     "allColumnStatus": "hide",
                     "exceptionsToStatus": [
-						"createdAt",
-						"topic",
-                        "location",
-                        "need"
-					],
-					"customColumnWidths": [
-						["createdAt", 182],
-						["topic", 85],
-						["need", 105]
-					],
-                    "filterable": true,
-                    "filterFields": ["_id"],
+                        "createdAt",
+                        "originalText"
+                    ],
+                    "customColumnWidths": [
+                        ["createdAt", 15],
+                        ["originalText", 360]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
                     "singleFilter": true,
-                    "ignoreSelf": false
+                    "ignoreSelf": false,
+                    "checkDuplicateField": "originalText"
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -745,7 +843,7 @@
                 "col": 5,
                 "row": 1,
                 "sizex": 4,
-                "sizey": 6,
+                "sizey": 9,
                 "bindings": {
                     "title": "Locations",
                     "database": "ll_nepal_07_11_3",
@@ -762,7 +860,7 @@
                         "latitudeField": "geoLocation.lat",
                         "longitudeField": "geoLocation.lon",
                         "dateField": "createdDate",
-                        "colorField": "topic"                        
+                        "colorField": "topic"
                     }],
                     "mapType": "leaflet"
                 },
@@ -772,47 +870,11 @@
                 "minSizey": 5
             },
             {
-                "name": "Data Table",
-                "type": "dataTable",
-                "icon": "ViewData64",
-                "col": 9,
-                "sizex": 4,
-                "row": 1,
-                "sizey": 7,
-                "bindings": {
-                    "title": "Documents",
-                    "database": "ll_nepal_07_11_3",
-                    "table": "annotations",
-                    "idField": "id",
-                    "sortField": "createdAt",
-                    "limit": "100",
-                    "allColumnStatus": "hide",
-                    "exceptionsToStatus": [
-                        "createdAt",
-                        "translatedText",
-                        "mediaEntities.displayURL"
-					],
-					"customColumnWidths": [
-						["createdAt", 182],
-						["mediaEntities.displayURL", 118]
-					],
-                    "filterable": true,
-                    "filterFields": ["id"],
-                    "singleFilter": true,
-                    "ignoreSelf": false,
-                    "checkDuplicateField": "translatedText"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 7,
-                "minSizey": 3
-            },
-            {
                 "name": "Bar Chart",
                 "type": "barChart",
                 "icon": "BarChart64",
-                "col": 1,
-                "row": 7,
+                "col": 5,
+                "row": 9,
                 "sizex": 4,
                 "sizey": 5,
                 "bindings": {
@@ -830,13 +892,120 @@
                 "minSizey": 3
             },
             {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 9,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Situation Frames",
+                    "database": "ll_nepal_07_11_3",
+                    "table": "annotations",
+                    "idField": "_id",
+                    "sortField": "createdAt",
+                    "limit": 100,
+                    "allColumnStatus": "hide",
+                    "exceptionsToStatus": [
+						"createdAt",
+						"topic",
+                        "location",
+                        "mediaEntities.displayURL"
+					],
+					"customColumnWidths": [
+                        ["createdAt", 122],
+                        ["location", 100],
+                        ["topic", 85],
+                        ["mediaEntities.displayURL", 85]
+					],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 7,
+                "minSizey": 3
+            },
+            {
+                "name": "Annotation Viewer",
+                "type": "annotationViewer",
+                "icon": "documentViewer64",
+                "col": 9,
+                "row": 8,
+                "sizex": 2,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Selected Text",
+                    "database": "ll_nepal_07_11_3",
+                    "table": "annotations",
+                    "linkField": "originalText",
+                    "idField": "_id",
+                    "respondMode": "true"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 3
+            },
+            {
+                "name": "Media Viewer",
+                "type": "mediaViewer",
+                "icon": "mediaViewer",
+                "col": 11,
+                "row": 8,
+                "sizex": 2,
+                "sizey": 5,
+                "bindings": {
+					"title": "Media Viewer",
+					"database": "ll_nepal_07_11_3",
+					"table": "annotations",
+					"id": "_id",
+					"idField": "_id",
+                    "linkField": "mediaEntities.mediaURLHttps",
+                    "resize": true,
+                    "maxHeight": 500,
+                    "maxWidth": 540,
+                    "typeMap": {
+                        "bmp": "img",
+                        "jpg": "img",
+                        "jpeg": "img",
+                        "png": "img"
+                    }
+				},
+				"minPixelx": 320,
+				"minPixely": 240,
+				"minSizex": 4,
+				"minSizey": 4
+            },
+            {
+                "name": "Filter Builder",
+                "type": "filterBuilder",
+                "icon": "CreateFilter64",
+                "col": 1,
+                "row": 14,
+                "sizex": 6,
+                "sizey": 4,
+                "bindings": {
+                    "title": "Filter Builder",
+                    "database": "ll_nepal_07_11_3",
+                    "table": "annotations"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 2,
+                "minSizey": 2
+            },
+            {
                 "name": "Text Cloud",
                 "type": "textCloud",
                 "icon": "TagCloud64",
-                "col": 5,
-                "row": 3,
-                "sizex": 2,
-                "sizey": 3,
+                "col": 7,
+                "row": 14,
+                "sizex": 6,
+                "sizey": 4,
                 "$$hashKey": "object:35",
                 "selected": true,
                 "bindings": {
@@ -851,114 +1020,14 @@
                 "minPixely": 240,
                 "minSizex": 6,
                 "minSizey": 5
-                
-            },
-            {
-                "name": "Bar Chart",
-                "type": "barChart",
-                "icon": "BarChart64",
-                "col": 7,
-                "row": 8,
-                "sizex": 2,
-                "sizey": 3,
-                "bindings": {
-                    "title": "Status",
-                    "database": "ll_nepal_07_11_3",
-                    "table": "annotations",
-                    "dataField": "need",
-                    "limit": 10
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 4,
-                "minSizey": 3
-            },
-            {
-                "name": "Timeline",
-                "type": "timeline",
-                "icon": "Timeline64",
-                "col": 5,
-                "row": 10,
-                "sizex": 4,
-                "sizey": 3,
-                "bindings": {
-                    "title": "Timeline",
-                    "database": "ll_nepal_07_11_3",
-                    "table": "annotations",
-                    "dateField": "createdAt",
-                    "granularity": "hour"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 6,
-                "minSizey": 3
-            },
-            {
-                "name": "Media Viewer",
-                "type": "mediaViewer",
-                "icon": "mediaViewer",
-                "col": 9,
-                "row": 8,
-                "sizex": 4,
-                "sizey": 5,             
-                "bindings": {
-					"title": "Media Viewer",
-					"database": "ll_nepal_07_11_3",
-					"table": "annotations",
-					"id": "_id",
-					"idField": "id",
-					"linkField": "mediaEntities.mediaURLHttps"
-				},
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 4
-            },
-            {
-                "name": "Filter Builder",
-                "type": "filterBuilder",
-                "icon": "CreateFilter64",
-                "col": 1,
-                "row": 13,
-                "sizex": 12,
-                "sizey": 2,
-                "bindings": {
-                    "title": "Filter Builder",
-                    "database": "ll_nepal_07_11_3",
-                    "table": "annotations"
-                },
-                "minPixelx": 320,
-                "minPixely": 240,
-                "minSizex": 2,
-                "minSizey": 2
             }
 		],
 		"car-elisa-sd": [{
-				"name": "Filter Builder",
-				"type": "filterBuilder",
-				"icon": "CreateFilter64",
-				"sizex": 8,
-				"sizey": 2,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 2,
-				"minSizey": 2,
-				"$$hashKey": "object:31",
-				"selected": true,
-				"bindings": {
-					"title": "Filter Builder",
-					"database": "elisa_car_1",
-					"table": "annotations"
-				},
-				"row": 1,
-				"col": 1
-			},
-			{
 				"name": "Data Table",
 				"type": "dataTable",
 				"icon": "ViewData64",
 				"sizex": 4,
-				"sizey": 13,
+				"sizey": 14,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 7,
@@ -966,32 +1035,35 @@
 				"$$hashKey": "object:43",
 				"selected": true,
 				"bindings": {
-					"title": "Documents",
+					"title": "Document Feed",
 					"database": "elisa_car_1",
 					"table": "annotations",
+					"idField": "_id",
 					"sortField": "createdAt",
 					"limit": "100",
 					"allColumnStatus": "hide",
 					"exceptionsToStatus": [
-						"Type",
-						"location",
+						"Date Created",
 						"JustificationEN"
 					],
 					"customColumnWidths": [
-						["Type", 120],
-						["location", 190],
-						["JustificationEN", 215]
-					]
+						["Date Created", 10],
+						["JustificationEN", 360]
+					],
+					"filterable": false,
+					"filterFields": ["id"],
+					"singleFilter": true,
+					"ignoreSelf": false
 				},
 				"row": 1,
-				"col": 9
+				"col": 1
 			},
 			{
 				"name": "Map",
 				"type": "map",
 				"icon": "Map64",
-				"sizex": 5,
-				"sizey": 7,
+				"sizex": 4,
+				"sizey": 9,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 6,
@@ -1070,15 +1142,15 @@
 					"mapType": "leaflet"
 				},
 				"id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-				"row": 3,
-				"col": 1
+				"row": 1,
+				"col": 5
 			},
 			{
 				"name": "Bar Chart",
 				"type": "barChart",
 				"icon": "BarChart64",
-				"sizex": 3,
-				"sizey": 4,
+				"sizex": 4,
+				"sizey": 5,
 				"minPixelx": 320,
 				"minPixely": 240,
 				"minSizex": 4,
@@ -1103,19 +1175,76 @@
 					]
 				},
 				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 6,
-				"col": 6
-			},
+				"row": 7,
+				"col": 5
+            },
+            {
+                "name": "Data Table",
+                "type": "dataTable",
+                "icon": "ViewData64",
+                "col": 9,
+                "row": 1,
+                "sizex": 4,
+                "sizey": 9,
+                "bindings": {
+                    "title": "Situation Frames",
+                    "database": "elisa_car_1",
+                    "table": "annotations",
+                    "idField": "_id",
+                    "limit": "100",
+                    "allColumnStatus": "hide",
+                    "sortField": "createdAt",
+                    "exceptionsToStatus": [
+                        "createdAt",
+                        "Type",
+                        "location"
+                    ],
+                    "customColumnWidths": [
+                        ["createdAt", 25],
+                        ["Type", 100],
+                        ["Status", 150]
+                    ],
+                    "filterable": false,
+                    "filterFields": ["id"],
+                    "singleFilter": true,
+                    "ignoreSelf": false
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 5
+            },
+            {
+                "name": "Annotation Viewer",
+                "type": "annotationViewer",
+                "icon": "documentViewer64",
+                "col": 9,
+                "row": 9,
+                "sizex": 4,
+                "sizey": 5,
+                "bindings": {
+                    "title": "Original Text",
+                    "database": "elisa_car_1",
+                    "table": "annotations",
+                    "linkField": "JustificationEN",
+                    "idField": "_id",
+                    "respondMode": "true"
+                },
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 6,
+                "minSizey": 3
+            },
 			{
 				"name": "Text Cloud",
 				"type": "textCloud",
 				"icon": "TagCloud64",
-				"sizex": 3,
-				"sizey": 3,
+				"sizex": 6,
+				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 4,
-				"minSizey": 3,
+				"minSizex": 6,
+				"minSizey": 5,
 				"$$hashKey": "object:35",
 				"selected": true,
 				"bindings": {
@@ -1125,63 +1254,28 @@
 					"dataField": "entities.name"
 				},
 				"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-				"row": 10,
-				"col": 6
+				"row": 14,
+				"col": 7
 			},
-			{
-				"name": "Timeline",
-				"type": "timeline",
-				"icon": "Timeline64",
-				"sizex": 5,
+            {
+				"name": "Filter Builder",
+				"type": "filterBuilder",
+				"icon": "CreateFilter64",
+				"sizex": 6,
 				"sizey": 4,
 				"minPixelx": 320,
 				"minPixely": 240,
-				"minSizex": 6,
-				"minSizey": 3,
-				"$$hashKey": "object:36",
+				"minSizex": 2,
+				"minSizey": 2,
+				"$$hashKey": "object:31",
 				"selected": true,
 				"bindings": {
-					"title": "Times",
+					"title": "Filter Builder",
 					"database": "elisa_car_1",
-					"table": "annotations",
-					"dateField": "createdAt",
-					"granularity": "month"
+					"table": "annotations"
 				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-				"row": 10,
+				"row": 14,
 				"col": 1
-			},
-			{
-				"name": "Bar Chart",
-				"type": "barChart",
-				"icon": "BarChart64",
-				"sizex": 3,
-				"sizey": 4,
-				"minPixelx": 320,
-				"minPixely": 240,
-				"minSizex": 3,
-				"minSizey": 3,
-				"$$hashKey": "object:30",
-				"selected": true,
-				"bindings": {
-					"title": "Status",
-					"database": "elisa_car_1",
-					"table": "annotations",
-					"dataField": "Status",
-					"chartType": "bar",
-					"colors": [{
-							"value": "evac|food|search|utils|infra|med|shelter|water|vehicles|energy|sanitation|clothing",
-							"color": "77, 190, 194"
-						},
-						{
-							"value": "regimechange|crimeviolence|terrorism|earthquake",
-							"color": "39, 96, 126"
-						}
-					]
-				},
-				"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-				"row": 10,
-				"col": 6
 			}
 		],
 		"nepal-elisa-sa": [{
@@ -1209,7 +1303,7 @@
 						["situationName", 281],
 						["docCount", 105]
 					],
-					"filterable": true,
+					"filterable": false,
 					"filterFields": ["documents", "_id"],
                     "arrayFilterOperator": "or",
                     "singleFilter": false,
@@ -1284,7 +1378,7 @@
                         ["translatedText", 235],
                         ["mediaEntities.displayURL", 103]
 					],
-					"filterable": true,
+					"filterable": false,
 					"filterFields": ["id"],
 					"singleFilter": true,
 					"ignoreSelf": false
@@ -1337,7 +1431,7 @@
                 "minPixely": 240,
                 "minSizex": 6,
                 "minSizey": 5
-                
+
             },
 			{
 				"name": "Timeline",
@@ -1455,7 +1549,7 @@
 					"edgeColorField": "sentimentString"
 				},
 				"row": 15,
-				"col": 1			
+				"col": 1
 			}
 		]
     },
