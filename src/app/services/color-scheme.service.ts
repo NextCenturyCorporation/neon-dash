@@ -68,9 +68,9 @@ export class ColorSet {
 export class ColorSchemeService {
     private colorMaps: Map<string, ColorSet> = new Map<string, ColorSet>();
 
-    // Palette generated with http://tools.medialab.sciences-po.fr/iwanthue/
+    // Palettes generated with http://tools.medialab.sciences-po.fr/iwanthue/
     private colorList = [
-        [   //3 colors
+        [   //3 colors - defined palette
             new Color(173, 216, 230),
             new Color(223, 159, 159),
             new Color(255, 218, 153)
@@ -113,36 +113,33 @@ export class ColorSchemeService {
             new Color(202, 178, 214),
             new Color(255, 255, 153)
         ],
-
-        [   //12 colors
-            new Color(1, 63, 165),
-            new Color(0, 161, 73),
-            new Color(171, 79, 193),
-            new Color(131, 126, 0),
-            new Color(190, 165, 255),
-            new Color(184, 68, 6),
-            new Color(187, 134, 198),
-            new Color(255, 148, 89),
-            new Color(120, 33, 65),
-            new Color(255, 132, 189),
-            new Color(230, 65, 81),
-            new Color(192, 0, 89)
+        [   //24 colors
+            new Color(163,180,4),
+            new Color(19,97,255),
+            new Color(49,148,0),
+            new Color(255,100,243),
+            new Color(0,158,87),
+            new Color(143,105,255),
+            new Color(166,155,0),
+            new Color(91,5,147),
+            new Color(224,159,15),
+            new Color(54,44,138),
+            new Color(253,20,20),
+            new Color(2,139,216),
+            new Color(174,0,15),
+            new Color(0,57,129),
+            new Color(202,166,85),
+            new Color(222,131,255),
+            new Color(93,80,0),
+            new Color(195,0,131),
+            new Color(255,89,95),
+            new Color(114,0,102),
+            new Color(255,63,133),
+            new Color(129,89,133),
+            new Color(120,15,31),
+            new Color(232,143,190)
         ],
-        [   //12 colors
-            new Color(217, 66, 163),
-            new Color(144, 186, 48),
-            new Color(31, 137, 255),
-            new Color(255, 163, 72),
-            new Color(0, 89, 162),
-            new Color(136, 232, 164),
-            new Color(111, 0, 60),
-            new Color(0, 123, 45),
-            new Color(221, 142, 194),
-            new Color(0, 77, 1),
-            new Color(255, 143, 132),
-            new Color(119, 79, 0)
-        ],
-        [   //35 colors - random color set
+        [   //35 colors - random palette
             new Color(31, 120, 180),
             new Color(127, 19, 242),
             new Color(7, 87, 8),
@@ -218,6 +215,12 @@ export class ColorSchemeService {
                 this.colorPosition = i;
                 break;
             }
+        }
+
+        //if there is no palette large enough to cover the length of the array,
+        // then select the largest palette
+        if(this.colorPosition === 0 && length > this.colorList[0].length){
+            this.colorPosition = this.colorList.length - 1;
         }
     }
     /**
