@@ -132,8 +132,8 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         return this.datasets;
     }
 
-    // TODO: 825: flatten dashboards here (won't need to flatten structure later
-    // when table/field keys are used)
+    // TODO: 825: flatten dashboards here (may not need to flatten structure
+    // later when layout is updated)
     getFlattenedDashboards(): {[key: string]: DashboardDatastoreChoice } {
         let tempDashboards = this.datasetService.getDashboards();
         let finalDashboards: {[key: string]: DashboardDatastoreChoice } = {};
@@ -163,7 +163,6 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     }
 
     // TODO: 825: using this to match dashboards to datastores for now
-    // until table/field keys are used
     findMatchingIndex(choice: DashboardDatastoreChoice) {
         for (let index = 0; index < this.datasets.length; index ++) {
             if (this.datasets[index].name === choice.datastore) {

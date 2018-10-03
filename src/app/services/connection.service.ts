@@ -20,6 +20,7 @@ import * as neon from 'neon-framework';
 export class ConnectionService {
 
     private activeConnection: neon.query.Connection;
+    // TODO: 825: make active connection a map or an array to support multiple
 
     /**
      * Creates a Neon connection to the given host with the given database type.
