@@ -219,20 +219,21 @@
             },
             {
                 "name": "Bar Chart",
-                "type": "barChart",
-                "icon": "BarChart64",
+                "type": "aggregation",
+                "icon": "bar_chart",
                 "col": 5,
                 "row": 6,
                 "sizex": 3,
                 "sizey": 8,
                 "bindings": {
                     "title": "Need Type",
+                    "type": "bar-h",
                     "database": "ll_nepal_08_14",
                     "table": "annotations",
-                    "dataField": "topic",
+                    "xField": "topic",
                     "limit": 11,
-                    "chartType": "horizontalBar",
-                    "colorField": "topic"
+                    "groupField": "topic",
+                    "sortByAggregation": true
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
@@ -420,20 +421,21 @@
             },
             {
                 "name": "Bar Chart",
-                "type": "barChart",
-                "icon": "BarChart64",
+                "type": "aggregation",
+                "icon": "bar_chart",
                 "col": 5,
                 "row": 8,
                 "sizex": 4,
                 "sizey": 5,
                 "bindings": {
                     "title": "Need Type",
+                    "type": "bar-h",
                     "database": "ldc_uyg_jul_18",
                     "table": "ui_out",
-                    "dataField": "topic",
+                    "xField": "topic",
                     "limit": 11,
-                    "chartType": "horizontalBar",
-                    "colorField": "topic"
+                    "groupField": "topic",
+                    "sortByAggregation": true
                 },
                 "minPixelx": 320,
                 "minPixely": 240,
