@@ -53,3 +53,8 @@
 .color-highlight {
     color: $accent-bright;
 }
+
+.header-toggle-container {
+    z-index: 9999;
+    position: absolute;
+}
