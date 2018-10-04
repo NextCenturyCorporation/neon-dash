@@ -20,9 +20,10 @@ To enable, edit `/etc/docker/daemon.json` and insert the following:
 }
 ```
 
-Save, restart Docker and confirm experimentals is now enablled on the **Server**
-`$ service docker restart`
-`$ docker version`
+Save, restart Docker via `service docker restart` and confirm experimentals is now enablled on the **Server**
+```
+$ docker version
+```
 
 ```bash
 Client:
@@ -47,14 +48,14 @@ Server:
 
 ### Download GeoTIFF data and create bind mount data directory
 
-Lorelei Docker supports an offline tile server for the map component via [Geoserver](http://geoserver.org/). If you require an offline WMS server you will need to download the appropraite GeoTIFF data and store it in a data directory. Currently this build supports [Nartual Earth II](https://www.naturalearthdata.com/downloads/10m-raster-data/10m-natural-earth-2/) and [Blue Marble data](https://neo.sci.gsfc.nasa.gov/view.php?datasetId=BlueMarbleNG-TB) GeoTIFF data.
+Lorelei Docker supports an offline tile server for the Lorelei map component via [Geoserver](http://geoserver.org/). If you require an offline WMS server you will need to download the appropraite GeoTIFF data and store it in a data directory. Currently this build supports [Nartual Earth II](https://www.naturalearthdata.com/downloads/10m-raster-data/10m-natural-earth-2/) and [Blue Marble data](https://neo.sci.gsfc.nasa.gov/view.php?datasetId=BlueMarbleNG-TB) GeoTIFF data.
 
 ##### Direct GeoTIFF (raster) Data Downloads: 
 + [Natrual Earth II with Shaded Relief, Water, and Drainages: 310.7MB](https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/raster/NE2_HR_LC_SR_W_DR.zip) 
 + [Blue Marble: 10.9MB](http://neo.sci.gsfc.nasa.gov/servlet/RenderData?si=526311&cs=rgb&format=TIFF&width=3600&height=1800)
 
 ##### Data directory creation
-Once you have downloaded the data, extract it and create a directory that will act as the bind mount location for the Docker build. The root location of the directory does not matter, but the structure inside of it does. For our example directory we will name it *data*. Inside the data directory you will need to create a *BLUE_MARBLE* directory and/or a *NATURAL_EARTH_II* directory. Ensure the naming on these directories is exact. Lastly, put the extracted downloaded data files in their respective directories. Your directory structure should look something like this:
+Once you have downloaded the data, extract it and create a directory that will act as the bind mount location for the Docker build. The root location of the directory does not matter, but the structure inside does. For our example directory we will name it *data*. Inside the data directory you will need to create a *BLUE_MARBLE* directory and/or a *NATURAL_EARTH_II* directory. Ensure the naming on these directories is exact. Lastly, put the extracted downloaded data files in their respective sub-directories. Your directory structure should look something like this:
 
 ```
 /data
