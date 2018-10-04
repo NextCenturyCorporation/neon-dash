@@ -33,6 +33,7 @@ import { NeonGTDConfig } from './neon-gtd-config';
 import { MatDialog, MatDialogConfig, MatDialogRef, MatSnackBar, MatToolbar, MatSidenav } from '@angular/material';
 import { ActiveGridService } from './services/active-grid.service';
 import { DatasetService } from './services/dataset.service';
+import { FilterBuilderComponent } from './components/filter-builder/filter-builder.component';
 import { ThemesService } from './services/themes.service';
 import { NgGrid, NgGridConfig } from 'angular2-grid';
 import { NeonGridItem } from './neon-grid-item';
@@ -63,6 +64,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     public showAddVisualizationButton: boolean = false;
     public showFilterTrayButton: boolean = false;
     public showCustomConnectionButton: boolean = false;
+    public showFilterBuilder: boolean = false;
+    public createFilterBuilder: boolean = false; //This is used to create the Filter Builder later
 
     public gridItems: NeonGridItem[] = [];
 
@@ -156,6 +159,19 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         this.filterTrayDialogRef.afterClosed().subscribe(() => {
             this.filterTrayDialogRef = null;
         });
+    }
+
+    openFilterBuilderDialog() {
+        if (!this.createFilterBuilder) {
+            this.createFilterBuilder = true;
+        }
+        this.showFilterBuilder = !this.showFilterBuilder;
+        let filterBuilderContainer: HTMLElement = document.getElementById('filter.builder');
+        if (this.showFilterBuilder) {
+            filterBuilderContainer.setAttribute('style', 'display: show');
+        } else {
+            filterBuilderContainer.setAttribute('style', 'display: none');
+        }
     }
 
     openCustomConnectionDialog() {
