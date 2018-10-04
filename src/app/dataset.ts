@@ -102,5 +102,6 @@ export const MediaTypes = {
     video: 'vid',
     html: 'htm',
     pdf: 'pdf',
-    audio: 'aud'
+    audio: 'aud',
+    maskImage: 'mask'
 };

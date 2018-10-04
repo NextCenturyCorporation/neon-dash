@@ -131,10 +131,6 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
         this.isExportable = false;
     }
 
-    postInit() {
-        this.createInitialFilters();
-    }
-
     /**
      * Adds a blank filter clause to the global list.
      */
@@ -429,6 +425,15 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
     }
 
     /**
+     * Handles any post-initialization behavior needed.
+     *
+     * @override
+     */
+    postInit() {
+        this.createInitialFilters();
+    }
+
+    /**
      * Redraws the visualization.
      *
      * @override
@@ -596,9 +601,10 @@ export class FilterBuilderComponent extends BaseNeonComponent implements OnInit,
             clause.changeTable = clause.table;
             clause.changeField = clause.field;
             if (clause.database && clause.table) {
+                let filterId = clauseConfig.id || this.filterService.createFilterId(clauseConfig.database, clauseConfig.table);
                 this.clauses.push(clause);
                 this.databaseTableFieldKeysToFilterIds.set(this.getDatabaseTableFieldKey(clause.database.name, clause.table.name,
-                    clause.field.columnName), clauseConfig.id);
+                    clause.field.columnName), filterId);
             }
         });
 

@@ -59,12 +59,12 @@ export abstract class BaseNeonOptions {
 
     public customEventsToPublish: {
         id: string,
-        fields: { field: string, label: string }[]
+        fields: { columnName: string, prettyName?: string, type?: string }[]
     }[];
 
     public customEventsToReceive: {
         id: string,
-        fields: { field: string, label: string }[]
+        fields: { columnName: string, prettyName?: string, type?: string }[]
     }[];
 
     /**
@@ -920,7 +920,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.getOptions().customEventsToPublish.forEach((config) => {
             let metadata = {};
             (config.fields || []).forEach((fieldsConfig) => {
-                metadata[fieldsConfig.field] = dataItem[fieldsConfig.field];
+                metadata[fieldsConfig.columnName] = dataItem[fieldsConfig.columnName];
             });
             this.messenger.publish(config.id, {
                 item: eventField ? dataItem[eventField] : dataItem,

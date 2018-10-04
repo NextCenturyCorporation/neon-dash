@@ -127,16 +127,20 @@ describe('Component: MediaViewer', () => {
         component.options.url = 'https://test.com';
         expect(component.getButtonText()).toBe('No Data');
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'https://test.com',
             selected: {
                 border: '',
                 link: 'a',
+                mask: '',
                 name: 'a',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'a',
+                mask: '',
                 name: 'a',
                 type: ''
             }]
@@ -144,31 +148,38 @@ describe('Component: MediaViewer', () => {
         component.options.url = '';
         expect(component.getButtonText()).toBe('Total Files 1');
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'https://test.com',
             selected: {
                 border: '',
                 link: 'a',
+                mask: '',
                 name: 'a',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'a',
+                mask: '',
                 name: 'a',
                 type: ''
             }, {
                 border: '',
                 link: 'b',
+                mask: '',
                 name: 'b',
                 type: ''
             }, {
                 border: '',
                 link: 'c',
+                mask: '',
                 name: 'c',
                 type: ''
             }, {
                 border: '',
                 link: 'd',
+                mask: '',
                 name: 'd',
                 type: ''
             }]
@@ -281,16 +292,20 @@ describe('Component: MediaViewer', () => {
     it('onQuerySuccess does set expected properties if response returns no data', (() => {
         component.errorMessage = 'testErrorMessage';
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
                 link: 'testLink',
+                mask: '',
                 name: 'testName',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'testLink',
+                mask: '',
                 name: 'testName',
                 type: ''
             }]
@@ -334,16 +349,20 @@ describe('Component: MediaViewer', () => {
     it('onQuerySuccess does set expected properties if filter selected and response returns no data', (() => {
         component.errorMessage = 'testErrorMessage';
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
                 link: 'testLink',
+                mask: '',
                 name: 'testName',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'testLink',
+                mask: '',
                 name: 'testName',
                 type: ''
             }]
@@ -370,7 +389,7 @@ describe('Component: MediaViewer', () => {
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.nameField = DatasetServiceMock.NAME_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.id = 'testTabName';
+        component.options.id = 'testId';
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
 
@@ -388,23 +407,27 @@ describe('Component: MediaViewer', () => {
 
         expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
-            name: 'testTabName',
+            loaded: false,
+            slider: 0,
+            name: 'testNameValue',
             selected: {
                 border: '',
                 link: 'testLinkValue',
+                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue',
+                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             }]
         }]);
     });
 
-    it('onQuerySuccess does set expected properties if filter selected and response failed', () => {
+    it('onQuerySuccess does update expected properties', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
@@ -412,50 +435,58 @@ describe('Component: MediaViewer', () => {
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = 'testTabName';
+        component.options.id = 'testId';
 
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
 
         component.tabsAndMedia = [{
-            name: 'testTabName',
+            loaded: false,
+            slider: 0,
+            name: 'testOldTab',
             selected: {
                 border: '',
-                link: 'testLinkValue',
-                name: 'testNameValue',
-                type: 'testTypeValue'
+                link: 'testLinkValue1',
+                mask: '',
+                name: 'testNameValue1',
+                type: 'testTypeValue1'
             },
             list: [{
                 border: '',
-                link: 'testLinkValue',
-                name: 'testNameValue',
-                type: 'testTypeValue'
+                link: 'testLinkValue1',
+                mask: '',
+                name: 'testNameValue1',
+                type: 'testTypeValue1'
             }]
         }];
 
         component.onQuerySuccess({
             data: [{
-                testIdField: 'testIdValue',
-                testLinkField: 'testLinkValue',
-                testNameField: 'testNameValue',
-                testTypeField: 'testTypeValue'
+                testIdField: 'testIdValue2',
+                testLinkField: 'testLinkValue2',
+                testNameField: 'testNameValue2',
+                testTypeField: 'testTypeValue2'
             }]
         });
 
         expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
-            name: 'testTabName',
+            loaded: false,
+            slider: 0,
+            name: 'testNameValue2',
             selected: {
                 border: '',
-                link: 'testLinkValue',
-                name: 'testNameValue',
-                type: 'testTypeValue'
+                link: 'testLinkValue2',
+                mask: '',
+                name: 'testNameValue2',
+                type: 'testTypeValue2'
             },
             list: [{
                 border: '',
-                link: 'testLinkValue',
-                name: 'testNameValue',
-                type: 'testTypeValue'
+                link: 'testLinkValue2',
+                mask: '',
+                name: 'testNameValue2',
+                type: 'testTypeValue2'
             }]
         }]);
     });
@@ -466,7 +497,7 @@ describe('Component: MediaViewer', () => {
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.nameField = DatasetServiceMock.NAME_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.id = 'testTabName';
+        component.options.id = 'testId';
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
 
@@ -484,21 +515,38 @@ describe('Component: MediaViewer', () => {
 
         expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
-            name: 'testTabName',
+            loaded: false,
+            slider: 0,
+            name: 'testNameValue 1',
             selected: {
                 border: '',
                 link: 'testLinkValue1',
+                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
+                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
-            }, {
+            }]
+        }, {
+            loaded: false,
+            slider: 0,
+            name: 'testNameValue 2',
+            selected: {
                 border: '',
                 link: 'testLinkValue2',
+                mask: '',
+                name: 'testNameValue',
+                type: 'testTypeValue'
+            },
+            list: [{
+                border: '',
+                link: 'testLinkValue2',
+                mask: '',
                 name: 'testNameValue',
                 type: 'testTypeValue'
             }]
@@ -511,7 +559,7 @@ describe('Component: MediaViewer', () => {
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
         component.options.nameField = DatasetServiceMock.NAME_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
-        component.options.id = 'testTabName';
+        component.options.id = 'testId';
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
 
@@ -529,21 +577,38 @@ describe('Component: MediaViewer', () => {
 
         expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
-            name: 'testTabName',
+            loaded: false,
+            slider: 0,
+            name: 'testNameValue1',
             selected: {
                 border: '',
                 link: 'testLinkValue1',
+                mask: '',
                 name: 'testNameValue1',
                 type: 'testTypeValue1'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
+                mask: '',
                 name: 'testNameValue1',
                 type: 'testTypeValue1'
-            }, {
+            }]
+        }, {
+            loaded: false,
+            slider: 0,
+            name: 'testNameValue2',
+            selected: {
                 border: '',
                 link: 'testLinkValue2',
+                mask: '',
+                name: 'testNameValue2',
+                type: 'testTypeValue2'
+            },
+            list: [{
+                border: '',
+                link: 'testLinkValue2',
+                mask: '',
                 name: 'testNameValue2',
                 type: 'testTypeValue2'
             }]
@@ -554,7 +619,6 @@ describe('Component: MediaViewer', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
-        component.options.linkPrefix = 'prefix/';
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
         component.options.id = 'testTabName';
@@ -580,7 +644,7 @@ describe('Component: MediaViewer', () => {
         component.options.border = 'grey';
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = 'testTabName';
+        component.options.id = 'testId';
 
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
@@ -594,17 +658,21 @@ describe('Component: MediaViewer', () => {
 
         expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
-            name: 'testTabName',
+            loaded: false,
+            slider: 0,
+            name: 'testLinkValue',
             selected: {
                 border: 'grey',
                 link: 'testLinkValue',
-                name: 'Test Link Field',
+                mask: '',
+                name: 'testLinkValue',
                 type: ''
             },
             list: [{
                 border: 'grey',
                 link: 'testLinkValue',
-                name: 'Test Link Field',
+                mask: '',
+                name: 'testLinkValue',
                 type: ''
             }]
         }]);
@@ -614,10 +682,10 @@ describe('Component: MediaViewer', () => {
         component.errorMessage = 'testErrorMessage';
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
-        component.options.linkPrefix = 'prefix/';
+        component.options.linkPrefix = 'linkPrefix/';
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = 'testTabName';
+        component.options.id = 'testId';
 
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
@@ -631,17 +699,92 @@ describe('Component: MediaViewer', () => {
 
         expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
-            name: 'testTabName',
+            loaded: false,
+            slider: 0,
+            name: 'testLinkValue',
+            selected: {
+                border: '',
+                link: 'linkPrefix/testLinkValue',
+                mask: '',
+                name: 'testLinkValue',
+                type: ''
+            },
+            list: [{
+                border: '',
+                link: 'linkPrefix/testLinkValue',
+                mask: '',
+                name: 'testLinkValue',
+                type: ''
+            }]
+        }]);
+    });
+
+    it('onQuerySuccess does ignore existing linkPrefix', () => {
+        component.errorMessage = 'testErrorMessage';
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.linkPrefix = 'linkPrefix/';
+        component.options.id = 'testId';
+
+        component.onQuerySuccess({
+            data: [{
+                testIdField: 'testIdValue',
+                testLinkField: 'linkPrefix/testLinkValue'
+            }]
+        });
+
+        expect(component.errorMessage).toBe('');
+        expect(component.tabsAndMedia).toEqual([{
+            loaded: false,
+            slider: 0,
+            name: 'testLinkValue',
+            selected: {
+                border: '',
+                link: 'linkPrefix/testLinkValue',
+                mask: '',
+                name: 'testLinkValue',
+                type: ''
+            },
+            list: [{
+                border: '',
+                link: 'linkPrefix/testLinkValue',
+                mask: '',
+                name: 'testLinkValue',
+                type: ''
+            }]
+        }]);
+    });
+
+    it('onQuerySuccess does remove existing prefix from name', () => {
+        component.errorMessage = 'testErrorMessage';
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.options.linkFields = [DatasetServiceMock.LINK_FIELD];
+        component.options.id = 'testId';
+
+        component.onQuerySuccess({
+            data: [{
+                testIdField: 'testIdValue',
+                testLinkField: 'prefix/testLinkValue'
+            }]
+        });
+
+        expect(component.errorMessage).toBe('');
+        expect(component.tabsAndMedia).toEqual([{
+            loaded: false,
+            slider: 0,
+            name: 'testLinkValue',
             selected: {
                 border: '',
                 link: 'prefix/testLinkValue',
-                name: 'Test Link Field',
+                mask: '',
+                name: 'testLinkValue',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'prefix/testLinkValue',
-                name: 'Test Link Field',
+                mask: '',
+                name: 'testLinkValue',
                 type: ''
             }]
         }]);
@@ -658,7 +801,7 @@ describe('Component: MediaViewer', () => {
         };
         component.options.database = DatasetServiceMock.DATABASES[0];
         component.options.table = DatasetServiceMock.TABLES[0];
-        component.options.id = 'testTabName';
+        component.options.id = 'testId';
 
         getService(FilterService).addFilter(null, 'testName', DatasetServiceMock.DATABASES[0].name, DatasetServiceMock.TABLES[0].name,
             neon.query.where('testIdField', '==', '123'), 'testFilterName');
@@ -672,36 +815,83 @@ describe('Component: MediaViewer', () => {
 
         expect(component.errorMessage).toBe('');
         expect(component.tabsAndMedia).toEqual([{
-            name: 'testTabName',
+            loaded: false,
+            slider: 0,
+            name: 'video.avi',
             selected: {
                 border: '',
                 link: 'video.avi',
-                name: 'Test Link Field 1',
+                mask: '',
+                name: 'video.avi',
                 type: 'vid'
             },
             list: [{
                 border: '',
                 link: 'video.avi',
-                name: 'Test Link Field 1',
+                mask: '',
+                name: 'video.avi',
                 type: 'vid'
-            }, {
+            }]
+        }, {
+            loaded: false,
+            slider: 0,
+            name: 'image.jpg',
+            selected: {
                 border: '',
                 link: 'image.jpg',
-                name: 'Test Link Field 2',
+                mask: '',
+                name: 'image.jpg',
                 type: 'img'
-            }, {
+            },
+            list: [{
+                border: '',
+                link: 'image.jpg',
+                mask: '',
+                name: 'image.jpg',
+                type: 'img'
+            }]
+        }, {
+            loaded: false,
+            slider: 0,
+            name: 'alpha.txt',
+            selected: {
                 border: '',
                 link: 'alpha.txt',
-                name: 'Test Link Field 3',
+                mask: '',
+                name: 'alpha.txt',
                 type: 'txt'
-            }, {
+            },
+            list: [{
+                border: '',
+                link: 'alpha.txt',
+                mask: '',
+                name: 'alpha.txt',
+                type: 'txt'
+            }]
+        }, {
+            loaded: false,
+            slider: 0,
+            name: 'other.xyz',
+            selected: {
                 border: '',
                 link: 'other.xyz',
-                name: 'Test Link Field 4',
+                mask: '',
+                name: 'other.xyz',
+                type: ''
+            },
+            list: [{
+                border: '',
+                link: 'other.xyz',
+                mask: '',
+                name: 'other.xyz',
                 type: ''
             }]
         }]);
     });
+
+    /************************************************************/
+    /**** TODO Test onQuerySuccess if oneTabPerArray is true ****/
+    /************************************************************/
 
     it('postInit does call executeQueryChain', (() => {
         let spy = spyOn(component, 'executeQueryChain');
@@ -731,24 +921,32 @@ describe('Component: MediaViewer', () => {
             idField: '',
             linkField: '',
             linkFields: [],
+            maskField: '',
             nameField: '',
             typeField: '',
             border: '',
+            clearMedia: false,
             delimiter: ',',
             linkPrefix: '',
+            oneTabPerArray: false,
             resize: true,
+            sliderValue: 0,
             typeMap: {}
         });
 
         component.options.idField = DatasetServiceMock.ID_FIELD;
         component.options.linkField = DatasetServiceMock.LINK_FIELD;
         component.options.linkFields = [new FieldMetaData('testLinkField1'), new FieldMetaData('testLinkField2')];
+        component.options.maskField = new FieldMetaData('testMaskField');
         component.options.nameField = DatasetServiceMock.NAME_FIELD;
         component.options.typeField = DatasetServiceMock.TYPE_FIELD;
         component.options.border = 'grey';
+        component.options.clearMedia = true;
         component.options.delimiter = ';';
         component.options.linkPrefix = '/prefix';
+        component.options.oneTabPerArray = true;
         component.options.resize = false;
+        component.options.sliderValue = 0.5;
         component.options.typeMap = {
             jpg: 'img'
         };
@@ -758,12 +956,16 @@ describe('Component: MediaViewer', () => {
             idField: 'testIdField',
             linkField: 'testLinkField',
             linkFields: ['testLinkField1', 'testLinkField2'],
+            maskField: 'testMaskField',
             nameField: 'testNameField',
             typeField: 'testTypeField',
             border: 'grey',
+            clearMedia: true,
             delimiter: ';',
             linkPrefix: '/prefix',
+            oneTabPerArray: true,
             resize: false,
+            sliderValue: 0.5,
             typeMap: {
                 jpg: 'img'
             }
@@ -956,30 +1158,38 @@ describe('Component: MediaViewer', () => {
 
     it('does show tabs if tabsAndMedia is not empty', async(inject([DomSanitizer], (sanitizer) =>  {
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
                 link: 'testLinkValue1',
+                mask: '',
                 name: 'testNameValue1',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
+                mask: '',
                 name: 'testNameValue1',
                 type: ''
             }]
         }, {
+            loaded: false,
+            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
                 link: 'testLinkValue2',
+                mask: '',
                 name: 'testNameValue2',
                 type: ''
             },
             list: [{
                 border: '',
                 link: 'testLinkValue2',
+                mask: '',
                 name: 'testNameValue2',
                 type: ''
             }]
@@ -1006,16 +1216,20 @@ describe('Component: MediaViewer', () => {
     it('does show single image tag according to the image type', async(inject([DomSanitizer], (sanitizer) => {
         let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
                 link: imgSrc,
+                mask: '',
                 name: 'testName',
                 type: 'img'
             },
             list: [{
                 border: '',
                 link: imgSrc,
+                mask: '',
                 name: 'testName',
                 type: 'img'
             }]
@@ -1034,30 +1248,38 @@ describe('Component: MediaViewer', () => {
     it('does show multiple image tags in tabs according to the image type', async(inject([DomSanitizer], (sanitizer) => {
         let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
                 link: imgSrc,
+                mask: '',
                 name: 'testName',
                 type: 'img'
             },
             list: [{
                 border: '',
                 link: imgSrc,
+                mask: '',
                 name: 'testName',
                 type: 'img'
             }]
         }, {
+            loaded: false,
+            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
                 link: imgSrc,
+                mask: '',
                 name: 'testName',
                 type: 'img'
             },
             list: [{
                 border: '',
                 link: imgSrc,
+                mask: '',
                 name: 'testName',
                 type: 'img'
             }]
@@ -1078,16 +1300,20 @@ describe('Component: MediaViewer', () => {
     it('does show single video tag according to the video type', async(inject([DomSanitizer], (sanitizer) => {
         let vidSrc = 'https://youtu.be/Mxesac55Puo';
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
                 link: vidSrc,
+                mask: '',
                 name: 'testName',
                 type: 'vid'
             },
             list: [{
                 border: '',
                 link: vidSrc,
+                mask: '',
                 name: 'testName',
                 type: 'vid'
             }]
@@ -1106,30 +1332,38 @@ describe('Component: MediaViewer', () => {
     it('does show multiple video tags in tabs according to the video type', async(inject([DomSanitizer], (sanitizer) => {
         let vidSrc = 'https://youtu.be/Mxesac55Puo';
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
                 link: vidSrc,
+                mask: '',
                 name: 'testName',
                 type: 'vid'
             },
             list: [{
                 border: '',
                 link: vidSrc,
+                mask: '',
                 name: 'testName',
                 type: 'vid'
             }]
         }, {
+            loaded: false,
+            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
                 link: vidSrc,
+                mask: '',
                 name: 'testName',
                 type: 'vid'
             },
             list: [{
                 border: '',
                 link: vidSrc,
+                mask: '',
                 name: 'testName',
                 type: 'vid'
             }]
@@ -1150,16 +1384,20 @@ describe('Component: MediaViewer', () => {
     it('does show single iframe tag according to the empty type', async(inject([DomSanitizer], (sanitizer) => {
         let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'testTabName',
             selected: {
                 border: '',
                 link: docSrc,
+                mask: '',
                 name: 'testName',
                 type: ''
             },
             list: [{
                 border: '',
                 link: docSrc,
+                mask: '',
                 name: 'testName',
                 type: ''
             }]
@@ -1178,30 +1416,38 @@ describe('Component: MediaViewer', () => {
     it('does show multiple iframe tags in tabs according to the empty type', async(inject([DomSanitizer], (sanitizer) => {
         let docSrc = 'https://homepages.cae.wisc.edu/~ece533/images/p64int.txt';
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
                 link: docSrc,
+                mask: '',
                 name: 'testName',
                 type: ''
             },
             list: [{
                 border: '',
                 link: docSrc,
+                mask: '',
                 name: 'testName',
                 type: ''
             }]
         }, {
+            loaded: false,
+            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
                 link: docSrc,
+                mask: '',
                 name: 'testName',
                 type: ''
             },
             list: [{
                 border: '',
                 link: docSrc,
+                mask: '',
                 name: 'testName',
                 type: ''
             }]
@@ -1219,39 +1465,48 @@ describe('Component: MediaViewer', () => {
         });
     })));
 
-    it('does show tabs and slider', async(inject([DomSanitizer], (sanitizer) =>  {
+    it('does show two tabs and slider', async(inject([DomSanitizer], (sanitizer) =>  {
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
                 link: 'testLinkValue1',
+                mask: 'testMaskValue1',
                 name: 'testNameValue1',
-                type: ''
+                type: 'mask'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue1',
+                mask: 'testMaskValue1',
                 name: 'testNameValue1',
-                type: ''
+                type: 'mask'
             }, {
                 border: '',
                 link: 'testLinkValue3',
+                mask: 'testMaskValue3',
                 name: 'testNameValue3',
-                type: ''
+                type: 'mask'
             }]
         }, {
+            loaded: false,
+            slider: 0,
             name: 'testTabName2',
             selected: {
                 border: '',
                 link: 'testLinkValue2',
+                mask: 'testMaskValue2',
                 name: 'testNameValue2',
-                type: ''
+                type: 'mask'
             },
             list: [{
                 border: '',
                 link: 'testLinkValue2',
+                mask: 'testMaskValue2',
                 name: 'testNameValue2',
-                type: ''
+                type: 'mask'
             }]
         }];
         fixture.detectChanges();
@@ -1268,31 +1523,31 @@ describe('Component: MediaViewer', () => {
             expect(tabs[1].nativeElement.textContent).toBe('testTabName2');
             expect(tabs[1].nativeElement.classList.contains('mat-tab-label-active')).toBe(false);
 
-            let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-tab-group mat-slider'));
+            let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-slider'));
             expect(slider.length).toBe(1);
         });
     })));
 
-    it('does show single medium and slider', async(inject([DomSanitizer], (sanitizer) =>  {
-        let imgSrc = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
+    it('does show two images and slider', async(inject([DomSanitizer], (sanitizer) =>  {
+        let baseSource = 'https://homepages.cae.wisc.edu/~ece533/images/airplane.png';
+        let maskSource = 'https://homepages.cae.wisc.edu/~ece533/images/boat.png';
         component.tabsAndMedia = [{
+            loaded: false,
+            slider: 0,
             name: 'testTabName1',
             selected: {
                 border: '',
-                link: imgSrc,
+                link: baseSource,
+                mask: maskSource,
                 name: 'testName',
-                type: 'img'
+                type: 'mask'
             },
             list: [{
                 border: '',
-                link: imgSrc,
+                link: baseSource,
+                mask: maskSource,
                 name: 'testName',
-                type: 'img'
-            }, {
-                border: '',
-                link: imgSrc,
-                name: 'testName',
-                type: 'img'
+                type: 'mask'
             }]
         }];
         fixture.detectChanges();
@@ -1300,10 +1555,12 @@ describe('Component: MediaViewer', () => {
         fixture.whenStable().then(() => {
             fixture.detectChanges();
 
-            let media = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
-            expect(media.length).toBe(1);
-            expect(media[0].nativeElement.innerHTML).toContain('<img');
-            expect(media[0].nativeElement.innerHTML).toContain('src="' + imgSrc + '" alt="testName"');
+            let medium = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium'));
+            expect(medium.length).toBe(1);
+            let images = fixture.debugElement.queryAll(By.css('mat-sidenav-container .single-medium img'));
+            expect(images.length).toBe(2);
+            expect(images[0].nativeElement.outerHTML).toContain('src="' + baseSource + '" alt="testName"');
+            expect(images[1].nativeElement.outerHTML).toContain('src="' + maskSource + '" alt="testName"');
 
             let slider = fixture.debugElement.queryAll(By.css('mat-sidenav-container mat-slider'));
             expect(slider.length).toBe(1);
