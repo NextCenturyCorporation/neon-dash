@@ -13,33 +13,33 @@
  * limitations under the License.
  *
  */
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
-import {FormsModule} from '@angular/forms';
-import {Injector} from '@angular/core';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { Injector } from '@angular/core';
 import * as neon from 'neon-framework';
 
-import {BarChartComponent, BarDataSet} from './bar-chart.component';
-import {ExportControlComponent} from '../export-control/export-control.component';
-import {ActiveGridService} from '../../services/active-grid.service';
-import {ExportService} from '../../services/export.service';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {DatabaseMetaData, FieldMetaData, TableMetaData} from '../../dataset';
-import {TranslationService} from '../../services/translation.service';
-import {FilterService} from '../../services/filter.service';
-import {ThemesService} from '../../services/themes.service';
-import {ErrorNotificationService} from '../../services/error-notification.service';
-import {NeonGTDConfig} from '../../neon-gtd-config';
-import {neonVariables} from '../../neon-namespaces';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {By} from '@angular/platform-browser';
-import {AppMaterialModule} from '../../app.material.module';
-import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
-import {VisualizationService} from '../../services/visualization.service';
-import {Color, ColorSchemeService} from '../../services/color-scheme.service';
-import {LegendComponent} from '../legend/legend.component';
-import {ChartComponent} from '../chart/chart.component';
-import {initializeTestBed} from '../../../testUtils/initializeTestBed';
+import { BarChartComponent, BarDataSet } from './bar-chart.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
+import { ActiveGridService } from '../../services/active-grid.service';
+import { ExportService } from '../../services/export.service';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { DatabaseMetaData, FieldMetaData, TableMetaData } from '../../dataset';
+import { TranslationService } from '../../services/translation.service';
+import { FilterService } from '../../services/filter.service';
+import { ThemesService } from '../../services/themes.service';
+import { ErrorNotificationService } from '../../services/error-notification.service';
+import { NeonGTDConfig } from '../../neon-gtd-config';
+import { neonVariables } from '../../neon-namespaces';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { By } from '@angular/platform-browser';
+import { AppMaterialModule } from '../../app.material.module';
+import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
+import { VisualizationService } from '../../services/visualization.service';
+import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { LegendComponent } from '../legend/legend.component';
+import { ChartComponent } from '../chart/chart.component';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
 
 describe('Component: BarChart', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();

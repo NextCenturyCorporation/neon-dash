@@ -24,7 +24,7 @@ import {
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
-import {ColorSchemeService, ColorSet} from '../../services/color-scheme.service';
+import { ColorSchemeService, ColorSet } from '../../services/color-scheme.service';
 
 /**
  * Component that will display a legend of colors.

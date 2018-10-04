@@ -13,34 +13,34 @@
  * limitations under the License.
  *
  */
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
-import {FormsModule} from '@angular/forms';
-import {CUSTOM_ELEMENTS_SCHEMA, Injector} from '@angular/core';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { CUSTOM_ELEMENTS_SCHEMA, Injector } from '@angular/core';
 import * as neon from 'neon-framework';
-import {NetworkGraphComponent} from './network-graph.component';
-import {ExportControlComponent} from '../export-control/export-control.component';
-import {ActiveGridService} from '../../services/active-grid.service';
-import {ExportService} from '../../services/export.service';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FieldMetaData} from '../../dataset';
-import {TranslationService} from '../../services/translation.service';
-import {FilterService} from '../../services/filter.service';
-import {ThemesService} from '../../services/themes.service';
-import {ErrorNotificationService} from '../../services/error-notification.service';
-import {NeonGTDConfig} from '../../neon-gtd-config';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {AppMaterialModule} from '../../app.material.module';
-import {UnsharedFilterComponent} from '../unshared-filter/unshared-filter.component';
-import {VisualizationService} from '../../services/visualization.service';
-import {ColorSchemeService} from '../../services/color-scheme.service';
-import {LegendComponent} from '../legend/legend.component';
-import {ChartComponent} from '@swimlane/ngx-charts';
-import {initializeTestBed} from '../../../testUtils/initializeTestBed';
-import {By} from '@angular/platform-browser';
-import {DatasetServiceMock} from '../../../testUtils/MockServices/DatasetServiceMock';
-import {FilterServiceMock} from '../../../testUtils/MockServices/FilterServiceMock';
-import {neonVariables} from '../../neon-namespaces';
+import { NetworkGraphComponent } from './network-graph.component';
+import { ExportControlComponent } from '../export-control/export-control.component';
+import { ActiveGridService } from '../../services/active-grid.service';
+import { ExportService } from '../../services/export.service';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FieldMetaData } from '../../dataset';
+import { TranslationService } from '../../services/translation.service';
+import { FilterService } from '../../services/filter.service';
+import { ThemesService } from '../../services/themes.service';
+import { ErrorNotificationService } from '../../services/error-notification.service';
+import { NeonGTDConfig } from '../../neon-gtd-config';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { AppMaterialModule } from '../../app.material.module';
+import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
+import { VisualizationService } from '../../services/visualization.service';
+import { ColorSchemeService } from '../../services/color-scheme.service';
+import { LegendComponent } from '../legend/legend.component';
+import { ChartComponent } from '@swimlane/ngx-charts';
+import { initializeTestBed } from '../../../testUtils/initializeTestBed';
+import { By } from '@angular/platform-browser';
+import { DatasetServiceMock } from '../../../testUtils/MockServices/DatasetServiceMock';
+import { FilterServiceMock } from '../../../testUtils/MockServices/FilterServiceMock';
+import { neonVariables } from '../../neon-namespaces';
 
 describe('Component: NetworkGraph', () => {
     let testConfig: NeonGTDConfig = new NeonGTDConfig();

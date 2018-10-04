@@ -13,7 +13,7 @@
  * limitations under the License.
  *
  */
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 
 /**
  * A set of colors, used to keep track of which values map to which colors
@@ -114,30 +114,30 @@ export class ColorSchemeService {
             new Color(255, 255, 153)
         ],
         [   //24 colors
-            new Color(163,180,4),
-            new Color(19,97,255),
-            new Color(49,148,0),
-            new Color(255,100,243),
-            new Color(0,158,87),
-            new Color(143,105,255),
-            new Color(166,155,0),
-            new Color(91,5,147),
-            new Color(224,159,15),
-            new Color(54,44,138),
-            new Color(253,20,20),
-            new Color(2,139,216),
-            new Color(174,0,15),
-            new Color(0,57,129),
-            new Color(202,166,85),
-            new Color(222,131,255),
-            new Color(93,80,0),
-            new Color(195,0,131),
-            new Color(255,89,95),
-            new Color(114,0,102),
-            new Color(255,63,133),
-            new Color(129,89,133),
-            new Color(120,15,31),
-            new Color(232,143,190)
+            new Color(163, 180, 4),
+            new Color(19, 97, 255),
+            new Color(49, 148, 0),
+            new Color(255, 100, 243),
+            new Color(0, 158, 87),
+            new Color(143, 105, 255),
+            new Color(166, 155, 0),
+            new Color(91, 5, 147),
+            new Color(224, 159, 15),
+            new Color(54, 44, 138),
+            new Color(253, 20, 20),
+            new Color(2, 139, 216),
+            new Color(174, 0, 15),
+            new Color(0, 57, 129),
+            new Color(202, 166, 85),
+            new Color(222, 131, 255),
+            new Color(93, 80, 0),
+            new Color(195, 0, 131),
+            new Color(255, 89, 95),
+            new Color(114, 0, 102),
+            new Color(255, 63, 133),
+            new Color(129, 89, 133),
+            new Color(120, 15, 31),
+            new Color(232, 143, 190)
         ],
         [   //35 colors - random palette
             new Color(31, 120, 180),
@@ -219,7 +219,7 @@ export class ColorSchemeService {
 
         //if there is no palette large enough to cover the length of the array,
         // then select the largest palette
-        if(this.colorPosition === 0 && length > this.colorList[0].length){
+        if (this.colorPosition === 0 && length > this.colorList[0].length) {
             this.colorPosition = this.colorList.length - 1;
         }
     }

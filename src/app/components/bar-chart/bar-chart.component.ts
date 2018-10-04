@@ -25,20 +25,20 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import {ActiveGridService} from '../../services/active-grid.service';
-import {Color, ColorSchemeService} from '../../services/color-scheme.service';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {FilterService} from '../../services/filter.service';
-import {ExportService} from '../../services/export.service';
-import {ThemesService} from '../../services/themes.service';
-import {VisualizationService} from '../../services/visualization.service';
+import { ActiveGridService } from '../../services/active-grid.service';
+import { Color, ColorSchemeService } from '../../services/color-scheme.service';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { FilterService } from '../../services/filter.service';
+import { ExportService } from '../../services/export.service';
+import { ThemesService } from '../../services/themes.service';
+import { VisualizationService } from '../../services/visualization.service';
 
-import {BaseNeonComponent, BaseNeonOptions} from '../base-neon-component/base-neon.component';
-import {ChartComponent} from '../chart/chart.component';
-import {Chart} from 'chart.js';
-import {FieldMetaData} from '../../dataset';
-import {neonVariables} from '../../neon-namespaces';
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { ChartComponent } from '../chart/chart.component';
+import { Chart } from 'chart.js';
+import { FieldMetaData } from '../../dataset';
+import { neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
 /**
