@@ -81,6 +81,8 @@ describe('Component: VisualizationContainer', () => {
             ThumbnailDetailsContractedComponent,
             ThumbnailDetailsExpandedComponent,
             ThumbnailGridComponent,
+            ThumbnailDetailsContractedComponent,
+            ThumbnailDetailsExpandedComponent,
             TimelineComponent,
             UnsharedFilterComponent,
             VisualizationContainerComponent,
