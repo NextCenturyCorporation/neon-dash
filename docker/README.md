@@ -81,8 +81,8 @@ Once you have downloaded the data, extract it and create a directory that will a
 | ES_INDEX           | Elasticsearch index that will be created and store the data. This value must match the name of the data file and mapping file in THOR_DATA to be ingested |  
 | ES_MAPPING         | Name used when creating the mapping in Elasticsearch |
 | NATURAL_EARTH_DIR  | Directory where the Natural Earth II data is stored for the bind mount. `Do not change this value`      |  
-| NATURAL_EARTH_FILE | Name of the Natural Earth II data file used. _Do not change this value_     |  
-| NATURAL_EARTH_NS   | The namespace used for Natural Eearth II in Geoserver. `Do not change this value_`      |  
+| NATURAL_EARTH_FILE | Name of the Natural Earth II data file used. `Do not change this value`     |  
+| NATURAL_EARTH_NS   | The namespace used for Natural Eearth II in Geoserver. `Do not change this value`      |  
 | BLUE_MARBLE_DIR    | Directory where the Blue Marble data is stored for the bind mount. `Do not change this value`      |  
 | BLUE_MARBLE_FILE   | Name of the Blue Marble data file used. `Do not change this value`       |  
 | BLUE_MARBLE_NS     | Directory where the Blue Marble data is stored for the bind mount. `Do not change this value`      |
