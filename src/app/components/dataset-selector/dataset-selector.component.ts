@@ -17,7 +17,7 @@ import { Component, EventEmitter, Input, Output, OnInit, OnDestroy } from '@angu
 
 import { ActiveGridService } from '../../services/active-grid.service';
 import { ConnectionService } from '../../services/connection.service';
-import { Datastore, DatabaseMetaData, TableMetaData, FieldMetaData, Relation, Dashboard, DashboardDatastoreChoice } from '../../dataset';
+import { Datastore, DatabaseMetaData, TableMetaData, FieldMetaData, Relation, Dashboard, DashboardConfigChoice } from '../../dataset';
 import { DatasetService } from '../../services/dataset.service';
 import { FilterService } from '../../services/filter.service';
 import { ParameterService } from '../../services/parameter.service';
@@ -70,7 +70,7 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
     private datastoreType: string = 'mongo';
     private datastoreHost: string = 'localhost';
     private layouts: { [key: string]: any } = {};
-    public dashboards: {[key: string]: DashboardDatastoreChoice } = {};
+    public dashboards: {[key: string]: DashboardConfigChoice } = {};
 
     /**
      * This is the array of custom database objects configured by the user through the popup.  Each custom database contains:
@@ -134,9 +134,9 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
 
     // TODO: 825: flatten dashboards here (may not need to flatten structure
     // later when layout is updated)
-    getFlattenedDashboards(): {[key: string]: DashboardDatastoreChoice } {
+    getFlattenedDashboards(): {[key: string]: DashboardConfigChoice } {
         let tempDashboards = this.datasetService.getDashboards();
-        let finalDashboards: {[key: string]: DashboardDatastoreChoice } = {};
+        let finalDashboards: {[key: string]: DashboardConfigChoice } = {};
 
         Object.keys(tempDashboards).forEach((dashboardKey) => {
             let dashboard = tempDashboards[dashboardKey];
@@ -158,12 +158,12 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         return finalDashboards;
     }
 
-    getDashboardKeys(dashboards: {[key: string]: DashboardDatastoreChoice }) {
+    getDashboardKeys(dashboards: {[key: string]: DashboardConfigChoice }) {
         return Object.keys(this.dashboards);
     }
 
     // TODO: 825: using this to match dashboards to datastores for now
-    findMatchingIndex(choice: DashboardDatastoreChoice) {
+    findMatchingIndex(choice: DashboardConfigChoice) {
         for (let index = 0; index < this.datasets.length; index ++) {
             if (this.datasets[index].name === choice.datastore) {
                 return index;
@@ -182,7 +182,6 @@ export class DatasetSelectorComponent implements OnInit, OnDestroy {
         if (dashboardStateId) {
             this.parameterService.loadState(dashboardStateId, this.parameterService.findFilterStateIdInUrl());
         } else {
-            // TODO: 825: what to do for parameter service?
             let activeDataset: string = (this.parameterService.findActiveDatasetInUrl() || '').toLowerCase();
 
             Object.keys(this.dashboards).some((dashboardName) => {

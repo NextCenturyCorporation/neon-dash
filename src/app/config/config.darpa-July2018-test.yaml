@@ -67,7 +67,6 @@ dashboards:
                         # TODO: 825: temporary reference to datastore
                         datastore: es1
                         tables:
-                            # TODO: 825: better table/field key names
                             table_key_1: es_1.ldc_uyg_jul_18.ui_out
                         fields:
                             field_key_1: es_1.ldc_uyg_jul_18.ui_out.originalText

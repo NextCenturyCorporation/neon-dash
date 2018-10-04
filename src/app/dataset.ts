@@ -72,22 +72,21 @@ export class SimpleFilter {
     ) {}
 }
 
-// TODO: 825: this will change, or maybe not (databases and tables can probably remain,
-// but how we'd get those properties from config might change???)
+// TODO: 825: turning this into Datastore
 export class Dataset {
     public connectOnLoad: boolean = false;
     public databases: DatabaseMetaData[] = [];
     public hasUpdatedFields: boolean = false;
-    public layout: string = ''; // TODO: 825: layout will be specified in options
+    public layout: string = ''; // TODO: 825: layout will be specified in dashboards
     public options: DatasetOptions = new DatasetOptions(); // TODO: 825: might move this -- leave this alone for now
-    public relations: Relation[] = []; // TODO: 825: this will move into options
+    public relations: Relation[] = []; // TODO: 825: this will move into dashboards
 
     constructor(
         public name: string = '',
         public datastore: string = '', // TODO: 825: this will become 'type'
         public hostname: string = '', // TODO: 825: this will change to 'host'
-        public title: string = '', // TODO: 825: move this into layout or options
-        public icon: string = '' // TODO: 825: move this into layout or options
+        public title: string = '', // TODO: 825: move this into layout or dashboards
+        public icon: string = '' // TODO: 825: move this into layout or dashboards
     ) {}
 }
 
@@ -111,20 +110,17 @@ export class Dashboard {
 
 export class DashboardChoice {
     public prettyName: string = '';
-    public choices: { [key: string ]: DashboardDatastoreChoice } = {};
+    public choices: { [key: string ]: DashboardConfigChoice } = {};
 }
 
-// TODO: 825: find better name??
-// DashboardConfigChoice?
-
-export class DashboardDatastoreChoice {
+export class DashboardConfigChoice {
     public prettyName: string = '';
     // TODO: 825: temporary link for dashboards and datastores until UI is updated
     public datastore: string = ''; // TODO: 825: temporary until table/field keys are used and multiple connections are supported
     public layout: string = '';
     public tables: {[key: string]: string } = {};
     public fields: {[key: string]: string } = {};
-    public options: {[key: string]: string } = {}; // TODO: 825
+    public options: {[key: string]: string } = {}; // TODO: 825: Placeholder if additional options needed here later
 }
 
 export class Relation {
