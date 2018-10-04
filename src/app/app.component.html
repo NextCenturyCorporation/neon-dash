@@ -59,6 +59,10 @@
         </a>
     </mat-toolbar>
 
+    <div class="header-toggle-container">
+        
+    </div>
+
     <div class="neon-dash" mat-fill layout="col">
         <div [ngGrid]="gridConfig" #grid >
             <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridItemConfig" name="item.id" id="item.id"
@@ -73,3 +77,4 @@
     <div class="color-primary"></div>
     <div class="color-highlight"></div>
 </mat-sidenav-container>
+
