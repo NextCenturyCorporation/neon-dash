@@ -16,7 +16,7 @@
 import { Component, EventEmitter, Output, QueryList, ViewChildren, AfterViewInit } from '@angular/core';
 import { ActiveGridService } from '../../services/active-grid.service';
 import { DatasetService } from '../../services/dataset.service';
-import { Dataset, Dashboard, DashboardDatastoreChoice } from '../../dataset';
+import { Dataset } from '../../dataset';
 import { MatDialogRef } from '@angular/material';
 
 import { CustomConnectionStep } from './custom-connection-step';

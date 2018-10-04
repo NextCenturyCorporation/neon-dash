@@ -17,7 +17,7 @@ import { Inject, Injectable } from '@angular/core';
 import * as neon from 'neon-framework';
 
 import { DatasetOptions, DatabaseMetaData, TableMetaData,
-    TableMappings, FieldMetaData, Relation, Datastore, Dashboard, DashboardDatastoreChoice, DashboardChoice } from '../dataset';
+    TableMappings, FieldMetaData, Relation, Datastore, Dashboard, DashboardConfigChoice, DashboardChoice } from '../dataset';
 import { Subscription, Observable } from 'rxjs/Rx';
 import { NeonGTDConfig } from '../neon-gtd-config';
 import * as _ from 'lodash';
@@ -37,7 +37,7 @@ export class DatasetService {
 
     // The currently selected dashboard.
     private currentDashboardConfigName: string;
-    private currentDashboardConfig: DashboardDatastoreChoice;
+    private currentDashboardConfig: DashboardConfigChoice;
     private layout: string = '';
 
     // Use the Dataset Service to save settings for specific databases/tables and
@@ -104,7 +104,7 @@ export class DatasetService {
         this.datasets = [];
         let datastores = (config.datastores ? config.datastores : {});
         this.dashboards = (config.dashboards ? config.dashboards : {});
-        // TODO: 825: wouldnt we need to validate dashboards objects like
+        // TODO: 825: wouldn't we need to validate dashboards objects like
         // we do with datastores?
 
         // convert datastore key/value pairs into an array
@@ -240,13 +240,13 @@ export class DatasetService {
     /**
      * Sets the current dashboard config.
      */
-    public setCurrentDashboardConfig(config: DashboardDatastoreChoice) {
+    public setCurrentDashboardConfig(config: DashboardConfigChoice) {
         this.currentDashboardConfig = config;
     }
 
     /**
      * Returns the current dashboard config.
-     * @return {DashboardDatastoreChoice}
+     * @return {DashboardConfigChoice}
      */
     public getCurrentDashboardConfig() {
         return this.currentDashboardConfig;
