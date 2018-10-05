@@ -118,10 +118,10 @@ Running the Lorelei Docker image will stand up the following services on the fol
 
 | Serivce       |Port       | Username  | Password  | 
 | --------------|:----------|:----------|:----------| 
-| SSHD          | 2222      | root      | lorelei   |
-| Geoserver     | 8080      | admin     | geoserver |
-| Tomcat        | 8888      | admin     | password  |
-| Elasticsearch | 9200      | n/a       | n/a       |
+| *SSHD*          | 2222      | root      | lorelei   |
+| *Geoserver*     | 8080      | admin     | geoserver |
+| *Tomcat*        | 8888      | admin     | password  |
+| *Elasticsearch* | 9200      | n/a       | n/a       |
 
 ## Vaidating the container
 
@@ -131,7 +131,7 @@ It is a good idea to valid everything is working properly after starting the con
 
 You can verify that all the appropriate indexes, mappings and data made it into Elasticsearch by navigating to [Elasticsearch-head](https://github.com/mobz/elasticsearch-head) at `http://localhost:9200/_plugin/head` You should see something similar to this:
 
-![](https://imgur.com/a/4TCKCbq)
+![Elasticsearch Data](https://i.imgur.com/9bNURiU.jpg)
 
 #### Verify Lorelei UI
 
