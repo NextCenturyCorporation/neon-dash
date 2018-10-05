@@ -43,6 +43,7 @@ import { AboutNeonComponent } from './components/about-neon/about-neon.component
 import { AddVisualizationComponent } from './components/add-visualization/add-visualization.component';
 import { AnnotationViewerComponent } from './components/annotation-viewer/annotation-viewer.component';
 import { AppComponent } from './app.component';
+import { AggregationComponent } from './components/aggregation/aggregation.component';
 import { BarChartComponent } from './components/bar-chart/bar-chart.component';
 import { ChartComponent } from './components/chart/chart.component';
 import { ConfigEditorComponent } from './components/config-editor/config-editor.component';
@@ -61,7 +62,6 @@ import { MediaViewerComponent } from './components/media-viewer/media-viewer.com
 import { SampleComponent } from './components/sample/sample.component';
 import { ScatterPlotComponent } from './components/scatter-plot/scatter-plot.component';
 import { SnackBarComponent } from './components/snack-bar/snack-bar.component';
-import { StackedTimelineComponent } from './components/stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from './components/text-cloud/text-cloud.component';
 import { TimelineComponent } from './components/timeline/timeline.component';
 import { UnsharedFilterComponent } from './components/unshared-filter/unshared-filter.component';
@@ -99,6 +99,7 @@ export function getAppConfig() {
         AddVisualizationComponent,
         AnnotationViewerComponent,
         AppComponent,
+        AggregationComponent,
         BarChartComponent,
         ChartComponent,
         ConfigEditorComponent,
@@ -123,7 +124,6 @@ export function getAppConfig() {
         ScatterPlotComponent,
         SimpleFilterComponent,
         SnackBarComponent,
-        StackedTimelineComponent,
         TextCloudComponent,
         ThumbnailDetailsContractedComponent,
         ThumbnailDetailsExpandedComponent,

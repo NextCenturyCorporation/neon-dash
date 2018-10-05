@@ -45,17 +45,9 @@
 
 .thumbnail-view{
     width: auto;
-    height: auto;
+    height: fit-content;
     box-shadow: 0px 3px 1px -2px rgba(0,0,0,.2), 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12);
-    margin-right: 12px;
-}
-
-.blue-border{
-    border: .2em solid #2798ff;
-}
-
-.red-border{
-    border: .2em solid #ff0000;
+    margin-right: 6px;
 }
 
 .thumbnail-details{
@@ -92,59 +84,36 @@
     width: 35px;
 }
 
+.border-mat-gray,
 .border-mat-grey {
-    border: 5px solid #9e9e9e; /* mat-color-grey-500 */
+    border: 3px solid #9e9e9e; /* mat-color-grey-500 */
+}
+
+.border-mat-blue {
+    border: 3px solid #2798ff; /* mat-color-blue-500 */
 }
 
 .border-mat-red {
-    border: 5px solid #f44336; /* mat-color-red-500 */
+    border: 3px solid #f44336; /* mat-color-red-500 */
 }
 
 .selected canvas.with-border,
 .selectable:hover canvas.with-border,
 .border-mat-yellow {
-    border: 5px solid #ffeb3b; /* mat-color-yellow-500 */
+    border: 3px solid #ecce76; /* mat-color-yellow-500 */
 }
-
-.style2 {
-    .thumbnail-grid-container{
-        height: 100%;
-    }
-
-    .thumbnail-grid-div {
-        height: 110px;
-        margin: 5px;
-
-        &.with-text {
-            height: 125px;
-        }
-
-        .thumbnail-details {
-            font-size: 12px;
-            height: 15px;
-            line-height: 15px;
-            min-height: 15px;
-
-            p {
-                height: unset;
-                margin: 0;
-            }
-        }
-    }
-}
-
 
 .thumbnail-flags{
     display:flex;
-    flex-direction:row;
     border-bottom: solid 1px darkgray;
-    padding: 0em .4em .6em .4em;
-    flex: 0 0;
+    padding: 0em 0em .6em .4em;
+    flex: 1 1;
     max-height:113px;
+    flex-flow: row nowrap;
 }
 
 .thumbnail-flag-details{
-    max-width:65%;
+    max-width:60%;
     flex: auto;
     overflow-wrap: break-word;
     word-wrap: break-word;
@@ -169,10 +138,8 @@
     overflow: hidden;
     position: relative;
     line-height: 1.2em;
-    /* max-height = line-height (1.2) * lines max number (3) */
-    max-height: 3.6em;
-    /* elimates space between last visible word with ellipses  */
-    text-align: justify;
+    /* max-height = line-height (1.2) * lines max number (2) */
+    max-height: 2.4em;
     /* place for '...' */
     margin-right: -1em;
     padding-right: 1em;

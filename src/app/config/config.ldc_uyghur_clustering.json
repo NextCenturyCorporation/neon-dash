@@ -75,7 +75,7 @@
 			"name": "Bar Chart",
 			"type": "barChart",
 			"icon": "BarChart64",
-			"sizex": 7,
+			"sizex": 3,
 			"sizey": 15,
 			"$$hashKey": "object:30",
 			"selected": true,
@@ -89,14 +89,14 @@
 				"chartType": "horizontalBar"
 			},
 			"id": "1cae96da-4d62-4b12-b2ce-3fc794b95309",
-			"row": 0,
-			"col": 0
+			"row": 1,
+			"col": 1
 		},
 		{
 			"name": "Text Cloud",
 			"type": "textCloud",
 			"icon": "TagCloud64",
-			"sizex": 11,
+			"sizex": 5,
 			"sizey": 15,
 			"minPixelx": 320,
 			"minPixely": 240,
@@ -112,14 +112,14 @@
 				"limit": "100"
 			},
 			"id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
-			"row": 0,
-			"col": 8
+			"row": 1,
+			"col": 4
 		},
 		{
 			"name": "Document Viewer",
 			"type": "documentViewer",
 			"icon": "DocumentViewer64",
-			"sizex": 6,
+			"sizex": 3,
 			"sizey": 15,
 			"minPixelx": 320,
 			"minPixely": 240,
@@ -160,8 +160,8 @@
 				],
 				"limit": 50
 			},
-			"row": 0,
-			"col": 19
+			"row": 1,
+			"col": 10
 		}
 	]
 	},

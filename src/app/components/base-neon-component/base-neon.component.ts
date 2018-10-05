@@ -41,6 +41,7 @@ export abstract class BaseNeonOptions {
     public databases: DatabaseMetaData[] = [];
     public database: DatabaseMetaData;
     public fields: FieldMetaData[] = [];
+    public hideUnfiltered: boolean;
     public limit: number;
     public newLimit: number;
     public tables: TableMetaData[] = [];
@@ -56,6 +57,16 @@ export abstract class BaseNeonOptions {
         rhs: string
     };
 
+    public customEventsToPublish: {
+        id: string,
+        fields: { columnName: string, prettyName?: string, type?: string }[]
+    }[];
+
+    public customEventsToReceive: {
+        id: string,
+        fields: { columnName: string, prettyName?: string, type?: string }[]
+    }[];
+
     /**
      * @constructor
      * @arg {Injector} injector
@@ -66,7 +77,10 @@ export abstract class BaseNeonOptions {
     constructor(protected injector: Injector, protected datasetService: DatasetService, visualizationTitle: string = '',
         defaultLimit: number = 10) {
 
+        this.customEventsToPublish = injector.get('customEventsToPublish', []);
+        this.customEventsToReceive = injector.get('customEventsToReceive', []);
         this.filter = injector.get('configFilter', null);
+        this.hideUnfiltered = injector.get('hideUnfiltered', false);
         this.limit = injector.get('limit', defaultLimit);
         this.newLimit = this.limit;
         this.title = injector.get('title', visualizationTitle);
@@ -84,6 +98,13 @@ export abstract class BaseNeonOptions {
         let outputFields = this.fields.filter((field: FieldMetaData) => {
             return field.columnName === columnName;
         });
+        if (!outputFields.length && this.fields.length) {
+            // Check if the column name is actually an array index rather than a name.
+            let fieldIndex = parseInt(columnName, 10);
+            if (!isNaN(fieldIndex) && fieldIndex < this.fields.length) {
+                outputFields = [this.fields[fieldIndex]];
+            }
+        }
         return outputFields.length ? outputFields[0] : undefined;
     }
 
@@ -107,6 +128,7 @@ export abstract class BaseNeonOptions {
      */
     public findFieldObjects(bindingKey: string, mappingKey?: string): FieldMetaData[] {
         let bindings = this.injector.get(bindingKey, null) || [];
+        // TODO Should we remove empty field objects from the array?
         return (Array.isArray(bindings) ? bindings : []).map((columnName) => this.getFieldObject(columnName, mappingKey));
     }
 
@@ -142,13 +164,22 @@ export abstract class BaseNeonOptions {
         this.databases = this.datasetService.getDatabases();
         this.database = this.databases[0] || new DatabaseMetaData();
 
-        if (this.databases.length > 0) {
+        if (this.databases.length) {
             let configDatabase = this.injector.get('database', null);
             if (configDatabase) {
+                let isName = false;
                 for (let database of this.databases) {
                     if (configDatabase === database.name) {
                         this.database = database;
+                        isName = true;
                         break;
+                    }
+                }
+                if (!isName) {
+                    // Check if the config database is actually an array index rather than a name.
+                    let databaseIndex = parseInt(configDatabase, 10);
+                    if (!isNaN(databaseIndex) && databaseIndex < this.databases.length) {
+                        this.database = this.databases[databaseIndex];
                     }
                 }
             }
@@ -168,8 +199,8 @@ export abstract class BaseNeonOptions {
             });
         }
 
-        this.unsharedFilterField = new FieldMetaData();
-        this.unsharedFilterValue = '';
+        this.unsharedFilterField = this.findFieldObject('unsharedFilterField');
+        this.unsharedFilterValue = this.injector.get('unsharedFilterValue', '');
 
         this.updateFieldsOnTableChanged();
     }
@@ -184,10 +215,19 @@ export abstract class BaseNeonOptions {
         if (this.tables.length > 0) {
             let configTable = this.injector.get('table', null);
             if (configTable) {
+                let isName = false;
                 for (let table of this.tables) {
                     if (configTable === table.name) {
                         this.table = table;
+                        isName = true;
                         break;
+                    }
+                }
+                if (!isName) {
+                    // Check if the config table is actually an array index rather than a name.
+                    let tableIndex = parseInt(configTable, 10);
+                    if (!isNaN(tableIndex) && tableIndex < this.tables.length) {
+                        this.table = this.tables[tableIndex];
                     }
                 }
             }
@@ -217,7 +257,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     protected VISUALIZATION_PADDING: number = 10;
 
     public id: string;
-    protected messenger: neon.eventing.Messenger;
+    public messenger: neon.eventing.Messenger;
     protected outstandingDataQuery: any;
 
     protected initializing: boolean;
@@ -317,7 +357,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * Get the list of fields to export
      * @return {[]} List of {columnName, prettyName} values of the fields
      */
-    abstract getExportFields(): {columnName: string, prettyName: string}[];
+    abstract getExportFields(): { columnName: string, prettyName: string }[];
 
     /**
      * Add any fields needed to restore the state to the bindings parameter.
@@ -500,6 +540,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                 this.executeQueryChain();
             }
         };
+
         this.filterService.addFilter(this.messenger,
             this.id,
             this.getOptions().database.name,
@@ -606,10 +647,24 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @param response
      */
     baseOnQuerySuccess(response) {
-        this.onQuerySuccess(response);
+        //Converts the response to have the pretty names from the labelOptions in config to display
+        this.onQuerySuccess(this.prettifyLabels(response));
         this.isLoading = false;
         this.changeDetection.detectChanges();
         this.updateHeaderTextStyling();
+    }
+
+    /**
+     * Returns whether this visualization cannot execute its query right now.
+     *
+     * @return {boolean}
+     */
+    cannotExecuteQuery(): boolean {
+        let connection = this.connectionService.getActiveConnection();
+        let options = this.getOptions();
+        let database = options.database.name;
+        let table = options.table.name;
+        return (!connection || (options.hideUnfiltered && !this.filterService.getFiltersForFields(database, table).length));
     }
 
     /**
@@ -617,13 +672,30 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      * @param query The query to execute
      */
     executeQuery(query: neon.query.Query) {
-        let database = this.getOptions().database.name;
-        let table = this.getOptions().table.name;
+        let options = this.getOptions();
+        let database = options.database.name;
+        let table = options.table.name;
         let connection = this.connectionService.getActiveConnection();
+
+        if (this.cannotExecuteQuery()) {
+            this.baseOnQuerySuccess({
+                data: []
+            });
+            return;
+        }
 
         if (!connection) {
             return;
         }
+        /* tslint:disable:no-string-literal */
+
+        let filter = _.cloneDeep(query['filter']);
+        //If we have any labelOptions in the config, we want to edit the data to convert whatever data items that are specified to the
+        //"pretty" name. The pretty name goes to the visualizations, but it must be converted back before doing a query as the
+        //database won't recognize the pretty name.
+        this.datifyWherePredicates(filter.whereClause);
+        /* tslint:enable:no-string-literal */
+
         // Cancel any previous data query currently running.
         if (this.outstandingDataQuery[database] && this.outstandingDataQuery[database][table]) {
             this.outstandingDataQuery[database][table].abort();
@@ -643,7 +715,6 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
         this.outstandingDataQuery[database][table].always(() => {
             this.outstandingDataQuery[database][table] = undefined;
         });
-
         this.outstandingDataQuery[database][table].done(this.baseOnQuerySuccess.bind(this));
 
         this.outstandingDataQuery[database][table].fail((response) => {
@@ -651,11 +722,7 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
                 // query was aborted so we don't care.  We assume we aborted it on purpose.
             } else {
                 this.isLoading = false;
-                if (response.status === 0) {
-                    console.error('Query failed: ' + response);
-                } else {
-                    console.error('Query failed: ' + response);
-                }
+                console.error('Query failed: ', response);
                 this.changeDetection.detectChanges();
             }
         });
@@ -844,17 +911,38 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     }
 
     /**
+     * Publishes any custom events in the options (from the config file) using the given data item and event field.
+     *
+     * @arg {any} dataItem
+     * @arg {string} eventField
+     */
+    publishAnyCustomEvents(dataItem: any, eventField: string) {
+        this.getOptions().customEventsToPublish.forEach((config) => {
+            let metadata = {};
+            (config.fields || []).forEach((fieldsConfig) => {
+                metadata[fieldsConfig.columnName] = dataItem[fieldsConfig.columnName];
+            });
+            this.messenger.publish(config.id, {
+                item: eventField ? dataItem[eventField] : dataItem,
+                metadata: metadata
+            });
+        });
+    }
+
+    /**
      * Publishes the given ID to the select_id event.
      *
-     * @arg {(number|string)} id
+     * @arg {any} id
+     * @arg {any} [metadata]
      * @fires select_id
      */
-    publishSelectId(id) {
+    publishSelectId(id: any, metadata?: any) {
         this.messenger.publish('select_id', {
             source: this.id,
             database: this.getOptions().database.name,
             table: this.getOptions().table.name,
-            id: id
+            id: id,
+            metadata: metadata
         });
     }
 
@@ -903,4 +991,90 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
     prettifyInteger(item: number): string {
         return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
     }
+
+    /**
+     * Returns the result of converting labels in the response query data
+     * into pretty labels specified in the config.
+     */
+    private prettifyLabels(response) {
+        let labelOptions = this.getLabelOptions();
+        let labelKeys = Object.keys(labelOptions);
+        let itemKeys;
+        //Go through each item in the response data
+        for (let item of response.data) {
+            itemKeys = Object.keys(item);
+            //for each key in the data item
+            for (let key of itemKeys) {
+                //if that key exists in the labelOptions as keys for which there is a value to change
+                if (labelKeys.includes(key)) {
+                    //data items can have arrays of values, and we have to change all of them otherwise,
+                    //there is only one, and we have to change that one
+                    let value = item[key];
+                    if (value instanceof Array) {
+                        let newItemParam = [];
+                        //for each value in that array, if that element is a key in the options,
+                        //push into the new array the pretty name, otherwize push the original value
+                        for (let element of value) {
+                            let possibleNewValue = labelOptions[key][element];
+                            let newValue = possibleNewValue ? possibleNewValue : element;
+                            newItemParam.push(newValue);
+                        }
+                        item[key] = newItemParam;
+                    } else if (labelOptions[key][value]) {
+                        //if it's not an array, check to see if its a value in the options, set it if it is
+                        item[key] = labelOptions[key][value];
+                    }
+                }
+            }
+        }
+        return response;
+    }
+
+    /**
+     * Converts data elements that are specified to have a pretty name back to their original data label so that the database can
+     * correctly query. When it comes back in onQuerySuccess, the response will be converted back to their "pretty" form
+     * Will probably skew the data if the config specifies a data label to have a pretty name that is the same as another data label
+     */
+    private datifyWherePredicates(whereClause) {
+        let labelOptions = this.getLabelOptions();
+        switch (whereClause.type) {
+            case 'or':
+            case 'and':
+                let newFilters = [];
+                for (let clause of whereClause.whereClauses) {
+                    //recursively edit where clauses that contain multiple whereClauses
+                    newFilters.push(this.datifyWherePredicates(clause));
+                }
+                return newFilters;
+            case 'where':
+                return this.datifyWherePredicate(whereClause, labelOptions);
+        }
+    }
+
+    //Base case of datifyWherePredicates() when there is a single where clause
+    private datifyWherePredicate(predicate, labelOptions) {
+        let labelKeys = Object.keys(labelOptions);
+
+        let key = predicate.lhs;
+        if (labelKeys.includes(key)) {
+            let prettyLabels = labelOptions[key];
+            let labels = Object.keys(prettyLabels);
+            for (let label of labels) {
+                let possiblePrettyLabel = predicate.rhs;
+                if (prettyLabels[label] === possiblePrettyLabel) {
+                    predicate.rhs = label;
+                }
+            }
+        }
+    }
+
+    //Grabs labelOptions specified in the config
+    private getLabelOptions() {
+        let dataset = this.datasetService.getDataset();
+        let database = _.find(dataset.databases, (db) => db.name === this.getOptions().database.name);
+        let tableName = _.find(database.tables, (table) => table.name === this.getOptions().table.name);
+        let labelOptions = tableName.labelOptions;
+        return labelOptions;
+    }
+
 }

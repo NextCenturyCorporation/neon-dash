@@ -83,15 +83,10 @@ export class LegendComponent implements OnInit {
      */
     private loadAllColorSets() {
         this.colorSets = [];
-        if (!this.fieldNames) {
-            return;
-        }
-        for (let name of this.fieldNames) {
-            if (name && name !== '') {
-                let colorSet = this.colorSchemeService.getColorSet(name);
-                if (colorSet) {
-                    this.colorSets.push(colorSet);
-                }
+        for (let name of (this.fieldNames || [])) {
+            let colorSet = this.colorSchemeService.getColorSet(name || '');
+            if (colorSet) {
+                this.colorSets.push(colorSet);
             }
         }
     }

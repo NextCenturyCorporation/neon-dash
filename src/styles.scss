@@ -30,15 +30,15 @@ body {
     word-wrap: normal;
     white-space: nowrap;
     direction: ltr;
-  
+
     /* Support for all WebKit browsers. */
     -webkit-font-smoothing: antialiased;
     /* Support for Safari and Chrome. */
     text-rendering: optimizeLegibility;
-  
+
     /* Support for Firefox. */
     -moz-osx-font-smoothing: grayscale;
-  
+
     /* Support for IE. */
     font-feature-settings: 'liga';
 }
@@ -76,6 +76,7 @@ body {
 
 /* Angular2-Grid Overrides */
 .grid {
+    background-color: #fafafa !important;
     position: relative;
 }
 
@@ -358,6 +359,23 @@ body {
     }
 }
 
+.mat-slider {
+    padding: 0 !important;
+}
+
+.mat-slider-horizontal {
+    height: 60px !important;
+    min-width: unset !important;
+
+    .mat-slider-wrapper {
+        /* Position the slider near the bottom and save 40px for the thumb-label. */
+        top: 49px !important;
+        /* Add the same margin to the left and right. */
+        left: 10px !important;
+        right: 10px !important;
+    }
+}
+
 .mat-tab-label {
     height: 30px !important;
     min-width: unset !important;
@@ -387,12 +405,18 @@ body {
     }
 }
 
-.simpleSnackBar .mat-simple-snackbar{
-    padding-left: 60px;
+.simpleSnackBar {
+    background-color: rgba(0, 0, 0, 0.54) !important;
+    
 
-    & button{
+    .mat-simple-snackbar-action {
         position: absolute; 
         top: 0;
         right: 0;
+        font-weight: 800;
+    }
+
+    .mat-simple-snackbar{
+        justify-content: center;
     }
 }

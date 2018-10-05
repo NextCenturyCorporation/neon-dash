@@ -95,7 +95,7 @@ export class LeafletNeonMap extends AbstractMap {
                     radius: Math.min(Math.floor(6 * Math.pow(point.count, .5)), 30) // Default is 10
                 },
                 circle = new L.CircleMarker([point.lat, point.lng], circlOptions)/*.setRadius(6)*/;
-
+            circle = this.addClickEventListener(circle);
             if (this.mapOptions.hoverPopupEnabled) {
                 circle.bindTooltip(`<span>${point.name}</span><br/><span>${point.description}</span>`);
             }
@@ -215,7 +215,15 @@ export class LeafletNeonMap extends AbstractMap {
             bounds.getEast()
         ));
     }
+
     private getBoxColor() {
         return this.isDrawnFilterExact ? 'green' : 'red';
+    }
+
+    private addClickEventListener(circle: L.CircleMarker) {
+        return circle.addEventListener('click', (event) => { // event is a leaflet MouseEvent
+            let castEvent = event as L.LeafletMouseEvent;
+            this.filterListener.filterByMapPoint(castEvent.target._latlng.lat, castEvent.target._latlng.lng);
+        });
     }
 }

@@ -20,5 +20,5 @@ td.metadata-bold {
 }
 
 tr.metadata-row:nth-child(even) {
-    background-color: lightgray;
+    background-color: mat-color($accent);
 }
