@@ -338,36 +338,37 @@ export class MediaViewerComponent extends BaseNeonComponent implements OnInit, O
         let tabs = this.options.oneTabPerArray ? [oneTab] : [];
 
         links.filter((link) => !!link).forEach((link, index) => {
-            let prettyName = link.substring(link.lastIndexOf('/') + 1);
-            let linkTypeFromConfig = this.getMediaType(link) || '';
+            let mask = this.appendLinkPrefixIfNeeded(this.findElementAtIndex(masks, index));
+            let name = this.findElementAtIndex(names, index, (link ? link.substring(link.lastIndexOf('/') + 1) : oneTabName));
+            let type = this.findElementAtIndex(types, index, (this.getMediaType(link) || ''));
 
-            let tab = oneTab;
-            if (!this.options.oneTabPerArray) {
-                tab = {
-                    selected: undefined,
-                    slider: this.options.sliderValue,
-                    name: prettyName,
-                    loaded: false,
-                    list: []
-                };
-            }
-
-            tab.list.push({
-                // TODO Add a boolean borderField with border options like:  true = red, false = yellow
-                border: this.options.border,
-                link: this.appendLinkPrefixIfNeeded(link),
-                mask: this.appendLinkPrefixIfNeeded(this.findElementAtIndex(masks, index)),
-                name: this.findElementAtIndex(names, index, prettyName),
-                type: this.findElementAtIndex(types, index, linkTypeFromConfig)
-            });
-
-            tab.selected = tab.list[0];
-
-            if (!this.options.oneTabPerArray) {
-                if (tab.list[0].name) {
-                    tab.name = tab.list[0].name + ((links.length > 1 && names.length === 1) ? (' ' + (index + 1)) : '');
+            // Only add a tab if the link is non-empty; only add a tab for a mask-type if the mask is also non-empty.
+            if (link && (type === 'mask' ? mask : true)) {
+                let tab = oneTab;
+                if (!this.options.oneTabPerArray) {
+                    tab = {
+                        selected: undefined,
+                        slider: this.options.sliderValue,
+                        name: (links.length > 1 ? ((index + 1) + ': ') : '') + name,
+                        loaded: false,
+                        list: []
+                    };
                 }
-                tabs.push(tab);
+
+                tab.list.push({
+                    // TODO Add a boolean borderField with border options like:  true = red, false = yellow
+                    border: this.options.border,
+                    link: this.appendLinkPrefixIfNeeded(link),
+                    mask: mask,
+                    name: name,
+                    type: type
+                });
+
+                tab.selected = tab.list[0];
+
+                if (!this.options.oneTabPerArray) {
+                    tabs.push(tab);
+                }
             }
         });
 
