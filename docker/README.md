@@ -9,8 +9,8 @@ You will first need to install Docker. Here is a detailed guide on installing Do
 ### Setup Docker experimentals
 
 This is an optional step, but is highly **recommended**. Docker has an experimental feature called squash. Squashing
-your Docker image during the build process will significantly reduce the size of your Docker image. To be able
-to use the `--squash` flag during the build process you must enable experimental docker functions. 
+your Docker image during the build process will significantly reduce the size of your final Docker image. To levage
+the `--squash` flag during the build process you must enable experimental docker functions. 
 
 To enable, edit `/etc/docker/daemon.json` and insert the following:
 
@@ -20,7 +20,7 @@ To enable, edit `/etc/docker/daemon.json` and insert the following:
 }
 ```
 
-Save, restart Docker via `service docker restart` and confirm experimentals is now enablled on the **Server**
+Save, restart Docker via `service docker restart` and confirm experimentals is enabled on the **Server**
 ```
 $ docker version
 ```
@@ -48,7 +48,7 @@ Server:
 
 ### Download GeoTIFF data and create bind mount data directory
 
-Lorelei Docker supports an offline tile server for the Lorelei map component via [Geoserver](http://geoserver.org/). If you require an offline WMS server you will need to download the appropraite GeoTIFF data and store it in a data directory. Currently this build supports [Nartual Earth II](https://www.naturalearthdata.com/downloads/10m-raster-data/10m-natural-earth-2/) and [Blue Marble data](https://neo.sci.gsfc.nasa.gov/view.php?datasetId=BlueMarbleNG-TB) GeoTIFF data.
+Lorelei Docker supports an offline tile server for the Lorelei map component via [Geoserver](http://geoserver.org/). If you require an offline WMS server you will need to download the appropraite GeoTIFF data and store it in a data directory. Currently this build supports [Nartual Earth II](https://www.naturalearthdata.com/downloads/10m-raster-data/10m-natural-earth-2/) and/or [Blue Marble](https://neo.sci.gsfc.nasa.gov/view.php?datasetId=BlueMarbleNG-TB) GeoTIFF data.
 
 ##### Direct GeoTIFF (raster) Data Downloads: 
 + [Natrual Earth II with Shaded Relief, Water, and Drainages: 310.7MB](https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/raster/NE2_HR_LC_SR_W_DR.zip) 
@@ -59,67 +59,61 @@ Once you have downloaded the data, extract it and create a directory that will a
 
 ```
 /data
-  |--BLUE_MARBLE
+  |--/BLUE_MARBLE
      |--BlueMarbleNG-TB_2004-12-01_rgb_3600x1800.TIFF
-  |--NATURAL_EARTH_II
+  |--/NATURAL_EARTH_II
      |--NE2_HR_LC_SR_W_DR.tif
 ```
 
+Note* You only need to create the sub-directories for the data you plan on using in Geoserver. 
+
 ## Building Lorelei Docker image
 
-| Build Arg          | Drescription  | 
-| -------------------|:-------------| 
-| CREDS              | NextCentury git credentials separated by a colon: **example**: *someuser:pa$$word* |       
-| GIT_REPO           | Base hostname for your github/gitlab | 
-| NEON_REPO          | Git group/name repository for Neon      |    
-| NEON_BRANCH        | Neon git branch name      |  
-| LORELEI_REPO       | Git group/name repository for Lorelei      |  
-| LORELEI_BRANCH     | Lorelei git branch name      |  
-| LORELEI_CONFIG     | Name of the config file to deploy with Lorelei from the /src/app/config folder |      |  
-| THOR_DATA_REPO     | Git group/name repository for THOR_DATA       |  
-| THOR_DATA_BRANCH   | THOR_DATA git branch name       |  
-| ES_INDEX           | Elasticsearch index that will be created and store the data. This value must match the name of the data file and mapping file in THOR_DATA to be ingested |  
-| ES_MAPPING         | Name used when creating the mapping in Elasticsearch |
-| NATURAL_EARTH_DIR  | Directory where the Natural Earth II data is stored for the bind mount. `Do not change this value`      |  
-| NATURAL_EARTH_FILE | Name of the Natural Earth II data file used. `Do not change this value`     |  
-| NATURAL_EARTH_NS   | The namespace used for Natural Eearth II in Geoserver. `Do not change this value`      |  
-| BLUE_MARBLE_DIR    | Directory where the Blue Marble data is stored for the bind mount. `Do not change this value`      |  
-| BLUE_MARBLE_FILE   | Name of the Blue Marble data file used. `Do not change this value`       |  
-| BLUE_MARBLE_NS     | Directory where the Blue Marble data is stored for the bind mount. `Do not change this value`      |
+To build the docker image you will want to copy the `run.sh.example` file provided into `run.sh`. This script is made up of a docker build command with many `--build-arg` build arguments. Each argument with an example is described in the table below.  
 
+| Build Arg          |Example Value       | Drescription  | 
+| -------------------|:-------------------|:-------------| 
+| CREDS              | _johndoe:pa$$word_ | NextCentury git credentials separated by a colon `If you have an @ symbol in your CREDS password you will need to escape it by replacing it with %40` |       
+| GIT_REPO           | _gitlab.nextcentury.com_ | Base hostname for your github/gitlab | 
+| NEON_REPO          | _LORELEI.THOR/neon.git_ | Git group/name repository for Neon      |    
+| NEON_BRANCH        | _master_ | Neon git branch name      |  
+| LORELEI_REPO       | _LORELEI.THOR/Lorelei-demo.git_ | Git group/name repository for Lorelei      |  
+| LORELEI_BRANCH     | _feature/docker-build_ | Lorelei git branch name      |  
+| LORELEI_CONFIG     | _config.darpa-July2018-docker.json_ | Name of the config file to deploy with Lorelei from the /src/app/config folder |      |  
+| THOR_DATA_REPO     | _LORELEI.THOR/thor_data.git_ | Git group/name repository for THOR_DATA       |  
+| THOR_DATA_BRANCH   | _master_ | THOR_DATA git branch name       |  
+| ES_INDEX           | _ldc_uyg_jul_18_ | Elasticsearch index that will be created and store the data. This value must match the name of the data file and mapping file in THOR_DATA to be ingested |  
+| ES_MAPPING         | _ui_out_ | Name used when creating the mapping in Elasticsearch |
+| NATURAL_EARTH_DIR  | _NATURAL_EARTH_II_ | Directory name where Natural Earth II data is store locally for the bind mount. `Do not change this value`      |  
+| NATURAL_EARTH_FILE | _NE2_HR_LC_SR_W_DR.tif_ | Name of the Natural Earth II data file used. `Do not change this value`     |  
+| NATURAL_EARTH_NS   | _ne2_ | The namespace used for Natural Eearth II in Geoserver. `Do not change this value`      |  
+| BLUE_MARBLE_DIR    | _BLUE_MARBLE_ | Directory name where the Blue Marble data is locally stored for the bind mount. `Do not change this value`      |  
+| BLUE_MARBLE_FILE   | _BlueMarbleNG-TB_2004-12-01_rgb_3600x1800.TIFF_ | Name of the Blue Marble data file used. `Do not change this value`       |  
+| BLUE_MARBLE_NS     | _bm_ | Directory where the Blue Marble data is stored for the bind mount. `Do not change this value`      |
 
+In addition do the build arguments there is also a `--squash` flag at the end. This is optional. You must enable Docker experimental on the server if you would like to use this. See [Setup Docker experimentals](#Setup-Docker-experimentals)
 
 ## Useful Docker Commands
+```bash
+docker images # list all images
 
-### List all images
-docker images
+docker rmi <image-id> # remove images
 
-### Remove images
-docker rmi {image-id}
+docker rmi $(docker images -a -q) # delete all images 
 
-### Delete all images 
-sdocker rmi $(docker images -a -q)
+docker ps -a # list running containers
 
-### List running containers
-docker ps -a
+docker ps -l -q # get ID of last run container
+ 
+docker stop <container-id> # stop docker container
 
-### Get ID of last run container
-docker ps -l -q
+docker start <container-id> # start docker container
 
-### Stop docker container
-docker stop container-id
+docker rm <container-id> # delete docker container
 
-### Start docker container
-docker start container-id
+docker rm -f <container-id> # force delete container without stopping
 
-### Delete docker container
-docker rm container-id
+docker rm $(sudo docker ps -a -q) # delete all stopped containers
 
-### Force delete container without stopping
-docker rm -f container-id
-
-### Delete all stopped containers
-docker rm $(sudo docker ps -a -q)
-
-### Open Container Bash Shell
-docker exec -i -t container-id /bin/bash
+docker exec -i -t container-id /bin/bash # open Container Bash Shell
+```
