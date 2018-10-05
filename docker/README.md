@@ -69,7 +69,7 @@ Note* You only need to create the sub-directories for the data you plan on using
 
 ## Building Lorelei Docker image
 
-To build the docker image you will want to copy the `run.sh.example` file provided into `run.sh`. This script is made up of a docker build command with many `--build-arg` build arguments. Each argument with an example is described in the table below.  
+To build the docker image you will want to copy the `run.sh.example` file provided into `run.sh`. This script is made up of a docker build command with many `--build-arg` build arguments. These arguments should be configured to meet your needs for your particular Docker Lorelei build. Each argument with an example is described in the table below.  
 
 | Build Arg          |Example Value       | Drescription  | 
 | -------------------|:-------------------|:-------------| 
@@ -92,6 +92,69 @@ To build the docker image you will want to copy the `run.sh.example` file provid
 | BLUE_MARBLE_NS     | _bm_ | Directory where the Blue Marble data is stored for the bind mount. `Do not change this value`      |
 
 In addition do the build arguments there is also a `--squash` flag at the end. This is optional. You must enable Docker experimental on the server if you would like to use this. See [Setup Docker experimentals](#Setup-Docker-experimentals)
+
+#### Execute the build
+
+Once you have updated all the build arguments with your appropriate values, execute the script with `./run.sh`
+
+## Starting the container
+
+After building the image, you can start the lorelei Docker container. A `run.sh.example` script is provided for you in the docker directory. Copy this over to a new file `run.sh` and open it up to inspect. 
+
+```bash
+docker run -v ~/Desktop/data:/usr/local/data/geoserver/data --name lorelei -d -p 2222:22 -p 8080:8080 -p 8888:8888 -p 9200:9200 --name lorelei lorelei
+```
+
+#### Update bind mount location
+You will need to update the first configuration after the `-v`. This is the bind mount location. Update the path before the `:` to reflect the path of your data directory created in the [Data directory creation](#Data-directory-creation) section above.
+
+#### Detached vs STDIN mode
+
+The default command in this script will run the Docker image in detached `-d` mode. If you experience issues and would like to see the logs as the Docker container is spinning up, comment this line out and uncomment the Docker run command that keeps STDIN open and allocates a pseudo-tty. This comamnd has `-it` in it.
+
+#### Container servicese
+
+Running the Lorelei Docker image will stand up the following services on the following ports. The table below also has any login information necessary for each service. *Note* Tomcat and Geoserver must run on port 8888 and 8080 repsectively. At this point these are not configurable. 
+
+| Serivce       |Port       | Username  | Password  | 
+| --------------|:----------|:----------|:----------| 
+| SSHD          | 2222      | root      | lorelei   |
+| Geoserver     | 8080      | admin     | geoserver |
+| Tomcat        | 8888      | admin     | password  |
+| Elasticsearch | 9200      | n/a       | n/a       |
+
+## Vaidating the container
+
+It is a good idea to valid everything is working properly after starting the container. It is a good idea to check that Elasticsearch and the Lorelei UI are functioning properly. You can also verify all the other services by clicking the link in the [Other validation](#Other-validation) section below. 
+
+#### Verify Elasitcsearch data
+
+You can verify that all the appropriate indexes, mappings and data made it into Elasticsearch by navigating to [Elasticsearch-head](https://github.com/mobz/elasticsearch-head) at `http://localhost:9200/_plugin/head` You should see something similar to this:
+
+![](https://imgur.com/a/4TCKCbq)
+
+#### Verify Lorelei UI
+
+Navigate to `http://localhost:8888/lorelei` and verify that Lorelei UI is properly working.
+
+#### Other validation
+
+Neon Index: `http://localhost:8888/neon`
+Geoserver:  `http://localhost:8080/geoserver`
+sshd     :  `ssh root@localhost -p2222`
+
+## Commit new Docker image
+
+After verification we need to commit the working container into a new image. This ensures that all the data copied from the bind mount and all the settings will persist when the customer starts the delivered Docker image. To commit the image execute the following command:
+
+```bash
+docker commit <container-id> nextcentury/lorelei:latest
+```
+A new `nextcentury/lorelei:latest` image will be created. You can test this image by starting it with the following command:
+
+```bash
+docker run -d -p 2222:22 -p 8080:8080 -p 8888:8888 -p 9200:9200 --name lorelei nextcenturylorelei:latest
+```
 
 ## Useful Docker Commands
 ```bash
