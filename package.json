@@ -5,6 +5,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
+    "start-local": "ng serve --proxy-config proxy.conf.json --host 0.0.0.0 --port 4200",
     "prebuild-ariel": "rm -f target/*.war  && mkdir -p target  && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
     "build-ariel": "ng build --env=prod --deployUrl=/lorelei-ariel/ --base-href /lorelei-ariel/",
     "postbuild-ariel": "cd dist && zip -r lorelei-ariel.war * && cd .. && mv dist/lorelei-ariel.war target/lorelei-ariel.war",
@@ -38,6 +39,8 @@
     "preaida": "rm -f target/*.war && mkdir -p target && mat-switcher -p tsconfig.json --extra-css 'src/**/*.scss'",
     "aida": "ng build --env=prod --deployUrl=/aida/  --base-href /aida/",
     "postaida": "cd dist && zip -r aida.war * && cd .. && mv dist/aida.war target/aida.war",
+    "build-vmap": "ng build --env=prod --deployUrl=/medifor-workbench/ --base-href /medifor-workbench/ --aot",
+    "postbuild-vmap": "cd dist && zip -r medifor-workbench.war * && sudo cp medifor-workbench.war ../../tomcat/webapps/medifor-workbench.war",
     "lint": "ng lint",
     "lint-fix": "ng lint -fix",
     "test": "ng test",
