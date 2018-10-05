@@ -225,14 +225,16 @@ describe('Component: BarChart', () => {
             id: undefined,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }]);
         expect(spy2.calls.count()).toBe(1);
         expect(spy2.calls.argsFor(0)).toEqual([true, {
             id: undefined,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }, neon.query.where('testDataField', '=', 'testFilter')]);
         expect(spy3.calls.count()).toBe(0);
         expect(spy4.calls.count()).toBe(0);
@@ -261,7 +263,8 @@ describe('Component: BarChart', () => {
             id: 1,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }]);
         expect(spy2.calls.count()).toBe(0);
         expect(spy3.calls.count()).toBe(0);
@@ -270,12 +273,13 @@ describe('Component: BarChart', () => {
             id: 1,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }, neon.query.where('testDataField', '=', 'testFilter')]);
         expect(spy5.calls.count()).toBe(1);
     });
 
-    it('onClick does does call remove and add functions if filters is not an empty array and filter does not match', () => {
+    it('onClick does call remove and add functions if filters is not an empty array and filter does not match', () => {
         let filter1 = {
             id: 1,
             field: 'otherField1',
@@ -321,14 +325,16 @@ describe('Component: BarChart', () => {
             id: undefined,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }]);
         expect(spy2.calls.count()).toBe(1);
         expect(spy2.calls.argsFor(0)).toEqual([true, {
             id: undefined,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }, neon.query.where('testDataField', '=', 'testFilter')]);
     });
 
@@ -353,14 +359,16 @@ describe('Component: BarChart', () => {
             id: undefined,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }]);
         expect(spy2.calls.count()).toBe(1);
         expect(spy2.calls.argsFor(0)).toEqual([true, {
             id: undefined,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }, neon.query.where('testDataField', '=', 'testFilter')]);
         expect(spy3.calls.count()).toBe(0);
         expect(spy4.calls.count()).toBe(0);
@@ -395,8 +403,11 @@ describe('Component: BarChart', () => {
         component.chartInfo.data.labels = ['bar1', 'bar2', 'bar3', 'bar4'];
         component.chartInfo.data.datasets = [barChartData];
         component.addLocalFilter({
+            id: undefined,
             field: 'testDataField',
-            value: 'bar2'
+            value: 'bar2',
+            prettyField: 'Test Data Field',
+            operator: '='
         });
 
         component.refreshVisualization();
@@ -404,8 +415,8 @@ describe('Component: BarChart', () => {
         expect(component.selectedLabels).toEqual(['group1']);
         expect(activeData.backgroundColor).toEqual(['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)']);
         expect(activeData.hoverBackgroundColor).toEqual(['rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)']);
-        expect(component.chartInfo.data.datasets[0].backgroundColor).toEqual(['rgba(255,255,255,0.3)', 'rgb(255,255,255)',
-            'rgba(255,255,255,0.3)', 'rgba(255,255,255,0.3)']);
+        expect(component.chartInfo.data.datasets[0].backgroundColor).toEqual(['rgba(255,255,255,0.2)', 'rgb(255,255,255)',
+            'rgba(255,255,255,0.2)', 'rgba(255,255,255,0.2)']);
     });
 
     it('onQuerySuccess does update page and lastPage and does call updateBarChart', () => {
@@ -544,21 +555,21 @@ describe('Component: BarChart', () => {
             }]
         });
 
-        let dataset1 = new BarDataSet(4, 'group1', new Color(31, 120, 180), new Color(255, 255, 255));
+        let dataset1 = new BarDataSet(4, 'group1', new Color(250, 57, 47), new Color(255, 255, 255));
         dataset1.data = [400, 40, 4, 0];
-        expect(dataset1.backgroundColor).toEqual(['rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)', 'rgb(31,120,180)']);
+        expect(dataset1.backgroundColor).toEqual(['rgb(250,57,47)', 'rgb(250,57,47)', 'rgb(250,57,47)', 'rgb(250,57,47)']);
 
-        let dataset2 = new BarDataSet(4, 'group2', new Color(51, 160, 44), new Color(255, 255, 255));
+        let dataset2 = new BarDataSet(4, 'group2', new Color(0, 162, 215), new Color(255, 255, 255));
         dataset2.data = [300, 30, 3, 0];
-        expect(dataset2.backgroundColor).toEqual(['rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)', 'rgb(51,160,44)']);
+        expect(dataset2.backgroundColor).toEqual(['rgb(0,162,215)', 'rgb(0,162,215)', 'rgb(0,162,215)', 'rgb(0,162,215)']);
 
-        let dataset3 = new BarDataSet(4, 'group3', new Color(227, 26, 28), new Color(255, 255, 255));
+        let dataset3 = new BarDataSet(4, 'group3', new Color(1, 178, 6), new Color(255, 255, 255));
         dataset3.data = [200, 20, 0, 2];
-        expect(dataset3.backgroundColor).toEqual(['rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)', 'rgb(227,26,28)']);
+        expect(dataset3.backgroundColor).toEqual(['rgb(1,178,6)', 'rgb(1,178,6)', 'rgb(1,178,6)', 'rgb(1,178,6)']);
 
-        let dataset4 = new BarDataSet(4, 'group4', new Color(255, 127, 0), new Color(255, 255, 255));
+        let dataset4 = new BarDataSet(4, 'group4', new Color(39, 12, 114), new Color(255, 255, 255));
         dataset4.data = [100, 10, 0, 0];
-        expect(dataset4.backgroundColor).toEqual(['rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)', 'rgb(255,127,0)']);
+        expect(dataset4.backgroundColor).toEqual(['rgb(39,12,114)', 'rgb(39,12,114)', 'rgb(39,12,114)', 'rgb(39,12,114)']);
 
         expect(component.bars).toEqual(['bar1', 'bar2', 'bar3', 'bar4']);
         expect(component.activeData).toEqual([dataset1, dataset2, dataset3, dataset4]);

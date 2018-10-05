@@ -14,7 +14,6 @@
  *
  */
 import { Injectable } from '@angular/core';
-import { URLSearchParams } from '@angular/http';
 import * as neon from 'neon-framework';
 import * as $ from 'jquery';
 
@@ -52,20 +51,80 @@ export class ParameterService {
     private static BOUNDS_MAX_LON = 3;
 
     private messenger: neon.eventing.Messenger;
+    public parameters: any = {};
 
-    constructor(private datasetService: DatasetService, private connectionService: ConnectionService,
-        private errorNotificationService: ErrorNotificationService, private filterService: FilterService) {
+    constructor(
+        private datasetService: DatasetService,
+        private connectionService: ConnectionService,
+        private errorNotificationService: ErrorNotificationService,
+        private filterService: FilterService
+    ) {
         this.messenger = new neon.eventing.Messenger();
+        this.parameters = this.findParameters(document.location.search);
     }
 
     /**
-     * Returns the name of the dataset specified in the URL parameters to set as the active dataset on initial load of the dashboard.
-     * @method findActiveDatasetInUrl
-     * @return {String}
+     * Returns the active dataset from the URL parameters, if any.
+     *
+     * @return {string}
      */
     findActiveDatasetInUrl(): string {
-        let parameters = new URLSearchParams();
-        return parameters.get(ParameterService.ACTIVE_DATASET);
+        return this.parameters[ParameterService.ACTIVE_DATASET];
+    }
+
+    /**
+     * Returns the dashboard state ID from the URL parameters, if any.
+     *
+     * @return {string}
+     */
+    findDashboardStateIdInUrl(): string {
+        return this.parameters[ParameterService.DASHBOARD_STATE_ID];
+    }
+
+    /**
+     * Returns the filter state ID from the URL parameters, if any.
+     *
+     * @return {string}
+     */
+    findFilterStateIdInUrl(): string {
+        return this.parameters[ParameterService.FILTER_STATE_ID];
+    }
+
+    /**
+     * Returns the map of parameters in the given query string.
+     *
+     * @arg {string} queryString
+     * @return {any}
+     */
+    findParameters(queryString: string): any {
+        return (queryString || '?').slice(1).split('&').reduce((parameters, parameter) => {
+            let pair = parameter.split('=');
+            if (pair.length === 2) {
+                parameters[pair[0]] = decodeURIComponent(pair[1]);
+            }
+            return parameters;
+        }, {});
+    }
+
+    /**
+     * Removes the state parameters from the browser URL and the parameter map.
+     */
+    removeStateParameters() {
+        delete this.parameters[ParameterService.DASHBOARD_STATE_ID];
+        delete this.parameters[ParameterService.FILTER_STATE_ID];
+        // TODO Update the browser URL.
+    }
+
+    /**
+     * Updates the state parameters to the given values in the browser URL and the parameter map.
+     *
+     * @arg {string} dashboardStateId
+     * @arg {string} filterStateId
+     */
+    updateStateParameters(dashboardStateId: string, filterStateId: string) {
+        this.parameters[ParameterService.DASHBOARD_STATE_ID] = dashboardStateId;
+        this.parameters[ParameterService.FILTER_STATE_ID] = filterStateId;
+        // TODO Update the browser URL.
     }
 
     /**
@@ -89,8 +148,6 @@ export class ParameterService {
                 });
             });
         });
-
-        let parameters = new URLSearchParams();
 
         let argsList = [{
             mappings: [neonMappings.DATE],
@@ -140,16 +197,16 @@ export class ParameterService {
             }
         });
 
-        let filterStateExists: boolean = this.readFilterState(parameters, ignoreDashboardState);
+        let filterStateExists: boolean = this.readFilterState(this.parameters, ignoreDashboardState);
         if (!filterStateExists) {
             let callback: () => any = () => {
-                let dashboardStateId: string | number = this.cleanValue(parameters[ParameterService.DASHBOARD_STATE_ID], 'contains');
+                let dashboardStateId: string | number = this.cleanValue(this.parameters[ParameterService.DASHBOARD_STATE_ID], 'contains');
 
                 if (this.doesParameterExist(dashboardStateId) && !ignoreDashboardState) {
                     this.loadState(dashboardStateId, '');
                 }
             };
-            this.addFiltersForDashboardParameters(parameters, argsList, callback);
+            this.addFiltersForDashboardParameters(this.parameters, argsList, callback);
         }
     }
 

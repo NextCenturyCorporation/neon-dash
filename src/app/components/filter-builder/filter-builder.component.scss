@@ -35,13 +35,14 @@
     flex-direction: row;
     min-width: 300px;
     // Subtract the width of the button container plus margins.
-    width: calc(100% - 80px);
+    width: calc(100% - 60px);
 }
 
 .clause-button-container {
     display: flex;
     flex-direction: row;
-    width: 80px;
+    // Set to the sum of the width of all the buttons.
+    width: 60px;
 }
 
 .clause-button {
