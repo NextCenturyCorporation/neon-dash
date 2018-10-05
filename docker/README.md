@@ -112,16 +112,16 @@ You will need to update the first configuration after the `-v`. This is the bind
 
 The default command in this script will run the Docker image in detached `-d` mode. If you experience issues and would like to see the logs as the Docker container is spinning up, comment this line out and uncomment the Docker run command that keeps STDIN open and allocates a pseudo-tty. This comamnd has `-it` in it.
 
-#### Container servicese
+#### Container services
 
 Running the Lorelei Docker image will stand up the following services on the following ports. The table below also has any login information necessary for each service. *Note* Tomcat and Geoserver must run on port 8888 and 8080 repsectively. At this point these are not configurable. 
 
 | Serivce       |Port       | Username  | Password  | 
 | --------------|:----------|:----------|:----------| 
-| *SSHD*          | 2222      | root      | lorelei   |
-| *Geoserver*     | 8080      | admin     | geoserver |
-| *Tomcat*        | 8888      | admin     | password  |
-| *Elasticsearch* | 9200      | n/a       | n/a       |
+| **SSHD**          | 2222      | root      | lorelei   |
+| **Geoserver**     | 8080      | admin     | geoserver |
+| **Tomcat**       | 8888      | admin     | password  |
+| **Elasticsearch** | 9200      | n/a       | n/a       |
 
 ## Vaidating the container
 
