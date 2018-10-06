@@ -16,8 +16,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { Injector } from '@angular/core';
-
-import {} from 'jasmine-core';
 import * as neon from 'neon-framework';
 
 import { BarChartComponent, BarDataSet } from './bar-chart.component';
@@ -148,7 +146,8 @@ describe('Component: BarChart', () => {
 
         query.where(neon.query.and.apply(query, whereClauses));
 
-        query.groupBy(groupBy).aggregate(neonVariables.COUNT, '*', 'value').sortBy('value', neonVariables.DESCENDING);
+        query.groupBy(groupBy).aggregate(neonVariables.COUNT, '*', 'value')
+            .sortBy('value', neonVariables.DESCENDING);
 
         expect(component.createQuery()).toEqual(query);
         expect(spyQuerySuccess.calls.count()).toBe(0);
