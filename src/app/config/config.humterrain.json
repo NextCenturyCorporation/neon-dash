@@ -32,7 +32,7 @@
 								"PER": "#AEC7E8"
 							},
 							"types": {
-								
+
 							}
 						}
 					}
@@ -118,10 +118,12 @@
 					"nodeColor": "#4DBCC1",
             		                "linkColor": "#F68B4E",
 					"limit": 100,
-					"edgeColorField": "sentimentString"
+					"edgeColorField": "sentimentString",
+                    "displayLegend" : true,
+                    "legendFiltering" : true
 				},
 				"row": 15,
-				"col": 0			
+				"col": 0
 			}
 		]
 		}

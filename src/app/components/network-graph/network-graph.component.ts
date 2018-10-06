@@ -26,18 +26,18 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import {ActiveGridService} from '../../services/active-grid.service';
-import {ColorSchemeService} from '../../services/color-scheme.service';
-import {ConnectionService} from '../../services/connection.service';
-import {DatasetService} from '../../services/dataset.service';
-import {ExportService} from '../../services/export.service';
-import {FilterService} from '../../services/filter.service';
-import {ThemesService} from '../../services/themes.service';
-import {VisualizationService} from '../../services/visualization.service';
+import { ActiveGridService } from '../../services/active-grid.service';
+import { ColorSchemeService } from '../../services/color-scheme.service';
+import { ConnectionService } from '../../services/connection.service';
+import { DatasetService } from '../../services/dataset.service';
+import { ExportService } from '../../services/export.service';
+import { FilterService } from '../../services/filter.service';
+import { ThemesService } from '../../services/themes.service';
+import { VisualizationService } from '../../services/visualization.service';
 
-import {BaseNeonComponent, BaseNeonOptions} from '../base-neon-component/base-neon.component';
-import {FieldMetaData} from '../../dataset';
-import {neonUtilities, neonVariables} from '../../neon-namespaces';
+import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
+import { FieldMetaData } from '../../dataset';
+import { neonUtilities, neonVariables } from '../../neon-namespaces';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
@@ -126,7 +126,6 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public typeField: FieldMetaData;
     public edgeWidth: number;
     public limit: number;
-    public andFilters: boolean;
     public showOnlyFiltered: boolean;
     public filterFields: string[];
     public xPositionField: FieldMetaData;
@@ -334,7 +333,6 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         bindings.linkNameField = this.options.linkNameField.columnName;
         bindings.nodeColorField = this.options.nodeColorField.columnName;
         bindings.edgeColorField = this.options.edgeColorField.columnName;
-        bindings.andFilters = this.options.andFilters;
         bindings.xPositionField = this.options.xPositionField.columnName;
         bindings.yPositionField = this.options.yPositionField.columnName;
         bindings.xTargetPositionField = this.options.xTargetPositionField.columnName;
@@ -1092,7 +1090,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             }
 
         }
-    };
+    }
 
     createFilterObject(field: string, value: string, prettyField: string): any {
         let myFilter = {
