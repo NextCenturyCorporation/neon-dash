@@ -136,9 +136,18 @@
         </div>
     </div>
 
-    <div #taxonomyViewer class="body-container" [class.with-filter]="getCloseableFilters().length" >
-        <div class="taxonomy-viewer-container">
-            <tree-root [nodes]="testNodes" [options]="testOptions"></tree-root>
+    <div class="body-container" [class.with-filter]="getCloseableFilters().length" >
+        <div #taxonomyViewer class="taxonomy-viewer-container">
+            <tree-root [nodes]="taxonomyGroups" [options]="testOptions">
+                <ng-template #treeNodeTemplate let-node="node"  let-index="index">
+                    <input #treeNodeCheckboxes
+                        (change)="checkRelatedNodes( node, $event)"
+                        type="checkbox"
+                        [indeterminate]="node.data.indeterminate"
+                        [checked]="node.data.checked">
+                    <span (click)="onEvent($event, node)">{{ node.data.name }} <span *ngIf="node.data.children && node.data.children.length">({{ node.data.children.length }})</span></span>
+                </ng-template>
+            </tree-root>
         </div>
     </div>
 

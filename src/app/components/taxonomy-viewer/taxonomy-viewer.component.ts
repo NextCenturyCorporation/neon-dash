@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,25 +18,27 @@ import {
     ChangeDetectorRef,
     Component,
     ElementRef,
+    EventEmitter,
     Injector,
     OnDestroy,
     OnInit,
+    Output,
+    Renderer2,
     ViewChild,
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
-import { FilterService } from '../../services/filter.service';
-import { ExportService } from '../../services/export.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
-
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {ActiveGridService} from '../../services/active-grid.service';
+import {ConnectionService} from '../../services/connection.service';
+import {DatasetService} from '../../services/dataset.service';
+import {FilterService} from '../../services/filter.service';
+import {ExportService} from '../../services/export.service';
+import {ThemesService} from '../../services/themes.service';
+import {VisualizationService} from '../../services/visualization.service';
+import {KEYS, TREE_ACTIONS} from 'angular-tree-component';
+import {BaseNeonComponent, BaseNeonOptions} from '../base-neon-component/base-neon.component';
+import {FieldMetaData} from '../../dataset';
+import {neonUtilities, neonVariables} from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 
 /**
@@ -56,7 +57,9 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
     public typeField: FieldMetaData;
     public subTypeField: FieldMetaData;
     public nodeNameField: FieldMetaData;
+    public filterField: FieldMetaData;
     public showOnlyFiltered: boolean;
+    public ignoreSelf: boolean;
 
     /**
      * Initializes all the non-field options for the specific visualization.
@@ -67,6 +70,7 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
         this.ascending = this.injector.get('ascending', false);
         this.id = this.injector.get('id', '');
         this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
+        this.ignoreSelf = this.injector.get('ignoreSelf', false);
     }
 
     /**
@@ -82,6 +86,7 @@ export class TaxonomyViewerOptions extends BaseNeonOptions {
         this.typeField = this.findFieldObject('typeField');
         this.subTypeField = this.findFieldObject('subTypeField');
         this.nodeNameField = this.findFieldObject('nodeNameField');
+        this.filterField = this.findFieldObject('filterField');
 
     }
 }
@@ -100,6 +105,10 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     @ViewChild('headerText') headerText: ElementRef;
     @ViewChild('infoText') infoText: ElementRef;
     @ViewChild('taxonomyViewer') taxonomyViewer: ElementRef;
+    @ViewChild('treeNodeTemplate') taxonomyTemplate: ElementRef;
+    @ViewChild('treeNodeCheckboxes') taxonomyCheckboxes: ElementRef;
+
+    @Output() clickNode = new EventEmitter<Node>();
 
     //TODO Define properties as needed.  Made public so they can be used by unit tests.
 
@@ -115,63 +124,57 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
     public activeData: any[] = [];
     public docCount: number = 0;
-    public responseData: any[] = [];
-    public nodeCategories: string[] = [];
+ /*   public nodeCategories: string[] = [];
     public nodeTypes: string[] = [];
-    public nodeSubTypes: string[] = [];
-    public taxonomyNodes: any[] = [];
+    public nodeSubTypes: string[] = [];*/
+    public taxonomyGroups: any[] = [];
+    public allNodes: any[] = [];
+    public filteredNodes: string[] = [];
+    public renderer: Renderer2;
 
     //todo: remove once real data gets mapped
-    public testNodes = [
-        {
-            id: 1,
-            name: 'root1',
-            children: [
-                { id: 2, name: 'child1' },
-                { id: 3, name: 'child2' }
-            ]
-        },
-        {
-            id: 4,
-            name: 'root2',
-            children: [
-                { id: 5, name: 'child2.1' },
-                {
-                    id: 6,
-                    name: 'child2.2',
-                    children: [
-                        { id: 7, name: 'subsub' }
-                    ]
+    public testOptions = {
+        actionMapping: {
+            mouse: {
+                dblClick: (tree, node, $event) => {
+                    if (node.hasChildren) { TREE_ACTIONS.TOGGLE_EXPANDED(tree, node, $event); }
                 }
-            ]
-        },
-        {
-            id: 3,
-            name: 'EVENT',
-            children: [
-                {
-                    id: '3_1',
-                    name: 'Conflict',
-                    children: [
-                        { id: '3_1_1',
-                            name: 'Attack',
-                            children: [
-                                { id: 'NIL737.780192',
-                                    name: 'Ukrainian fighter jet fired at MH17 flight deck'
-                                }
-                            ]
-                        }
-                    ]
+            },
+            keys: {
+                [KEYS.ENTER]: (tree, node, $event) => {
+                    node.expandAll();
                 }
-            ]
-        }
-    ];
-    public testOptions = {};
+            }
+        },
+        isExpandedField: 'expanded'
+
+        /*
+                loadingComponent: 'loading, please wait...'
+        displayField: 'name',
+                //isExpandedField: 'expanded',
+                idField: 'id',
+                hasChildrenField: 'children',
+        ,
+                nodeHeight: 23,
+                allowDrag: (node) => {
+                    return true;
+                },
+                allowDrop: (node) => {
+                    return true;
+                },
+                levelPadding: 10,
+                useVirtualScroll: true,
+                animateExpand: true,
+                scrollOnActivate: true,
+                animateSpeed: 30,
+                animateAcceleration: 1.2,*/
+       // scrollContainer: document.documentElement//html
+    };
 
     constructor(
         activeGridService: ActiveGridService, connectionService: ConnectionService, datasetService: DatasetService,
         filterService: FilterService, exportService: ExportService, injector: Injector, themesService: ThemesService,
-        ref: ChangeDetectorRef, visualizationService: VisualizationService
+        ref: ChangeDetectorRef, visualizationService: VisualizationService, private renderer2: Renderer2
     ) {
 
         super(
@@ -180,6 +183,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         );
 
         this.options = new TaxonomyViewerOptions(this.injector, this.datasetService, 'Taxonomy Viewer');
+        this.renderer = renderer2;
     }
 
     /**
@@ -191,7 +195,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
     createQuery(): neon.query.Query {
         let query = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name);
 
-        let fields = [this.options.idField.columnName];
+        let fields = [this.options.idField.columnName, this.options.filterField.columnName];
 
         if (this.options.categoryField.columnName) {
             fields.push(this.options.categoryField.columnName);
@@ -222,34 +226,13 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             neon.query.where(this.options.idField.columnName, '!=', '')
         ];
 
-        return query.withFields(fields).where(neon.query.and.apply(query, whereClauses));
-    }
+        let ignoreFilters = this.getFiltersToIgnore();
+        if (ignoreFilters && ignoreFilters.length) {
+            query.ignoreFilters(ignoreFilters);
+        }
 
-    createTaxonomy(categories: string[], types: string[], subTypes: string[]) {
-    //Todo: firgure our a way to take nodeType, nodeSubTypes, and nodeCategories
-    //and turn them into a tree strucutere
-
-    //What way can we assign specific types to categories and subtypes to types?
-
-    }
-
-    // TODO Change arguments as needed.
-    /**
-     * Creates and returns a filter object for the visualization.
-     *
-     * @arg {string} id
-     * @arg {string} field
-     * @arg {string} prettyField
-     * @arg {string} value
-     * @return {object}
-     */
-    createVisualizationFilter(id: string, field: string, prettyField: string, value: string): any {
-        return {
-            id: id,
-            field: field,
-            prettyField: prettyField,
-            value: value
-        };
+        return query.withFields(fields).where(neon.query.and.apply(query, whereClauses)).sortBy(
+            this.options.categoryField.columnName, neonVariables.ASCENDING);
     }
 
     /**
@@ -324,6 +307,9 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             columnName: this.options.subTypeField.columnName,
             prettyName: this.options.subTypeField.prettyName
         }, {
+            columnName: this.options.filterField.columnName,
+            prettyName: this.options.filterField.prettyName
+        }, {
             columnName: this.options.nodeNameField.columnName,
             prettyName: this.options.nodeNameField.prettyName
         }];
@@ -336,18 +322,17 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     getFiltersToIgnore(): string[] {
-        // TODO Do you want the visualization to ignore its own filters?  If not, just return null.
+        if (!this.options.ignoreSelf) {
+            return null;
+        }
 
-        // TODO Change the list of filter fields here as needed.
         // Get all the neon filters relevant to this visualization.
         let neonFilters = this.filterService.getFiltersForFields(this.options.database.name, this.options.table.name,
-            [this.options.idField.columnName]);
+            [this.options.idField.columnName, this.options.filterField.columnName]);
 
         let filterIdsToIgnore = [];
         for (let neonFilter of neonFilters) {
-            if (!neonFilter.filter.whereClause.whereClauses) {
-                filterIdsToIgnore.push(neonFilter.id);
-            }
+            filterIdsToIgnore.push(neonFilter.id);
         }
 
         return filterIdsToIgnore.length ? filterIdsToIgnore : null;
@@ -371,6 +356,58 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      *
      * @override
      */
+
+    /**
+     * Returns whether a visualization filter object with the given field and value strings exists in the list of visualization filters.
+     *
+     * @arg {string} field
+     * @arg {string} value
+     * @return {boolean}
+     * @private
+     */
+    filterExists(field: string, value: string) {
+        return this.filters.some((existingFilter) => {
+            return field === existingFilter.field && value === existingFilter.value;
+        });
+    }
+
+    /**
+     * Creates Neon and visualization filter objects for the given text.
+     *
+     * @arg {string} text
+     */
+    createFilter(data: any) {
+        if (!this.options.filterField.columnName) {
+            return;
+        }
+
+        let filter = {
+            id: data.id,
+            field: this.options.filterField.columnName,
+            prettyField: data.name + ' ' + this.options.filterField.columnName,
+            value: data.nodes.toString()
+        };
+
+       // let clause = neon.query.where(filter.field, '=', filter.value);
+
+        let clauses = data.nodes.map((element) =>
+            neon.query.where(filter.field, '=', element));
+        let runQuery = !this.options.ignoreSelf;
+        let clause = neon.query.or.apply(neon.query, clauses);
+
+        //console.log(filter, runQuery)
+       // console.log(this.filters.length)
+        //console.log(clauses)
+        //console.log("filter exists?", this.filterExists(filter.field, filter.value));
+        if (!this.filterExists(filter.field, filter.value)) {
+            this.filters = [filter];
+            this.addNeonFilter(runQuery, filter, clause);
+        }
+
+        //console.log("create filter")
+        //console.log(this.filters)
+    }
+
     handleChangeData() {
         super.handleChangeData();
     }
@@ -419,118 +456,137 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     onQuerySuccess(response: any) {
-        this.nodeCategories = [];
+        /*this.nodeCategories = [];
         this.nodeTypes = [];
-        this.nodeSubTypes = [];
+        this.nodeSubTypes = [];*/
+        let groups = [];
         let counter = 0;
+
+        let categoryDocs = [];
 
         try {
             if (response && response.data && response.data.length && response.data[0]) {
                 this.isLoading = true;
                 response.data.forEach((d) => {
-                    let types = neonUtilities.deepFind(d, this.options.typeField.columnName);
-/*                    for (let field of this.options.fields) {
-                        if (field.columnName === this.options.categoryField.columnName) {
-                            this.nodeCategories.push(neonUtilities.deepFind(d, this.options.categoryField.columnName));
-                        }
-                        if (field.columnName === this.options.typeField.columnName) {
 
-                            for (let value of types) {
-                                let type = value.includes('.') ? value.split('.')[0] : value;
-                                this.nodeTypes.push(type);
-                            }
-                        }
-                        if (field.columnName === this.options.subTypeField.columnName) {
-                            for (let value of types) {
-                                let subType = value.includes('.') ? value.slice(value.indexOf('.') + 1) : null;
+                    let categoryIndex = -1,
+                        typeIndex = -1,
+                        subTypeIndex = -1,
+                        id: string[],
+                        categories: string[],
+                        types: string[];
 
-                                if (subType) {
-                                    this.nodeSubTypes.push(subType);
-                                }
-                            }
-                        }
+                    categories = neonUtilities.deepFind(d, this.options.categoryField.columnName);
+
+                    if (this.options.typeField.columnName) {
+                        types = neonUtilities.deepFind(d, this.options.typeField.columnName);
                     }
 
-                    this.nodeCategories = this.nodeCategories.reduce(this.flattenArray, [])
-                        .filter((value, index, array) => array.indexOf(value) === index).sort();
-                    this.nodeTypes = this.nodeTypes.reduce(this.flattenArray, [])
-                        .filter((value, index, array) => array.indexOf(value) === index).sort();
-                    this.nodeSubTypes = this.nodeSubTypes.reduce(this.flattenArray, [])
-                        .filter((value, index, array) => array.indexOf(value) === index).sort();*/
-
-                    let baseObject: any, childObject: any, childArray = [], subTypeArray = [], typeArray = [];
-                    let categoryIndex = -1, typeIndex = -1, subTypeIndex = -1;
-
-                    baseObject = {id : neonUtilities.deepFind(d, this.options.idField.columnName), name :
-                            neonUtilities.deepFind(d, this.options.nodeNameField.columnName)};
-
-                    //TODO: need a way to check for if taxonomyNodes is not empty and the category is found skip this logic...
-                    childArray.push(baseObject);
-
-                    for (let value of types) {
-                        let subType = value.includes('.') ? value.slice(value.indexOf('.') + 1) : null;
-
-                        if (subType) {
-                            childObject = {id: counter++, name: subType, children: childArray};
-                            subTypeArray.push(childObject);
-                        }
-
-                        let type = value.includes('.') ? value.split('.')[0] : value;
-                        childObject = subTypeArray.length ? {id : counter++, name : type, children : subTypeArray} :
-                            {id : counter++, name : type, children : childArray};
-                        typeArray.push(childObject);
+                    if (this.options.filterField.columnName) {
+                        id = neonUtilities.deepFind(d, this.options.filterField.columnName);
+                        this.allNodes.push(id);
                     }
 
-                    let categories = neonUtilities.deepFind(d, this.options.categoryField.columnName);
+                    //console.log("categories", categories, ids)
                     for (let value of categories) {
-                        let parent = {id: counter++, name: value, children: typeArray};
-                        this.taxonomyNodes.push(parent);
+                        //create root node of the tree first
+                        let parent = {id: counter++, name: value, children: [], nodes: [id], checked: true, expanded: true};
 
-                    //TODO: ...and perform the logic below instead...kinda
-
-                        // todo: finds place in taxonomy that the new object should go.
-                        // todo: Using counter to limit amount of console statements that are printed, this will be removed
-                        if (counter < 8) {
-
-                            let foundCategory = this.taxonomyNodes.find((category, index) => {
+                        //checks if there are any parent(category) nodes in the tree
+                        if (groups) {
+                            //checks if the parent(category) node exists in the tree, if not adds it
+                            let foundCategory = groups.find((category, index) => {
                                 let found = category.name === value;
                                 categoryIndex = index;
                                 return found;
                             });
 
                             if (foundCategory) {
-                                for (let item of types) {
-                                    let foundType = foundCategory.children.find((type, index) => {
-                                        let found = type.name === item.split('.')[0];
-                                        typeIndex = index;
-                                        return found;
-                                    });
-                                    if (foundType) {
-                                        let foundSubType = foundType.children.find((subType, index) => {
-                                            subTypeIndex = index;
-                                            let found = subType.name === item.slice(item.indexOf('.') + 1);
+                                if (!foundCategory.nodes.includes(id)) {
+                                    foundCategory.nodes.push(id);
+                                }
+
+                                if (types) {
+                                    for (let item of types) {
+                                        //checks if a subChild node will be needed based on if dot notation exists
+                                        // within the child node string
+                                        let subTypeNeeded  = item.includes('.');
+
+                                        //checks if child(type) node exists in the tree, if not adds it
+                                        let foundType = foundCategory.children.find((type, index) => {
+                                            let found = type.name === item.split('.')[0];
+                                            typeIndex = index;
                                             return found;
                                         });
 
-                                        if (foundSubType) {
-                                            //console.log(this.taxonomyNodes[categoryIndex].children[typeIndex].
-                                            // children[subTypeIndex].children);
-                                            //push baseObject in here
+                                        if (foundType) {
+                                            if (!foundType.nodes.includes(id)) {
+                                                foundType.nodes.push(id);
+                                            }
+
+                                            if (subTypeNeeded) {
+                                                let foundSubType = foundType.children.find((subType, index) => {
+                                                    subTypeIndex = index;
+                                                    let found = subType.name === item;
+                                                    return found;
+                                                });
+
+                                                if (!foundSubType) {
+                                                    //Alphabetize all values added to the taxanomy
+                                                    let subTypeObject = {id: counter++, name: item, nodes: [id], checked: true,
+                                                        expanded: false};
+                                                    groups[categoryIndex].children[typeIndex].children.push(subTypeObject);
+                                                    groups[categoryIndex].children[typeIndex].children.sort(this.compareValues('name'));
+                                                } else {
+                                                    if (!foundSubType.nodes.includes(id)) {
+                                                        foundSubType.nodes.push(id);
+                                                    }
+
+                                                }
+                                            }
+                                        } else {
+                                            let typeObject = {id: counter++, name: subTypeNeeded ? item.split('.')[0] : item,
+                                                children: [], nodes: [id], checked: true, expanded: false
+                                            };
+
+                                            typeIndex = groups[categoryIndex].children &&
+                                                groups[categoryIndex].children.length > 1 ?
+                                                groups[categoryIndex].children.length - 1 : 0;
+
+                                            //Alphabetize all values added to the taxanomy
+                                            groups[categoryIndex].children.push(typeObject);
+                                            groups[categoryIndex].children.sort(this.compareValues('name'));
+
+                                            if (subTypeNeeded) {
+                                                let subTypeObject = {id: counter++, name: item, nodes: [id], checked: true,
+                                                    expanded: false};
+                                                groups[categoryIndex].children[typeIndex].children.push(subTypeObject);
+                                                groups[categoryIndex].children[typeIndex].children.sort(this.compareValues('name'));
+                                            }
                                         }
-
-                                        //console.log(this.taxonomyNodes[categoryIndex].children[typeIndex].children);
-                                        //push baseObject in here
                                     }
-
                                 }
+                                //console.log(groups)
+                            } else {
+                                groups.push(parent);
                             }
-
+                        } else {
+                            groups.push(parent);
                         }
-
                     }
                 });
 
-                this.testNodes = this.taxonomyNodes;
+                //Flattens multi-level array and removes duplicates
+                //console.log(this.allNodes.length, this.allNodes)
+                this.allNodes = this.allNodes.reduce(this.flattenArray, [])
+                    .filter((value, index, array) => array.indexOf(value) === index);
+                //console.log(this.allNodes.length, this.allNodes)
+                //Flattens multi-level arrays, removes duplicates, and sorts alphabetically
+                /*categoryDocs = categoryDocs/!*.reduce(this.flattenArray, [])*!/
+                    .filter((value, index, array) => array.indexOf(value) === index);*/
+                //console.log(categoryDocs.length, categoryDocs)
+
+                this.taxonomyGroups = groups;
                 this.refreshVisualization();
 
             } else {
@@ -551,8 +607,77 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     postInit() {
-        // Run the query to load the data.
         this.executeQueryChain();
+    }
+
+    onEvent = ($event) => {
+        //console.log('onEvent:', $event);
+        /*console.log(node);
+        console.log(node.data);*/
+    };
+
+    checkRelatedNodes(node, $event) {
+        //console.log("check", $event.target.checked);
+        this.updateChildNodesCheckBox(node, $event.target.checked);
+        this.updateParentNodesCheckBox(node.parent);
+        //console.log(node.data)
+        //console.log(node.data.nodes.length)
+        //console.log(this.taxonomyGroups)
+        if ($event.target.checked === true) {
+            node.data.nodes.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index);
+            //console.log(node.data.nodes.length)
+            this.createFilter(node.data);
+            /*for ( const treeNode of node.data.nodes){
+                //console.log(treeNode)
+                this.createFilter(treeNode);
+            }*/
+        }
+/*        else{
+            for (let i = 0; i < this.filters.length; i++) {
+                let currentFilter = this.filters[i];
+                if (currentFilter.id === node.data.id && currentFilter.value === node.data.nodes.toString()) {
+                    console.log("remove this filter")
+                    this.removeLocalFilterFromLocalAndNeon(this.filters[i], true, true);
+                    this.removeFilter(currentFilter);
+                }
+
+            }
+        }*/
+    }
+    updateChildNodesCheckBox(node, checked) {
+        //console.log("update child")
+        node.data.checked = checked;
+        if (node.children) {
+            node.children.forEach((child) => this.updateChildNodesCheckBox(child, checked));
+        }
+    }
+    updateParentNodesCheckBox(node) {
+        //console.log("update parent")
+        if (node && node.level > 0 && node.children) {
+            let allChildChecked = true,
+                noChildChecked = true;
+
+            for (let child of node.children) {
+                if (!child.data.checked) {
+                    allChildChecked = false;
+                } else if (child.data.checked) {
+                    noChildChecked = false;
+                }
+            }
+
+            if (allChildChecked) {
+                node.data.checked = true;
+                node.data.indeterminate = false;
+            } else if (noChildChecked) {
+                node.data.checked = false;
+                node.data.indeterminate = false;
+            } else {
+                node.data.checked = true;
+                node.data.indeterminate = true;
+            }
+            this.updateParentNodesCheckBox(node.parent);
+        }
     }
 
     /**
@@ -582,8 +707,24 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
      * @override
      */
     setupFilters() {
-        //do nothing
-
+        let neonFilters = this.filterService.getFiltersForFields(this.options.database.name,
+            this.options.table.name, [this.options.filterField.columnName]);
+        this.filters = [];
+        for (let neonFilter of neonFilters) {
+            if (!neonFilter.filter.whereClause.whereClauses) {
+                let field = this.options.findField(neonFilter.filter.whereClause.lhs);
+                let value = neonFilter.filter.whereClause.rhs;
+                let myFilter = {
+                    id: neonFilter.id,
+                    field: field.columnName,
+                    prettyField: field.prettyName,
+                    value: value
+                };
+                if (!this.filterExists(myFilter.field, myFilter.value)) {
+                    this.filters.push(myFilter);
+                }
+            }
+        }
     }
 
     // TODO Remove this function if you don't need a filter-container.
@@ -608,7 +749,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         bindings.idField = this.options.idField.columnName;
         bindings.categoryField = this.options.categoryField.columnName;
         bindings.typeField = this.options.typeField.columnName;
-
+        bindings.filterField = this.options.filterField.columnName;
     }
 
     /**

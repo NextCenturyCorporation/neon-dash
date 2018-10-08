@@ -26,18 +26,18 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import {ActiveGridService} from '../../services/active-grid.service';
+import {ColorSchemeService} from '../../services/color-scheme.service';
+import {ConnectionService} from '../../services/connection.service';
+import {DatasetService} from '../../services/dataset.service';
+import {ExportService} from '../../services/export.service';
+import {FilterService} from '../../services/filter.service';
+import {ThemesService} from '../../services/themes.service';
+import {VisualizationService} from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {BaseNeonComponent, BaseNeonOptions} from '../base-neon-component/base-neon.component';
+import {FieldMetaData} from '../../dataset';
+import {neonUtilities, neonVariables} from '../../neon-namespaces';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
@@ -553,7 +553,14 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         });
     }
 
-    flattenArray(array, value) {
+    /**
+     * Converts multi-dimensional arrays into a one-dimentional array
+     *
+     * @arg {any} array
+     * @arg {string} value
+     * @return {boolean}
+     */
+    flattenArray(array: string[], value: string) {
         return array.concat(value);
     }
 
@@ -620,6 +627,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
 
     private resetGraphData() {
         let graphProperties = this.options.isReified ? this.createReifiedGraphProperties() : this.createTabularGraphProperties();
+        //console.log(graphProperties)
 
         this.totalNodes = graphProperties.nodes.filter((value, index, array) =>
             array.findIndex((object) => object.id === value.id) === index).length;
@@ -815,86 +823,99 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             }
         }
 
-        // create edges and destination nodes only if required
-        for (let entry of this.activeData) {
-            let linkField = entry[linkName],
-                nodeType = entry[nodeColorField],
-                edgeType = entry[edgeColorField],
-                linkNameField = entry[linkNameColumn],
-                nodeField = entry[nodeName];
-
-            //sets the colorList for link nodes index based on the length of an array in order to provide color uniqueness
-            if (this.options.setColorScheme) {
-                this.colorSchemeService.setColorListByLength(this.prettifiedNodeLabels.length);
-            }
-
-            // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
-            if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
-                let colorMapVal = nodeColorField && nodeType;
-                linkColor = this.colorSchemeService.getColorFor(nodeColorField, colorMapVal).toRgb();
-            }
-
-            // create a node if linkfield doesn't point to a node that already exists
-            let links = linkField instanceof Array ? linkField : [linkField];
-            for (const linkEntry of links) {
-                if (this.isUniqueNode(linkEntry) && graph.nodes.length < limit) {
-                    //If legend labels have been modified, override the link
-                    if (this.prettifiedNodeLabels.length > 0 && this.options.displayLegend && nodeType && nodeType !== '') {
-                        let shortName = this.labelCleanUp(nodeType);
-
-                        for (const nodeLabel of this.prettifiedNodeLabels) {
-                            if (nodeLabel === shortName) {
-                                let colorMapVal = nodeColorField && nodeLabel;
-                                linkColor = this.colorSchemeService.getColorFor(nodeColorField, colorMapVal).toRgb();
-                                break;
-                            }
-                        }
-                    }
-
-                    graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor, nodeShape));
-                }
-            }
-
-            //sets the colorList index for edges based on the length of an array in order to provide color uniqueness
-            if (this.options.setColorScheme) {
-                this.colorSchemeService.setColorListByLength(this.prettifiedEdgeLabels.length);
-            }
-
-            // create edges between nodes and destinations specified by linkfield
-            let linkNames = !linkNameField ? [].fill('', 0, links.length)
-                : linkNameField instanceof Array ? linkNameField : [linkNameField],
-                nodes = nodeField instanceof Array ? nodeField : [nodeField];
-            for (const nodeEntry of nodes) {
-                // if there is a valid edgeColorField and no modifications to the legend labels, override the default edgeColor
-                if (edgeColorField && this.prettifiedEdgeLabels.length === 0) {
-                    let colorMapVal = edgeColorField && edgeType;
-                    edgeColor = this.colorSchemeService.getColorFor(edgeColorField, colorMapVal).toRgb();
-                }
-
-                let edgeColorObject = { color: edgeColor, highlight: edgeColor};
-                //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
-                // let edgeWidth = this.options.edgeWidth;
-
-                for (let i = 0; i < links.length; i++) {
-                    // if legend labels have been modified, override the edgeColor and edgeColorObject
-                    if (this.prettifiedEdgeLabels.length > 0 && this.options.displayLegend && linkNames[i] && linkNames[i] !== '') {
-                        let shortName = this.labelCleanUp(linkNames[i]);
-                        for (const edgeLabel of this.prettifiedEdgeLabels) {
-                            if (edgeLabel === shortName) {
-                                let colorMapVal = edgeColorField && edgeLabel;
-                                edgeType = edgeLabel;
-                                edgeColor = this.colorSchemeService.getColorFor(edgeColorField, colorMapVal).toRgb();
-                                edgeColorObject = { color: edgeColor, highlight: edgeColor};
-                                break;
-                            }
-                        }
-                    }
-
-                    graph.addEdge(new Edge(nodeEntry, links[i], linkNames[i], {to: this.options.isDirected}, 1,
-                        edgeColorObject, edgeType));
-                }
-            }
+        let printOn = false;
+        if (this.activeData.length < 5) {
+            printOn = true;
         }
+
+            // create edges and destination nodes only if required
+            for (let entry of this.activeData) {
+                let linkField = entry[linkName],
+                    nodeType = entry[nodeColorField],
+                    edgeType = entry[edgeColorField],
+                    linkNameField = entry[linkNameColumn],
+                    nodeField = entry[nodeName];
+
+                if (printOn) {
+                    //console.log(entry);
+                }
+
+                //sets the colorList for link nodes index based on the length of an array in order to provide color uniqueness
+            if (this.options.setColorScheme) {
+                    this.colorSchemeService.setColorListByLength(this.prettifiedNodeLabels.length);
+            }
+
+                // if there is a valid nodeColorField and no modifications to the legend labels, override the default nodeColor
+                if (nodeColorField && this.prettifiedNodeLabels.length === 0) {
+                    let colorMapVal = nodeColorField && nodeType;
+                    linkColor = this.colorSchemeService.getColorFor(nodeColorField, colorMapVal).toRgb();
+                }
+
+                // create a node if linkfield doesn't point to a node that already exists
+                let links = linkField instanceof Array ? linkField : [linkField];
+                if (printOn) {
+                    //console.log(links);
+                }
+                for (const linkEntry of links) {
+                    if (this.isUniqueNode(linkEntry) && graph.nodes.length < limit) {
+                        //If legend labels have been modified, override the link
+                        if (this.prettifiedNodeLabels.length > 0 && this.options.displayLegend && nodeType && nodeType !== '') {
+                            let shortName = this.labelCleanUp(nodeType);
+
+                            for (const nodeLabel of this.prettifiedNodeLabels) {
+                                if (nodeLabel === shortName) {
+                                    let colorMapVal = nodeColorField && nodeLabel;
+                                    linkColor = this.colorSchemeService.getColorFor(nodeColorField, colorMapVal).toRgb();
+                                    break;
+                                }
+                            }
+                        }
+
+                        graph.addNode(new Node(linkEntry, linkEntry, linkName, 1, linkColor, true, textColor, nodeShape));
+                    }
+                }
+
+                //sets the colorList index for edges based on the length of an array in order to provide color uniqueness
+            if (this.options.setColorScheme) {
+                    this.colorSchemeService.setColorListByLength(this.prettifiedEdgeLabels.length);
+            }
+
+                // create edges between nodes and destinations specified by linkfield
+                let linkNames = !linkNameField ? [].fill('', 0, links.length)
+                    : linkNameField instanceof Array ? linkNameField : [linkNameField],
+                    nodes = nodeField instanceof Array ? nodeField : [nodeField];
+                for (const nodeEntry of nodes) {
+                    // if there is a valid edgeColorField and no modifications to the legend labels, override the default edgeColor
+                    if (edgeColorField && this.prettifiedEdgeLabels.length === 0) {
+                        let colorMapVal = edgeColorField && edgeType;
+                        edgeColor = this.colorSchemeService.getColorFor(edgeColorField, colorMapVal).toRgb();
+                    }
+
+                    let edgeColorObject = { color: edgeColor, highlight: edgeColor};
+                    //TODO: edgeWidth being passed into Edge class is currently breaking directed arrows, removing for now
+                    // let edgeWidth = this.options.edgeWidth;
+
+                    for (let i = 0; i < links.length; i++) {
+                        // if legend labels have been modified, override the edgeColor and edgeColorObject
+                        if (this.prettifiedEdgeLabels.length > 0 && this.options.displayLegend && linkNames[i] && linkNames[i] !== '') {
+                            let shortName = this.labelCleanUp(linkNames[i]);
+                            for (const edgeLabel of this.prettifiedEdgeLabels) {
+                                if (edgeLabel === shortName) {
+                                    let colorMapVal = edgeColorField && edgeLabel;
+                                    edgeType = edgeLabel;
+                                    edgeColor = this.colorSchemeService.getColorFor(edgeColorField, colorMapVal).toRgb();
+                                    edgeColorObject = { color: edgeColor, highlight: edgeColor};
+                                    break;
+                                }
+                            }
+                        }
+
+                        graph.addEdge(new Edge(nodeEntry, links[i], linkNames[i], {to: this.options.isDirected}, 1,
+                            edgeColorObject, edgeType));
+                    }
+                }
+            }
+
         return graph;
     }
 
@@ -1073,24 +1094,40 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             //let field = selectedNode.isLink ? this.options.linkField : this.options.nodeField;
             for (let filterField of selectedNode.filterFields) {
                 if (this.options.multiFilterOperator === 'or') {
-                    let clauses = filterField.data.map((element) =>
-                        neon.query.where(filterField.field, '=', element));
+                    let clauses = [];
+
+                    if (filterField.data instanceof Array) {
+                        clauses = filterField.data.map((element) =>
+                            neon.query.where(filterField.field, '=', element));
+                    } else {
+                        clauses.push(neon.query.where(filterField.field, '=', filterField.data));
+                    }
                     value = filterField.data.toString();
                     myFilter = this.createFilterObject(filterField.field, value, filterField.field);
                     clause = neon.query.or.apply(neon.query, clauses);
                     this.addFilter(myFilter, clause);
+
+                    //console.log("network graph or filter", myFilter, clause)
                 } else {
-                    for (let data of filterField.data) {
-                        value = data;
-                        myFilter = this.createFilterObject(filterField.field, value, filterField.field);
+
+                    if (filterField.data instanceof Array) {
+                        for (let data of filterField.data) {
+                            myFilter = this.createFilterObject(filterField.field, data, filterField.field);
+                            clause = neon.query.where(myFilter.field, '=', myFilter.value);
+                            this.addFilter(myFilter, clause);
+                        }
+                    } else {
+                        myFilter = this.createFilterObject(filterField.field, filterField.data, filterField.field);
                         clause = neon.query.where(myFilter.field, '=', myFilter.value);
                         this.addFilter(myFilter, clause);
                     }
+
+                    //console.log("network graph and filter", myFilter, clause)
                 }
             }
 
         }
-    }
+    };
 
     createFilterObject(field: string, value: string, prettyField: string): any {
         let myFilter = {

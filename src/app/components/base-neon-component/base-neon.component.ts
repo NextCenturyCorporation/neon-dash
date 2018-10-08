@@ -13,26 +13,20 @@
  * limitations under the License.
  *
  */
-import {
-    OnInit,
-    OnDestroy,
-    Injector,
-    ChangeDetectorRef
-} from '@angular/core';
+import {ChangeDetectorRef, Injector, OnDestroy, OnInit} from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { Color } from '../../services/color-scheme.service';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import {ActiveGridService} from '../../services/active-grid.service';
+import {Color} from '../../services/color-scheme.service';
+import {ConnectionService} from '../../services/connection.service';
+import {DatasetService} from '../../services/dataset.service';
+import {ExportService} from '../../services/export.service';
+import {FilterService} from '../../services/filter.service';
+import {ThemesService} from '../../services/themes.service';
+import {VisualizationService} from '../../services/visualization.service';
 
-import { EMPTY_FIELD, FieldMetaData, TableMetaData, DatabaseMetaData } from '../../dataset';
+import {DatabaseMetaData, EMPTY_FIELD, FieldMetaData, TableMetaData} from '../../dataset';
 import * as neon from 'neon-framework';
 import * as uuid from 'node-uuid';
-import * as _ from 'lodash';
 
 /**
  * Manages configurable options for all visualizations.
@@ -902,5 +896,32 @@ export abstract class BaseNeonComponent implements OnInit, OnDestroy {
      */
     prettifyInteger(item: number): string {
         return item.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    /**
+     * Dynamic sorting over an array of objects
+     * https://www.sitepoint.com/sort-an-array-of-objects-in-javascript/
+     *
+     * @arg {number} item
+     * @return {string}
+     */
+    compareValues(key: string, order: string = 'asc') {
+        return function(a, b) {
+            if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+                // property doesn't exist on either object
+                return 0;
+            }
+
+            const varA = (typeof a[key] === 'string') ? a[key].toUpperCase() : a[key];
+            const varB = (typeof b[key] === 'string') ? b[key].toUpperCase() : b[key];
+
+            let comparison = 0;
+            if (varA > varB) {
+                comparison = 1;
+            } else if (varA < varB) {
+                comparison = -1;
+            }
+            return ((order === 'desc') ? (comparison * -1) : comparison);
+        };
     }
 }
