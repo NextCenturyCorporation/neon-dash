@@ -11,8 +11,9 @@ fi
 # Elasticsearch variables
 ES_DATA=$ES_DATA
 ES_URL=$ES_URL
-ES_INDEX=$ES_INDEX
-ES_MAPPING=$ES_MAPPING
+ES_DATA_MAPPING_TUPLE=$ES_DATA_MAPPING_TUPLE
+#ES_INDEX=$ES_INDEX
+#ES_MAPPING=$ES_MAPPING
 
 # Wait until Elasticsearch is up and running
 until curl -s --output /dev/null -XGET $ES_URL/; do
@@ -24,15 +25,23 @@ done
 if [ ! -f /.es_created ]; then
   echo "Setting up Elasticsearch index and ingesting data"
 
-  # Create Elasticsearch index and mapping
-  curl -XPUT "$ES_URL/$ES_INDEX/" -d @"$ES_DATA/index-settings.json"
-  curl -XPUT "$ES_URL/$ES_INDEX/$ES_MAPPING/_mapping" -d @"$ES_DATA/${ES_INDEX}_mapping.json"
+  # Create Elasticsearch indexs and mappings
+  IFS=',' read -ra listArr <<< "$ES_DATA_MAPPING_TUPLE"
 
-  # Insert Elasticsearch data
-  elasticdump \
-    --bulk=true \
-    --input="$ES_DATA/${ES_INDEX}.json" \
-    --output="$ES_URL/$ES_INDEX"
+  #loop through the list of elements
+  for item in "${listArr[@]}"
+  do
+     IFS=':' read -ra elements <<< "$item"
+     echo "*****Creating and loading data for index: ${elements[0]}*****"
+     curl -XPUT "$ES_URL/${elements[0]}/" -d @"$ES_DATA/index-settings.json"
+     curl -XPUT "$ES_URL/${elements[0]}/${elements[1]}/_mapping" -d @"$ES_DATA/${elements[0]}_mapping.json"
+
+  	# Insert Elasticsearch data
+  	elasticdump \
+    	  --bulk=true \
+    	  --input="$ES_DATA/${elements[0]}.json" \
+    	  --output="$ES_URL/${elements[0]}"
+  done
 
   echo "creating /.es_created"
   touch /.es_created
