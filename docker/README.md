@@ -1,46 +1,182 @@
 # Lorelei Docker Build
 
-## Overview
+## Setup
 
-## Setup 
+### Install Docker
+
+You will first need to install Docker. Here is a detailed guide on installing Docker on Ubuntu: [How to install and Use Docker on Ubuntu 18.04](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04)
+
+### Setup Docker experimentals
+
+This is an optional step, but is highly **recommended**. Docker has an experimental feature called squash. Squashing
+your Docker image during the build process will significantly reduce the size of your final Docker image. To levage
+the `--squash` flag during the build process you must enable experimental docker functions. 
+
+To enable, edit `/etc/docker/daemon.json` and insert the following:
+
+```json
+{
+	"experimental": true
+}
+```
+
+Save, restart Docker via `service docker restart` and confirm experimentals is enabled on the **Server**
+```
+$ docker version
+```
+
+```bash
+Client:
+ Version:           18.06.1-ce
+ API version:       1.38
+ Go version:        go1.10.3
+ Git commit:        e68fc7a
+ Built:             Tue Aug 21 17:24:51 2018
+ OS/Arch:           linux/amd64
+ Experimental:      false
+
+Server:
+ Engine:
+  Version:          18.06.1-ce
+  API version:      1.38 (minimum version 1.12)
+  Go version:       go1.10.3
+  Git commit:       e68fc7a
+  Built:            Tue Aug 21 17:23:15 2018
+  OS/Arch:          linux/amd64
+  Experimental:     true
+```
+
+### Download GeoTIFF data and create bind mount data directory
+
+Lorelei Docker supports an offline tile server for the Lorelei map component via [Geoserver](http://geoserver.org/). If you require an offline WMS server you will need to download the appropraite GeoTIFF data and store it in a data directory. Currently this build supports [Nartual Earth II](https://www.naturalearthdata.com/downloads/10m-raster-data/10m-natural-earth-2/) and/or [Blue Marble](https://neo.sci.gsfc.nasa.gov/view.php?datasetId=BlueMarbleNG-TB) GeoTIFF data.
+
+##### Direct GeoTIFF (raster) Data Downloads: 
++ [Natrual Earth II with Shaded Relief, Water, and Drainages: 310.7MB](https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/10m/raster/NE2_HR_LC_SR_W_DR.zip) 
++ [Blue Marble: 10.9MB](http://neo.sci.gsfc.nasa.gov/servlet/RenderData?si=526311&cs=rgb&format=TIFF&width=3600&height=1800)
+
+##### Data directory creation
+Once you have downloaded the data, extract it and create a directory that will act as the bind mount location for the Docker build. The root location of the directory does not matter, but the structure inside does. For our example directory we will name it *data*. Inside the data directory you will need to create a *BLUE_MARBLE* directory and/or a *NATURAL_EARTH_II* directory. Ensure the naming on these directories is exact. Lastly, put the extracted downloaded data files in their respective sub-directories. Your directory structure should look something like this:
+
+```
+/data
+  |--/BLUE_MARBLE
+     |--BlueMarbleNG-TB_2004-12-01_rgb_3600x1800.TIFF
+  |--/NATURAL_EARTH_II
+     |--NE2_HR_LC_SR_W_DR.tif
+```
+
+Note* You only need to create the sub-directories for the data you plan on using in Geoserver. 
+
+## Building Lorelei Docker image
+
+To build the docker image you will want to copy the `run.sh.example` file provided into `run.sh`. This script is made up of a docker build command with many `--build-arg` build arguments. These arguments should be configured to meet your needs for your particular Docker Lorelei build. Each argument with an example  value is described in the table below.  
+
+| Build Arg          |Example Value       | Drescription  | 
+| -------------------|:-------------------|:-------------| 
+| CREDS              | _johndoe:pa$$word_ | NextCentury git credentials separated by a colon `If you have an @ symbol in your CREDS password you will need to escape it by replacing it with %40` |       
+| GIT_REPO           | _gitlab.nextcentury.com_ | Base hostname for your github/gitlab | 
+| NEON_REPO          | _LORELEI.THOR/neon.git_ | Git group/name repository for Neon      |    
+| NEON_BRANCH        | _master_ | Neon git branch name      |  
+| LORELEI_REPO       | _LORELEI.THOR/Lorelei-demo.git_ | Git group/name repository for Lorelei      |  
+| LORELEI_BRANCH     | _feature/docker-build_ | Lorelei git branch name      |  
+| LORELEI_CONFIG     | _config.darpa-July2018-docker.json_ | Name of the config file to deploy with Lorelei from the /src/app/config folder |      |  
+| THOR_DATA_REPO     | _LORELEI.THOR/thor_data.git_ | Git group/name repository for THOR_DATA       |  
+| THOR_DATA_BRANCH   | _master_ | THOR_DATA git branch name       |  
+| ES_INDEX           | _ldc_uyg_jul_18_ | Elasticsearch index that will be created and store the data. This value must match the name of the data file and mapping file in THOR_DATA to be ingested |  
+| ES_MAPPING         | _ui_out_ | Name used when creating the mapping in Elasticsearch |
+| NATURAL_EARTH_DIR  | _NATURAL_EARTH_II_ | Directory name where Natural Earth II data is store locally for the bind mount. `Do not change this value`      |  
+| NATURAL_EARTH_FILE | _NE2_HR_LC_SR_W_DR.tif_ | Name of the Natural Earth II data file used. `Do not change this value`     |  
+| NATURAL_EARTH_NS   | _ne2_ | The namespace used for Natural Eearth II in Geoserver. `Do not change this value`      |  
+| BLUE_MARBLE_DIR    | _BLUE_MARBLE_ | Directory name where the Blue Marble data is locally stored for the bind mount. `Do not change this value`      |  
+| BLUE_MARBLE_FILE   | _BlueMarbleNG-TB_2004-12-01_rgb_3600x1800.TIFF_ | Name of the Blue Marble data file used. `Do not change this value`       |  
+| BLUE_MARBLE_NS     | _bm_ | Directory where the Blue Marble data is stored for the bind mount. `Do not change this value`      |
+
+In addition do the build arguments there is also a `--squash` flag at the end. This is optional. You must enable Docker experimental on the server if you would like to use this. See [Setup Docker experimentals](#Setup-Docker-experimentals)
+
+#### Execute the build
+
+Once you have updated all the build arguments with your appropriate values, execute the script with `./run.sh`
+
+## Starting the container
+
+After building the image, you can start the lorelei Docker container. A `run.sh.example` script is provided for you in the docker directory. Copy this over to a new file `run.sh` and open it up to inspect. 
+
+```bash
+docker run -v ~/Desktop/data:/usr/local/data/geoserver/data --name lorelei -d -p 2222:22 -p 8080:8080 -p 8888:8888 -p 9200:9200 --name lorelei lorelei
+```
+
+#### Update bind mount location
+You will need to update the first configuration after the `-v`. This is the bind mount location. Update the path before the `:` to reflect the path of your data directory created in the [Data directory creation](#Data-directory-creation) section above.
+
+#### Detached vs STDIN mode
+
+The default command in this script will run the Docker image in detached `-d` mode. If you experience issues and would like to see the logs as the Docker container is spinning up, comment this line out and uncomment the Docker run command that keeps STDIN open and allocates a pseudo-tty. This comamnd has `-it` in it.
+
+#### Container services
+
+Running the Lorelei Docker image will stand up the following services on the following ports. The table below also has any login information necessary for each service. *Note* Tomcat and Geoserver must run on port 8888 and 8080 repsectively. At this point these are not configurable. 
+
+| Serivce       |Port       | Username  | Password  | 
+| --------------|:----------|:----------|:----------| 
+| **SSHD**          | 2222      | root      | lorelei   |
+| **Geoserver**     | 8080      | admin     | geoserver |
+| **Tomcat**       | 8888      | admin     | password  |
+| **Elasticsearch** | 9200      | n/a       | n/a       |
+
+## Vaidating the container
+
+It is a good idea to valid everything is working properly after starting the container. It is a good idea to check that Elasticsearch and the Lorelei UI are functioning properly. You can also verify all the other services by clicking the link in the [Other validation](#Other-validation) section below. 
+
+#### Verify Elasitcsearch data
+
+You can verify that all the appropriate indexes, mappings and data made it into Elasticsearch by navigating to [Elasticsearch-head](https://github.com/mobz/elasticsearch-head) at `http://localhost:9200/_plugin/head` You should see something similar to this:
+
+![Elasticsearch Data](https://i.imgur.com/9bNURiU.jpg)
+
+#### Verify Lorelei UI
+
+Navigate to `http://localhost:8888/lorelei` and verify that Lorelei UI is properly working.
+
+#### Other validation
+
+Neon Index: `http://localhost:8888/neon`
+Geoserver:  `http://localhost:8080/geoserver`
+sshd     :  `ssh root@localhost -p2222`
+
+## Commit new Docker image
+
+After verification we need to commit the working container into a new image. This ensures that all the data copied from the bind mount and all the settings will persist when the customer starts the delivered Docker image. To commit the image execute the following command:
+
+```bash
+docker commit <container-id> nextcentury/lorelei:latest
+```
+A new `nextcentury/lorelei:latest` image will be created. You can test this image by starting it with the following command:
+
+```bash
+docker run -d -p 2222:22 -p 8080:8080 -p 8888:8888 -p 9200:9200 --name lorelei nextcenturylorelei:latest
+```
 
 ## Useful Docker Commands
+```bash
+docker images # list all images
 
-### Build Docker Image
-sudo docker build -t lorelei .
+docker rmi <image-id> # remove images
 
-### List All Images
-sudo docker images
+docker rmi $(docker images -a -q) # delete all images 
 
-### Remove Images
-sudo docker rmi {image-id}
+docker ps -a # list running containers
 
-### Delete All Images 
-sudo docker rmi $(sudo docker images -q)
+docker ps -l -q # get ID of last run container
+ 
+docker stop <container-id> # stop docker container
 
-### Prune All Dangling Images
-sudo docker image prune
+docker start <container-id> # start docker container
 
-### Start Docker Container
-sudo docker run -d -p 2222:22 lorelei
+docker rm <container-id> # delete docker container
 
-### List Running Containers
-sudo docker ps -a
+docker rm -f <container-id> # force delete container without stopping
 
-### Stop Docker Container
-sudo docker stop {container-id}
+docker rm $(sudo docker ps -a -q) # delete all stopped containers
 
-### Delete Docker Container
-sudo docker rm {container-id}
-
-### Force Delete Container Without Stopping
-sudo docker rm -f {container-id}
-
-### Kill All Running Containers
-sudo docker kill $(sudo docker ps -q)
-
-### Delete All Stopped Containers
-sudo docker rm $(sudo docker ps -a -q)
-
-### Open Container Bash Shell
-sudo docker exec -i -t {container-id} /bin/bash
+docker exec -i -t container-id /bin/bash # open Container Bash Shell
+```
