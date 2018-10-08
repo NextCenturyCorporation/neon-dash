@@ -13,12 +13,12 @@
  * limitations under the License.
  *
  */
-import { Component } from '@angular/core';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
+import {Component} from '@angular/core';
+import {ConnectionService} from '../../services/connection.service';
+import {DatasetService} from '../../services/dataset.service';
 
-import { CustomConnectionStep } from './custom-connection-step';
-import { DatabaseMetaData, TableMetaData, FieldMetaData } from '../../dataset';
+import {CustomConnectionStep} from './custom-connection-step';
+import {DatabaseMetaData, FieldMetaData, TableMetaData} from '../../dataset';
 
 // TODO It's likely worth removing the extends here. I don't do it now just in case we do want to add steps as we iterate.
 
@@ -100,7 +100,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
         this.isLoading = true;
         this.data.allDatabases = [];
 
-        connection.getDatabaseNames((databaseNames) => {
+        connection.getDatbaseNames((databaseNames) => {
             databaseNames.forEach((databaseName) => {
                 this.data.allDatabases.push(new DatabaseMetaData(databaseName, databaseName, []));
             });

@@ -58,7 +58,6 @@
             <mat-icon class="neon-icon-large">help</mat-icon>
         </a>
     </mat-toolbar>
-
     <div class="neon-dash" mat-fill layout="col">
         <div [ngGrid]="gridConfig" #grid >
             <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridItemConfig" name="item.id" id="item.id"

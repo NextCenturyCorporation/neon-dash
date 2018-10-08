@@ -27,11 +27,16 @@
 
 
 .taxonomy-viewer-container{
-    display: flex;
-    flex-direction: column;
     overflow-y: auto;
+    overflow-x: auto;
     overflow: hidden;
     padding-left: 11px;
+    position:relative;
+}
+
+.check-all-nodes{
+    padding: 4px;
+
 }
 
 

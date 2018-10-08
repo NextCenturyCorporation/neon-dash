@@ -176,20 +176,82 @@
             ]
         },
         {
-            "name": "Taxonomy",
+            "name": "VERDI LDC TA3 - 2",
             "connectOnLoad": true,
             "layout": "verdi-taxonomy",
             "datastore": "elasticsearch",
+            "datastore": "elasticsearch",
             "hostname": "localhost",
-            "databases": [{
-                "name": "verdi-rdf",
-                "prettyName": "VERDI",
-                "tables": [
-                    {
-                        "name": "kb",
-                        "prettyName": "Knowledge Base"
-                    }]
-            }]
+            "databases": [
+                {
+                    "name": "verdi-support",
+                    "prettyName": "VERDI",
+                    "tables": [
+                        {
+                            "name": "hypothesis_info",
+                            "prettyName": "Hypothesis Info"
+                        },
+                        {
+                            "name": "parent_children",
+                            "prettyName": "Parent Children"
+                        }]
+                },
+                {
+                    "name": "verdi-rdf",
+                    "prettyName": "VERDI",
+                    "tables": [
+                        {
+                            "name": "kb",
+                            "prettyName": "Knowledge Base"
+                        },
+                        {
+                            "name": "normal",
+                            "prettyName": "Normal"
+                        },
+                        {
+                            "name": "reified",
+                            "prettyName": "Reified"
+                        }]
+                }
+            ],
+            "relations": [
+                {
+                    "members": [
+                        {
+                            "database": "verdi-support",
+                            "table": "hypothesis_info",
+                            "field": "hypothesis_id"
+                        },
+                        {
+                            "database": "verdi-rdf",
+                            "table": "kb",
+                            "field": "hypotheses"
+                        },                        {
+                            "database": "verdi-support",
+                            "table": "parent_children",
+                            "field": "hypotheses"
+                        }
+                    ]
+                },
+                {
+                    "members": [
+                        {
+                            "database": "verdi-support",
+                            "table": "hypothesis_info",
+                            "field": "docIds"
+                        },
+                        {
+                            "database": "verdi-support",
+                            "table": "parent_children",
+                            "field": "id"
+                        },
+                        {
+                            "database": "verdi-rdf",
+                            "table": "kb",
+                            "field": "docIds"
+                        }
+                    ]
+                }]
         }
     ],
     "layouts": {
@@ -772,8 +834,8 @@
             {
                 "name": "Taxonomy Viewer",
                 "type": "taxonomyViewer",
-                "sizex": 24,
-                "sizey": 14,
+                "sizex": 8,
+                "sizey": 15,
                 "minPixelx": 320,
                 "minPixely": 240,
                 "minSizex": 4,
@@ -788,6 +850,8 @@
                     "typeField": "types",
                     "subTypeField": "types",
                     "categoryField": "categories",
+                    "filterField": "docIds",
+                    "ignoreSelf": true,
                     "idField": "kbid",
                     "linkField": "",
                     "nodeNameField": "name",
@@ -796,6 +860,52 @@
                 },
                 "row": 0,
                 "col": 0
+            },
+            {
+                "name": "Network Graph",
+                "type": "networkGraph",
+                "icon": "Graph",
+                "sizex": 16,
+                "sizey": 15,
+                "minPixelx": 320,
+                "minPixely": 240,
+                "minSizex": 4,
+                "minSizey": 4,
+                "$$hashKey": "object:36",
+                "selected": true,
+                "bindings": {
+                    "title": "Network Graph",
+                    "database": "verdi-rdf",
+                    "table": "kb",
+                    "unsharedFilterField": "",
+                    "unsharedFilterValue": "",
+                    "nodeField": "kbid",
+                    "nodeNameField": "name",
+                    "nodeShape" : "box",
+                    "linkField": "edgeTarget",
+                    "linkNameField": "edgeLabel",
+                    "nodeColor": ["#ADD8E6", "#DF9F9F", "#FFDA99", "#FFFFEF"],
+                    "linkColor": "#D1C2F0",
+                    "edgeColor": "#63B4CF",
+                    "xPositionField" : "x",
+                    "yPositionField" : "y",
+                    "categoryField" : "categories",
+                    "categoryList" : ["EVENT", "RELATION"],
+                    "typeField" : "types",
+                    "isReified": false,
+                    "isDirected": true,
+                    "showOnlyFiltered": false,
+                    "physics": false,
+                    "filterFields": ["docIds"],
+                    "idField": "@id",
+                    "id": "_id",
+                    "filterable": true,
+                    "multiFilter": true,
+                    "multiFilterOperator": "and",
+                    "edgeColorField": ""
+                },
+                "row": 0,
+                "col": 9
             }
         ]
     }
