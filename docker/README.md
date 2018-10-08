@@ -69,7 +69,7 @@ Note* You only need to create the sub-directories for the data you plan on using
 
 ## Building Lorelei Docker image
 
-To build the docker image you will want to copy the `run.sh.example` file provided into `run.sh`. This script is made up of a docker build command with many `--build-arg` build arguments. These arguments should be configured to meet your needs for your particular Docker Lorelei build. Each argument with an example  value is described in the table below.  
+To build the docker image you will want to copy the `run.sh.example` file provided into `run.sh`. This script is made up of a docker build command with many `--build-arg` build arguments. These arguments should be configured to meet your needs for your particular Docker Lorelei build. Each argument with an example  value is described in the table below. 
 
 | Build Arg          |Example Value       | Drescription  | 
 | -------------------|:-------------------|:-------------| 

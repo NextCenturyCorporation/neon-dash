@@ -126,10 +126,12 @@ ENV ELATICSEARCH_VERSION 2.5.4
 ENV ELASTICSEARCH_TGZ_URL https://download.elastic.co/elasticsearch/release/org/elasticsearch/distribution/tar/elasticsearch/2.4.5/elasticsearch-2.4.5.tar.gz
 
 # Set Elasticsearch environments variables passed in from build.sh or defaults
-ARG ES_INDEX=index
-ARG ES_MAPPING=mapping
-ENV ES_INDEX $ES_INDEX
-ENV ES_MAPPING $ES_MAPPING
+ARG ES_DATA_MAPPING_TUPLE
+ENV ES_DATA_MAPPING_TUPLE $ES_DATA_MAPPING_TUPLE
+#ARG ES_INDEX=index
+#ARG ES_MAPPING=mapping
+#ENV ES_INDEX $ES_INDEX
+#ENV ES_MAPPING $ES_MAPPING
 
 # Download and extract Elasticesarch archive
 RUN set -x \
@@ -223,9 +225,12 @@ WORKDIR $THOR_DATA
 # Copy over Elasticsearch config files
 COPY ["configs/elasticsearch/index-settings.json", "$ES_THOR_DATA/"] 
 
-# Copy over the data and mapping files based on ES_INDEX --build-arg
-RUN cp ${ES_INDEX}.json $ES_THOR_DATA/
-RUN cp ${ES_INDEX}_mapping.json $ES_THOR_DATA/
+# Copy over the data and mapping files based on ES_DATA_MAPPING_TUPLE --build-arg
+RUN IFS=',' read -ra listArr <<< "$ES_DATA_MAPPING_TUPLE" \
+   && for item in "${listArr[@]}"; do IFS=':' read -ra elements <<< "$item"; cp "${elements[0]}.json" $ES_THOR_DATA/; cp "${elements[0]}_mapping.json" $ES_THOR_DATA/; done
+
+#RUN cp ${ES_INDEX}.json $ES_THOR_DATA/
+#RUN cp ${ES_INDEX}_mapping.json $ES_THOR_DATA/
 
 # Clean up THOR_DATA git repo
 RUN rm -rf $THOR_DATA
