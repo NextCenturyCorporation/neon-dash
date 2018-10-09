@@ -102,6 +102,8 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
     /* A reference to the dialog for the custom connection dialog. */
     private customConnectionDialogRef: MatDialogRef<CustomConnectionComponent>;
 
+    public filterBuilderIcon;
+
     constructor(
         private activeGridService: ActiveGridService,
         public datasetService: DatasetService,
@@ -147,6 +149,7 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
         );
 
         this.changeFavicon();
+        this.filterBuilderIcon = 'filter_builder';
 
     }
 
@@ -281,10 +284,11 @@ export class AppComponent implements AfterViewInit, OnInit, OnDestroy {
 
     changeFilterBuilderIcon() {
         let filters = this.filterService.getFilters();
-        if (filters) {
-            //set icon to active;
+        if (filters.length > 0) {
+            this.filterBuilderIcon = 'filter_builder_active';
         } else {
-            //set icon to normal
+            this.filterBuilderIcon = 'filter_builder';
         }
+        return true;
     }
 }
