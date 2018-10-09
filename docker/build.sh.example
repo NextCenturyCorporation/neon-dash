@@ -11,7 +11,7 @@ docker build \
         --build-arg LORELEI_CONFIG=config.darpa-July2018-docker.json \
         --build-arg THOR_DATA_REPO=LORELEI.THOR/thor_data.git \
         --build-arg THOR_DATA_BRANCH=master \
-        --build-arg ES_DATA_MAPPING_TUPLE=ldc_uyg_jul_18:ui_out,ll_nepal_06_14:ll_nepal_06_14,ll_nepal_07_11_3:ll_nepal_07_11_3,uyg_elisa_sd:ui_out \
+        --build-arg ES_DATA_MAPPING_TUPLE=ldc_uyg_jul_18:ui_out,ll_nepal_06_14:ll_nepal_06_14,ll_nepal_07_11_3:annotations,uyg_elisa_sd:ui_out \
         --build-arg NATURAL_EARTH_DIR=NATURAL_EARTH_II \
         --build-arg NATURAL_EARTH_FILE=NE2_HR_LC_SR_W_DR.tif \
         --build-arg NATURAL_EARTH_NS=ne2 \
