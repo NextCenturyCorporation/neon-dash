@@ -371,8 +371,7 @@ describe('Component: BaseNeonOptions with config', () => {
             VisualizationService,
             ErrorNotificationService,
             { provide: 'config', useValue: testConfig },
-            { provide: 'database', useValue: 1 },
-            { provide: 'table', useValue: 1 },
+            { provide: 'tableKey', useValue: 'table_key_1'},
             { provide: 'configFilter', useValue: { lhs: 'testConfigField', operator: '!=', rhs: 'testConfigValue' } },
             { provide: 'customEventsToPublish', useValue: [ { id: 'testPublishId', fields: [ { field: 'testPublishField',
                 label: 'testPublishLabel' } ] } ] },
@@ -426,7 +425,7 @@ describe('Component: BaseNeonOptions with config', () => {
         expect(options.unsharedFilterValue).toEqual('testFilterValue');
     });
 
-    it('updateDatabases does update database if given an array index', () => {
+    it('updateDatabases does update database if given a key', () => {
         let spy = spyOn(options, 'updateFieldsOnTableChanged');
         options.updateDatabases();
         expect(spy.calls.count()).toBe(1);
@@ -451,7 +450,7 @@ describe('Component: BaseNeonOptions with config', () => {
         expect(options.unsharedFilterValue).toEqual('testFilterValue');
     });
 
-    it('updateTables does update tables if given an array index', () => {
+    it('updateTables does update tables if given a key', () => {
         let spy = spyOn(options, 'updateFieldsOnTableChanged');
         options.databases = DatasetServiceMock.DATABASES;
         options.database = DatasetServiceMock.DATABASES[0];

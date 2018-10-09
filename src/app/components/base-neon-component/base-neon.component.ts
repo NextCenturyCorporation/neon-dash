@@ -170,19 +170,10 @@ export abstract class BaseNeonOptions {
             if (key) {
                 let configDatabase = this.datasetService.getDatabaseNameByKey(key);
                 if (configDatabase) {
-                    let isName = false;
                     for (let database of this.databases) {
                         if (configDatabase === database.name) {
                             this.database = database;
-                            isName = true;
                             break;
-                        }
-                    }
-                    if (!isName) {
-                        // Check if the config database is actually an array index rather than a name.
-                        let databaseIndex = parseInt(configDatabase, 10);
-                        if (!isNaN(databaseIndex) && databaseIndex < this.databases.length) {
-                            this.database = this.databases[databaseIndex];
                         }
                     }
                 }
@@ -222,19 +213,10 @@ export abstract class BaseNeonOptions {
             if (key) {
                 let configTable = this.datasetService.getTableNameByKey(key);
                 if (configTable) {
-                    let isName = false;
                     for (let table of this.tables) {
                         if (configTable === table.name) {
                             this.table = table;
-                            isName = true;
                             break;
-                        }
-                    }
-                    if (!isName) {
-                        // Check if the config table is actually an array index rather than a name.
-                        let tableIndex = parseInt(configTable, 10);
-                        if (!isNaN(tableIndex) && tableIndex < this.tables.length) {
-                            this.table = this.tables[tableIndex];
                         }
                     }
                 }
