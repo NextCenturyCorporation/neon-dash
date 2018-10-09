@@ -115,7 +115,13 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
     updateDatabases(connection: neon.query.Connection, index: number = 0): void {
         let database = this.data.allDatabases[index];
         connection.getTableNamesAndFieldNames(database.name, (tableNamesAndFieldNames) => {
-            Object.keys(tableNamesAndFieldNames).forEach((tableName) => {
+            let tableNames = Object.keys(tableNamesAndFieldNames);
+            let tablesDone = 0;
+            if (!tableNames.length || (tableNames.length === 1 && tableNames[0] === null)) {
+                this.tableDone(tablesDone, tableNames, connection, index);
+
+            }
+            tableNames.forEach((tableName) => {
                 let table = new TableMetaData(tableName, tableName, []);
                 tableNamesAndFieldNames[tableName].forEach((fieldName) => {
                     table.fields.push(new FieldMetaData(fieldName, fieldName));
@@ -127,8 +133,20 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
                             f.type = types[f.columnName];
                         }
                     }
+                    tablesDone++;
+                    this.tableDone(tablesDone, tableNames, connection, index);
                 });
+
             });
+        }, () => {
+            this.isLoading = false;
+            this.isConnected = false;
+            this.error = true;
+        });
+    }
+
+    tableDone(tablesDone, tableNames, connection, index) {
+        if (tablesDone === tableNames.length) {
             if (this.data.allDatabases.length > index + 1) {
                 this.updateDatabases(connection, index + 1);
             } else {
@@ -136,11 +154,7 @@ export class CustomConnectionSimpleSetupStepComponent extends CustomConnectionSt
                 this.isConnected = true;
                 this.error = false;
             }
-        }, () => {
-            this.isLoading = false;
-            this.isConnected = false;
-            this.error = true;
-        });
+        }
     }
 
     selectDatabase(): void {
