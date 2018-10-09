@@ -1,26 +1,12 @@
-<div *ngIf="thumbnailGrid.isValidMediaType(item)">
-    <div class="thumbnail-flags" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)" >
-        <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"
-            (click)="thumbnailGrid.displayMediaTab(item)">
-        </canvas>
-        <div class="thumbnail-flag-details">
-            <p>{{ item[options.idField.columnName] }}</p>
-            <p class="flag-ellipses">{{ item[options.objectIdField.columnName] }}</p>
-            <p>{{ item[options.dateField.columnName] }}</p>
-            <p>{{ item[options.typeField.columnName] }}</p>
-        </div>
-    </div>
-</div>
 
-<div *ngIf="!thumbnailGrid.isValidMediaType(item)">
-    <div class="thumbnail-flags" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)" >
-        <canvas class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100">
-        </canvas>
-        <div class="thumbnail-flag-details">
-            <p>{{ item[options.idField.columnName] }}</p>
-            <p class="flag-ellipses">{{ item[options.objectIdField.columnName] }}</p>
-            <p>{{ item[options.dateField.columnName] }}</p>
-            <p>{{ item[options.typeField.columnName] }}</p>
-        </div>
+<div class="thumbnail-flags" (click)="thumbnailGrid.selectGridItem(item)" [class.selectable]="thumbnailGrid.isSelectable()" [class.selected]="thumbnailGrid.isSelected(item)" >
+    <canvas *ngIf="thumbnailGrid.isValidMediaType(item)" class="thumbnail-view" [class.with-border]="options.border != ''" height="100" width="100"
+            (click)="thumbnailGrid.displayMediaTab(item)">
+    </canvas>
+    <div class="thumbnail-flag-details">
+        <p><span *ngIf="options.showLabelName">{{ options.flagLabel.prettyName }} : </span>{{ item[options.flagLabel.columnName] }}</p>
+        <p *ngIf="item[options.flagSubLabel1.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel1.prettyName }} : </span>{{ item[options.flagSubLabel1.columnName] }}</p>
+        <p *ngIf="item[options.flagSubLabel2.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel2.prettyName }} : </span>{{ item[options.flagSubLabel2.columnName] }}</p>
+        <p *ngIf="item[options.flagSubLabel3.columnName]"><span *ngIf="options.showLabelName">{{ options.flagSubLabel3.prettyName }} : </span>{{ item[options.flagSubLabel3.columnName] }}</p>
     </div>
 </div>

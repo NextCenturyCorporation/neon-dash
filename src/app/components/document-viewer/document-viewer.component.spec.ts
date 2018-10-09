@@ -120,9 +120,9 @@ describe('Component: DocumentViewer', () => {
     });
 
     it('returns the correct list from getExportFields', () => {
-        component.options.dataField = new FieldMetaData('testTextField', 'Test Text Field');
-        component.options.dateField = new FieldMetaData('testDateField', 'Test Date Field');
-        component.options.idField = new FieldMetaData('testIdField', 'Test ID Field');
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.dateField = DatasetServiceMock.DATE_FIELD;
+        component.options.idField = DatasetServiceMock.ID_FIELD;
 
         expect(component.getExportFields()).toEqual([
             {
@@ -157,16 +157,16 @@ describe('Component: DocumentViewer', () => {
         expect(component.isValidQuery()).toBe(false);
         component.options.table = new TableMetaData('testTable1');
         expect(component.isValidQuery()).toBe(false);
-        component.options.dataField = new FieldMetaData('testTextField');
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         expect(component.isValidQuery()).toBe(true);
     });
 
     it('returns expected query from createQuery', () => {
         component.options.database = new DatabaseMetaData('testDatabase1');
         component.options.table = new TableMetaData('testTable1');
-        component.options.dataField = new FieldMetaData('testTextField');
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         // Start with no date field to make sure we don't sort without it.
-        component.options.idField = new FieldMetaData('testIdField');
+        component.options.idField = DatasetServiceMock.ID_FIELD;
         let query = new neon.query.Query()
             .selectFrom('testDatabase1', 'testTable1')
             .where(new neon.query.WhereClause('testTextField', '!=', null))
@@ -179,7 +179,7 @@ describe('Component: DocumentViewer', () => {
         expect(component.createQuery()).toEqual(query);
 
         // Then add a date field and ensure the result is properly sorting.
-        component.options.dateField = new FieldMetaData('testDateField');
+        component.options.dateField = DatasetServiceMock.DATE_FIELD;
         query = query.sortBy('testDateField', neonVariables.DESCENDING)
             .withFields([
                 'testTextField',
@@ -191,9 +191,9 @@ describe('Component: DocumentViewer', () => {
 
     it('sets expected properties and calls getDocCount if onQuerySuccess returns no data', () => {
 
-        component.options.dataField = new FieldMetaData('testTextField');
-        component.options.dateField = new FieldMetaData('testDateField');
-        component.options.idField = new FieldMetaData('testIdField');
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.dateField = DatasetServiceMock.DATE_FIELD;
+        component.options.idField = DatasetServiceMock.ID_FIELD;
         component.docCount = 50;
         let response = {
             data: []
@@ -222,6 +222,9 @@ describe('Component: DocumentViewer', () => {
             calledExecuteQuery = true;
             component.onQuerySuccess(docCountResponse);
         };
+        component.cannotExecuteQuery = () => {
+            return false;
+        };
 
         component.onQuerySuccess(response);
 
@@ -232,21 +235,21 @@ describe('Component: DocumentViewer', () => {
 
     it('sets expected properties and calls getDocCount if onQuerySuccess returns data', () => {
 
-        component.options.dataField = new FieldMetaData('testTextField');
-        component.options.dateField = new FieldMetaData('testDateField');
-        component.options.idField = new FieldMetaData('testIdField');
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.dateField = DatasetServiceMock.DATE_FIELD;
+        component.options.idField = DatasetServiceMock.ID_FIELD;
         component.docCount = 50;
         let response = {
             data: [
                 {
-                    testTextField: 'data1',
+                    testTextField: 'text1',
                     testDateField: 'date1',
-                    testIdField: '12345'
+                    testIdField: 'id1'
                 },
                 {
-                    testTextField: 'data2',
+                    testTextField: 'text2',
                     testDateField: 'date2',
-                    testIdField: '67890'
+                    testIdField: 'id2'
                 }
             ]
         };
@@ -263,23 +266,47 @@ describe('Component: DocumentViewer', () => {
             calledExecuteQuery = true;
             component.onQuerySuccess(docCountResponse);
         };
+        component.cannotExecuteQuery = () => {
+            return false;
+        };
 
         component.onQuerySuccess(response);
 
         expect(calledExecuteQuery).toBeTruthy();
         expect(component.docCount).toBe(2);
-        expect(component.activeData).toEqual([
-            {
-                testTextField: 'data1',
+        expect(component.activeData).toEqual([{
+            data: {
+                testTextField: 'text1',
                 testDateField: 'date1',
-                testIdField: '12345'
+                testIdField: 'id1'
             },
-            {
-                testTextField: 'data2',
+            rows: [{
+                name: 'Test Text Field',
+                text: 'text1'
+            }, {
+                name: 'Test Date Field',
+                text: 'date1'
+            }, {
+                name: 'Test ID Field',
+                text: 'id1'
+            }]
+        }, {
+            data: {
+                testTextField: 'text2',
                 testDateField: 'date2',
-                testIdField: '67890'
-            }
-        ]);
+                testIdField: 'id2'
+            },
+            rows: [{
+                name: 'Test Text Field',
+                text: 'text2'
+            }, {
+                name: 'Test Date Field',
+                text: 'date2'
+            }, {
+                name: 'Test ID Field',
+                text: 'id2'
+            }]
+        }]);
     });
 
     it('sets the expected value when getDocCount is called', () => {
@@ -295,6 +322,9 @@ describe('Component: DocumentViewer', () => {
         component.executeQuery = () => {
             calledExecuteQuery = true;
             component.onQuerySuccess(docCountResponse);
+        };
+        component.cannotExecuteQuery = () => {
+            return false;
         };
 
         component.getDocCount();
@@ -340,188 +370,655 @@ describe('Component: DocumentViewer', () => {
         expect(component.setupFilters).toBeDefined();
     });
 
-    it('properly formats string metadata entries', () => {
-        let record = {
-            'value': 'non-nested value',
-            'nest1.nest2.nestedValue': 'nested value'
-        };
-        expect(component.formatMetadataEntry(record, {field: 'value'})).toEqual('non-nested value');
-        expect(component.formatMetadataEntry(record, {field: 'nest1.nest2.nestedValue'})).toEqual('nested value');
+    it('createTableRowText given boolean field does return expected string', () => {
+        expect(component.createTableRowText(true)).toEqual('true');
+        expect(component.createTableRowText(false)).toEqual('false');
     });
 
-    it('properly formats array metadata entries in formatMetadataEntry', () => {
-        let record = {
-            empty: [],
-            single_string: ['value'],
-            single_number: [1],
-            multiple_string: ['value1', 'value2'],
-            multiple_number: [2, 3],
-            string_no_natches: ['not a match', 'not a match', 'not a match'],
-            string_some_matches: ['not a match', 'match', 'not a match', 'match'],
-            string_all_matches: ['match', 'match', 'match'],
-            object_no_matches: [{
-                value1: 'not a match',
-                value2: 'return when matching (1)'
-            }, {
-                value1: 'not a match',
-                value2: 'return when matching (2)'
-            }],
-            object_some_matches: [{
-                value1: 'match',
-                value2: 'return when matching (1)'
-            }, {
-                value1: 'not a match',
-                value2: 'return when matching (2)'
-            }],
-            object_all_matches: [{
-                value1: 'match',
-                value2: 'return when matching (1)'
-            }, {
-                value1: 'match',
-                value2: 'return when matching (2)'
-            }]
-        };
-        let emptyMDO = {
-            field: 'empty'
-        };
-        let singleStringMDO = {
-            field: 'single_string'
-        };
-        let singleNumberMDO = {
-            field: 'single_number'
-        };
-        let multipleStringMDO = {
-            field: 'multiple_string'
-        };
-        let multipleNumberMDO = {
-            field: 'multiple_number'
-        };
-        let stringNoMatchesMDO = {
-            field: 'string_no_matches',
-            arrayFilter: {
-                filterType: '=',
-                filterFor: ['match']
-            }
-        };
-        let stringSomeMatchesMDO = {
-            field: 'string_some_matches',
-            arrayFilter: {
-                filterType: '=',
-                filterFor: ['match']
-            }
-        };
-        let stringAllMatchesMDO = {
-            field: 'string_all_matches',
-            arrayFilter: {
-                filterType: '=',
-                filterFor: ['match']
-            }
-        };
-        let objectNoMatchesMDO = {
-            field: 'object_no_matches',
-            arrayFilter: {
-                filterType: '=',
-                filterFor: ['match'],
-                filterOn: 'value1',
-                show: 'value2'
-            }
-        };
-        let objectSomeMatchesMDO = {
-            field: 'object_some_matches',
-            arrayFilter: {
-                filterType: '=',
-                filterFor: ['match'],
-                filterOn: 'value1',
-                show: 'value2'
-            }
-        };
-        let objectAllMatchesMDO = {
-            field: 'object_all_matches',
-            arrayFilter: {
-                filterType: '=',
-                filterFor: ['match'],
-                filterOn: 'value1',
-                show: 'value2'
-            }
-        };
-
-        expect(component.formatMetadataEntry(record, emptyMDO)).toEqual('None');
-        expect(component.formatMetadataEntry(record, singleStringMDO)).toEqual('value');
-        expect(component.formatMetadataEntry(record, singleNumberMDO)).toEqual('1');
-        expect(component.formatMetadataEntry(record, multipleStringMDO)).toEqual('value1, value2');
-        expect(component.formatMetadataEntry(record, multipleNumberMDO)).toEqual('2, 3');
-        expect(component.formatMetadataEntry(record, stringNoMatchesMDO)).toEqual('None');
-        expect(component.formatMetadataEntry(record, stringSomeMatchesMDO)).toEqual('match, match');
-        expect(component.formatMetadataEntry(record, stringAllMatchesMDO)).toEqual('match, match, match');
-        expect(component.formatMetadataEntry(record, objectNoMatchesMDO)).toEqual('None');
-        expect(component.formatMetadataEntry(record, objectSomeMatchesMDO)).toEqual('return when matching (1)');
-        expect(component.formatMetadataEntry(record, objectAllMatchesMDO)).toEqual('return when matching (1), return when matching (2)');
+    it('createTableRowText given number field does return expected string', () => {
+        expect(component.createTableRowText(0)).toEqual('0');
+        expect(component.createTableRowText(1)).toEqual('1');
+        expect(component.createTableRowText(1234)).toEqual('1234');
+        expect(component.createTableRowText(1.234)).toEqual('1.234');
     });
 
-    it('returns None for non-string, non-array metadata entries', () => {
-        let record = {
-            object: {},
-            integer: 123,
-            double: 1.23
-        };
-        expect(component.formatMetadataEntry(record, 'object')).toEqual('None');
-        expect(component.formatMetadataEntry(record, 'integer')).toEqual('None');
-        expect(component.formatMetadataEntry(record, 'double')).toEqual('None');
-        expect(component.formatMetadataEntry(record, 'nonexistent')).toEqual('None');
+    it('createTableRowText given string field does return expected string', () => {
+        expect(component.createTableRowText('A')).toEqual('A');
+        expect(component.createTableRowText('The quick brown fox jumps over the lazy dog.')).toEqual(
+            'The quick brown fox jumps over the lazy dog.');
+    });
+
+    it('createTableRowText given date field does return expected string', () => {
+        expect(component.createTableRowText(new Date(Date.UTC(2018, 0, 1)))).toEqual('Mon, Jan 1, 2018, 12:00 AM');
+        expect(component.createTableRowText('2018-01-01T00:00:00.000Z')).toEqual('Mon, Jan 1, 2018, 12:00 AM');
+    });
+
+    it('createTableRowText given array field does return expected string', () => {
+        expect(component.createTableRowText(['value'])).toEqual('value');
+        expect(component.createTableRowText([1])).toEqual('1');
+        expect(component.createTableRowText(['value1', 'value2'])).toEqual('value1, value2');
+        expect(component.createTableRowText([2, 3])).toEqual('2, 3');
+        expect(component.createTableRowText(['not a match', 'not a match', 'not a match'], {
+            filterType: '=',
+            filterFor: ['match']
+        })).toEqual('');
+        expect(component.createTableRowText(['not a match', 'match', 'not a match', 'match'], {
+            filterType: '=',
+            filterFor: ['match']
+        })).toEqual('match, match');
+        expect(component.createTableRowText(['match', 'match', 'match'], {
+            filterType: '=',
+            filterFor: ['match']
+        })).toEqual('match, match, match');
+        expect(component.createTableRowText([{
+            value1: 'not a match',
+            value2: 'return when matching (1)'
+        }, {
+            value1: 'not a match',
+            value2: 'return when matching (2)'
+        }], {
+            filterType: '=',
+            filterFor: ['match'],
+            filterOn: 'value1',
+            show: 'value2'
+        })).toEqual('');
+        expect(component.createTableRowText([{
+            value1: 'match',
+            value2: 'return when matching (1)'
+        }, {
+            value1: 'not a match',
+            value2: 'return when matching (2)'
+        }], {
+            filterType: '=',
+            filterFor: ['match'],
+            filterOn: 'value1',
+            show: 'value2'
+        })).toEqual('return when matching (1)');
+        expect(component.createTableRowText([{
+            value1: 'match',
+            value2: 'return when matching (1)'
+        }, {
+            value1: 'match',
+            value2: 'return when matching (2)'
+        }], {
+            filterType: '=',
+            filterFor: ['match'],
+            filterOn: 'value1',
+            show: 'value2'
+        })).toEqual('return when matching (1), return when matching (2)');
+    });
+
+    it('createTableRowText given an empty string, empty array, any object, or null does return empty string', () => {
+        expect(component.createTableRowText([])).toEqual('');
+        expect(component.createTableRowText('')).toEqual('');
+        expect(component.createTableRowText({})).toEqual('');
+        expect(component.createTableRowText({
+            key: 'value'
+        })).toEqual('');
+        expect(component.createTableRowText(null)).toEqual('');
+        expect(component.createTableRowText(undefined)).toEqual('');
     });
 
     it('creates elements for data', async(() => {
-        component.options.dataField = new FieldMetaData('testTextField');
-        component.options.dateField = new FieldMetaData('testDateField');
-        component.options.idField = new FieldMetaData('testIdField');
-        component.activeData = [
-            {
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
+        component.options.dateField = DatasetServiceMock.DATE_FIELD;
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        component.activeData = [{
+            data: {
                 testTextField: 'This is a string.',
                 testDateField: '12:34:56 7/8/90',
                 testIdField: '_12345',
-                metadataValue: 'First'
+                testMetadataField: 'First'
             },
-            {
+            rows: [{
+                name: 'Test Metadata Field',
+                text: 'First'
+            }]
+        }, {
+            data: {
                 testTextField: 'This is another string.',
                 testDateField: '09:87:65 4/3/21',
                 testIdField: '_67890',
-                metadataValue: 'Second'
-            }
-        ];
+                testMetadataField: 'Second'
+            },
+            rows: [{
+                name: 'Test Metadata Field',
+                text: 'Second'
+            }]
+        }];
         component.options.metadataFields = [{
-            name: 'Test',
-            field: 'metadataValue'
+            name: 'Test Metadata Field',
+            field: 'testMetadataField'
         }];
         fixture.detectChanges();
 
         fixture.whenStable().then(() => {
             fixture.detectChanges();
 
-            // Make sure we have a list of two items.
-            let selects = fixture.debugElement.queryAll(By.css('.document-viewer-button-cell'));
-            expect(selects.length).toBe(2);
-            // Make sure each item has a single row of metadata.
-            selects = fixture.debugElement.queryAll(By.css('.metadata-row'));
-            expect(selects.length).toBe(2);
-            // Make sure each metadata row has a single item in it, and that those items have the right name.
-            expect(selects[0].children[0].nativeElement.textContent).toEqual('Test: ');
-            expect(selects[0].children[1].nativeElement.textContent).toEqual('First');
-            expect(selects[1].children[0].nativeElement.textContent).toEqual('Test: ');
-            expect(selects[1].children[1].nativeElement.textContent).toEqual('Second');
-
-            selects = fixture.debugElement.queryAll(By.css('.metadata-bold'));
-            expect(selects.length).toBe(2);
+            let buttons = fixture.debugElement.queryAll(By.css('.document-viewer-button'));
+            expect(buttons.length).toBe(2);
+            let names = fixture.debugElement.queryAll(By.css('.document-viewer-name'));
+            expect(names.length).toBe(2);
+            let texts = fixture.debugElement.queryAll(By.css('.document-viewer-text'));
+            expect(texts.length).toBe(2);
+            expect(names[0].nativeElement.textContent).toEqual('Test Metadata Field: ');
+            expect(texts[0].nativeElement.textContent).toEqual('First');
+            expect(names[1].nativeElement.textContent).toEqual('Test Metadata Field: ');
+            expect(texts[1].nativeElement.textContent).toEqual('Second');
         });
     }));
 
     it('createClause does return expected object', () => {
-        component.options.dataField = new FieldMetaData('testTextField');
+        component.options.dataField = DatasetServiceMock.TEXT_FIELD;
         expect(component.createClause()).toEqual(neon.query.where('testTextField', '!=', null));
 
-        component.options.unsharedFilterField = new FieldMetaData('testFilterField');
+        component.options.unsharedFilterField = DatasetServiceMock.FILTER_FIELD;
         component.options.unsharedFilterValue = 'testFilterValue';
         expect(component.createClause()).toEqual(neon.query.and(neon.query.where('testTextField', '!=', null),
             neon.query.where('testFilterField', '=', 'testFilterValue')));
+    });
+
+    it('getElementRefs does return expected object', () => {
+        let refs = component.getElementRefs();
+        expect(refs.headerText).toBeDefined();
+        expect(refs.infoText).toBeDefined();
+        expect(refs.visualization).toBeDefined();
+    });
+
+    it('getOptions does return options object', () => {
+        expect(component.getOptions()).toEqual(component.options);
+    });
+
+    it('populateActiveItem does update item data and rows as expected', () => {
+        let activeItem = {
+            data: {},
+            rows: []
+        };
+
+        let responseItem = {
+            testField1: 1,
+            testField2: 1.234,
+            testField3: 'A',
+            testField4: true
+        };
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField1');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: 1
+            },
+            rows: [{
+                name: 'testField1',
+                text: '1'
+            }]
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField2');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: 1,
+                testField2: 1.234
+            },
+            rows: [{
+                name: 'testField1',
+                text: '1'
+            }, {
+                name: 'testField2',
+                text: '1.234'
+            }]
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField3');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: 1,
+                testField2: 1.234,
+                testField3: 'A'
+            },
+            rows: [{
+                name: 'testField1',
+                text: '1'
+            }, {
+                name: 'testField2',
+                text: '1.234'
+            }, {
+                name: 'testField3',
+                text: 'A'
+            }]
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField4');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: 1,
+                testField2: 1.234,
+                testField3: 'A',
+                testField4: true
+            },
+            rows: [{
+                name: 'testField1',
+                text: '1'
+            }, {
+                name: 'testField2',
+                text: '1.234'
+            }, {
+                name: 'testField3',
+                text: 'A'
+            }, {
+                name: 'testField4',
+                text: 'true'
+            }]
+        });
+    });
+
+    it('populateActiveItem does update item with array values as expected', () => {
+        let activeItem = {
+            data: {},
+            rows: []
+        };
+
+        let responseItem = {
+            testField1: [1],
+            testField2: [2, 3, 4]
+        };
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField1');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: [1]
+            },
+            rows: [{
+                name: 'testField1',
+                text: '1'
+            }]
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField2');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: [1],
+                testField2: [2, 3, 4]
+            },
+            rows: [{
+                name: 'testField1',
+                text: '1'
+            }, {
+                name: 'testField2',
+                text: '2, 3, 4'
+            }]
+        });
+    });
+
+    it('populateActiveItem does update item with nested object values as expected', () => {
+        let activeItem = {
+            data: {},
+            rows: []
+        };
+
+        let responseItem = {
+            testObjectField1: {
+                testField1: 1,
+                testField2: 1.234,
+                testField3: 'A',
+                testField4: true
+            },
+            testObjectField2: {
+                testField5: [10, 20],
+                testNestedField1: {
+                    testField6: [30, 40]
+                }
+            }
+        };
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testObjectField1');
+
+        expect(activeItem).toEqual({
+            data: {
+                testObjectField1: {
+                    testField1: 1,
+                    testField2: 1.234,
+                    testField3: 'A',
+                    testField4: true
+                }
+            },
+            rows: [{
+                name: 'testObjectField1.testField1',
+                text: '1'
+            }, {
+                name: 'testObjectField1.testField2',
+                text: '1.234'
+            }, {
+                name: 'testObjectField1.testField3',
+                text: 'A'
+            }, {
+                name: 'testObjectField1.testField4',
+                text: 'true'
+            }]
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testObjectField2');
+
+        expect(activeItem).toEqual({
+            data: {
+                testObjectField1: {
+                    testField1: 1,
+                    testField2: 1.234,
+                    testField3: 'A',
+                    testField4: true
+                },
+                testObjectField2: {
+                    testField5: [10, 20],
+                    testNestedField1: {
+                        testField6: [30, 40]
+                    }
+                }
+            },
+            rows: [{
+                name: 'testObjectField1.testField1',
+                text: '1'
+            }, {
+                name: 'testObjectField1.testField2',
+                text: '1.234'
+            }, {
+                name: 'testObjectField1.testField3',
+                text: 'A'
+            }, {
+                name: 'testObjectField1.testField4',
+                text: 'true'
+            }, {
+                name: 'testObjectField2.testField5',
+                text: '10, 20'
+            }, {
+                name: 'testObjectField2.testNestedField1.testField6',
+                text: '30, 40'
+            }]
+        });
+    });
+
+    it('populateActiveItem does not add nested object values that are in the config fields to rows', () => {
+        let activeItem = {
+            data: {},
+            rows: []
+        };
+
+        let responseItem = {
+            testObjectField1: {
+                testField1: 1,
+                testField2: 1.234,
+                testField3: 'A',
+                testField4: true
+            }
+        };
+
+        component.populateActiveItem(activeItem, responseItem, [{
+            field: 'testObjectField1.testField2'
+        }, {
+            field: 'testObjectField1.testField4'
+        }], 'testObjectField1');
+
+        expect(activeItem).toEqual({
+            data: {
+                testObjectField1: {
+                    testField1: 1,
+                    testField2: 1.234,
+                    testField3: 'A',
+                    testField4: true
+                }
+            },
+            rows: [{
+                name: 'testObjectField1.testField1',
+                text: '1'
+            }, {
+                name: 'testObjectField1.testField3',
+                text: 'A'
+            }]
+        });
+    });
+
+    it('populateActiveItem does update item with nested fields as expected', () => {
+        let activeItem = {
+            data: {},
+            rows: []
+        };
+
+        let responseItem = {
+            testNestedField1: {
+                testField1: [10, 20],
+                testNestedField2: {
+                    testField2: 'A'
+                }
+            }
+        };
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testNestedField1.testField1');
+
+        expect(activeItem).toEqual({
+            data: {
+                'testNestedField1.testField1': [10, 20]
+            },
+            rows: [{
+                name: 'testNestedField1.testField1',
+                text: '10, 20'
+            }]
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testNestedField1.testNestedField2.testField2');
+
+        expect(activeItem).toEqual({
+            data: {
+                'testNestedField1.testField1': [10, 20],
+                'testNestedField1.testNestedField2.testField2': 'A'
+            },
+            rows: [{
+                name: 'testNestedField1.testField1',
+                text: '10, 20'
+            }, {
+                name: 'testNestedField1.testNestedField2.testField2',
+                text: 'A'
+            }]
+        });
+    });
+
+    it('populateActiveItem does handle falsey values as expected', () => {
+        let activeItem = {
+            data: {},
+            rows: []
+        };
+
+        let responseItem = {
+            testField1: null,
+            testField2: '',
+            testField3: [],
+            testField4: {},
+            testField5: 0,
+            testField6: false
+        };
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField1');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: null
+            },
+            rows: []
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField2');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: null,
+                testField2: ''
+            },
+            rows: []
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField3');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: null,
+                testField2: '',
+                testField3: []
+            },
+            rows: []
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField4');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: null,
+                testField2: '',
+                testField3: [],
+                testField4: {}
+            },
+            rows: []
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField5');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: null,
+                testField2: '',
+                testField3: [],
+                testField4: {},
+                testField5: 0
+            },
+            rows: [{
+                name: 'testField5',
+                text: '0'
+            }]
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField6');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: null,
+                testField2: '',
+                testField3: [],
+                testField4: {},
+                testField5: 0,
+                testField6: false
+            },
+            rows: [{
+                name: 'testField5',
+                text: '0'
+            }, {
+                name: 'testField6',
+                text: 'false'
+            }]
+        });
+    });
+
+    it('populateActiveItem does use given name argument', () => {
+        let activeItem = {
+            data: {},
+            rows: []
+        };
+
+        let responseItem = {
+            testField1: 'A',
+            testField2: 'B'
+        };
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField1', 'Test Field 1');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: 'A'
+            },
+            rows: [{
+                name: 'Test Field 1',
+                text: 'A'
+            }]
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], 'testField2', 'Test Field 2');
+
+        expect(activeItem).toEqual({
+            data: {
+                testField1: 'A',
+                testField2: 'B'
+            },
+            rows: [{
+                name: 'Test Field 1',
+                text: 'A'
+            }, {
+                name: 'Test Field 2',
+                text: 'B'
+            }]
+        });
+    });
+
+    it('populateActiveItem does use field pretty name if no name is given', () => {
+        component.options.databases = DatasetServiceMock.DATABASES;
+        component.options.database = DatasetServiceMock.DATABASES[0];
+        component.options.tables = DatasetServiceMock.TABLES;
+        component.options.table = DatasetServiceMock.TABLES[0];
+        component.options.fields = DatasetServiceMock.FIELDS;
+
+        let activeItem = {
+            data: {},
+            rows: []
+        };
+
+        let responseItem = {};
+        responseItem[DatasetServiceMock.NAME_FIELD.columnName] = 'A';
+        responseItem[DatasetServiceMock.TEXT_FIELD.columnName] = 'B';
+
+        component.populateActiveItem(activeItem, responseItem, [], DatasetServiceMock.NAME_FIELD.columnName);
+
+        expect(activeItem).toEqual({
+            data: {
+                testNameField: 'A'
+            },
+            rows: [{
+                name: 'Test Name Field',
+                text: 'A'
+            }]
+        });
+
+        component.populateActiveItem(activeItem, responseItem, [], DatasetServiceMock.TEXT_FIELD.columnName, 'My Test Field');
+
+        expect(activeItem).toEqual({
+            data: {
+                testNameField: 'A',
+                testTextField: 'B'
+            },
+            rows: [{
+                name: 'Test Name Field',
+                text: 'A'
+            }, {
+                name: 'My Test Field',
+                text: 'B'
+            }]
+        });
+    });
+
+    it('showSelectButton does return expected boolean', () => {
+        expect(component.showSelectButton()).toEqual(false);
+        component.options.showSelect = true;
+        expect(component.showSelectButton()).toEqual(false);
+        component.options.idField = DatasetServiceMock.ID_FIELD;
+        expect(component.showSelectButton()).toEqual(true);
+    });
+
+    it('showSourceButton does return expected boolean', () => {
+        expect(component.showSourceButton()).toEqual(true);
+        component.options.showText = true;
+        expect(component.showSourceButton()).toEqual(false);
+        component.options.showText = false;
+        component.options.hideSource = true;
+        expect(component.showSourceButton()).toEqual(false);
     });
 });
 
@@ -612,12 +1109,5 @@ describe('Component: Document Viewer with Config', () => {
         expect(component.activeData).toEqual([]);
         expect(component.docCount).toBe(0);
         expect(component.page).toBe(1);
-    });
-
-    it('getElementRefs does return expected object', () => {
-        let refs = component.getElementRefs();
-        expect(refs.headerText).toBeDefined();
-        expect(refs.infoText).toBeDefined();
-        expect(refs.visualization).toBeDefined();
     });
 });

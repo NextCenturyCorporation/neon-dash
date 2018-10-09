@@ -14,5 +14,6 @@
  *
  */
 export const environment = {
-  production: true
+    config: ['./app/config/config.json', './app/config/config.yaml'],
+    production: true
 };

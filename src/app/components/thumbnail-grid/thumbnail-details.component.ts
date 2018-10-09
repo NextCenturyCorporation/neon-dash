@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2017 Next Century Corporation
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,7 +27,7 @@ export class ThumbnailDetailsContractedComponent {
     @Input() item: any;
     @Input() options: ThumbnailGridOptions;
 
-    private thumbnailGrid: ThumbnailGridComponent;
+    thumbnailGrid: ThumbnailGridComponent;
 
     constructor(grid: ThumbnailGridComponent) {
         this.thumbnailGrid = grid;
@@ -44,7 +45,7 @@ export class ThumbnailDetailsExpandedComponent {
     @Input() item: any;
     @Input() options: ThumbnailGridOptions;
 
-    private thumbnailGrid: ThumbnailGridComponent;
+    thumbnailGrid: ThumbnailGridComponent;
 
     constructor(grid: ThumbnailGridComponent) {
         this.thumbnailGrid = grid;
