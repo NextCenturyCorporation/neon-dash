@@ -26,25 +26,23 @@ import {
     ViewEncapsulation
 } from '@angular/core';
 
-import { ActiveGridService } from '../../services/active-grid.service';
-import { ColorSchemeService } from '../../services/color-scheme.service';
-import { ConnectionService } from '../../services/connection.service';
-import { DatasetService } from '../../services/dataset.service';
-import { ExportService } from '../../services/export.service';
-import { FilterService } from '../../services/filter.service';
-import { ThemesService } from '../../services/themes.service';
-import { VisualizationService } from '../../services/visualization.service';
+import {ActiveGridService} from '../../services/active-grid.service';
+import {ColorSchemeService} from '../../services/color-scheme.service';
+import {ConnectionService} from '../../services/connection.service';
+import {DatasetService} from '../../services/dataset.service';
+import {ExportService} from '../../services/export.service';
+import {FilterService} from '../../services/filter.service';
+import {ThemesService} from '../../services/themes.service';
+import {VisualizationService} from '../../services/visualization.service';
 
-import { BaseNeonComponent, BaseNeonOptions } from '../base-neon-component/base-neon.component';
-import { FieldMetaData } from '../../dataset';
-import { neonUtilities, neonVariables } from '../../neon-namespaces';
+import {BaseNeonComponent, BaseNeonOptions} from '../base-neon-component/base-neon.component';
+import {FieldMetaData} from '../../dataset';
+import {neonUtilities, neonVariables} from '../../neon-namespaces';
 
 import * as d3shape from 'd3-shape';
 import 'd3-transition';
 import * as neon from 'neon-framework';
 import * as vis from 'vis';
-import { findNode } from '@angular/compiler';
-import { filter } from 'rxjs/operators';
 
 class GraphData {
     constructor(
@@ -134,6 +132,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
     public typeField: FieldMetaData;
     public edgeWidth: number;
     public limit: number;
+    public andFilters: boolean;
     public showOnlyFiltered: boolean;
     public filterFields: string[];
     public xPositionField: FieldMetaData;
@@ -163,6 +162,7 @@ export class NetworkGraphOptions extends BaseNeonOptions {
         this.fontColor = this.injector.get('fontColor', '#343434');
         this.edgeWidth = this.injector.get('edgeWidth', 1);
         this.limit = this.injector.get('limit', Infinity);
+        this.andFilters = this.injector.get('andFilters', true);
         this.showOnlyFiltered = this.injector.get('showOnlyFiltered', false);
         this.filterFields = this.injector.get('filterFields', []);
         this.physics = this.injector.get('physics', true);
@@ -342,6 +342,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
         bindings.linkNameField = this.options.linkNameField.columnName;
         bindings.nodeColorField = this.options.nodeColorField.columnName;
         bindings.edgeColorField = this.options.edgeColorField.columnName;
+        bindings.andFilters = this.options.andFilters;
         bindings.xPositionField = this.options.xPositionField.columnName;
         bindings.yPositionField = this.options.yPositionField.columnName;
         bindings.xTargetPositionField = this.options.xTargetPositionField.columnName;
@@ -485,6 +486,13 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
     getFiltersToIgnore() {
         // TODO
         return null;
+    }
+
+    addMultiFilter(myFilter, clause) {
+        if (this.filterIsUnique(myFilter)) {
+            this.addLocalFilter(myFilter);
+            this.addNeonFilter(true, myFilter, clause);
+        }
     }
 
     addFilter(myFilter) {
@@ -1132,7 +1140,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
      * Filters the data using the name of the selected node
      * @param properties
      */
-    onSelect(properties) {
+    onSelect = (properties: {nodes: string[]}) => {
         if (properties.nodes.length === 1) {
             //find the selected node
             let nodeName = properties.nodes[0];
@@ -1155,7 +1163,7 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                     value = filterField.data.toString();
                     myFilter = this.createFilterObject(filterField.field, value, filterField.field);
                     clause = neon.query.or.apply(neon.query, clauses);
-                    this.addFilter(myFilter, clause);
+                    this.addMultiFilter(myFilter, clause);
 
                     //console.log("network graph or filter", myFilter, clause)
                 } else {
@@ -1164,12 +1172,12 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
                         for (let data of filterField.data) {
                             myFilter = this.createFilterObject(filterField.field, data, filterField.field);
                             clause = neon.query.where(myFilter.field, '=', myFilter.value);
-                            this.addFilter(myFilter, clause);
+                            this.addMultiFilter(myFilter, clause);
                         }
                     } else {
                         myFilter = this.createFilterObject(filterField.field, filterField.data, filterField.field);
                         clause = neon.query.where(myFilter.field, '=', myFilter.value);
-                        this.addFilter(myFilter, clause);
+                        this.addMultiFilter(myFilter, clause);
                     }
 
                     //console.log("network graph and filter", myFilter, clause)
@@ -1177,6 +1185,16 @@ export class NetworkGraphComponent extends BaseNeonComponent implements OnInit, 
             }
 
         }
+    };
+
+    createFilterObject(field: string, value: string, prettyField: string): any {
+        let myFilter = {
+            id: undefined, // This will be set in the success callback of addNeonFilter.
+            field: field,
+            value: value,
+            prettyField: prettyField
+        };
+        return myFilter;
     }
 
     /*
