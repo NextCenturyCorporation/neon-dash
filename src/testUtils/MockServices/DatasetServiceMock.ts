@@ -91,5 +91,16 @@ export class DatasetServiceMock extends DatasetService {
                 }]
             }]
         });
+        this.setCurrentDashboardConfig({
+            prettyName: 'Test Discovery Config',
+            layout: 'DISCOVERY',
+            datastore: 'datastore1',
+            tables: {
+                table_key_1: 'datastore1.testDatabase2.testTable2'
+            },
+            fields: {},
+            options: {}
+        });
+        this.setCurrentDashboardConfigName('test_discovery');
     }
 }
