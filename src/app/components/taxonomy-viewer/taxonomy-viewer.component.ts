@@ -385,22 +385,23 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
             id: data.id,
             field: this.options.filterField.columnName,
             prettyField: data.name + ' ' + this.options.filterField.columnName,
-            value: data.nodes.toString()
+            value: this.filteredNodes.toString()
         };
 
        // let clause = neon.query.where(filter.field, '=', filter.value);
 
-        let clauses = data.nodes.map((element) =>
+        let clauses = this.filteredNodes.map((element) =>
             neon.query.where(filter.field, '=', element));
         let runQuery = !this.options.ignoreSelf;
         let clause = neon.query.or.apply(neon.query, clauses);
-
+//console.log(clause)
         //console.log(filter, runQuery)
        // console.log(this.filters.length)
         //console.log(clauses)
         //console.log("filter exists?", this.filterExists(filter.field, filter.value));
         if (!this.filterExists(filter.field, filter.value)) {
             this.filters = [filter];
+            //console.log("add filter")
             this.addNeonFilter(runQuery, filter, clause);
         }
 
@@ -485,6 +486,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
                     if (this.options.filterField.columnName) {
                         id = neonUtilities.deepFind(d, this.options.filterField.columnName);
                         this.allNodes.push(id);
+
                     }
 
                     //console.log("categories", categories, ids)
@@ -578,6 +580,7 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
 
                 //Flattens multi-level array and removes duplicates
                 //console.log(this.allNodes.length, this.allNodes)
+
                 this.allNodes = this.allNodes.reduce(this.flattenArray, [])
                     .filter((value, index, array) => array.indexOf(value) === index);
                 //console.log(this.allNodes.length, this.allNodes)
@@ -623,10 +626,16 @@ export class TaxonomyViewerComponent extends BaseNeonComponent implements OnInit
         //console.log(node.data)
         //console.log(node.data.nodes.length)
         //console.log(this.taxonomyGroups)
-        if ($event.target.checked === true) {
-            node.data.nodes.reduce(this.flattenArray, [])
-            .filter((value, index, array) => array.indexOf(value) === index);
-            //console.log(node.data.nodes.length)
+        if ($event.target.checked === false) {
+            /*node.data.nodes.reduce(this.flattenArray, [])
+            .filter((value, index, array) => array.indexOf(value) === index);*/
+            //console.log(node.data)
+            this.filteredNodes = this.allNodes.filter((value, index, array) => {
+                return node.data.nodes.indexOf(value) === -1;
+
+            });
+            //console.log(this.filteredNodes)
+
             this.createFilter(node.data);
             /*for ( const treeNode of node.data.nodes){
                 //console.log(treeNode)
