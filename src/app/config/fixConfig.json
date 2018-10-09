@@ -295,7 +295,7 @@
         "name": "Timeline",
         "type": "timeline",
         "icon": "Timeline64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -311,14 +311,14 @@
         "granularity": "day"
         },
         "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-        "row": 0,
-        "col": 0
+        "row": 1,
+        "col": 1
     },
     {
         "name": "Posting Locations & Routing Map",
         "type": "map",
         "icon": "Map64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 8,
         "minPixelx": 320,
         "minPixely": 240,
@@ -365,14 +365,14 @@
         ]
         },
         "id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-        "row": 0,
-        "col": 12
+        "row": 1,
+        "col": 6
     },
     {
         "name": "Data Table",
         "type": "dataTable",
         "icon": "ViewData64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -389,13 +389,13 @@
         },
         "id": "6422b24f-540b-4cea-bfd6-82b2533be010",
         "row": 21,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Text Cloud",
         "type": "textCloud",
         "icon": "TagCloud64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -411,13 +411,13 @@
         },
         "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
         "row": 8,
-        "col": 12
+        "col": 6
     },
     {
         "name": "Newsfeed",
         "type": "newsFeed",
         "icon": "News64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -435,13 +435,13 @@
         },
         "id": "31f13787-13b4-45a6-a8d6-3ecac2f43a04",
         "row": 5,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Text Cloud",
         "type": "textCloud",
         "icon": "TagCloud64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -457,14 +457,14 @@
         },
         "id": "516c1aa7-7115-4e75-89c5-e868f5c914d3",
         "row": 8,
-        "col": 18
+        "col": 9
     },
     {
         "minPixelx": 480,
         "name": "Create Custom Filters",
         "type": "filterBuilder",
         "icon": "CreateFilter64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixely": 240,
         "minSizex": 9,
@@ -473,13 +473,13 @@
         "selected": true,
         "id": "10384891-dc1a-4d73-87b9-332e8d03b116",
         "row": 19,
-        "col": 12
+        "col": 6
     },
     {
         "name": "Aggregation Table",
         "type": "aggregationTable",
         "icon": "Count64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -497,13 +497,13 @@
         },
         "id": "e489ed1e-c5b5-4194-849a-6baa70bec15d",
         "row": 10,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Document Viewer",
         "type": "documentViewer",
         "icon": "DocumentViewer64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -533,13 +533,13 @@
         },
         "id": "adb23f83-901f-4419-8620-b67a1c032869",
         "row": 10,
-        "col": 6
+        "col": 3
     },
     {
         "name": "Network Graph",
         "type": "networkGraph",
         "icon": "Graph64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
@@ -557,13 +557,13 @@
         },
         "id": "51a865ba-833d-4652-99c0-d8bb208b79f3",
         "row": 15,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Line Chart",
         "type": "lineChart",
         "icon": "LineChart64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
@@ -590,7 +590,7 @@
         },
         "id": "b6590b1e-4374-459e-864a-d3453590660c",
         "row": 13,
-        "col": 12
+        "col": 6
     }
     ],
     "groundtruth-layout": [
@@ -598,7 +598,7 @@
         "name": "Timeline",
         "type": "timeline",
         "icon": "Timeline64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -614,15 +614,15 @@
         "granularity": "day"
         },
         "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-        "row": 0,
-        "col": 0
+        "row": 1,
+        "col": 1
     },
 
     {
         "name": "Data Table",
         "type": "dataTable",
         "icon": "ViewData64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -639,13 +639,13 @@
         },
         "id": "6422b24f-540b-4cea-bfd6-82b2533be010",
         "row": 21,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Text Cloud",
         "type": "textCloud",
         "icon": "TagCloud64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -661,13 +661,13 @@
         },
         "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
         "row": 8,
-        "col": 12
+        "col": 6
     },
     {
         "name": "Newsfeed",
         "type": "newsFeed",
         "icon": "News64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -685,7 +685,7 @@
         },
         "id": "31f13787-13b4-45a6-a8d6-3ecac2f43a04",
         "row": 5,
-        "col": 0
+        "col": 1
     },
 
     {
@@ -693,7 +693,7 @@
         "name": "Create Custom Filters",
         "type": "filterBuilder",
         "icon": "CreateFilter64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixely": 240,
         "minSizex": 9,
@@ -702,13 +702,13 @@
         "selected": true,
         "id": "10384891-dc1a-4d73-87b9-332e8d03b116",
         "row": 19,
-        "col": 12
+        "col": 6
     },
     {
         "name": "Aggregation Table",
         "type": "aggregationTable",
         "icon": "Count64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -726,13 +726,13 @@
         },
         "id": "e489ed1e-c5b5-4194-849a-6baa70bec15d",
         "row": 10,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Document Viewer",
         "type": "documentViewer",
         "icon": "DocumentViewer64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -762,13 +762,13 @@
         },
         "id": "adb23f83-901f-4419-8620-b67a1c032869",
         "row": 10,
-        "col": 6
+        "col": 3
     },
     {
         "name": "Line Chart",
         "type": "lineChart",
         "icon": "LineChart64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
@@ -795,7 +795,7 @@
         },
         "id": "b6590b1e-4374-459e-864a-d3453590660c",
         "row": 13,
-        "col": 12
+        "col": 6
     }
     ],
     "haiti-layout": [
@@ -803,7 +803,7 @@
         "name": "Timeline",
         "type": "timeline",
         "icon": "Timeline64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -819,14 +819,14 @@
         "granularity": "day"
         },
         "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-        "row": 0,
-        "col": 0
+        "row": 1,
+        "col": 1
     },
     {
         "name": "Posting Locations & Routing Map",
         "type": "map",
         "icon": "Map64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 8,
         "minPixelx": 320,
         "minPixely": 240,
@@ -873,14 +873,14 @@
         ]
         },
         "id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-        "row": 0,
-        "col": 12
+        "row": 1,
+        "col": 6
     },
     {
         "name": "Data Table",
         "type": "dataTable",
         "icon": "ViewData64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -897,13 +897,13 @@
         },
         "id": "6422b24f-540b-4cea-bfd6-82b2533be010",
         "row": 21,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Text Cloud",
         "type": "textCloud",
         "icon": "TagCloud64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -919,13 +919,13 @@
         },
         "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
         "row": 8,
-        "col": 12
+        "col": 6
     },
     {
         "name": "Newsfeed",
         "type": "newsFeed",
         "icon": "News64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -943,13 +943,13 @@
         },
         "id": "31f13787-13b4-45a6-a8d6-3ecac2f43a04",
         "row": 5,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Text Cloud",
         "type": "textCloud",
         "icon": "TagCloud64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -965,14 +965,14 @@
         },
         "id": "516c1aa7-7115-4e75-89c5-e868f5c914d3",
         "row": 8,
-        "col": 18
+        "col": 9
     },
     {
         "minPixelx": 480,
         "name": "Create Custom Filters",
         "type": "filterBuilder",
         "icon": "CreateFilter64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixely": 240,
         "minSizex": 9,
@@ -981,13 +981,13 @@
         "selected": true,
         "id": "10384891-dc1a-4d73-87b9-332e8d03b116",
         "row": 19,
-        "col": 12
+        "col": 6
     },
     {
         "name": "Aggregation Table",
         "type": "aggregationTable",
         "icon": "Count64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1005,13 +1005,13 @@
         },
         "id": "e489ed1e-c5b5-4194-849a-6baa70bec15d",
         "row": 10,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Document Viewer",
         "type": "documentViewer",
         "icon": "DocumentViewer64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1041,13 +1041,13 @@
         },
         "id": "adb23f83-901f-4419-8620-b67a1c032869",
         "row": 10,
-        "col": 6
+        "col": 3
     },
     {
         "name": "Network Graph",
         "type": "networkGraph",
         "icon": "Graph64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1065,13 +1065,13 @@
         },
         "id": "51a865ba-833d-4652-99c0-d8bb208b79f3",
         "row": 15,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Line Chart",
         "type": "lineChart",
         "icon": "LineChart64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1098,7 +1098,7 @@
         },
         "id": "b6590b1e-4374-459e-864a-d3453590660c",
         "row": 13,
-        "col": 12
+        "col": 6
     }
     ],
     "nepal-layout": [
@@ -1106,7 +1106,7 @@
         "name": "Timeline",
         "type": "timeline",
         "icon": "Timeline64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1122,14 +1122,14 @@
         "granularity": "day"
         },
         "id": "1cae96da-4d62-4b12-b2ce-3fc794b9d874",
-        "row": 0,
-        "col": 0
+        "row": 1,
+        "col": 1
     },
     {
         "name": "Posting Locations & Routing Map",
         "type": "map",
         "icon": "Map64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 8,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1176,14 +1176,14 @@
         ]
         },
         "id": "699ca2a6-7fa2-4d66-bc37-97d08f4b49ae",
-        "row": 0,
-        "col": 12
+        "row": 1,
+        "col": 6
     },
     {
         "name": "Data Table",
         "type": "dataTable",
         "icon": "ViewData64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1200,13 +1200,13 @@
         },
         "id": "6422b24f-540b-4cea-bfd6-82b2533be010",
         "row": 21,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Text Cloud",
         "type": "textCloud",
         "icon": "TagCloud64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1222,13 +1222,13 @@
         },
         "id": "431a862e-2b4d-4c4d-92c6-5c4c54515ea7",
         "row": 8,
-        "col": 12
+        "col": 6
     },
     {
         "name": "Newsfeed",
         "type": "newsFeed",
         "icon": "News64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1246,13 +1246,13 @@
         },
         "id": "31f13787-13b4-45a6-a8d6-3ecac2f43a04",
         "row": 5,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Text Cloud",
         "type": "textCloud",
         "icon": "TagCloud64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1268,14 +1268,14 @@
         },
         "id": "516c1aa7-7115-4e75-89c5-e868f5c914d3",
         "row": 8,
-        "col": 18
+        "col": 9
     },
     {
         "minPixelx": 480,
         "name": "Create Custom Filters",
         "type": "filterBuilder",
         "icon": "CreateFilter64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 5,
         "minPixely": 240,
         "minSizex": 9,
@@ -1284,13 +1284,13 @@
         "selected": true,
         "id": "10384891-dc1a-4d73-87b9-332e8d03b116",
         "row": 19,
-        "col": 12
+        "col": 6
     },
     {
         "name": "Aggregation Table",
         "type": "aggregationTable",
         "icon": "Count64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1308,13 +1308,13 @@
         },
         "id": "e489ed1e-c5b5-4194-849a-6baa70bec15d",
         "row": 10,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Document Viewer",
         "type": "documentViewer",
         "icon": "DocumentViewer64",
-        "sizex": 6,
+        "sizex": 3,
         "sizey": 5,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1344,13 +1344,13 @@
         },
         "id": "adb23f83-901f-4419-8620-b67a1c032869",
         "row": 10,
-        "col": 6
+        "col": 3
     },
     {
         "name": "Network Graph",
         "type": "networkGraph",
         "icon": "Graph64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1368,13 +1368,13 @@
         },
         "id": "51a865ba-833d-4652-99c0-d8bb208b79f3",
         "row": 15,
-        "col": 0
+        "col": 1
     },
     {
         "name": "Line Chart",
         "type": "lineChart",
         "icon": "LineChart64",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 6,
         "minPixelx": 320,
         "minPixely": 240,
@@ -1401,13 +1401,13 @@
         },
         "id": "b6590b1e-4374-459e-864a-d3453590660c",
         "row": 13,
-        "col": 12
+        "col": 6
     }
     ],
     "april_ebola_data_doc": [
     {
         "type": "timeline",
-        "sizex": 16,
+        "sizex": 8,
         "sizey": 6,
         "bindings": {
         "title": "Tweets",
@@ -1417,7 +1417,7 @@
     },
     {
         "type": "legend",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 12,
         "bindings": {
         "title": "Filters"
@@ -1425,7 +1425,7 @@
     },
     {
         "type": "documentViewer",
-        "sizex": 16,
+        "sizex": 8,
         "sizey": 12,
         "bindings": {
         "title": "Tweets",
@@ -1444,7 +1444,7 @@
     },
     {
         "type": "textCloud",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 12,
         "bindings": {
         "title": "Entities",
@@ -1453,7 +1453,7 @@
     },
     {
         "type": "aggregationTable",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 6,
         "bindings": {
         "title": "Locations",
@@ -1464,7 +1464,7 @@
     },
     {
         "type": "textCloud",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 6,
         "bindings": {
         "title": "Keywords",
@@ -1475,7 +1475,7 @@
     "april_ebola_data_map": [
     {
         "type": "timeline",
-        "sizex": 16,
+        "sizex": 8,
         "sizey": 6,
         "bindings": {
         "title": "Tweets",
@@ -1485,7 +1485,7 @@
     },
     {
         "type": "legend",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 12,
         "bindings": {
         "title": "Filters"
@@ -1493,7 +1493,7 @@
     },
     {
         "type": "map",
-        "sizex": 16,
+        "sizex": 8,
         "sizey": 12,
         "bindings": {
         "title": "Tweets",
@@ -1520,7 +1520,7 @@
     },
     {
         "type": "documentViewer",
-        "sizey": 12,
+        "sizey": 6,
         "bindings": {
         "title": "Tweets",
         "documentTextField": "loreleiJSONMapping.translatedText",
@@ -1538,7 +1538,7 @@
     },
     {
         "type": "aggregationTable",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 6,
         "bindings": {
         "title": "Locations",
@@ -1549,7 +1549,7 @@
     },
     {
         "type": "textCloud",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 6,
         "bindings": {
         "title": "Keywords",
@@ -1560,7 +1560,7 @@
     "april_ebola_data_entity": [
     {
         "type": "timeline",
-        "sizex": 16,
+        "sizex": 8,
         "sizey": 6,
         "bindings": {
         "title": "Tweets",
@@ -1570,7 +1570,7 @@
     },
     {
         "type": "legend",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 12,
         "bindings": {
         "title": "Filters"
@@ -1578,7 +1578,7 @@
     },
     {
         "type": "networkGraph",
-        "sizex": 16,
+        "sizex": 8,
         "sizey": 12,
         "bindings": {
         "title": "Entities",
@@ -1588,7 +1588,7 @@
     },
     {
         "type": "documentViewer",
-        "sizey": 12,
+        "sizey": 4,
         "bindings": {
         "title": "Tweets",
         "documentTextField": "loreleiJSONMapping.translatedText",
@@ -1606,7 +1606,7 @@
     },
     {
         "type": "aggregationTable",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 6,
         "bindings": {
         "title": "Locations",
@@ -1617,7 +1617,7 @@
     },
     {
         "type": "textCloud",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 6,
         "bindings": {
         "title": "Entities",
@@ -1628,7 +1628,7 @@
     "april_ebola_data_combined": [
     {
         "type": "timeline",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 6,
         "bindings": {
         "title": "Tweets",
@@ -1638,7 +1638,7 @@
     },
     {
         "type": "map",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 12,
         "bindings": {
         "title": "Tweets",
@@ -1665,7 +1665,7 @@
     },
     {
         "type": "lineChart",
-        "sizex": 12,
+        "sizex": 6,
         "sizey": 6,
         "bindings": {
         "title": "Tweets by Sit. Frame SEC",
@@ -1680,7 +1680,7 @@
     },
     {
         "type": "aggregationTable",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 6,
         "bindings": {
         "title": "Locations",
@@ -1691,7 +1691,7 @@
     },
     {
         "type": "documentViewer",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 6,
         "bindings": {
         "title": "Tweets",
@@ -1709,7 +1709,7 @@
     },
     {
         "type": "legend",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 6,
         "bindings": {
         "title": "Filters"
@@ -1717,7 +1717,7 @@
     },
     {
         "type": "aggregationTable",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 6,
         "bindings": {
         "title": "Sources",
@@ -1726,7 +1726,7 @@
     },
     {
         "type": "textCloud",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 6,
         "bindings": {
         "title": "Keywords",
@@ -1735,7 +1735,7 @@
     },
     {
         "type": "textCloud",
-        "sizex": 8,
+        "sizex": 4,
         "sizey": 6,
         "bindings": {
         "title": "Entities",

@@ -16,6 +16,7 @@
 import { TestBed, async, ComponentFixture } from '@angular/core/testing';
 import { NeonGTDConfig } from '../../neon-gtd-config';
 
+import { AggregationComponent } from '../aggregation/aggregation.component';
 import { AnnotationViewerComponent } from '../annotation-viewer/annotation-viewer.component';
 import { BarChartComponent } from '../bar-chart/bar-chart.component';
 import { DataTableComponent } from '../data-table/data-table.component';
@@ -28,7 +29,6 @@ import { MapComponent } from '../map/map.component';
 import { NetworkGraphComponent } from '../network-graph/network-graph.component';
 import { SampleComponent } from '../sample/sample.component';
 import { ScatterPlotComponent } from '../scatter-plot/scatter-plot.component';
-import { StackedTimelineComponent } from '../stacked-timeline/stacked-timeline.component';
 import { TextCloudComponent } from '../text-cloud/text-cloud.component';
 import { TimelineComponent } from '../timeline/timeline.component';
 import { UnsharedFilterComponent } from '../unshared-filter/unshared-filter.component';
@@ -60,8 +60,8 @@ describe('Component: VisualizationContainer', () => {
 
     initializeTestBed({
         declarations: [
-            ChartComponent,
             AnnotationViewerComponent,
+            AggregationComponent,
             BarChartComponent,
             ChartComponent,
             DataTableComponent,
@@ -77,11 +77,12 @@ describe('Component: VisualizationContainer', () => {
             QueryBarComponent,
             SampleComponent,
             ScatterPlotComponent,
-            StackedTimelineComponent,
             TextCloudComponent,
             ThumbnailDetailsContractedComponent,
             ThumbnailDetailsExpandedComponent,
             ThumbnailGridComponent,
+            ThumbnailDetailsContractedComponent,
+            ThumbnailDetailsExpandedComponent,
             TimelineComponent,
             UnsharedFilterComponent,
             VisualizationContainerComponent,

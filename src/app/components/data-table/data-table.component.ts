@@ -22,7 +22,8 @@ import {
     OnDestroy,
     OnInit,
     ViewChild,
-    ViewEncapsulation
+    ViewEncapsulation,
+    HostListener
 } from '@angular/core';
 
 import { ActiveGridService } from '../../services/active-grid.service';
@@ -44,10 +45,14 @@ import * as neon from 'neon-framework';
 export class DataTableOptions extends BaseNeonOptions {
     public allColumnStatus: string;
     public arrayFilterOperator: string;
+    public colorField: FieldMetaData;
     public exceptionsToStatus: string[];
+    public customColumnWidths: [[string, number]];
     public fieldsConfig: any[];
     public filterable: boolean;
     public filterFields: FieldMetaData[];
+    public heatmapDivisor: number;
+    public heatmapField: FieldMetaData;
     public idField: FieldMetaData;
     public ignoreSelf: boolean;
     public singleFilter: boolean;
@@ -64,8 +69,10 @@ export class DataTableOptions extends BaseNeonOptions {
         this.allColumnStatus = this.injector.get('allColumnStatus', 'show');
         this.arrayFilterOperator = this.injector.get('arrayFilterOperator', 'and');
         this.exceptionsToStatus = this.injector.get('exceptionsToStatus', []);
+        this.customColumnWidths = this.injector.get('customColumnWidths', {});
         this.fieldsConfig = this.injector.get('fieldsConfig', []);
         this.filterable = this.injector.get('filterable', false);
+        this.heatmapDivisor = this.injector.get('heatmapDivisor', 0);
         this.ignoreSelf = this.injector.get('ignoreSelf', false);
         this.singleFilter = this.injector.get('singleFilter', false);
         this.skinny = this.injector.get('skinny', false);
@@ -78,6 +85,8 @@ export class DataTableOptions extends BaseNeonOptions {
      * @override
      */
     updateFieldsOnTableChanged() {
+        this.colorField = this.findFieldObject('colorField');
+        this.heatmapField = this.findFieldObject('heatmapField');
         this.idField = this.findFieldObject('idField');
         this.sortField = this.findFieldObject('sortField');
         this.filterFields = this.findFieldObjects('filterFields');
@@ -115,12 +124,14 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     public docCount: number = 0;
     public responseData: any[] = [];
 
-    public activeHeaders: { prop: string, name: string, active: boolean, style: Object }[] = [];
-    public headers: { prop: string, name: string, active: boolean, style: Object, width: number}[] = [];
+    public activeHeaders: { prop: string, name: string, active: boolean, style: Object, cellClass: any }[] = [];
+    public headers: { prop: string, name: string, active: boolean, style: Object, cellClass: any, width: number }[] = [];
     public headerWidths: Map<string, number> = new Map<string, number>();
     public page: number = 1;
     public selected: any[] = [];
     public showColumnSelector: string = 'hide';
+    public styleRules: string[] = [];
+    public styleSheet: any;
 
     public drag: {
         mousedown: boolean,
@@ -137,6 +148,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         x: 0,
         y: 0
     };
+
+    public duplicateNumber = 0;
+    public seenValues = [];
 
     constructor(
         activeGridService: ActiveGridService,
@@ -164,6 +178,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
         this.options = new DataTableOptions(this.injector, this.datasetService, 'Data Table', 100);
         this.enableRedrawAfterResize(true);
+
+        let style = document.createElement('style');
+        style.appendChild(document.createTextNode(''));
+        document.head.appendChild(style);
+        this.styleSheet = style.sheet;
+    }
+
+    @HostListener('window:resize')
+    onResize() {
+        this.refreshVisualization();
     }
 
     initializeHeadersFromExceptionsToStatus() {
@@ -177,19 +201,21 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             // If field is an exception, set active to oppositve of show status.
             if (this.headerIsInExceptions(fieldObject)) {
                 orderedHeaders.push({
+                    cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: !show && orderedHeaders.length < initialHeaderLimit,
                     style: {},
-                    width: this.DEFAULT_COLUMN_WIDTH
+                    width: this.getColumnWidth(fieldObject)
                 });
             } else {
                 unorderedHeaders.push({
+                    cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: show && unorderedHeaders.length < initialHeaderLimit,
                     style: {},
-                    width: this.DEFAULT_COLUMN_WIDTH
+                    width: this.getColumnWidth(fieldObject)
                 });
             }
         }
@@ -202,28 +228,43 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         let existingFields = [];
         for (let fieldConfig of this.options.fieldsConfig) {
             let fieldObject = this.options.findField(fieldConfig.name);
-            if (fieldObject.columnName) {
+            if (fieldObject && fieldObject.columnName) {
                 existingFields.push(fieldObject.columnName);
                 this.headers.push({
+                    cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: !fieldConfig.hide,
                     style: {},
-                    width: this.DEFAULT_COLUMN_WIDTH
+                    width: this.getColumnWidth(fieldConfig)
                 });
             }
         }
         for (let fieldObject of this.options.fields) {
             if (existingFields.indexOf(fieldObject.columnName) < 0) {
                 this.headers.push({
+                    cellClass: this.getCellClassFunction(),
                     prop: fieldObject.columnName,
                     name: fieldObject.prettyName,
                     active: (this.options.allColumnStatus === 'show'),
                     style: {},
-                    width: this.DEFAULT_COLUMN_WIDTH
+                    width: this.getColumnWidth(fieldObject)
                 });
             }
         }
+    }
+
+    /**
+     * Returns the custom width for a column (or default if not specified in the config)
+     * @returns width for a specific column
+     */
+    getColumnWidth(fieldConfig) {
+        for (let miniArray of this.options.customColumnWidths) {
+            if (fieldConfig.columnName === miniArray[0]) {
+                return miniArray[1];
+            }
+        }
+        return this.DEFAULT_COLUMN_WIDTH;
     }
 
     subNgOnInit() {
@@ -245,12 +286,16 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     subGetBindings(bindings: any) {
+        bindings.colorField = this.options.colorField.columnName;
+        bindings.heatmapField = this.options.heatmapField.columnName;
         bindings.idField = this.options.idField.columnName;
         bindings.sortField = this.options.sortField.columnName;
         bindings.filterFields = this.options.filterFields;
 
         bindings.arrayFilterOperator = this.options.arrayFilterOperator;
+        bindings.exceptionsToStatus = this.options.exceptionsToStatus;
         bindings.filterable = this.options.filterable;
+        bindings.heatmapDivisor = this.options.heatmapDivisor;
         bindings.ignoreSelf = this.options.ignoreSelf;
         bindings.singleFilter = this.options.singleFilter;
         bindings.skinny = this.options.skinny;
@@ -501,17 +546,18 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
 
     onQuerySuccess(response): void {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
-            this.docCount = response.data[0]._docCount;
+            this.docCount = response.data[0]._docCount - this.duplicateNumber;
         } else {
-            let data = response.data.map((d) => {
-                let row = {};
-                for (let field of this.options.fields) {
-                    if (field.type || field.columnName === '_id') {
-                        row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
+            let responses = response.data;
+            let data = responses.map((d) => {
+                    let row = {};
+                    for (let field of this.options.fields) {
+                        if (field.type || field.columnName === '_id') {
+                            row[field.columnName] = this.toCellString(neonUtilities.deepFind(d, field.columnName), field.type);
+                        }
                     }
-                }
-                return row;
-            });
+                    return row;
+                });
             this.activeData = data;
             // The query response is being stringified and stored in activeData
             // Store the response in responseData to preserve the data in its raw form for querying and filtering purposes
@@ -522,15 +568,17 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     getDocCount() {
-        let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createClause())
-            .aggregate(neonVariables.COUNT, '*', '_docCount');
+        if (!this.cannotExecuteQuery()) {
+            let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
+                .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
 
-        let ignoreFilters = this.getFiltersToIgnore();
-        if (ignoreFilters && ignoreFilters.length) {
-            countQuery.ignoreFilters(ignoreFilters);
+            let ignoreFilters = this.getFiltersToIgnore();
+            if (ignoreFilters && ignoreFilters.length) {
+                countQuery.ignoreFilters(ignoreFilters);
+            }
+
+            this.executeQuery(countQuery);
         }
-
-        this.executeQuery(countQuery);
     }
 
     setupFilters() {
@@ -592,7 +640,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
             this.drag.downIndex = i;
             this.drag.mousedown = true;
             this.setStyle(i, 'backgroundColor', 'rgba(0, 0, 0, .2)');
-            this.setStyle(i, 'border', 'gray dashed 1px');
+            this.setStyle(i, 'border', 'grey dashed 1px');
         }
     }
 
@@ -600,7 +648,7 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     onMouseEnter(i) {
         if (this.isDragging()) {
             this.drag.currentIndex = i;
-            let style = 'thick solid gray';
+            let style = 'thick solid grey';
             if (i < this.drag.downIndex) {
                 this.setStyle(i, 'borderTop', style);
             } else if (i > this.drag.downIndex) {
@@ -671,6 +719,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      */
     getButtonText() {
         if (!this.docCount) {
+            if (this.options.hideUnfiltered) {
+                return 'Please Filter';
+            }
             return 'No Data';
         }
         if (this.docCount <= this.options.limit) {
@@ -689,8 +740,9 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
      * @private
      */
     onSelect({ selected }) {
-        if (selected && selected.length && this.options.idField.columnName && selected[0][this.options.idField.columnName]) {
-            this.publishSelectId(selected[0][this.options.idField.columnName]);
+        let selectedItem = selected && selected.length ? selected[0] : null;
+        if (this.options.idField.columnName && selectedItem[this.options.idField.columnName]) {
+            this.publishSelectId(selectedItem[this.options.idField.columnName]);
         }
         this.selected.splice(0, this.selected.length);
         this.selected.push(...selected);
@@ -723,6 +775,8 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
                 }
             });
         }
+
+        this.publishAnyCustomEvents(selectedItem, this.options.idField.columnName);
     }
 
     createFilterObject(field: string, value: string, prettyField: string): any {
@@ -776,6 +830,41 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
     }
 
     /**
+     * Returns the cellClass property of an ngx-datatable column object that, given a cell, returns an object with the style classes for
+     * the cell as keys and booleans as values.
+     *
+     * @arg {object} column
+     * @arg {string} value
+     * @return {function}
+     */
+    getCellClassFunction(): any {
+        let self = this;
+        return function({ column, value }): any {
+            let cellClass: any = {};
+            if (column && self.options.colorField.columnName === column.prop) {
+                let colorClass = value;
+                let colorValue = value;
+                if (colorClass.indexOf('#') === 0) {
+                    colorClass = 'hex_' + colorClass.substring(1);
+                } else {
+                    let regexMatch = value.match(/.*?(\d{1,3})[,\s]*(\d{1,3})[,\s]*(\d{1,3}).*?/);
+                    if (regexMatch) {
+                        colorClass = 'rgb_' + regexMatch[1] + '_' + regexMatch[2] + '_' + regexMatch[3];
+                        colorValue = 'rgb(' + regexMatch[1] + ',' + regexMatch[2] + ',' + regexMatch[3] + ')';
+                    }
+                }
+                if (self.styleRules.indexOf(colorClass) < 0) {
+                    self.styleSheet.insertRule('.' + colorClass + ':before { background-color: ' + colorValue + '; }');
+                    self.styleRules.push(colorClass);
+                }
+                cellClass['color-field'] = true;
+                cellClass[colorClass] = true;
+            }
+            return cellClass;
+        };
+    }
+
+    /**
      * Returns an object containing the ElementRef objects for the visualization.
      *
      * @return {any} Object containing:  {ElementRef} headerText, {ElementRef} infoText, {ElementRef} visualization
@@ -799,19 +888,45 @@ export class DataTableComponent extends BaseNeonComponent implements OnInit, OnD
         return this.options;
     }
 
-    getRowClassFunction() {
+    /**
+     * Returns a function for the rowClass property of the ngx-datatable that, given a row, returns an object with the style classes for
+     * the row as keys and booleans as values.
+     *
+     * @return {function}
+     */
+    getRowClassFunction(): any {
         let self = this;
-        return function(row) {
-            let active = self.options.filterFields.some((filterField: any) => {
+        return function(row): any {
+            let rowClass: any = {};
+            rowClass.active = self.options.filterFields.some((filterField: any) => {
                 return self.filters.some((filter) => {
                     return filterField.columnName && filterField.columnName === filter.field &&
                         row[filterField.columnName] === filter.value;
                 });
             });
 
-            return {
-                active: active
-            };
+            if (self.options.heatmapField.columnName && self.options.heatmapDivisor) {
+                let heatmapClass = 'heat-0';
+                let heatmapDivisor = self.options.heatmapDivisor;
+                let heatmapValue = row[self.options.heatmapField.columnName];
+
+                // Ignore undefined, nulls, strings, or NaNs.
+                if (typeof heatmapValue !== 'undefined' && self.isNumber(heatmapValue)) {
+                    // If the divisor is a fraction, transform it and the value into whole numbers in order to avoid floating point errors.
+                    if (heatmapDivisor % 1) {
+                        // Find the number of digits following the decimal point in the divisor.
+                        let digits = ('' + heatmapDivisor).substring(('' + heatmapDivisor).indexOf('.') + 1).length;
+                        // Transform the divisor and the value into whole numbers using the number of digits.
+                        heatmapDivisor = heatmapDivisor * Math.pow(10, digits);
+                        heatmapValue = heatmapValue * Math.pow(10, digits);
+                    }
+                    heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
+                    heatmapClass = 'heat-' + Math.min(Math.max(Math.floor(parseFloat(heatmapValue) / heatmapDivisor), 1), 5);
+                }
+                rowClass[heatmapClass] = true;
+            }
+
+            return rowClass;
         };
     }
 
