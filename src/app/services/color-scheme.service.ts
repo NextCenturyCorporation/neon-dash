@@ -56,7 +56,7 @@ export class ColorSet {
      * @return {string[]}
      */
     getAllKeys(): string[] {
-        return Array.from(this.mappings.keys());
+        return Array.from(this.mappings.keys()).sort();
     }
 }
 
@@ -68,23 +68,14 @@ export class ColorSet {
 export class ColorSchemeService {
     private colorMaps: Map<string, ColorSet> = new Map<string, ColorSet>();
 
-    // Palette generated with http://tools.medialab.sciences-po.fr/iwanthue/
+    // Palettes generated with http://tools.medialab.sciences-po.fr/iwanthue/
     private colorList = [
-        [
-            new Color(250, 57, 47),
-            new Color(0, 162, 215),
-            new Color(1, 178, 6),
-            new Color(39, 12, 114),
-            new Color(124, 135, 205),
-            new Color(255, 98, 0),
-            new Color(58, 93, 0),
-            new Color(1, 89, 180),
-            new Color(192, 131, 16),
-            new Color(144, 94, 155),
-            new Color(255, 126, 168),
-            new Color(158, 0, 82)
+        [   //3 colors - defined palette
+            new Color(173, 216, 230),
+            new Color(223, 159, 159),
+            new Color(255, 218, 153)
         ],
-        [
+        [   //9 colors
             new Color(228, 26, 28),
             new Color(55, 126, 184),
             new Color(77, 175, 74),
@@ -95,35 +86,7 @@ export class ColorSchemeService {
             new Color(247, 129, 191),
             new Color(153, 153, 153)
         ],
-        [
-            new Color(1, 63, 165),
-            new Color(0, 161, 73),
-            new Color(171, 79, 193),
-            new Color(131, 126, 0),
-            new Color(190, 165, 255),
-            new Color(184, 68, 6),
-            new Color(187, 134, 198),
-            new Color(255, 148, 89),
-            new Color(120, 33, 65),
-            new Color(255, 132, 189),
-            new Color(230, 65, 81),
-            new Color(192, 0, 89)
-        ],
-        [
-            new Color(217, 66, 163),
-            new Color(144, 186, 48),
-            new Color(31, 137, 255),
-            new Color(255, 163, 72),
-            new Color(0, 89, 162),
-            new Color(53, 202, 164),
-            new Color(111, 0, 60),
-            new Color(0, 123, 45),
-            new Color(221, 142, 194),
-            new Color(0, 77, 1),
-            new Color(205, 143, 132),
-            new Color(119, 79, 0)
-        ],
-        [
+        [   //11 colors
             new Color(103, 0, 31),
             new Color(178, 24, 43),
             new Color(214, 96, 77),
@@ -135,6 +98,83 @@ export class ColorSchemeService {
             new Color(67, 147, 195),
             new Color(33, 102, 172),
             new Color(5, 48, 97)
+        ],
+        [   //12 colors
+            new Color(31, 120, 180),
+            new Color(51, 160, 44),
+            new Color(227, 26, 28),
+            new Color(255, 127, 0),
+            new Color(106, 61, 154),
+            new Color(177, 89, 40),
+            new Color(166, 206, 227),
+            new Color(178, 223, 138),
+            new Color(251, 154, 153),
+            new Color(253, 191, 111),
+            new Color(202, 178, 214),
+            new Color(255, 255, 153)
+        ],
+        [   //24 colors
+            new Color(163, 180, 4),
+            new Color(19, 97, 255),
+            new Color(49, 148, 0),
+            new Color(255, 100, 243),
+            new Color(0, 158, 87),
+            new Color(143, 105, 255),
+            new Color(166, 155, 0),
+            new Color(91, 5, 147),
+            new Color(224, 159, 15),
+            new Color(54, 44, 138),
+            new Color(253, 20, 20),
+            new Color(2, 139, 216),
+            new Color(174, 0, 15),
+            new Color(0, 57, 129),
+            new Color(202, 166, 85),
+            new Color(222, 131, 255),
+            new Color(93, 80, 0),
+            new Color(195, 0, 131),
+            new Color(255, 89, 95),
+            new Color(114, 0, 102),
+            new Color(255, 63, 133),
+            new Color(129, 89, 133),
+            new Color(120, 15, 31),
+            new Color(232, 143, 190)
+        ],
+        [   //35 colors - random palette
+            new Color(31, 120, 180),
+            new Color(127, 19, 242),
+            new Color(7, 87, 8),
+            new Color(177, 89, 40),
+            new Color(227, 26, 28),
+            new Color(51, 160, 44),
+            new Color(241, 103, 32),
+            new Color(103, 0, 31),
+            new Color(5, 48, 97),
+            new Color(251, 154, 153),
+            new Color(178, 223, 138),
+            new Color(77, 207, 214),
+            new Color(253, 191, 111),
+            new Color(166, 206, 227),
+            new Color(20, 171, 145),
+            new Color(255, 255, 153),
+            new Color(200, 22, 192),
+            new Color(136, 232, 164),
+            new Color(253, 219, 199),
+            new Color(0, 89, 162),
+            new Color(178, 141, 124),
+            new Color(67, 147, 195),
+            new Color(255, 163, 72),
+            new Color(209, 229, 240),
+            new Color(177, 177, 177),
+            new Color(31, 137, 255),
+            new Color(146, 197, 222),
+            new Color(202, 178, 214),
+            new Color(144, 186, 48),
+            new Color(250, 122, 109),
+            new Color(111, 0, 60),
+            new Color(217, 66, 163),
+            new Color(0, 123, 45),
+            new Color(221, 142, 194),
+            new Color(119, 79, 0)
         ]
     ];
     private colorPosition = 0;
@@ -163,6 +203,32 @@ export class ColorSchemeService {
      */
     getColorSet(set: string): ColorSet {
         return this.colorMaps.get(set);
+    }
+    /**
+     * Sets the colorList position based on the amount of available colors being greater than the array length
+     * in order to provide color uniqueness
+     * @param {number} length
+     */
+    public setColorListByLength(length: number) {
+        for (let i = 0; i < this.colorList.length; i++) {
+            if (length <= this.colorList[i].length) {
+                this.colorPosition = i;
+                break;
+            }
+        }
+
+        //if there is no palette large enough to cover the length of the array,
+        // then select the largest palette
+        if (this.colorPosition === 0 && length > this.colorList[0].length) {
+            this.colorPosition = this.colorList.length - 1;
+        }
+    }
+    /**
+     * Sets the colorList position based on a given index
+     * @param {number} index
+     */
+    public setColorListByIndex(index: number) {
+        this.colorPosition = index;
     }
 }
 
