@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# If you have an @ symbol in your CREDS password you will need to escape it by replacing it with %40
+# CREDS follows the format username:password. If you have an @ symbol in your CREDS password you will need to escape it by replacing it with %40
 docker build \
         --build-arg CREDS=XXXXXXXXX \
         --build-arg GIT_REPO=gitlab.nextcentury.com \
