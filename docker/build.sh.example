@@ -7,7 +7,7 @@ docker build \
         --build-arg NEON_REPO=LORELEI.THOR/neon.git \
         --build-arg NEON_BRANCH=master \
         --build-arg LORELEI_REPO=LORELEI.THOR/Lorelei-demo.git \
-        --build-arg LORELEI_BRANCH=feature/docker-build \
+        --build-arg LORELEI_BRANCH=master \
         --build-arg LORELEI_CONFIG=config.darpa-July2018-docker.json \
         --build-arg THOR_DATA_REPO=LORELEI.THOR/thor_data.git \
         --build-arg THOR_DATA_BRANCH=master \
