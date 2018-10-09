@@ -72,7 +72,8 @@ export class FilterService {
                     filter.filter.databaseName,
                     filter.filter.tableName,
                     filter.filter.whereClause,
-                    filter.filter.filterName);
+                    filter.filter.filterName
+                );
             }
             if (onSuccess) {
                 onSuccess();
@@ -160,14 +161,16 @@ export class FilterService {
         return matchingFilters;
     }
 
-    public addFilter(messenger: neon.eventing.Messenger,
+    public addFilter(
+        messenger: neon.eventing.Messenger,
         ownerId: string,
         database: string,
         table: string,
         whereClause: any,
         filterName: string | { visName: string, text: string },
         onSuccess?: (resp: any) => any,
-        onError?: (resp: any) => any) {
+        onError?: (resp: any) => any
+    ) {
 
         let filter = this.createNeonFilter(database, table, whereClause, this.createFilterName(database, table, filterName));
         let id = this.createFilterId(database, table);
@@ -176,6 +179,7 @@ export class FilterService {
             let sibId = this.createFilterId(sibling.databaseName, sibling.tableName);
             serviceFilters.push(new ServiceFilter(sibId, undefined, sibling.databaseName, sibling.tableName, sibling));
         });
+
         for (let sib = serviceFilters.length - 1; sib >= 0; sib--) {
             for (let i = serviceFilters.length - 1; i >= 0; i--) {
                 if (sib !== i) {
@@ -183,18 +187,27 @@ export class FilterService {
                 }
             }
         }
+
         messenger.addFilters(
-            serviceFilters.map((sFilter) => [sFilter.id, sFilter.filter]),
+            serviceFilters.map((sFilter) => {
+                let fId = sFilter.id;
+                let fFilter = _.cloneDeep(sFilter.filter);
+                this.datifyWherePredicates(fFilter.whereClause, fFilter.databaseName, fFilter.tableName);
+                return [sFilter.id, fFilter];
+            }),
             () => {
                 for (let i = serviceFilters.length - 1; i >= 0; i--) {
                     this.filters.push(serviceFilters[i]);
                 }
-                onSuccess(id); // Return the ID of the primary created filter.
+                if (onSuccess) {
+                    onSuccess(id); // Return the ID of the primary created filter.
+                }
             },
             onError);
     }
 
-    public replaceFilter(messenger: neon.eventing.Messenger,
+    public replaceFilter(
+        messenger: neon.eventing.Messenger,
         id: string,
         ownerId: string,
         database: string,
@@ -203,7 +216,6 @@ export class FilterService {
         filterName: string | { visName: string, text: string },
         onSuccess?: (resp: any) => any,
         onError?: (resp: any) => any) {
-
         let filter = this.createNeonFilter(database, table, whereClause, this.createFilterName(database, table, filterName));
         let originalIndex = this.filters.findIndex((f) => f.id === id);
         if (originalIndex === -1) { // If for some reason the filter we're trying to replacew doesn't exist, add it.
@@ -237,7 +249,13 @@ export class FilterService {
         }
 
         messenger.replaceFilters(
-            idAndFilterList,
+            idAndFilterList.map((idAndSFilterArray) => {
+                let fId = idAndSFilterArray[0];
+                let sFilter = idAndSFilterArray[1];
+                let fFilter = _.cloneDeep(sFilter) as neon.query.Filter;
+                this.datifyWherePredicates(fFilter.whereClause, fFilter.databaseName, fFilter.tableName);
+                return [fId, fFilter];
+            }),
             () => {
                 let index = _.findIndex(this.filters, { id: id });
                 this.filters[index] = new ServiceFilter(id, ownerId, database, table, filter, this.filters[index].siblings);
@@ -245,15 +263,19 @@ export class FilterService {
                     index = _.findIndex(this.filters, { id: newSiblings[i].id });
                     this.filters[index] = newSiblings[i];
                 }
-                onSuccess(id); // Return the ID of the replaced filter.
+                if (onSuccess) {
+                    onSuccess(id); // Return the ID of the replaced filter.
+                }
             },
             onError);
     }
 
-    protected removeFilter(messenger: neon.eventing.Messenger,
+    protected removeFilter(
+        messenger: neon.eventing.Messenger,
         id: string,
         onSuccess?: (resp: any) => any,
-        onError?: (resp: any) => any) {
+        onError?: (resp: any) => any
+    ) {
 
         let baseFilter = this.filters.find((filter) => filter.id === id);
         let siblings = baseFilter ? baseFilter.siblings.concat(id) : [];
@@ -279,10 +301,12 @@ export class FilterService {
             onError);
     }
 
-    public removeFilters(messenger: neon.eventing.Messenger,
+    public removeFilters(
+        messenger: neon.eventing.Messenger,
         ids: string[],
         onSuccess?: (resp: any) => any,
-        onError?: (resp: any) => any) {
+        onError?: (resp: any) => any
+    ) {
 
         // TODO Use messenger.removeFilters now to remove all filters simultaneously.
         for (let id of ids) {
@@ -307,7 +331,7 @@ export class FilterService {
         return filter;
     }
 
-    protected createFilterId(database: string, table: string) {
+    public createFilterId(database: string, table: string) {
         return database + '-' + table + '-' + uuid.v4();
     }
 
@@ -401,5 +425,47 @@ export class FilterService {
             replaceValues(newFilter, kv[0].database, kv[0].table, kv[0].field, kv[1].database, kv[1].table, kv[1].field);
         }
         return newFilter;
+    }
+
+    /**
+     * Converts data elements that are specified to have a pretty name back to their original data label so that the database can
+     * correctly query. When it comes back in onQuerySuccess, the response will be converted back to their "pretty" form
+     * Will probably skew the data if the config specifies a data label to have a pretty name that is the same as another data label
+     */
+    private datifyWherePredicates(whereClause, databaseName, tableName) {
+        let labelOptions = this.datasetService.getTableWithName(databaseName, tableName).labelOptions;
+        switch (whereClause.type) {
+            case 'or':
+            case 'and':
+                let newFilters = [];
+                for (let clause of whereClause.whereClauses) {
+                    //recursively edit where clauses that contain multiple whereClauses
+                    newFilters.push(this.datifyWherePredicates(clause, databaseName, tableName));
+                }
+                return newFilters;
+            case 'where':
+                return this.datifyWherePredicate(whereClause, labelOptions);
+        }
+    }
+
+    //Base case of datifyWherePredicates() when there is a single where clause
+    private datifyWherePredicate(predicate, labelOptions) {
+        let labelKeys = Object.keys(labelOptions);
+
+        let key = predicate.lhs;
+        if (labelKeys.includes(key)) {
+            let prettyLabels = labelOptions[key];
+            let labels = Object.keys(prettyLabels);
+            for (let label of labels) {
+                let possiblePrettyLabel = predicate.rhs;
+                if (prettyLabels[label] === possiblePrettyLabel) {
+                    predicate.rhs = label;
+                }
+            }
+        }
+    }
+
+    public clearFilters() {
+        this.filters = [];
     }
 }

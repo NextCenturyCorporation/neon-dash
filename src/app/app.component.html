@@ -15,7 +15,7 @@
 
         <mat-card align="left">
             <mat-card-content>
-              <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout"></app-dashboard-options>
+              <app-dashboard-options #mainDashboardOptions *ngIf="!showAbout" [sidenav]="sidenavright"></app-dashboard-options>
 
               <div mat-fill class="flex">
                   <span class="fill-remaining"></span>
@@ -58,6 +58,11 @@
             <mat-icon class="neon-icon-large">help</mat-icon>
         </a>
     </mat-toolbar>
+
+    <div class="header-toggle-container">
+
+    </div>
+
     <div class="neon-dash" mat-fill layout="col">
         <div [ngGrid]="gridConfig" #grid >
             <div *ngFor="let item of gridItems; let i = index;" [(ngGridItem)]="item.gridItemConfig" name="item.id" id="item.id"
@@ -72,3 +77,4 @@
     <div class="color-primary"></div>
     <div class="color-highlight"></div>
 </mat-sidenav-container>
+

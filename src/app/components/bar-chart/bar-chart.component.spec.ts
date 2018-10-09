@@ -224,14 +224,16 @@ describe('Component: BarChart', () => {
             id: undefined,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }]);
         expect(spy2.calls.count()).toBe(1);
         expect(spy2.calls.argsFor(0)).toEqual([true, {
             id: undefined,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }, neon.query.where('testDataField', '=', 'testFilter')]);
         expect(spy3.calls.count()).toBe(0);
         expect(spy4.calls.count()).toBe(0);
@@ -260,7 +262,8 @@ describe('Component: BarChart', () => {
             id: 1,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }]);
         expect(spy2.calls.count()).toBe(0);
         expect(spy3.calls.count()).toBe(0);
@@ -269,12 +272,13 @@ describe('Component: BarChart', () => {
             id: 1,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }, neon.query.where('testDataField', '=', 'testFilter')]);
         expect(spy5.calls.count()).toBe(1);
     });
 
-    it('onClick does does call remove and add functions if filters is not an empty array and filter does not match', () => {
+    it('onClick does call remove and add functions if filters is not an empty array and filter does not match', () => {
         let filter1 = {
             id: 1,
             field: 'otherField1',
@@ -320,14 +324,16 @@ describe('Component: BarChart', () => {
             id: undefined,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }]);
         expect(spy2.calls.count()).toBe(1);
         expect(spy2.calls.argsFor(0)).toEqual([true, {
             id: undefined,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }, neon.query.where('testDataField', '=', 'testFilter')]);
     });
 
@@ -352,14 +358,16 @@ describe('Component: BarChart', () => {
             id: undefined,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }]);
         expect(spy2.calls.count()).toBe(1);
         expect(spy2.calls.argsFor(0)).toEqual([true, {
             id: undefined,
             field: 'testDataField',
             value: 'testFilter',
-            prettyField: 'Test Data Field'
+            prettyField: 'Test Data Field',
+            operator: '='
         }, neon.query.where('testDataField', '=', 'testFilter')]);
         expect(spy3.calls.count()).toBe(0);
         expect(spy4.calls.count()).toBe(0);
@@ -394,8 +402,11 @@ describe('Component: BarChart', () => {
         component.chartInfo.data.labels = ['bar1', 'bar2', 'bar3', 'bar4'];
         component.chartInfo.data.datasets = [barChartData];
         component.addLocalFilter({
+            id: undefined,
             field: 'testDataField',
-            value: 'bar2'
+            value: 'bar2',
+            prettyField: 'Test Data Field',
+            operator: '='
         });
 
         component.refreshVisualization();
@@ -403,8 +414,8 @@ describe('Component: BarChart', () => {
         expect(component.selectedLabels).toEqual(['group1']);
         expect(activeData.backgroundColor).toEqual(['rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)', 'rgb(255,255,255)']);
         expect(activeData.hoverBackgroundColor).toEqual(['rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)', 'rgb(0,0,0)']);
-        expect(component.chartInfo.data.datasets[0].backgroundColor).toEqual(['rgba(255,255,255,0.3)', 'rgb(255,255,255)',
-            'rgba(255,255,255,0.3)', 'rgba(255,255,255,0.3)']);
+        expect(component.chartInfo.data.datasets[0].backgroundColor).toEqual(['rgba(255,255,255,0.2)', 'rgb(255,255,255)',
+            'rgba(255,255,255,0.2)', 'rgba(255,255,255,0.2)']);
     });
 
     it('onQuerySuccess does update page and lastPage and does call updateBarChart', () => {

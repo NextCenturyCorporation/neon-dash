@@ -40,6 +40,7 @@ import { EMPTY_FIELD, FieldMetaData } from '../../dataset';
 import { neonUtilities, neonVariables } from '../../neon-namespaces';
 import * as neon from 'neon-framework';
 import * as _ from 'lodash';
+import * as moment from 'moment-timezone';
 
 import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 
@@ -49,8 +50,10 @@ import { MatDialog, MatDialogConfig, MatDialogRef } from '@angular/material';
 export class DocumentViewerOptions extends BaseNeonOptions {
     public dataField: FieldMetaData;
     public dateField: FieldMetaData;
+    public hideSource: boolean;
     public idField: FieldMetaData;
     public metadataFields: any[];
+    public nameWidthCss: string;
     public popoutFields: any[];
     public showSelect: boolean;
     public showText: boolean;
@@ -61,7 +64,9 @@ export class DocumentViewerOptions extends BaseNeonOptions {
      * @override
      */
     onInit() {
+        this.hideSource = this.injector.get('hideSource', false);
         this.metadataFields = neonUtilities.flatten(this.injector.get('metadataFields', []));
+        this.nameWidthCss = this.injector.get('nameWidthCss', '');
         this.popoutFields = neonUtilities.flatten(this.injector.get('popoutFields', []));
         this.showSelect = this.injector.get('showSelect', false);
         this.showText = this.injector.get('showText', false);
@@ -146,9 +151,11 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         bindings.dataField = this.options.dataField;
         bindings.dateField = this.options.dateField;
         bindings.docCount = this.docCount;
+        bindings.hideSource = this.options.hideSource;
         bindings.idField = this.options.idField;
         bindings.page = this.page;
         bindings.metadataFields = this.options.metadataFields;
+        bindings.nameWidthCss = this.options.nameWidthCss;
         bindings.popoutFields = this.options.popoutFields;
         bindings.showSelect = this.options.showSelect;
         bindings.showText = this.options.showText;
@@ -224,34 +231,106 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     onQuerySuccess(response) {
         if (response.data.length === 1 && response.data[0]._docCount !== undefined) {
             this.docCount = response.data[0]._docCount;
-        } else {
-            let fields = [this.options.dataField.columnName].concat(this.options.metadataFields.map((item) => {
-                return item.field;
-            })).concat(this.options.popoutFields.map((item) => {
-                return item.field;
-            }));
-            if (this.options.dateField.columnName) {
-                fields = fields.concat(this.options.dateField.columnName);
-            }
-            if (this.options.idField.columnName) {
-                fields = fields.concat(this.options.idField.columnName);
-            }
-            let data = response.data.map((element) => {
-                let elem = {};
-                for (let field of fields) {
-                    elem[field] = neonUtilities.deepFind(element, field);
-                }
-                return elem;
+            return;
+        }
+
+        let configFields: { name?: string, field: string, arrayFilter?: any }[] = this.options.metadataFields.concat(
+            this.options.popoutFields);
+
+        if (!configFields.some((configField) => {
+            return configField.field === this.options.dataField.columnName;
+        })) {
+            configFields.splice(0, 0, {
+                field: this.options.dataField.columnName,
+                name: this.options.dataField.prettyName
             });
-            this.activeData = data;
-            this.getDocCount();
+        }
+
+        if (this.options.dateField.columnName && !configFields.some((configField) => {
+            return configField.field === this.options.dateField.columnName;
+        })) {
+            configFields.push({
+                field: this.options.dateField.columnName,
+                name: this.options.dateField.prettyName
+            });
+        }
+
+        if (this.options.idField.columnName && !configFields.some((configField) => {
+            return configField.field === this.options.idField.columnName;
+        })) {
+            configFields.push({
+                field: this.options.idField.columnName,
+                name: this.options.idField.prettyName
+            });
+        }
+
+        this.activeData = response.data.map((responseItem) => {
+            let activeItem = {
+                data: {},
+                rows: []
+            };
+            configFields.forEach((configField) => {
+                this.populateActiveItem(activeItem, responseItem, configFields, configField.field, configField.name,
+                    configField.arrayFilter);
+            });
+            return activeItem;
+        });
+
+        this.getDocCount();
+    }
+
+    /**
+     * Populates the data and rows of the given active item object using the given response item and config fields.
+     *
+     * @arg {{data:any,rows:{name:string,text:string}[]}} activeItem
+     * @arg {any} responseItem
+     * @arg {{name?:string,field:string,arrayFilter?:any}[]} configFields
+     * @arg {string} field
+     * @arg {string} [name='']
+     * @arg {any} [arrayFilter=null]
+     * @arg {boolean} [nested=false]
+     */
+    populateActiveItem(activeItem: { data: any, rows: { name: string, text: string }[] }, responseItem: any,
+        configFields: { name?: string, field: string, arrayFilter?: any }[], field: string, name: string = '', arrayFilter: any = null,
+        nested: boolean = false) {
+
+        let activeItemData = neonUtilities.deepFind(responseItem, field);
+        if (!nested) {
+            activeItem.data[field] = activeItemData;
+        }
+
+        let activeItemText = this.createTableRowText(activeItemData, arrayFilter);
+        if (activeItemText) {
+            activeItem.rows.push({
+                name: name || (this.options.findField(field) || this.emptyField).prettyName || field,
+                text: activeItemText
+            });
+        }
+
+        // Check for strings and arrays because they are enumerable and will cause issues with the for-in loop.
+        if (typeof activeItemData !== 'string' && !(activeItemData instanceof Array)) {
+            // Add all object properties in the field for the the response item to the active item.
+            _.keys(activeItemData).sort().forEach((property) => {
+                // Must validate the nested property of the item.
+                if (activeItemData.hasOwnProperty(property)) {
+                    // Ignore properties that are defined in the config.
+                    let existsInConfig = configFields.some((configField) => {
+                        return configField.field === field + '.' + property;
+                    });
+                    if (!existsInConfig) {
+                        this.populateActiveItem(activeItem, responseItem, configFields, field + '.' + property, '', arrayFilter, true);
+                    }
+                }
+            });
         }
     }
 
     getDocCount() {
-        let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name).where(this.createClause())
-            .aggregate(neonVariables.COUNT, '*', '_docCount');
-        this.executeQuery(countQuery);
+        if (!this.cannotExecuteQuery()) {
+            let countQuery = new neon.query.Query().selectFrom(this.options.database.name, this.options.table.name)
+                .where(this.createClause()).aggregate(neonVariables.COUNT, '*', '_docCount');
+            this.executeQuery(countQuery);
+        }
     }
 
     refreshVisualization() {
@@ -266,6 +345,9 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     getButtonText() {
         if (!this.docCount) {
+            if (this.options.hideUnfiltered) {
+                return 'Please Filter';
+            }
             return 'No Data';
         }
         if (this.docCount <= this.activeData.length) {
@@ -285,56 +367,73 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
         // Do nothing.
     }
 
-    formatMetadataEntry(record, metadataEntry) {
-        let field = record[metadataEntry.field];
-        if (typeof field  === 'string') {
-            return field || 'None';
-        } else if (field instanceof Array) {
+    /**
+     * Creates and returns the text for the row of the given item in the table.
+     *
+     * @arg {any} activeItemData
+     * @arg {any} [arrayFilter]
+     * @return {string}
+     */
+    createTableRowText(activeItemData: any, arrayFilter?: any): string {
+        if (_.isDate(activeItemData)) {
+            return moment.utc(activeItemData, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]').format('ddd, MMM D, YYYY, h:mm A');
+        }
+
+        if (typeof activeItemData === 'string' || typeof activeItemData === 'number' || typeof activeItemData === 'boolean') {
+            if (moment('' + activeItemData, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]', true).isValid()) {
+                return moment.utc('' + activeItemData, 'YYYY-MM-DD[T]HH:mm:ss.SSS[Z]').format('ddd, MMM D, YYYY, h:mm A');
+            }
+            return ('' + activeItemData) || '';
+        }
+
+        if (activeItemData instanceof Array) {
             let matches = [];
-            for (let obj of field) {
-                if (!metadataEntry.arrayFilter) {
-                    matches.push(obj);
-                } else if (this.checkIfRecordMatchesFilter(obj, metadataEntry.arrayFilter)) {
-                    if (!metadataEntry.arrayFilter.show || metadataEntry.arrayFilter.show === '*') {
-                        matches.push(obj);
+            for (let arrayItem of activeItemData) {
+                if (!arrayFilter) {
+                    matches.push(arrayItem);
+                } else if (this.checkIfRecordMatchesFilter(arrayItem, arrayFilter)) {
+                    if (!arrayFilter.show || arrayFilter.show === '*') {
+                        matches.push(arrayItem);
                     } else {
-                        matches.push(obj[metadataEntry.arrayFilter.show]);
+                        matches.push(arrayItem[arrayFilter.show]);
                     }
                 }
             }
-            return matches.join(', ') || 'None';
-        } else {
-            return 'None';
+            return matches.join(', ') || '';
         }
+
+        return '';
     }
 
-    private checkIfRecordMatchesFilter(object, filter) {
-        if (!filter) {
-            return true;
-        } else if (filter.filterType === '=') {
+    private checkIfRecordMatchesFilter(record: any, filter: any): boolean {
+        if (filter && filter.filterType === '=') {
             for (let item of filter.filterFor) {
-                let fieldToFilter = (!filter.filterOn || filter.filterOn === '*') ? object : object[filter.filterOn];
+                let fieldToFilter = (!filter.filterOn || filter.filterOn === '*') ? record : record[filter.filterOn];
                 if (fieldToFilter === item) {
                     return true;
                 }
             }
             return false;
-        } else if (filter.filterType === '!=') {
+        }
+
+        if (filter && filter.filterType === '!=') {
             let matches = true;
             for (let item of filter.filterFor) {
-                let fieldToFilter = (!filter.filterOn || filter.filterOn === '*') ? object : object[filter.filterOn];
+                let fieldToFilter = (!filter.filterOn || filter.filterOn === '*') ? record : record[filter.filterOn];
                 if (fieldToFilter === item) {
                     return false;
                 }
             }
             return true;
         }
+
+        return true;
     }
 
-    private openSingleRecord(item) {
+    private openSingleRecord(activeItemData: any) {
         let config = new MatDialogConfig();
         config.data = {
-            item: item,
+            item: activeItemData,
             showText: this.options.showText,
             textField: this.options.dataField.columnName,
             metadataFields: this.options.metadataFields.concat(this.options.popoutFields)
@@ -349,13 +448,13 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
     /**
      * Publishes a select_id event for the ID of the given selected item.
      *
-     * @arg {object} item
+     * @arg {any} activeItemData
      * @fires select_id
      * @private
      */
-    private selectSingleRecord(item) {
-        if (this.options.idField.columnName && item[this.options.idField.columnName]) {
-            this.publishSelectId(item[this.options.idField.columnName]);
+    private selectSingleRecord(activeItemData: any) {
+        if (this.options.idField.columnName && activeItemData[this.options.idField.columnName]) {
+            this.publishSelectId(activeItemData[this.options.idField.columnName]);
         }
     }
 
@@ -401,5 +500,23 @@ export class DocumentViewerComponent extends BaseNeonComponent implements OnInit
      */
     getOptions(): BaseNeonOptions {
         return this.options;
+    }
+
+    /**
+     * Returns whether to show the select button.
+     *
+     * @return {boolean}
+     */
+    showSelectButton(): boolean {
+        return this.options.showSelect && !!this.options.idField.columnName;
+    }
+
+    /**
+     * Returns whether to show the source button.
+     *
+     * @return {boolean}
+     */
+    showSourceButton(): boolean {
+        return !this.options.showText && !this.options.hideSource;
     }
 }
